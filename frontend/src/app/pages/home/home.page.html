@@ -8,7 +8,7 @@
       <app-map></app-map>
       <app-actions-layer (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
     </div>
-    <div class="home-main-content-interactive" [ngClass]="selectedContent != '' ? 'home-main-content-interactive-animation-in':'home-main-content-interactive-animation-out'">
+    <div class="home-main-content-interactive" [ngClass]="selectedContent != '' ? (selectedContent == 'init' ? '':'home-main-content-interactive-animation-in'):'home-main-content-interactive-animation-out'">
       <app-patrimony *ngIf="selectedContent == 'patrimony'"></app-patrimony>
       <app-perimeter *ngIf="selectedContent == 'perimeter'"></app-perimeter>
       <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>

@@ -20,8 +20,9 @@ $height-actions-layers-mobile: 600px;
 
     .home-main-content-interactive {
         height: 100%;
-        width: $height-actions-layers-mobile;
         margin-right: -$height-actions-layers-mobile;
+        width: $height-actions-layers-mobile;
+        flex: 0 0 $height-actions-layers-mobile;
     }
 
     .home-main-content-interactive-animation-in {

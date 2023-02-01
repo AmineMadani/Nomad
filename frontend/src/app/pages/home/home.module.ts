@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { HomePageRoutingModule } from './home-routing.module';
 
 import { HomePage } from './home.page';
-import { SharedModule } from 'src/app/module/shared.module';
+import { SharedModule } from 'src/app/modules/shared.module';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';

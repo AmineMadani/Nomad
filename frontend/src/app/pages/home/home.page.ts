@@ -9,7 +9,7 @@ export class HomePage implements OnInit {
 
   constructor() { }
 
-  selectedContent:string = '';
+  selectedContent:string = 'init';
 
   ngOnInit() {
   }
