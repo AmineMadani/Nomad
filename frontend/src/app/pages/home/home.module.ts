@@ -12,6 +12,9 @@ import { ActionsLayerComponent } from './components/actions-layer/actions-layer.
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';
 import { MapComponent } from './components/map/map.component';
+import { PatrimonyComponent } from './components/interactive-content/patrimony/patrimony.component';
+import { PerimeterComponent } from './components/interactive-content/perimeter/perimeter.component';
+import { InterventionComponent } from './components/interactive-content/intervention/intervention.component';
 
 @NgModule({
   imports: [
@@ -27,7 +30,10 @@ import { MapComponent } from './components/map/map.component';
     ActionsLayerComponent,
     ActionsLayerDesktopComponent,
     ActionsLayerMobileComponent,
-    MapComponent
+    MapComponent,
+    PatrimonyComponent,
+    PerimeterComponent,
+    InterventionComponent
   ]
 })
 export class HomePageModule {}

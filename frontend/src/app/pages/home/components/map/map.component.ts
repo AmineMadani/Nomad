@@ -26,7 +26,7 @@ export class MapComponent implements OnInit {
       target: 'map',
       view: new View({ 
         center: olProj.fromLonLat([-1.69, 48.12]),
-        zoom: 13,maxZoom: 18, 
+        zoom: 13,maxZoom: 21, 
       }),
     });
   }
