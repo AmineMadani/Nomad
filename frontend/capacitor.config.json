@@ -1,0 +1,6 @@
+{
+	"appId": "com.veolia.nextcanope",
+	"appName": "NEXTCANOPE",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}

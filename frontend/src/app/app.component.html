@@ -1,0 +1,25 @@
+<ion-app>
+  <ion-menu contentId="main-content" class="main-content-side-menu" type="overlay">
+    <ion-content>
+      <div class="main-content-side-menu-header">
+        <ion-label class="main-content-side-menu-header-title">Menu</ion-label>
+        <ion-menu-toggle>
+          <ion-fab class="main-content-side-menu-header-close-button">
+            <ion-fab-button color="light">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-fab-button>
+          </ion-fab>
+        </ion-menu-toggle>
+      </div>
+      <ion-list id="inbox-list" class="main-content-side-list-menu">
+        <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active">
+            <ion-icon [ios]="p.icon" [md]="p.icon" class="main-content-side-list-menu-icon"></ion-icon>
+            <ion-label>{{ p.title }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

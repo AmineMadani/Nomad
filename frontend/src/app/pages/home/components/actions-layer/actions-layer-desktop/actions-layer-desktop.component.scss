@@ -1,0 +1,26 @@
+.actions-layer-desktop-content {
+    position: absolute;
+    margin-top: 24px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    flex-flow: wrap;
+
+    .actions-layer-desktop-content-button-search {
+        display: inline-block;
+        width: 225px;
+        --border-radius: 25px;
+    }
+
+    .actions-layer-desktop-content-button-action {
+        text-transform: none;
+        --border-radius: 25px;
+        --background: var(--ion-color-surface-light-1);
+        --color: var(--ion-color-primary);
+    }
+
+    .actions-layer-desktop-content-button-action-active {
+        --background: var(--ion-color-primary);
+        --color: var(--ion-color-surface-light-1);
+    }
+}

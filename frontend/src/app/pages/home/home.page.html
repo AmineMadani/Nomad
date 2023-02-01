@@ -1,0 +1,13 @@
+<ion-header [translucent]="true">
+  <app-main-toolbar [title]="'Accueil'"></app-main-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="home-main-content">
+    <div class="home-main-content-map">
+      <app-map></app-map>
+      <app-actions-layer (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
+    </div>
+    <div class="home-main-content-interactive" [ngClass]="selectedContent != '' ? 'home-main-content-interactive-animation-in':'home-main-content-interactive-animation-out'"></div>
+  </div>
+</ion-content>

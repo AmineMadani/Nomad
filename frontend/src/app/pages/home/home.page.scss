@@ -1,0 +1,133 @@
+$height-actions-layers-mobile: 600px;
+
+.home-main-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+
+    .home-main-content-map {
+        height: 100%;
+        width: 100%;
+        position: relative;
+
+        app-map {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    .home-main-content-interactive {
+        height: 100%;
+    }
+
+    .home-main-content-interactive-animation-in {
+        -moz-animation: slideIn 0.5s ease 0.1s forwards;
+        -webkit-animation: slideIn 0.5s ease 0.1s forwards;
+        -o-animation: slideIn 0.5s ease 0.1s forwards;
+        -ms-animation: slideIn 0.5s ease 0.1s forwards;
+        animation: slideIn 0.5s ease 0.1s forwards;
+    }
+
+    .home-main-content-interactive-animation-out {
+        width:$height-actions-layers-mobile;
+        -moz-animation: slideOut 0.5s ease 0.1s forwards;
+        -webkit-animation: slideOut 0.5s ease 0.1s forwards;
+        -o-animation: slideOut 0.5s ease 0.1s forwards;
+        -ms-animation: slideOut 0.5s ease 0.1s forwards;
+        animation: slideOut 0.5s ease 0.1s forwards;
+    }
+
+    
+}
+
+
+@keyframes slideIn {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: $height-actions-layers-mobile;
+    }
+} 
+
+@-moz-keyframes slideIn {
+    from {
+        width: 0px;
+    }
+
+    to {
+        width: $height-actions-layers-mobile;
+    }
+}
+
+@-webkit-keyframes slideIn {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: $height-actions-layers-mobile;
+    }
+}
+
+@-ms-keyframes slideIn {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: $height-actions-layers-mobile;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        width: $height-actions-layers-mobile;
+    }
+
+    to {
+        width: 0;
+    }
+}
+
+@-moz-keyframes slideOut {
+    from {
+        width: $height-actions-layers-mobile;
+    }
+
+    to {
+        width: 0;
+    }
+}
+
+@-webkit-keyframes slideOut {
+    from {
+        width: $height-actions-layers-mobile;
+    }
+
+    to {
+        width: 0;
+    }
+}
+
+@-ms-keyframes slideOut {
+    from {
+        width: $height-actions-layers-mobile;
+    }
+
+    to {
+        width: 0;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        width: $height-actions-layers-mobile;
+    }
+
+    to {
+        width: 0;
+    }
+}
