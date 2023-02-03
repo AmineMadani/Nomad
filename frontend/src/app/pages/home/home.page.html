@@ -5,7 +5,7 @@
 <ion-content>
   <div class="home-main-content">
     <div class="home-main-content-map">
-      <app-map></app-map>
+      <app-map #interactiveMap></app-map>
       <app-actions-layer (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
     </div>
     <div class="home-main-content-interactive" [ngClass]="selectedContent != '' ? (selectedContent == 'init' ? '':'home-main-content-interactive-animation-in'):'home-main-content-interactive-animation-out'">
@@ -14,4 +14,17 @@
       <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>
     </div>
   </div>
+  <ion-fab slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
+    <ion-fab-button class="home-main-content-fab-map-selector">
+      <ion-icon name="copy-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="end">
+      <ion-fab-button class="home-main-content-fab-map-selector-item" (click)="onMapChange('osmLayer')">
+        <ion-img src="assets/img/map/osm.png"></ion-img>
+      </ion-fab-button>
+      <ion-fab-button class="home-main-content-fab-map-selector-item" (click)="onMapChange('parcelLayer')">
+        <ion-img src="assets/img/map/parcel.png"></ion-img>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
 </ion-content>

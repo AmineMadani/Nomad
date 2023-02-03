@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MapComponent } from './components/map/map.component';
 
 @Component({
   selector: 'app-home',
@@ -8,6 +9,8 @@ import { Component, OnInit } from '@angular/core';
 export class HomePage implements OnInit {
 
   constructor() { }
+
+  @ViewChild('interactiveMap') interactiveMap:MapComponent;
 
   selectedContent:string = 'init';
 
@@ -20,6 +23,10 @@ export class HomePage implements OnInit {
     } else {
       this.selectedContent=selectedAction;
     }
+  }
+
+  onMapChange(keyMap:string){
+    this.interactiveMap.displayLayer(keyMap);
   }
 
 }
