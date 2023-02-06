@@ -1,21 +1,21 @@
 #!/bin/bash
 
-
 ROOT_DIR=`dirname $0`
 ROOT_DIR=$($ROOT_DIR/readlink_wrapper.sh "$ROOT_DIR/../")
 NEW_VERSION=0.0.0
 source "$ROOT_DIR/bin/common.sh"
 CONNINFO="service=NEXT_CANOPE"
 SRID=3857
+ORGA=vef
 
 function usage() {
     [ -n "$1" ] && logError $*
 
     logInfo "Usage: $progname [--service SERVICE_NAME] [--srid SRID] [--version VERSION]"
-    logInfo " --service SERVICE_NAME : nom du service postgresql à utiliser pour se connecter. Défaut : VIGIE"
-    logInfo " --srid SRID : srid à utiliser pour les géométries. Défaut : 2154"
-    logInfo " --migration_path PATH : chemin du répertoire pour les scripts de migration. Défaut : $ROOT_DIR/db/migration"
-    logInfo " --version VERSION : version à déployer. Par défaut, utilise celle des métadata de la release."
+    logInfo " --service SERVICE_NAME : PG Service name to connect to the database. Default : NEXT_CANOPE"
+    logInfo " --srid SRID : Project SRID. Default : 3857"
+    logInfo " --orga ORGA : Organization. Default : <aucun>"
+    logInfo " --version VERSION : version to deploy. "
 
     [ -z "$1" ] && exit 0 || exit 1
 }
@@ -37,7 +37,7 @@ function install_all() {
         psql -v ON_ERROR_STOP=1 -v srid=$SRID $CONNINFO < $s >/dev/null || failed "Impossible d'appliquer sql source '$s' !"
     done
 
-    # MISE A JOUR DE LA VERSION
+    # Update version from parameter
     logInfo "Mise à jour de la version..."
     echo "select settings.set_product_version('$NEW_VERSION')" | psql -v ON_ERROR_STOP=1 $CONNINFO >/dev/null || failed "Impossible de mettre à jour la version à '$NEW_VERSION' !"
 
@@ -64,6 +64,12 @@ do
 
         --version)
             NEW_VERSION="$2"
+            shift # past argument
+            shift # past value
+            ;;
+
+        --orga)
+            ORGA="$2"
             shift # past argument
             shift # past value
             ;;
@@ -95,8 +101,15 @@ echo "SELECT current_date" | psql -v ON_ERROR_STOP=1 $CONNINFO >/dev/null || fai
 
 # ############################################################################
 # NO VERSION ==> FIRST INSTALL
-logInfo "========== Installation de la base dans $CONNINFO ..."
+logInfo "========== Database setup from $CONNINFO ..."
 install_all
+
+logInfo "========== Config of $ORGA ..."
+# apply custom scripts if any
+CONF_FILE=../conf/conf_$ORGA.sql
+echo $CONF_FILE
+
+psql -v ON_ERROR_STOP=1 -v srid=$SRID $CONNINFO < $CONF_FILE >/dev/null || failed "Impossible d'appliquer le script de conf '$CONF_FILE' !"
 
 
 logInfo "========== Terminé !"
