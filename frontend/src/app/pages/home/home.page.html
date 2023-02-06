@@ -16,7 +16,7 @@
           <span *ngSwitchCase="'perimeter'">Périmètre</span>
           <span *ngSwitchCase="'intervention'">Intervention</span>
         </ng-container>
-        <ion-icon slot="end" class="interactive-header-icon" name="close-outline"
+        <ion-icon *ngIf="!['', 'init'].includes(selectedContent)" slot="end" class="interactive-header-icon" name="close-outline"
           (click)="selectedContent = ''"></ion-icon>
       </div>
       <app-patrimony *ngIf="selectedContent == 'patrimony'"></app-patrimony>
