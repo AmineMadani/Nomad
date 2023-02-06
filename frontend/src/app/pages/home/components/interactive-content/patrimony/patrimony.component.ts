@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Dataset, DATASET } from './patrimony-dataset';
 
 @Component({
   selector: 'app-patrimony',
@@ -6,9 +7,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./patrimony.component.scss'],
 })
 export class PatrimonyComponent implements OnInit {
-
   constructor() { }
-
+  
+  selectedSegment: string = 'water';
+  data: Dataset = DATASET;
+ 
   ngOnInit() {}
-
 }

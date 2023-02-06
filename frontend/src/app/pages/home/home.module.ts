@@ -15,6 +15,10 @@ import { MapComponent } from './components/map/map.component';
 import { PatrimonyComponent } from './components/interactive-content/patrimony/patrimony.component';
 import { PerimeterComponent } from './components/interactive-content/perimeter/perimeter.component';
 import { InterventionComponent } from './components/interactive-content/intervention/intervention.component';
+import { PatrimonyAccordeonComponent } from './components/interactive-content/patrimony/patrimony-accordeon/patrimony-accordeon.component';
+
+import { MatTreeModule } from '@angular/material/tree';
+import { PatrimonyDetailsTreeComponent } from './components/interactive-content/patrimony/patrimony-details-tree/patrimony-details-tree.component';
 
 @NgModule({
   imports: [
@@ -23,6 +27,7 @@ import { InterventionComponent } from './components/interactive-content/interven
     IonicModule,
     HomePageRoutingModule,
     SharedModule,
+    MatTreeModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
@@ -33,7 +38,9 @@ import { InterventionComponent } from './components/interactive-content/interven
     MapComponent,
     PatrimonyComponent,
     PerimeterComponent,
-    InterventionComponent
-  ]
+    InterventionComponent,
+    PatrimonyAccordeonComponent,
+    PatrimonyDetailsTreeComponent
+  ],
 })
 export class HomePageModule {}
