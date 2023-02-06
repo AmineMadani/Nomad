@@ -1,0 +1,26 @@
+.patrimony-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.patrimony-segment {
+    border-bottom: solid 1px var(--ion-color-neutral-variant-80);
+
+    ion-segment-button {
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 20px;
+        text-align: center;
+        letter-spacing: 0.1px;
+        text-transform: capitalize;
+        --color: var(--ion-color-neutral-variant-30);
+    }
+}
+
+.patrimony-footer-actions {
+    border-top: solid 1px var(--ion-color-neutral-variant-80);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 34px 36px;
+}

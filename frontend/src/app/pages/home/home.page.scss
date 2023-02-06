@@ -19,10 +19,41 @@ $height-actions-layers-mobile: 600px;
     }
 
     .home-main-content-interactive {
+        padding: 12px;
         height: 100%;
         margin-right: -$height-actions-layers-mobile;
         width: $height-actions-layers-mobile;
         flex: 0 0 $height-actions-layers-mobile;
+        display: flex;
+        flex-direction: column;
+
+        .content-interactive-header {
+            padding: 18px 16px;
+            height: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-interactive-header span {
+            font-weight: 300;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0.1px;
+            color: var(--ion-color-neutral-variant-30);
+        }
+
+        .content-interactive-header ion-icon {
+            cursor: pointer;
+        }
+
+        app-patrimony, app-perimeter, app-intervention {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 56px);
+        }
     }
 
     .home-main-content-interactive-animation-in {
