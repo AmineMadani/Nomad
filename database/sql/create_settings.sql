@@ -9,17 +9,10 @@ create table float_setting (
   , value double precision
 );
 
--- Snapping tolerance of the underlying model, in map units
-insert into float_setting values ('topo.snap_tolerance', 0.05 );
-
 create table text_setting (
     name text primary key
   , value text
 );
-
--- Set SRID
-insert into text_setting values ('srid', :srid::integer);
-
 
 --
 -- Get the current value of the given float setting name.
