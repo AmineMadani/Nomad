@@ -11,10 +11,8 @@ create table application_domain
 (
     id serial primary key
   , type text unique not null
-  , short_fr text
-  , short_en text
-  , alias_fr text
-  , alias_en text
+  , short text
+  , alias text
 );
 
 /* Comments on table */
@@ -22,19 +20,9 @@ COMMENT ON TABLE application_domain IS 'This table lists up all the application 
 /* Comments on fields */
 COMMENT ON COLUMN application_domain.id IS 'Table unique ID';
 COMMENT ON COLUMN application_domain.type IS 'Type of the domain, used to prefix domain related objects';
-COMMENT ON COLUMN application_domain.short_fr IS 'Short french alias of the domain';
-COMMENT ON COLUMN application_domain.alias_fr IS 'French alias of the domain';
-COMMENT ON COLUMN application_domain.short_en IS 'Short english alias of the domain';
-COMMENT ON COLUMN application_domain.alias_en IS 'English alias of the domain';
+COMMENT ON COLUMN application_domain.alias IS 'Alias of the domain';
+COMMENT ON COLUMN application_domain.short IS 'Short alias of the domain';
 
-insert into application_domain
-  (id, type , alias_fr                                      , short_fr)
-  values
-  ( 1, 'dw' , 'Adduction / Distribution Eau Potable'        , 'AEP'   )
-, ( 2, 'ww' , 'Collecte / Traitement Assainissement'        , 'ASS'   )
-, ( 3, 'sw' , 'Collecte Eaux Pluviales'                     , 'EPL'   )
-, (10,'geo' , 'Référentiel géographiques'                   , 'GEO'   )
-;
 
 create unique index on application_domain using btree(type);
 
@@ -43,37 +31,18 @@ create unique index on application_domain using btree(type);
 -- This table defines the layer tree.
 -- Each layer belongs to a group
 
-create table layer_group
+create table layer_tree
 (
     id serial primary key
-  , parent_group int references layer_group(id)
-  , alias_fr text
-  , alias_en text
+  , parent_group int references layer_tree(id)
+  , alias text
 );
 
 /* Comments on table */
-COMMENT ON TABLE layer_group IS 'This table defines all groups and sub-groups to generate the app layer tree';
+COMMENT ON TABLE layer_tree IS 'This table defines all groups and sub-groups to generate the app layer tree';
 /* Comments on fields */
-COMMENT ON COLUMN layer_group.id IS 'Table unique ID';
-COMMENT ON COLUMN layer_group.alias_fr IS 'French alias of the group';
-COMMENT ON COLUMN layer_group.alias_en IS 'English alias of the group';
-
-insert into layer_group
-  (id, parent_group, alias_fr)
-  values
-  ( 1,      NULL      , 'Réseau eau potable'),
-      ( 11, 1         , 'Ouvrages eau potable'),
-      ( 12, 1         , 'Equipement eau potable'),
-      ( 13, 1         , 'Branche eau potable'),
-  ( 2,      NULL      , 'Réseau assainissement'),
-      ( 21, 2         , 'Ouvrages assainissement'),
-      ( 22, 2         , 'Equipement assainissement'),
-      ( 23, 2         , 'Branche assainissement'),
-  ( 3,      NULL      , 'Réseau eau pluviale'),
-      ( 31, 3         , 'Ouvrages eau pluviale'),
-      ( 32, 3         , 'Equipement eau pluviale'),
-      ( 33, 3         , 'Branche eau pluviale')
-;
+COMMENT ON COLUMN layer_tree.id IS 'Table unique ID';
+COMMENT ON COLUMN layer_tree.alias IS 'Alias of the group';
 
 
 -- Layer
@@ -83,14 +52,13 @@ create table layer
 (
     id serial primary key
   , name text not null
-  , parent_group int references layer_group(id)
+  , parent_group int references layer_tree(id)
   , application_domain_type text references application_domain(type)
   , pg_table regclass not null
   , geom_column_name text not null
   , geom_srid text not null
-  , server_url text
-  , alias_fr text
-  , alias_en text
+  , style text
+  , alias text
 );
 
 /* Comments on table */
@@ -101,16 +69,51 @@ COMMENT ON COLUMN layer.name IS 'Layer name';
 COMMENT ON COLUMN layer.parent_group IS 'Group ID';
 COMMENT ON COLUMN layer.application_domain_type IS 'Type of domain';
 COMMENT ON COLUMN layer.pg_table IS 'PG table that contains the layer features';
-COMMENT ON COLUMN layer.pg_table IS 'Column name that contains features geometry';
-COMMENT ON COLUMN layer.pg_table IS 'SRID of the features geometry';
-COMMENT ON COLUMN layer.alias_fr IS 'French alias of the layer';
-COMMENT ON COLUMN layer.alias_en IS 'English alias of the layer';
+COMMENT ON COLUMN layer.geom_column_name IS 'Column name that contains features geometry';
+COMMENT ON COLUMN layer.geom_srid IS 'SRID of the features geometry';
+COMMENT ON COLUMN layer.style IS 'Mapbox style';
+COMMENT ON COLUMN layer.alias IS 'French alias of the layer';
 
-insert into layer
-(name, parent_group, application_domain_type, pg_table, geom_column_name, geom_srid, server_url, alias_fr)
-values
-  ('pipe' , 1, 'dw', 'asset_data.aep_canalisation', 'geom', '2154', 'https://next-canope-dev-tiler.hp.hp.m-ve.com/export.nc_aep_canalisation/{z}/{x}/{y}.pbf', 'Canalisation AEP')
-, ('facility' , 11, 'dw', 'asset_data.aep_ouvrage', 'geom', '2154', 'https://next-canope-dev-tiler.hp.hp.m-ve.com/export.nc_aep_ouvrage/{z}/{x}/{y}.pbf', 'Ouvrage AEP')
-, ('valve' , 12, 'dw', 'asset_data.aep_vanne', 'geom', '2154', 'https://next-canope-dev-tiler.hp.hp.m-ve.com/export.nc_aep_vanne/{z}/{x}/{y}.pbf', 'Vanne AEP')
+create unique index layer_name_domain_idx on layer(name, application_domain_type);
 
-;
+/* view thats gives fro all layer the root group */
+create or replace view layer_parent as
+with recursive groups as
+ (
+ SELECT id,  id  as parent
+   FROM config.layer_tree
+  where parent_group is null
+ union all
+ select lg.id, parent
+   from groups g
+   join config.layer_tree lg
+     on lg.parent_group = g.id
+ )
+ select g.parent as parent_group_id
+        , l.*
+   from config.layer l
+   join config.layer_tree pg on pg.id = l.parent_group
+   join groups g on g.id =pg.id
+ order by pg.id, g.id;
+
+
+-- Raster Layer
+-- This table defines all the raster layers available in the app (wms, wmts..).
+
+create table raster_layer
+(
+  id serial primary key
+  , alias text
+  , source text
+  , provider text
+  , visible boolean default true
+);
+
+/* Comments on table */
+COMMENT ON TABLE raster_layer IS 'This table defines all the raster layers available in the app';
+/* Comments on fields */
+COMMENT ON COLUMN raster_layer.id IS 'Table unique ID';
+COMMENT ON COLUMN raster_layer.source IS 'Source of the web service';
+COMMENT ON COLUMN raster_layer.provider IS 'Provider of the web service';
+COMMENT ON COLUMN raster_layer.visible IS 'Visible by default';
+COMMENT ON COLUMN raster_layer.alias IS 'Alias of the layer';
