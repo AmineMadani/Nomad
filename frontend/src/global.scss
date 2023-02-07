@@ -64,3 +64,27 @@
     font-weight: bold;
     src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
+
+.scrolling-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.actions-layer-content-button-action {
+    text-transform: none;
+    --border-radius: 25px;
+    --background: var(--ion-color-surface-light-1);
+    --color: var(--ion-color-primary);
+}
+
+.actions-layer-content-button-action-active {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-surface-light-1);
+}

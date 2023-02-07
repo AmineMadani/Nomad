@@ -1,1 +1,2 @@
-<app-actions-layer-desktop (selectedActionEvent)="onSelectAction($event)"></app-actions-layer-desktop>
+<app-actions-layer-desktop *ngIf="!isMobile()" [selectedAction]="selectedAction" (selectedActionEvent)="onSelectAction($event)"></app-actions-layer-desktop>
+<app-actions-layer-mobile *ngIf="isMobile()" [selectedAction]="selectedAction" (selectedActionEvent)="onSelectAction($event)"></app-actions-layer-mobile>

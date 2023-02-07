@@ -6,9 +6,9 @@
   <div class="home-main-content">
     <div class="home-main-content-map">
       <app-map #interactiveMap></app-map>
-      <app-actions-layer (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
+      <app-actions-layer [selectedAction]="selectedContent" (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
     </div>
-    <div class="home-main-content-interactive"
+    <div class="home-main-content-interactive" [class.home-main-content-interactive-mobile]="isMobile()"
       [ngClass]="selectedContent != '' ? (selectedContent == 'init' ? '':'home-main-content-interactive-animation-in'):'home-main-content-interactive-animation-out'">
       <div class="content-interactive-header" slot="header" lines="none">
         <ng-container [ngSwitch]="selectedContent">
@@ -24,7 +24,7 @@
       <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>
     </div>
   </div>
-  <ion-fab slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
+  <ion-fab *ngIf="['', 'init'].includes(selectedContent)" slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
     <ion-fab-button class="home-main-content-fab-map-selector">
       <ion-icon name="copy-outline"></ion-icon>
     </ion-fab-button>

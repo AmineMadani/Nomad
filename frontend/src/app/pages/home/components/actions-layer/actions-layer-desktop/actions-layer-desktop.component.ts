@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -9,9 +9,8 @@ export class ActionsLayerDesktopComponent implements OnInit {
 
   constructor() { }
 
+  @Input() selectedAction: string = '';
   @Output() selectedActionEvent = new EventEmitter<string>();
-
-  selectedAction:string = '';
 
   ngOnInit() {}
 

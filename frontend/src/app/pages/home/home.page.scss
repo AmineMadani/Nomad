@@ -1,4 +1,5 @@
-$height-actions-layers-mobile: 600px;
+$width-actions-layers: 600px;
+$width-actions-layers-mobile: 100%;
 
 
 .home-main-content {
@@ -18,12 +19,17 @@ $height-actions-layers-mobile: 600px;
         }
     }
 
+    .home-main-content-interactive-mobile {
+        width: $width-actions-layers-mobile !important;
+        flex: 1 !important;
+    }
+
     .home-main-content-interactive {
         padding: 12px;
         height: 100%;
-        margin-right: -$height-actions-layers-mobile;
-        width: $height-actions-layers-mobile;
-        flex: 0 0 $height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
+        width: $width-actions-layers;
+        flex: 0 0 $width-actions-layers;
         display: flex;
         flex-direction: column;
 
@@ -90,7 +96,7 @@ $height-actions-layers-mobile: 600px;
 
 @keyframes slideIn {
     from {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 
     to {
@@ -100,7 +106,7 @@ $height-actions-layers-mobile: 600px;
 
 @-moz-keyframes slideIn {
     from {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 
     to {
@@ -110,7 +116,7 @@ $height-actions-layers-mobile: 600px;
 
 @-webkit-keyframes slideIn {
     from {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 
     to {
@@ -120,7 +126,7 @@ $height-actions-layers-mobile: 600px;
 
 @-ms-keyframes slideIn {
     from {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 
     to {
@@ -134,7 +140,7 @@ $height-actions-layers-mobile: 600px;
     }
 
     to {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 }
 
@@ -144,7 +150,7 @@ $height-actions-layers-mobile: 600px;
     }
 
     to {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 }
 
@@ -154,7 +160,7 @@ $height-actions-layers-mobile: 600px;
     }
 
     to {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 }
 
@@ -164,7 +170,7 @@ $height-actions-layers-mobile: 600px;
     }
 
     to {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 }
 
@@ -174,6 +180,6 @@ $height-actions-layers-mobile: 600px;
     }
 
     to {
-        margin-right: -$height-actions-layers-mobile;
+        margin-right: -$width-actions-layers;
     }
 }

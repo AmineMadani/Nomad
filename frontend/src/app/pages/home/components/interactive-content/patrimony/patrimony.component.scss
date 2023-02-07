@@ -6,6 +6,12 @@
 .patrimony-segment {
     border-bottom: solid 1px var(--ion-color-neutral-variant-80);
 
+    .scrolling-wrapper-mobile {
+        ion-segment-button {
+            flex: 0 0 auto;
+        }
+    }
+
     ion-segment-button {
         font-weight: 300;
         font-size: 14px;
