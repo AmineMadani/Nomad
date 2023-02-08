@@ -16,10 +16,12 @@
   <div *ngIf="mode === 'ios'" class="ion-action-padding" slot="content">
     <ion-item class="favorites-action" lines="none">
       <ion-label>
-        <ion-button fill="clear" (click)="setDetailAction('RENAME')">Renommer</ion-button>
-        <ion-button fill="clear" (click)="setDetailAction('COPY')"><ion-icon slot="start" name="add-outline"></ion-icon>Copier</ion-button>
-        <ion-button fill="clear" (click)="setDetailAction('MODIFY')">Modifier</ion-button>
-        <ion-button fill="clear" (click)="setDetailAction('DELETE')">Supprimer</ion-button>
+        <div class="scrolling-wrapper">
+          <ion-button fill="clear" (click)="setDetailAction('RENAME')">Renommer</ion-button>
+          <ion-button fill="clear" (click)="setDetailAction('COPY')"><ion-icon slot="start" name="add-outline"></ion-icon>Copier</ion-button>
+          <ion-button fill="clear" (click)="setDetailAction('MODIFY')">Modifier</ion-button>
+          <ion-button fill="clear" (click)="setDetailAction('DELETE')">Supprimer</ion-button>
+        </div>
       </ion-label>
     </ion-item>
   </div>

@@ -1,19 +1,21 @@
-<ion-segment class="patrimony-segment" [scrollable]="true" [(ngModel)]="selectedSegment">
-  <ion-segment-button value="water">
-    <ion-label>Eau Potable</ion-label>
-  </ion-segment-button>
+<ion-segment class="patrimony-segment" [(ngModel)]="selectedSegment">
+  <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
+    <ion-segment-button value="water">
+      <ion-label>Eau Potable</ion-label>
+    </ion-segment-button>
 
-  <ion-segment-button value="sanitation">
-    <ion-label>Assainissement</ion-label>
-  </ion-segment-button>
+    <ion-segment-button value="sanitation">
+      <ion-label>Assainissement</ion-label>
+    </ion-segment-button>
 
-  <ion-segment-button value="favorites">
-    <ion-label>Favoris</ion-label>
-  </ion-segment-button>
+    <ion-segment-button value="favorites">
+      <ion-label>Favoris</ion-label>
+    </ion-segment-button>
 
-  <ion-segment-button value="details">
-    <ion-label>Détails</ion-label>
-  </ion-segment-button>
+    <ion-segment-button value="details">
+      <ion-label>Détails</ion-label>
+    </ion-segment-button>
+  </div>
 </ion-segment>
 
   <ion-accordion-group class="patrimony-content">
@@ -33,6 +35,5 @@
 
 <div class="patrimony-footer-actions" lines="none">
     <ion-button fill="clear">Réinitialiser</ion-button>
-    <ion-button fill="clear">Modifier le favori</ion-button>
     <ion-button fill="clear"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
 </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
 import { Accordeon } from '../patrimony-dataset';
 
 @Component({
@@ -12,7 +12,9 @@ export class PatrimonyDetailsTreeComponent implements OnInit {
   constructor() {
     this.selectedNodes = new Set<Accordeon>();
     this.dataSource = new MatTreeNestedDataSource<Accordeon>();
-    this.treeControl = new NestedTreeControl<Accordeon>((node: Accordeon) => node.children);
+    this.treeControl = new NestedTreeControl<Accordeon>(
+      (node: Accordeon) => node.children
+    );
   }
 
   @Input() treeData: Accordeon[];
@@ -24,19 +26,48 @@ export class PatrimonyDetailsTreeComponent implements OnInit {
     this.dataSource.data = this.treeData;
   }
 
-  hasChild = (_: number, node: Accordeon): boolean => !!node.children && node.children.length > 0;
+  hasChild = (_: number, node: Accordeon): boolean =>
+    !!node.children && node.children.length > 0;
 
-/**
- * If the checkbox is checked, add the node to the set of selected nodes, otherwise remove it
- * @param {Event} e - Event - the event object
- * @param {Accordeon} node - Accordeon - the node that was clicked
- */
+  descendantsAllSelected(node: Accordeon): boolean {
+    const descendants = this.treeControl.getDescendants(node);
+    return descendants.every((child: Accordeon) =>
+      this.selectedNodes.has(child)
+    );
+  }
+
+  descendantsPartiallySelected(node: Accordeon): boolean {
+    const descendants = this.treeControl.getDescendants(node);
+    const result = descendants.some((child: Accordeon) =>
+      this.selectedNodes.has(child)
+    );
+    return result && !this.descendantsAllSelected(node);
+  }
+
+  /**
+   * If the node is partially selected, and the selectedNodes set contains the node, then remove the node
+   * from the set. Otherwise, add of remove node from Set depending on checkbox value.
+   * Then, for each descendant of the node, if the Set contains the node
+   * add the descendant to the set, otherwise remove the descendant from the set.
+   * @param {Event} e - Event - the event that triggered the checkbox change
+   * @param {Accordeon} node - Accordeon - this is the node that was clicked on.
+   */
   onCheckboxChange(e: Event, node: Accordeon): void {
-    (e as CustomEvent).detail.checked ? this.selectedNodes.add(node) : this.selectedNodes.delete(node);
-    if (!!node.children && node.children.length > 0) {
-      node.children.forEach((child: Accordeon) => {
-        this.onCheckboxChange(e, child);
-      })
+    if (
+      this.descendantsPartiallySelected(node) &&
+      this.selectedNodes.has(node)
+    ) {
+      this.selectedNodes.delete(node);
+    } else {
+      (e as CustomEvent).detail.checked
+        ? this.selectedNodes.add(node)
+        : this.selectedNodes.delete(node);
+      const descendants = this.treeControl.getDescendants(node);
+      descendants.forEach((desc: Accordeon) => {
+        this.selectedNodes.has(node)
+          ? this.selectedNodes.add(desc)
+          : this.selectedNodes.delete(desc);
+      });
     }
   }
 }

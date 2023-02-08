@@ -1,3 +1,17 @@
-<p>
-  actions-layer-mobile works!
-</p>
+<div *ngIf="!isOpen && ['', 'init'].includes(selectedAction)" slot="end" class="action-layer-mobile-closed"><ion-fab>
+    <ion-fab-button (click)="openActionLayer()">
+      <ion-icon name="search-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</div>
+
+<div *ngIf="isOpen" class="action-layer-mobile-open" [class.action-layer-mobile-open-animation-in]="isOpen">
+  <ion-searchbar class="ion-no-margin ion-no-padding"></ion-searchbar>
+  <div class="scrolling-wrapper">
+    <ion-button class="actions-layer-content-button-action" (click)="onAction('patrimony')" [ngClass]="selectedAction == 'patrimony' ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+    <ion-button class="actions-layer-content-button-action" (click)="onAction('intervention')" [ngClass]="selectedAction == 'intervention' ? 'actions-layer-content-button-action-active':''">Intervention</ion-button>
+    <ion-button class="actions-layer-content-button-action" (click)="onAction('perimeter')" [ngClass]="selectedAction == 'perimeter' ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
+  </div>
+</div>
+
+<ion-backdrop class="action-layer-mobile-out" [visible]="isOpen" (ionBackdropTap)="closeActionLayer()"></ion-backdrop>
