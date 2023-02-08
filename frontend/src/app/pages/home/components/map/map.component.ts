@@ -51,7 +51,7 @@ export class MapComponent implements OnInit {
         matrixIds[z] = z;
       }
       let parcelLayer = new TileLayer({
-        //preload: Infinity,
+        preload: Infinity,
         source: new WMTS({
           attributions: ["IGN-F/Géoportail"],
           url: 'https://wxs.ign.fr/parcellaire/geoportail/wmts',
@@ -70,14 +70,59 @@ export class MapComponent implements OnInit {
       });
       this.idLayers.set('parcelLayer',getUid(parcelLayer));
 
+      let satelliteLayer = new TileLayer({
+        preload: Infinity,
+        visible: false,
+        source: new WMTS({
+          attributions: ["IGN-F/Géoportail"],
+          url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+          layer: 'ORTHOIMAGERY.ORTHOPHOTOS',
+          matrixSet: 'PM',
+          format: 'image/jpeg',
+          projection: this.projection,
+          tileGrid: new WMTSTileGrid({
+            origin: [-20037508, 20037508],
+            resolutions: resolutions,
+            matrixIds: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"],
+          }),
+          style: 'normal',
+          wrapX: true,
+        }),
+      });
+      this.idLayers.set('satelliteLayer',getUid(satelliteLayer));
+
+      let topoLayer = new TileLayer({
+        preload: Infinity,
+        visible: false,
+        source: new WMTS({
+          attributions: ["IGN-F/Géoportail"],
+          url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+          layer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
+          matrixSet: 'PM',
+          format: 'image/png',
+          projection: this.projection,
+          tileGrid: new WMTSTileGrid({
+            origin: [-20037508, 20037508],
+            resolutions: resolutions,
+            matrixIds: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"],
+          }),
+          style: 'normal',
+          wrapX: true,
+        }),
+      });
+      this.idLayers.set('topoLayer',getUid(topoLayer));
+
       let osmLayer = new TileLayer({
-        //preload: Infinity,
+        preload: Infinity,
+        visible: false,
         source: new OSM(),
       });
       this.idLayers.set('osmLayer',getUid(osmLayer));
 
       this.mapLayers.push(parcelLayer);
       this.mapLayers.push(osmLayer);
+      this.mapLayers.push(satelliteLayer);
+      this.mapLayers.push(topoLayer);
     }
   }
 
