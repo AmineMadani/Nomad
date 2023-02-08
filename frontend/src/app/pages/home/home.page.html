@@ -24,7 +24,7 @@
       <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>
     </div>
   </div>
-  <ion-fab *ngIf="['', 'init'].includes(selectedContent)" slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
+  <ion-fab *ngIf="!isMobile() || (isMobile() && !['', 'init'].includes(selectedContent))" slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
     <ion-fab-button class="home-main-content-fab-map-selector">
       <ion-icon name="copy-outline"></ion-icon>
     </ion-fab-button>
