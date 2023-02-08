@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { KeycloakService } from 'src/app/services/keycloak.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-main-toolbar',
@@ -9,8 +11,16 @@ export class MainToolbarComponent implements OnInit {
 
   @Input("title") title: string;
 
-  constructor() { }
+  constructor(
+    private keycloakService: KeycloakService,
+  ) { }
 
   ngOnInit() {}
+
+  logout() {
+    if(environment.keycloak.active) {
+      this.keycloakService.logout();
+    }
+  }
 
 }
