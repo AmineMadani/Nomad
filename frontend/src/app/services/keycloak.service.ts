@@ -45,9 +45,9 @@ export class KeycloakService {
     });
 
     this.oauthService.events.subscribe(eventResult => {
-      console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
+      //console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
       if (eventResult.type == 'token_refreshed') {
-        console.log("token : " + this.oauthService.getAccessToken());
+        //console.log("token : " + this.oauthService.getAccessToken());
       }
       this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
     })
@@ -82,7 +82,7 @@ export class KeycloakService {
   public loadUserProfile(): void {
     this.oauthService.loadUserProfile()
       .then(loadUserProfileResult => {
-        console.log("loadUserProfile", loadUserProfileResult);
+        //console.log("loadUserProfile", loadUserProfileResult);
         this.userProfile = loadUserProfileResult;
       })
       .catch(error => {
@@ -106,7 +106,7 @@ export class KeycloakService {
   }
 
   private configureWeb(): void {
-    console.log("Using web configuration")
+    //console.log("Using web configuration")
     let authConfig: AuthConfig = {
       issuer: environment.keycloak.issuer,
       redirectUri: environment.keycloak.redirectUri,
@@ -122,7 +122,7 @@ export class KeycloakService {
   }
 
   private configureIOS(): void {
-    console.log("Using iOS configuration")
+    //console.log("Using iOS configuration")
     let authConfig: AuthConfig = {
       issuer: environment.keycloak.issuer,
       redirectUri: environment.keycloak.redirectUriIos,
