@@ -53,6 +53,10 @@ export class KeycloakService {
     })
   }
 
+  public hasValidToken(): boolean {
+    return this.oauthService.hasValidAccessToken();
+  }
+
   public login(): void {
     this.oauthService.loadDiscoveryDocumentAndLogin()
       .then(loadDiscoveryDocumentAndLoginResult => {
