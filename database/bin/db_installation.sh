@@ -8,10 +8,11 @@ source "$ROOT_DIR/bin/common.sh"
 SRID=3857
 ORGA=vef
 
-pgservicename=NEXT_CANOPE
-pgserviceexport $pgservicename /database.ini
+#pgservicename=NEXT_CANOPE
+. database.ini
 
 CONNINFO="postgresql://${user}:${password}@${host}:${port}/${dbname}?sslmode=disable"
+echo "--->CONNINFO: $CONNINFO"
 
 function install_all() {
     # db innstallation
