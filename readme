@@ -1,0 +1,58 @@
+
+# GMAO Réseau
+
+Nouveau projet GMAO réseau sur l'écriture de l'application en version Bureau et Mobile.
+
+
+
+
+## Technologie
+
+#### Frontend
+
+- Ionic v6.1.9
+- CapacitorJs v4.6.2
+- OpenLayer v7.2.2
+
+#### Backend
+
+- Spring Boot v6.0.4
+- Swagger UI v4.15.5
+
+
+
+
+
+## Installation
+
+note : Modifier les variables d'environnement
+
+#### Frontend (Desktop)
+
+- npm intall
+- ionic serve
+
+#### Frontend (Mobile - apk)
+
+- npm install
+- ionic build
+- npx cap add android (Unique pour la Création du projet android)
+- npx cap sync (synchronise le dossier www avec le projet android)
+- npx cap open android (ouvre android studio avec le projet)
+
+#### Backend
+
+- Installation basic
+
+Note : Swagger disponible à l'url /api/gmao/swagger-ui.html
+
+
+## Authors
+
+- [Veolia](https://www.service.eau.veolia.fr/home.html)
+
+
+
+
+![Logo](https://www.1min30.com/wp-content/uploads/2018/04/logo-Veolia.jpg)
+
