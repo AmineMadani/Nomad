@@ -104,6 +104,25 @@ COMMENT ON COLUMN domain.type IS 'Type of the domain, used to prefix domain rela
 COMMENT ON COLUMN domain.alias IS 'Alias of the domain';
 COMMENT ON COLUMN domain.short IS 'Short alias of the domain';
 
+--
+-- User appication
+-- This table defines the application users.
+
+create table app_user
+(
+    id serial primary key
+  , first_name text
+  , last_name text
+  , email text
+);
+
+/* Comments on table */
+COMMENT ON TABLE app_user IS 'This table defines the application users.';
+/* Comments on fields */
+COMMENT ON COLUMN app_user.id IS 'Table unique ID';
+COMMENT ON COLUMN app_user.first_name IS 'User first name';
+COMMENT ON COLUMN app_user.last_name IS 'User last nale';
+
 -- Layer tree
 -- This table defines the layer tree exposed in the application.
 -- Each layer belongs to a group
