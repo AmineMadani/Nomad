@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UtilsService } from 'src/app/services/utils.service';
+import { MapService } from 'src/app/services/map.service';
 import { MapComponent } from './components/map/map.component';
 
 @Component({
@@ -8,7 +9,7 @@ import { MapComponent } from './components/map/map.component';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
-  constructor(private utilsService: UtilsService) { }
+  constructor(private utilsService: UtilsService, private mapService: MapService) { }
 
   @ViewChild('interactiveMap') interactiveMap:MapComponent;
 
@@ -32,4 +33,8 @@ export class HomePage implements OnInit {
     return this.utilsService.isMobilePlateform();
   }
 
+  handleFileInput(e: any) {
+    const file: File = e.target.files[0];
+    this.mapService.buidCacheWithFile(file);
+  }
 }

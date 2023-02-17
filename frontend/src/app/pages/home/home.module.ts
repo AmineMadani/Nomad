@@ -19,6 +19,8 @@ import { PatrimonyAccordeonComponent } from './components/interactive-content/pa
 
 import { MatTreeModule } from '@angular/material/tree';
 import { PatrimonyDetailsTreeComponent } from './components/interactive-content/patrimony/patrimony-details-tree/patrimony-details-tree.component';
+import { HttpClientModule } from '@angular/common/http';
+import { MapService } from 'src/app/services/map.service';
 
 @NgModule({
   imports: [
@@ -27,6 +29,7 @@ import { PatrimonyDetailsTreeComponent } from './components/interactive-content/
     IonicModule,
     HomePageRoutingModule,
     SharedModule,
+    HttpClientModule,
     MatTreeModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -42,5 +45,6 @@ import { PatrimonyDetailsTreeComponent } from './components/interactive-content/
     PatrimonyAccordeonComponent,
     PatrimonyDetailsTreeComponent
   ],
+  providers: [MapService]
 })
 export class HomePageModule {}
