@@ -10,14 +10,20 @@ import MVT from 'ol/format/MVT.js';
 import MapOpenLayer from 'ol/Map';
 import Feature from 'ol/Feature';
 import View from 'ol/View';
-import Dexie from 'dexie';4
+import Dexie from 'dexie';
 import * as zip from '@zip.js/zip.js';
+import GeoJSON from 'ol/format/GeoJSON';
+import Vector from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import WKT from 'ol/format/WKT.js';
+import * as olLoadingstrategy from 'ol/loadingstrategy';
+
+import vectorSourceAEPCanaIndex from '../../assets/sample/geojson/index/opt_aep_canalisation_index.json';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
-
   constructor() {}
 
   private defaultStyle = new Style({
@@ -32,15 +38,19 @@ export class MapService {
   private map: MapOpenLayer;
   private layers: Map<string, MapLayer> = new Map();
 
-  private geoJsonAlreadyLoading = [];
+  private geojsonLayer: any;
 
   createMap(): MapOpenLayer {
     this.map = new MapOpenLayer({
       view: new View({
-        center: [-1.67, 48.11],
-        zoom: 16,
-        maxZoom: 21,
+        center: [7190624,2557898],
+        zoom: 6,
+        constrainRotation: 16,
       }),
+    });
+    this.map.on('click', (e) => {
+      console.log(e.pixel);
+      console.log(e.coordinate);
     });
     return this.map;
   }
@@ -112,10 +122,79 @@ export class MapService {
     this.layers.set(layerKey, mLayer);
   }
 
+  addGeojsonLayer(layerKey: string): void {
+    console.log('add geo layer');
+    const mLayer: MapLayer = new MapLayer();
+    const wkt = new WKT();
+    const geoJsonAlreadyLoading: any[] = [];
+    const db: AppDB = new AppDB();
+    const vectorSourceCana = new Vector({
+      format: new GeoJSON(),
+      loader: (
+        extent: any,
+        resolution: any,
+        projection: any,
+        success: any,
+        failure: any
+      ) => {
+        vectorSourceAEPCanaIndex.features.forEach((element: any) => {
+          const feature = wkt.readFeature(element.properties.bbox);
+          const isIn = feature.getGeometry()?.intersectsExtent(extent);
+          const url: string = `sample/geojson/data/opt_aep_canalisation/${element.properties.file}`;
+          if (isIn) {
+            if (!geoJsonAlreadyLoading.includes(url)) {
+              db.tiles.get(url).then((res: ITiles | undefined) => {
+                res!.data.text().then((res: string) => {
+                  const data = JSON.parse(res);
+                  if (data?.features?.length > 0) {
+                    const features = vectorSourceCana
+                      .getFormat()!
+                      .readFeatures(data.features, {
+                        dataProjection: 'ESPG:2154',
+                        featureProjection: 'EPSG:3857'
+                      });
+                    vectorSourceCana.addFeatures(features as any);
+                    success(features);
+                    console.log('Load ' + url);
+                    geoJsonAlreadyLoading.push(url);
+                  }
+                });
+              });
+            }
+          }
+        });
+      },
+      strategy: olLoadingstrategy.bbox,
+    });
+    const vectorLayer = new VectorLayer({
+      source: vectorSourceCana,
+      declutter: true,
+      style: (feature: any) => {
+        if (mLayer.selection.has(feature)) {
+          return this.selectStyle;
+        }
+        return this.defaultStyle;
+      },
+    });
+    vectorLayer.setZIndex(10);
+    this.map.addLayer(vectorLayer);
+    this.geojsonLayer = vectorLayer;
+  }
+
   removeEventLayer(layerKey: string): void {
     const mLayer = this.layers.get(layerKey)!;
     this.map.removeLayer(mLayer.layer);
     this.layers.delete(layerKey);
+  }
+
+  hasGeoJsonLayer(layerKey: string): boolean {
+    return !!this.geojsonLayer;
+  }
+
+  removeGeoJsonLayer(layerKey: string): void {
+    console.log('remove geo layer');
+    this.map.removeLayer(this.geojsonLayer);
+    this.geojsonLayer = undefined;
   }
 
   buidCacheWithFile(file: File): void {
@@ -167,9 +246,8 @@ export class MapService {
       ).subscribe(async (data) => {
         parsedItems = parsedItems + 1;
         if (data.size > 0) {
-          console.log('http://localhost:8100/sample/' + element.filename, data);
           toinsert.push({
-            key: 'http://localhost:8100/sample/' + element.filename,
+            key: element.filename,
             data,
           });
         }
@@ -250,18 +328,22 @@ export class MapService {
     const fetchTileFromUrl = (db: AppDB, url: string): Observable<Blob> => {
       return from(fetch(url)).pipe(
         switchMap((response: Response) => from(response.blob())),
-        switchMap((blob: Blob) => forkJoin([from(db.tiles.put({key: url, data: blob})), of(blob)])),
+        switchMap((blob: Blob) =>
+          forkJoin([from(db.tiles.put({ key: url, data: blob })), of(blob)])
+        ),
         switchMap((result: [string, Blob]) => {
           console.log('Tile saved in DB');
           return of(result[1]);
         })
       );
-    }
+    };
 
     tile.setLoader((extent: any, resolution: any, projection: any) => {
       from(db.tiles.get(url))
         .pipe(
-          switchMap((v: ITiles | undefined) => v ? of(v.data) : fetchTileFromUrl(db, url)),
+          switchMap((v: ITiles | undefined) =>
+            v ? of(v.data) : fetchTileFromUrl(db, url)
+          ),
           switchMap((res: Blob) => from(res.arrayBuffer()))
         )
         .subscribe((tBuffer: ArrayBuffer) => {

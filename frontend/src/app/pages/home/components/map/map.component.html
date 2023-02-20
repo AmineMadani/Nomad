@@ -1,12 +1,6 @@
 <div class="map-container">
-  <ion-button (click)="addEvent('branche')">Branche</ion-button>
   <ion-button (click)="addEvent('canalisation')">Canalisation</ion-button>
-  <ion-button (click)="addEvent('defense_incendie')">Défense incendie</ion-button>
-  <ion-button (click)="addEvent('ouvrage')">Ouvrage</ion-button>
-  <ion-button (click)="addEvent('vanne')">Vanne</ion-button>
-  <ion-button (click)="addEvent('avaloir')">Avalair</ion-button>
-  <ion-button (click)="addEvent('collecteur')">Collecteur</ion-button>
-  <ion-button (click)="addEvent('regard')">Regard</ion-button>
   <ion-button (click)="addLocalEvent('canalisation')">Canalisation Cache</ion-button>
+  <ion-button (click)="addGeoJsonEvent('canalisation')">Canalisation GeoJson</ion-button>
   <div id="map" style="width: 100%;height: 100%"></div>
 </div>

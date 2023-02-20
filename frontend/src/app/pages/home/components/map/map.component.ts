@@ -7,7 +7,6 @@ import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import { getWidth } from 'ol/extent.js';
 import { getUid } from 'ol/util';
-import { useGeographic } from 'ol/proj.js';
 import { Fill, Stroke, Style } from 'ol/style.js';
 import Feature from 'ol/Feature';
 import BaseLayer from 'ol/layer/Base';
@@ -16,8 +15,6 @@ import { fromEvent } from 'rxjs';
 import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { ProjectionLike } from 'ol/proj';
-
-useGeographic();
 
 @Component({
   selector: 'app-map',
@@ -29,18 +26,20 @@ export class MapComponent implements OnInit {
 
   DATASET: BackLayer[] = MAP_DATASET;
 
-  projection = getProjection('EPSG:3857');
+  projection = getProjection('EPSG:2154');
 
   mapLayers: Map<string, BaseLayer> = new Map();
 
   selections: Set<any> = new Set();
 
-  test: boolean = false;
-
   public map!: MapOpenLayer;
 
+  mapLayerss: any[] = [];
+
+  idLayers: Map<string, string> = new Map<string, string>();
+
   ngOnInit() {
-    this.projection = getProjection('EPSG:3857');
+    this.projection = getProjection('EPSG:2154');
     if (this.projection != null) {
       this.generateMap();
       this.map = this.mapService.createMap();
@@ -49,33 +48,36 @@ export class MapComponent implements OnInit {
     }
   }
 
-
   addEvent(layerKey: string) {
     if (!this.mapService.hasEventLayer(layerKey)) {
       this.mapService.addEventLayer(layerKey);
-    }
-    else {
+    } else {
       this.mapService.removeEventLayer(layerKey);
     }
-    this.test = !this.test;
   }
 
   addLocalEvent(layerKey: string) {
     if (!this.mapService.hasEventLayer(layerKey)) {
       this.mapService.addLocalEventLayer(layerKey);
-    }
-    else {
+    } else {
       this.mapService.removeEventLayer(layerKey);
     }
-    this.test = !this.test;
+  }
+
+  addGeoJsonEvent(layerKey: string) {
+    if (!this.mapService.hasGeoJsonLayer(layerKey)) {
+      this.mapService.addGeojsonLayer(layerKey);
+    } else {
+      this.mapService.removeGeoJsonLayer(layerKey);
+    }
   }
 
   generateMap() {
     if (this.projection != null) {
-      let projectionExtent = this.projection.getExtent();
-      let resolutions = new Array(21);
-      let matrixIds = new Array(21);
-      let size = getWidth(projectionExtent) / 256;
+      const projectionExtent = this.projection.getExtent();
+      const resolutions = new Array(21);
+      const matrixIds = new Array(21);
+      const size = getWidth(projectionExtent) / 256;
       for (let z = 0; z < 21; ++z) {
         resolutions[z] = size / Math.pow(2, z);
         matrixIds[z] = z.toString();
@@ -84,11 +86,16 @@ export class MapComponent implements OnInit {
     }
   }
 
-  createLayers(projection: ProjectionLike, resolution: number[], matrixIds: string[]): void {
+  createLayers(
+    projection: ProjectionLike,
+    resolution: number[],
+    matrixIds: string[]
+  ): void {
     this.DATASET.forEach((mapLayer: BackLayer) => {
       switch (mapLayer.type) {
         case 'WMTS':
           const wmtsLayer = new TileLayer({
+            preload: Infinity,
             source: this.buildWMTS(mapLayer, projection, resolution, matrixIds),
             visible: mapLayer.visible,
           });
@@ -96,6 +103,7 @@ export class MapComponent implements OnInit {
           break;
         case 'OSM':
           const osmLayer = new TileLayer({
+            preload: Infinity,
             source: this.buildOSM(),
             visible: mapLayer.visible,
           });
@@ -104,7 +112,6 @@ export class MapComponent implements OnInit {
       }
     });
   }
-  
 
   displayLayer(keyLayer: string) {
     this.map
@@ -122,24 +129,25 @@ export class MapComponent implements OnInit {
   }
 
   private buildWMTS(
-    layer: BackLayer, 
+    layer: BackLayer,
     projection: ProjectionLike,
-    resolution: number[], matrixIds: string[]
+    resolution: number[],
+    matrixIds: string[]
   ): WMTS {
     return new WMTS({
-        attributions: layer.attributions!,
-        url: layer.url!,
-        layer: layer.layer!,
-        matrixSet: layer.matrixSet!,
-        format: layer.format!,
-        projection: projection,
-        tileGrid: new WMTSTileGrid({
-          origin: layer.origin!,
-          resolutions: resolution,
-          matrixIds: matrixIds,
-        }),
-        style: 'normal',
-        wrapX: true,
+      attributions: layer.attributions!,
+      url: layer.url!,
+      layer: layer.layer!,
+      matrixSet: layer.matrixSet!,
+      format: layer.format!,
+      projection: this.projection!,
+      tileGrid: new WMTSTileGrid({
+        origin: layer.origin!,
+        resolutions: resolution,
+        matrixIds: matrixIds,
+      }),
+      style: 'normal',
+      wrapX: true,
     });
   }
 

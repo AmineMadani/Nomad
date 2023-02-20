@@ -17,6 +17,8 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es2015",
     "module": "es2020",
     "lib": [
@@ -31,5 +33,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "skipLibCheck": true
+  "skipLibCheck": true,
 }
