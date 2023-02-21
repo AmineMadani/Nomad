@@ -10,17 +10,32 @@ import Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
 import WKT from 'ol/format/WKT.js';
 import * as olLoadingstrategy from 'ol/loadingstrategy';
+import Cluster from 'ol/source/Cluster';
 
 export class MapLayer {
   constructor(layerKey: string, style: Style, selectedStyle: Style) {
+
+    let vectorSource = this.buildVectorSource(layerKey);
+    
+    if(layerKey == 'aep_vanne') {
+      vectorSource = new Cluster({
+        distance: 40,
+        minDistance: 20,
+        source: vectorSource,
+      });
+    }
+
     this.selection = new Set();
     this.layer = new VectorLayer({
-      source: this.buildVectorSource(layerKey),
+      source: vectorSource,
       minZoom: 16,
-      declutter: true,
+      declutter: false,
       style: (feature: any) => {
         if (this.selection.has(feature)) {
           return selectedStyle;
+        }
+        if(style.getText() != null) {
+          style.getText().setText(feature.get('features').length.toString());
         }
         return style;
       },

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { fromEvent } from 'rxjs';
 import { MapLayer } from '../models/map-layer.model';
 import MapOpenLayer from 'ol/Map';
 import View from 'ol/View';
 import BaseLayer from 'ol/layer/Base';
 import { MapStyleService } from './map-style.service';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
+import { boundingExtent } from 'ol/extent';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +21,8 @@ export class MapService {
       target: 'map',
       layers: backMapLayer,
       view: new View({
-        center: [-167481.03747256377, 6114453.854920737],
-        zoom: 16,
+        center: [-187717.995347, 6132337.474246],
+        zoom: 17,
         maxZoom: 21,
       }),
     });
@@ -54,6 +55,22 @@ export class MapService {
             }
             mLayer.selection.add(feature);
             mLayer.layer.changed();
+          });
+        }
+      );
+
+      mLayer.subscription = fromEvent(this.map, 'click').subscribe(
+        (event: any) => {
+          mLayer.layer.getFeatures(event.pixel).then((features) => {
+            if(features.length > 0) {
+              let ctFeature = features[0].get('features');
+              if (ctFeature.length > 1) {
+                const extent = boundingExtent(
+                  ctFeature.map((r:any) => r.getGeometry()!.getCoordinates())
+                );
+                this.map.getView().fit(extent, {duration: 1000, padding: [50, 50, 50, 50]});
+              }
+            }
           });
         }
       );
