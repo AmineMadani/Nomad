@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { switchMap, from, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ITiles } from './models/app-db.model';
+import { CacheService } from './services/cache.service';
 import { KeycloakService } from './services/keycloak.service';
 @Component({
   selector: 'app-root',
@@ -14,11 +17,20 @@ export class AppComponent implements OnInit {
   ];
   constructor(
     private keycloakService: KeycloakService,
+    private cacheService: CacheService,
   ) {}
 
   ngOnInit(): void {
     if(environment.keycloak.active) {
       this.keycloakService.initialisation();
     }
+
+    from(this.cacheService.cacheIsAlreadySet()).pipe(
+      switchMap((cacheSet: boolean) => {
+        return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
+      })
+    ).subscribe(() => {
+      this.cacheService.setCacheLoaded(true);
+    });
   }
 }

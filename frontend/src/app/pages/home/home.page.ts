@@ -32,9 +32,4 @@ export class HomePage implements OnInit {
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
   }
-
-  handleFileInput(e: any) {
-    const file: File = e.target.files[0];
-    this.mapService.buidCacheWithFile(file);
-  }
 }

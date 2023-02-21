@@ -25,4 +25,8 @@
         font-family: 'FS Sinclair Italic';
         padding: 0px;
     }
+
+    .no-ripple {
+        pointer-events: none;
+    }
 }

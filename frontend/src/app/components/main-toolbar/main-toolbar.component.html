@@ -6,6 +6,10 @@
   <span slot="start" class="main-toolbar-separator" ></span>
   <ion-title class="main-toolbar-title">{{title}}</ion-title>
   <ion-buttons slot="secondary">
+    <!-- <ion-icon size="large" [color]="cacheLoaded ? 'success' : 'danger'" [name]="cacheLoaded ? 'cloud-done' : 'cloud-download'"></ion-icon> -->
+    <ion-fab-button id="popover-button" [class.no-ripple]="!cacheLoaded" [color]="cacheLoaded ? 'success' : 'danger'" size="small" (click)="$event.stopPropagation()">
+      <ion-icon [name]="(cacheLoaded ? 'cloud-done' : 'cloud-download') + '-outline'"></ion-icon>
+    </ion-fab-button>
     <ion-button>
       <ion-icon slot="icon-only" name="notifications"></ion-icon>
       <ion-badge color="danger" style="position: absolute; right: -6px; top: -6px;">3</ion-badge>
@@ -18,3 +22,15 @@
     </ion-button>
   </ion-buttons>
 </ion-toolbar>
+
+<ion-popover trigger="popover-button" [dismissOnSelect]="true">
+  <ng-template>
+    <ion-content>
+      <ion-list>
+        <ion-item [button]="true" [detail]="false" (click)="reloadStorage()">
+          <ion-icon slot="start" name="reload-outline"></ion-icon>
+          Recharger le cache</ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>

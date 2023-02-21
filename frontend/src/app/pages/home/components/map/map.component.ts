@@ -1,20 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import MapOpenLayer from 'ol/Map';
-import View from 'ol/View';
 import { OSM, WMTS } from 'ol/source';
 import TileLayer from 'ol/layer/Tile';
 import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import { getWidth } from 'ol/extent.js';
-import { getUid } from 'ol/util';
-import { Fill, Stroke, Style } from 'ol/style.js';
-import Feature from 'ol/Feature';
 import BaseLayer from 'ol/layer/Base';
-import Text from 'ol/style/Text';
-import { fromEvent } from 'rxjs';
 import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { ProjectionLike } from 'ol/proj';
+import { Accordeon } from '../interactive-content/patrimony/patrimony-dataset';
 
 @Component({
   selector: 'app-map',
@@ -26,49 +21,27 @@ export class MapComponent implements OnInit {
 
   DATASET: BackLayer[] = MAP_DATASET;
 
-  projection = getProjection('EPSG:2154');
+  projection = getProjection('EPSG:3857');
 
   mapLayers: Map<string, BaseLayer> = new Map();
 
-  selections: Set<any> = new Set();
-
   public map!: MapOpenLayer;
 
-  mapLayerss: any[] = [];
-
-  idLayers: Map<string, string> = new Map<string, string>();
+  public patrimonyLayers: Set<Accordeon> = new Set();
 
   ngOnInit() {
-    this.projection = getProjection('EPSG:2154');
+    this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {
       this.generateMap();
-      this.map = this.mapService.createMap();
-      this.map.setLayers([...this.mapLayers.values()]);
-      this.map.setTarget('map');
+      this.map = this.mapService.createMap([...this.mapLayers.values()]);
     }
   }
 
-  addEvent(layerKey: string) {
+  addEventLayer(layerKey: string) {
     if (!this.mapService.hasEventLayer(layerKey)) {
       this.mapService.addEventLayer(layerKey);
     } else {
       this.mapService.removeEventLayer(layerKey);
-    }
-  }
-
-  addLocalEvent(layerKey: string) {
-    if (!this.mapService.hasEventLayer(layerKey)) {
-      this.mapService.addLocalEventLayer(layerKey);
-    } else {
-      this.mapService.removeEventLayer(layerKey);
-    }
-  }
-
-  addGeoJsonEvent(layerKey: string) {
-    if (!this.mapService.hasGeoJsonLayer(layerKey)) {
-      this.mapService.addGeojsonLayer(layerKey);
-    } else {
-      this.mapService.removeGeoJsonLayer(layerKey);
     }
   }
 
