@@ -1,4 +1,3 @@
-import { Subscription } from 'rxjs';
 import { Style } from 'ol/style.js';
 import { FeatureLike } from 'ol/Feature';
 import { Geometry } from 'ol/geom';
@@ -11,6 +10,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import WKT from 'ol/format/WKT.js';
 import * as olLoadingstrategy from 'ol/loadingstrategy';
 import Cluster from 'ol/source/Cluster';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 export class MapLayer {
   constructor(layerKey: string, style: Style, selectedStyle: Style) {
@@ -28,7 +28,7 @@ export class MapLayer {
     this.selection = new Set();
     this.layer = new VectorLayer({
       source: vectorSource,
-      minZoom: 2,
+      minZoom: 15,
       declutter: true,
       style: (feature: any) => {
         if (this.selection.has(feature)) {
