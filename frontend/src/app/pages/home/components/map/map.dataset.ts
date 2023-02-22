@@ -11,17 +11,28 @@ export interface BackLayer {
 }
 
 export const MAP_DATASET: BackLayer[] = [
-  // {
-  //   type: 'WMTS',
-  //   key: 'topoLayer',
-  //   attributions: ['IGN-F/Géoportail'],
-  //   url: 'https://wxs.ign.fr/cartes/geoportail/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities',
-  //   layer: 'PLAN.IGN',
-  //   matrixSet: 'PM',
-  //   format: 'application/x-protobuf',
-  //   origin: [-20037508, 20037508],
-  //   visible: true,
-  // },
+  {
+    type: 'WMTS',
+    key: 'satelliteLayer',
+    attributions: ['IGN-F/Géoportail'],
+    url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+    layer: 'ORTHOIMAGERY.ORTHOPHOTOS',
+    matrixSet: 'PM',
+    format: 'image/jpeg',
+    origin: [-20037508, 20037508],
+    visible: true,
+  },
+  {
+    type: 'WMTS',
+    key: 'topoLayer',
+    attributions: ['IGN-F/Géoportail'],
+    url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+    layer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
+    matrixSet: 'PM',
+    format: 'image/png',
+    origin: [-20037508, 20037508],
+    visible: true,
+  },
   {
     type: 'WMTS',
     key: 'parcelLayer',

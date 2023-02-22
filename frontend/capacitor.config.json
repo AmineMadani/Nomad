@@ -2,5 +2,13 @@
 	"appId": "com.veolia.nomad",
 	"appName": "NOMAD",
 	"webDir": "www",
-	"bundledWebRuntime": false
+	"bundledWebRuntime": false,
+	"cordova": {
+		"preferences": {
+			"LottieFullScreen":"true",
+			"LottieHideAfterAnimationEnd":"true",
+			"LottieAnimationLocation":"public/assets/splash/nomad.json",
+			"LottieBackgroundColor":"#0062A9"
+		}
+	}
 }

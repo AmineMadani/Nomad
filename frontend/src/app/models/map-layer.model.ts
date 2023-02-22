@@ -28,7 +28,7 @@ export class MapLayer {
     this.selection = new Set();
     this.layer = new VectorLayer({
       source: vectorSource,
-      minZoom: 16,
+      minZoom: 2,
       declutter: true,
       style: (feature: any) => {
         if (this.selection.has(feature)) {

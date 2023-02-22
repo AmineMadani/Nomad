@@ -31,6 +31,7 @@
     "@ionic/angular": "^6.1.9",
     "@types/geojson": "^7946.0.10",
     "angular-oauth2-oidc": "^15.0.1",
+    "cordova-plugin-lottie-splashscreen": "git+https://github.com/timbru31/cordova-plugin-lottie-splashscreen.git",
     "dexie": "^3.2.3",
     "ionicons": "^6.0.3",
     "jszip": "^3.10.1",
