@@ -29,7 +29,7 @@ export class MapLayer {
     this.layer = new VectorLayer({
       source: vectorSource,
       minZoom: 16,
-      declutter: false,
+      declutter: true,
       style: (feature: any) => {
         if (this.selection.has(feature)) {
           return selectedStyle;
