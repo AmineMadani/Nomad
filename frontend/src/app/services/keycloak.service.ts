@@ -20,12 +20,14 @@ export class KeycloakService {
     private zone: NgZone,
     private platform: Platform,
     private router: Router) {
-    if (this.platform.IOS) {
-      this.configureIOS();
-    } else if (this.platform.isBrowser) {
-      this.configureWeb();
-    } else {
-      alert("This platform is not supported.")
+    if(environment.keycloak.active) {
+      if (this.platform.IOS) {
+        this.configureIOS();
+      } else if (this.platform.isBrowser) {
+        this.configureWeb();
+      } else {
+        alert("This platform is not supported.")
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CacheService } from 'src/app/services/cache.service';
 import { KeycloakService } from 'src/app/services/keycloak.service';
+import { UtilsService } from 'src/app/services/utils.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -10,15 +11,19 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./main-toolbar.component.scss'],
 })
 export class MainToolbarComponent implements OnInit, OnDestroy {
+
+  constructor(
+    private keycloakService: KeycloakService,
+    private cacheService: CacheService,
+    private utilsService: UtilsService
+  ) {}
+
   @Input('title') title: string;
   public cacheLoaded: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
-  constructor(
-    private keycloakService: KeycloakService,
-    private cacheService: CacheService
-  ) {}
+  isMobile : boolean = false;
 
   ngOnInit() {
     this.cacheService
@@ -27,6 +32,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       .subscribe((loaded: boolean) => {
         this.cacheLoaded = loaded;
       });
+    
+    this.isMobile = this.utilsService.isMobilePlateform();
   }
 
   ngOnDestroy(): void {

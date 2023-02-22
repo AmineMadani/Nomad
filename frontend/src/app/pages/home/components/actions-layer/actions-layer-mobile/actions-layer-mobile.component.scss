@@ -1,4 +1,4 @@
-$height-actions-layers-mobile: 120px;
+$height-actions-layers-mobile: 170px;
 $height-layer-with-toolbar: $height-actions-layers-mobile + 56px;
 
 .action-layer-mobile-closed {
@@ -22,6 +22,7 @@ $height-layer-with-toolbar: $height-actions-layers-mobile + 56px;
     height: $height-actions-layers-mobile;
     margin-top: -$height-layer-with-toolbar;
     border-radius: 0px 0px 16px 16px;
+    border-bottom: 2px solid #80808085;
 
     ion-searchbar {
         --box-shadow: none;
@@ -58,6 +59,11 @@ $height-layer-with-toolbar: $height-actions-layers-mobile + 56px;
     -o-animation: slideOut 0.5s ease 0.1s forwards;
     -ms-animation: slideOut 0.5s ease 0.1s forwards;
     animation: slideOut 0.5s ease 0.1s forwards;
+}
+
+.actions-layer-content-button-action-close {
+    float: right;
+    margin-right: 15px;
 }
 
 @keyframes slideIn {

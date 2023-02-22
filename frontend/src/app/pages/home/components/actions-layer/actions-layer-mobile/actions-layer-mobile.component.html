@@ -12,6 +12,7 @@
     <ion-button class="actions-layer-content-button-action" (click)="onAction('intervention')" [ngClass]="selectedAction == 'intervention' ? 'actions-layer-content-button-action-active':''">Intervention</ion-button>
     <ion-button class="actions-layer-content-button-action" (click)="onAction('perimeter')" [ngClass]="selectedAction == 'perimeter' ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
   </div>
+  <ion-button class="actions-layer-content-button-action-close" fill="outline" (click)="closeActionLayer()">
+    <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+  </ion-button>
 </div>
-
-<ion-backdrop class="action-layer-mobile-out" [visible]="isOpen" (ionBackdropTap)="closeActionLayer()"></ion-backdrop>
