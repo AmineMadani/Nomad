@@ -8,12 +8,13 @@ export interface BackLayer {
   format?: string;
   origin?: number[];
   visible: boolean;
+  default: boolean;
 }
 
 export const MAP_DATASET: BackLayer[] = [
   {
     type: 'WMTS',
-    key: 'satelliteLayer',
+    key: 'sattelite',
     attributions: ['IGN-F/Géoportail'],
     url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
     layer: 'ORTHOIMAGERY.ORTHOPHOTOS',
@@ -21,10 +22,11 @@ export const MAP_DATASET: BackLayer[] = [
     format: 'image/jpeg',
     origin: [-20037508, 20037508],
     visible: true,
+    default: false
   },
   {
     type: 'WMTS',
-    key: 'topoLayer',
+    key: 'topo',
     attributions: ['IGN-F/Géoportail'],
     url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
     layer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
@@ -32,10 +34,11 @@ export const MAP_DATASET: BackLayer[] = [
     format: 'image/png',
     origin: [-20037508, 20037508],
     visible: true,
+    default: false,
   },
   {
     type: 'WMTS',
-    key: 'parcelLayer',
+    key: 'parcel',
     attributions: ['IGN-F/Géoportail'],
     url: 'https://wxs.ign.fr/parcellaire/geoportail/wmts',
     layer: 'CADASTRALPARCELS.PARCELS',
@@ -43,10 +46,12 @@ export const MAP_DATASET: BackLayer[] = [
     format: 'image/png',
     origin: [-20037508, 20037508],
     visible: true,
+    default: true
   },
   {
     type: 'OSM',
-    key: 'osmLayer',
-    visible: false,
+    key: 'osm',
+    visible: true,
+    default: false
   }
 ];

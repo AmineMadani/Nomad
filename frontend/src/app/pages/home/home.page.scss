@@ -93,6 +93,21 @@ $width-actions-layers-mobile: 100%;
     }
 }
 
+.fab-map-mobile {
+    transform: translateY(calc(-0.5em - 48px));
+
+    ion-fab-button {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    ion-fab-list {
+        margin: 66px 0px 50px 0px;
+        min-height: 40px;
+        min-width: 40px;
+    }
+}
+
 
 @keyframes slideIn {
     from {

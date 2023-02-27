@@ -24,23 +24,14 @@
       <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>
     </div>
   </div>
-  <ion-fab *ngIf="!isMobile() || (isMobile() && ['', 'init'].includes(selectedContent))" slot="fixed" vertical="bottom" horizontal="start" class="home-main-content-fab-map">
-    <ion-fab-button class="home-main-content-fab-map-selector">
-      <ion-icon name="copy-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-list side="end">
-      <ion-fab-button title="Carte open street map" class="home-main-content-fab-map-selector-item" (click)="onMapChange('osmLayer')">
-        <ion-img src="assets/img/map/osm.png"></ion-img>
+    <ion-fab *ngIf="!isMobile() || (isMobile() && ['', 'init'].includes(selectedContent))" slot="fixed" vertical="bottom" [horizontal]="isMobile() ? 'end' : 'start'" class="home-main-content-fab-map"  [class.fab-map-mobile]="isMobile()">
+      <ion-fab-button class="home-main-content-fab-map-selector">
+        <ion-icon name="layers-outline"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button title="Carte parcellaire cadastral" class="home-main-content-fab-map-selector-item" (click)="onMapChange('parcelLayer')">
-        <ion-img src="assets/img/map/parcel.png"></ion-img>
-      </ion-fab-button>
-      <ion-fab-button title="Carte Satellitaire" class="home-main-content-fab-map-selector-item" (click)="onMapChange('satelliteLayer')">
-        <ion-img src="assets/img/map/sattelite.png"></ion-img>
-      </ion-fab-button>
-      <ion-fab-button title="Carte topographique" class="home-main-content-fab-map-selector-item" (click)="onMapChange('topoLayer')">
-        <ion-img src="assets/img/map/topo.png"></ion-img>
-      </ion-fab-button>
-    </ion-fab-list>
-  </ion-fab>
+      <ion-fab-list [side]="isMobile() ? 'top' : 'end'">
+        <ion-fab-button *ngFor="let backLayer of backLayers" class="home-main-content-fab-map-selector-item" [title]="'layer-' + backLayer.key" (click)="onMapChange(backLayer.key)">
+          <ion-img [src]="'assets/img/map/' + backLayer.key + '.png'"></ion-img>
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>
 </ion-content>

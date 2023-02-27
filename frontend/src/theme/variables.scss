@@ -71,6 +71,9 @@
 	--ion-color-neutral-variant-30: #49454F;
 	--ion-color-neutral-variant-50: #79747E;
 	--ion-color-neutral-variant-80: #CAC4D0;
+
+  --ion-color-openlayer-button-bg-hover: #eeebf2;
+  --ion-color-openlayer-button-bg-focus: #e4e0eb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -142,6 +145,9 @@
     --ion-color-light-contrast-rgb: 255,255,255;
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
+
+    --ion-color-openlayer-button-bg-hover: #eeebf2;
+    --ion-color-openlayer-button-bg-focus: #e4e0eb;
   }
 
   /*

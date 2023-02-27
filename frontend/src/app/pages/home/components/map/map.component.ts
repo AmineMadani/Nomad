@@ -10,6 +10,7 @@ import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { ProjectionLike } from 'ol/proj';
 import { Accordeon } from '../interactive-content/patrimony/patrimony-dataset';
+import { GeolocationControl } from './controls/geolocation.control';
 
 @Component({
   selector: 'app-map',
@@ -19,21 +20,19 @@ import { Accordeon } from '../interactive-content/patrimony/patrimony-dataset';
 export class MapComponent implements OnInit {
   constructor(private mapService: MapService) {}
 
-  DATASET: BackLayer[] = MAP_DATASET;
-
-  projection = getProjection('EPSG:3857');
-
-  mapLayers: Map<string, BaseLayer> = new Map();
+  public projection = getProjection('EPSG:3857');
+  public resolutions: number[] = new Array(21);
+  public matrixIds: string[] = new Array(21);
 
   public map!: MapOpenLayer;
-
+  public mapLayers: Map<string, BaseLayer> = new Map();
   public patrimonyLayers: Set<Accordeon> = new Set();
 
   ngOnInit() {
     this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {
+      this.map = this.mapService.createMap([new GeolocationControl()]);
       this.generateMap();
-      this.map = this.mapService.createMap([...this.mapLayers.values()]);
     }
   }
 
@@ -48,45 +47,56 @@ export class MapComponent implements OnInit {
   generateMap() {
     if (this.projection != null) {
       const projectionExtent = this.projection.getExtent();
-      const resolutions = new Array(21);
-      const matrixIds = new Array(21);
       const size = getWidth(projectionExtent) / 256;
       for (let z = 0; z < 21; ++z) {
-        resolutions[z] = size / Math.pow(2, z);
-        matrixIds[z] = z.toString();
+        this.resolutions[z] = size / Math.pow(2, z);
+        this.matrixIds[z] = z.toString();
       }
-      this.createLayers(this.projection, resolutions, matrixIds);
+      const defaultBackLayer: BackLayer | undefined = MAP_DATASET.find(
+        (bl) => bl.default
+      );
+      if (defaultBackLayer) {
+        this.createLayers(defaultBackLayer.key, defaultBackLayer);
+      }
     }
   }
 
-  createLayers(
-    projection: ProjectionLike,
-    resolution: number[],
-    matrixIds: string[]
-  ): void {
-    this.DATASET.forEach((mapLayer: BackLayer) => {
-      switch (mapLayer.type) {
+  createLayers(backLayerKey: string, layer?: BackLayer): void {
+    if (!layer) {
+      layer = MAP_DATASET.find(
+        (bl) => bl.key === backLayerKey
+      );
+    }
+    if (layer) {
+      switch (layer.type) {
         case 'WMTS':
           const wmtsLayer = new TileLayer({
             preload: Infinity,
-            source: this.buildWMTS(mapLayer, projection, resolution, matrixIds),
-            visible: mapLayer.visible,
+            source: this.buildWMTS(layer),
+            visible: layer.visible,
+            zIndex: 0,
           });
-          this.mapLayers.set(mapLayer.key, wmtsLayer);
+          this.mapLayers.set(layer.key, wmtsLayer);
+          this.map.addLayer(wmtsLayer);
           break;
         case 'OSM':
           const osmLayer = new TileLayer({
             preload: Infinity,
             source: this.buildOSM(),
-            visible: mapLayer.visible,
+            visible: layer.visible,
+            zIndex: 0,
           });
-          this.mapLayers.set(mapLayer.key, osmLayer);
+          this.mapLayers.set(layer.key, osmLayer);
+          this.map.addLayer(osmLayer);
           break;
       }
-    });
+    }
   }
 
   displayLayer(keyLayer: string) {
+    if (!this.mapLayers.has(keyLayer)) {
+      this.createLayers(keyLayer);
+    }
     this.map
       .getLayers()
       .getArray()
@@ -101,12 +111,7 @@ export class MapComponent implements OnInit {
       });
   }
 
-  private buildWMTS(
-    layer: BackLayer,
-    projection: ProjectionLike,
-    resolution: number[],
-    matrixIds: string[]
-  ): WMTS {
+  private buildWMTS(layer: BackLayer): WMTS {
     return new WMTS({
       attributions: layer.attributions!,
       url: layer.url!,
@@ -116,8 +121,8 @@ export class MapComponent implements OnInit {
       projection: this.projection!,
       tileGrid: new WMTSTileGrid({
         origin: layer.origin!,
-        resolutions: resolution,
-        matrixIds: matrixIds,
+        resolutions: this.resolutions,
+        matrixIds: this.matrixIds,
       }),
       style: 'normal',
       wrapX: true,

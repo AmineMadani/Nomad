@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { MapLayer } from '../models/map-layer.model';
 import MapOpenLayer from 'ol/Map';
 import View from 'ol/View';
-import BaseLayer from 'ol/layer/Base';
 import { MapStyleService } from './map-style.service';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { boundingExtent } from 'ol/extent';
+import {Control, defaults as defaultControls} from 'ol/control.js';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +16,10 @@ export class MapService {
   private map: MapOpenLayer;
   private layers: Map<string, MapLayer> = new Map();
 
-  createMap(backMapLayer: BaseLayer[]): MapOpenLayer {
+  createMap(controls: Control[]): MapOpenLayer {
     this.map = new MapOpenLayer({
+      controls: defaultControls().extend(controls),
       target: 'map',
-      layers: backMapLayer,
       view: new View({
         center: [-187717.995347, 6132337.474246],
         zoom: 17,
