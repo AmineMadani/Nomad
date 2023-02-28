@@ -63,7 +63,7 @@ export class KeycloakService {
   }
 
   public hasValidToken(): boolean {
-    return this.oauthService.hasValidAccessToken();
+    return environment.keycloak.active ? this.oauthService.hasValidAccessToken() : true;
   }
 
   public login(): void {
