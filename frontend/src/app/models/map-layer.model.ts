@@ -35,7 +35,6 @@ export class MapLayer {
     });
   }
 
-  public key: string;
   public layer: VectorLayer<any>;
   public selection: Set<FeatureLike>;
   public subscription: Subscription;

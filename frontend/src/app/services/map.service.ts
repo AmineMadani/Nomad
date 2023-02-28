@@ -6,13 +6,12 @@ import { MapStyleService } from './map-style.service';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { boundingExtent } from 'ol/extent';
 import {Control, defaults as defaultControls} from 'ol/control.js';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
-  constructor(private mapStyle: MapStyleService, private router: Router) {}
+  constructor(private mapStyle: MapStyleService) {}
 
   private map: MapOpenLayer;
   private layers: Map<string, MapLayer> = new Map();
