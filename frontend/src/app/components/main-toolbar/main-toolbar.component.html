@@ -1,11 +1,11 @@
 <ion-toolbar color="primary" class="main-toolbar">
-  <ion-buttons slot="start">
+  <ion-buttons slot="start" *ngIf="!minimalist">
     <ion-menu-button></ion-menu-button>
   </ion-buttons>
   <ion-img slot="start" class="main-toolbar-logo" src="assets/img/logo/logo-desktop.png" *ngIf="!isMobile"></ion-img>
   <span slot="start" class="main-toolbar-separator" *ngIf="!isMobile"></span>
   <ion-title class="main-toolbar-title">{{title}}</ion-title>
-  <ion-buttons slot="secondary">
+  <ion-buttons slot="secondary" *ngIf="!minimalist">
     <ion-button>
       <ion-icon slot="icon-only" name="notifications" [color]="cacheLoaded ? 'success' : 'danger'"></ion-icon>
       <ion-badge color="danger" style="position: absolute; right: -6px; top: -6px;">3</ion-badge>
@@ -19,7 +19,7 @@
   </ion-buttons>
 </ion-toolbar>
 
-<ion-popover trigger="popover-button" [dismissOnSelect]="true">
+<ion-popover trigger="popover-button" [dismissOnSelect]="true" *ngIf="!minimalist">
   <ng-template>
     <ion-content>
       <ion-list>

@@ -19,6 +19,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   ) {}
 
   @Input('title') title: string;
+
+  @Input('minimalist') minimalist: boolean = false;
+
   public cacheLoaded: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject();
@@ -43,7 +46,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
   logout() {
     if (environment.keycloak.active) {
-      this.keycloakService.logout();
+      this.keycloakService.logout().then(res => {
+        window.location.reload();
+      });
     }
   }
 

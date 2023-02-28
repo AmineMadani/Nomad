@@ -17,12 +17,12 @@ export class AuthGuardService implements CanActivate {
     
 
     if(!this.keycloakService.hasValidToken() && environment.keycloak.active) {
-      if(route.routeConfig?.path != "error"){
-        this.router.navigate(['error']);
+      if(route.routeConfig?.path != "login"){
+        this.router.navigate(['login']);
         return false;
       }
     } else {
-      if(route.routeConfig?.path == "error"){
+      if(route.routeConfig?.path == "login"){
         this.router.navigate(['home']);
         return false;
       }

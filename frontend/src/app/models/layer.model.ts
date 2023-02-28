@@ -20,7 +20,7 @@ export const layers: Layer[] = [
     key: 'aep_branche',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -28,7 +28,7 @@ export const layers: Layer[] = [
     key: 'aep_canalisation',
     type: LayerTypeEnum.VECTOR,
     zindex: 2,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -36,7 +36,7 @@ export const layers: Layer[] = [
     key: 'aep_defense_incendie',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -44,7 +44,7 @@ export const layers: Layer[] = [
     key: 'aep_ouvrage',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -52,7 +52,7 @@ export const layers: Layer[] = [
     key: 'aep_vanne',
     type: LayerTypeEnum.CLUSTER,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20,
     distance: 40,
     minDistance: 20
@@ -62,7 +62,7 @@ export const layers: Layer[] = [
     key: 'ass_avaloir',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -70,7 +70,7 @@ export const layers: Layer[] = [
     key: 'ass_branche',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -78,7 +78,7 @@ export const layers: Layer[] = [
     key: 'ass_collecteur',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -86,7 +86,7 @@ export const layers: Layer[] = [
     key: 'ass_ouvrage',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -94,7 +94,7 @@ export const layers: Layer[] = [
     key: 'ass_regard',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 2,
+    minZoom: 16,
     maxZoom: 20
   }
 ]

@@ -32,27 +32,34 @@ export class KeycloakService {
   }
 
   initialisation() {
-    this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
-      this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
-      this.oauthService.tryLogin().then(tryLoginResult => {
-        if (this.hasValidAccessToken) {
-          this.loadUserProfile();
-          this.realmRoles = this.getRealmRoles();
-        } else {
-          this.login();
-        }
+    if(environment.keycloak.active) {
+      this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
+        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
+        this.oauthService.tryLogin().then(tryLoginResult => {
+          //console.log(tryLoginResult)
+          if (this.hasValidAccessToken) {
+            this.loadUserProfile();
+            this.realmRoles = this.getRealmRoles();
+          } else {
+            this.login();
+          }
+        });
+      }).catch(error => {
+        console.error("loadDiscoveryDocument", error);
+        this.router.navigate(["/error"]);
       });
-    }).catch(error => {
-      console.error("loadDiscoveryDocument", error);
-    });
 
-    this.oauthService.events.subscribe(eventResult => {
-      console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
-      if (eventResult.type == 'token_refreshed') {
-        console.log("token : " + this.oauthService.getAccessToken());
-      }
-      this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
-    })
+      this.oauthService.events.subscribe(eventResult => {
+        //console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
+        if (eventResult.type == 'token_refreshed') {
+          console.log("token : " + this.oauthService.getAccessToken());
+        }
+        if(eventResult.type == 'token_received') {
+          window.location.href = '/';
+        }
+        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
+      })
+    }
   }
 
   public hasValidToken(): boolean {
@@ -69,16 +76,20 @@ export class KeycloakService {
       });
   }
 
-  public logout(): void {
-    this.oauthService.revokeTokenAndLogout()
-      .then(revokeTokenAndLogoutResult => {
-        console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
-        this.userProfile = null;
-        this.realmRoles = [];
-      })
-      .catch(error => {
-        console.error("revokeTokenAndLogout", error);
-      });
+  public logout(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.oauthService.revokeTokenAndLogout()
+        .then(revokeTokenAndLogoutResult => {
+          console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
+          this.userProfile = null;
+          this.realmRoles = [];
+          resolve(revokeTokenAndLogoutResult);
+        })
+        .catch(error => {
+          console.error("revokeTokenAndLogout", error);
+          reject(error);
+        });
+    })
   }
 
   public loadUserProfile(): void {

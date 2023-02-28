@@ -21,16 +21,19 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if(environment.keycloak.active) {
+
+    console.log(this.keycloakService.hasValidToken());
+    if(this.keycloakService.hasValidToken()) {
+      from(this.cacheService.cacheIsAlreadySet()).pipe(
+        switchMap((cacheSet: boolean) => {
+          return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
+        })
+      ).subscribe(() => {
+        this.cacheService.setCacheLoaded(true);
+      });
+    } else {
       this.keycloakService.initialisation();
     }
 
-    from(this.cacheService.cacheIsAlreadySet()).pipe(
-      switchMap((cacheSet: boolean) => {
-        return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
-      })
-    ).subscribe(() => {
-      this.cacheService.setCacheLoaded(true);
-    });
   }
 }
