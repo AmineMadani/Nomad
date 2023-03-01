@@ -1,6 +1,6 @@
 <div class="actions-layer-desktop-content">
   <ion-searchbar show-clear-button="always" placeholder="Recherche" class="actions-layer-desktop-content-button-search"></ion-searchbar>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('patrimony')" [ngClass]="selectedAction == 'patrimony' ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('intervention')" [ngClass]="selectedAction == 'intervention' ? 'actions-layer-content-button-action-active':''">Intervention</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('perimeter')" [ngClass]="selectedAction == 'perimeter' ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PATRIMONY)" [ngClass]="currentRoute === drawerRouteEnum.PATRIMONY ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.INTERVENTION)" [ngClass]="currentRoute === drawerRouteEnum.INTERVENTION ? 'actions-layer-content-button-action-active':''">Intervention</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PERIMETER)" [ngClass]="currentRoute === drawerRouteEnum.PERIMETER ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
 </div>

@@ -8,9 +8,8 @@ import { getWidth } from 'ol/extent.js';
 import BaseLayer from 'ol/layer/Base';
 import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
-import { ProjectionLike } from 'ol/proj';
-import { Accordeon } from '../interactive-content/patrimony/patrimony-dataset';
 import { GeolocationControl } from './controls/geolocation.control';
+import { Accordeon } from '../../drawers/patrimony/patrimony-dataset';
 
 @Component({
   selector: 'app-map',
@@ -63,9 +62,7 @@ export class MapComponent implements OnInit {
 
   createLayers(backLayerKey: string, layer?: BackLayer): void {
     if (!layer) {
-      layer = MAP_DATASET.find(
-        (bl) => bl.key === backLayerKey
-      );
+      layer = MAP_DATASET.find((bl) => bl.key === backLayerKey);
     }
     if (layer) {
       switch (layer.type) {

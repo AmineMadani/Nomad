@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DrawerRouteEnum } from '../../../drawers/drawer.enum';
 
 @Component({
   selector: 'app-actions-layer-mobile',
@@ -6,18 +7,20 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./actions-layer-mobile.component.scss'],
 })
 export class ActionsLayerMobileComponent implements OnInit {
-  constructor() { }
+  constructor() {}
 
-  @Input() selectedAction: string = '';
-  @Output() selectedActionEvent = new EventEmitter<string>();
-  isOpen: boolean = false;
+  @Input() currentRoute: DrawerRouteEnum;
+  @Output() selectedActionEvent: EventEmitter<DrawerRouteEnum> =
+    new EventEmitter();
+
+  public drawerRouteEnum = DrawerRouteEnum;
+  public isOpen: boolean = false;
 
   ngOnInit() {}
 
-  onAction(selectedAction: string) {
-    this.selectedAction = this.selectedAction === selectedAction ? '' : selectedAction;
+  onAction(route: DrawerRouteEnum) {
+    this.selectedActionEvent.emit(route);
     this.isOpen = false;
-    this.selectedActionEvent.emit(selectedAction);
   }
 
   openActionLayer(): void {
@@ -27,5 +30,4 @@ export class ActionsLayerMobileComponent implements OnInit {
   closeActionLayer(): void {
     this.isOpen = false;
   }
-
 }

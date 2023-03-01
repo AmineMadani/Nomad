@@ -1,0 +1,19 @@
+.intervention-drawer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 56px);
+  padding: 12px;
+
+  .header-label {
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    color: var(--ion-color-neutral-variant-30);
+  }
+
+  ion-icon {
+    cursor: pointer;
+  }
+}

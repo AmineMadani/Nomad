@@ -6,21 +6,21 @@ import { IonicModule } from '@ionic/angular';
 
 import { HomePageRoutingModule } from './home-routing.module';
 
-import { HomePage } from './home.page';
 import { SharedModule } from 'src/app/modules/shared.module';
-import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';
 import { MapComponent } from './components/map/map.component';
-import { PatrimonyComponent } from './components/interactive-content/patrimony/patrimony.component';
-import { PerimeterComponent } from './components/interactive-content/perimeter/perimeter.component';
-import { InterventionComponent } from './components/interactive-content/intervention/intervention.component';
-import { PatrimonyAccordeonComponent } from './components/interactive-content/patrimony/patrimony-accordeon/patrimony-accordeon.component';
 
 import { MatTreeModule } from '@angular/material/tree';
-import { PatrimonyDetailsTreeComponent } from './components/interactive-content/patrimony/patrimony-details-tree/patrimony-details-tree.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MapService } from 'src/app/services/map.service';
+import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
+import { PatrimonyAccordeonComponent } from './drawers/patrimony/components/patrimony-accordeon/patrimony-accordeon.component';
+import { PatrimonyDetailsTreeComponent } from './drawers/patrimony/components/patrimony-details-tree/patrimony-details-tree.component';
+import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
+import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
+import { HomePage } from './home.page';
+import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 
 @NgModule({
   imports: [
@@ -30,7 +30,7 @@ import { MapService } from 'src/app/services/map.service';
     HomePageRoutingModule,
     SharedModule,
     HttpClientModule,
-    MatTreeModule
+    MatTreeModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
@@ -39,12 +39,12 @@ import { MapService } from 'src/app/services/map.service';
     ActionsLayerDesktopComponent,
     ActionsLayerMobileComponent,
     MapComponent,
-    PatrimonyComponent,
-    PerimeterComponent,
-    InterventionComponent,
+    PatrimonyDrawer,
+    InterventionDrawer,
+    PerimeterDrawer,
     PatrimonyAccordeonComponent,
-    PatrimonyDetailsTreeComponent
+    PatrimonyDetailsTreeComponent,
   ],
-  providers: [MapService]
+  providers: [MapService],
 })
 export class HomePageModule {}

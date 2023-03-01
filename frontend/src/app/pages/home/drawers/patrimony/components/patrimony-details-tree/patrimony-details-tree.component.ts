@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
-import { Accordeon } from '../patrimony-dataset';
+import { Accordeon } from '../../patrimony-dataset';
 
 @Component({
   selector: 'app-patrimony-details-tree',

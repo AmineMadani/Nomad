@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { DrawerRouteEnum } from '../../../drawers/drawer.enum';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -6,21 +7,17 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
 export class ActionsLayerDesktopComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
+  @Input() currentRoute: DrawerRouteEnum;
+  @Output() selectedActionEvent: EventEmitter<DrawerRouteEnum> =
+    new EventEmitter();
 
-  @Input() selectedAction: string = '';
-  @Output() selectedActionEvent = new EventEmitter<string>();
+  public drawerRouteEnum = DrawerRouteEnum;
 
   ngOnInit() {}
 
-  onAction(selectedAction:string){
-    if(this.selectedAction == selectedAction) {
-      this.selectedAction = '';
-    } else {
-      this.selectedAction = selectedAction;
-    }
-    this.selectedActionEvent.emit(selectedAction);
+  onAction(route: DrawerRouteEnum) {
+    this.selectedActionEvent.emit(route);
   }
-
 }
