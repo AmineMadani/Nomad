@@ -1,11 +1,14 @@
 $width-actions-layers: 600px;
 $width-actions-layers-mobile: 100%;
 
-
 .home-main-content {
     display: flex;
     width: 100%;
     height: 100%;
+
+    ion-col {
+      padding: 0;
+    }
 
     .home-main-content-map {
         height: 100%;
@@ -19,11 +22,6 @@ $width-actions-layers-mobile: 100%;
         }
     }
 
-    .home-main-content-interactive-mobile {
-        width: $width-actions-layers-mobile !important;
-        flex: 1 !important;
-    }
-
     .home-main-content-interactive {
         padding: 12px;
         height: 100%;
@@ -32,34 +30,6 @@ $width-actions-layers-mobile: 100%;
         flex: 0 0 $width-actions-layers;
         display: flex;
         flex-direction: column;
-
-        .content-interactive-header {
-            padding: 18px 16px;
-            height: 20px;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .content-interactive-header span {
-            font-weight: 300;
-            font-size: 14px;
-            line-height: 20px;
-            letter-spacing: 0.1px;
-            color: var(--ion-color-neutral-variant-30);
-        }
-
-        .content-interactive-header ion-icon {
-            cursor: pointer;
-        }
-
-        app-patrimony, app-perimeter, app-intervention {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: calc(100% - 56px);
-        }
     }
 
     .home-main-content-interactive-animation-in {

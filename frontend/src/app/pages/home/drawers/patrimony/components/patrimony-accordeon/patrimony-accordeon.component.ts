@@ -1,6 +1,6 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { MapService } from 'src/app/services/map.service';
-import { Accordeon } from '../patrimony-dataset';
+import { Accordeon } from '../../patrimony-dataset';
 import { FavoritesActionEnum } from './favorites-action.enum';
 
 @Component({
@@ -20,7 +20,7 @@ export class PatrimonyAccordeonComponent implements OnInit {
   selectedChildren: Set<Accordeon>;
   favsAction: FavoritesActionEnum;
   icon: string = '';
-  
+
   private isOpen: boolean = false;
 
   ngOnInit() {
@@ -43,7 +43,7 @@ export class PatrimonyAccordeonComponent implements OnInit {
   }
 
   /**
-   * If the accordeon has no children or is in md mode, then stop the event 
+   * If the accordeon has no children or is in md mode, then stop the event
    * from propagating thus preventing open state.
    * Otherwise, toggle isOpen and change the icon accordingly
    * @param {MouseEvent} event - MouseEvent - the event that triggered the function.

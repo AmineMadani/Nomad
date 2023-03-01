@@ -1,16 +1,17 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { MapService } from 'src/app/services/map.service';
 import { UtilsService } from 'src/app/services/utils.service';
-import { Accordeon, Dataset, DATASET } from './patrimony-dataset';
+import { DrawerService } from '../drawer.service';
+import { Dataset, DATASET } from './patrimony-dataset';
 
 @Component({
   selector: 'app-patrimony',
-  templateUrl: './patrimony.component.html',
-  styleUrls: ['./patrimony.component.scss'],
+  templateUrl: './patrimony.drawer.html',
+  styleUrls: ['./patrimony.drawer.scss'],
 })
-export class PatrimonyComponent implements OnInit {
+export class PatrimonyDrawer implements OnInit {
   constructor(
     private utilsService: UtilsService,
+    private drawerService: DrawerService
   ) {}
 
   @ViewChild('scrolling') scrolling: ElementRef;
@@ -22,5 +23,9 @@ export class PatrimonyComponent implements OnInit {
 
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
+  }
+
+  onClose() {
+    this.drawerService.closeDrawer();
   }
 }

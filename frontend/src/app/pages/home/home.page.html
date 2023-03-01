@@ -3,35 +3,26 @@
 </ion-header>
 
 <ion-content>
-  <div class="home-main-content">
-    <div class="home-main-content-map">
+  <ion-row class="home-main-content">
+    <ion-col class="home-main-content-map">
       <app-map #interactiveMap></app-map>
-      <app-actions-layer [selectedAction]="selectedContent" (selectedActionEvent)="onSelectAction($event)"></app-actions-layer>
-    </div>
-    <div class="home-main-content-interactive" [class.home-main-content-interactive-mobile]="isMobile()"
-      [ngClass]="selectedContent != '' ? (selectedContent == 'init' ? '':'home-main-content-interactive-animation-in'):'home-main-content-interactive-animation-out'">
-      <div class="content-interactive-header" slot="header" lines="none">
-        <ng-container [ngSwitch]="selectedContent">
-          <span *ngSwitchCase="'patrimony'">Patrimoine</span>
-          <span *ngSwitchCase="'perimeter'">Périmètre</span>
-          <span *ngSwitchCase="'intervention'">Intervention</span>
-        </ng-container>
-        <ion-icon *ngIf="!['', 'init'].includes(selectedContent)" slot="end" class="interactive-header-icon" name="close-outline"
-          (click)="selectedContent = ''"></ion-icon>
-      </div>
-      <app-patrimony *ngIf="selectedContent == 'patrimony'"></app-patrimony>
-      <app-perimeter *ngIf="selectedContent == 'perimeter'"></app-perimeter>
-      <app-intervention *ngIf="selectedContent == 'intervention'"></app-intervention>
-    </div>
-  </div>
-    <ion-fab *ngIf="!isMobile() || (isMobile() && ['', 'init'].includes(selectedContent))" slot="fixed" vertical="bottom" [horizontal]="isMobile() ? 'end' : 'start'" class="home-main-content-fab-map"  [class.fab-map-mobile]="isMobile()">
-      <ion-fab-button class="home-main-content-fab-map-selector">
-        <ion-icon name="layers-outline"></ion-icon>
+      <app-actions-layer [currentRoute]="currentRoute"></app-actions-layer>
+    </ion-col>
+
+    <ion-col class="home-main-content-interactive" [class.col-12]="isMobile()"
+      [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
+      <ion-router-outlet></ion-router-outlet>
+    </ion-col>
+  </ion-row>
+
+  <ion-fab *ngIf="!isMobile() || (isMobile() && currentRoute === drawerRouteEnum.HOME)" slot="fixed" vertical="bottom" [horizontal]="isMobile() ? 'end' : 'start'" class="home-main-content-fab-map"  [class.fab-map-mobile]="isMobile()">
+    <ion-fab-button class="home-main-content-fab-map-selector">
+      <ion-icon name="layers-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list [side]="isMobile() ? 'top' : 'end'">
+      <ion-fab-button *ngFor="let backLayer of backLayers" class="home-main-content-fab-map-selector-item" [title]="'layer-' + backLayer.key" (click)="onMapChange(backLayer.key)">
+        <ion-img [src]="'assets/img/map/' + backLayer.key + '.png'"></ion-img>
       </ion-fab-button>
-      <ion-fab-list [side]="isMobile() ? 'top' : 'end'">
-        <ion-fab-button *ngFor="let backLayer of backLayers" class="home-main-content-fab-map-selector-item" [title]="'layer-' + backLayer.key" (click)="onMapChange(backLayer.key)">
-          <ion-img [src]="'assets/img/map/' + backLayer.key + '.png'"></ion-img>
-        </ion-fab-button>
-      </ion-fab-list>
-    </ion-fab>
+    </ion-fab-list>
+  </ion-fab>
 </ion-content>
