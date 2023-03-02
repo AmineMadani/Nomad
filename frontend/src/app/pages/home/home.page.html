@@ -4,15 +4,25 @@
 
 <ion-content>
   <ion-row class="home-main-content">
-    <ion-col class="home-main-content-map">
+    <ion-col class="home-main-content-map" >
       <app-map #interactiveMap></app-map>
       <app-actions-layer [currentRoute]="currentRoute"></app-actions-layer>
     </ion-col>
 
-    <ion-col class="home-main-content-interactive" [class.col-12]="isMobile()"
-      [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
-      <ion-router-outlet></ion-router-outlet>
-    </ion-col>
+    <ng-container [ngSwitch]="drawerType">
+      <!-- Drawer -->
+      <ion-col *ngSwitchCase="drawerTypeEnum.DRAWER" class="home-main-content-interactive" [class.col-12]="isMobile()"
+        [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
+        <ion-router-outlet></ion-router-outlet>
+      </ion-col>
+      <!-- Bottom sheet -->
+      <ion-modal *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="true" (didDismiss)="onBottomSheetDismiss()"
+        [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75, 1]">
+        <ng-template>
+          <ion-router-outlet></ion-router-outlet>
+        </ng-template>
+      </ion-modal>
+    </ng-container>
   </ion-row>
 
   <ion-fab *ngIf="!isMobile() || (isMobile() && currentRoute === drawerRouteEnum.HOME)" slot="fixed" vertical="bottom" [horizontal]="isMobile() ? 'end' : 'start'" class="home-main-content-fab-map"  [class.fab-map-mobile]="isMobile()">

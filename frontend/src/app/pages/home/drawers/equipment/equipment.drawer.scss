@@ -1,0 +1,164 @@
+.equipment-drawer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0px;
+
+  .header-label {
+    gap: 26px;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+    color: var(--ion-color-neutral-variant-30);
+    margin-left: 26px;
+  }
+
+  ion-icon {
+    cursor: pointer;
+  }
+
+  .equipment-drawer-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-weight: 600;
+    font-size: 22px;
+    padding: 8px 38px;
+    color: var(--ion-color-neutral-variant-30);
+    justify-content: space-between;
+
+    .equipment-drawer-header-title {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 26px;
+    }
+
+    ion-icon {
+      cursor: pointer;
+    }
+  }
+
+  .equipment-drawer-content {
+    overflow-y: auto;
+    flex: 1;
+    padding-top: 12px;
+
+    .equipment-drawer-fast-info {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 43px;
+      background: var(--ion-color-surface-light-2);
+
+      .equipment-drawer-fast-info-text {
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        letter-spacing: 0.1px;
+        color: var(--ion-color-primary);
+        gap: 10px;
+
+        ion-icon {
+          font-size: 18px;
+        }
+      }
+
+    }
+
+    .equipment-drawer-action-button-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 18px 24px 17px 24px;
+
+      .equipment-drawer-action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 24px;
+
+        color: var(--ion-color-neutral-variant-30);
+
+        span {
+          font-weight: 400;
+          font-size: 12px;
+          line-height: 16px;
+          text-align: center;
+          letter-spacing: 0.5px;
+        }
+
+        ion-icon {
+          padding: 4px 20px;
+          font-size: 20px;
+          border-radius: 28px;
+
+          &:hover {
+            background-color: var(--ion-color-light-tint);
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .equipment-drawer-section-column {
+      .equipment-drawer-section {
+        border-top: 1px solid var(--ion-color-neutral-variant-80);
+        margin: 0px 24px;
+        padding: 18px 16px 10px 16px;
+
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--ion-color-neutral-variant-30);
+
+        .equipment-drawer-section-header {
+          font-weight: 300;
+          letter-spacing: 0.1px;
+        }
+
+        .equipment-drawer-section-content {
+          margin-top: 25px;
+
+          .equipment-drawer-section-content-title {
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: 0.5px;
+            color: var(--ion-color-neutral-variant-10);
+          }
+
+          span {
+            font-weight: 400;
+            letter-spacing: 0.25px;
+          }
+        }
+      }
+    }
+  }
+
+  .equipment-drawer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 111px;
+    width: 100%;
+    padding: 0px 24px;
+    border-top: 1px solid var(--ion-color-neutral-variant-80);
+
+    .action-button {
+      height: 40px;
+      width: 102px;
+      text-transform: none;
+      --border-radius: 100px;
+      --background: var(--ion-color-primary);
+      --color: var(--ion-color-surface-light-1);
+    }
+  }
+}

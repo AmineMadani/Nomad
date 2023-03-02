@@ -21,6 +21,7 @@ import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
+import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import { ActionsLayerComponent } from './components/actions-layer/actions-layer.
     PerimeterDrawer,
     PatrimonyAccordeonComponent,
     PatrimonyDetailsTreeComponent,
+    EquipmentDrawer,
   ],
   providers: [MapService],
 })

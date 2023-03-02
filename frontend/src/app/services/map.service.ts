@@ -5,13 +5,18 @@ import View from 'ol/View';
 import { MapStyleService } from './map-style.service';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { boundingExtent } from 'ol/extent';
-import {Control, defaults as defaultControls} from 'ol/control.js';
+import { Control, defaults as defaultControls } from 'ol/control.js';
+import { DrawerService } from '../pages/home/drawers/drawer.service';
+import { DrawerRouteEnum } from '../pages/home/drawers/drawer.enum';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
-  constructor(private mapStyle: MapStyleService) {}
+  constructor(
+    private mapStyle: MapStyleService,
+    private drawerService: DrawerService
+  ) {}
 
   private map: MapOpenLayer;
   private layers: Map<string, MapLayer> = new Map();
@@ -62,15 +67,20 @@ export class MapService {
       mLayer.subscription = fromEvent(this.map, 'click').subscribe(
         (event: any) => {
           mLayer.layer.getFeatures(event.pixel).then((features) => {
-            if(features.length > 0) {
+            if (features.length > 0) {
               let ctFeature = features[0].get('features');
               if (ctFeature.length > 1) {
                 const extent = boundingExtent(
-                  ctFeature.map((r:any) => r.getGeometry()!.getCoordinates())
+                  ctFeature.map((r: any) => r.getGeometry()!.getCoordinates())
                 );
-                this.map.getView().fit(extent, {duration: 1000, padding: [50, 50, 50, 50]});
+                this.map
+                  .getView()
+                  .fit(extent, { duration: 1000, padding: [50, 50, 50, 50] });
               } else {
-                console.log(features);
+                console.log('ctFeature', ctFeature[0]);
+                this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [
+                  ctFeature[0].get('id'),
+                ]);
               }
             }
           });
