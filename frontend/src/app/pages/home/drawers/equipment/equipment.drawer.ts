@@ -1,10 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/services/utils.service';
 import { DrawerRouteEnum } from '../drawer.enum';
-import { DrawerService } from '../drawer.service';
-import { sections } from './equipment-drawer.dataset';
-import { ActionButton, Equipment, Section } from './equipment-drawer.model';
+import { DrawerService } from '../../../../services/drawer.service';
+import { ActionButton, Section } from './equipment-drawer.model';
+import { ActivatedRoute } from '@angular/router';
+import { EquipmentDataService } from 'src/app/services/dataservices/equipment.dataservice';
 
 @Component({
   selector: 'app-equipment-drawer',
@@ -14,14 +15,14 @@ import { ActionButton, Equipment, Section } from './equipment-drawer.model';
 export class EquipmentDrawer implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private route: ActivatedRoute,
+    private equipmentService: EquipmentDataService
   ) {}
-
-  @Input() equipmentId: number = 1111111;
 
   public drawerRouteEnum = DrawerRouteEnum;
   public previousRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
-  public equipment: Equipment;
+  public equipment: any;
   public actionButtons: ActionButton[] = [
     {
       icon: 'person-circle-outline',
@@ -63,7 +64,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   // TODO: Add the recuperation of all sections and their alias in the database instead of use static data
-  sections: Section[] = sections;
+  sections: Section[] = [];
 
   ngOnInit() {
     // Subscribe to drawer open changes
@@ -73,10 +74,24 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       .subscribe((route: DrawerRouteEnum) => {
         this.previousRoute = route;
       });
-    // TODO: Use an API call to get the equipment details
-    this.equipment = {
-      id: this.equipmentId,
-    };
+
+    // Get all equipment sections
+    this.sections = this.equipmentService.getSections();
+
+    // Get the equipment data from the query params or the database
+    this.route.queryParams
+      .pipe(
+        switchMap((params: any) => {
+          return this.equipmentService.getById(params.id).pipe(
+            catchError((error) => {
+              return of(params);
+            })
+          );
+        })
+      )
+      .subscribe((equipment: any) => {
+        this.equipment = equipment;
+      });
   }
 
   ngOnDestroy(): void {

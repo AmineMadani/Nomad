@@ -1,36 +1,116 @@
-import { Section } from './equipment-drawer.model';
+import { DisplayType, Section } from './equipment-drawer.model';
 
 export const sections: Section[] = [
   {
-    title: 'Informations génériques',
+    label: 'Informations génériques',
+    key: 'generic-info',
+    position: 0,
     elements: [
-      { field: 'Identifiant', key: 'id' },
-      { field: 'Type', key: 'id' },
-      { field: 'Contrat', key: 'id' },
+      {
+        label: 'Identifiant',
+        key: 'id',
+        position: 0,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Type',
+        key: 'type',
+        position: 1,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Contrat',
+        key: 'contrat',
+        position: 2,
+        display: DisplayType.SYNTHETIC,
+      },
     ],
   },
   {
-    title: 'Caractéristiques',
+    label: 'Caractéristiques',
+    key: 'characteristics',
+    position: 1,
     elements: [
-      { field: 'Diamètre', key: 'id' },
-      { field: 'Matériau', key: 'id' },
-      { field: 'Forme', key: 'id' },
-      { field: 'Longueur SIG', key: 'id' },
-      { field: 'Gestionnaire', key: 'id' },
-      { field: 'Sensibilité', key: 'id' },
-      { field: 'Ecoulement', key: 'id' },
-      { field: 'Matériau de réhabilitation', key: 'id' },
+      {
+        label: 'Diamètre',
+        key: 'diametre',
+        position: 0,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Matériau',
+        key: 'material',
+        position: 1,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Forme',
+        key: 'shape',
+        position: 2,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Longueur SIG',
+        key: 'length',
+        position: 3,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Gestionnaire',
+        key: 'manager',
+        position: 4,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Sensibilité',
+        key: 'sensitivity',
+        position: 5,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Ecoulement',
+        key: 'flow',
+        position: 6,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Matériau de réhabilitation',
+        key: 'rehabilitationMaterial',
+        position: 7,
+        display: DisplayType.SYNTHETIC,
+      },
     ],
   },
   {
-    title: 'Localisation et environnement',
+    label: 'Localisation et environnement',
+    key: 'location-environment',
+    position: 2,
     elements: [
-      { field: 'Classe de précision', key: 'id' },
-      { field: 'Emplacement', key: 'id' },
+      {
+        label: 'Classe de précision',
+        key: 'precisionClass',
+        position: 0,
+        display: DisplayType.SYNTHETIC,
+      },
+      {
+        label: 'Emplacement',
+        key: 'rue',
+        position: 1,
+        display: DisplayType.SYNTHETIC,
+      },
     ],
   },
   {
-    title: 'Informations complémentaires',
-    elements: [{ field: 'Document annexes (Pièce jointe)', key: 'id' }],
+    label: 'Informations complémentaires',
+    key: 'additional-info',
+    position: 3,
+    elements: [
+      {
+        label: 'Document annexes (Pièce jointe)',
+        key: 'document',
+        position: 0,
+        display: DisplayType.SYNTHETIC,
+      },
+    ],
   },
 ];

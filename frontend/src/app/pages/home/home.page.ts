@@ -4,7 +4,7 @@ import { MapComponent } from './components/map/map.component';
 import { BackLayer, MAP_DATASET } from './components/map/map.dataset';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum } from './drawers/drawer.enum';
-import { DrawerService } from './drawers/drawer.service';
+import { DrawerService } from '../../services/drawer.service';
 
 @Component({
   selector: 'app-home',

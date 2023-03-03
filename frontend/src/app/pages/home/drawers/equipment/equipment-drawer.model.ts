@@ -4,15 +4,23 @@ export interface ActionButton {
   onClick: Function;
 }
 
-// TODO: Change all of this interface in adequacy with the database
-export interface Element {
-  field: string;
+export interface Item {
   key: string;
+  label: string;
+  position: number;
+}
+// TODO: Change all of this interface in adequacy with the database
+export interface Element extends Item {
+  display: DisplayType;
 }
 
-export interface Section {
-  title: string;
+export interface Section extends Item {
   elements: Element[];
+}
+
+export enum DisplayType {
+  SYNTHETIC,
+  DESKTOP,
 }
 
 // TODO: Improve the record utilisation to be more restrictive in adequacy with the database

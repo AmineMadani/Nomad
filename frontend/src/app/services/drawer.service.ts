@@ -4,7 +4,11 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, filter, map, Observable, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { UtilsService } from 'src/app/services/utils.service';
-import { DrawerTypeEnum, DrawerRouteEnum, drawerRoutes } from './drawer.enum';
+import {
+  DrawerTypeEnum,
+  DrawerRouteEnum,
+  drawerRoutes,
+} from '../pages/home/drawers/drawer.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -83,6 +87,9 @@ export class DrawerService {
             this.utilsService.isMobilePlateform()
           ) {
             this.currentDrawerType$.next(DrawerTypeEnum.BOTTOM_SHEET);
+            this.drawerHasBeenOpened$.next(false);
+          } else {
+            this.currentDrawerType$.next(DrawerTypeEnum.DRAWER);
           }
         }
       });
@@ -94,14 +101,18 @@ export class DrawerService {
     this.routerEventsSubscription.unsubscribe();
   }
 
-  navigateTo(route: DrawerRouteEnum, pathVariables: any[] = []) {
+  navigateTo(
+    route: DrawerRouteEnum,
+    pathVariables: any[] = [],
+    queryParams?: any
+  ) {
     let url: string = this.getUrlFromDrawerName(route);
 
     pathVariables.forEach((pathVariable) => {
       url = url.replace(/:[^\/]+/, pathVariable);
     });
 
-    this.router.navigate([url]);
+    this.router.navigate([url], { queryParams: queryParams });
   }
 
   closeDrawer() {

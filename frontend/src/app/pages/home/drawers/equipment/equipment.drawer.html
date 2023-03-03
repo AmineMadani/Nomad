@@ -1,6 +1,6 @@
-<div class="equipment-drawer">
+<div *ngIf="equipment" class="equipment-drawer">
   <!-- Header -->
-  <ion-item lines="none">
+  <ion-item lines="none" [class.mobile-header]="isMobile()">
     <ion-icon *ngIf="previousRoute !== drawerRouteEnum.HOME" name="arrow-back" (click)="onDrawerBack()"></ion-icon>
     <ion-label class="header-label">{{ equipment.id }}</ion-label>
     <ion-icon size="medium" slot="end" name="close-outline" (click)="onDrawerClose()"></ion-icon>
@@ -9,9 +9,9 @@
   <div class="equipment-drawer-content">
     <!-- Fast Info -->
     <!-- TODO: It is crucial to specify the needs to know exactly what will be included in these fields. -->
-    <div class="equipment-drawer-fast-info">
+    <div class="equipment-drawer-fast-info" *ngIf="!isMobile()">
       <div class="equipment-drawer-fast-info-text">
-        Statut de l'ordre d'intervention : content
+        Statut de l'ordre d'intervention : {{ equipment.statut }}
       </div>
       <div class="equipment-drawer-fast-info-text">
         <ion-icon name="timer-outline"></ion-icon>
@@ -31,11 +31,13 @@
     <div class="equipment-drawer-section-column">
       <div *ngFor="let section of sections" class="equipment-drawer-section">
         <div class="equipment-drawer-section-header">
-          {{ section.title }}
+          {{ section.label }}
         </div>
         <div *ngFor="let element of section.elements" class="equipment-drawer-section-content">
-          <div class="equipment-drawer-section-content-title">{{ element.field }}</div>
-          <span>{{ equipment[element.key] }}</span>
+          <ng-container *ngIf="equipment[element.key]">
+            <div class="equipment-drawer-section-content-title">{{ element.label }}</div>
+            <span>{{ equipment[element.key] }}</span>
+          </ng-container>
         </div>
       </div>
     </div>
