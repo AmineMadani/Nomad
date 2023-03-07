@@ -9,8 +9,6 @@ import BaseLayer from 'ol/layer/Base';
 import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
-import { Accordeon } from '../../drawers/patrimony/patrimony-dataset';
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -25,8 +23,7 @@ export class MapComponent implements OnInit {
 
   public map!: MapOpenLayer;
   public mapLayers: Map<string, BaseLayer> = new Map();
-  public patrimonyLayers: Set<Accordeon> = new Set();
-
+  
   ngOnInit() {
     this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {

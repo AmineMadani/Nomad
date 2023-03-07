@@ -6,42 +6,19 @@
 
   <ion-segment contentId="drawer" class="patrimony-segment" [(ngModel)]="selectedSegment">
     <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
-      <ion-segment-button value="water">
-        <ion-label>Eau Potable</ion-label>
-      </ion-segment-button>
-
-      <ion-segment-button value="sanitation">
-        <ion-label>Assainissement</ion-label>
-      </ion-segment-button>
-
-      <ion-segment-button value="favorites">
-        <ion-label>Favoris</ion-label>
-      </ion-segment-button>
-
-      <ion-segment-button value="details">
-        <ion-label>Détails</ion-label>
+      <ion-segment-button *ngFor="let i of segments | keyvalue:asIsOrder" [value]="i.key">
+        <ion-label>{{i.value.label}}</ion-label>
       </ion-segment-button>
     </div>
   </ion-segment>
 
-  <ion-accordion-group class="patrimony-content">
-    <ng-container *ngIf="selectedSegment === 'water'">
-      <app-patrimony-accordeon *ngFor="let acc of data['water']" [accordeon]="acc"></app-patrimony-accordeon>
-    </ng-container>
-    <ng-container *ngIf="selectedSegment === 'sanitation'">
-      <app-patrimony-accordeon *ngFor="let acc of data['sanitation']" [accordeon]="acc"></app-patrimony-accordeon>
-    </ng-container>
-    <ng-container *ngIf="selectedSegment === 'favorites'">
-      <app-patrimony-accordeon *ngFor="let acc of data['favorites']" [accordeon]="acc"
-        [mode]="'ios'"></app-patrimony-accordeon>
-    </ng-container>
-    <ng-container *ngIf="selectedSegment === 'details'">
-      <app-patrimony-details-tree [treeData]="data['details']"></app-patrimony-details-tree>
-    </ng-container>
-  </ion-accordion-group>
+  <div class="patrimony-content">
+    <app-patrimony-content [selectedSegment]="selectedSegment" [segments]="segments" (onSelection)="eventManager($event)"></app-patrimony-content>
+  </div>
 
   <div class="patrimony-footer-actions" lines="none">
-    <ion-button fill="clear">Réinitialiser</ion-button>
-    <ion-button fill="clear"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
+    <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedItem()">Réinitialiser</ion-button>
+    <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="selectedFavorite">Modifier le favori</ion-button>
+    <ion-button fill="clear" [disabled]="!isSelectedItemOnSelectedSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
   </div>
 </div>

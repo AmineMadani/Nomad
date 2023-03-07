@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlattener, MatTreeNestedDataSource } from '@angular/material/tree';
-import { Accordeon } from '../../patrimony-dataset';
+import { AccordeonData } from '../../patrimony-dataset';
 
 @Component({
   selector: 'app-patrimony-details-tree',
@@ -10,35 +10,35 @@ import { Accordeon } from '../../patrimony-dataset';
 })
 export class PatrimonyDetailsTreeComponent implements OnInit {
   constructor() {
-    this.selectedNodes = new Set<Accordeon>();
-    this.dataSource = new MatTreeNestedDataSource<Accordeon>();
-    this.treeControl = new NestedTreeControl<Accordeon>(
-      (node: Accordeon) => node.children
+    this.selectedNodes = new Set<AccordeonData>();
+    this.dataSource = new MatTreeNestedDataSource<AccordeonData>();
+    this.treeControl = new NestedTreeControl<AccordeonData>(
+      (node: AccordeonData) => node.children
     );
   }
 
-  @Input() treeData: Accordeon[];
-  dataSource: MatTreeNestedDataSource<Accordeon>;
-  treeControl: NestedTreeControl<Accordeon>;
-  selectedNodes: Set<Accordeon>;
+  @Input() treeData: AccordeonData[];
+  dataSource: MatTreeNestedDataSource<AccordeonData>;
+  treeControl: NestedTreeControl<AccordeonData>;
+  selectedNodes: Set<AccordeonData>;
 
   ngOnInit() {
     this.dataSource.data = this.treeData;
   }
 
-  hasChild = (_: number, node: Accordeon): boolean =>
+  hasChild = (_: number, node: AccordeonData): boolean =>
     !!node.children && node.children.length > 0;
 
-  descendantsAllSelected(node: Accordeon): boolean {
+  descendantsAllSelected(node: AccordeonData): boolean {
     const descendants = this.treeControl.getDescendants(node);
-    return descendants.every((child: Accordeon) =>
+    return descendants.every((child: AccordeonData) =>
       this.selectedNodes.has(child)
     );
   }
 
-  descendantsPartiallySelected(node: Accordeon): boolean {
+  descendantsPartiallySelected(node: AccordeonData): boolean {
     const descendants = this.treeControl.getDescendants(node);
-    const result = descendants.some((child: Accordeon) =>
+    const result = descendants.some((child: AccordeonData) =>
       this.selectedNodes.has(child)
     );
     return result && !this.descendantsAllSelected(node);
@@ -52,7 +52,7 @@ export class PatrimonyDetailsTreeComponent implements OnInit {
    * @param {Event} e - Event - the event that triggered the checkbox change
    * @param {Accordeon} node - Accordeon - this is the node that was clicked on.
    */
-  onCheckboxChange(e: Event, node: Accordeon): void {
+  onCheckboxChange(e: Event, node: AccordeonData): void {
     if (
       this.descendantsPartiallySelected(node) &&
       this.selectedNodes.has(node)
@@ -63,7 +63,7 @@ export class PatrimonyDetailsTreeComponent implements OnInit {
         ? this.selectedNodes.add(node)
         : this.selectedNodes.delete(node);
       const descendants = this.treeControl.getDescendants(node);
-      descendants.forEach((desc: Accordeon) => {
+      descendants.forEach((desc: AccordeonData) => {
         this.selectedNodes.has(node)
           ? this.selectedNodes.add(desc)
           : this.selectedNodes.delete(desc);

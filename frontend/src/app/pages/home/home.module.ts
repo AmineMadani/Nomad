@@ -21,6 +21,7 @@ import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
+import { PatrimonyContentComponent } from './drawers/patrimony/components/patrimony-content/patrimony-content.component';
 
 @NgModule({
   imports: [
@@ -42,6 +43,7 @@ import { ActionsLayerComponent } from './components/actions-layer/actions-layer.
     PatrimonyDrawer,
     InterventionDrawer,
     PerimeterDrawer,
+    PatrimonyContentComponent,
     PatrimonyAccordeonComponent,
     PatrimonyDetailsTreeComponent,
   ],

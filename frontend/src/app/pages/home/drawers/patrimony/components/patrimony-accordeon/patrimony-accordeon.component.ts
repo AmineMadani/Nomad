@@ -1,6 +1,7 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
+import { FavoriteSelection } from 'src/app/models/favorite.model';
 import { MapService } from 'src/app/services/map.service';
-import { Accordeon } from '../../patrimony-dataset';
+import { AccordeonData, AccordeonSelection } from '../../patrimony-dataset';
 import { FavoritesActionEnum } from './favorites-action.enum';
 
 @Component({
@@ -9,36 +10,33 @@ import { FavoritesActionEnum } from './favorites-action.enum';
   styleUrls: ['./patrimony-accordeon.component.scss'],
 })
 export class PatrimonyAccordeonComponent implements OnInit {
-  constructor(private mapService: MapService) {
-    this.selectedChildren = new Set<Accordeon>();
-  }
 
-  @Input() accordeon: Accordeon;
-  @Input() mode: 'md' | 'ios' = 'md';
-  isChecked: boolean = false;
-  isIndeterminate: boolean = false;
-  selectedChildren: Set<Accordeon>;
+  constructor(
+    private mapService: MapService
+  ) {}
+
+  @Input() accordeonData: AccordeonData;
+  @Input() mode: 'md' | 'ios' | undefined = 'md';
+  @Input() singleSelection: boolean = false;
+  @Input() selectedSegment: string;
+  @Input() saveableFavorite: boolean = false;
+  @Input() type: string;
+
+  @Output("onSingleSelection") onSingleSelection: EventEmitter<AccordeonSelection> = new EventEmitter();
+  @Output("onSelection") onSelection: EventEmitter<AccordeonSelection> = new EventEmitter();
+
   favsAction: FavoritesActionEnum;
   icon: string = '';
 
   private isOpen: boolean = false;
 
   ngOnInit() {
-    if (this.accordeon.children && this.accordeon.children.length > 0 || this.mode === 'ios') {
+    if (this.accordeonData.children && this.accordeonData.children.length > 0 || this.mode === 'ios') {
       this.icon = 'add-outline';
     }
-    if (this.mapService.getCurrentLayersKey().length > 0) {
-      this.mapService.getCurrentLayersKey().forEach((k: string) => {
-        const child: Accordeon | undefined = this.accordeon.children?.find((acc) => acc.key === k);
-        if (child) {
-          this.selectedChildren.add(child);
-        } else if (this.accordeon.key === k) {
-          this.isChecked = true;
-        }
-      })
-      if (this.accordeon.children?.filter((acc) => this.mapService.getCurrentLayersKey().includes(acc.key)).length !== 0) {
-        this.isIndeterminate = true;
-      }
+    if (this.accordeonData.children?.filter((acc) => acc.selected).length !== 0 
+        && this.accordeonData.children?.filter((acc) => acc.selected).length !== this.accordeonData.children?.length) {
+      this.accordeonData.isInderminate = true;
     }
   }
 
@@ -49,7 +47,7 @@ export class PatrimonyAccordeonComponent implements OnInit {
    * @param {MouseEvent} event - MouseEvent - the event that triggered the function.
    */
   checkOpeningRule(event: MouseEvent): void {
-    if (this.accordeon.children && this.accordeon.children.length === 0 && this.mode === 'md') {
+    if (this.accordeonData.children && this.accordeonData.children.length === 0 && this.mode === 'md') {
       event.stopPropagation();
     } else {
       this.isOpen = !this.isOpen;
@@ -63,42 +61,73 @@ export class PatrimonyAccordeonComponent implements OnInit {
    * @param {Event} e - Event (IonCheckboxCustomEvent) - event triggered when status changed (by clicking or changing isChecked value)
    */
   onCheckboxChange(e: Event): void {
-    this.isChecked = (e as CustomEvent).detail.checked;
-    this.isIndeterminate = this.isChecked ? false : this.isIndeterminate;
-    if (!this.isIndeterminate) {
-      if (this.isChecked && this.accordeon.children) {
-        this.accordeon.children.forEach((child: Accordeon) => {
-          if (!this.selectedChildren.has(child)) {
-            this.selectedChildren.add(child);
+    this.accordeonData.selected = (e as CustomEvent).detail.checked;
+    this.managerEvent(this.accordeonData, false, null,'select');
+    this.accordeonData.isInderminate = this.accordeonData.selected ? false : this.accordeonData.isInderminate;
+    if (!this.accordeonData.isInderminate) {
+      if (this.accordeonData.selected) {
+        this.accordeonData.children?.forEach((child: AccordeonData) => {
+          if (!child.selected) {
+            child.selected=true;
+            this.managerEvent(child,true,this.accordeonData,'select');
             if (child.key.length > 0) this.mapService.addEventLayer(child.key);
           }
         });
-        if (this.accordeon.key.length > 0) this.mapService.addEventLayer(this.accordeon.key);
-      } else if (!this.isChecked) {
-        this.selectedChildren.forEach((acc: Accordeon) => {
-          this.mapService.removeEventLayer(acc.key);
-        })
-        if (this.accordeon.key.length > 0) this.mapService.removeEventLayer(this.accordeon.key);
-        this.selectedChildren.clear();
+        if (this.accordeonData.key.length > 0) this.mapService.addEventLayer(this.accordeonData.key);
+      } else {
+        this.accordeonData.children?.forEach((child: AccordeonData) => {
+          if (child.selected) {
+            child.selected=false;
+            this.managerEvent(child,true,this.accordeonData,'select');
+            console.log(child.key);
+            if (child.key.length > 0) this.mapService.removeEventLayer(child.key);
+          } else {
+            if (child.key.length > 0) this.mapService.removeEventLayer(child.key);
+          }
+        });
+        if (this.accordeonData.key.length > 0) this.mapService.removeEventLayer(this.accordeonData.key);
       }
+    }
+  }
+
+  managerEvent(item:AccordeonData, isChild:boolean, parent:AccordeonData|null, action: string){
+    let selectedAccordeonData: AccordeonSelection = {
+      data: item,
+      type: this.type,
+      segment: this. selectedSegment,
+      action: action,
+      isChild: isChild,
+      parent: parent
+    }
+    if(this.singleSelection && item.selected){
+      this.onSingleSelection.emit(selectedAccordeonData);
+    }
+    if(this.saveableFavorite){
+      this.onSelection.emit(selectedAccordeonData);
+    }
+    if(this.type === "favorite"){
+      this.onSelection.emit(selectedAccordeonData);
     }
   }
 
   /**
    * If the child is already in the Set, delete it, otherwise add it
-   * @param {Accordeon} child - Accordeon
+   * @param {AccordeonData} child - Accordeon
    */
-  onChildSelected(child: Accordeon): void {
-    if (this.selectedChildren.has(child)) {
-      this.selectedChildren.delete(child);
+  onChildSelected(child: AccordeonData): void {
+    if (child.selected) {
       this.mapService.removeEventLayer(child.key);
+      child.selected = false;
     } else {
-      this.selectedChildren.add(child);
       this.mapService.addEventLayer(child.key);
+      child.selected = true;
     }
-    this.isChecked = this.selectedChildren.size === this.accordeon?.children?.length;
-    this.isIndeterminate = !this.isChecked && this.selectedChildren.size > 0;
+    this.managerEvent(child,true,this.accordeonData,'select');
+    this.accordeonData.selected = this.accordeonData?.children?.filter(e => e.selected).length === this.accordeonData?.children?.length;
+    this.accordeonData.isInderminate = !this.accordeonData.selected && this.accordeonData?.children?.filter(e => e.selected).length != 0;
   }
+
+  
 
 /**
  * Sets the value of the `favsAction` property to the value of
@@ -106,6 +135,8 @@ export class PatrimonyAccordeonComponent implements OnInit {
  * @param {string} action - string - the action to be performed on the favorites
  */
   setDetailAction(action: string): void {
-    this.favsAction = FavoritesActionEnum[action as keyof typeof FavoritesActionEnum];
+    if(action === 'DELETE') {
+      this.managerEvent(this.accordeonData, false, null,'delete');
+    }
   }
 }

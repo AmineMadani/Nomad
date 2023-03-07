@@ -34,7 +34,7 @@ export class MapService {
   }
 
   addEventLayer(layerKey: string): void {
-    if (!this.hasEventLayer(layerKey)) {
+    if (layerKey && layerKey != '' && !this.hasEventLayer(layerKey)) {
       const mLayer: MapLayer = new MapLayer(
         layerKey,
         this.mapStyle.getStyle(layerKey),
