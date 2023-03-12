@@ -1,0 +1,31 @@
+<ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment" (ionChange)="onSegmentChange($event)">
+  <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
+    <ion-segment-button *ngFor="let filterSegment of filter.segments" [value]="filterSegment.id">
+      <ion-label>{{filterSegment.name}}</ion-label>
+    </ion-segment-button>
+  </div>
+</ion-segment>
+
+<div class="filter-content">
+  <ng-container *ngFor="let filterSegment of filter.segments">
+    <ng-container *ngIf="selectedSegment === filterSegment.id">
+      <ng-container *ngFor="let component of filterSegment.components">
+        <ng-container *ngIf="component.getType() == 'accordeonFilter'">
+          <ion-accordion-group multiple="true">
+            <app-filter-accordeon *ngFor="let data of component.data" [data]="data"/>
+          </ion-accordion-group>
+        </ng-container>
+        <ng-container *ngIf="component.getType() == 'favoriteFilter'">
+          <ion-accordion-group>
+            <app-filter-favorite *ngFor="let data of component.data" [data]="data" [filter]="filter"/>
+          </ion-accordion-group>
+        </ng-container>
+        <ng-container *ngIf="component.getType() == 'treeFilter'">
+          <ion-accordion-group>
+            <app-filter-tree [data]="component.data"/>
+          </ion-accordion-group>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</div>

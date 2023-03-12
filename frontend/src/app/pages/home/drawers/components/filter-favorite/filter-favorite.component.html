@@ -1,0 +1,18 @@
+<ion-accordion *ngIf="data" [toggleIcon]="''">
+  <ion-item slot="header" (click)="checkOpeningRule($event)">
+    <ion-checkbox slot="start" mode="ios" [checked]='data.value'
+      (click)="onCheckboxChange($event);$event.stopPropagation()"></ion-checkbox>
+    <ion-label>{{ data.name }}</ion-label>
+    <ion-icon slot="end" color="primary" [name]="icon"></ion-icon>
+  </ion-item>
+  <div class="ion-action-padding" slot="content">
+    <ion-item class="favorites-action" lines="none">
+      <ion-label>
+        <div class="scrolling-wrapper">
+          <ion-button fill="clear" (click)="setDetailAction('RENAME')">Renommer</ion-button>
+          <ion-button fill="clear" (click)="setDetailAction('DELETE')">Supprimer</ion-button>
+        </div>
+      </ion-label>
+    </ion-item>
+  </div>
+</ion-accordion>

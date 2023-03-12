@@ -1,10 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
+import { patrimonyFilterMock } from 'src/app/mocks/filter-patrimony.mock';
 import { Favorite, favorites, FavoriteSelection } from 'src/app/models/favorite.model';
+import { Filter } from 'src/app/models/filter-models/filter.model';
 import { MapService } from 'src/app/services/map.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { DrawerService } from '../drawer.service';
-import { Segment, data, AccordeonData, AccordeonSelection } from './patrimony-dataset';
 
 @Component({
   selector: 'app-patrimony',
@@ -16,16 +17,15 @@ export class PatrimonyDrawer implements OnInit {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private mapService: MapService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) { }
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
-  selectedSegment: string = 'water';
-  segments: Map<string, Segment> = data;
   favorites: Favorite[] = favorites;
 
-  selectedFavorite: AccordeonData | null;
+  filter: Filter = patrimonyFilterMock;
 
   ngOnInit() {
   }
@@ -42,6 +42,7 @@ export class PatrimonyDrawer implements OnInit {
     return a.value.position - b.value.position;
   }
 
+  /*
   reset() {
     for (let segment of this.segments.entries()) {
       for (let data of segment[1].data) {
@@ -70,6 +71,15 @@ export class PatrimonyDrawer implements OnInit {
         if (this.recursiveSelectedItem(segment.data[i])) {
           return true;
         }
+      }
+    }
+    return false;
+  }
+
+  isModifyFavorite = () => {
+    if (this.selectedFavorite?.segmentParent === this.selectedSegment) {
+      if (this.isSelectedItemOnSelectedSegment()) {
+        return true;
       }
     }
     return false;
@@ -148,6 +158,9 @@ export class PatrimonyDrawer implements OnInit {
       }
       if (accordeonSelection.action === 'delete') {
         this.removeFavorite(accordeonSelection);
+      }
+      if (accordeonSelection.action === 'rename') {
+        this.renameFavorite(accordeonSelection);
       }
     }
   }
@@ -282,4 +295,142 @@ export class PatrimonyDrawer implements OnInit {
       datas.splice(index, 0, removeData);
     }
   }
+
+  async renameFavorite(accordeonSelection: AccordeonSelection) {
+    const alert = await this.alertController.create({
+      header: 'Renommer le favori',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: (alertData) => {
+            for (let favorite of this.favorites) {
+              if (favorite.name === alertData.name) {
+                if (favorite.name.charAt(favorite.name.length - 1).match(/[0-9]/)) {
+                  let val = Number(favorite.name.charAt(favorite.name.length - 1));
+                  val++;
+                  alertData.name = alertData.name.slice(0, -1) + val;
+                } else {
+                  alertData.name = alertData.name + ' - 1';
+                }
+              }
+            }
+            for (let favorite of this.favorites) {
+              if (favorite.name === accordeonSelection.data.name) {
+                favorite.name = alertData.name
+              }
+            }
+            accordeonSelection.data.name = alertData.name;
+          }
+        },
+      ],
+      inputs: [
+        {
+          name: 'name',
+          placeholder: 'Intitulé du favoris',
+          value: accordeonSelection.data.name
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  constructFavorite(name: string): Favorite {
+    let newFavorite: Favorite = {
+      name: name,
+      favoriteItems: []
+    };
+    let segment = this.segments.get(this.selectedSegment);
+    if (segment && segment.saveableFavorite) {
+      for (let data of segment.data) {
+        this.recursiveConstructFavorite(data, this.selectedSegment, newFavorite, false, []);
+      }
+    }
+
+    return newFavorite;
+  }
+
+  recursiveConstructFavorite(item: AccordeonData, segment: string, favorites: Favorite, isChild: boolean, childs: string[]) {
+    if (item.selected || item.isInderminate) {
+      if (isChild) {
+        childs.push(item.name);
+      } else {
+        favorites.favoriteItems.push({
+          segment: segment,
+          parent: item.name,
+          child: childs
+        });
+      }
+    }
+    if (item.children && item.isInderminate) {
+      for (let i = 0; i < item.children.length; i++) {
+        this.recursiveSelectedModifyFavorite(item.children[i], segment, favorites, true, childs);
+      }
+    }
+  }
+
+  async addFavorite() {
+    const alert = await this.alertController.create({
+      header: "Ajout d'un favori",
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: (alertData) => {
+            for (let favorite of this.favorites) {
+              if (favorite.name === alertData.name) {
+                if (favorite.name.charAt(favorite.name.length - 1).match(/[0-9]/)) {
+                  let val = Number(favorite.name.charAt(favorite.name.length - 1));
+                  val++;
+                  alertData.name = alertData.name.slice(0, -1) + val;
+                } else {
+                  alertData.name = alertData.name + ' - 1';
+                }
+              }
+            }
+
+            console.log(alertData.name);
+
+            let segment = this.segments.get('favorites');
+            if (segment) {
+              for (let data of segment.data) {
+                data.selected = false;
+              }
+
+              let accordeonData: AccordeonData = {
+                name: alertData.name,
+                imgSrc: '',
+                key: '',
+                children: [],
+                segmentParent: this.selectedSegment,
+                selected: true,
+                isInderminate: false
+              };
+
+              segment.data.push(accordeonData);
+              this.favorites.push(this.constructFavorite(alertData.name));
+              this.selectedFavorite = accordeonData;
+            }
+          }
+        },
+      ],
+      inputs: [
+        {
+          name: 'name',
+          placeholder: 'Intitulé du favoris'
+        },
+      ],
+    });
+
+    await alert.present();
+  }*/
 }

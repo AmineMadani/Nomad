@@ -1,0 +1,16 @@
+<ion-accordion *ngIf="data" [toggleIcon]="''">
+  <ion-item slot="header" (click)="checkOpeningRule($event)">
+    <ion-checkbox slot="start" [checked]='data.value' [indeterminate]="data.isIndeterminate"
+      (ionChange)="onCheckboxChange($event)" (click)="$event.stopPropagation()"></ion-checkbox>
+    <ion-label>{{ data.name }}</ion-label>
+    <ion-icon slot="end" color="primary" [name]="icon"></ion-icon>
+  </ion-item>
+  <div class="ion-padding" slot="content">
+    <div *ngFor="let child of data.children" class="children"
+      [class.children-selected]="child.value" (click)="onChildSelected(child)">
+      <img [src]="child.imgSrc" width="70" height="70" />
+      <span>{{ child.name }}</span>
+      <div *ngIf="child.value" class="child-selected-arrow"><ion-icon size="large" name="checkmark"></ion-icon></div>
+    </div>
+  </div>
+</ion-accordion>

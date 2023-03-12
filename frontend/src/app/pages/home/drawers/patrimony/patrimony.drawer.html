@@ -4,21 +4,11 @@
     <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
   </ion-item>
 
-  <ion-segment contentId="drawer" class="patrimony-segment" [(ngModel)]="selectedSegment">
-    <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
-      <ion-segment-button *ngFor="let i of segments | keyvalue:asIsOrder" [value]="i.key">
-        <ion-label>{{i.value.label}}</ion-label>
-      </ion-segment-button>
-    </div>
-  </ion-segment>
-
-  <div class="patrimony-content">
-    <app-patrimony-content [selectedSegment]="selectedSegment" [segments]="segments" (onSelection)="eventManager($event)"></app-patrimony-content>
-  </div>
+  <app-filter-content [filter]="filter" class="filter-content"/>
 
   <div class="patrimony-footer-actions" lines="none">
-    <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedItem()">Réinitialiser</ion-button>
-    <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="selectedFavorite">Modifier le favori</ion-button>
-    <ion-button fill="clear" [disabled]="!isSelectedItemOnSelectedSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
+    <ion-button fill="clear" >Réinitialiser</ion-button>
+    <ion-button fill="clear" >Modifier le favori</ion-button>
+    <ion-button fill="clear" ><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
   </div>
 </div>

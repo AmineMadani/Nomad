@@ -15,14 +15,14 @@ import { MatTreeModule } from '@angular/material/tree';
 import { HttpClientModule } from '@angular/common/http';
 import { MapService } from 'src/app/services/map.service';
 import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
-import { PatrimonyAccordeonComponent } from './drawers/patrimony/components/patrimony-accordeon/patrimony-accordeon.component';
-import { PatrimonyDetailsTreeComponent } from './drawers/patrimony/components/patrimony-details-tree/patrimony-details-tree.component';
 import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
-import { PatrimonyContentComponent } from './drawers/patrimony/components/patrimony-content/patrimony-content.component';
-
+import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
+import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/filter-accordeon.component';
+import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
+import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -43,9 +43,10 @@ import { PatrimonyContentComponent } from './drawers/patrimony/components/patrim
     PatrimonyDrawer,
     InterventionDrawer,
     PerimeterDrawer,
-    PatrimonyContentComponent,
-    PatrimonyAccordeonComponent,
-    PatrimonyDetailsTreeComponent,
+    FilterContentComponent,
+    FilterAccordeonComponent,
+    FilterFavoriteComponent,
+    FilterTreeComponent
   ],
   providers: [MapService],
 })

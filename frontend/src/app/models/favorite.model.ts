@@ -1,4 +1,4 @@
-import { AccordeonData } from "../pages/home/drawers/patrimony/patrimony-dataset";
+import { AccordeonData } from "./filter-models/filter-component-models/AccordeonFilter.model";
 
 export interface Favorite {
     name: string;

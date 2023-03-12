@@ -1,0 +1,29 @@
+.ion-padding {
+    display: flex;
+    flex-flow: wrap;
+    justify-content: space-between;
+}
+
+.ion-action-padding {
+    display: flex;
+    flex-direction: column;
+
+    .favorites-action {
+        --ion-item-background: linear-gradient(0deg, rgba(128, 65, 128, 0.05), rgba(128, 65, 128, 0.05)), var(--ion-color-surface-light-1);
+
+        ion-label {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    }
+
+    ion-label {
+        cursor: pointer;
+        text-align: center;
+        color: var(--ion-color-primary);
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0.1px;
+    }
+}
