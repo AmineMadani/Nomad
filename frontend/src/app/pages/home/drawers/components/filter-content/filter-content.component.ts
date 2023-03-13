@@ -15,10 +15,10 @@ export class FilterContentComponent implements OnInit {
 
   @Input() filter: Filter;
 
-  selectedSegment: number = 1;
+  selectedSegment?: number;
 
   ngOnInit() {
-    console.log(this.filter.segments[0].components[0].getType());
+    this.selectedSegment = this.filter.segments.find(segment => segment.selected)?.id
   }
 
   isMobile(): boolean {
@@ -26,7 +26,15 @@ export class FilterContentComponent implements OnInit {
   }
 
   onSegmentChange(event:any){
-    this.selectedSegment=Number(event.detail.value);
+    let valSegment = Number(event.detail.value);
+    this.selectedSegment=valSegment;
+    this.filter.segments.forEach(segment => {
+      if(segment.id != valSegment) {
+        segment.selected=false;
+      } else {
+        segment.selected= true;
+      }
+    })
   }
 
 }

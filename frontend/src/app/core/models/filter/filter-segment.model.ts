@@ -1,4 +1,5 @@
 import { AccordeonFilter } from "./filter-component-models/AccordeonFilter.model";
+import { FavoriteFilter } from "./filter-component-models/FavoriteFilter.model";
 import { TreeFilter } from "./filter-component-models/TreeFilter.model";
 
 export interface FilterSegment {
@@ -6,5 +7,5 @@ export interface FilterSegment {
     position: number,
     name: string,
     selected: boolean,
-    components: (AccordeonFilter | TreeFilter)[]
+    components: (AccordeonFilter | TreeFilter | FavoriteFilter)[]
 }

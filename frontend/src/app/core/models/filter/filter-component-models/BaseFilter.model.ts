@@ -2,7 +2,8 @@ export interface BaseFilter{
     id:number,
     isRecordableFavorite:boolean,
     position: number,
-    getType(): string
+    getType(): string,
+    reset(): void
 }
 
 export interface BaseFilterData{

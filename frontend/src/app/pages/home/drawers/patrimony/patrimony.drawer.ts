@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { patrimonyFilterMock } from 'src/app/core/mocks/filter-patrimony.mock';
 import { Favorite, favorites } from 'src/app/core/models/favorite.model';
+import { FavoriteData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { Filter } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map.service';
@@ -16,9 +17,6 @@ export class PatrimonyDrawer implements OnInit {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
-    private mapService: MapService,
-    private toastController: ToastController,
-    private alertController: AlertController
   ) { }
 
   @ViewChild('scrolling') scrolling: ElementRef;
@@ -42,16 +40,48 @@ export class PatrimonyDrawer implements OnInit {
     return a.value.position - b.value.position;
   }
 
-  /*
-  reset() {
-    for (let segment of this.segments.entries()) {
-      for (let data of segment[1].data) {
-        this.deselectData(data);
-      };
-    };
-    this.selectedFavorite = null;
+  isFavoriteSegment = () => {
+    for(let segment of this.filter.segments) {
+      if(segment.selected) {
+        for(let component of segment.components){
+          if(component.getType() === 'favoriteFilter') {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
+  isModifyFavorite = () => {
+    for(let segment of this.filter.segments) {
+      for(let component of segment.components){
+        if(component.getType() === 'favoriteFilter') {
+          for(let data of component.data) {
+            let favoriteData: FavoriteData = data;
+            if(favoriteData.value){
+              for(let segmentPrime of this.filter.segments) {
+                if(segmentPrime.selected && segmentPrime.id === favoriteData.segmentId) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  reset() {
+    for(let segment of this.filter.segments) {
+      for(let component of segment.components){
+        component.reset();
+      }
+    }
+  }
+
+  /*
   isSelectedItem = () => {
     for (let entry of this.segments.entries()) {
       let segment = entry[1];

@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { FavoriteData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { Filter } from 'src/app/core/models/filter/filter.model';
 
 @Component({
   selector: 'app-filter-favorite',
@@ -17,12 +16,7 @@ export class FilterFavoriteComponent implements OnInit {
 
   @Input() datas: FavoriteData[];
 
-  icon: string = '';
-  isOpen: boolean = false;
-
   ngOnInit() {
-    console.log(this.datas);
-    this.icon = 'add-outline';
   }
 
   /**
@@ -32,13 +26,14 @@ export class FilterFavoriteComponent implements OnInit {
    */
   onCheckboxChange(e: Event, data: FavoriteData): void {
     data.value = (e as CustomEvent).detail.checked;
-    this.datas.forEach(item => {
-      if(item.id != data.id) {
-        item.value=false;
-      }
-    })
+    if(data.value) {
+      this.datas.forEach(item => {
+        if(item.id != data.id) {
+          item.value=false;
+        }
+      });
+    }
   }
-
   
   /**
    * If the accordeon has no children or is in md mode, then stop the event

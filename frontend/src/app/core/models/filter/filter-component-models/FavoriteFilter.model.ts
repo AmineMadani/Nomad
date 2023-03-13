@@ -16,11 +16,19 @@ export class FavoriteFilter implements BaseFilter {
     getType(): string {
         return 'favoriteFilter';
     }
+
+    reset(): void {
+        for(let data of this.data){
+            data.value=false;
+            data.isOpen=false;
+        }
+    }
 }
 
 export interface FavoriteData extends BaseFilterData {
     dataSave?: FavoriteItem[];
     isOpen?: boolean;
+    segmentId?: number;
 }
 
 export interface FavoriteItem {

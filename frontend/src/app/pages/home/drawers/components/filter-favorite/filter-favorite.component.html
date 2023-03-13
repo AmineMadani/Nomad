@@ -1,7 +1,7 @@
 <ion-accordion *ngFor="let data of datas" [toggleIcon]="''">
   <ion-item slot="header" (click)="checkOpeningRule(data)">
     <ion-checkbox slot="start" mode="ios" [checked]='data.value'
-      (click)="onCheckboxChange($event,data);$event.stopPropagation()"></ion-checkbox>
+    (ionChange)="onCheckboxChange($event,data)" (click)="$event.stopPropagation()"></ion-checkbox>
     <ion-label>{{ data.name }}</ion-label>
     <ion-icon slot="end" color="primary" [name]="data.isOpen ? 'remove-outline' : 'add-outline'"></ion-icon>
   </ion-item>

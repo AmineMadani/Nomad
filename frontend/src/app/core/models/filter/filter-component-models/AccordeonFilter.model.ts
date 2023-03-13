@@ -16,6 +16,21 @@ export class AccordeonFilter implements BaseFilter {
     getType(): string {
         return 'accordeonFilter';
     }
+
+    reset(): void {
+        for(let data of this.data){
+            this.recursiveReset(data);
+        }
+    }
+
+    recursiveReset(data: AccordeonData): void {
+        data.value=false;
+        if(data.children) {
+            for(let child of data.children) {
+                this.recursiveReset(child);
+            }
+        }
+    }
 }
 
 export interface AccordeonData extends BaseFilterData {

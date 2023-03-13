@@ -136,13 +136,17 @@ export const patrimonyFilterMock: Filter = {
                     id: 1,
                     name: 'eau - favoris - 1',
                     position: 1,
-                    dataSave: []
+                    dataSave: [],
+                    segmentId:1,
+                    value:false
                 },
                 {
                     id: 2,
                     name: 'Assainissement - favoris - 1',
                     position: 2,
-                    dataSave: []
+                    dataSave: [],
+                    value: false,
+                    segmentId:2,
                 }
 
             ])]
