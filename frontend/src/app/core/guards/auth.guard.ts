@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 import { environment } from 'src/environments/environment';
-import { KeycloakService } from './keycloak.service';
+import { KeycloakService } from '../services/keycloak.service';
 
 @Injectable({
   providedIn: 'root'

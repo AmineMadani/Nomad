@@ -1,11 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
-import { patrimonyFilterMock } from 'src/app/mocks/filter-patrimony.mock';
-import { Favorite, favorites, FavoriteSelection } from 'src/app/models/favorite.model';
-import { Filter } from 'src/app/models/filter-models/filter.model';
-import { DrawerService } from 'src/app/services/drawer.service';
-import { MapService } from 'src/app/services/map.service';
-import { UtilsService } from 'src/app/services/utils.service';
+import { patrimonyFilterMock } from 'src/app/core/mocks/filter-patrimony.mock';
+import { Favorite, favorites } from 'src/app/core/models/favorite.model';
+import { Filter } from 'src/app/core/models/filter/filter.model';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { MapService } from 'src/app/core/services/map.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-patrimony',

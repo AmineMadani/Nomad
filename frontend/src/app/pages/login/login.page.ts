@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { KeycloakService } from 'src/app/services/keycloak.service';
+import { KeycloakService } from 'src/app/core/services/keycloak.service';
 
 @Component({
   selector: 'app-login',

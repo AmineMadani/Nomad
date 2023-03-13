@@ -6,14 +6,12 @@ import { IonicModule } from '@ionic/angular';
 
 import { HomePageRoutingModule } from './home-routing.module';
 
-import { SharedModule } from 'src/app/modules/shared.module';
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';
 import { MapComponent } from './components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
 import { HttpClientModule } from '@angular/common/http';
-import { MapService } from 'src/app/services/map.service';
 import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
@@ -24,6 +22,8 @@ import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/
 import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
 import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { MapService } from 'src/app/core/services/map.service';
 
 @NgModule({
   imports: [

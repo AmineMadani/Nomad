@@ -1,7 +1,7 @@
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { TreeData } from 'src/app/models/filter-models/filter-component-models/TreeFilter.model';
+import { TreeData } from 'src/app/core/models/filter/filter-component-models/TreeFilter.model';
 
 @Component({
   selector: 'app-filter-tree',

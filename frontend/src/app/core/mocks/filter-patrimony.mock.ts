@@ -1,7 +1,8 @@
-import { AccordeonFilter } from "../models/filter-models/filter-component-models/AccordeonFilter.model";
-import { FavoriteFilter } from "../models/filter-models/filter-component-models/FavoriteFilter.model";
-import { TreeData, TreeFilter } from "../models/filter-models/filter-component-models/TreeFilter.model";
-import { Filter } from "../models/filter-models/filter.model";
+import { AccordeonFilter } from "../models/filter/filter-component-models/AccordeonFilter.model";
+import { FavoriteFilter } from "../models/filter/filter-component-models/FavoriteFilter.model";
+import { TreeFilter } from "../models/filter/filter-component-models/TreeFilter.model";
+import { Filter } from "../models/filter/filter.model";
+
 
 export const patrimonyFilterMock: Filter = {
     id: 1,

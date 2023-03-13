@@ -1,4 +1,4 @@
-import { AccordeonData } from "./filter-models/filter-component-models/AccordeonFilter.model";
+import { AccordeonData } from "./filter/filter-component-models/AccordeonFilter.model";
 
 export interface Favorite {
     name: string;

@@ -1,11 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
-import { UtilsService } from 'src/app/services/utils.service';
 import { DrawerRouteEnum } from '../drawer.enum';
-import { DrawerService } from '../../../../services/drawer.service';
 import { ActionButton, Section } from './equipment-drawer.model';
 import { ActivatedRoute } from '@angular/router';
-import { EquipmentDataService } from 'src/app/services/dataservices/equipment.dataservice';
+import { UtilsService } from 'src/app/core/services/utils.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
 
 @Component({
   selector: 'app-equipment-drawer',

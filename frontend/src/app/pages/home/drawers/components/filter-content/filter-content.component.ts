@@ -1,8 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AccordeonFilter } from 'src/app/models/filter-models/filter-component-models/AccordeonFilter.model';
-import { FilterSegment } from 'src/app/models/filter-models/filter-segment.model';
-import { Filter } from 'src/app/models/filter-models/filter.model';
-import { UtilsService } from 'src/app/services/utils.service';
+import { Filter } from 'src/app/core/models/filter/filter.model';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-filter-content',

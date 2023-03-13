@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { KeycloakService } from 'src/app/services/keycloak.service';
 
 @Component({
   selector: 'app-error',

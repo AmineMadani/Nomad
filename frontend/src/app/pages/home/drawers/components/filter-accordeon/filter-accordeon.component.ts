@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { stopPropagation } from 'ol/events/Event';
-import { AccordeonData } from 'src/app/models/filter-models/filter-component-models/AccordeonFilter.model';
-import { MapService } from 'src/app/services/map.service';
+import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
+import { MapService } from 'src/app/core/services/map.service';
 
 @Component({
   selector: 'app-filter-accordeon',

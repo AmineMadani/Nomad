@@ -1,8 +1,8 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { CacheService } from 'src/app/services/cache.service';
-import { KeycloakService } from 'src/app/services/keycloak.service';
-import { UtilsService } from 'src/app/services/utils.service';
+import { CacheService } from 'src/app/core/services/cache.service';
+import { KeycloakService } from 'src/app/core/services/keycloak.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 import { environment } from 'src/environments/environment';
 
 @Component({

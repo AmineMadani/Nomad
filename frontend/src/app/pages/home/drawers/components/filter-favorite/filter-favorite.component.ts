@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FavoriteData } from 'src/app/models/filter-models/filter-component-models/FavoriteFilter.model';
-import { Filter } from 'src/app/models/filter-models/filter.model';
+import { FavoriteData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { Filter } from 'src/app/core/models/filter/filter.model';
 
 @Component({
   selector: 'app-filter-favorite',
