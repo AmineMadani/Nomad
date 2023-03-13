@@ -1,16 +1,16 @@
-<ion-accordion *ngIf="data" [toggleIcon]="''">
-  <ion-item slot="header" (click)="checkOpeningRule($event)">
+<ion-accordion *ngFor="let data of datas" [toggleIcon]="''">
+  <ion-item slot="header" (click)="checkOpeningRule(data)">
     <ion-checkbox slot="start" mode="ios" [checked]='data.value'
-      (click)="onCheckboxChange($event);$event.stopPropagation()"></ion-checkbox>
+      (click)="onCheckboxChange($event,data);$event.stopPropagation()"></ion-checkbox>
     <ion-label>{{ data.name }}</ion-label>
-    <ion-icon slot="end" color="primary" [name]="icon"></ion-icon>
+    <ion-icon slot="end" color="primary" [name]="data.isOpen ? 'remove-outline' : 'add-outline'"></ion-icon>
   </ion-item>
   <div class="ion-action-padding" slot="content">
     <ion-item class="favorites-action" lines="none">
       <ion-label>
         <div class="scrolling-wrapper">
-          <ion-button fill="clear" (click)="setDetailAction('RENAME')">Renommer</ion-button>
-          <ion-button fill="clear" (click)="setDetailAction('DELETE')">Supprimer</ion-button>
+          <ion-button fill="clear" (click)="renameFavorite(data)">Renommer</ion-button>
+          <ion-button fill="clear" (click)="deleteFavorite(data)">Supprimer</ion-button>
         </div>
       </ion-label>
     </ion-item>

@@ -20,6 +20,7 @@ export class FavoriteFilter implements BaseFilter {
 
 export interface FavoriteData extends BaseFilterData {
     dataSave?: FavoriteItem[];
+    isOpen?: boolean;
 }
 
 export interface FavoriteItem {

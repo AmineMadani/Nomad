@@ -139,7 +139,7 @@ export const patrimonyFilterMock: Filter = {
                     dataSave: []
                 },
                 {
-                    id: 1,
+                    id: 2,
                     name: 'Assainissement - favoris - 1',
                     position: 2,
                     dataSave: []

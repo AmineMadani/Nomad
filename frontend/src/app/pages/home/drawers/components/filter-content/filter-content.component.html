@@ -17,7 +17,7 @@
         </ng-container>
         <ng-container *ngIf="component.getType() == 'favoriteFilter'">
           <ion-accordion-group>
-            <app-filter-favorite *ngFor="let data of component.data" [data]="data" [filter]="filter"/>
+            <app-filter-favorite [datas]="component.data"/>
           </ion-accordion-group>
         </ng-container>
         <ng-container *ngIf="component.getType() == 'treeFilter'">
