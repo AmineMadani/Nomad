@@ -23,6 +23,8 @@ import { FilterContentComponent } from './drawers/components/filter-content/filt
 import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/filter-accordeon.component';
 import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
+import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -46,7 +48,8 @@ import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tre
     FilterContentComponent,
     FilterAccordeonComponent,
     FilterFavoriteComponent,
-    FilterTreeComponent
+    FilterTreeComponent,
+    EquipmentDrawer,
   ],
   providers: [MapService],
 })

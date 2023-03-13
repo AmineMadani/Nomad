@@ -1,6 +1,10 @@
 $width-actions-layers: 600px;
 $width-actions-layers-mobile: 100%;
 
+ion-modal {
+  --border-radius: 28px 28px 0px 0px !important;
+}
+
 .home-main-content {
     display: flex;
     width: 100%;

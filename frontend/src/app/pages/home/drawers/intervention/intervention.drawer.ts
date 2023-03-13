@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { DrawerService } from '../drawer.service';
+import { DrawerService } from '../../../../services/drawer.service';
 
 @Component({
   selector: 'app-intervention',

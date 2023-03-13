@@ -3,8 +3,8 @@ import { UtilsService } from 'src/app/services/utils.service';
 import { MapComponent } from './components/map/map.component';
 import { BackLayer, MAP_DATASET } from './components/map/map.dataset';
 import { Subject, takeUntil } from 'rxjs';
-import { DrawerRouteEnum } from './drawers/drawer.enum';
-import { DrawerService } from './drawers/drawer.service';
+import { DrawerRouteEnum, DrawerTypeEnum } from './drawers/drawer.enum';
+import { DrawerService } from '../../services/drawer.service';
 
 @Component({
   selector: 'app-home',
@@ -19,9 +19,11 @@ export class HomePage implements OnInit, OnDestroy {
 
   @ViewChild('interactiveMap') interactiveMap: MapComponent;
 
-  public drawerHasBeenOpened: boolean = false;
   public drawerRouteEnum = DrawerRouteEnum;
+  public drawerTypeEnum = DrawerTypeEnum;
+  public drawerHasBeenOpened: boolean = false;
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
+  public drawerType: DrawerTypeEnum = DrawerTypeEnum.DRAWER;
 
   public backLayers: BackLayer[];
 
@@ -42,7 +44,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.drawerService.initDrawerListener();
     // Subscribe to drawer route changes
     this.drawerService
-      .onRouteChanged()
+      .onCurrentRouteChanged()
       .pipe(takeUntil(this.drawerUnsubscribe))
       .subscribe((route: DrawerRouteEnum) => {
         this.currentRoute = route;
@@ -53,6 +55,13 @@ export class HomePage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.drawerUnsubscribe))
       .subscribe((opened: boolean) => {
         this.drawerHasBeenOpened = opened;
+      });
+    // Subscribe to drawer type changes
+    this.drawerService
+      .onDrawerTypeChanged()
+      .pipe(takeUntil(this.drawerUnsubscribe))
+      .subscribe((drawerType: DrawerTypeEnum) => {
+        this.drawerType = drawerType;
       });
   }
 
@@ -66,6 +75,10 @@ export class HomePage implements OnInit, OnDestroy {
 
   onMapChange(keyMap: string) {
     this.interactiveMap.displayLayer(keyMap);
+  }
+
+  onBottomSheetDismiss() {
+    this.drawerService.closeDrawer();
   }
 
   isMobile(): boolean {

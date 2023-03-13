@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DrawerService } from '../drawer.service';
+import { DrawerService } from '../../../../services/drawer.service';
 
 @Component({
   selector: 'app-perimeter',

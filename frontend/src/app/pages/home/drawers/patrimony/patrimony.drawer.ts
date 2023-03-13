@@ -3,9 +3,9 @@ import { AlertController, ToastController } from '@ionic/angular';
 import { patrimonyFilterMock } from 'src/app/mocks/filter-patrimony.mock';
 import { Favorite, favorites, FavoriteSelection } from 'src/app/models/favorite.model';
 import { Filter } from 'src/app/models/filter-models/filter.model';
+import { DrawerService } from 'src/app/services/drawer.service';
 import { MapService } from 'src/app/services/map.service';
 import { UtilsService } from 'src/app/services/utils.service';
-import { DrawerService } from '../drawer.service';
 
 @Component({
   selector: 'app-patrimony',
