@@ -6,9 +6,9 @@ import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import { getWidth } from 'ol/extent.js';
 import BaseLayer from 'ol/layer/Base';
-import { MapService } from 'src/app/services/map.service';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
+import { MapService } from 'src/app/core/services/map.service';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',

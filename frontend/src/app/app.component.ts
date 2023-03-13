@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { switchMap, from, of } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { ITiles } from './models/app-db.model';
-import { CacheService } from './services/cache.service';
-import { KeycloakService } from './services/keycloak.service';
+import { CacheService } from './core/services/cache.service';
+import { KeycloakService } from './core/services/keycloak.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',

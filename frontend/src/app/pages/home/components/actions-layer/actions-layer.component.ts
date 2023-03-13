@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { UtilsService } from 'src/app/services/utils.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerRouteEnum } from '../../drawers/drawer.enum';
-import { DrawerService } from '../../../../services/drawer.service';
 
 @Component({
   selector: 'app-actions-layer',

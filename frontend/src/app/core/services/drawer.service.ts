@@ -3,12 +3,12 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, filter, map, Observable, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { UtilsService } from 'src/app/services/utils.service';
 import {
   DrawerTypeEnum,
   DrawerRouteEnum,
   drawerRoutes,
-} from '../pages/home/drawers/drawer.enum';
+} from 'src/app/pages/home/drawers/drawer.enum';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root',
