@@ -8,7 +8,7 @@
 
   <div class="patrimony-footer-actions" lines="none">
     <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
-    <ion-button fill="clear" *ngIf="!isFavoriteSegment() && isModifyFavorite()">Modifier le favori</ion-button>
+    <ion-button fill="clear" *ngIf="!isFavoriteSegment() && isModifyFavorite()" [disabled]="!isSelectedDataOnSegment()">Modifier le favori</ion-button>
     <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()" [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
   </div>
 </div>
