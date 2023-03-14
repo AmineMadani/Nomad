@@ -156,7 +156,7 @@ export const patrimonyFilterMock: Filter = {
             name: 'details',
             position: 4,
             selected: false,
-            components: [new TreeFilter(1, false, 1, [
+            components: [new TreeFilter(1, true, 1, [
                 {
                     name: 'Réseau AEP',
                     imgSrc: 'assets/img/patrimony/detail_secteur.png',

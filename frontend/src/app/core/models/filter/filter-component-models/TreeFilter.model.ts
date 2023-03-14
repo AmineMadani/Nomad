@@ -13,23 +13,46 @@ export class TreeFilter implements BaseFilter{
         this.data = data;
     }
 
-    getType(): string {
+    public getType(): string {
         return 'treeFilter';
     }
 
-    reset(): void {
+    public reset(): void {
         for(let data of this.data){
             this.recursiveReset(data);
         }
     }
 
-    recursiveReset(data: TreeData): void {
+    public isSelectedData():boolean {
+        for(let data of this.data){
+            if(this.recursiveSelectedData(data)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private recursiveReset(data: TreeData): void {
         data.value=false;
         if(data.children) {
             for(let child of data.children) {
                 this.recursiveReset(child);
             }
         }
+    }
+
+    private recursiveSelectedData(data: TreeData): boolean {
+        if(data.value) {
+            return true;
+        }
+        if(data.children) {
+            for(let child of data.children) {
+                if(this.recursiveSelectedData(child)){
+                    return true;
+                }
+            }
+        }
+        return false
     }
 
 }

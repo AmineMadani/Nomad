@@ -55,22 +55,35 @@ export class FilterTreeComponent implements OnInit {
    * @param {TreeData} node - Accordeon - this is the node that was clicked on.
    */
   onCheckboxChange(e: Event, node: TreeData): void {
-    if (
-      this.descendantsPartiallySelected(node) &&
-      this.selectedNodes.has(node)
-    ) {
-      this.selectedNodes.delete(node);
-    } else {
-      (e as CustomEvent).detail.checked
-        ? this.selectedNodes.add(node)
-        : this.selectedNodes.delete(node);
-      const descendants = this.treeControl.getDescendants(node);
-      descendants.forEach((desc: TreeData) => {
+    setTimeout(() => { 
+      if (
+        this.descendantsPartiallySelected(node) &&
         this.selectedNodes.has(node)
-          ? this.selectedNodes.add(desc)
-          : this.selectedNodes.delete(desc);
-      });
+      ) {
+        this.selectedNodes.delete(node);
+        node.value=false;
+      } else {
+        (e as CustomEvent).detail.checked
+          ? this.changeNode(node,true)
+          : this.changeNode(node,false);
+        const descendants = this.treeControl.getDescendants(node);
+        descendants.forEach((desc: TreeData) => {
+          this.selectedNodes.has(node)
+            ? this.changeNode(desc,true)
+            : this.changeNode(desc,false);
+        });
+      }
+    })
+  }
+
+
+  changeNode(node: TreeData, checked: boolean) {
+    if(checked) {
+      this.selectedNodes.add(node);
+    } else {
+      this.selectedNodes.delete(node);
     }
+    node.value=checked;
   }
 
 }

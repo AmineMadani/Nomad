@@ -1,7 +1,7 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="details-tree">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle class="non-children-node">
     <ion-item lines="none">
-      <ion-checkbox class="ion-no-margin" [checked]="selectedNodes.has(node)" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
+      <ion-checkbox class="ion-no-margin" [checked]="node.value" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
       <img [src]="node.imgSrc" width="24" height="24" />
       <ion-label>{{ node.name }}</ion-label>
     </ion-item>

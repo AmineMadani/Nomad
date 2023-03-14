@@ -3,12 +3,13 @@ export interface BaseFilter{
     isRecordableFavorite:boolean,
     position: number,
     getType(): string,
-    reset(): void
+    reset(): void,
+    isSelectedData(): boolean
 }
 
 export interface BaseFilterData{
     name: string,
     value?: boolean | string,
     position: number,
-    id: number
+    id?: number
 }

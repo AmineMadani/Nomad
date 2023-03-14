@@ -13,23 +13,47 @@ export class AccordeonFilter implements BaseFilter {
         this.data = data;
     }
 
-    getType(): string {
+    public getType(): string {
         return 'accordeonFilter';
     }
 
-    reset(): void {
+    public reset(): void {
         for(let data of this.data){
             this.recursiveReset(data);
         }
     }
 
-    recursiveReset(data: AccordeonData): void {
+    public isSelectedData():boolean {
+        for(let data of this.data){
+            if(this.recursiveSelectedData(data)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private recursiveReset(data: AccordeonData): void {
         data.value=false;
+        data.isIndeterminate=false;
         if(data.children) {
             for(let child of data.children) {
                 this.recursiveReset(child);
             }
         }
+    }
+
+    private recursiveSelectedData(data: AccordeonData): boolean {
+        if(data.value) {
+            return true;
+        }
+        if(data.children) {
+            for(let child of data.children) {
+                if(this.recursiveSelectedData(child)){
+                    return true;
+                }
+            }
+        }
+        return false
     }
 }
 

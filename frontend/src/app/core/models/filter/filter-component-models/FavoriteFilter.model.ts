@@ -13,15 +13,24 @@ export class FavoriteFilter implements BaseFilter {
         this.data = data;
     }
 
-    getType(): string {
+    public getType(): string {
         return 'favoriteFilter';
     }
 
-    reset(): void {
+    public reset(): void {
         for(let data of this.data){
             data.value=false;
             data.isOpen=false;
         }
+    }
+
+    public isSelectedData():boolean {
+        for(let data of this.data){
+            if(data.value){
+                return true;
+            }
+        }
+        return false;
     }
 }
 
