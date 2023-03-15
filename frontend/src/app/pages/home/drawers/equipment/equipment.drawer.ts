@@ -1,11 +1,11 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
-import { DrawerRouteEnum } from '../drawer.enum';
-import { ActionButton, Section } from './equipment-drawer.model';
+import { Equipment, EquipmentActionButton, EquipmentSection } from '../../../../core/models/equipment.model';
 import { ActivatedRoute } from '@angular/router';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-equipment-drawer',
@@ -23,48 +23,11 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public drawerRouteEnum = DrawerRouteEnum;
   public previousRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
   public equipment: any;
-  public actionButtons: ActionButton[] = [
-    {
-      icon: 'person-circle-outline',
-      label: 'Déclencher une intervention',
-      onClick: () => {
-        // TODO: Trigger an intervention
-      },
-    },
-    {
-      icon: 'pencil-outline',
-      label: 'Compte-rendu',
-      onClick: () => {
-        // TODO: Generate a report
-      },
-    },
-    {
-      icon: 'alert-circle',
-      label: "Demande d'intervention",
-      onClick: () => {
-        // TODO: Request an intervention
-      },
-    },
-    {
-      icon: 'add',
-      label: 'Ajouter un programme',
-      onClick: () => {
-        // TODO: Add a program
-      },
-    },
-    {
-      icon: 'reload',
-      label: 'Mettre à jour',
-      onClick: () => {
-        // TODO: Launch an update
-      },
-    },
-  ];
 
   private drawerUnsubscribe: Subject<void> = new Subject();
 
-  // TODO: Add the recuperation of all sections and their alias in the database instead of use static data
-  sections: Section[] = [];
+  sections: EquipmentSection[] = [];
+  actionButtons: EquipmentActionButton[] = [];
 
   ngOnInit() {
     // Subscribe to drawer open changes
@@ -75,8 +38,9 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         this.previousRoute = route;
       });
 
-    // Get all equipment sections
+    // Get all equipment sections and actions buttons
     this.sections = this.equipmentService.getSections();
+    this.actionButtons = this.equipmentService.getActionButtons();
 
     // Get the equipment data from the query params or the database
     this.route.queryParams
@@ -91,6 +55,9 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       )
       .subscribe((equipment: any) => {
         this.equipment = equipment;
+        // Remove sections that have no equipment data
+        this.sections =
+          this.sections.filter((section: EquipmentSection) => section.elements.some((element: any) => equipment[element.key]));
       });
   }
 

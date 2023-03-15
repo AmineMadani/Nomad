@@ -75,40 +75,55 @@
 
     }
 
-    .equipment-drawer-action-button-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
-      padding: 18px 24px 17px 24px;
+    .overflow-row {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
 
-      .equipment-drawer-action-button {
+      .equipment-drawer-action-button-row {
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        width: 24px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 18px 24px 17px 24px;
 
-        color: var(--ion-color-neutral-variant-30);
-
-        span {
-          font-weight: 400;
-          font-size: 12px;
-          line-height: 16px;
-          text-align: center;
-          letter-spacing: 0.5px;
+        &.mobile {
+          width: 500px;
         }
 
-        ion-icon {
-          padding: 4px 20px;
-          font-size: 20px;
-          border-radius: 28px;
+        .equipment-drawer-action-button {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          width: 24px;
 
-          &:hover {
-            background-color: var(--ion-color-light-tint);
-            cursor: pointer;
+          color: var(--ion-color-neutral-variant-30);
+
+          span {
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            text-align: center;
+            letter-spacing: 0.5px;
+          }
+
+          ion-icon {
+            padding: 4px 20px;
+            font-size: 20px;
+            border-radius: 28px;
+
+            &:hover {
+              background-color: var(--ion-color-light-tint);
+              cursor: pointer;
+            }
           }
         }
       }
+    }
+
+    .overflow-row::-webkit-scrollbar {
+      display: none;
     }
 
     .equipment-drawer-section-column {

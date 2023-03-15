@@ -1,0 +1,59 @@
+<ion-item lines="none" class="calendar-header">
+  <ion-button slot="start" fill="clear" (click)="close()">
+    <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+  </ion-button>
+  <ion-label>Sélectionner une plage de dates</ion-label>
+</ion-item>
+
+<div class="calendar-months" *ngIf="calendar.get(year)" [class.months-mobile]="isMobile">
+  <ion-item lines="none" class="ion-text-center">
+    <ion-label>Année</ion-label>
+    <ion-button fill="clear" (click)="changeYear(-1)">
+      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+    </ion-button>
+    <ion-label>{{ year }}</ion-label>
+    <ion-button fill="clear" (click)="changeYear(1)">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+  <ion-item-group *ngFor="let month of calendar.get(year)?.months">
+    <ion-item lines="none" class="ion-text-center">
+      <ion-label>
+        {{ month.name }}
+      </ion-label>
+    </ion-item>
+    <ion-item lines="none">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="1" *ngFor="let dayOfWeek of daysOfWeek" class="ion-text-center">
+            {{ dayOfWeek }}
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ng-container *ngFor="let day of month.days">
+            <ion-col size="1" class="ion-text-center ion-no-padding day" [class.is-another-month]="!day.isCurrentMonth"
+              [class.is-hover]="!selectedDates.has(day) && datesHovered.includes(+day.date) && datesHovered.indexOf(+day.date) !== datesHovered.length - 1"
+              [class.is-hover-first]="selectedDates.has(day) && datesHovered.indexOf(+day.date) === 0"
+              [class.is-hover-last]="datesHovered.length > 1 && datesHovered.indexOf(+day.date) === datesHovered.length - 1"
+              [class.is-between]="datesBetween.includes(+day.date) && !selectedDates.has(day)"
+              [class.is-first]="selectedDates.has(day) && datesBetween.indexOf(+day.date) === 0"
+              [class.is-last]="datesBetween.length > 0 && selectedDates.has(day) && datesBetween.indexOf(+day.date) === datesBetween.length - 1"
+              (mouseenter)="setHover(day)" (mouseleave)="removeHover(day)">
+              <div class="day-cell" [class.is-selected]="selectedDates.has(day)" [class.is-today]="day.isToday"
+                (click)="onDayClicked(day)">
+                {{ day.number }}
+              </div>
+            </ion-col>
+          </ng-container>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-item-group>
+</div>
+
+<div class="calendar-footer">
+  <ion-button fill="clear" (click)="close()">Annuler</ion-button>
+  <ion-button fill="clear" (click)="reset()">Réinitialiser</ion-button>
+  <ion-button fill="clear" (click)="validate()"
+    [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">Valider</ion-button>
+</div>

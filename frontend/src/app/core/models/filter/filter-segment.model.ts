@@ -1,5 +1,8 @@
 import { AccordeonFilter } from "./filter-component-models/AccordeonFilter.model";
 import { FavoriteFilter } from "./filter-component-models/FavoriteFilter.model";
+import { InterventionFilter } from "./filter-component-models/InterventionFilter.model";
+import { SearchFilter } from "./filter-component-models/SearchFilter.model";
+import { ToggleFilter } from "./filter-component-models/ToggleFilter.model";
 import { TreeFilter } from "./filter-component-models/TreeFilter.model";
 
 export interface FilterSegment {
@@ -7,5 +10,5 @@ export interface FilterSegment {
     position: number,
     name: string,
     selected: boolean,
-    components: (AccordeonFilter | TreeFilter | FavoriteFilter)[]
+    components: (AccordeonFilter | TreeFilter | FavoriteFilter | ToggleFilter | SearchFilter | InterventionFilter)[]
 }

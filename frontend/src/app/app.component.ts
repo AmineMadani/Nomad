@@ -1,14 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { switchMap, from, of } from 'rxjs';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CacheService } from './core/services/cache.service';
 import { KeycloakService } from './core/services/keycloak.service';
+import { Location } from '@angular/common';
+import { DialogService } from './components/dialog/dialog.service';
+import { IonRouterOutlet, Platform } from '@ionic/angular';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { from } from 'rxjs/internal/observable/from';
+import { of } from 'rxjs/internal/observable/of';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+  @ViewChild(IonRouterOutlet, { static: true }) routerOutlet: IonRouterOutlet;
+
   public appPages = [
     { title: 'Accueil', url: '/home', icon: 'home' },
     { title: 'Analyse et reporting', url: '/report', icon: 'globe' },
@@ -17,22 +25,40 @@ export class AppComponent implements OnInit {
   constructor(
     private keycloakService: KeycloakService,
     private cacheService: CacheService,
+    private dialog: DialogService,
+    private location: Location,
+    private platform: Platform
   ) {}
 
-  ngOnInit(): void {
+  private sub: Subscription = new Subscription();
 
-    console.log(this.keycloakService.hasValidToken());
-    if(this.keycloakService.hasValidToken()) {
-      from(this.cacheService.cacheIsAlreadySet()).pipe(
-        switchMap((cacheSet: boolean) => {
-          return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
-        })
-      ).subscribe(() => {
-        this.cacheService.setCacheLoaded(true);
-      });
+  ngOnInit(): void {
+    this.sub.add(
+      this.platform.backButton.subscribeWithPriority(0, () => {
+        if (this.dialog.hasDialog()) {
+          this.dialog.close();
+        } else {
+          this.location.back();
+        }
+      })
+    );
+
+    if (this.keycloakService.hasValidToken()) {
+      from(this.cacheService.cacheIsAlreadySet())
+        .pipe(
+          switchMap((cacheSet: boolean) => {
+            return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
+          })
+        )
+        .subscribe(() => {
+          this.cacheService.setCacheLoaded(true);
+        });
     } else {
       this.keycloakService.initialisation();
     }
+  }
 
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { DrawerRouteEnum } from '../../../drawers/drawer.enum';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-actions-layer-mobile',

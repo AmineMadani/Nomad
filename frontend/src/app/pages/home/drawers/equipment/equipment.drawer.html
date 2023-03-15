@@ -15,15 +15,17 @@
       </div>
       <div class="equipment-drawer-fast-info-text">
         <ion-icon name="timer-outline"></ion-icon>
-        Compteur : chiffres
+        Compteur :
       </div>
     </div>
 
     <!-- Action buttons -->
-    <div class="equipment-drawer-action-button-row">
-      <div *ngFor="let button of actionButtons" class="equipment-drawer-action-button">
-        <ion-icon [name]="button.icon" (click)="button.onClick()"></ion-icon>
-        <span>{{ button.label }}</span>
+    <div class="overflow-row">
+      <div class="equipment-drawer-action-button-row" [class]="isMobile() ? 'mobile' : ''">
+        <div *ngFor="let button of actionButtons" class="equipment-drawer-action-button">
+          <ion-icon [name]="button.icon" (click)="button.onClick()"></ion-icon>
+          <span>{{ button.label }}</span>
+        </div>
       </div>
     </div>
 

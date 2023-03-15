@@ -7,7 +7,7 @@ $height-layer-with-toolbar: $height-actions-layers-mobile + 56px;
     width: 100%;
     padding: 16px;
     height: auto;
-    align-items: end;
+    align-items: flex-end;
 
     ion-fab-button {
         --border-radius: 16px;
