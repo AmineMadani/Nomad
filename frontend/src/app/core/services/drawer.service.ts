@@ -1,13 +1,9 @@
 import { LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { BehaviorSubject, filter, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
-import {
-  DrawerTypeEnum,
-  DrawerRouteEnum,
-  drawerRoutes,
-} from 'src/app/pages/home/drawers/drawer.enum';
+import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from './utils.service';
 
 @Injectable({

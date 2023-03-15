@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
 import { BackLayer, MAP_DATASET } from './components/map/map.dataset';
 import { Subject, takeUntil } from 'rxjs';
-import { DrawerRouteEnum, DrawerTypeEnum } from './drawers/drawer.enum';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-home',

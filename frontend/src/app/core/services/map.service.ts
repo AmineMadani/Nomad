@@ -8,7 +8,7 @@ import { boundingExtent } from 'ol/extent';
 import { Control, defaults as defaultControls } from 'ol/control.js';
 import { DrawerService } from './drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
-import { DrawerRouteEnum } from 'src/app/pages/home/drawers/drawer.enum';
+import { DrawerRouteEnum } from '../models/drawer.model';
 
 @Injectable({
   providedIn: 'root',

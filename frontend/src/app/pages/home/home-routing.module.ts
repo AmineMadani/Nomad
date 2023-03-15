@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { DrawerRouteEnum } from './drawers/drawer.enum';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
