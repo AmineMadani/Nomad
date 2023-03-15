@@ -1,10 +1,15 @@
+import { MapService } from "src/app/core/services/map.service"
+import { FavoriteItem } from "./FavoriteFilter.model";
+
 export interface BaseFilter{
     id:number,
     isRecordableFavorite:boolean,
     position: number,
     getType(): string,
-    reset(): void,
-    isSelectedData(): boolean
+    reset(mapService:MapService): void,
+    isSelectedData(): boolean,
+    applyFavorite(mapService:MapService,favoriteItem:FavoriteItem): void,
+    getFavorites():FavoriteItem[]
 }
 
 export interface BaseFilterData{

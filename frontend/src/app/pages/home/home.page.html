@@ -4,6 +4,12 @@
 
 <ion-content>
   <ion-row class="home-main-content">
+    <!-- Test left menu
+    <ion-col class="home-main-content-interactive-left"
+        [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-left-animation-in' : 'home-main-content-interactive-left-animation-out')">
+        <app-patrimony></app-patrimony>
+    </ion-col>
+    -->
     <ion-col class="home-main-content-map" >
       <app-map #interactiveMap></app-map>
       <app-actions-layer [currentRoute]="currentRoute"></app-actions-layer>
@@ -13,7 +19,7 @@
       <!-- Drawer -->
       <ion-col *ngSwitchCase="drawerTypeEnum.DRAWER" class="home-main-content-interactive"
         [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
-        <ion-router-outlet></ion-router-outlet>
+        <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
       </ion-col>
       <!-- Bottom sheet -->
       <ion-modal *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME"

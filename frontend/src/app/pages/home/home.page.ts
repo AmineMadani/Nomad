@@ -5,6 +5,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum } from './drawers/drawer.enum';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
+import { createAnimation } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -16,6 +17,24 @@ export class HomePage implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     public drawerService: DrawerService
   ) {}
+
+  animationBuilder = (baseEl: any, opts?: any) => {
+    const enteringAnimation = createAnimation()
+      .addElement(opts.enteringEl)
+      .fromTo('opacity', 0, 1)
+      .duration(250);
+    
+    const leavingAnimation = createAnimation()
+      .addElement(opts.leavingEl)
+      .fromTo('opacity', 1, 0)
+      .duration(250);
+    
+    const animation = createAnimation()
+      .addAnimation(enteringAnimation)
+      .addAnimation(leavingAnimation);
+      
+    return animation;
+  };
 
   @ViewChild('interactiveMap') interactiveMap: MapComponent;
 

@@ -1,3 +1,4 @@
+import { MapService } from "src/app/core/services/map.service";
 import { BaseFilterData, BaseFilter } from "./BaseFilter.model";
 
 export class FavoriteFilter implements BaseFilter {
@@ -17,7 +18,7 @@ export class FavoriteFilter implements BaseFilter {
         return 'favoriteFilter';
     }
 
-    public reset(): void {
+    public reset(mapService:MapService): void {
         for(let data of this.data){
             data.value=false;
             data.isOpen=false;
@@ -32,6 +33,13 @@ export class FavoriteFilter implements BaseFilter {
         }
         return false;
     }
+
+    public applyFavorite(mapService: MapService): void {
+    }
+
+    public getFavorites(): FavoriteItem[] {
+        return [];
+    }
 }
 
 export interface FavoriteData extends BaseFilterData {
@@ -41,6 +49,6 @@ export interface FavoriteData extends BaseFilterData {
 }
 
 export interface FavoriteItem {
-    key: string;
+    id: number;
     value: boolean | string;
 }

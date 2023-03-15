@@ -1,5 +1,6 @@
 $width-actions-layers: 600px;
 $width-actions-layers-mobile: 100%;
+$width-actions-layers-left: 300px;
 
 ion-modal {
   --border-radius: 28px 28px 0px 0px !important;
@@ -51,6 +52,33 @@ ion-modal {
         -o-animation: slideOut 0.5s ease 0.1s forwards;
         -ms-animation: slideOut 0.5s ease 0.1s forwards;
         animation: slideOut 0.5s ease 0.1s forwards;
+    }
+
+    .home-main-content-interactive-left {
+        padding: 12px;
+        height: 100%;
+        margin-left: -$width-actions-layers-left;
+        width: $width-actions-layers-left;
+        flex: 0 0 $width-actions-layers-left;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .home-main-content-interactive-left-animation-in {
+        -moz-animation: slideInLeft 0.5s ease 0.1s forwards;
+        -webkit-animation: slideInLeft 0.5s ease 0.1s forwards;
+        -o-animation: slideInLeft 0.5s ease 0.1s forwards;
+        -ms-animation: slideInLeft 0.5s ease 0.1s forwards;
+        animation: slideInLeft 0.5s ease 0.1s forwards;
+    }
+
+    .home-main-content-interactive-left-animation-out {
+        margin-left: 0px;
+        -moz-animation: slideOutLeft 0.5s ease 0.1s forwards;
+        -webkit-animation: slideOutLeft 0.5s ease 0.1s forwards;
+        -o-animation: slideOutLeft 0.5s ease 0.1s forwards;
+        -ms-animation: slideOutLeft 0.5s ease 0.1s forwards;
+        animation: slideOutLeft 0.5s ease 0.1s forwards;
     }
 }
 
@@ -170,5 +198,97 @@ ion-modal {
 
     to {
         margin-right: -$width-actions-layers;
+    }
+}
+
+//----------
+
+@keyframes slideInLeft {
+    from {
+        margin-left: -$width-actions-layers-left;
+    }
+
+    to {
+        margin-left: 0;
+    }
+}
+
+@-moz-keyframes slideInLeft {
+    from {
+        margin-left: -$width-actions-layers-left;
+    }
+
+    to {
+        margin-left: 0;
+    }
+}
+
+@-webkit-keyframes slideInLeft {
+    from {
+        margin-left: -$width-actions-layers-left;
+    }
+
+    to {
+        margin-left: 0;
+    }
+}
+
+@-ms-keyframes slideInLeft {
+    from {
+        margin-left: -$width-actions-layers-left;
+    }
+
+    to {
+        margin-left: 0;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        margin-left: 0;
+    }
+
+    to {
+        margin-left: -$width-actions-layers-left;
+    }
+}
+
+@-moz-keyframes slideOutLeft {
+    from {
+        margin-left: 0;
+    }
+
+    to {
+        margin-left: -$width-actions-layers-left;
+    }
+}
+
+@-webkit-keyframes slideOutLeft {
+    from {
+        margin-left: 0;
+    }
+
+    to {
+        margin-left: -$width-actions-layers-left;
+    }
+}
+
+@-ms-keyframes slideOutLeft {
+    from {
+        margin-left: 0;
+    }
+
+    to {
+        margin-left: -$width-actions-layers-left;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        margin-left: 0;
+    }
+
+    to {
+        margin-left: -$width-actions-layers-left;
     }
 }

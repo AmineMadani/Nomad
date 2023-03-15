@@ -17,7 +17,7 @@ export const patrimonyFilterMock: Filter = {
                     id: 1,
                     key: 'aep_branche',
                     name: 'Branchements',
-                    value: true,
+                    value: false,
                     position: 1
                 },
                 {
@@ -136,7 +136,14 @@ export const patrimonyFilterMock: Filter = {
                     id: 1,
                     name: 'eau - favoris - 1',
                     position: 1,
-                    dataSave: [],
+                    dataSave: [{
+                        id:1,
+                        value:true
+                    },
+                    {
+                        id:5,
+                        value:true
+                    }],
                     segmentId:1,
                     value:false
                 },
@@ -169,19 +176,19 @@ export const patrimonyFilterMock: Filter = {
                                 {
                                     name: 'AEP - Secteur',
                                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                    id: 1,
+                                    id: 3,
                                     position: 1
                                 },
                                 {
                                     name: 'AEP - Etape de pression',
                                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                    id: 2,
+                                    id: 4,
                                     position: 2
                                 },
                                 {
                                     name: 'AEP - Unité de distribution',
                                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                    id: 3,
+                                    id: 5,
                                     position: 3
                                 },
                             ],
@@ -195,13 +202,13 @@ export const patrimonyFilterMock: Filter = {
                                 {
                                     name: 'AEP - Cables abandonnés',
                                     imgSrc: 'assets/img/patrimony/detail_cables_abandonnes.png',
-                                    id:1,
+                                    id:6,
                                     position:1
                                 },
                                 {
                                     name: 'AEP - Cable alimentation',
                                     imgSrc: 'assets/img/patrimony/detail_cable_alimentation.png',
-                                    id:2,
+                                    id:7,
                                     position:2
                                 },
                                 {
@@ -211,7 +218,7 @@ export const patrimonyFilterMock: Filter = {
                                         {
                                             name: 'No data',
                                             imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                            id:3,
+                                            id:8,
                                             position:3
                                         },
                                     ],
@@ -237,11 +244,11 @@ export const patrimonyFilterMock: Filter = {
                                                 {
                                                     name: 'No data',
                                                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                                    id:1,
+                                                    id:11,
                                                     position:1
                                                 },
                                             ],
-                                            id:1,
+                                            id:12,
                                             position:1
                                         },
                                         {
@@ -251,29 +258,29 @@ export const patrimonyFilterMock: Filter = {
                                                 {
                                                     name: 'No data',
                                                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                                    id:1,
+                                                    id:13,
                                                     position:1
                                                 },
                                             ],
-                                            id:2,
+                                            id:14,
                                             position:2
                                         },
                                         {
                                             name: 'Production/Pompage',
                                             imgSrc: 'assets/img/patrimony/detail_autre.png',
-                                            id:3,
+                                            id:15,
                                             position:3
                                         },
                                     ],
-                                    id:1,
+                                    id:16,
                                     position:1
                                 },
                             ],
-                            id:3,
+                            id:17,
                             position:3
                         },
                     ],
-                    id:1,
+                    id:18,
                     position:1
                 },
             ])]

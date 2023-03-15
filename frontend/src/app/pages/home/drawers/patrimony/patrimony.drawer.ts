@@ -1,8 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { patrimonyFilterMock } from 'src/app/core/mocks/filter-patrimony.mock';
-import { Favorite, favorites } from 'src/app/core/models/favorite.model';
-import { FavoriteData, FavoriteFilter } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { FavoriteData, FavoriteFilter, FavoriteItem } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FilterSegment } from 'src/app/core/models/filter/filter-segment.model';
 import { Filter } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -18,7 +17,8 @@ export class PatrimonyDrawer implements OnInit {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private mapService: MapService
   ) { }
 
   @ViewChild('scrolling') scrolling: ElementRef;
@@ -100,9 +100,34 @@ export class PatrimonyDrawer implements OnInit {
   reset() {
     for (let segment of this.filter.segments) {
       for (let component of segment.components) {
-        component.reset();
+        component.reset(this.mapService);
       }
     }
+  }
+
+  modifyFavorite(inputfavoriteData: FavoriteData|undefined): void {
+    let selectedFavoriteData: FavoriteData | undefined = inputfavoriteData;
+    let favoriteItems: FavoriteItem[] = [];
+
+    for (let segment of this.filter.segments) {
+      for (let component of segment.components) {
+        if (component instanceof FavoriteFilter) {
+          for (let data of component.data) {
+            let favoriteData: FavoriteData = data;
+            if (favoriteData.value) {
+              if(!selectedFavoriteData) {
+                selectedFavoriteData = favoriteData;
+              }
+            }
+          }
+        }
+        if(segment.selected){
+          favoriteItems = [...favoriteItems,...component.getFavorites()];
+        }
+      }
+    }
+
+    if(selectedFavoriteData) selectedFavoriteData.dataSave=favoriteItems;
   }
 
   async addFavorite() {
@@ -142,6 +167,7 @@ export class PatrimonyDrawer implements OnInit {
 
             if (favoriteComponent) {
               for (let favorite of favoriteComponent.data) {
+                favorite.value=false;
                 if (favorite.name === alertData.name) {
                   if (favorite.name.charAt(favorite.name.length - 1).match(/[0-9]/)) {
                     let val = Number(favorite.name.charAt(favorite.name.length - 1));
@@ -154,12 +180,16 @@ export class PatrimonyDrawer implements OnInit {
               }
 
               let newFavorite: FavoriteData = {
+                id: favoriteComponent.data.length+1,
                 name: alertData.name,
                 position: favoriteComponent?.data.length + 1,
                 segmentId: selectedSegment?.id,
+                value: true,
               }
 
               favoriteComponent.data.push(newFavorite);
+
+              this.modifyFavorite(newFavorite);
             }
           }
         },
