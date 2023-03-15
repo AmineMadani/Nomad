@@ -2,12 +2,12 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CacheService } from './core/services/cache.service';
 import { KeycloakService } from './core/services/keycloak.service';
 import { Location } from '@angular/common';
-import { DialogService } from './components/dialog/dialog.service';
 import { IonRouterOutlet, Platform } from '@ionic/angular';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { from } from 'rxjs/internal/observable/from';
 import { of } from 'rxjs/internal/observable/of';
+import { DialogService } from './core/services/dialog.service';
 
 @Component({
   selector: 'app-root',
