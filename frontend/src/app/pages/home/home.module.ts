@@ -12,7 +12,6 @@ import { MapComponent } from './components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
 import { HttpClientModule } from '@angular/common/http';
-import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
@@ -24,6 +23,10 @@ import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tre
 import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MapService } from 'src/app/core/services/map.service';
+import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
+import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
+import { FilterInterventionComponent } from './drawers/components/filter-intervention/filter-intervention.component';
+import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
 
 @NgModule({
   imports: [
@@ -43,12 +46,15 @@ import { MapService } from 'src/app/core/services/map.service';
     ActionsLayerMobileComponent,
     MapComponent,
     PatrimonyDrawer,
-    InterventionDrawer,
+    ExploitationDrawer,
     PerimeterDrawer,
     FilterContentComponent,
     FilterAccordeonComponent,
     FilterFavoriteComponent,
     FilterTreeComponent,
+    FilterToggleComponent,
+    FilterInterventionComponent,
+    FilterSearchComponent,
     EquipmentDrawer,
   ],
   providers: [MapService],

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
-import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
+import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 
@@ -24,10 +24,10 @@ const routes: Routes = [
         },
       },
       {
-        path: 'intervention',
-        component: InterventionDrawer,
+        path: 'exploitation',
+        component: ExploitationDrawer,
         data: {
-          name: DrawerRouteEnum.INTERVENTION,
+          name: DrawerRouteEnum.EXPLOITATION,
         },
       },
       {

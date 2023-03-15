@@ -1,0 +1,47 @@
+ion-item-group {
+    border-bottom: 1px solid var(--ion-color-neutral-variant-80);
+  }
+  
+  ion-item {
+    ion-icon[slot=start] {
+      margin-inline-end: 8px;
+    }
+  
+    --min-height: 30px;
+  }
+  
+  ion-chip {
+    margin: 5px;
+    border-radius: 8px;
+    margin-bottom: 9px;
+  
+    &[ng-reflect-outline=false] {
+      --color: var(--ion-color-primary-contrast);
+      --background: var(--ion-color-primary);
+  
+      ion-icon {
+        color: var(--ion-color-primary-contrast);
+      }
+    }
+  
+    &[ng-reflect-outline=true] {
+      border-color: var(--ion-color-primary);
+      --color: var(--ion-color-primary);
+  
+      ion-icon {
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+  
+  .date-item {
+    min-height: 40px;
+  }
+  
+  .intervention-date {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: var(--ion-color-neutral-variant-50);
+  }

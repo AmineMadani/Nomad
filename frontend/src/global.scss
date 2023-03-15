@@ -27,64 +27,97 @@
 
 /* font design */
 @font-face {
-    font-family: 'FS Sinclair Italic';
-    src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot');
-    src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix') format('embedded-opentype'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.woff2') format('woff2'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.woff') format('woff'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.ttf') format('truetype');
-    font-weight: normal;
-    font-style: italic;
+  font-family: 'FS Sinclair Italic';
+  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot');
+  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix') format('embedded-opentype'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff2') format('woff2'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff') format('woff'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: normal;
-    font-weight: normal;
-    src: url('assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf');
+  font-family: 'TheSans';
+  font-style: normal;
+  font-weight: normal;
+  src: url('assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: normal;
-    font-weight: bold;
-    src: url('assets/fonts/TheSans/TheSans-Bold.ttf');
+  font-family: 'TheSans';
+  font-style: normal;
+  font-weight: bold;
+  src: url('assets/fonts/TheSans/TheSans-Bold.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: italic;
-    font-weight: normal;
-    src: url('assets/fonts/TheSans/TheSans-Italic.ttf');
+  font-family: 'TheSans';
+  font-style: italic;
+  font-weight: normal;
+  src: url('assets/fonts/TheSans/TheSans-Italic.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: italic;
-    font-weight: bold;
-    src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
+  font-family: 'TheSans';
+  font-style: italic;
+  font-weight: bold;
+  src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--ion-color-neutral-variant-80);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--ion-color-neutral-variant-30);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ion-color-neutral-variant-50);
 }
 
 .scrolling-wrapper {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
-    &::-webkit-scrollbar {
-        display: none;
-    }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .actions-layer-content-button-action {
-    text-transform: none;
-    --border-radius: 25px;
-    --background: var(--ion-color-surface-light-1);
-    --color: var(--ion-color-primary);
+  text-transform: none;
+  --border-radius: 25px;
+  --background: var(--ion-color-surface-light-1);
+  --color: var(--ion-color-primary);
 }
 
 .actions-layer-content-button-action-active {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-surface-light-1);
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-surface-light-1);
+}
+
+.overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+// Overlay panel styling
+.overlay-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
 }

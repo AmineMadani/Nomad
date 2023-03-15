@@ -25,6 +25,15 @@
             <app-filter-tree [data]="component.data"/>
           </ion-accordion-group>
         </ng-container>
+        <ng-container *ngIf="component.getType() == 'toggleFilter'">
+          <app-filter-toggle [data]="component.data"/>
+        </ng-container>
+        <ng-container *ngIf="component.getType() == 'searchFilter'">
+          <app-filter-search [data]="component.data"/>
+        </ng-container>
+        <ng-container *ngIf="component.getType() == 'interventionFilter'">
+          <app-filter-intervention [data]="component.data"/>
+        </ng-container>
       </ng-container>
     </ng-container>
   </ng-container>

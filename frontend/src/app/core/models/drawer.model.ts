@@ -1,7 +1,7 @@
 export enum DrawerRouteEnum {
   HOME,
   PERIMETER,
-  INTERVENTION,
+  EXPLOITATION,
   PATRIMONY,
   EQUIPMENT,
 }
@@ -21,8 +21,8 @@ export const drawerRoutes = [
     name: DrawerRouteEnum.PERIMETER,
   },
   {
-    path: '/home/intervention',
-    name: DrawerRouteEnum.INTERVENTION,
+    path: '/home/exploitation',
+    name: DrawerRouteEnum.EXPLOITATION,
   },
   {
     path: '/home/patrimony',
