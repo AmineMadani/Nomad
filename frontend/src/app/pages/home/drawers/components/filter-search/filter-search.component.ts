@@ -1,11 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DateTime } from 'luxon';
-import { finalize } from 'rxjs/internal/operators/finalize';
 import { filter } from 'rxjs/internal/operators/filter';
-import { DatepickerComponent } from 'src/app/components/datepicker/datepicker.component';
-import { DialogService } from 'src/app/components/dialog/dialog.service';
+import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
 import { SearchData } from 'src/app/core/models/filter/filter-component-models/SearchFilter.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { DialogService } from 'src/app/core/services/dialog.service';
 
 @Component({
   selector: 'app-filter-search',
