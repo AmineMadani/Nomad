@@ -2,7 +2,6 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { patrimonyFilterMock } from 'src/app/core/mocks/filter-patrimony.mock';
 import { FavoriteData, FavoriteFilter, FavoriteItem } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { FilterSegment } from 'src/app/core/models/filter/filter-segment.model';
 import { Filter } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map.service';
@@ -41,17 +40,8 @@ export class PatrimonyDrawer implements OnInit {
   }
 
   isFavoriteSegment = () => {
-    for (let segment of this.filter.segments) {
-      if (segment.selected) {
-        for (let component of segment.components) {
-          if (component.getType() === 'favoriteFilter') {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
+    return this.filter.segments.some((segment) => segment.selected && segment.components.some((component) => component.getType() === 'favoriteFilter'))
+  };
 
   isModifyFavorite = () => {
     for (let segment of this.filter.segments) {
@@ -74,38 +64,22 @@ export class PatrimonyDrawer implements OnInit {
   }
 
   isSelectedDataOnSegment = () => {
-    for (let segment of this.filter.segments) {
-      if (segment.selected) {
-        for (let component of segment.components) {
-          if (component.isSelectedData()) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
+    return this.filter.segments.some((segment) => segment.selected && segment.components.some((component) => component.isSelectedData()))
+  };
 
   isSelectedData = () => {
-    for (let segment of this.filter.segments) {
-      for (let component of segment.components) {
-        if (component.isSelectedData()) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
+    return this.filter.segments.some((segment) => segment.components.some((component) => component.isSelectedData()))
+  };
 
   reset() {
-    for (let segment of this.filter.segments) {
-      for (let component of segment.components) {
+    this.filter.segments.forEach((segment) => {
+      segment.components.forEach((component) => {
         component.reset(this.mapService);
-      }
-    }
+      });
+    });
   }
 
-  modifyFavorite(inputfavoriteData: FavoriteData|undefined): void {
+  modifyFavorite(inputfavoriteData: FavoriteData | undefined): void {
     let selectedFavoriteData: FavoriteData | undefined = inputfavoriteData;
     let favoriteItems: FavoriteItem[] = [];
 
@@ -115,43 +89,34 @@ export class PatrimonyDrawer implements OnInit {
           for (let data of component.data) {
             let favoriteData: FavoriteData = data;
             if (favoriteData.value) {
-              if(!selectedFavoriteData) {
+              if (!selectedFavoriteData) {
                 selectedFavoriteData = favoriteData;
               }
             }
           }
         }
-        if(segment.selected){
-          favoriteItems = [...favoriteItems,...component.getFavorites()];
+        if (segment.selected) {
+          favoriteItems = [...favoriteItems, ...component.getFavorites()];
         }
       }
     }
 
-    if(selectedFavoriteData) selectedFavoriteData.dataSave=favoriteItems;
+    if (selectedFavoriteData) selectedFavoriteData.dataSave = favoriteItems;
   }
 
   async addFavorite() {
-
-    let favoriteComponent: FavoriteFilter | undefined;
-    let favoriteSegment: FilterSegment | undefined;
-    let selectedSegment: FilterSegment | undefined;
-    for (let segment of this.filter.segments) {
-      for (let component of segment.components) {
-        if (component instanceof FavoriteFilter) {
-          favoriteComponent = component;
-          favoriteSegment = segment;
-        }
-        if (segment.selected) {
-          selectedSegment = segment;
-        }
-      }
-    }
+    const favoriteSegment = this.filter.segments.find((segment) =>
+      segment.components.some((component) => component instanceof FavoriteFilter)
+    );
+    const favoriteComponent = favoriteSegment?.components.find(
+      (component) => component instanceof FavoriteFilter
+    ) as FavoriteFilter | undefined;
+    const selectedSegment = this.filter.segments.find((segment) => segment.selected);
 
     let defaultName = '';
     if (favoriteComponent) {
-      defaultName = selectedSegment?.name + ' - favoris - ' + (favoriteComponent?.data.length + 1);
+      defaultName = `${selectedSegment?.name} - favoris - ${favoriteComponent.data.length + 1}`;
     }
-
 
     const alert = await this.alertController.create({
       header: "Ajout d'un favori",
@@ -164,41 +129,41 @@ export class PatrimonyDrawer implements OnInit {
           text: 'OK',
           role: 'confirm',
           handler: (alertData) => {
+            if (!favoriteComponent) {
+              return;
+            }
 
-            if (favoriteComponent) {
-              for (let favorite of favoriteComponent.data) {
-                favorite.value=false;
-                if (favorite.name === alertData.name) {
-                  if (favorite.name.charAt(favorite.name.length - 1).match(/[0-9]/)) {
-                    let val = Number(favorite.name.charAt(favorite.name.length - 1));
-                    val++;
-                    alertData.name = alertData.name.slice(0, -1) + val;
-                  } else {
-                    alertData.name = alertData.name + ' - 1';
-                  }
+            favoriteComponent.data.forEach((favorite) => {
+              favorite.value = false;
+              if (favorite.name === alertData.name) {
+                if (favorite.name.match(/[0-9]$/)) {
+                  const val = Number(favorite.name.match(/[0-9]$/)![0]) + 1;
+                  alertData.name = alertData.name.replace(/[0-9]$/, `${val}`);
+                } else {
+                  alertData.name = `${alertData.name} - 1`;
                 }
               }
+            });
 
-              let newFavorite: FavoriteData = {
-                id: favoriteComponent.data.length+1,
-                name: alertData.name,
-                position: favoriteComponent?.data.length + 1,
-                segmentId: selectedSegment?.id,
-                value: true,
-              }
+            const newFavorite: FavoriteData = {
+              id: favoriteComponent.data.length + 1,
+              name: alertData.name,
+              position: favoriteComponent.data.length + 1,
+              segmentId: selectedSegment?.id,
+              value: true,
+            };
 
-              favoriteComponent.data.push(newFavorite);
+            favoriteComponent.data.push(newFavorite);
 
-              this.modifyFavorite(newFavorite);
-            }
-          }
+            this.modifyFavorite(newFavorite);
+          },
         },
       ],
       inputs: [
         {
           name: 'name',
           placeholder: 'Intitulé du favoris',
-          value: defaultName
+          value: defaultName,
         },
       ],
     });
