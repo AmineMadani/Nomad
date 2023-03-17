@@ -9,6 +9,7 @@ import { Control, defaults as defaultControls } from 'ol/control.js';
 import { DrawerService } from './drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawerRouteEnum } from '../models/drawer.model';
+import { Equipment } from '../models/equipment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,7 +52,7 @@ export class MapService {
         (event: any) => {
           mLayer.layer.getFeatures(event.pixel).then((features) => {
             if (!features.length) {
-              mLayer.selection.clear();
+              mLayer.hoverFeature.clear();
               mLayer.layer.changed();
               return;
             }
@@ -59,7 +60,7 @@ export class MapService {
             if (!feature) {
               return;
             }
-            mLayer.selection.add(feature);
+            mLayer.hoverFeature.add(feature);
             mLayer.layer.changed();
           });
         }
@@ -70,7 +71,7 @@ export class MapService {
           mLayer.layer
             .getFeatures(event.pixel)
             .then((features: FeatureLike[]) => {
-              this.onFeaturesClick(features);
+              this.onFeaturesClick(features, layerKey);
             });
         }
       );
@@ -80,44 +81,31 @@ export class MapService {
     }
   }
 
-  private onFeaturesClick(features: FeatureLike[]) {
+  private onFeaturesClick(features: FeatureLike[], layerKey: string) {
     if (features.length > 0) {
-      let ctFeature: Feature[] = features[0].get('features');
-      if (ctFeature) {
-        if (ctFeature.length > 1) {
-          const extent = boundingExtent(
-            ctFeature.map((r: any) => r.getGeometry()!.getCoordinates())
-          );
-          this.map.getView().fit(extent, {
-            duration: 1000,
-            padding: [50, 50, 50, 50],
-          });
+      const ctFeature: Feature[] = features[0].get('features') || [features[0]];
 
-          const properties = ctFeature[0].getProperties();
-          if (properties['geometry']) delete properties['geometry'];
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.EQUIPMENT,
-            [ctFeature[0].get('id')],
-            properties
-          );
-        } else {
-          const properties = ctFeature[0].getProperties();
-          if (properties['geometry']) delete properties['geometry'];
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.EQUIPMENT,
-            [ctFeature[0].get('id')],
-            properties
-          );
-        }
-      } else {
-        const properties = features[0].getProperties();
-        if (properties['geometry']) delete properties['geometry'];
-        this.drawerService.navigateTo(
-          DrawerRouteEnum.EQUIPMENT,
-          [features[0].get('id')],
-          properties
+      if (ctFeature.length > 1) {
+        const extent = boundingExtent(
+          ctFeature.map((r: any) => r.getGeometry()!.getCoordinates())
         );
+        this.map.getView().fit(extent, {
+          duration: 1000,
+          padding: [50, 50, 50, 50],
+        });
       }
+
+      const properties = ctFeature[0].getProperties();
+      if (properties['geometry'])
+        delete properties['geometry'];
+      // We pass the layerKey to the drawer to be able to select the equipment on the layer
+      properties['layerKey'] = layerKey;
+
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.EQUIPMENT,
+        [ctFeature[0].get('id')],
+        properties
+      );
     }
   }
 
@@ -131,5 +119,25 @@ export class MapService {
 
   getCurrentLayersKey(): string[] {
     return [...this.layers.keys()];
+  }
+
+  // Permit to select the equipment feature on the layer (for the highlight style)
+  selectEquipmentLayer(equipment: Equipment) {
+    if (equipment.layerKey && this.hasEventLayer(equipment.layerKey)) {
+      const mLayer = this.layers.get(equipment.layerKey)!;
+      mLayer.equipmentSelected = equipment;
+      mLayer.layer.changed();
+    }
+  }
+
+  // Permit to unselect the equipment feature on the layer (for the highlight style)
+  unselectEquipmentLayer(equipment: Equipment) {
+    if (equipment.layerKey && this.hasEventLayer(equipment.layerKey)) {
+      const mLayer = this.layers.get(equipment.layerKey)!;
+      if (mLayer.equipmentSelected && mLayer.equipmentSelected.id == equipment.id) {
+        mLayer.equipmentSelected = undefined;
+        mLayer.layer.changed();
+      }
+    }
   }
 }
