@@ -20,6 +20,12 @@ ion-modal {
         width: 100%;
         position: relative;
 
+        .home-main-action-layer-mobile-animation {
+            position: absolute;
+            left: -20px;
+            animation: appear 0s ease-in-out 0.3s forwards;
+        }
+
         app-map {
             position: absolute;
             height: 100%;
@@ -110,6 +116,25 @@ ion-modal {
     }
 }
 
+@keyframes appear {
+    0% { position: absolute;left: -20px; }
+    100% { position: initial }
+}
+
+@-moz-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}
+
+@-webkit-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}
+
+@-ms-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}
 
 @keyframes slideIn {
     from {

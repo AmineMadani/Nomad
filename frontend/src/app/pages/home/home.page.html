@@ -7,12 +7,12 @@
     <!-- Test left menu
     <ion-col class="home-main-content-interactive-left"
         [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-left-animation-in' : 'home-main-content-interactive-left-animation-out')">
-        <app-patrimony></app-patrimony>
+        <app-exploitation></app-exploitation>
     </ion-col>
     -->
     <ion-col class="home-main-content-map" >
       <app-map #interactiveMap></app-map>
-      <app-actions-layer [currentRoute]="currentRoute"></app-actions-layer>
+      <app-actions-layer [currentRoute]="currentRoute" [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
     </ion-col>
 
     <ng-container [ngSwitch]="drawerType">
