@@ -11,7 +11,7 @@
     <!-- TODO: It is crucial to specify the needs to know exactly what will be included in these fields. -->
     <div class="equipment-drawer-fast-info" *ngIf="!isMobile()">
       <div class="equipment-drawer-fast-info-text">
-        Statut de l'ordre d'intervention : {{ equipment.statut }}
+        Statut de l'ordre d'intervention : {{ equipment['statut'] }}
       </div>
       <div class="equipment-drawer-fast-info-text">
         <ion-icon name="timer-outline"></ion-icon>

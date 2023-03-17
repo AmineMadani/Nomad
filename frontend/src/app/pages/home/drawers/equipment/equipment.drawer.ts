@@ -6,6 +6,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { MapService } from 'src/app/core/services/map.service';
 
 @Component({
   selector: 'app-equipment-drawer',
@@ -17,12 +18,13 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private route: ActivatedRoute,
-    private equipmentService: EquipmentDataService
+    private equipmentService: EquipmentDataService,
+    private mapService: MapService
   ) {}
 
   public drawerRouteEnum = DrawerRouteEnum;
   public previousRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
-  public equipment: any;
+  public equipment: Equipment;
 
   private drawerUnsubscribe: Subject<void> = new Subject();
 
@@ -30,12 +32,15 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   actionButtons: EquipmentActionButton[] = [];
 
   ngOnInit() {
-    // Subscribe to drawer open changes
+    // Subscribe to drawer previous route changes
     this.drawerService
       .onPreviousRouteChanged()
       .pipe(takeUntil(this.drawerUnsubscribe))
       .subscribe((route: DrawerRouteEnum) => {
         this.previousRoute = route;
+        if (this.previousRoute !== DrawerRouteEnum.HOME && this.equipment) {
+          this.mapService.unselectEquipmentLayer(this.equipment);
+        }
       });
 
     // Get all equipment sections and actions buttons
@@ -53,8 +58,9 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
           );
         })
       )
-      .subscribe((equipment: any) => {
+      .subscribe((equipment: Equipment) => {
         this.equipment = equipment;
+        this.mapService.selectEquipmentLayer(this.equipment);
         // Remove sections that have no equipment data
         this.sections =
           this.sections.filter((section: EquipmentSection) => section.elements.some((element: any) => equipment[element.key]));

@@ -1,6 +1,7 @@
 
 export interface Equipment extends Record<string, any> {
   id: number;
+  layerKey?: string;
 }
 
 
