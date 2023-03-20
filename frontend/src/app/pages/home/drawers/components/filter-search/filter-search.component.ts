@@ -25,6 +25,7 @@ export class FilterSearchComponent implements OnInit {
   }
 
   public openCalendar(): void {
+    this.dialogService.close();
     this.dialogService
       .open(DatepickerComponent, {
         backdrop: false,
