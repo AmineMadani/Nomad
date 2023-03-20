@@ -1,6 +1,4 @@
-import { MapService } from 'src/app/core/services/map.service';
 import { BaseFilterData, BaseFilter } from './BaseFilter.model';
-import { FavoriteItem } from './FavoriteFilter.model';
 
 export class InterventionFilter implements BaseFilter {
   public id: number;
@@ -18,12 +16,6 @@ export class InterventionFilter implements BaseFilter {
     this.isRecordableFavorite = isRecordableFavorite;
     this.position = position;
     this.data = data;
-  }
-  applyFavorite(mapService: MapService, favoriteItem: FavoriteItem): void {
-    throw new Error('Method not implemented.');
-  }
-  getFavorites(): FavoriteItem[] {
-    throw new Error('Method not implemented.');
   }
 
   isSelectedData(): boolean {

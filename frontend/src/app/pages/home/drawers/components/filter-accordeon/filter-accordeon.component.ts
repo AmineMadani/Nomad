@@ -1,5 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
+import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { MapService } from 'src/app/core/services/map.service';
 
 @Component({
@@ -10,7 +12,8 @@ import { MapService } from 'src/app/core/services/map.service';
 export class FilterAccordeonComponent implements OnInit {
 
   constructor(
-    private mapService: MapService
+    private mapService: MapService,
+    private favService: FavoriteService,
   ) { }
 
   @Input() data: AccordeonData;
@@ -28,6 +31,10 @@ export class FilterAccordeonComponent implements OnInit {
         && this.data.children?.filter((acc) => acc.value).length !== this.data.children?.length) {
       this.data.isIndeterminate = true;
     }
+
+    setTimeout(() => {
+      this.checkFavValue(this.data);
+    });
   }
 
   /**
@@ -94,6 +101,16 @@ export class FilterAccordeonComponent implements OnInit {
       this.isOpen = !this.isOpen;
       this.icon = this.isOpen ? 'remove-outline' : 'add-outline';
     }
+  }
+
+  private checkFavValue(data: AccordeonData): void {
+    data.value = this.favService.getSelectedFavorite()?.equipments?.some((eq: EqData) => eq.id === data.id && eq.key === data.key);
+    if (data.children) {
+      data.children.forEach((d: AccordeonData) => {
+        this.checkFavValue(d);
+      })
+    }
+    data.isIndeterminate = data.children?.some((child) => child.value);
   }
 
 }

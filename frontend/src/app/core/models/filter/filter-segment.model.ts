@@ -5,10 +5,12 @@ import { SearchFilter } from "./filter-component-models/SearchFilter.model";
 import { ToggleFilter } from "./filter-component-models/ToggleFilter.model";
 import { TreeFilter } from "./filter-component-models/TreeFilter.model";
 
+export type FilterType = (AccordeonFilter | TreeFilter | ToggleFilter | SearchFilter | InterventionFilter | FavoriteFilter);
+
 export interface FilterSegment {
     id:number,
     position: number,
     name: string,
     selected: boolean,
-    components: (AccordeonFilter | TreeFilter | FavoriteFilter | ToggleFilter | SearchFilter | InterventionFilter)[]
+    components: FilterType[]
 }
