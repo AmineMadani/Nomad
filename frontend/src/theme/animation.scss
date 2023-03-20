@@ -1,0 +1,113 @@
+
+//--------------- right panel animation IN -------------------
+@keyframes slideInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-moz-keyframes slideInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-webkit-keyframes slideInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-ms-keyframes slideInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+//--------------- right panel animation OUT -------------------
+@keyframes slideOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+}
+
+@-moz-keyframes slideOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+}
+
+@-webkit-keyframes slideOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+}
+
+@-ms-keyframes slideOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+}
+
+@keyframes slideOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive--);
+    }
+}
+
+//--------------- appear element -------------------
+@keyframes appear {
+    0% { position: absolute;left: -20px; }
+    100% { position: initial }
+}
+
+@-moz-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}
+
+@-webkit-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}
+
+@-ms-keyframes appear {
+    0% { display: none}
+    100% { position: initial }
+}

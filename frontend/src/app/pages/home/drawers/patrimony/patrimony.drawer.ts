@@ -44,16 +44,16 @@ export class PatrimonyDrawer implements OnInit {
   };
 
   isModifyFavorite = () => {
+    let selectedSegment = this.filter.segments.find(segment => segment.selected);
+
     for (let segment of this.filter.segments) {
       for (let component of segment.components) {
         if (component.getType() === 'favoriteFilter') {
           for (let data of component.data) {
             let favoriteData: FavoriteData = data;
             if (favoriteData.value) {
-              for (let segmentPrime of this.filter.segments) {
-                if (segmentPrime.selected && segmentPrime.id === favoriteData.segmentId) {
-                  return true;
-                }
+              if (selectedSegment && selectedSegment.selected && selectedSegment.id === favoriteData.segmentId) {
+                return true;
               }
             }
           }

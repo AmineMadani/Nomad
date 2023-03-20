@@ -4,6 +4,11 @@
 /** Ionic CSS Variables **/
 :root {
 
+  /** Global App Variable **/
+  --width-right-panel-interactive: 600px;
+  --width-right-panel-interactive--: calc(var(--width-right-panel-interactive) * -1);
+  /*************************/
+
   --ion-font-family: "TheSans";
   
 	--ion-color-primary: #0062A9;

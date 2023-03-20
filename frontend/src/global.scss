@@ -115,9 +115,19 @@
 
 // Overlay panel styling
 .overlay-panel {
+  margin-right: var(--width-right-panel-interactive--);
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  height: 100%;
-  width: 100%;
+  height: calc(100% - 56px);
+  margin-top: 56px;
+  width: var(--width-right-panel-interactive);
+  right: 0;
+  position: absolute !important;
+
+  -moz-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -webkit-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -o-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -ms-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  animation: slideInRightPanel 0.5s ease 0.1s forwards;
 }

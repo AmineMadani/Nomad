@@ -27,10 +27,6 @@ export class FilterSearchComponent implements OnInit {
   public openCalendar(): void {
     this.dialogService
       .open(DatepickerComponent, {
-        position: {
-          top: '56px',
-          left: this.isMobile ? '0' : 'calc(100% - 600px)',
-        },
         backdrop: false,
       })
       .afterClosed()

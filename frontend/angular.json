@@ -31,7 +31,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss", "src/theme/openLayers.scss", "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"],
+            "styles": ["src/theme/variables.scss", "src/global.scss", "src/theme/openLayers.scss", "src/theme/animation.scss", "node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css"],
             "scripts": [],
             "allowedCommonJsDependencies": [
               "rbush",
