@@ -18,15 +18,14 @@ import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
 import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/filter-accordeon.component';
-import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
 import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { MapService } from 'src/app/core/services/map.service';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
 import { FilterInterventionComponent } from './drawers/components/filter-intervention/filter-intervention.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
+import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 
 @NgModule({
   imports: [
@@ -50,13 +49,12 @@ import { FilterSearchComponent } from './drawers/components/filter-search/filter
     PerimeterDrawer,
     FilterContentComponent,
     FilterAccordeonComponent,
-    FilterFavoriteComponent,
     FilterTreeComponent,
     FilterToggleComponent,
     FilterInterventionComponent,
     FilterSearchComponent,
+    FilterFavoriteComponent,
     EquipmentDrawer,
   ],
-  providers: [MapService],
 })
 export class HomePageModule {}

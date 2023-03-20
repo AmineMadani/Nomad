@@ -1,54 +1,42 @@
-import { MapService } from "src/app/core/services/map.service";
-import { BaseFilterData, BaseFilter } from "./BaseFilter.model";
+import { BaseFilterData, BaseFilter } from './BaseFilter.model';
 
 export class FavoriteFilter implements BaseFilter {
-    public id: number;
-    public isRecordableFavorite: boolean;
-    public position: number;
-    public data: FavoriteData[];
+  public id: number;
+  public isRecordableFavorite: boolean;
+  public position: number;
+  public data: FavData[];
 
-    constructor(id: number, isRecordableFavorite: boolean, position: number, data: FavoriteData[]) {
-        this.id = id;
-        this.isRecordableFavorite = isRecordableFavorite;
-        this.position = position;
-        this.data = data;
-    }
+  constructor(
+    id: number,
+    isRecordableFavorite: boolean,
+    position: number,
+    data: FavData[]
+  ) {
+    this.id = id;
+    this.isRecordableFavorite = isRecordableFavorite;
+    this.position = position;
+    this.data = data;
+  }
 
-    public getType(): string {
-        return 'favoriteFilter';
-    }
+  getType(): string {
+    return 'favoriteFilter';
+  }
 
-    public reset(mapService:MapService): void {
-        for(let data of this.data){
-            data.value=false;
-            data.isOpen=false;
-        }
-    }
+  reset(): void {
+    this.data.forEach((fd: FavData) => fd.value = false);
+  }
 
-    public isSelectedData():boolean {
-        for(let data of this.data){
-            if(data.value){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public applyFavorite(mapService: MapService): void {
-    }
-
-    public getFavorites(): FavoriteItem[] {
-        return [];
-    }
+  isSelectedData(): boolean {
+    return this.data.some((fd: FavData) => fd.value);
+  }
 }
 
-export interface FavoriteData extends BaseFilterData {
-    dataSave?: FavoriteItem[];
-    isOpen?: boolean;
-    segmentId?: number;
+export interface FavData extends BaseFilterData {
+  segment?: number;
+  equipments?: EqData[]
 }
 
-export interface FavoriteItem {
-    id: number;
-    value: boolean | string;
+export interface EqData {
+  id: number;
+  key: string;
 }

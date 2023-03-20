@@ -4,13 +4,11 @@
     <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
   </ion-item>
 
-  <app-filter-content [filter]="filter" class="filter-content"/>
+  <app-filter-content [filter]="filter" (segmentChange)="onSegmentChange($event)" class="filter-content"/>
 
   <div class="patrimony-footer-actions" lines="none">
-    <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
-      <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
-      <ion-button fill="clear" (click)="modifyFavorite(undefined)" *ngIf="!isFavoriteSegment() && isModifyFavorite()" [disabled]="!isSelectedDataOnSegment()">Modifier le favori</ion-button>
-      <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()" [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
-    </div>
+    <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
+    <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="isModifyFavorite()" [disabled]="!isSelectedDataOnSegment()">Modifier le favori</ion-button>
+    <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()" [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer</ion-button>
   </div>
 </div>

@@ -1,9 +1,14 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AlertController, ToastController } from '@ionic/angular';
-import { patrimonyFilterMock } from 'src/app/core/mocks/filter-patrimony.mock';
-import { FavoriteData, FavoriteFilter, FavoriteItem } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { AlertController } from '@ionic/angular';
+import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
+import { FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import {
+  FilterSegment,
+  FilterType,
+} from 'src/app/core/models/filter/filter-segment.model';
 import { Filter } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
+import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { MapService } from 'src/app/core/services/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -17,15 +22,16 @@ export class PatrimonyDrawer implements OnInit {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private alertController: AlertController,
-    private mapService: MapService
-  ) { }
+    private mapService: MapService,
+    private favService: FavoriteService
+  ) {}
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
-  filter: Filter = patrimonyFilterMock;
+  public filter: Filter = this.favService.getFilter();
+  public currentSegment: FilterSegment | undefined;
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
@@ -39,135 +45,148 @@ export class PatrimonyDrawer implements OnInit {
     return a.value.position - b.value.position;
   }
 
+  onSegmentChange(segment: number): void {
+    this.currentSegment = this.filter.segments.find(
+      (seg: FilterSegment) => seg.id === segment
+    );
+  }
+
   isFavoriteSegment = () => {
-    return this.filter.segments.some((segment) => segment.selected && segment.components.some((component) => component.getType() === 'favoriteFilter'))
+    return this.filter.segments.some(
+      (segment) =>
+        segment.selected &&
+        segment.components.some(
+          (component) => component.getType() === 'favoriteFilter'
+        )
+    );
   };
 
   isModifyFavorite = () => {
-    let selectedSegment = this.filter.segments.find(segment => segment.selected);
-
-    for (let segment of this.filter.segments) {
-      for (let component of segment.components) {
-        if (component.getType() === 'favoriteFilter') {
-          for (let data of component.data) {
-            let favoriteData: FavoriteData = data;
-            if (favoriteData.value) {
-              if (selectedSegment && selectedSegment.selected && selectedSegment.id === favoriteData.segmentId) {
-                return true;
-              }
-            }
-          }
-        }
-      }
+    const currentFav: FavData | undefined =
+      this.favService.getSelectedFavorite();
+    if (currentFav) {
+      return (
+        !this.isFavoriteSegment() &&
+        currentFav.segment === this.currentSegment?.id
+      );
     }
     return false;
-  }
+  };
 
   isSelectedDataOnSegment = () => {
-    return this.filter.segments.some((segment) => segment.selected && segment.components.some((component) => component.isSelectedData()))
+    return this.filter.segments.some(
+      (segment) =>
+        segment.selected &&
+        segment.components.some((component) => component.isSelectedData())
+    );
   };
 
   isSelectedData = () => {
-    return this.filter.segments.some((segment) => segment.components.some((component) => component.isSelectedData()))
+    return this.filter.segments.some((segment) =>
+      segment.components.some((component) => component.isSelectedData())
+    );
   };
 
   reset() {
     this.filter.segments.forEach((segment) => {
       segment.components.forEach((component) => {
-        component.reset(this.mapService);
+        component.reset();
       });
     });
+    this.mapService.resetLayers();
+    this.favService.removeCurrentFavorite();
   }
 
-  modifyFavorite(inputfavoriteData: FavoriteData | undefined): void {
-    let selectedFavoriteData: FavoriteData | undefined = inputfavoriteData;
-    let favoriteItems: FavoriteItem[] = [];
-
-    for (let segment of this.filter.segments) {
-      for (let component of segment.components) {
-        if (component instanceof FavoriteFilter) {
-          for (let data of component.data) {
-            let favoriteData: FavoriteData = data;
-            if (favoriteData.value) {
-              if (!selectedFavoriteData) {
-                selectedFavoriteData = favoriteData;
-              }
-            }
+  modifyFavorite(): void {
+    const currentFav: FavData | undefined =
+      this.favService.getSelectedFavorite();
+    if (currentFav) {
+      this.currentSegment?.components.forEach((c: FilterType) => {
+        c.data.forEach((data: AccordeonData) => {
+          if (
+            data.value &&
+            !currentFav.equipments?.map((eq) => eq.id).includes(data.id!)
+          ) {
+            currentFav.equipments?.push({ id: data.id!, key: data.key! });
           }
-        }
-        if (segment.selected) {
-          favoriteItems = [...favoriteItems, ...component.getFavorites()];
-        }
-      }
+          if (data.children) {
+            data.children.forEach((child) => {
+              if (
+                child.value &&
+                !currentFav.equipments?.map((eq) => eq.id).includes(child.id!)
+              ) {
+                currentFav.equipments?.push({ id: child.id!, key: child.key! });
+              }
+            });
+          }
+        });
+      });
+      this.favService.modifyCurrentFavorite(currentFav);
     }
-
-    if (selectedFavoriteData) selectedFavoriteData.dataSave = favoriteItems;
   }
 
   async addFavorite() {
-    const favoriteSegment = this.filter.segments.find((segment) =>
-      segment.components.some((component) => component instanceof FavoriteFilter)
-    );
-    const favoriteComponent = favoriteSegment?.components.find(
-      (component) => component instanceof FavoriteFilter
-    ) as FavoriteFilter | undefined;
-    const selectedSegment = this.filter.segments.find((segment) => segment.selected);
-
-    let defaultName = '';
-    if (favoriteComponent) {
-      defaultName = `${selectedSegment?.name} - favoris - ${favoriteComponent.data.length + 1}`;
-    }
-
-    const alert = await this.alertController.create({
-      header: "Ajout d'un favori",
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'OK',
-          role: 'confirm',
-          handler: (alertData) => {
-            if (!favoriteComponent) {
-              return;
+    const eqFavs: FavData = {
+      id: 0,
+      position: 0,
+      name: '',
+      segment: this.currentSegment!.id,
+      equipments: [],
+    };
+    this.currentSegment?.components.forEach((component) => {
+      component.data.forEach((data: AccordeonData) => {
+        if (data.value) {
+          eqFavs.equipments?.push({ id: data.id!, key: data.key! });
+        }
+        if (data.children) {
+          data.children.forEach((child) => {
+            if (data.value) {
+              eqFavs.equipments?.push({ id: child.id!, key: child.key! });
             }
-
-            favoriteComponent.data.forEach((favorite) => {
-              favorite.value = false;
-              if (favorite.name === alertData.name) {
-                if (favorite.name.match(/[0-9]$/)) {
-                  const val = Number(favorite.name.match(/[0-9]$/)![0]) + 1;
-                  alertData.name = alertData.name.replace(/[0-9]$/, `${val}`);
-                } else {
-                  alertData.name = `${alertData.name} - 1`;
-                }
-              }
-            });
-
-            const newFavorite: FavoriteData = {
-              id: favoriteComponent.data.length + 1,
-              name: alertData.name,
-              position: favoriteComponent.data.length + 1,
-              segmentId: selectedSegment?.id,
-              value: true,
-            };
-
-            favoriteComponent.data.push(newFavorite);
-
-            this.modifyFavorite(newFavorite);
-          },
-        },
-      ],
-      inputs: [
-        {
-          name: 'name',
-          placeholder: 'Intitulé du favoris',
-          value: defaultName,
-        },
-      ],
+          });
+        }
+      });
     });
+    if (eqFavs.equipments && eqFavs.equipments.length > 0) {
+      const exisingFavs: FavData[] = this.favService.getFavList(
+        eqFavs.segment!
+      );
 
-    await alert.present();
+      let n = 1;
+      let defaultName: string = `${this.currentSegment?.name} - favoris - ${n}`;
+      while (exisingFavs.map((f) => f.name).includes(defaultName)) {
+        n += 1;
+        defaultName = `${this.currentSegment?.name} - favoris - ${n}`;
+      }
+
+      const alert = await this.alertController.create({
+        header: "Création d'un nouveau favori",
+        buttons: [
+          {
+            text: 'Annuler',
+            role: 'cancel',
+          },
+          {
+            text: 'Ok',
+            role: 'confirm',
+          },
+        ],
+        inputs: [
+          {
+            name: 'name',
+            placeholder: 'Nom du favori',
+            value: defaultName,
+          },
+        ],
+      });
+      await alert.present();
+
+      const { role, data } = await alert.onDidDismiss();
+
+      if (role === 'confirm') {
+        eqFavs.name = data.values.name;
+        this.favService.addFavorite(eqFavs);
+      }
+    }
   }
 }
