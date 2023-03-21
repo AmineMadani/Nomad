@@ -124,7 +124,7 @@ export class FavoriteService {
   public deleteFavorite(fav: FavData): void {
     this.filter.segments.some((s) => {
       return s.components.some((c) => {
-        if (c.getType() === 'favFilter') {
+        if (c.getType() === 'favoriteFilter') {
           const index = c.data.findIndex((f: FavData) => f === fav);
           if (index !== -1) {
             c.data.splice(index, 1);
