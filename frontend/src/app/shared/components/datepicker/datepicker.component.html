@@ -51,9 +51,29 @@
   </ion-item-group>
 </div>
 
-<div class="calendar-footer">
-  <ion-button fill="clear" (click)="close()">Annuler</ion-button>
-  <ion-button fill="clear" (click)="reset()">Réinitialiser</ion-button>
-  <ion-button fill="clear" (click)="validate()"
-    [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">Valider</ion-button>
-</div>
+<ng-container *ngIf="!isMobile">
+  <div class="calendar-footer">
+    <ion-button fill="clear" (click)="close()">Annuler</ion-button>
+    <ion-button fill="clear" (click)="reset()">Réinitialiser</ion-button>
+    <ion-button fill="clear" (click)="validate()"
+      [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">Valider</ion-button>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="isMobile">
+  <ion-tab-bar>
+    <ion-tab-button (click)="close()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Annuler
+    </ion-tab-button>
+    <ion-tab-button (click)="reset()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Réinitialiser
+    </ion-tab-button>
+    <ion-tab-button (click)="validate()"
+      [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">
+      <ion-icon name="checkmark-outline"></ion-icon>
+      Valider
+    </ion-tab-button>
+  </ion-tab-bar>
+</ng-container>
