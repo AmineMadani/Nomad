@@ -24,14 +24,14 @@ export class PatrimonyDrawer implements OnInit {
     private alertController: AlertController,
     private mapService: MapService,
     private favService: FavoriteService
-  ) {}
+  ) { }
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
   public filter: Filter = this.favService.getFilter();
   public currentSegment: FilterSegment | undefined;
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
@@ -65,10 +65,7 @@ export class PatrimonyDrawer implements OnInit {
     const currentFav: FavData | undefined =
       this.favService.getSelectedFavorite();
     if (currentFav) {
-      return (
-        !this.isFavoriteSegment() &&
-        currentFav.segment === this.currentSegment?.id
-      );
+      return currentFav.segment === this.currentSegment?.id;
     }
     return false;
   };
@@ -87,6 +84,16 @@ export class PatrimonyDrawer implements OnInit {
     );
   };
 
+  isFavoriteDataChange = () => {
+    const currentFav: FavData | undefined = this.favService.getSelectedFavorite();
+    if (currentFav) {
+      let listIdFav: number[] | undefined = currentFav.equipments?.map(equ => equ.id);
+      let listIdSelected: number[] | undefined = this.getFavData().map(equ => equ.id);
+      return listIdFav && listIdFav.sort().join(',') !== listIdSelected.sort().join(',');
+    }
+    return false;
+  };
+
   reset() {
     this.filter.segments.forEach((segment) => {
       segment.components.forEach((component) => {
@@ -97,26 +104,50 @@ export class PatrimonyDrawer implements OnInit {
     this.favService.removeCurrentFavorite();
   }
 
-  modifyFavorite(): void {
-    const currentFav: FavData | undefined =
-      this.favService.getSelectedFavorite();
-    if (currentFav) {
-      const eq: EqData[] = [];
-      this.currentSegment?.components.forEach((c: FilterType) => {
-        if (c.getType() === 'accordeonFilter') {
-          c.data.forEach((acc: AccordeonData) => {
-            if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
-            if (acc.children) {
-              acc.children.forEach(child => {
-                if (child.value) eq.push({ id: child.id!, key: child.key! });
-              })
-            }
-          })
-        }
-      });
-      currentFav.equipments = eq;
-      this.favService.modifyCurrentFavorite(currentFav);
+  async modifyFavorite(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Voulez-vous modifier le favori '+this.favService.getSelectedFavorite()?.name+' ?',
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+        },
+        {
+          text: 'Confirmer',
+          role: 'confirm',
+        },
+      ],
+    });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      const currentFav: FavData | undefined =
+        this.favService.getSelectedFavorite();
+      if (currentFav) {
+        currentFav.equipments = this.getFavData();
+        this.favService.modifyCurrentFavorite(currentFav);
+      }
     }
+  }
+
+  getFavData(): EqData[] {
+    const eq: EqData[] = [];
+    this.currentSegment?.components.forEach((c: FilterType) => {
+      if (c.getType() === 'accordeonFilter') {
+        c.data.forEach((acc: AccordeonData) => {
+          if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
+          if (acc.children) {
+            acc.children.forEach(child => {
+              if (child.value) eq.push({ id: child.id!, key: child.key! });
+            })
+          }
+        })
+      }
+    });
+    return eq;
   }
 
   async addFavorite() {
