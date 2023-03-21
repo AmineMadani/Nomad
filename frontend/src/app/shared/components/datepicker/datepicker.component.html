@@ -2,7 +2,7 @@
   <ion-button slot="start" fill="clear" (click)="close()">
     <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
   </ion-button>
-  <ion-label>Sélectionner une plage de dates</ion-label>
+  <ion-label slot="end">Sélectionner une plage de dates</ion-label>
 </ion-item>
 
 <div class="calendar-months" *ngIf="calendar.get(year)" [class.months-mobile]="isMobile">
