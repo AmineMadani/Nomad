@@ -31,11 +31,18 @@ export class PatrimonyDrawer implements OnInit {
   public filter: Filter = this.favService.getFilter();
   public currentSegment: FilterSegment | undefined;
 
-  isMobile(): boolean {
-    return this.utilsService.isMobilePlateform();
+  isMobile: boolean = false;
+  
+  title(): string {
+    let val = 'Patrimoine';
+    if(this.favService.getSelectedFavorite()){
+      val += ' ('+this.favService.getSelectedFavorite()?.name+')';
+    }
+    return val;
   }
 
   ngOnInit() {
+    this.isMobile = this.utilsService.isMobilePlateform();
   }
 
   onClose() {
