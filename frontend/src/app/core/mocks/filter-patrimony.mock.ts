@@ -90,7 +90,7 @@ export const patrimonyFilterMock: Filter = {
           {
             id: 2,
             key: 'ass_collecteur',
-            name: 'Canalisations',
+            name: 'Collecteur',
             position: 2,
           },
           {
