@@ -4,11 +4,30 @@
     <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
   </ion-item>
 
-  <app-filter-content [filter]="filter" (segmentChange)="onSegmentChange($event)" class="filter-content"/>
+  <app-filter-content [filter]="filter" (segmentChange)="onSegmentChange($event)" class="filter-content"
+    [class.mobile-view]="isMobile" />
 
-  <div class="patrimony-footer-actions" lines="none">
-    <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
-    <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="isModifyFavorite()" [disabled]="!isFavoriteDataChange()">Modifier le favori</ion-button>
-    <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()" [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer un favori</ion-button>
-  </div>
+  <ng-container *ngIf="!isMobile()">
+    <div class="patrimony-footer-actions" lines="none">
+      <ion-button fill="clear" (click)="reset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
+      <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="isModifyFavorite()" [disabled]="!isFavoriteDataChange()">Modifier le favori</ion-button>
+      <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()" [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer un favori</ion-button>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="isMobile()">
+    <ion-tab-bar>
+      <ion-tab-button (click)="reset()" [disabled]="!isSelectedData()">
+        <ion-icon name="refresh-outline"></ion-icon>
+        Réinitialiser
+      </ion-tab-button>
+      <ion-tab-button *ngIf="isModifyFavorite()" (click)="modifyFavorite()" [disabled]="!isFavoriteDataChange()">
+        <ion-icon name="pencil-outline"></ion-icon>
+        Modifier le favori
+      </ion-tab-button>
+      <ion-tab-button *ngIf="!isFavoriteSegment()" (click)="addFavorite()" [disabled]="!isSelectedDataOnSegment()">
+        <ion-icon name="create-outline"></ion-icon>
+        Créer un favori
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ng-container>
 </div>

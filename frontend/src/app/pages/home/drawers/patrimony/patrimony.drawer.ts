@@ -31,10 +31,11 @@ export class PatrimonyDrawer implements OnInit {
   public filter: Filter = this.favService.getFilter();
   public currentSegment: FilterSegment | undefined;
 
-  ngOnInit() { }
-
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
+  }
+
+  ngOnInit() {
   }
 
   onClose() {

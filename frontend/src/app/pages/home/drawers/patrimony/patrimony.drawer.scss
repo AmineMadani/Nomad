@@ -16,9 +16,13 @@
     cursor: pointer;
   }
 
-  app-filter-content {
+  .filter-content {
     display: block;
     height: calc(100% - 160px);
+  }
+
+  .mobile-view {
+    height: calc(100% - 112px);
   }
 
   .patrimony-footer-actions {
