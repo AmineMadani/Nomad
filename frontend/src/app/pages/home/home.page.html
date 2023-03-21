@@ -6,13 +6,13 @@
   <ion-row class="home-main-content">
     
     <ion-col class="home-main-content-map" >
-      <app-map #interactiveMap></app-map>
+      <app-map #interactiveMap [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? 'app-map-mobile' : '')"></app-map>
       <app-actions-layer [currentRoute]="currentRoute" [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
     </ion-col>
 
     <ng-container [ngSwitch]="drawerType">
       <!-- Drawer -->
-      <ion-col *ngSwitchCase="drawerTypeEnum.DRAWER" class="home-main-content-interactive"
+      <ion-col *ngSwitchCase="drawerTypeEnum.DRAWER" class="home-main-content-interactive" [class]="!isMobile() ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
         [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
         <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
       </ion-col>

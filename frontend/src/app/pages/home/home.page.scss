@@ -34,16 +34,29 @@ ion-modal {
             height: 100%;
             width: 100%;
         }
+
+        .app-map-mobile {
+            margin-left: -3px;
+        }
     }
 
     .home-main-content-interactive {
         padding: 12px;
         height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .home-main-content-interactive-desktop {
         margin-right: var(--width-right-panel-interactive--);
         width: var(--width-right-panel-interactive);
         flex: 0 0 var(--width-right-panel-interactive);
-        display: flex;
-        flex-direction: column;
+    }
+
+    .home-main-content-interactive-mobile {
+        margin-right: calc(100% - 3px);
+        width: calc(100% - 3px);
+        flex: 0 0 calc(100% - 3px);
     }
 
     .home-main-content-interactive-animation-in {
