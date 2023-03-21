@@ -114,7 +114,7 @@ export class FavoriteService {
 
     this.filter.segments.forEach((fs: FilterSegment) => {
       fs.components.forEach((ft: FilterType) => {
-        if (ft.getType() === 'favFilter') {
+        if (ft.getType() === 'favoriteFilter') {
           ft.data.push(fav);
         }
       });

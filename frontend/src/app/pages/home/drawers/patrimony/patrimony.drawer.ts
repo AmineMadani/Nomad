@@ -127,20 +127,20 @@ export class PatrimonyDrawer implements OnInit {
       segment: this.currentSegment!.id,
       equipments: [],
     };
-    this.currentSegment?.components.forEach((component) => {
-      component.data.forEach((data: AccordeonData) => {
-        if (data.value) {
-          eqFavs.equipments?.push({ id: data.id!, key: data.key! });
-        }
-        if (data.children) {
-          data.children.forEach((child) => {
-            if (data.value) {
-              eqFavs.equipments?.push({ id: child.id!, key: child.key! });
-            }
-          });
-        }
-      });
+    const eq: EqData[] = [];
+    this.currentSegment?.components.forEach((c: FilterType) => {
+      if (c.getType() === 'accordeonFilter') {
+        c.data.forEach((acc: AccordeonData) => {
+          if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
+          if (acc.children) {
+            acc.children.forEach(child => {
+              if (child.value) eq.push({ id: child.id!, key: child.key! });
+            })
+          }
+        })
+      }
     });
+    eqFavs.equipments = eq;
     if (eqFavs.equipments && eqFavs.equipments.length > 0) {
       const exisingFavs: FavData[] = this.favService.getFavList(
         eqFavs.segment!
