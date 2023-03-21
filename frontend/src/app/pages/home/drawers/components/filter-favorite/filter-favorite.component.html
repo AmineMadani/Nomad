@@ -1,5 +1,5 @@
-<ion-radio-group [allowEmptySelection]="true" [value]="getCurrentFavorite()" (ionChange)="onFavoriteSelected($event)">
-  <ion-accordion-group>
+<ion-accordion-group>
+  <ion-radio-group [allowEmptySelection]="true" [value]="getCurrentFavorite()" (ionChange)="onFavoriteSelected($event)">
     <ion-accordion *ngFor="let fd of data" [toggleIcon]="''">
       <ion-item slot="header" (click)="checkOpeningRule(fd)">
         <ion-radio slot="start" mode="md" [value]="fd"></ion-radio>
@@ -18,5 +18,5 @@
         </ion-item>
       </div>
     </ion-accordion>
-  </ion-accordion-group>
-</ion-radio-group>
+  </ion-radio-group>
+</ion-accordion-group>
