@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
+import { MapService } from 'src/app/core/services/map.service';
 
 @Component({
   selector: 'app-filter-favorite',
@@ -11,7 +12,8 @@ import { FavoriteService } from 'src/app/core/services/favorite.service';
 export class FilterFavoriteComponent implements OnInit {
   constructor(
     private favService: FavoriteService,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private mapService: MapService
   ) {}
 
   @Input() data: FavData[];
@@ -92,6 +94,17 @@ export class FilterFavoriteComponent implements OnInit {
 
     if (role === 'confirm') {
       this.favService.deleteFavorite(data);
+      this.reset();
     }
+  }
+
+  reset() {
+    this.favService.getFilter().segments.forEach((segment) => {
+      segment.components.forEach((component) => {
+        component.reset();
+      });
+    });
+    this.mapService.resetLayers();
+    this.favService.removeCurrentFavorite();
   }
 }
