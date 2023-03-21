@@ -42,10 +42,12 @@ export class FavoriteService {
       this.mapService.addEventLayer(eq.key);
     });
     this.currentFavorite = fav;
+    this.currentFavorite.value = true;
   }
 
   public removeCurrentFavorite(): void {
     if (this.currentFavorite) {
+      this.currentFavorite.value = false;
       this.removeFavorite(this.currentFavorite);
     }
   }
