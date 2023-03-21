@@ -104,13 +104,15 @@ export class FilterAccordeonComponent implements OnInit {
   }
 
   private checkFavValue(data: AccordeonData): void {
-    data.value = this.favService.getSelectedFavorite()?.equipments?.some((eq: EqData) => eq.id === data.id && eq.key === data.key);
-    if (data.children) {
-      data.children.forEach((d: AccordeonData) => {
-        this.checkFavValue(d);
-      })
+    if (this.favService.getSelectedFavorite()) {
+      data.value = this.favService.getSelectedFavorite()?.equipments?.some((eq: EqData) => eq.id === data.id && eq.key === data.key);
+      if (data.children) {
+        data.children.forEach((d: AccordeonData) => {
+          this.checkFavValue(d);
+        })
+      }
+      data.isIndeterminate = data.children?.some((child) => child.value);
     }
-    data.isIndeterminate = data.children?.some((child) => child.value);
   }
 
 }

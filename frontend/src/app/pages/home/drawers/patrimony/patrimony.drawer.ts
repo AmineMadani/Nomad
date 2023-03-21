@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
-import { FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { EqData, FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import {
   FilterSegment,
   FilterType,
@@ -101,26 +101,20 @@ export class PatrimonyDrawer implements OnInit {
     const currentFav: FavData | undefined =
       this.favService.getSelectedFavorite();
     if (currentFav) {
+      const eq: EqData[] = [];
       this.currentSegment?.components.forEach((c: FilterType) => {
-        c.data.forEach((data: AccordeonData) => {
-          if (
-            data.value &&
-            !currentFav.equipments?.map((eq) => eq.id).includes(data.id!)
-          ) {
-            currentFav.equipments?.push({ id: data.id!, key: data.key! });
-          }
-          if (data.children) {
-            data.children.forEach((child) => {
-              if (
-                child.value &&
-                !currentFav.equipments?.map((eq) => eq.id).includes(child.id!)
-              ) {
-                currentFav.equipments?.push({ id: child.id!, key: child.key! });
-              }
-            });
-          }
-        });
+        if (c.getType() === 'accordeonFilter') {
+          c.data.forEach((acc: AccordeonData) => {
+            if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
+            if (acc.children) {
+              acc.children.forEach(child => {
+                if (child.value) eq.push({ id: child.id!, key: child.key! });
+              })
+            }
+          })
+        }
       });
+      currentFav.equipments = eq;
       this.favService.modifyCurrentFavorite(currentFav);
     }
   }
