@@ -6,6 +6,7 @@ setx PGPASSWORD %password%
 echo Install DB...
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/drop_schemas.sql
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_schemas.sql
+psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_functions.sql
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_config.sql
 echo Set config for VEF...
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../conf/conf_vef.sql
