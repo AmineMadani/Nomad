@@ -320,3 +320,23 @@ domains as
  left join domains d on d.domain_type = l.domain_type
  left join toc t on t.id = l.tree_group_id
   order by l.num_order;
+
+
+-- Create table to store a grid that covers all asset
+-- Used to export GeoJson
+drop table if exists app_grid;
+create table app_grid
+(
+id serial primary key
+, geom geometry('Polygon', 3857)
+, created_date timestamp default current_date
+, last_edited_date timestamp default current_date
+);
+
+/* Comments on table */
+COMMENT ON TABLE app_grid IS 'This table defines the grid to export geojson';
+/* Comments on fields */
+COMMENT ON COLUMN app_grid.id IS 'Table unique ID';
+COMMENT ON COLUMN app_grid.geom IS 'Geometry of the grid';
+COMMENT ON COLUMN app_grid.created_date IS 'Created date';
+COMMENT ON COLUMN app_grid.last_edited_date IS 'Last edited date';
