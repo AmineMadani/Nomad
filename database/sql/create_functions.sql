@@ -54,3 +54,37 @@ exception when others then
   return null;
 end;
 $$;
+
+-- Function to create a geojson index
+-- for a specific layer
+create or replace function get_geojson_index(layer text)
+returns jsonb
+language plpgsql
+as $$
+declare
+	geojson jsonb;
+	tile_geom geometry;
+begin
+  with
+  records as
+  (select layer||'_'||id||'.geojson' as file, st_extent(geom)::text as bbox, geom from config.app_grid group by id, geom order by id),
+  features as
+  (
+	select jsonb_build_object(
+	'type',       'Feature',
+	'geometry',   NULL,
+  'properties', to_jsonb(r.*) - 'geom') as feature
+  from records r
+  )
+  SELECT jsonb_build_object(
+  'type',     'FeatureCollection',
+  'name',     layer||'_index',
+  'features', jsonb_agg(feature))
+  from features f
+  into geojson;
+  return geojson;
+exception when others then
+	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
+  return null;
+end;
+$$;
