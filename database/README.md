@@ -82,3 +82,73 @@ const ign_source = new WMTS({
     'information géographique et forestière" alt="IGN"></a>',
 });
 ```
+
+
+# GEOJSON Production
+
+### Simplified architecture to produce GEOJSON:
+
+![Simplified chart](img/simplified_archi.png)
+
+## How to produce the grid
+
+Function to  create the grid (if postgis > 3.1, better using the ST_SquareGrid function) :
+
+```sql
+-- Function to create grid / used to produce geojson on a specified extent
+CREATE OR REPLACE FUNCTION ST_CreateFishnet(
+        nrow integer, ncol integer,
+        xsize float8, ysize float8,
+        x0 float8 DEFAULT 0, y0 float8 DEFAULT 0,
+        OUT "row" integer, OUT col integer,
+        OUT geom geometry)
+    RETURNS SETOF record AS
+$$
+SELECT i + 1 AS row, j + 1 AS col, ST_Translate(cell, j * $3 + $5, i * $4 + $6) AS geom
+FROM generate_series(0, $1 - 1) AS i,
+     generate_series(0, $2 - 1) AS j,
+(
+SELECT ('POLYGON((0 0, 0 '||$4||', '||$3||' '||$4||', '||$3||' 0,0 0))')::geometry AS cell
+) AS foo;
+$$ LANGUAGE sql IMMUTABLE STRICT;
+```
+
+Generating grid :
+
+```sql
+drop table app_grid;
+create table app_grid as
+with grid as (
+	select ST_CreateFishnet(10, 10, 100000, 100000, 99040, 6125317) as res
+)
+select row_number() OVER () AS id, st_setsrid((g.res).geom, 2154) as geom
+from grid g;
+```
+
+Pour l'exemple j'ai fait du 10 par 10.
+
+Calcul des bbox pour les fichiers à générer :
+
+```sql
+drop table canalisation_index;
+create table canalisation_index as
+select 'canalisation_'||id||'.geojson' as file, st_astext(st_envelope(geom)) as bbox from france_grid
+```
+
+Génération du fichier index (au format json) :
+
+```shell
+ogr2ogr -f "GEOJSON" output.geojson PG:"host=localhost port=5432 dbname=veolia user=xxx password=xxx" canalisation_index
+```
+
+Génération des X fichiers GeoJson contenant les données (ici l'exemple est donné pour la case 63, mais il faut itérer sur les 100 cases bien sur pour générer les 100 fichiers):
+```shell
+// A scripter en boucle sur les 100 cases
+ogr2ogr -f "GEOJSON" output.geojson PG:"host=localhost port=5432 dbname=veolia user=xxx password=xxx" -sql "select * from canalisation c, france_grid g where st_intersects(c.geom, g.geom) and g.id = 63"
+```
+
+
+---
+# Questions, remarques
+
+-
