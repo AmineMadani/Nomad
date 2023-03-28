@@ -161,3 +161,26 @@ values
 ;
 
 update config.layer set num_order = id ;
+
+-- creating grid
+with metro_grid as (
+select config.ST_CreateFishnet(10, 10, 100000, 100000, 99040, 6125317) as res
+),
+temp_metro_grid as
+(
+select (st_setsrid((g.res).geom, 2154)) as geom
+from metro_grid g
+),
+reunion_grid as (
+select config.ST_CreateFishnet(1, 1, 66000, 66000, 314600, 7634100) as res
+),
+temp_reunion_grid as
+(
+select (st_setsrid((g.res).geom, 2975)) as geom
+from reunion_grid g
+)
+insert into config.app_grid(geom)
+select st_transform(geom, 3857) as geom from temp_metro_grid
+union all
+select st_transform(geom, 3857) as geom from temp_reunion_grid
+;
