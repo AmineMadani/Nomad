@@ -6,4 +6,5 @@ import com.veolia.nextcanope.model.AppUser;
 
 public interface UserRepository extends JpaRepository<AppUser, Long> {
 
+	AppUser findByEmail(String email);
 }
