@@ -4,6 +4,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { environment } from 'src/environments/environment';
+import { UserDataService } from './dataservices/user.dataservice';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +20,8 @@ export class KeycloakService {
     private oauthService: OAuthService,
     private activatedRoute: ActivatedRoute,
     private zone: NgZone,
+    private userDataService: UserDataService,
+    private userService: UserService,
     private platform: Platform,
     private router: Router) {
     if(environment.keycloak.active) {
@@ -50,12 +54,12 @@ export class KeycloakService {
       });
 
       this.oauthService.events.subscribe(eventResult => {
-        //console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
+        console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
         if (eventResult.type == 'token_refreshed') {
           console.log("token : " + this.oauthService.getAccessToken());
         }
         if(eventResult.type == 'token_received') {
-          window.location.href = '/';
+          this.router.navigate(['home']);
         }
         this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
       })
@@ -63,6 +67,7 @@ export class KeycloakService {
   }
 
   public hasValidToken(): boolean {
+    console.log("token : " + this.oauthService.getAccessToken());
     return environment.keycloak.active ? this.oauthService.hasValidAccessToken() : true;
   }
 
@@ -83,6 +88,7 @@ export class KeycloakService {
           console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
           this.userProfile = null;
           this.realmRoles = [];
+          this.userService.resetUser();
           resolve(revokeTokenAndLogoutResult);
         })
         .catch(error => {

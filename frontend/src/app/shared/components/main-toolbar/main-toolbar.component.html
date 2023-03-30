@@ -11,7 +11,7 @@
       <ion-badge color="danger" style="position: absolute; right: -6px; top: -6px;">3</ion-badge>
     </ion-button>
     <ion-fab-button class="main-toolbar-avatar" (click)="logout()">
-      <ion-img src="assets/img/header/pic.png"></ion-img>
+      <ion-img [src]="imgUrl"></ion-img>
     </ion-fab-button>
     <ion-button id="popover-button">
       <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>

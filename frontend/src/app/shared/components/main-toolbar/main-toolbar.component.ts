@@ -2,6 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
+import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { environment } from 'src/environments/environment';
 
@@ -15,7 +16,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   constructor(
     private keycloakService: KeycloakService,
     private cacheService: CacheService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private userService: UserService
   ) {}
 
   @Input('title') title: string;
@@ -25,6 +27,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   public cacheLoaded: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject();
+
+  imgUrl: string|undefined;
 
   isMobile : boolean = false;
 
@@ -37,6 +41,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       });
     
     this.isMobile = this.utilsService.isMobilePlateform();
+    this.userService.getUser().then(usr => {
+      this.imgUrl = usr?.imgUrl;
+    });
   }
 
   ngOnDestroy(): void {
