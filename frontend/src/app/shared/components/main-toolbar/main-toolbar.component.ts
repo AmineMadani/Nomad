@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
+import { AppDB } from 'src/app/core/models/app-db.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -50,6 +51,15 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
         window.location.reload();
       });
     }
+  }
+
+  public resetStorage(): void {
+    const db = new AppDB();
+    db.delete().then(
+      () => console.log('Cache réinitialisé')
+    ).catch((err) => {
+      console.log(`Erreur lors de la réinitialisation : ${err}`)
+    })
   }
 
   public reloadStorage(): void {

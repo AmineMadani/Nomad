@@ -15,8 +15,11 @@ import JSZip, { JSZipObject } from 'jszip';
   providedIn: 'root',
 })
 export class CacheService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.db = new AppDB();
+  }
 
+  private db: AppDB;
   private cacheLoaded$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   public onCacheLoaded(): Observable<boolean> {
@@ -28,18 +31,16 @@ export class CacheService {
   }
 
   public async cacheIsAlreadySet(): Promise<boolean> {
-    const db: AppDB = new AppDB();
-    const tiles: ITiles[] = await db.tiles.filter((tile: ITiles) => /index/.test(tile.key)).toArray();
+    const tiles: ITiles[] = await this.db.tiles.filter((tile: ITiles) => /index/.test(tile.key)).toArray();
     return tiles.length > 0;
   }
 
   public loadZips(): Observable<void> {
-    const db: AppDB = new AppDB();
     return this.loadZip('/assets/sample/geojson-index-3857.zip', 'index_3857').pipe(
       switchMap((indexTiles: ITiles[]) => forkJoin([of(indexTiles), this.loadZip('/assets/sample/geojson-data-3857.zip', 'data_3857')])),
       map((tiles: [ITiles[], ITiles[]]) => [...tiles[0], ...tiles[1]]),
       switchMap(async (tiles: ITiles[]) => {
-        await Promise.all(await db.tiles.bulkPut(tiles));
+        await Promise.all(await this.db.tiles.bulkPut(tiles));
       }),
       finalize(() => console.log('storage loaded'))
     );

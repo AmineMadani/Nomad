@@ -44,15 +44,15 @@ export class AppComponent implements OnInit, OnDestroy {
     );
 
     if (this.keycloakService.hasValidToken()) {
-      from(this.cacheService.cacheIsAlreadySet())
-        .pipe(
-          switchMap((cacheSet: boolean) => {
-            return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
-          })
-        )
-        .subscribe(() => {
-          this.cacheService.setCacheLoaded(true);
-        });
+      // from(this.cacheService.cacheIsAlreadySet())
+      //   .pipe(
+      //     switchMap((cacheSet: boolean) => {
+      //       return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
+      //     })
+      //   )
+      //   .subscribe(() => {
+      //     this.cacheService.setCacheLoaded(true);
+      //   });
     } else {
       this.keycloakService.initialisation();
     }

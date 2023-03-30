@@ -7,7 +7,7 @@
   <ion-title class="main-toolbar-title">{{title}}</ion-title>
   <ion-buttons slot="secondary" *ngIf="!minimalist">
     <ion-button>
-      <ion-icon slot="icon-only" name="notifications" [color]="cacheLoaded ? 'success' : 'danger'"></ion-icon>
+      <ion-icon slot="icon-only" name="notifications"></ion-icon>
       <ion-badge color="danger" style="position: absolute; right: -6px; top: -6px;">3</ion-badge>
     </ion-button>
     <ion-fab-button class="main-toolbar-avatar" (click)="logout()">
@@ -23,9 +23,9 @@
   <ng-template>
     <ion-content>
       <ion-list>
-        <ion-item [button]="true" [detail]="false" (click)="reloadStorage()">
+        <ion-item [button]="true" [detail]="false" (click)="resetStorage()">
           <ion-icon slot="start" name="reload-outline"></ion-icon>
-          Recharger le cache</ion-item>
+          Reinitialiser le cache</ion-item>
       </ion-list>
     </ion-content>
   </ng-template>
