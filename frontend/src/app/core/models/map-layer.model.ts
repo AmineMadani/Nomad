@@ -18,10 +18,12 @@ import { from } from 'rxjs/internal/observable/from';
 import { environment } from 'src/environments/environment';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { of } from 'rxjs/internal/observable/of';
-import { filter } from 'rxjs';
+import { filter, tap } from 'rxjs';
 
 export class MapLayer {
   constructor(layerKey: string, style: Style, selectedStyle: Style) {
+    this.db = new AppDB();
+
     const layer: Layer = layers.find((l) => l.key === layerKey)!;
 
     this.hoverFeature = new Set();
@@ -54,6 +56,8 @@ export class MapLayer {
   public equipmentSelected: Equipment | undefined;
   public subscription: Subscription;
 
+  private db: AppDB;
+
   private buildSource(layer: Layer): Vector | Cluster {
     let source = this.createLoader(layer.key);
     switch (layer.type) {
@@ -71,150 +75,75 @@ export class MapLayer {
   }
 
   private createLoader(layerKey: string): Vector | Cluster {
-    const db: AppDB = new AppDB();
-    // const indexAlreadyLoaded: any;
-    const geoJsonAlreadyLoading: Map<string, any> = new Map();
+    const geoJsonAlreadyLoading: string[] = [];
+    const wkt = new WKT();
     const source = new Vector({
       format: new GeoJSON(),
       strategy: olLoadingstrategy.bbox,
       loader: async (extent: number[], r: number, p: Projection, success) => {
-        this.getIndex(layerKey)
-          .pipe(
-            switchMap((res: Response) => {
-              return from(res.json());
-            }),
-            switchMap((index: any) => {
-              console.log(index);
-              let fileToLoad: string = '';
-              index.features.forEach((el: any) => {
-                console.log(el);
-                const wkt = new WKT();
-                const file: string = el.properties.file;
-                let bbox = el.properties.bbox.replace('BOX', 'POLYGON');
-                bbox = bbox.replace('(', '((');
-                bbox = bbox.replace(')', '))');
-                console.log(bbox);
-                const isIn = wkt
-                  .readFeature(bbox)
-                  .getGeometry()
-                  ?.intersectsExtent(extent);
-                if (isIn && !geoJsonAlreadyLoading.has(file)) {
-                  fileToLoad = file;
-                }
-              });
-              if (fileToLoad.length > 0) {
-                console.log(fileToLoad);
-                return this.getFeatureFile(layerKey, fileToLoad);
-              } else {
-                return of(undefined);
-              }
-            }),
-            filter((res: Response | undefined) => res !== undefined),
-            switchMap((res: Response | undefined) => from(res!.json()))
-          )
-          .subscribe((tile: any) => {
-            console.log(tile);
-            const features = source
+        let fileToLoad: string;
+        const index = await this.getIndex(layerKey);
+        index.features.forEach(async (el: any) => {
+          const file: string = el.properties.file;
+          const isIn = wkt
+            .readFeature(el.properties.bbox)
+            .getGeometry()
+            ?.intersectsExtent(extent);
+          if (isIn && !geoJsonAlreadyLoading.includes(file)) {
+            fileToLoad = file;
+            const tile = await this.getTile(layerKey, file);
+            if(tile.features?.length > 0) {
+              const features = source
               .getFormat()!
-              .readFeatures(tile.features) as Feature[];
+              .readFeatures(tile) as Feature[];
             source.addFeatures(features);
-            geoJsonAlreadyLoading.set(layerKey, tile);
+            geoJsonAlreadyLoading.push(fileToLoad);
             success!(features);
-          });
-
-        // const indexTile: ITiles | undefined = await db.tiles.get(
-        //   `index_3857/opt_3857_${layerKey}_index.geojson`
-        // );
-        // if (indexTile) {
-        //   JSON.parse(indexTile.data).features.forEach(async (el: any) => {
-        //     const wkt = new WKT();
-        //     const url: string = `data_3857/opt_3857_${layerKey}/${el.properties.file}`;
-        //     const isIn = wkt
-        //       .readFeature(el.properties.bbox)
-        //       .getGeometry()
-        //       ?.intersectsExtent(extent);
-        //     if (isIn && !geoJsonAlreadyLoading.includes(url)) {
-        //       const layerTile: ITiles | undefined = await db.tiles.get(url);
-        //       if (layerTile) {
-        //         const features = source
-        //           .getFormat()!
-        //           .readFeatures(JSON.parse(layerTile.data), {
-        //             dataProjection: 'ESPG:2154',
-        //             featureProjection: 'EPSG:3857',
-        //           }) as Feature[];
-        //         source.addFeatures(features);
-        //         geoJsonAlreadyLoading.push(url);
-        //         success!(features);
-        //       }
-        //     }
-        //   });
-        // }
+            } else {
+              console.log(`Aucune donnée pour ${layerKey} sur cette zone`);
+            }
+          }
+        });
       },
     });
     return source;
   }
 
-  private getIndex(layerKey: string): Observable<Response> {
-    return from(
-      fetch(`${environment.apiUrl}patrimony/${layerKey}`, {
-        mode: 'cors',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
-        },
-      })
-    );
+  private async getIndex(layerKey: string): Promise<any> {
+    const index = await this.db.indexes.get(layerKey);
+    if (index) {
+      return index.data;
+    }
+    const req = await this.fetchFile(`${environment.apiUrl}patrimony/${layerKey}`);
+    if (!req.ok) {
+      throw new Error(`Failed to fetch index for ${layerKey}`);
+    }
+    const res = await req.json();
+    await this.db.indexes.put({ data: res, key: layerKey }, layerKey);
+    return res;
   }
 
-  private getFeatureFile(layerKey: string, file: string): Observable<Response> {
-    const featureNumber: number = +file.match(new RegExp(`${layerKey}_(\\+d\\).geojson`))![1];
-    return from(
-      fetch(`${environment.apiUrl}patrimony/${layerKey}/${featureNumber}`, {
-        mode: 'cors',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
-        },
-      })
-    );
+  private async getTile(layerKey: string, file: string): Promise<any> {
+    const tile = await this.db.tiles.get(file);
+    if (tile) {
+      return tile.data;
+    }
+    const featureNumber: number = +file.match(new RegExp(`${layerKey}_(\\d+)\\.geojson`))![1];
+    const req = await this.fetchFile(`${environment.apiUrl}patrimony/${layerKey}/${featureNumber}`);
+    if (!req.ok) {
+      throw new Error(`Failed to fetch index for ${layerKey}`);
+    }
+    const res = await req.json();
+    await this.db.tiles.put({ data: res, key: file }, file);
+    return res;
   }
 
-  // private createLoader(
-  //   layerKey: string
-  // ): Vector | Cluster {
-  //   const db: AppDB = new AppDB();
-  //   const geoJsonAlreadyLoading: string[] = [];
-  //   const source = new Vector({
-  //     format: new GeoJSON(),
-  //     strategy: olLoadingstrategy.bbox,
-  //     loader: async (extent: number[], r: number, p: Projection, success) => {
-  //       const indexTile: ITiles | undefined = await db.tiles.get(
-  //         `index_3857/opt_3857_${layerKey}_index.geojson`
-  //       );
-  //       if (indexTile) {
-  //         JSON.parse(indexTile.data).features.forEach(async (el: any) => {
-  //           const wkt = new WKT();
-  //           const url: string = `data_3857/opt_3857_${layerKey}/${el.properties.file}`;
-  //           const isIn = wkt
-  //             .readFeature(el.properties.bbox)
-  //             .getGeometry()
-  //             ?.intersectsExtent(extent);
-  //           if (isIn && !geoJsonAlreadyLoading.includes(url)) {
-  //             const layerTile: ITiles | undefined = await db.tiles.get(url);
-  //             if (layerTile) {
-  //               const features = source
-  //                 .getFormat()!
-  //                 .readFeatures(JSON.parse(layerTile.data), {
-  //                   dataProjection: 'ESPG:2154',
-  //                   featureProjection: 'EPSG:3857',
-  //                 }) as Feature[];
-  //               source.addFeatures(features);
-  //               geoJsonAlreadyLoading.push(url);
-  //               success!(features);
-  //             }
-  //           }
-  //         });
-  //       }
-  //     }
-  //   });
-  //   return source;
-  // }
+  private async fetchFile(url: string): Promise<Response> {
+    return await fetch(url, {
+      mode: 'cors',
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
+      },
+    });
+  }
 }
