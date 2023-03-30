@@ -1,16 +1,13 @@
 package com.veolia.nextcanope.controller;
 
-import com.veolia.nextcanope.model.Basemaps;
-import com.veolia.nextcanope.repository.PatrimonyRepositoryImpl;
-import com.veolia.nextcanope.service.BasemapsService;
-import com.veolia.nextcanope.service.PatrimonyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import com.veolia.nextcanope.service.PatrimonyService;
 
 @CrossOrigin(origins = "*")
 @RestController

@@ -1,10 +1,11 @@
 package com.veolia.nextcanope.repository;
 
-import com.nimbusds.jose.shaded.gson.JsonObject;
-import jakarta.persistence.*;
 import org.hibernate.query.NativeQuery;
-import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 
 @Repository
 public class PatrimonyRepositoryImpl {
@@ -17,7 +18,7 @@ public class PatrimonyRepositoryImpl {
 
         String req = "select config.get_geojson_index('" + key + "')";
         Query query = entityManager.createNativeQuery(req);
-        NativeQuery nativeQuery = query.unwrap(NativeQuery.class);
+        query.unwrap(NativeQuery.class);
 
         try {
             index = query.getSingleResult();

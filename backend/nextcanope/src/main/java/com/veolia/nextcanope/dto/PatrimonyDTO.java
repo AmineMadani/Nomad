@@ -1,9 +1,16 @@
-package com.veolia.nextcanope.model;
+package com.veolia.nextcanope.dto;
 
 public class PatrimonyDTO {
-    private static final long serialVersionUID = 1L;
-
+	
     private String value;
+    
+    public String getValue() {
+		return value;
+	}
 
-    public PatrimonyDTO() {}
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public PatrimonyDTO() {}
 }
