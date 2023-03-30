@@ -4,7 +4,7 @@ import { OSM, WMTS } from 'ol/source';
 import TileLayer from 'ol/layer/Tile';
 import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
-import { getWidth } from 'ol/extent.js';
+import { getWidth, getTopLeft } from 'ol/extent.js';
 import BaseLayer from 'ol/layer/Base';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
@@ -114,7 +114,7 @@ export class MapComponent implements OnInit {
       format: layer.format!,
       projection: this.projection!,
       tileGrid: new WMTSTileGrid({
-        origin: layer.origin!,
+        origin: getTopLeft(this.projection ? this.projection.getExtent():[]),
         resolutions: this.resolutions,
         matrixIds: this.matrixIds,
       }),

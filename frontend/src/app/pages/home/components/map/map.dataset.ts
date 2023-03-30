@@ -20,7 +20,6 @@ export const MAP_DATASET: BackLayer[] = [
     layer: 'ORTHOIMAGERY.ORTHOPHOTOS',
     matrixSet: 'PM',
     format: 'image/jpeg',
-    origin: [-20037508, 20037508],
     visible: true,
     default: false
   },
@@ -32,7 +31,6 @@ export const MAP_DATASET: BackLayer[] = [
     layer: 'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
     matrixSet: 'PM',
     format: 'image/png',
-    origin: [-20037508, 20037508],
     visible: true,
     default: false,
   },
@@ -44,7 +42,6 @@ export const MAP_DATASET: BackLayer[] = [
     layer: 'CADASTRALPARCELS.PARCELS',
     matrixSet: 'PM',
     format: 'image/png',
-    origin: [-20037508, 20037508],
     visible: true,
     default: true
   },

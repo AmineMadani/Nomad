@@ -1,7 +1,6 @@
 import { Style } from 'ol/style.js';
 import { FeatureLike } from 'ol/Feature';
-import { Geometry } from 'ol/geom';
-import { AppDB, ITiles } from './app-db.model';
+import { AppDB } from './app-db.model';
 import { Projection } from 'ol/proj';
 import VectorLayer from 'ol/layer/Vector';
 import Vector from 'ol/source/Vector';
@@ -13,12 +12,7 @@ import Cluster from 'ol/source/Cluster';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { Layer, layers, LayerTypeEnum } from './layer.model';
 import { Equipment } from './equipment.model';
-import { Observable } from 'rxjs/internal/Observable';
-import { from } from 'rxjs/internal/observable/from';
 import { environment } from 'src/environments/environment';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { of } from 'rxjs/internal/observable/of';
-import { filter, tap } from 'rxjs';
 
 export class MapLayer {
   constructor(layerKey: string, style: Style, selectedStyle: Style) {

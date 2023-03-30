@@ -28,7 +28,7 @@ export class MapService {
       controls: defaultControls().extend(controls),
       target: 'map',
       view: new View({
-        center: [-187717.995347, 6132337.474246],
+        center: [300592.047426, 6174953.998827],
         zoom: 17,
         maxZoom: 21,
       }),
