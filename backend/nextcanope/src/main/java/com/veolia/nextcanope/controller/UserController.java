@@ -1,7 +1,6 @@
 package com.veolia.nextcanope.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,9 +21,8 @@ public class UserController {
 	UserRepository userRepository;
 		
 	@GetMapping(path = "/information")
-	public Map<String,Object> getUserInformation(AccountTokenDto principal) {
-		System.out.println(principal);
-		return principal.getToken().getClaims();
+	public AccountTokenDto getUserInformation(AccountTokenDto account) {
+		return account;
 	}
 	
 	@GetMapping(path = "/list")

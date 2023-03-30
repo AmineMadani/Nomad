@@ -26,9 +26,10 @@ public class ControllerFilter implements Filter {
 		HttpServletRequest req = (HttpServletRequest) request;
 	    AccountTokenDto account = (AccountTokenDto) req.getUserPrincipal();
 	    if(!account.getIsValid()) {
-	    	 ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Your are not authorized on this application");
+	    	((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Your are not authorized on this application");
+	    } else {
+	    	chain.doFilter(request, response);
 	    }
-		chain.doFilter(request, response);
 	}
 
 }
