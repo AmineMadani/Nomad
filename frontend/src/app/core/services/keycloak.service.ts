@@ -47,6 +47,8 @@ export class KeycloakService {
           } else {
             this.login();
           }
+        }).catch(err => {
+          this.router.navigate(["/error"]);
         });
       }).catch(error => {
         console.error("loadDiscoveryDocument", error);
