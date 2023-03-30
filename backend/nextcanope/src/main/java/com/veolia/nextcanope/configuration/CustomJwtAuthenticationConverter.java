@@ -22,9 +22,9 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
 	@Override
 	public AbstractAuthenticationToken convert(Jwt source) {
-        String principalClaimValue = source.getClaimAsString("email");
+		String principalClaimValue = source.getClaimAsString("email");
         AppUser user = userRepository.findByEmail(principalClaimValue);
-        return new AccountTokenDto(source, null, principalClaimValue,principalClaimValue,(user!=null));
+        return new AccountTokenDto(source,null,user);
 	}
 
 }
