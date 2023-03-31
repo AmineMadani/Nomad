@@ -67,7 +67,7 @@ declare
 begin
   with
   records as
-  (select layer||'_'||id||'.geojson' as file, st_extent(geom)::text as bbox, geom from config.app_grid group by id, geom order by id),
+  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from config.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
