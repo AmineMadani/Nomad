@@ -1,9 +1,12 @@
 package com.veolia.nextcanope.configuration;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.springframework.stereotype.Component;
 
+import com.veolia.nextcanope.constants.ConfigConstants;
+import com.veolia.nextcanope.constants.MessageConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 
 import jakarta.servlet.Filter;
@@ -19,17 +22,27 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @Component
 public class ControllerFilter implements Filter {
-
+	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 	    AccountTokenDto account = (AccountTokenDto) req.getUserPrincipal();
-	    if(!account.getIsValid()) {
-	    	((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Your are not authorized on this application");
+	    req.getRequestURI();
+	    if(!Arrays.stream(transcoUrlFilterArray(ConfigConstants.FILTER_URL_IGNORE)).anyMatch(req.getRequestURI()::contains) && (account == null || !account.getIsValid())) {
+	    	((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, MessageConstants.ERROR_NOT_AUTHORIZED);
 	    } else {
 	    	chain.doFilter(request, response);
 	    }
+	}
+	
+	/**
+	 * Transcode an array in order to remove the /** part of a string
+	 * @param in The array to trancode
+	 * @return The array transcoded
+	 */
+	private String[] transcoUrlFilterArray(String[] in) {
+		return Arrays.stream(in).map(item -> item.replace(ConfigConstants.SYMBOL_SUB_URL, "")).toArray(String[]::new);
 	}
 
 }

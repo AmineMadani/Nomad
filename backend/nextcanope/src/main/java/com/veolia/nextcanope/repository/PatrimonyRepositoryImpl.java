@@ -1,31 +1,43 @@
 package com.veolia.nextcanope.repository;
 
-import org.hibernate.query.NativeQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-
+/**
+ * PatrimonyRepositoryImpl is a repository class for managing patrimony-related data in the persistence layer.
+ * It uses JdbcTemplate for executing SQL queries.
+ */
 @Repository
 public class PatrimonyRepositoryImpl {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    public Object getPatrimonyIndex(String key) {
-        Object index = null;
+	/**
+     * Retrieves the index associated with a specific key.
+     *
+     * @param key The key to search for in the database.
+     * @return The index as a string, associated with the given key.
+     */
+	public String getIndexByKey(String key) {
+        return this.jdbcTemplate.queryForObject(
+                "select config.get_geojson_index('" + key + "')",
+                String.class
+        );
+    }
 
-        String req = "select config.get_geojson_index('" + key + "')";
-        Query query = entityManager.createNativeQuery(req);
-        query.unwrap(NativeQuery.class);
-
-        try {
-            index = query.getSingleResult();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return index;
+	/**
+     * Retrieves the equipment tile associated with a specific key and tile number.
+     *
+     * @param key        The key to search for in the database.
+     * @param tileNumber The tile number to search for in the database.
+     * @return The equipment tile as a string, associated with the given key and tile number.
+     */
+    public String getEquipmentTile(String key, Long tileNumber) {
+        return this.jdbcTemplate.queryForObject(
+                "select config.get_geojson_from_tile('consolidated_data."+ key + "'," + tileNumber + ",'id, commune, rue, geom')",
+                String.class
+        );
     }
 }

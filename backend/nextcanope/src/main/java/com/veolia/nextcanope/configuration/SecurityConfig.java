@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.veolia.nextcanope.constants.ConfigConstants;
 import com.veolia.nextcanope.repository.UserRepository;
 
 @Configuration
@@ -22,11 +23,22 @@ public class SecurityConfig {
 	@Autowired
 	UserRepository userRepository;
 	
+	/**
+	 * Method to convert the original token to a custom one
+	 * @return the custom token
+	 */
 	@Bean
     public Converter<Jwt,AbstractAuthenticationToken> customJwtAuthenticationConverter() {
         return new CustomJwtAuthenticationConverter(userRepository);
     }
 
+	/**
+	 * Custom filter to check all request with the keycloak authentification 
+	 * and convert the valid token to a custom one
+	 * @param http Incoming http
+	 * @return Outgoing http
+	 * @throws Exception Errors
+	 */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     	
@@ -42,8 +54,12 @@ public class SecurityConfig {
         return http.build();
     }
     
+    /**
+     * Method to bypass the security filter
+     * @return The custome web
+     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/health","/swagger-ui.html","/swagger-ui/**", "/v3/api-docs/**");
+        return (web) -> web.ignoring().requestMatchers(ConfigConstants.FILTER_URL_IGNORE);
     }
 }

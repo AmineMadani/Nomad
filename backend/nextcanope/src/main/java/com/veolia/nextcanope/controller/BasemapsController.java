@@ -11,15 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 import com.veolia.nextcanope.model.Basemaps;
 import com.veolia.nextcanope.service.BasemapsService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/basemaps")
+@Tag(name = "Basemap Management System", description = "Operations pertaining to base map in the BaseMap Management System")
 public class BasemapsController {
 
     @Autowired
     public BasemapsService basemapsService;
 
     @GetMapping(path = "/")
+    @Operation(summary = "Get the list of basemap")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "The basemap list")
+			})
     public List<Basemaps> getBasemaps() {
         return this.basemapsService.getVisibleBasemaps();
     }
