@@ -9,6 +9,8 @@ import BaseLayer from 'ol/layer/Base';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
 import { MapService } from 'src/app/core/services/map.service';
+import { ScalelineControl } from './controls/scaleline.control';
+import { ZoomControl } from './controls/zoom.control';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -27,7 +29,10 @@ export class MapComponent implements OnInit {
   ngOnInit() {
     this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {
-      this.map = this.mapService.createMap([new GeolocationControl()]);
+      this.map = this.mapService.createMap();
+      this.map.addControl(new GeolocationControl());
+      this.map.addControl(new ScalelineControl());
+      this.map.addControl(new ZoomControl(this.map));
       this.generateMap();
     }
   }

@@ -5,11 +5,13 @@ import View from 'ol/View';
 import { MapStyleService } from './map-style.service';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { boundingExtent } from 'ol/extent';
-import { Control, defaults as defaultControls } from 'ol/control.js';
 import { DrawerService } from './drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawerRouteEnum } from '../models/drawer.model';
 import { Equipment } from '../models/equipment.model';
+import { PatrimonyDataService } from './dataservices/patrimony.dataservice';
+import WKT from 'ol/format/WKT.js';
+import { stylefunction } from 'ol-mapbox-style';
 
 @Injectable({
   providedIn: 'root',
@@ -17,15 +19,19 @@ import { Equipment } from '../models/equipment.model';
 export class MapService {
   constructor(
     private mapStyle: MapStyleService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private patrimonyDataservice: PatrimonyDataService
   ) {}
 
   private map: MapOpenLayer;
   private layers: Map<string, MapLayer> = new Map();
 
-  public createMap(controls: Control[]): MapOpenLayer {
+  /**
+   * Creates the map object.
+   * @returns The map.
+   */
+  public createMap(): MapOpenLayer {
     this.map = new MapOpenLayer({
-      controls: defaultControls().extend(controls),
       target: 'map',
       view: new View({
         center: [300592.047426, 6174953.998827],
@@ -36,6 +42,11 @@ export class MapService {
     return this.map;
   }
 
+  /**
+   * This function returns true if the event layer exists, otherwise it returns false.
+   * @param {string} layerKey - string - The key of the layer to check for.
+   * @returns A boolean value.
+   */
   public hasEventLayer(layerKey: string): boolean {
     return this.layers.has(layerKey);
   }
@@ -47,9 +58,10 @@ export class MapService {
         this.mapStyle.getStyle(layerKey),
         this.mapStyle.getSelStyle(layerKey)
       );
+      this.setLoader(mLayer);
 
-      mLayer.subscription = fromEvent(this.map, 'pointermove').subscribe(
-        (event: any) => {
+      mLayer.subscription.add(
+        fromEvent(this.map, 'pointermove').subscribe((event: any) => {
           mLayer.layer.getFeatures(event.pixel).then((features) => {
             if (!features.length) {
               mLayer.hoverFeature.clear();
@@ -63,17 +75,17 @@ export class MapService {
             mLayer.hoverFeature.add(feature);
             mLayer.layer.changed();
           });
-        }
+        })
       );
 
-      mLayer.subscription = fromEvent(this.map, 'click').subscribe(
-        (event: any) => {
+      mLayer.subscription.add(
+        fromEvent(this.map, 'click').subscribe((event: any) => {
           mLayer.layer
             .getFeatures(event.pixel)
             .then((features: FeatureLike[]) => {
               this.onFeaturesClick(features, layerKey);
             });
-        }
+        })
       );
 
       this.layers.set(layerKey, mLayer);
@@ -81,9 +93,14 @@ export class MapService {
     }
   }
 
+  /**
+   * If the layer exists, remove it from the map and delete it from the layers collection.
+   * @param {string} layerKey - string - The key of the layer to remove.
+   */
   public removeEventLayer(layerKey: string): void {
     if (this.hasEventLayer(layerKey)) {
       const mLayer = this.layers.get(layerKey)!;
+      mLayer.subscription.unsubscribe();
       this.map.removeLayer(mLayer.layer);
       this.layers.delete(layerKey);
     }
@@ -100,7 +117,7 @@ export class MapService {
   }
 
   // Permit to select the equipment feature on the layer (for the highlight style)
-  selectEquipmentLayer(equipment: Equipment) {
+  public selectEquipmentLayer(equipment: Equipment) {
     if (equipment.layerKey && this.hasEventLayer(equipment.layerKey)) {
       const mLayer = this.layers.get(equipment.layerKey)!;
       mLayer.equipmentSelected = equipment;
@@ -109,7 +126,7 @@ export class MapService {
   }
 
   // Permit to unselect the equipment feature on the layer (for the highlight style)
-  unselectEquipmentLayer(equipment: Equipment) {
+  public unselectEquipmentLayer(equipment: Equipment) {
     if (equipment.layerKey && this.hasEventLayer(equipment.layerKey)) {
       const mLayer = this.layers.get(equipment.layerKey)!;
       if (
@@ -119,6 +136,55 @@ export class MapService {
         mLayer.equipmentSelected = undefined;
         mLayer.layer.changed();
       }
+    }
+  }
+
+  /**
+   * Creates the loader of the layer. Get index from indexed DB or server
+   * then find the current file where the view is, and load the features from
+   * indexed DB or server
+   * @param {MapLayer} mapLayer - MapLayer
+   */
+  private setLoader(mapLayer: MapLayer): void {
+    const geoJsonAlreadyLoading: string[] = [];
+    const wkt = new WKT();
+    mapLayer.source.setLoader(
+      async (extent: number[]) => {
+        let fileToLoad: string;
+        const index = await this.patrimonyDataservice.getLayerIndex(
+          mapLayer.key
+        );
+        index.features.forEach(async (el: any) => {
+          const file: string = el.properties.file;
+          const isIn = wkt
+            .readFeature(el.properties.bbox)
+            .getGeometry()
+            ?.intersectsExtent(extent);
+          if (isIn && !geoJsonAlreadyLoading.includes(file)) {
+            fileToLoad = file;
+            const tile = await this.patrimonyDataservice.getLayerFile(
+              mapLayer.key,
+              file
+            );
+            if (tile?.features?.length > 0) {
+              const features = mapLayer.source
+                .getFormat()!
+                .readFeatures(tile) as Feature[];
+              mapLayer.source.addFeatures(features);
+              geoJsonAlreadyLoading.push(fileToLoad);
+            } else {
+              console.log(`Aucune donnée pour ${mapLayer.key} sur cette zone`);
+            }
+          }
+        });
+      }
+    );
+    if (mapLayer.key === 'aep_canalisation') {
+      this.patrimonyDataservice
+        .getLayerStyle(mapLayer.key)
+        .subscribe((style) => {
+          stylefunction(mapLayer.layer, style, 'cana');
+        });
     }
   }
 

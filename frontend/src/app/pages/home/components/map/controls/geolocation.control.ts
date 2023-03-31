@@ -1,4 +1,4 @@
-import {Control} from 'ol/control.js';
+import { Control } from 'ol/control.js';
 
 //
 // Custom Control : https://openlayers.org/en/latest/examples/custom-controls.html
@@ -13,7 +13,8 @@ export class GeolocationControl extends Control {
 
     const locate = document.createElement('div');
     locate.className = 'ol-control ol-unselectable locate';
-    locate.innerHTML = "<button class='ol-locate-button' title='Geolocalisation'><ion-icon name='locate-outline'></ion-icon></button>";
+    locate.innerHTML =
+      "<button class='ol-locate-button' title='Geolocalisation'><ion-icon name='locate-outline'></ion-icon></button>";
 
     super({
       element: locate,

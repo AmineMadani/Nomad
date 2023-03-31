@@ -1,0 +1,75 @@
+{
+  "version": 8,
+  "id": "bright",
+  "name": "Bright",
+  "sources": {
+    "cana": {
+      "type": "geojson",
+      "data": ""
+    }
+  },
+  "layers": [
+    {
+      "id": "fleche",
+      "type": "symbol",
+      "layout": {
+        "symbol-placement": "line",
+        "icon-image": "myarrow",
+        "icon-size": 1.2,
+        "icon-rotate": 90
+      },
+      "source": "cana"
+    },
+    {
+      "id": "canalisation",
+      "type": "line",
+      "source": "cana",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round",
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#270fdb",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "canalisation_labels",
+      "type": "symbol",
+      "source": "cana",
+      "minzoom": 20,
+      "layout": {
+        "text-font": ["Noto Sans Italic"],
+        "text-size": 14,
+        "text-field": "{id}",
+        "symbol-spacing": 350,
+        "text-max-width": 5,
+        "symbol-placement": "line",
+        "text-letter-spacing": 0.2,
+        "text-rotation-alignment": "map"
+      },
+      "paint": {
+        "text-color": "hsl(210,73%,68%)",
+        "text-halo-color": "hsla(0,0%,100%,0.7)",
+        "text-halo-width": 1.5
+      }
+    }
+  ],
+  "metadata": {
+    "maptiler:copyright": "This style was generated on MapTiler Cloud. Usage outside of MapTiler Cloud requires valid MapTiler Data Package: https://www.maptiler.com/data/package/ -- please contact us."
+  },
+  "images": {
+    "myarrow": {
+      "width": 64,
+      "height": 64,
+      "url": "http://localhost:8100/assets/sample/arrow.png"
+    }
+  },
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=lirfd6Fegsjkvs0lshxe",
+  "sprite": "https://api.maptiler.com/maps/bright/sprite",
+  "bearing": 0,
+  "pitch": 0,
+  "center": [-1.6678604609041565, 48.20907136204076],
+  "zoom": 1.4787695990177725
+}

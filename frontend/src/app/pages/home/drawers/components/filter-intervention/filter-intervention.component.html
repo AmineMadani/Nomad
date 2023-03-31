@@ -5,13 +5,18 @@
       <ion-label class="ion-no-margin">{{ int.name }}</ion-label>
       <ion-note slot="helper">{{ int.subtitle }}</ion-note>
     </ion-label>
-    <ion-button slot="end" fill="clear"><ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon></ion-button>
+    <ion-button slot="end" fill="clear"><ion-icon slot="icon-only"
+        name="chevron-forward-outline"></ion-icon></ion-button>
   </ion-item>
   <ion-item lines="none" class="date-item">
     <ion-label class="intervention-date ion-no-margin">{{ int.content }}</ion-label>
   </ion-item>
   <ion-item lines="none">
-    <ion-chip *ngFor="let tag of int.tags" [outline]="!tag.filled">
+    <ion-chip *ngIf="int.status" [ngClass]="'status-' + int.status.status" [outline]="false">
+      <ion-icon [name]="getStatusIcon(int.status.status) + '-outline'"></ion-icon>
+      <ion-label>{{ int.status.label }}</ion-label>
+    </ion-chip>
+    <ion-chip *ngFor="let tag of int.tags" [outline]="true">
       <ion-icon [name]="tag.icon"></ion-icon>
       <ion-label>{{ tag.label }}</ion-label>
     </ion-chip>
