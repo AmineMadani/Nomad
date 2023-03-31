@@ -70,6 +70,20 @@
               "sourceMap": true,
               "namedChunks": true
             },
+            "local": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ]
+            },
             "ci": {
               "progress": false
             }
@@ -85,8 +99,8 @@
             "development": {
               "browserTarget": "app:build:development"
             },
-            "ci": {
-              "progress": false
+            "local": {
+              "browserTarget": "app:build:local"
             }
           },
           "defaultConfiguration": "development"
