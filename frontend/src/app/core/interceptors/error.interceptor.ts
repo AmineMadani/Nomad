@@ -24,7 +24,6 @@ export class ErrorInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((err: HttpErrorResponse) => {
-        console.log(err);
         if (err.status === 401) {
           this.userService.resetUser();
           this.router.navigate(['/error']);

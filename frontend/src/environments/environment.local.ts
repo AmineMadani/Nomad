@@ -4,7 +4,7 @@ export const environment = {
   keycloak: {
     active: true,
     issuer: 'http://localhost:9191/realms/veolia',
-    redirectUri: 'http://localhost:8100',
+    redirectUri: 'http://localhost:8100/#/login',
     redirectUriIos: 'myschema://login',
     redirectUriAndroid: 'myschema://login',
     clientId: 'veolia-client',
