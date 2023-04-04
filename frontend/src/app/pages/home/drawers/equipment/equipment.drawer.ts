@@ -61,6 +61,10 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       .subscribe((equipment: Equipment) => {
         this.equipment = equipment;
         this.mapService.selectEquipmentLayer(this.equipment);
+        if(this.equipment.layerKey) {
+          this.mapService.zoomToFeatureByIdAndLayerKey(this.equipment.id+'',this.equipment.layerKey);
+        }
+
         // Remove sections that have no equipment data
         this.sections =
           this.sections.filter((section: EquipmentSection) => section.elements.some((element: any) => equipment[element.key]));

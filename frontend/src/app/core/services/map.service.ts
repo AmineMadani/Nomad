@@ -9,7 +9,7 @@ import { DrawerService } from './drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawerRouteEnum } from '../models/drawer.model';
 import { Equipment } from '../models/equipment.model';
-import { PatrimonyDataService } from './dataservices/patrimony.dataservice';
+import { LayerDataService } from './dataservices/layer.dataservice';
 import WKT from 'ol/format/WKT.js';
 import { stylefunction } from 'ol-mapbox-style';
 
@@ -20,7 +20,7 @@ export class MapService {
   constructor(
     private mapStyle: MapStyleService,
     private drawerService: DrawerService,
-    private patrimonyDataservice: PatrimonyDataService
+    private layerDataService: LayerDataService
   ) {}
 
   private map: MapOpenLayer;
@@ -151,7 +151,7 @@ export class MapService {
     mapLayer.source.setLoader(
       async (extent: number[]) => {
         let fileToLoad: string;
-        const index = await this.patrimonyDataservice.getLayerIndex(
+        const index = await this.layerDataService.getLayerIndex(
           mapLayer.key
         );
         index.features.forEach(async (el: any) => {
@@ -162,7 +162,7 @@ export class MapService {
             ?.intersectsExtent(extent);
           if (isIn && !geoJsonAlreadyLoading.includes(file)) {
             fileToLoad = file;
-            const tile = await this.patrimonyDataservice.getLayerFile(
+            const tile = await this.layerDataService.getLayerFile(
               mapLayer.key,
               file
             );
@@ -180,7 +180,7 @@ export class MapService {
       }
     );
     if (mapLayer.key === 'aep_canalisation') {
-      this.patrimonyDataservice
+      this.layerDataService
         .getLayerStyle(mapLayer.key)
         .subscribe((style) => {
           stylefunction(mapLayer.layer, style, 'cana');
@@ -213,5 +213,19 @@ export class MapService {
         properties
       );
     }
+  }
+
+  public zoomToFeatureByIdAndLayerKey(id:string,layerKey:string) {
+    this.addEventLayer(layerKey);
+    const mLayer: MapLayer = this.layers.get(layerKey)!;
+    setTimeout(() => {
+      const feature: Feature|null = mLayer.source.getFeatureById(id);
+      if(feature) {
+        this.map.getView().fit(feature.getGeometry()!.getExtent(), {
+          duration: 2000,
+          padding: [250, 250, 250, 50],
+        });
+      }
+    }, 500);
   }
 }

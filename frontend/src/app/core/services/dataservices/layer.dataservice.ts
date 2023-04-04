@@ -8,7 +8,7 @@ import { AppDB, ITiles } from '../../models/app-db.model';
 @Injectable({
   providedIn: 'root',
 })
-export class PatrimonyDataService {
+export class LayerDataService {
   private db: AppDB;
   constructor(private http: HttpClient) {
     this.db = new AppDB();
@@ -17,7 +17,7 @@ export class PatrimonyDataService {
   /**
    * It fetches the index of a layer from indexed db if present or server
    * If successful, it stores the layer in IndexedDB.
-   * @param {string} layerKey - string - key of the equipment
+   * @param {string} layerKey - string - key of the layer
    * @returns The geojson of the index of the layer.
    */
   public async getLayerIndex(layerKey: string): Promise<any> {
@@ -27,7 +27,7 @@ export class PatrimonyDataService {
     }
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req = await lastValueFrom(
-      this.http.get<string>(`${environment.apiUrl}patrimony/${layerKey}`)
+      this.http.get<string>(`${environment.apiUrl}layer/${layerKey}`)
     );
     if (!req) {
       throw new Error(`Failed to fetch index for ${layerKey}`);
@@ -39,7 +39,7 @@ export class PatrimonyDataService {
   /**
    * It fetches the tile of a layer from indexed db if present or server
    * If successful, it stores the layer's file in IndexedDB.
-   * @param {string} layerKey - string - key of the equipment
+   * @param {string} layerKey - string - key of the layer
    * @param {string} file - string - the file where the view is
    * @returns The geojson file for the current tile
    */
@@ -55,7 +55,7 @@ export class PatrimonyDataService {
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req = await lastValueFrom(
       this.http.get<string>(
-        `${environment.apiUrl}patrimony/${layerKey}/${featureNumber}`
+        `${environment.apiUrl}layer/${layerKey}/${featureNumber}`
       )
     );
     if (!req) {

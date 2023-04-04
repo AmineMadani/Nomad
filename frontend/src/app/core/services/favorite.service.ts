@@ -82,13 +82,15 @@ export class FavoriteService {
   public getFavList(segment: number): FavData[] {
     const favs: FavData[] = this.filter.segments
       .flatMap(
-        (s) =>
-          s.components
-            .find((c) => c instanceof FavoriteFilter)
-            ?.data.filter((f: FavData) => f.segment === segment) || []
+        (s) => {
+          let fav: FavoriteFilter | undefined = s.components.find((c) => c instanceof FavoriteFilter);
+          if(fav) {
+            return fav.data.filter((f: FavData) => f.segment === segment)
+          }
+          return []
+        }
       )
       .filter(Boolean);
-
     return favs;
   }
 

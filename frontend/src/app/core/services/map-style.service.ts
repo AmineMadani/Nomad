@@ -202,6 +202,25 @@ const assRegardSelected = new Style({
   }),
 });
 
+const intervention = new Style({
+  stroke: new Stroke({ color: 'rgba(2, 104, 224, 1)', width: 3 }),
+  fill : new Fill({ color:'rgba(2, 104, 224, 1)'}),
+  image: new Circle({
+    radius: 7,
+    fill: new Fill({color: 'rgba(2, 104, 224, 1)'}),
+    stroke: new Stroke({color: [0,0,0], width: 1})
+  }),
+});
+const interventionSelected = new Style({
+  stroke: new Stroke({ color: 'rgba(2, 10, 243, 1)', width: 8 }),
+  fill : new Fill({ color:'rgba(2, 10, 243, 1)'}),
+  image: new Circle({
+    radius: 15,
+    fill: new Fill({color: 'rgba(2, 10, 243, 1)'}),
+    stroke: new Stroke({color: [0,0,0], width: 1})
+  }),
+});
+
 @Injectable({
   providedIn: 'root',
 })
@@ -227,7 +246,9 @@ export class MapStyleService {
       .set('ass_ouvrage', assOuvrage)
       .set('ass_ouvrage_selected', assOuvrageSelected)
       .set('ass_regard', assRegard)
-      .set('ass_regard_selected', assRegardSelected);
+      .set('ass_regard_selected', assRegardSelected)
+      .set('intervention', intervention)
+      .set('intervention_selected', interventionSelected);
   }
 
   private mapStyle: Map<string, Style> = new Map();

@@ -96,5 +96,13 @@ export const layers: Layer[] = [
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
+  },
+  {
+    id: 11,
+    key: 'intervention',
+    type: LayerTypeEnum.VECTOR,
+    zindex: 1,
+    minZoom: 13,
+    maxZoom: 20
   }
 ]

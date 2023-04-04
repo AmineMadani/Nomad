@@ -5,11 +5,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
- * PatrimonyRepositoryImpl is a repository class for managing patrimony-related data in the persistence layer.
+ * LayerRepositoryImpl is a repository class for managing layer-related data in the persistence layer.
  * It uses JdbcTemplate for executing SQL queries.
  */
 @Repository
-public class PatrimonyRepositoryImpl {
+public class LayerRepositoryImpl {
 
 	@Autowired
     private JdbcTemplate jdbcTemplate;
@@ -28,15 +28,22 @@ public class PatrimonyRepositoryImpl {
     }
 
 	/**
-     * Retrieves the equipment tile associated with a specific key and tile number.
+     * Retrieves the layer tile associated with a specific key and tile number.
      *
      * @param key        The key to search for in the database.
      * @param tileNumber The tile number to search for in the database.
-     * @return The equipment tile as a string, associated with the given key and tile number.
+     * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getEquipmentTile(String key, Long tileNumber) {
+    public String getLayerTile(String key, Long tileNumber) {
+    	String schema = "consolidated_data";
+    	String param = ",'id, commune, rue, geom'";
+    	if(key.equals("intervention")) {
+    		schema = "config";
+    		param = "";
+    	}
+    	
         return this.jdbcTemplate.queryForObject(
-                "select config.get_geojson_from_tile('consolidated_data."+ key + "'," + tileNumber + ",'id, commune, rue, geom')",
+                "select config.get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",
                 String.class
         );
     }

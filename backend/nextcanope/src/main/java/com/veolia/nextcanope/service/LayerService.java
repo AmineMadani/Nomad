@@ -3,17 +3,17 @@ package com.veolia.nextcanope.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.veolia.nextcanope.repository.PatrimonyRepositoryImpl;
+import com.veolia.nextcanope.repository.LayerRepositoryImpl;
 
 /**
  * PatrimonyService is a service class for managing patrimony-related data.
  * It interacts with the PatrimonyRepositoryImpl to access and manipulate the data.
  */
 @Service
-public class PatrimonyService {
+public class LayerService {
 
     @Autowired
-    private PatrimonyRepositoryImpl patrimonyRepositoryImpl;
+    private LayerRepositoryImpl layerRepositoryImpl;
 
     /**
      * Retrieves the index associated with a specific key.
@@ -22,7 +22,7 @@ public class PatrimonyService {
      * @return The index as a string, associated with the given key.
      */
     public String getIndexByKey(String key) {
-        return patrimonyRepositoryImpl.getIndexByKey(key);
+        return layerRepositoryImpl.getIndexByKey(key);
     }
 
     /**
@@ -32,7 +32,7 @@ public class PatrimonyService {
      * @param tileNumber The tile number to search for in the database.
      * @return The equipment tile as a string, associated with the given key and tile number.
      */
-    public String getEquipmentTile(String key, Long tileNumber) {
-        return patrimonyRepositoryImpl.getEquipmentTile(key, tileNumber);
+    public String getLayerTile(String key, Long tileNumber) {
+        return layerRepositoryImpl.getLayerTile(key, tileNumber);
     }
 }
