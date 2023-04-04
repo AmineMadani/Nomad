@@ -26,6 +26,7 @@ import { FilterToggleComponent } from './drawers/components/filter-toggle/filter
 import { FilterInterventionComponent } from './drawers/components/filter-intervention/filter-intervention.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
 import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
+import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 
 @NgModule({
   imports: [
@@ -55,6 +56,7 @@ import { FilterFavoriteComponent } from './drawers/components/filter-favorite/fi
     FilterSearchComponent,
     FilterFavoriteComponent,
     EquipmentDrawer,
+    InterventionDrawer,
   ],
 })
 export class HomePageModule {}

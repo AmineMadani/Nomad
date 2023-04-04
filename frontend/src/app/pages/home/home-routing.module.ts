@@ -7,6 +7,7 @@ import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 
 import { HomePage } from './home.page';
+import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 
 const routes: Routes = [
   {
@@ -42,6 +43,13 @@ const routes: Routes = [
         component: EquipmentDrawer,
         data: {
           name: DrawerRouteEnum.EQUIPMENT,
+        },
+      },
+      {
+        path: 'intervention/:id',
+        component: InterventionDrawer,
+        data: {
+          name: DrawerRouteEnum.INTERVENTION,
         },
       },
     ],

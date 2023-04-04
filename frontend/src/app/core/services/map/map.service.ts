@@ -47,6 +47,10 @@ export class MapService {
     return this.map;
   }
 
+  public getView(): View {
+    return this.map.getView();
+  }
+
   public getLayer(layerKey: string): MapLayer | undefined {
     return this.layers.get(layerKey);
   }

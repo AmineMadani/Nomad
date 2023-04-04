@@ -4,17 +4,20 @@ export class InterventionFilter implements BaseFilter {
   public id: number;
   public isRecordableFavorite: boolean;
   public position: number;
+  public type: 'intervention' | 'demande';
   public data: InterventionData[];
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
+    type: 'intervention' | 'demande', 
     data: InterventionData[]
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;
     this.position = position;
+    this.type = type;
     this.data = data;
   }
 
@@ -52,9 +55,9 @@ export interface InterventionStatus {
 }
 
 export enum InterventionStatusEnum {
-  SUCCESS = 'success',
-  FAIL = 'fail',
-  PLANNED = 'planned',
-  CREATED = 'created',
-  OVER = 'over'
+  T = 'T', //Terminée
+  I = 'I', // Infructueuse
+  P = 'P', // Planifiée
+  NP = 'NP', // Non planifiée
+  NF = 'NF' // Non fait
 }
