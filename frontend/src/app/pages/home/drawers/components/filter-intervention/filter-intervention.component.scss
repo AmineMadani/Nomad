@@ -23,6 +23,15 @@ ion-chip {
       color: var(--ion-color-primary);
     }
   }
+
+  &[ng-reflect-outline=false] {
+    background-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+
+    ion-icon {
+      color: var(--ion-color-primary-contrast);
+    }
+  }
 }
 
 .date-item {
@@ -37,41 +46,47 @@ ion-chip {
   color: var(--ion-color-neutral-variant-50);
 }
 
-.status-success {
-  background-color: var(--ion-color-success);
+.status-T {
+  background-color: var(--ion-color-success) !important;
   --color: var(--ion-color-success-contrast);
+
   ion-icon {
     color: var(--ion-color-success-contrast);
   }
 }
 
-.status-fail {
-  background-color: var(--ion-color-medium);
+.status-I {
+  background-color: var(--ion-color-medium) !important;
   --color: var(--ion-color-medium-contrast);
+
   ion-icon {
     color: var(--ion-color-medium-contrast);
   }
 }
 
-.status-over {
-  background-color: var(--ion-color-tertiary);
+.status-T {
+  background-color: var(--ion-color-tertiary) !important;
   --color: var(--ion-color-tertiary-contrast);
+
   ion-icon {
     color: var(--ion-color-tertiary-contrast);
   }
 }
 
-.status-planned {
-  background-color: var(--ion-color-secondary);
+.status-NP,
+.status-P {
+  background-color: var(--ion-color-secondary) !important;
   --color: var(--ion-color-secondary-contrast);
+
   ion-icon {
     color: var(--ion-color-secondary-contrast);
   }
 }
 
-.status-created {
-  background-color: var(--ion-color-tertiary);
+.status-NF {
+  background-color: var(--ion-color-tertiary) !important;
   --color: var(--ion-color-tertiary-contrast);
+
   ion-icon {
     color: var(--ion-color-tertiary-contrast);
   }

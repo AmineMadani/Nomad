@@ -30,6 +30,7 @@ export class MapComponent implements OnInit {
     this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {
       this.map = this.mapService.createMap();
+      // Controls need to be added the map creation
       this.map.addControl(new GeolocationControl());
       this.map.addControl(new ScalelineControl());
       this.map.addControl(new ZoomControl(this.map));
