@@ -22,7 +22,8 @@ function install_all() {
     SQL_SOURCES="$ROOT_DIR/sql/drop_schemas.sql \
                $ROOT_DIR/sql/create_schemas.sql \
                $ROOT_DIR/sql/create_functions.sql \
-               $ROOT_DIR/sql/create_config.sql"
+               $ROOT_DIR/sql/create_config.sql \ 
+               $ROOT_DIR/sql/create_exploitation.sql "
 
     for s in ${SQL_SOURCES}
     do

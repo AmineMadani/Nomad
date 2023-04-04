@@ -35,10 +35,10 @@ public class LayerRepositoryImpl {
      * @return The layer tile as a string, associated with the given key and tile number.
      */
     public String getLayerTile(String key, Long tileNumber) {
-    	String schema = "consolidated_data";
+    	String schema = "patrimony";
     	String param = ",'id, commune, rue, geom'";
     	if(key.equals("intervention")) {
-    		schema = "config";
+    		schema = "exploitation";
     		param = "";
     	}
     	
