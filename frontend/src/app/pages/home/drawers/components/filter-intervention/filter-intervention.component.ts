@@ -3,6 +3,7 @@ import {
   InterventionData,
   InterventionStatusEnum,
 } from 'src/app/core/models/filter/filter-component-models/InterventionFilter.model';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 
 @Component({
   selector: 'app-filter-intervention',
@@ -10,11 +11,15 @@ import {
   styleUrls: ['./filter-intervention.component.scss'],
 })
 export class FilterInterventionComponent implements OnInit {
-  constructor() {}
+  constructor(private layerService: LayerService) {}
 
   @Input() data: InterventionData[];
 
   ngOnInit() {}
+
+  public highlightFeature(featureId: string): void {
+    this.layerService.highlightFeature('aep_branche', featureId);
+  }
 
   public getStatusIcon(status: InterventionStatusEnum): string {
     switch (status) {

@@ -1,4 +1,4 @@
-<ion-item-group *ngFor="let int of data">
+<ion-item-group *ngFor="let int of data" (mouseenter)="highlightFeature(int.subtitle!)" (mouseleave)="highlightFeature(int.subtitle!)">
   <ion-item lines="none">
     <ion-icon slot="start" name="attach-outline"></ion-icon>
     <ion-label>

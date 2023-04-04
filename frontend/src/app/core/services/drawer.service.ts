@@ -1,6 +1,7 @@
 import { LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
@@ -13,7 +14,8 @@ export class DrawerService {
   constructor(
     private router: Router,
     private location: LocationStrategy,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private nav: NavController
   ) {}
 
   private routerEventsSubscription: Subscription;
@@ -107,13 +109,13 @@ export class DrawerService {
     pathVariables.forEach((pathVariable) => {
       url = url.replace(/:[^\/]+/, pathVariable);
     });
-
     this.router.navigate([url], { queryParams: queryParams });
   }
 
   closeDrawer() {
     const url: string = this.getUrlFromDrawerName(DrawerRouteEnum.HOME);
-    this.router.navigate([url]);
+    //this.router.navigate([url]);
+    this.nav.navigateBack(url);
   }
 
   private getUrlFromDrawerName(route: DrawerRouteEnum): string {

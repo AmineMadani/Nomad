@@ -15,6 +15,7 @@ export class MapLayer {
     this.key = layerKey;
     this.hoverFeature = new Set();
     this.equipmentSelected = undefined;
+    this.hoverId = undefined;
     this.subscription = new Subscription();
 
     this.layer = new VectorLayer({
@@ -22,13 +23,10 @@ export class MapLayer {
       minZoom: layer.minZoom,
       zIndex: layer.zindex,
       declutter: true,
-      style: (feature: any) => {
-        const properties = feature.getProperties();
+      style: (feature: FeatureLike) => {
         if (
           this.hoverFeature.has(feature) ||
-          (properties &&
-            this.equipmentSelected &&
-            properties['id'] == this.equipmentSelected.id)
+          feature.getId() === this.featureHighlighted
         ) {
           return selectedStyle;
         }
@@ -44,8 +42,21 @@ export class MapLayer {
   public layer: VectorLayer<any>;
   public hoverFeature: Set<FeatureLike>;
   public equipmentSelected: Equipment | undefined;
+  public featureHighlighted: string | undefined;
   public subscription: Subscription;
   public source: Cluster | Vector;
+  public hoverId: string | undefined;
+
+  public highlightFeature(featureId: string): void {
+    //console.log(`before ${this.featureHighlighted}, ${featureId}`);
+    if (!this.featureHighlighted || this.featureHighlighted !== featureId) {
+      this.featureHighlighted = featureId;
+    } else {
+      this.featureHighlighted = undefined;
+    }
+    //console.log(`after ${this.featureHighlighted}, ${featureId}`);
+    this.layer.changed();
+  }
 
   private buildSource(layer: Layer): Vector | Cluster {
     let source = new Vector({
