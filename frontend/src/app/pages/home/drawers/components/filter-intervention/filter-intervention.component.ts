@@ -23,7 +23,19 @@ export class FilterInterventionComponent implements OnInit, OnDestroy {
       .getFeatureHoverd()
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((f: Feature | undefined) => {
-        this.featureHovered = f ? f.getId()?.toString() : undefined; 
+        if(f) {
+          this.featureHovered = f.getId()?.toString();
+          let elem = document.getElementById('interv-'+this.featureHovered);
+          if(elem){
+            document.getElementsByClassName('filter-content')[1].scroll({
+              top: (elem.offsetTop-130), 
+              left: 0, 
+              behavior: 'smooth'
+            });
+          }
+        } else {
+          this.featureHovered = undefined;
+        }
       });
   }
 

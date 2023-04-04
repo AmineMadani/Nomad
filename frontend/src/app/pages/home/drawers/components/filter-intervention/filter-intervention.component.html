@@ -1,5 +1,5 @@
-<ion-item-group *ngFor="let int of getFeatures()" [class.feature-hovered]="featureHovered === int.getId()?.toString()"
-  (mouseenter)="highlightFeature(int.getProperties()['id'])" (mouseleave)="highlightFeature(int.getProperties()['id'])">
+<ion-item-group *ngFor="let int of getFeatures()" class="highlightItem" [class.feature-hovered]="featureHovered === int.getId()?.toString()"
+  (mouseenter)="highlightFeature(int.getProperties()['id'])" [id]="'interv-'+int.getProperties()['id']" (mouseleave)="highlightFeature(int.getProperties()['id'])">
   <ion-item lines="none" color="none">
     <ion-icon slot="start" name="attach-outline"></ion-icon>
     <ion-label>

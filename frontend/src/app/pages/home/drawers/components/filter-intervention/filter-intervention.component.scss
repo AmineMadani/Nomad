@@ -2,9 +2,12 @@ ion-item-group {
   border-bottom: 1px solid var(--ion-color-neutral-variant-80);
 }
 
+ion-item-group:hover {
+  background: var(--ion-color-secondary-variant-90);
+}
+
 .feature-hovered {
-  border: 3px solid var(--ion-color-secondary-variant-70);
-  border-radius: 4px;
+  background: var(--ion-color-secondary-variant-90);
 }
 
 ion-item {
