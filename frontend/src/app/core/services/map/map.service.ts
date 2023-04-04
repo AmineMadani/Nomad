@@ -13,6 +13,8 @@ import { LayerDataService } from '../dataservices/layer.dataservice';
 import WKT from 'ol/format/WKT.js';
 import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
+import { LayerService } from './layer.service';
+import { MapEventService } from './map-event.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +23,8 @@ export class MapService {
   constructor(
     private mapStyle: MapStyleService,
     private drawerService: DrawerService,
-    private layerDataService: LayerDataService
+    private mapEvent: MapEventService,
+    private layerDataService: LayerDataService,
   ) {}
 
   private map: MapOpenLayer;
@@ -87,6 +90,7 @@ export class MapService {
         fromEvent(this.map, 'pointermove').subscribe((event: any) => {
           mLayer.layer.getFeatures(event.pixel).then((features) => {
             if (!features.length) {
+              this.mapEvent.setFeatureHovered(undefined);
               mLayer.hoverFeature.clear();
               mLayer.layer.changed();
               return;
@@ -95,6 +99,7 @@ export class MapService {
             if (!feature) {
               return;
             }
+            this.mapEvent.setFeatureHovered(feature as Feature);
             mLayer.hoverFeature.add(feature);
             mLayer.layer.changed();
           });
