@@ -1,25 +1,26 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { catchError, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, combineLatest, filter, first, last, of, Subject, switchMap, takeLast, takeUntil } from 'rxjs';
 import { Equipment, EquipmentActionButton, EquipmentSection } from '../../../../core/models/equipment.model';
 import { ActivatedRoute } from '@angular/router';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { MapService } from 'src/app/core/services/map.service';
+import { MapService } from 'src/app/core/services/map/map.service';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 
 @Component({
   selector: 'app-equipment-drawer',
   templateUrl: './equipment.drawer.html',
   styleUrls: ['./equipment.drawer.scss'],
 })
-export class EquipmentDrawer implements OnInit, OnDestroy {
+export class EquipmentDrawer implements OnInit {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private route: ActivatedRoute,
     private equipmentService: EquipmentDataService,
-    private mapService: MapService
+    private layerService: LayerService
   ) {}
 
   public drawerRouteEnum = DrawerRouteEnum;
@@ -32,17 +33,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   actionButtons: EquipmentActionButton[] = [];
 
   ngOnInit() {
-    // Subscribe to drawer previous route changes
-    this.drawerService
-      .onPreviousRouteChanged()
-      .pipe(takeUntil(this.drawerUnsubscribe))
-      .subscribe((route: DrawerRouteEnum) => {
-        this.previousRoute = route;
-        if (this.previousRoute !== DrawerRouteEnum.HOME && this.equipment) {
-          this.mapService.unselectEquipmentLayer(this.equipment);
-        }
-      });
-
     // Get all equipment sections and actions buttons
     this.sections = this.equipmentService.getSections();
     this.actionButtons = this.equipmentService.getActionButtons();
@@ -60,9 +50,8 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       )
       .subscribe((equipment: Equipment) => {
         this.equipment = equipment;
-        this.mapService.selectEquipmentLayer(this.equipment);
         if(this.equipment.layerKey) {
-          this.mapService.zoomToFeatureByIdAndLayerKey(this.equipment.id+'',this.equipment.layerKey);
+          this.layerService.zoomToFeatureByIdAndLayerKey(this.equipment.id+'',this.equipment.layerKey);
         }
 
         // Remove sections that have no equipment data
@@ -71,8 +60,10 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    // Unsubscribe drawer
+  ionViewWillLeave() {
+    if (this.equipment) {
+      this.layerService.highlightFeature(this.equipment.layerKey!, this.equipment.id.toString());
+    }
     this.drawerUnsubscribe.next();
     this.drawerUnsubscribe.complete();
   }
@@ -82,6 +73,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   }
 
   onDrawerClose() {
+    this.ionViewWillLeave();
     this.drawerService.closeDrawer();
   }
 

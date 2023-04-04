@@ -10,7 +10,7 @@ import {
   FilterType,
 } from '../models/filter/filter-segment.model';
 import { Filter } from '../models/filter/filter.model';
-import { MapService } from './map.service';
+import { MapService } from './map/map.service';
 
 @Injectable({
   providedIn: 'root',

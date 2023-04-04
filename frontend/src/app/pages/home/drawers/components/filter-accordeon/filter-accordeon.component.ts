@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@ang
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
-import { MapService } from 'src/app/core/services/map.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-filter-accordeon',

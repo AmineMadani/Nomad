@@ -9,7 +9,7 @@ import {
 import { Filter } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
-import { MapService } from 'src/app/core/services/map.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({

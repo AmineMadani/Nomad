@@ -1,14 +1,15 @@
 // db.ts
-import Dexie, { Table } from 'dexie';
+import Dexie from 'dexie';
+import { GeoJSONObject } from './geojson.model';
 
 export interface IIndexes {
   key: string;
-  data: string;
+  data: GeoJSONObject;
 }
 
 export interface ITiles {
   key: string;
-  data: string;
+  data: GeoJSONObject;
 }
 
 export class AppDB extends Dexie {

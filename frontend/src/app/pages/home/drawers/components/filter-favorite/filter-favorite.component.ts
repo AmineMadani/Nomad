@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
-import { MapService } from 'src/app/core/services/map.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-filter-favorite',

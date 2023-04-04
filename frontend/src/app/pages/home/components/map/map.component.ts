@@ -8,7 +8,7 @@ import { getWidth, getTopLeft } from 'ol/extent.js';
 import BaseLayer from 'ol/layer/Base';
 import { BackLayer, MAP_DATASET } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
-import { MapService } from 'src/app/core/services/map.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { ScalelineControl } from './controls/scaleline.control';
 import { ZoomControl } from './controls/zoom.control';
 @Component({
