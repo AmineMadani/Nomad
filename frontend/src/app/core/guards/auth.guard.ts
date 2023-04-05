@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { ConfigurationService } from '../services/configuration.service';
 import { KeycloakService } from '../services/keycloak.service';
 import { UserService } from '../services/user.service';
 
@@ -12,12 +12,13 @@ export class AuthGuardService implements CanActivate {
   constructor(
     private router: Router,
     private keycloakService: KeycloakService,
-    private userService: UserService
+    private userService: UserService,
+    private configurationService: ConfigurationService
   ) { }
   
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
 
-    if(!this.keycloakService.hasValidToken() && environment.keycloak.active) {
+    if(!this.keycloakService.hasValidToken() && this.configurationService.keycloak.active) {
       if(route.routeConfig?.path != "login"){
         this.router.navigate(['login']);
         return false;
