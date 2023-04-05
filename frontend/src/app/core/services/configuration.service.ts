@@ -28,7 +28,6 @@ export class ConfigurationService {
       // Config
       this.httpClient.get("./assets/config/config"+environment.env+".json", {observe: 'response'}).subscribe({
         next: (response: any) => { 
-          console.log(response.body.keycloak);
           this.apiUrl = response.body.apiUrl;
           this.keycloak= response.body.keycloak;
           resolve(this);
