@@ -3,8 +3,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
-import { environment } from 'src/environments/environment';
-import { UserDataService } from './dataservices/user.dataservice';
+import { ConfigurationService } from './configuration.service';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -20,11 +19,11 @@ export class KeycloakService {
     private oauthService: OAuthService,
     private activatedRoute: ActivatedRoute,
     private zone: NgZone,
-    private userDataService: UserDataService,
+    private configurationService: ConfigurationService,
     private userService: UserService,
     private platform: Platform,
     private router: Router) {
-    if(environment.keycloak.active) {
+    if(configurationService.keycloak.active) {
       if (this.platform.IOS) {
         this.configureIOS();
       } else if (this.platform.isBrowser) {
@@ -36,7 +35,7 @@ export class KeycloakService {
   }
 
   initialisation() {
-    if(environment.keycloak.active) {
+    if(this.configurationService.keycloak.active) {
       this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
         this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
         this.oauthService.tryLogin().then(tryLoginResult => {
@@ -70,7 +69,7 @@ export class KeycloakService {
 
   public hasValidToken(): boolean {
     console.log("token : " + this.oauthService.getAccessToken());
-    return environment.keycloak.active ? this.oauthService.hasValidAccessToken() : true;
+    return this.configurationService.keycloak.active ? this.oauthService.hasValidAccessToken() : true;
   }
 
   public login(): void {
@@ -129,12 +128,12 @@ export class KeycloakService {
   private configureWeb(): void {
     console.log("Using web configuration")
     let authConfig: AuthConfig = {
-      issuer: environment.keycloak.issuer,
-      redirectUri: environment.keycloak.redirectUri,
-      clientId: environment.keycloak.clientId,
+      issuer: this.configurationService.keycloak.issuer,
+      redirectUri: this.configurationService.keycloak.redirectUri,
+      clientId: this.configurationService.keycloak.clientId,
       responseType: 'code',
       scope: 'openid profile email offline_access',
-      revocationEndpoint: environment.keycloak.revocationEndpoint,
+      revocationEndpoint: this.configurationService.keycloak.revocationEndpoint,
       showDebugInformation: true,
       requireHttps: false
     }
@@ -145,12 +144,12 @@ export class KeycloakService {
   private configureIOS(): void {
     //console.log("Using iOS configuration")
     let authConfig: AuthConfig = {
-      issuer: environment.keycloak.issuer,
-      redirectUri: environment.keycloak.redirectUriIos,
-      clientId: environment.keycloak.clientId,
+      issuer: this.configurationService.keycloak.issuer,
+      redirectUri: this.configurationService.keycloak.redirectUriIos,
+      clientId: this.configurationService.keycloak.clientId,
       responseType: 'code',
       scope: 'openid profile email offline_access',
-      revocationEndpoint: environment.keycloak.revocationEndpoint,
+      revocationEndpoint: this.configurationService.keycloak.revocationEndpoint,
       showDebugInformation: true,
       requireHttps: false
     }

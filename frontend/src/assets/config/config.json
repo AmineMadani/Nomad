@@ -1,0 +1,12 @@
+{
+  "apiUrl": "[urlApiNomad]",
+  "keycloak": {
+    "active": true,
+    "issuer": "[keycloakIssuer]",
+    "redirectUri": "[currentOrigin]/#/login",
+    "redirectUriIos": "myschema://login",
+    "redirectUriAndroid": "myschema://login",
+    "clientId": "[keycloakClientId]",
+    "revocationEndpoint": "[keycloakRevocation]"
+  }
+}

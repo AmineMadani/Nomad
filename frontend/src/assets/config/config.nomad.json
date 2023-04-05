@@ -1,0 +1,12 @@
+{
+  "apiUrl": "http://localhost:8588/api/nomad/v1",
+  "keycloak": {
+    "active": true,
+    "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
+    "redirectUri": "https://nomad-dev.hp.m-ve.com",
+    "redirectUriIos": "myschema://login",
+    "redirectUriAndroid": "myschema://login",
+    "clientId": "nomad",
+    "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
+  }
+}

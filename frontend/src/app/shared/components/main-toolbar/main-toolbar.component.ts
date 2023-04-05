@@ -2,10 +2,10 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
 import { CacheService } from 'src/app/core/services/cache.service';
+import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-main-toolbar',
@@ -18,7 +18,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private keycloakService: KeycloakService,
     private cacheService: CacheService,
     private utilsService: UtilsService,
-    private userService: UserService
+    private userService: UserService,
+    private configurationService: ConfigurationService
   ) {}
 
   @Input('title') title: string;
@@ -56,7 +57,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    if (environment.keycloak.active) {
+    if (this.configurationService.keycloak.active) {
       this.keycloakService.logout().then(res => {
         window.location.reload();
       });

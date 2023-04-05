@@ -1,0 +1,12 @@
+{
+  "apiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/nomad/v1/",
+  "keycloak": {
+    "active": true,
+    "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
+    "redirectUri": "https://nomad-dev.hp.m-ve.com/#/login",
+    "redirectUriIos": "myschema://login",
+    "redirectUriAndroid": "myschema://login",
+    "clientId": "veolia-client",
+    "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
+  }
+}
