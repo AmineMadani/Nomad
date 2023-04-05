@@ -6,7 +6,7 @@
     "redirectUri": "https://nomad-dev.hp.m-ve.com/#/login",
     "redirectUriIos": "myschema://login",
     "redirectUriAndroid": "myschema://login",
-    "clientId": "veolia-client",
+    "clientId": "nomad",
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   }
 }
