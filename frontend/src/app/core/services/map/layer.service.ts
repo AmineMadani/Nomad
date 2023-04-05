@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/internal/Subject';
-import { Observable } from 'rxjs/internal/Observable';
 import { MapService } from './map.service';
 import { MapLayer } from '../../models/map-layer.model';
 import Feature from 'ol/Feature';
@@ -9,23 +7,21 @@ import Feature from 'ol/Feature';
   providedIn: 'root',
 })
 export class LayerService {
-  private featureHovered$: Subject<Feature> = new Subject();
-
   constructor(private mapService: MapService) {}
-
-  public setFeatureHovered(feature: Feature): void {
-    this.featureHovered$.next(feature);
-  }
-
-  public getFeatureHoverd(): Observable<Feature> {
-    return this.featureHovered$.asObservable();
-  }
 
   public highlightFeature(layerKey: string, idFeature: string): void {
     const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
     if (mapLayer) {
       mapLayer.highlightFeature(idFeature);
     }
+  }
+
+  public getHighlightedFeatureId(layerKey: string): string | undefined {
+    const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
+    if (mapLayer) {
+      return mapLayer.featureHighlighted;
+    }
+    return undefined;
   }
 
   public getFeatureById(layerKey: string, featureId: string): Feature | null {
