@@ -1,5 +1,5 @@
 {
-  "apiUrl": "http://localhost:8588/api/nomad/",
+  "apiUrl": "http://localhost:8588/api/nomad/v1",
   "keycloak": {
     "active": true,
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",

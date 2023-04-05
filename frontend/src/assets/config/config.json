@@ -1,5 +1,5 @@
 {
-  "apiUrl": "[urlApiNomad]/api/nomad/",
+  "apiUrl": "[urlApiNomad]",
   "keycloak": {
     "active": true,
     "issuer": "[keycloakIssuer]",
