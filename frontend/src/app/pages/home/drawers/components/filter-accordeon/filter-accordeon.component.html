@@ -1,16 +1,20 @@
-<ion-accordion *ngIf="data" [toggleIcon]="''">
-  <ion-item slot="header" (click)="checkOpeningRule($event)">
-    <ion-checkbox slot="start" [checked]='data.value' [indeterminate]="data.isIndeterminate"
-      (ionChange)="onCheckboxChange($event)" (click)="$event.stopPropagation()"></ion-checkbox>
-    <ion-label>{{ data.name }}</ion-label>
-    <ion-icon slot="end" color="primary" [name]="icon"></ion-icon>
-  </ion-item>
-  <div class="ion-padding" slot="content">
-    <div *ngFor="let child of data.children" class="children"
-      [class.children-selected]="child.value" (click)="onChildSelected(child)">
-      <img [src]="child.imgSrc" width="70" height="70" />
-      <span>{{ child.name }}</span>
-      <div *ngIf="child.value" class="child-selected-arrow"><ion-icon size="large" name="checkmark"></ion-icon></div>
-    </div>
-  </div>
-</ion-accordion>
+<ion-accordion-group multiple="true" [value]="accordionToOpen">
+  <ng-container *ngFor="let data of datas">
+    <ion-accordion *ngIf="data" [toggleIcon]="''" [value]="data.id.toString()">
+      <ion-item slot="header" (click)="checkOpeningRule(data,$event)">
+        <ion-checkbox slot="start" [checked]='data.value' [indeterminate]="data.isIndeterminate"
+          (ionChange)="onCheckboxChange(data,$event)" (click)="$event.stopPropagation()"></ion-checkbox>
+        <ion-label>{{ data.name }}</ion-label>
+        <ion-icon slot="end" color="primary" [name]="(data.children && data.children.length > 0) ? (data.isOpen ? 'remove-outline' : 'add-outline'):''"></ion-icon>
+      </ion-item>
+      <div class="ion-padding" slot="content">
+        <div *ngFor="let child of data.children" class="children"
+          [class.children-selected]="child.value" (click)="onChildSelected(data,child)">
+          <img [src]="child.imgSrc" width="70" height="70" />
+          <span>{{ child.name }}</span>
+          <div *ngIf="child.value" class="child-selected-arrow"><ion-icon size="large" name="checkmark"></ion-icon></div>
+        </div>
+      </div>
+    </ion-accordion>
+  </ng-container>
+</ion-accordion-group>

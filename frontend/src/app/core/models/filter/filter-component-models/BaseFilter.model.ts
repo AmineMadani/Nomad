@@ -11,5 +11,5 @@ export interface BaseFilterData{
     name: string,
     value?: boolean | string,
     position: number,
-    id?: number
+    id: number
 }

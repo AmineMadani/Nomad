@@ -12,7 +12,7 @@
       <ng-container *ngFor="let component of filterSegment.components">
         <ng-container *ngIf="component.getType() == 'accordeonFilter'">
           <ion-accordion-group multiple="true">
-            <app-filter-accordeon *ngFor="let data of component.data" [data]="data"/>
+            <app-filter-accordeon [datas]="component.data"/>
           </ion-accordion-group>
         </ng-container>
         <ng-container *ngIf="component.getType() == 'favoriteFilter'">
