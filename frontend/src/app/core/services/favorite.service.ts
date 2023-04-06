@@ -148,4 +148,19 @@ export class FavoriteService {
 
     this.modifyCurrentFavorite(fav);
   }
+
+/**
+*  Returns the complete list of favorites
+*/
+  public getAllFavList(): FavData[] {
+    const favs: FavData[] = this.filter.segments.flatMap((s) => {
+      const favoriteFilter = s.components.find((c) => c instanceof FavoriteFilter);
+      if (favoriteFilter) {
+        return favoriteFilter?.data.filter(Boolean);
+      }
+      return [];
+    });
+    return favs;
+  }
+
 }
