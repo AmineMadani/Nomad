@@ -32,7 +32,7 @@ export class PatrimonyDrawer implements OnInit {
   public currentSegment: FilterSegment | undefined;
 
   isMobile: boolean = false;
-  
+
   title(): string {
     let val = 'Patrimoine';
     if(this.favService.getSelectedFavorite()){
@@ -191,7 +191,7 @@ export class PatrimonyDrawer implements OnInit {
         n += 1;
         defaultName = `${this.currentSegment?.name} - favoris - ${n}`;
       }
-
+      let finalCreateConfirmation :  boolean |null = null;
       const alert = await this.alertController.create({
         header: "Création d'un nouveau favori",
         buttons: [
@@ -202,7 +202,37 @@ export class PatrimonyDrawer implements OnInit {
           {
             text: 'Ok',
             role: 'confirm',
+            handler: async data => {
+              let favorites = this.favService.getAllFavList();
+              let isDuplicate = favorites.some((u) => u.name == data.name);;
+              isDuplicate = favorites.some((u) => u.name == data.name);
+              if (isDuplicate ){
+                const alertDoublon = await this.alertController.create({
+                  header: "Ce nom existe déjà, voulez-vous continuer ?",
+                  buttons: [
+                            {
+                              text: 'Annuler',
+                              role: 'cancel',
+                            },
+                            {
+                              text: 'Ok',
+                              role: 'confirm',
+                            },
+                          ]
+                        }
+                    );
+                    await alertDoublon.present();
+                    const {role, data} = await alertDoublon.onDidDismiss();
+                    if (role === 'confirm'){
+                      finalCreateConfirmation = true;
+                    }
+                    else  {
+                      finalCreateConfirmation = false;
+                      return ;
+                    }
+            }
           },
+        }
         ],
         inputs: [
           {
@@ -216,10 +246,12 @@ export class PatrimonyDrawer implements OnInit {
 
       const { role, data } = await alert.onDidDismiss();
 
-      if (role === 'confirm') {
+      if (role === 'confirm' && ( finalCreateConfirmation === null  || finalCreateConfirmation === true)) {
         eqFavs.name = data.values.name;
         this.favService.addFavorite(eqFavs);
       }
     }
   }
+
+
 }
