@@ -88,3 +88,56 @@ exception when others then
   return null;
 end;
 $$;
+
+-- Function to get the list of layers of a user
+CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER)
+    RETURNS TABLE(
+         layer_key VARCHAR,
+         reference_id INT,
+         reference_key VARCHAR,
+         alias TEXT,
+         "position" INT,
+         display_type VARCHAR
+     ) LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            cast(substring(cast(layer.pg_table as varchar), position('.' IN cast(layer.pg_table as varchar)) + 1) as varchar) as layerKey,
+            reference.id,
+            reference.reference_key,
+            reference.alias,
+            COALESCE(user_reference.position, default_reference.position) AS position,
+            COALESCE(cast(user_reference.display_type as varchar), cast(default_reference.display_type as varchar)) as displayType
+        FROM config.layer_references reference
+                 INNER JOIN config.layer ON reference.layer_id = layer.id
+                 INNER JOIN config.layer_references_default default_reference ON reference.id = default_reference.layer_reference_id
+                 LEFT JOIN config.layer_references_user user_reference ON reference.id = user_reference.layer_reference_id AND user_reference.user_id = searched_user_id
+        ORDER BY layer.id;
+END;
+$$;
+
+-- Function to get the default list of layers
+CREATE OR REPLACE FUNCTION get_layer_references_default()
+    RETURNS TABLE(
+         layer_key VARCHAR,
+         reference_id INT,
+         reference_key VARCHAR,
+         alias TEXT,
+         "position" INT,
+         display_type VARCHAR
+     ) LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+        SELECT
+            cast(substring(cast(layer.pg_table as varchar), position('.' IN cast(layer.pg_table as varchar)) + 1) as varchar) as layerKey,
+            reference.id,
+            reference.reference_key,
+            reference.alias,
+            default_reference.position AS position,
+            cast(default_reference.display_type as varchar) as displayType
+        FROM config.layer_references reference
+                 INNER JOIN config.layer ON reference.layer_id = layer.id
+                 INNER JOIN config.layer_references_default default_reference ON reference.id = default_reference.layer_reference_id
+        ORDER BY layer.id;
+END;
+$$;

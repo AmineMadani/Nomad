@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
+import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject } from '../../models/geojson.model';
-import { ConfigurationService } from '../configuration.service';
+import { LayerReferencesService } from '../layer-reference.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,8 @@ export class LayerDataService {
   private db: AppDB;
   constructor(
     private http: HttpClient,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private layerReferenceService: LayerReferencesService
   ) {
     this.db = new AppDB();
   }
@@ -41,35 +43,47 @@ export class LayerDataService {
   }
 
   /**
-   * It fetches the tile of a layer from indexed db if present or server
-   * If successful, it stores the layer's file in IndexedDB.
-   * @param {string} layerKey - string - key of the layer
-   * @param {string} file - string - the file where the view is
-   * @returns The geojson file for the current tile
-   */
+    * Fetches the tile of a layer from indexed db if present or server.
+    * If successful, stores the layer's file in IndexedDB.
+    * @param {string} layerKey - Key of the layer.
+    * @param {string} file - The file where the view is.
+    * @returns The GeoJSON file for the current tile.
+  */
   public async getLayerFile(layerKey: string, file: string): Promise<GeoJSONObject> {
+    // Check if the tile exists in IndexedDB.
     const tile = await this.db.tiles.get(file);
     if (tile) {
       return tile.data;
     }
-    /* It's getting the number from the file name. */
-    const featureNumber: number = +file.match(
-      new RegExp(`${layerKey}_(\\d+)\\.geojson`)
-    )![1];
-    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
+
+    // Add user references to query parameters.
+    const syntheticReferenceKeys = await this.layerReferenceService.getSyntheticUserReferenceKeys(layerKey);
+    const queryParams = new HttpParams().append("referenceKeys", syntheticReferenceKeys.join(','));
+
+    // Get the feature number from the file name.
+    const featureNumber: number = +file.match(new RegExp(`${layerKey}_(\\d+)\\.geojson`))![1];
+
+    // Fetch the GeoJSON file from the server.
     const req = await lastValueFrom(
       this.http.get<GeoJSONObject>(
-        `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
+        `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`,
+        { params: queryParams }
       )
     );
+
+    // Throw an error if the request failed.
     if (!req) {
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
+
+    // Store the tile in IndexedDB.
     await this.db.tiles.put({ data: req, key: file }, file);
+
+    // Return the GeoJSON file.
     return req;
   }
 
-    public getLayerStyle(layerKey: string): Observable<any> {
-      return this.http.get('./assets/sample/canalisation_style.json');
-    }
+  public getLayerStyle(layerKey: string): Observable<any> {
+    return this.http.get('./assets/sample/canalisation_style.json');
+  }
 }

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * LayerRepositoryImpl is a repository class for managing layer-related data in the persistence layer.
  * It uses JdbcTemplate for executing SQL queries.
@@ -34,9 +36,15 @@ public class LayerRepositoryImpl {
      * @param tileNumber The tile number to search for in the database.
      * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber) {
+    public String getLayerTile(String key, Long tileNumber, List<String> referenceKeys) {
     	String schema = "patrimony";
-    	String param = ",'id, commune, rue, geom'";
+
+		String requiredParameter = "geom";
+		if (referenceKeys.stream().noneMatch((referenceKey) -> referenceKey.equals(requiredParameter))) {
+			referenceKeys.add(requiredParameter);
+		}
+
+		String param = ",'" + String.join(",", referenceKeys) + "'";
     	if(key.equals("intervention")) {
     		schema = "exploitation";
     		param = "";

@@ -7,7 +7,6 @@ import * as olLoadingstrategy from 'ol/loadingstrategy';
 import Cluster from 'ol/source/Cluster';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { Layer, layers, LayerTypeEnum } from './layer.model';
-import { Equipment } from './equipment.model';
 
 export class MapLayer {
   constructor(layerKey: string, style: Style, selectedStyle: Style) {
@@ -41,7 +40,7 @@ export class MapLayer {
   public key: string;
   public layer: VectorLayer<any>;
   public hoverFeature: Set<FeatureLike>;
-  public equipmentSelected: Equipment | undefined;
+  public equipmentSelected: any | undefined;
   public featureHighlighted: string | undefined;
   public subscription: Subscription;
   public source: Cluster | Vector;

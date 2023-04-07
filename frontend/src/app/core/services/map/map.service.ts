@@ -8,12 +8,10 @@ import { boundingExtent } from 'ol/extent';
 import { DrawerService } from '../drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawerRouteEnum } from '../../models/drawer.model';
-import { Equipment } from '../../models/equipment.model';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import WKT from 'ol/format/WKT.js';
 import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
-import { LayerService } from './layer.service';
 import { MapEventService } from './map-event.service';
 
 @Injectable({

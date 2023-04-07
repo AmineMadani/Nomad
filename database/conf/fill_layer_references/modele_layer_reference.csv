@@ -1,0 +1,298 @@
+affichage,champs,colonnes
+SYNTHETIQUE,AEP - Canalisation abandonnee,aep_canalisation_abandonnee
+SYNTHETIQUE,AEP - Cables abandonnes,aep_cables_abandonnes
+SYNTHETIQUE,ASS - Canalisation abandonnee,ass_canalisation_abandonnee
+SYNTHETIQUE,ASS - Cable abandonne,ass_cable_abandonne
+SYNTHETIQUE,Date abandon,date_abdn
+SYNTHETIQUE,"Activité (AEP,  ASS…)",activite
+SYNTHETIQUE,Adresse,adresse
+SYNTHETIQUE,Code officiel,admin_code
+SYNTHETIQUE,Angle,angle
+SYNTHETIQUE,Annotation,annot
+SYNTHETIQUE,Id Arc,id_arc
+SYNTHETIQUE,Surface,surface
+SYNTHETIQUE,Date récolement,date_recol
+SYNTHETIQUE,Récolement,lib_recol
+SYNTHETIQUE,Dossier Joint,dossier
+SYNTHETIQUE,Pièce Jointe,pj
+SYNTHETIQUE,Cote radier,radier
+SYNTHETIQUE,Marque,marque
+SYNTHETIQUE,Code CANOPE,cde_canope
+SYNTHETIQUE,Capacité,capacite
+SYNTHETIQUE,Nom MAJ,lib_maj
+SYNTHETIQUE,Sous chambre,chambre
+SYNTHETIQUE,Table enfant,enfant
+SYNTHETIQUE,Choc,choc
+SYNTHETIQUE,Commune,config_commune
+SYNTHETIQUE,Commune,commune
+SYNTHETIQUE,Classification,classe
+SYNTHETIQUE,Sens fermeture,fermeture
+SYNTHETIQUE,Code GMAO,cde_gmao
+SYNTHETIQUE,Code,code
+SYNTHETIQUE,Zone collecte,zne_coll
+SYNTHETIQUE,Couleur,couleur
+SYNTHETIQUE,Code couleur,rvb
+SYNTHETIQUE,Matériau regard,reg_mat
+SYNTHETIQUE,Commentaires,comment
+SYNTHETIQUE,Conforme,conforme
+SYNTHETIQUE,Nbre Boite de Brt,nb_brt
+SYNTHETIQUE,Entreprise,entreprise
+SYNTHETIQUE,Date de travaux,date_cons
+SYNTHETIQUE,Contrat,config_contrat
+SYNTHETIQUE,Contrat,contrat
+SYNTHETIQUE,Date création,date_cre
+SYNTHETIQUE,Date journalisation,heure_cre
+SYNTHETIQUE,Criticité Hydraulique,crit_hydr
+SYNTHETIQUE,Source de donnée,source
+SYNTHETIQUE,Décantation,decant
+SYNTHETIQUE,ID déclaration,declar_id
+SYNTHETIQUE,Nb PDD,nb_pdd
+SYNTHETIQUE,Données QGIS,qgis_data
+SYNTHETIQUE,Profondeur,prof
+SYNTHETIQUE,Diamètre,diametre
+SYNTHETIQUE,Dict,dict
+SYNTHETIQUE,Dictionaire,dictionaire
+SYNTHETIQUE,Longueur Eau Ref / Distrib KM,km_refdist
+SYNTHETIQUE,Longueur Refoulement /  Supressé KM,km_ref
+SYNTHETIQUE,Nbre PR,nb_pr
+SYNTHETIQUE,Zone de distribution,distr_zone
+SYNTHETIQUE,Secteur,secteur
+SYNTHETIQUE,Domanialité,domaine
+SYNTHETIQUE,Cote aval,cote_aval
+SYNTHETIQUE,Pression aval,p_aval
+SYNTHETIQUE,Entreprise récolement,recol_soc
+SYNTHETIQUE,Longueur Eau Potable KM,km_eaupot
+SYNTHETIQUE,AEP - Annotation Ligne,aep_annotation_ligne
+SYNTHETIQUE,AEP - Annotation Point,aep_annotation_point
+SYNTHETIQUE,AEP - Annotation Polygon,aep_annotation_polygon
+SYNTHETIQUE,AEP - Unité de distribution,udi
+SYNTHETIQUE,AEP - Secteur,aep_secteur
+SYNTHETIQUE,AEP - Table Journal (ligne),aep_table_journal_ligne
+SYNTHETIQUE,AEP - Table Journal (point),aep_table_journal_point
+SYNTHETIQUE,AEP - Etage de pression,aep_etage_de_pression
+SYNTHETIQUE,AEP - Relève (ligne),aep_ligne_releve
+SYNTHETIQUE,AEP - Relève (point),aep_point_releve
+SYNTHETIQUE,Servitude,servitude
+SYNTHETIQUE,Longueur Autre Ecoult KM,km_motr_nd
+SYNTHETIQUE,Longueur Autre KM,km_type_nd
+SYNTHETIQUE,Date fin,date_fin
+SYNTHETIQUE,Noeud aval,nd_aval
+SYNTHETIQUE,Nbre Equipement,nb_eqpt
+SYNTHETIQUE,Domaine ESRI,dmn_esri
+SYNTHETIQUE,ID Externe,id_ext
+SYNTHETIQUE,ID Emprise,id_emprise
+SYNTHETIQUE,Nbre Ouvrage,nb_ouvrage
+SYNTHETIQUE,Chute,chute
+SYNTHETIQUE,Id Objet,id_entite
+SYNTHETIQUE,Code SDIS,cde_sdis
+SYNTHETIQUE,Débit,debit
+SYNTHETIQUE,Format,format
+SYNTHETIQUE,Nom complet,lib_long
+SYNTHETIQUE,Fonction,fonction
+SYNTHETIQUE,Objet recalé,georef
+SYNTHETIQUE,Cote matrice supérieure,cote_msup
+SYNTHETIQUE,Entreprise géo-réf,entr_gref
+SYNTHETIQUE,Date géo-référencement,date_gref
+SYNTHETIQUE,Niveau sol GPS,sol_gref
+SYNTHETIQUE,Classe précision appareil de levé,prec_gref
+SYNTHETIQUE,Statut relève,etat_gref
+SYNTHETIQUE,Type relève,type_gref
+SYNTHETIQUE,Longueur Gravitaire KM,km_grav
+SYNTHETIQUE,Niveau sol,cote_sol
+SYNTHETIQUE,HDOP,hdop
+SYNTHETIQUE,Hauteur,hauteur
+SYNTHETIQUE,Nbre Hydrant,nb_inc
+SYNTHETIQUE,ID,id
+SYNTHETIQUE,Diamètre intérieur,diam_int
+SYNTHETIQUE,Code INSEE,cde_insee
+SYNTHETIQUE,Nbre Avaloir,nb_avaloir
+SYNTHETIQUE,Type intégration,integ
+SYNTHETIQUE,Nbre Raccord,nb_raccord
+SYNTHETIQUE,Etiquette,label
+SYNTHETIQUE,Date MAJ,date_maj
+SYNTHETIQUE,Longueur Branche Boite de Brt KM,km_br_ass
+SYNTHETIQUE,Nbre Branche Boite de Brt,nb_boite
+SYNTHETIQUE,Longueur Branche PDD KM,km_br_aep
+SYNTHETIQUE,Nb Branche PDD,nb_br_aep
+SYNTHETIQUE,Longueur Branche Hydrant KM,km_br_inc
+SYNTHETIQUE,Nbre Branche Hydrant,nb_br_inc
+SYNTHETIQUE,Longueur Branche Avaloir KM,km_brt_ava
+SYNTHETIQUE,Nbre Branche Avaloir,nb_ava
+SYNTHETIQUE,Id branche,id_banche
+SYNTHETIQUE,Id noeud de branche,id_nd_br
+SYNTHETIQUE,Type de branche,type_br
+SYNTHETIQUE,Longueur Branche Eqpt Public KM,km_br_pub
+SYNTHETIQUE,Nb Branche Eqpt Public,nb_br_pub
+SYNTHETIQUE,Longueur Branche Purge KM,km_br_vid
+SYNTHETIQUE,Nbre Branche Purge,nb_br_vid
+SYNTHETIQUE,Longueur,longueur
+SYNTHETIQUE,Emplacement,emplacemnt
+SYNTHETIQUE,Logo,logo
+SYNTHETIQUE,Nbre Regard,nb_reg
+SYNTHETIQUE,Matériau,materiau
+SYNTHETIQUE,Marque Matériau,marque_mat
+SYNTHETIQUE,Incertitude max X,x_error
+SYNTHETIQUE,Incertitude max Y,y_error
+SYNTHETIQUE,Incertitude max Z,z_error
+SYNTHETIQUE,Marque appareil mesure,relev_mar
+SYNTHETIQUE,Modèle appareil mesure,relev_mod
+SYNTHETIQUE,Numéro appareil mesure,relev_id
+SYNTHETIQUE,Mode,mode
+SYNTHETIQUE,Modèle,modele
+SYNTHETIQUE,Libellé,libelle
+SYNTHETIQUE,Pression nominale,pn
+SYNTHETIQUE,ID objet,id_objet
+SYNTHETIQUE,Type objet,type_obj
+SYNTHETIQUE,ID SIG Source,old_id
+SYNTHETIQUE,Exploitation Veolia,config_exploitation_veolia
+SYNTHETIQUE,Code orga,territoire
+SYNTHETIQUE,Type Opération,type_terr
+SYNTHETIQUE,Exploitant,exploitant
+SYNTHETIQUE,Diamètre externe,diam_ext
+SYNTHETIQUE,Nbre Exutoire,nb_exut
+SYNTHETIQUE,Couleur extérieure,contour
+SYNTHETIQUE,Cote trop plein,cote_tp
+SYNTHETIQUE,Maître ouvrage,propriete
+SYNTHETIQUE,Type tampon,type_tampon
+SYNTHETIQUE,Contrat parent,cont_parnt
+SYNTHETIQUE,PDOP,pdop
+SYNTHETIQUE,Forme,forme
+SYNTHETIQUE,Position,position
+SYNTHETIQUE,Classe précision,prec_clas
+SYNTHETIQUE,Classe précision XY,prec_xy
+SYNTHETIQUE,Classe précision Z,prec_z
+SYNTHETIQUE,Précision année,prec_ann
+SYNTHETIQUE,Précision XY,prec_xy_cm
+SYNTHETIQUE,Précision Z,prec_z_cm
+SYNTHETIQUE,Pression,pression
+SYNTHETIQUE,Code étage pression,cde_etage
+SYNTHETIQUE,Etage de pression,etage
+SYNTHETIQUE,Protection,protection
+SYNTHETIQUE,Fournisseur,fourniss
+SYNTHETIQUE,Nb Branche Eqpt Public,nb_pub
+SYNTHETIQUE,Nbre Purge,nb_purge
+SYNTHETIQUE,Longueur Eau Brute KM,km_brute
+SYNTHETIQUE,Régulation,regul
+SYNTHETIQUE,Nbre Eqpt Régulation,nb_regul
+SYNTHETIQUE,Date réhabilitation,date_rehab
+SYNTHETIQUE,Diamètre réhab.,diam_rehab
+SYNTHETIQUE,Matériau réhabilitation,mat_rehab
+SYNTHETIQUE,Type réhabilitation,type_rehab
+SYNTHETIQUE,Télégéré,telegest
+SYNTHETIQUE,Note GP,note
+SYNTHETIQUE,Nbre Réservoir,nb_reserv
+SYNTHETIQUE,Temps de  séjour,tps_sejour
+SYNTHETIQUE,Classe résistance,cr
+SYNTHETIQUE,Responsable,responsbl
+SYNTHETIQUE,Inversion angle,inv_angle
+SYNTHETIQUE,Nature du risque,nat_risq
+SYNTHETIQUE,Code SANDRE,sandre
+SYNTHETIQUE,Echelle,echelle
+SYNTHETIQUE,Type joints,joint
+SYNTHETIQUE,Ouvrage sensible,sensible
+SYNTHETIQUE,Date mise en service,date_serv
+SYNTHETIQUE,Point de mise en service,pt_serv
+SYNTHETIQUE,Année max,annee_min
+SYNTHETIQUE,Année min,annee_max
+SYNTHETIQUE,Longueur EU KM,km_eu
+SYNTHETIQUE,Nbre Station,nb_step
+SYNTHETIQUE,Sous-fourreau,ss_fourr
+SYNTHETIQUE,Nom court,abr_court
+SYNTHETIQUE,Nom court,lib_court
+SYNTHETIQUE,Pente,pente
+SYNTHETIQUE,Source info,srce
+SYNTHETIQUE,Données Source,data_brute
+SYNTHETIQUE,Date début,date_debut
+SYNTHETIQUE,Noeud amont,nd_amont
+SYNTHETIQUE,Statut,statut
+SYNTHETIQUE,Longueur EP KM,km_ep
+SYNTHETIQUE,Rue,config_rue
+SYNTHETIQUE,Rue,rue
+SYNTHETIQUE,Numéro Rue,num_rue
+SYNTHETIQUE,Structurant,structur
+SYNTHETIQUE,Sous-type,ss_type
+SYNTHETIQUE,Entreprise relève,relev_soc
+SYNTHETIQUE,Nbre Cuves,",nb_cuves"
+SYNTHETIQUE,Numéro Planche,ind_tuile
+SYNTHETIQUE,Longueur Totale Drain KM,km_drain
+SYNTHETIQUE,Longueur Totale KM,km_total
+SYNTHETIQUE,Longueur Totale Collecteur KM,km_coll
+SYNTHETIQUE,Longueur Totale Cours d'eau KM,km_surfeau
+SYNTHETIQUE,Capacité de traitement,cap_trait
+SYNTHETIQUE,Méthode de traitement,type_trait
+SYNTHETIQUE,Type,type
+SYNTHETIQUE,Longueur UNI KM,km_uni
+SYNTHETIQUE,Cote amont,cote_amont
+SYNTHETIQUE,Pression amont,p_amont
+SYNTHETIQUE,Lien URL,lien_url
+SYNTHETIQUE,UUID,uuid
+SYNTHETIQUE,Récolement,recolement
+SYNTHETIQUE,AEP - Point desserte,aep_point_desserte
+SYNTHETIQUE,AEP - Equipement,aep_equipement
+SYNTHETIQUE,AEP - Ouvrage,aep_ouvrage
+SYNTHETIQUE,AEP  - Emprise ouvrage,aep_emprise_ouvrage
+SYNTHETIQUE,AEP - Arc fictif,aep_arc_fictif
+SYNTHETIQUE,AEP - Defense incendie,aep_defense_incendie
+SYNTHETIQUE,AEP - Raccord,aep_raccord
+SYNTHETIQUE,AEP - Branche,aep_branche
+SYNTHETIQUE,AEP - Vanne de branche,aep_vanne_de_branche
+SYNTHETIQUE,AEP - Compteur de branche,aep_compteur_de_branche
+SYNTHETIQUE,AEP - Noeud,aep_noeud
+SYNTHETIQUE,AEP - Canalisation,aep_canalisation
+SYNTHETIQUE,AEP - Equipement Public,aep_equipement_public
+SYNTHETIQUE,AEP - Purge,aep_purge
+SYNTHETIQUE,AEP - Regulation,aep_regulation
+SYNTHETIQUE,AEP - Equipement disperse,aep_equipement_disperse
+SYNTHETIQUE,AEP - Cable alimentation,aep_cable_alimentation
+SYNTHETIQUE,AEP - Alimentation externe,aep_alimentation_externe
+SYNTHETIQUE,Synthese AEP,synthese_aep
+SYNTHETIQUE,AEP - Vanne,aep_vanne
+SYNTHETIQUE,AEP - Compteur,aep_compteur
+SYNTHETIQUE,AEP - Génératrice sup.,aep_generatrice_sup
+SYNTHETIQUE,Edition Grand format,edition_grand_format
+SYNTHETIQUE,Campagne Relève,georef_campagne
+SYNTHETIQUE,ASS - Surface collecte,ass_surface_collecte
+SYNTHETIQUE,ASS - Caniveau / collecteur EP,ass_caniveau_collecteur_ep
+SYNTHETIQUE,ASS - Boîte de branchement,ass_boite_de_branchement
+SYNTHETIQUE,ASS - Drain,ass_drain
+SYNTHETIQUE,ASS - Equipement,ass_equipement
+SYNTHETIQUE,ASS - Ouvrage,ass_ouvrage
+SYNTHETIQUE,ASS - Emprise ouvrage,ass_emprise_ouvrage
+SYNTHETIQUE,ASS - Canalisation Fictive,ass_canalisation_fictive
+SYNTHETIQUE,ASS - Avaloir,ass_avaloir
+SYNTHETIQUE,ASS - Raccord,ass_raccord
+SYNTHETIQUE,ASS - Equipement branche,ass_equipement_branche
+SYNTHETIQUE,ASS - Branche,ass_branche
+SYNTHETIQUE,ASS - Regard,ass_regard
+SYNTHETIQUE,ASS - Noeud,ass_noeud
+SYNTHETIQUE,ASS - Exutoire,ass_exutoire
+SYNTHETIQUE,ASS - Collecteur,ass_collecteur
+SYNTHETIQUE,ASS - Equipement disperse,ass_equipement_disperse
+SYNTHETIQUE,ASS - Cable alimentation,ass_cable_alimentation
+SYNTHETIQUE,ASS - Alimentation externe,ass_alimentation_externe
+SYNTHETIQUE,Synthese ASS,synthese_ass
+SYNTHETIQUE,"ASS - Surface hydraulique (cours d'eau,   fosse)",ass_surface_hydraulique
+SYNTHETIQUE,ASS - Génératrice sup,ass_generatrice_sup
+SYNTHETIQUE,Longueur Ss. Vide KM,km_ssvide
+SYNTHETIQUE,Validation,valide
+SYNTHETIQUE,Valeur,valeur
+SYNTHETIQUE,Nbre Vanne,nb_vanne
+SYNTHETIQUE,VDOP,vdop
+SYNTHETIQUE,Volume,volume
+SYNTHETIQUE,Ecoulement,ecoulement
+SYNTHETIQUE,Nbre Compteur,nb_cpteur
+SYNTHETIQUE,Type eau,type_eau
+SYNTHETIQUE,Largeur,largeur
+SYNTHETIQUE,Type travaux,type_tvx
+SYNTHETIQUE,ASS - Annotation Ligne,ass_annotation_ligne
+SYNTHETIQUE,ASS - Annotation Point,ass_annotation_point
+SYNTHETIQUE,ASS - Annotation Polygon,ass_annotation_polygon
+SYNTHETIQUE,ASS - Zone de collecte,ass_zone_de_collecte
+SYNTHETIQUE,ASS - Table Journal (ligne),ass_table_journal_ligne
+SYNTHETIQUE,ASS - Table Journal (point),ass_table_journal_point
+SYNTHETIQUE,ASS - Relève (ligne),ass_ligne_releve
+SYNTHETIQUE,ASS - Relève (point),ass_point_releve
+SYNTHETIQUE,X,x
+SYNTHETIQUE,Y,y
+SYNTHETIQUE,Z relève (matrice sup.),z
+SYNTHETIQUE,Code ZIP,code_zip

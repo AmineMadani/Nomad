@@ -340,3 +340,65 @@ COMMENT ON COLUMN app_grid.id IS 'Table unique ID';
 COMMENT ON COLUMN app_grid.geom IS 'Geometry of the grid';
 COMMENT ON COLUMN app_grid.created_date IS 'Created date';
 COMMENT ON COLUMN app_grid.last_edited_date IS 'Last edited date';
+
+
+-- Create table layer_references to store the corresponding columns for each layers
+CREATE TABLE config.layer_references(
+    id SERIAL PRIMARY KEY,
+    layer_id INT NOT NULL REFERENCES config.layer(id),
+    reference_key VARCHAR(63) NOT NULL,
+    alias text, 
+    created_date timestamp default current_date, 
+    last_edited_date timestamp default current_date
+);
+/* Comments on table */
+COMMENT ON TABLE config.layer_references IS 'This table defines the corresponding columns (reference_key) for each layers';
+/* Comments on fields */
+COMMENT ON COLUMN config.layer_references.id IS 'Table unique ID';
+COMMENT ON COLUMN config.layer_references.layer_id IS 'Layer ID';
+COMMENT ON COLUMN config.layer_references.reference_key IS 'Reference key. It is the column name in the layer table';
+COMMENT ON COLUMN config.layer_references.alias IS 'Alias to display in the app';
+COMMENT ON COLUMN config.layer_references.created_date IS 'Created date';
+COMMENT ON COLUMN config.layer_references.last_edited_date IS 'Last edited date';
+
+CREATE TYPE layer_references_display_type AS ENUM ('SYNTHETIC','DETAILED');
+
+-- Create table layer_references_default to store the default display_type and position for each layer_references
+CREATE TABLE config.layer_references_default(
+    id SERIAL PRIMARY KEY,
+    layer_reference_id INT NOT NULL REFERENCES config.layer_references (id),
+    position INT NOT NULL,
+    display_type layer_references_display_type NOT NULL, 
+    created_date timestamp default current_date, 
+    last_edited_date timestamp default current_date
+);
+/* Comments on table */
+COMMENT ON TABLE config.layer_references_default IS 'This table defines the default display_type and position for each layer_references in the app';
+/* Comments on fields */
+COMMENT ON COLUMN config.layer_references_default.id IS 'Table unique ID';
+COMMENT ON COLUMN config.layer_references_default.layer_reference_id IS 'Layer reference ID';
+COMMENT ON COLUMN config.layer_references_default.position IS 'Position in the app';
+COMMENT ON COLUMN config.layer_references_default.display_type IS 'Display type (SYNTHETIC or DETAILED)';
+COMMENT ON COLUMN config.layer_references_default.created_date IS 'Created date';
+COMMENT ON COLUMN config.layer_references_default.last_edited_date IS 'Last edited date';
+
+-- Create table layer_references_user to store the user display_type and position for each layer_references
+CREATE TABLE config.layer_references_user(
+    id SERIAL PRIMARY KEY NOT NULL,
+    layer_reference_id INT NOT NULL REFERENCES config.layer_references (id),
+    user_id INT NOT NULL REFERENCES config.app_user(id),
+    position INT NOT NULL,
+    display_type VARCHAR NOT NULL, 
+    created_date timestamp default current_date, 
+    last_edited_date timestamp default current_date
+);
+/* Comments on table */
+COMMENT ON TABLE config.layer_references_user IS 'This table defines the user display_type and position for each layer_references in the app';
+/* Comments on fields */
+COMMENT ON COLUMN config.layer_references_user.id IS 'Table unique ID';
+COMMENT ON COLUMN config.layer_references_user.layer_reference_id IS 'Layer reference ID';
+COMMENT ON COLUMN config.layer_references_user.user_id IS 'User ID';
+COMMENT ON COLUMN config.layer_references_user.position IS 'Position in the app';
+COMMENT ON COLUMN config.layer_references_user.display_type IS 'Display type (SYNTHETIC or DETAILED)';
+COMMENT ON COLUMN config.layer_references_user.created_date IS 'Created date';
+COMMENT ON COLUMN config.layer_references_user.last_edited_date IS 'Last edited date';

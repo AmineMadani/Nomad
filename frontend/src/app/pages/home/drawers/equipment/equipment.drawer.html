@@ -31,14 +31,11 @@
 
     <!-- Sections -->
     <div class="equipment-drawer-section-column">
-      <div *ngFor="let section of sections" class="equipment-drawer-section">
-        <div class="equipment-drawer-section-header">
-          {{ section.label }}
-        </div>
-        <div *ngFor="let element of section.elements" class="equipment-drawer-section-content">
-          <ng-container *ngIf="equipment[element.key]">
-            <div class="equipment-drawer-section-content-title">{{ element.label }}</div>
-            <span>{{ equipment[element.key] }}</span>
+      <div *ngFor="let reference of userReferences" class="equipment-drawer-section">
+        <div class="equipment-drawer-section-content">
+          <ng-container *ngIf="equipment[reference.referenceKey]">
+            <div class="equipment-drawer-section-content-title">{{ reference.alias }}</div>
+            <span>{{ equipment[reference.referenceKey] }}</span>
           </ng-container>
         </div>
       </div>
