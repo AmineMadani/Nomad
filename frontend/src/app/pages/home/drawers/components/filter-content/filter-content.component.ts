@@ -41,4 +41,20 @@ export class FilterContentComponent implements OnInit {
     })
   }
 
+  customScrollBarStyle(): string {
+    return `
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--ion-color-neutral-variant-80);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--ion-color-neutral-variant-30);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--ion-color-neutral-variant-50);
+    }`;
+  }
+
 }

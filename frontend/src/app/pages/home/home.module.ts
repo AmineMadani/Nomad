@@ -29,6 +29,7 @@ import { FilterFavoriteComponent } from './drawers/components/filter-favorite/fi
 import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
+import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 
 @NgModule({
   imports: [
@@ -39,6 +40,7 @@ import { FilterWorkOrderComponent } from './drawers/components/filter-card/filte
     SharedModule,
     HttpClientModule,
     MatTreeModule,
+    IonCustomScrollbarModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
