@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import Feature from 'ol/Feature';
-import { map } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { LayerService } from 'src/app/core/services/map/layer.service';
@@ -29,6 +30,7 @@ export class FilterService {
 
   public setToggleData(key: string, toogle: boolean): void {
     if (!toogle) {
+      this.mapService.removeEventLayer(key);
       this.expDataservice
         .getFeaturePagination(key, 20, 0)
         .subscribe((features: MapFeature[]) => {
@@ -41,11 +43,12 @@ export class FilterService {
     }
   }
 
-  public updateData(key: string): void {
+  public updateData(key: string, ev?: InfiniteScrollCustomEvent): void {
     let features = this.data.get(key);
     if (features) {
       this.expDataservice
         .getFeaturePagination(key, 20, features.length)
+        .pipe(finalize(() => ev?.target.complete()))
         .subscribe((f: MapFeature[]) => {
           features = [...features!, ...f];
           this.data.set(key, features);

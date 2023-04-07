@@ -26,7 +26,7 @@ export class MapLayer {
       style: (feature: FeatureLike) => {
         if (
           this.hoverFeature.has(feature) ||
-          feature.getId() === this.featureHighlighted
+          feature.getId()?.toString() === this.featureHighlighted
         ) {
           return selectedStyle;
         }
@@ -48,13 +48,11 @@ export class MapLayer {
   public hoverId: string | undefined;
 
   public highlightFeature(featureId: string): void {
-    //console.log(`before ${this.featureHighlighted}, ${featureId}`);
     if (!this.featureHighlighted || this.featureHighlighted !== featureId) {
       this.featureHighlighted = featureId;
     } else {
       this.featureHighlighted = undefined;
     }
-    //console.log(`after ${this.featureHighlighted}, ${featureId}`);
     this.layer.changed();
   }
 

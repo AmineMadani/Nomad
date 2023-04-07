@@ -148,7 +148,7 @@ export class DatepickerComponent implements OnInit {
           [...this.selectedDates][1].date
         )
           .splitBy({ days: 1 })
-          .map((i: Interval) => +i.start);
+          .map((i: Interval) => + i.start);
         this.datesBetween.push(+[...this.selectedDates][1].date);
         this.datesHovered = [];
       } else {

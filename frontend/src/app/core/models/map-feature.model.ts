@@ -22,9 +22,8 @@ export class MapFeature {
   public static from(obj: any, fromProperties?: boolean): MapFeature {
     let mFeature: MapFeature;
     if (fromProperties) {
-      console.log(obj);
       mFeature = new MapFeature()
-      mFeature.id = obj['id'];
+      mFeature.id = obj['id'].toString();
       mFeature.reason = obj['reason'];
       mFeature.status = obj['status'];
       mFeature.datebegin = obj['datebegin'];
@@ -36,6 +35,7 @@ export class MapFeature {
       return mFeature;
     } else {
       mFeature = Object.assign(new MapFeature(), obj)
+      mFeature.id = mFeature.id.toString();
       return mFeature;
     }
   }

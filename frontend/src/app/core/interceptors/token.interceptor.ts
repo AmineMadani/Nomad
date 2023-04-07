@@ -6,17 +6,19 @@ import {
   HttpInterceptor,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { ConfigurationService } from '../services/configuration.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
-  constructor() {}
+  constructor(
+    private configurationService: ConfigurationService
+  ) {}
 
   public intercept(
     request: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const isApiUrl = request.url.startsWith(environment.apiUrl);
+    const isApiUrl = request.url.startsWith(this.configurationService.apiUrl);
     const token = sessionStorage.getItem('access_token');
     if (isApiUrl && token) {
       request = request.clone({

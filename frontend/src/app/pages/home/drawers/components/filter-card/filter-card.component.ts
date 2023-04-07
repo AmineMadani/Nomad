@@ -2,17 +2,9 @@ import { Component, OnInit, OnDestroy, Input, TemplateRef, Output, EventEmitter 
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import Feature from 'ol/Feature';
-import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import {
-  InterventionFilter,
-} from 'src/app/core/models/filter/filter-component-models/InterventionFilter.model';
-import { FilterType } from 'src/app/core/models/filter/filter-segment.model';
-import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
-import { InterventionStatusEnum, MapFeature } from 'src/app/core/models/map-feature.model';
-import { FilterService } from '../filter.service';
+import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 
 @Component({
@@ -24,7 +16,6 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   constructor(
     private layerService: LayerService,
     private mapEvent: MapEventService,
-    private drawer: DrawerService,
   ) {
     this.mapEvent
       .getFeatureHoverd()
@@ -32,7 +23,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
       .subscribe((f: Feature | undefined) => {
         if(f) {
           this.featureHovered = f.getId()?.toString();
-          let elem = document.getElementById('interv-'+this.featureHovered);
+          let elem = document.getElementById('feature-' + this.featureHovered);
           if(elem){
             document.getElementsByClassName('filter-content')[1].scroll({
               top: (elem.offsetTop-130), 
@@ -54,7 +45,8 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() chipTemplateRef: TemplateRef<any>;
   @Input() fromCache: boolean;
 
-  @Output() onLoadingEvent: EventEmitter<void> = new EventEmitter();
+  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
+  @Output() onFeatureSelected: EventEmitter<string> = new EventEmitter();
   
   public featureHovered: string | undefined;
 
@@ -73,10 +65,6 @@ export class FilterCardComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onIonInfinite(ev: any) {
-    this.onLoadingEvent.next();
-  }
-
   public highlightFeature(featureId: string): void {
     this.layerService.highlightFeature(
       this.type,
@@ -84,16 +72,11 @@ export class FilterCardComponent implements OnInit, OnDestroy {
     );
   }
 
+  public onIonInfinite(ev: any) {
+    this.onLoadingEvent.next(ev);
+  }
+
   public openFeature(featureId: string): void {
-    // Need to check intervention or demande later
-    const feature: Feature = this.layerService.getFeatureById(
-      this.type,
-      featureId
-    )!;
-    this.drawer.navigateTo(
-      DrawerRouteEnum.INTERVENTION,
-      [featureId],
-      feature.getProperties()
-    );
+    this.onFeatureSelected.next(featureId);
   }
 }

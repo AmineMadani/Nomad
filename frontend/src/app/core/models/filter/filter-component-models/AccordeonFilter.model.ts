@@ -60,6 +60,7 @@ export class AccordeonFilter implements BaseFilter {
 export interface AccordeonData extends BaseFilterData {
     imgSrc?: string;
     key?: string;
+    isOpen?: boolean;
     children?: AccordeonData[];
     isIndeterminate?: boolean
 }

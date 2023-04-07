@@ -59,6 +59,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private initDrawer() {
+
     // Init drawer listener
     this.drawerService.initDrawerListener();
     // Subscribe to drawer route changes

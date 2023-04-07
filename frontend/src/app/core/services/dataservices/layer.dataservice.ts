@@ -2,16 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
-import { environment } from 'src/environments/environment';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject } from '../../models/geojson.model';
+import { ConfigurationService } from '../configuration.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayerDataService {
   private db: AppDB;
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private configurationService: ConfigurationService
+  ) {
     this.db = new AppDB();
   }
 
@@ -28,7 +31,7 @@ export class LayerDataService {
     }
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req = await lastValueFrom(
-      this.http.get<GeoJSONObject>(`${environment.apiUrl}layer/${layerKey}`)
+      this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layer/${layerKey}`)
     );
     if (!req) {
       throw new Error(`Failed to fetch index for ${layerKey}`);
@@ -57,7 +60,7 @@ export class LayerDataService {
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req = await lastValueFrom(
       this.http.get<GeoJSONObject>(
-        `${environment.apiUrl}layer/${layerKey}/${featureNumber}`
+        `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
       )
     );
     if (!req) {

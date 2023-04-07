@@ -47,6 +47,11 @@ note : Modifier les variables d'environnement
 Note : Swagger disponible à l'url /api/gmao/swagger-ui.html
 
 
+#### Keycloak local
+
+ - command demarrage : kc.bat start-dev --http-port 9191
+
+
 ## Authors
 
 - [Veolia](https://www.service.eau.veolia.fr/home.html)

@@ -27,5 +27,5 @@
 
 <app-filter-card [features]="getFeatures()" [type]="'intervention'" [titleTemplateRef]="titleTemplateRef"
   [subtitleTemplateRef]="subtitleTemplateRef" [labelTemplateRef]="labelTemplateRef" [chipTemplateRef]="chipTemplateRef"
-  [fromCache]="isFromCache" (onLoadingEvent)="getPaginationData()">
+  [fromCache]="isFromCache" (onLoadingEvent)="getPaginationData($event)" (onFeatureSelected)="openIntervention($event)">
 </app-filter-card>
