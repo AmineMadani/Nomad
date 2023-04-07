@@ -37,7 +37,7 @@ export class MapService {
       target: 'map',
       view: new View({
         center: [300592.047426, 6174953.998827],
-        zoom: 17,
+        zoom: 18,
         maxZoom: 21,
       }),
     });
