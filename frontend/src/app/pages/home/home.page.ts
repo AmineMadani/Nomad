@@ -4,8 +4,9 @@ import { BackLayer, MAP_DATASET } from './components/map/map.dataset';
 import { Subject, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
-import { createAnimation } from '@ionic/angular';
+import { IonModal, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
+import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,8 @@ import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.mode
 export class HomePage implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
-    public drawerService: DrawerService
+    public drawerService: DrawerService,
+    private layerDataServie: LayerDataService
   ) {}
 
   animationBuilder = (baseEl: any, opts?: any) => {
@@ -37,6 +39,7 @@ export class HomePage implements OnInit, OnDestroy {
   };
 
   @ViewChild('interactiveMap') interactiveMap: MapComponent;
+  @ViewChild('modalDataLoading') modal: IonModal;
 
   public drawerRouteEnum = DrawerRouteEnum;
   public drawerTypeEnum = DrawerTypeEnum;
@@ -103,5 +106,17 @@ export class HomePage implements OnInit, OnDestroy {
 
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
+  }
+
+  isDataLoading(): boolean  {
+    return this.layerDataServie.isDataLoading()
+  }
+
+  listDataLoading(): string[] {
+    return this.layerDataServie.listLoadingData();
+  }
+
+  openModal() {
+    this.modal.present();
   }
 }

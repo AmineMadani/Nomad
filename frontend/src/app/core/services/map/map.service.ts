@@ -8,12 +8,10 @@ import { boundingExtent } from 'ol/extent';
 import { DrawerService } from '../drawer.service';
 import Feature, { FeatureLike } from 'ol/Feature';
 import { DrawerRouteEnum } from '../../models/drawer.model';
-import { Equipment } from '../../models/equipment.model';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import WKT from 'ol/format/WKT.js';
 import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
-import { LayerService } from './layer.service';
 import { MapEventService } from './map-event.service';
 
 @Injectable({
@@ -24,7 +22,7 @@ export class MapService {
     private mapStyle: MapStyleService,
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
-    private layerDataService: LayerDataService,
+    private layerDataService: LayerDataService
   ) {}
 
   private map: MapOpenLayer;
@@ -121,7 +119,7 @@ export class MapService {
 
       await new Promise<void>((resolve) => {
         mLayer.layer.on('change', () => {
-          if (mLayer.source.getState() === 'ready') {
+          if (mLayer.source!.getState() === 'ready' && mLayer.source!.getFeatures().length > 0) {
             resolve();
           }
         });
@@ -138,6 +136,8 @@ export class MapService {
       const mLayer = this.layers.get(layerKey)!;
       mLayer.subscription.unsubscribe();
       this.map.removeLayer(mLayer.layer);
+      mLayer.source?.clear();
+      mLayer.source = undefined;
       this.layers.delete(layerKey);
     }
   }
@@ -148,35 +148,37 @@ export class MapService {
    * indexed DB or server
    * @param {MapLayer} mapLayer - MapLayer
    */
-  private setLoader(mapLayer: MapLayer): void {
+  private async setLoader(mapLayer: MapLayer): Promise<void> {
     const geoJSONAlreadyLoading: string[] = [];
     const wkt = new WKT();
-    mapLayer.source.setLoader(async (extent: number[]) => {
-      let fileToLoad: string;
+    mapLayer.source!.setLoader(async (extent: number[]) => {
       const index = await this.layerDataService.getLayerIndex(mapLayer.key);
-      (index['features'] as GeoJSONArray).forEach(async (el: any) => {
-        const file: string = el.properties.file;
-        const isIn = wkt
-          .readFeature(el.properties.bbox)
-          .getGeometry()
-          ?.intersectsExtent(extent);
-        if (isIn && !geoJSONAlreadyLoading.includes(file)) {
-          fileToLoad = file;
-          const tile = await this.layerDataService.getLayerFile(
-            mapLayer.key,
-            file
-          );
-          if ((tile['features'] as GeoJSONArray).length > 0) {
-            const features = mapLayer.source
-              .getFormat()!
-              .readFeatures(tile) as Feature[];
-            mapLayer.source.addFeatures(features);
-            geoJSONAlreadyLoading.push(fileToLoad);
-          } else {
-            console.log(`Aucune donnée pour ${mapLayer.key} sur cette zone`);
+      if(index['features']){
+        for(let el of (index['features'] as any[])){
+          const file: string = el.properties.file;
+          const isIn = wkt
+            .readFeature(el.properties.bbox)
+            .getGeometry()
+            ?.intersectsExtent(extent);
+          if (isIn && !geoJSONAlreadyLoading.includes(file)) {
+            if(geoJSONAlreadyLoading.length >= 3) {
+              mapLayer.source!.clear();
+              geoJSONAlreadyLoading.length = 0;
+            }
+            const tile = await this.layerDataService.getLayerFile(
+              mapLayer.key,
+              file
+            );
+            if (tile['features'] && (tile['features'] as GeoJSONArray).length > 0) {
+              const features = mapLayer.source!
+                .getFormat()!
+                .readFeatures(tile) as Feature[];
+              mapLayer.source!.addFeatures(features);
+              geoJSONAlreadyLoading.push(file);
+            }
           }
-        }
-      });
+        };
+      }
     });
     if (mapLayer.key === 'aep_canalisation') {
       this.layerDataService.getLayerStyle(mapLayer.key).subscribe((style) => {

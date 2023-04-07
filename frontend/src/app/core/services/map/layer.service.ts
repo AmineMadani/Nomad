@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapLayer } from '../../models/map-layer.model';
 import Feature from 'ol/Feature';
+import { fromEvent } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,7 @@ export class LayerService {
   public getFeatureById(layerKey: string, featureId: string): Feature | null {
     const mLayer = this.mapService.getLayer(layerKey);
     if (mLayer) {
-      return mLayer.source.getFeatureById(featureId);
+      return mLayer.source!.getFeatureById(featureId);
     }
     return null;
   }
@@ -36,7 +37,7 @@ export class LayerService {
     const f: Feature[] = [];
     const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
     if (mapLayer) {
-      mapLayer.source.forEachFeatureIntersectingExtent(
+      mapLayer.source!.forEachFeatureIntersectingExtent(
         this.mapService.getView().calculateExtent(),
         function (feature) {
           f.push(feature);

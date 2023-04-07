@@ -1,4 +1,5 @@
-<ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment" (ionChange)="onSegmentChange($event)">
+<ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment"
+  (ionChange)="onSegmentChange($event)">
   <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile()">
     <ion-segment-button *ngFor="let filterSegment of filter.segments" [value]="filterSegment.id">
       <ion-label>{{filterSegment.name}}</ion-label>
@@ -7,32 +8,34 @@
 </ion-segment>
 
 <div class="filter-content">
-  <ng-container *ngFor="let filterSegment of filter.segments">
-    <ng-container *ngIf="selectedSegment === filterSegment.id">
-      <ng-container *ngFor="let component of filterSegment.components">
-        <ng-container *ngIf="component.getType() == 'accordeonFilter'">
-          <ion-accordion-group multiple="true">
-            <app-filter-accordeon *ngFor="let data of component.data" [data]="data"/>
-          </ion-accordion-group>
-        </ng-container>
-        <ng-container *ngIf="component.getType() == 'favoriteFilter'">
-            <app-filter-favorite [data]="component.data"/>
-        </ng-container>
-        <ng-container *ngIf="component.getType() == 'treeFilter'">
-          <ion-accordion-group>
-            <app-filter-tree [data]="component.data"/>
-          </ion-accordion-group>
-        </ng-container>
-        <ng-container *ngIf="component.getType() == 'toggleFilter'">
-          <app-filter-toggle [data]="component.data"/>
-        </ng-container>
-        <ng-container *ngIf="component.getType() == 'searchFilter'">
-          <app-filter-search [data]="component.data"/>
-        </ng-container>
-        <ng-container *ngIf="component.getType() == 'interventionFilter'">
-          <app-filter-intervention [data]="component"/>
+  <ion-content  id="filter-content-scrollable" scrollbar [scrollbar]="customScrollBarStyle()" allowAllScreens='true'>
+    <ng-container *ngFor="let filterSegment of filter.segments">
+      <ng-container *ngIf="selectedSegment === filterSegment.id">
+        <ng-container *ngFor="let component of filterSegment.components">
+          <ng-container *ngIf="component.getType() == 'accordeonFilter'">
+            <ion-accordion-group multiple="true">
+              <app-filter-accordeon [datas]="component.data" />
+            </ion-accordion-group>
+          </ng-container>
+          <ng-container *ngIf="component.getType() == 'favoriteFilter'">
+            <app-filter-favorite [data]="component.data" />
+          </ng-container>
+          <ng-container *ngIf="component.getType() == 'treeFilter'">
+            <ion-accordion-group>
+              <app-filter-tree [data]="component.data" />
+            </ion-accordion-group>
+          </ng-container>
+          <ng-container *ngIf="component.getType() == 'toggleFilter'">
+            <app-filter-toggle [data]="component.data" />
+          </ng-container>
+          <ng-container *ngIf="component.getType() == 'searchFilter'">
+            <app-filter-search [data]="component.data" />
+          </ng-container>
+          <ng-container *ngIf="component.getType() == 'interventionFilter'">
+            <app-filter-work-order [data]="component" />
+          </ng-container>
         </ng-container>
       </ng-container>
     </ng-container>
-  </ng-container>
+  </ion-content>
 </div>

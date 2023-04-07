@@ -26,7 +26,7 @@ export class MapLayer {
       style: (feature: FeatureLike) => {
         if (
           this.hoverFeature.has(feature) ||
-          feature.getId() === this.featureHighlighted
+          feature.getId()?.toString() === this.featureHighlighted
         ) {
           return selectedStyle;
         }
@@ -44,37 +44,34 @@ export class MapLayer {
   public equipmentSelected: Equipment | undefined;
   public featureHighlighted: string | undefined;
   public subscription: Subscription;
-  public source: Cluster | Vector;
+  public source: Cluster | Vector | undefined;
   public hoverId: string | undefined;
 
   public highlightFeature(featureId: string): void {
-    //console.log(`before ${this.featureHighlighted}, ${featureId}`);
     if (!this.featureHighlighted || this.featureHighlighted !== featureId) {
       this.featureHighlighted = featureId;
     } else {
       this.featureHighlighted = undefined;
     }
-    //console.log(`after ${this.featureHighlighted}, ${featureId}`);
     this.layer.changed();
   }
 
   private buildSource(layer: Layer): Vector | Cluster {
-    let source = new Vector({
+    this.source = new Vector({
       format: new GeoJSON(),
       strategy: olLoadingstrategy.bbox
     });
-    this.source = source;
     switch (layer.type) {
       case LayerTypeEnum.VECTOR:
         break;
       case LayerTypeEnum.CLUSTER:
-        source = new Cluster({
+        this.source = new Cluster({
           distance: layer.distance,
           minDistance: layer.minDistance,
-          source: source,
+          source: this.source,
         });
         break;
     }
-    return source;
+    return this.source;
   }
 }

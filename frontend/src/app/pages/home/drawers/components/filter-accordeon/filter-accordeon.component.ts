@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
@@ -16,24 +16,24 @@ export class FilterAccordeonComponent implements OnInit {
     private favService: FavoriteService,
   ) { }
 
-  @Input() data: AccordeonData;
+  @Input() datas: AccordeonData[];
 
-  icon: string = '';
-  isOpen: boolean = false;
-  isChildAction: boolean = false;
-
+  accordionToOpen: string[] = [];
 
   ngOnInit() {
-    if (this.data.children && this.data.children.length > 0) {
-      this.icon = 'add-outline';
-    }
-    if (this.data.children?.filter((acc) => acc.value).length !== 0 
-        && this.data.children?.filter((acc) => acc.value).length !== this.data.children?.length) {
-      this.data.isIndeterminate = true;
-    }
-
-    setTimeout(() => {
-      this.checkFavValue(this.data);
+    this.datas.forEach(data => {
+      if(data.children && data.children.length > 0) {
+        this.accordionToOpen.push(data.id.toString());
+        data.isOpen = true;
+      }
+      if (data.children?.filter((acc) => acc.value).length !== 0 
+          && data.children?.filter((acc) => acc.value).length !== data.children?.length) {
+        data.isIndeterminate = true;
+      }
+  
+      setTimeout(() => {
+        this.checkFavValue(data);
+      });
     });
   }
 
@@ -42,21 +42,21 @@ export class FilterAccordeonComponent implements OnInit {
    * The isIndeterminate ternary prevent the Set to change when onChildSelected trigger the checkbox update
    * @param {Event} e - Event (IonCheckboxCustomEvent) - event triggered when status changed (by clicking or changing isChecked value)
    */
-  onCheckboxChange(e: Event): void {
-    this.data.value = (e as CustomEvent).detail.checked;
-    this.data.isIndeterminate = this.data.value ? false : this.data.isIndeterminate;
+  onCheckboxChange(data: AccordeonData, e: Event): void {
+    data.value = (e as CustomEvent).detail.checked;
+    data.isIndeterminate = data.value ? false : data.isIndeterminate;
 
-    if (!this.data.isIndeterminate) {
-      if (this.data.value) {
-        this.data.children?.forEach((child: AccordeonData) => {
+    if (!data.isIndeterminate) {
+      if (data.value) {
+        data.children?.forEach((child: AccordeonData) => {
           if (!child.value) {
             child.value=true;
             if (child.key && child.key.length > 0) this.mapService.addEventLayer(child.key);
           }
         });
-        if (this.data.key && this.data.key.length > 0) this.mapService.addEventLayer(this.data.key);
+        if (data.key && data.key.length > 0) this.mapService.addEventLayer(data.key);
       } else {
-        this.data.children?.forEach((child: AccordeonData) => {
+        data.children?.forEach((child: AccordeonData) => {
           if (child.value) {
             child.value=false;
             if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
@@ -64,7 +64,7 @@ export class FilterAccordeonComponent implements OnInit {
             if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
           }
         });
-        if (this.data.key && this.data.key.length > 0) this.mapService.removeEventLayer(this.data.key);
+        if (data.key && data.key.length > 0) this.mapService.removeEventLayer(data.key);
       }
     }
   }
@@ -73,7 +73,7 @@ export class FilterAccordeonComponent implements OnInit {
    * If the child is already in the Set, delete it, otherwise add it
    * @param {AccordeonData} child - Accordeon
    */
-  onChildSelected(child: AccordeonData): void {
+  onChildSelected(data: AccordeonData, child: AccordeonData): void {
     if (child.value) {
       if(child.key) this.mapService.removeEventLayer(child.key);
       child.value = false;
@@ -82,9 +82,9 @@ export class FilterAccordeonComponent implements OnInit {
       child.value = true;
     }
     //this.managerEvent(child,true,this.accordeonData,'select');
-    this.data.value = this.data?.children?.filter(e => e.value).length === this.data?.children?.length ? true : false;
-    if(!this.data.value || this.data.value) {
-      this.data.isIndeterminate = this.data?.children?.filter(e => e.value).length != 0 ? true : false;
+    data.value = data?.children?.filter(e => e.value).length === data?.children?.length ? true : false;
+    if(!data.value || data.value) {
+      data.isIndeterminate = data?.children?.filter(e => e.value).length != 0 ? true : false;
     }
   }
 
@@ -94,12 +94,11 @@ export class FilterAccordeonComponent implements OnInit {
    * Otherwise, toggle isOpen and change the icon accordingly
    * @param {MouseEvent} event - MouseEvent - the event that triggered the function.
    */
-  checkOpeningRule(event: MouseEvent): void {
-    if (!this.data.children || this.data.children.length === 0) {
+  checkOpeningRule(data: AccordeonData, event: MouseEvent): void {
+    if (!data.children || data.children.length === 0) {
       event.stopPropagation();
     } else {
-      this.isOpen = !this.isOpen;
-      this.icon = this.isOpen ? 'remove-outline' : 'add-outline';
+      data.isOpen = !data.isOpen;
     }
   }
 

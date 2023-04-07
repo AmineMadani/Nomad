@@ -1,0 +1,69 @@
+ion-chip {
+    margin: 5px;
+    border-radius: 8px;
+    margin-bottom: 9px;
+
+    &[ng-reflect-outline=true] {
+        border-color: var(--ion-color-primary);
+        --color: var(--ion-color-primary);
+
+        ion-icon {
+            color: var(--ion-color-primary);
+        }
+    }
+
+    &[ng-reflect-outline=false] {
+        background-color: var(--ion-color-primary);
+        --color: var(--ion-color-primary-contrast);
+
+        ion-icon {
+            color: var(--ion-color-primary-contrast);
+        }
+    }
+}
+
+.status-T {
+    background-color: var(--ion-color-success) !important;
+    --color: var(--ion-color-success-contrast);
+
+    ion-icon {
+        color: var(--ion-color-success-contrast);
+    }
+}
+
+.status-I {
+    background-color: var(--ion-color-medium) !important;
+    --color: var(--ion-color-medium-contrast);
+
+    ion-icon {
+        color: var(--ion-color-medium-contrast);
+    }
+}
+
+.status-T {
+    background-color: var(--ion-color-tertiary) !important;
+    --color: var(--ion-color-tertiary-contrast);
+
+    ion-icon {
+        color: var(--ion-color-tertiary-contrast);
+    }
+}
+
+.status-NP,
+.status-P {
+    background-color: var(--ion-color-secondary) !important;
+    --color: var(--ion-color-secondary-contrast);
+
+    ion-icon {
+        color: var(--ion-color-secondary-contrast);
+    }
+}
+
+.status-NF {
+    background-color: var(--ion-color-tertiary) !important;
+    --color: var(--ion-color-tertiary-contrast);
+
+    ion-icon {
+        color: var(--ion-color-tertiary-contrast);
+    }
+}

@@ -1,3 +1,4 @@
+import { InterventionStatusEnum } from '../../map-feature.model';
 import { BaseFilterData, BaseFilter } from './BaseFilter.model';
 
 export class InterventionFilter implements BaseFilter {
@@ -54,10 +55,3 @@ export interface InterventionStatus {
   status: InterventionStatusEnum;
 }
 
-export enum InterventionStatusEnum {
-  T = 'T', //Terminée
-  I = 'I', // Infructueuse
-  P = 'P', // Planifiée
-  NP = 'NP', // Non planifiée
-  NF = 'NF' // Non fait
-}

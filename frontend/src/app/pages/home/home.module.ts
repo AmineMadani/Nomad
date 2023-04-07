@@ -23,10 +23,13 @@ import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
-import { FilterInterventionComponent } from './drawers/components/filter-intervention/filter-intervention.component';
+import { FilterCardComponent } from './drawers/components/filter-card/filter-card.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
 import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
+import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 
 @NgModule({
   imports: [
@@ -37,6 +40,7 @@ import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
     SharedModule,
     HttpClientModule,
     MatTreeModule,
+    IonCustomScrollbarModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
@@ -52,11 +56,12 @@ import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
     FilterAccordeonComponent,
     FilterTreeComponent,
     FilterToggleComponent,
-    FilterInterventionComponent,
+    FilterCardComponent,
     FilterSearchComponent,
     FilterFavoriteComponent,
     EquipmentDrawer,
     InterventionDrawer,
+    FilterWorkOrderComponent,
   ],
 })
 export class HomePageModule {}
