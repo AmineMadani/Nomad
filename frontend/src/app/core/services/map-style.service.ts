@@ -82,18 +82,12 @@ const aepVanne = new Style({
   stroke: new Stroke({color: 'rgba(10, 189, 227, 1)'}),
   fill : new Fill({ color:'rgba(10, 189, 227, 1)'}),
   image: new CircleStyle({
-    radius: 10,
+    radius: 7,
     stroke: new Stroke({
       color: 'rgba(10, 189, 227, 1)',
     }),
     fill: new Fill({
       color: 'rgba(10, 189, 227, 1)',
-    }),
-  }),
-  text: new Text({
-    text: '6',
-    fill: new Fill({
-      color: '#fff',
     }),
   })
 });
@@ -101,7 +95,7 @@ const aepVanneSelected = new Style({
   stroke: new Stroke({ color: 'rgba(72, 219, 251, 1)', width: 8 }),
   fill : new Fill({ color:'rgba(72, 219, 251, 1)'}),
   image: new Circle({
-    radius: 7,
+    radius: 10,
     fill: new Fill({color: 'rgba(72, 219, 251, 1)'}),
     stroke: new Stroke({color: [0,0,0], width: 1})
   }),

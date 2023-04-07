@@ -6,6 +6,11 @@
   <ion-row class="home-main-content">
     
     <ion-col class="home-main-content-map" >
+      <ion-fab vertical="bottom" class="home-main-content-fab-loader" *ngIf="isDataLoading()">
+        <ion-fab-button class="home-main-content-fab-loader-selector" id="open-custom-dialog" (click)="openModal()">
+          <ion-spinner name="dots"></ion-spinner>
+        </ion-fab-button>
+      </ion-fab>
       <app-map #interactiveMap [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? 'app-map-mobile' : '')"></app-map>
       <app-actions-layer [currentRoute]="currentRoute" [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
     </ion-col>
@@ -17,7 +22,7 @@
         <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
       </ion-col>
       <!-- Bottom sheet -->
-      <ion-modal *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME"
+      <ion-modal id="modal-bottom-sheet" *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME"
         (didDismiss)="onBottomSheetDismiss()" [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75, 1]">
         <ng-template>
           <ion-router-outlet></ion-router-outlet>
@@ -36,4 +41,18 @@
       </ion-fab-button>
     </ion-fab-list>
   </ion-fab>
+
+  <ion-modal #modalDataLoading id="modal-map-data-loading" #modal>
+    <ng-template>
+      <div class="modal-map-data-loading-wrapper">
+        <div class="modal-map-data-loading-header">Données en cours de chargement</div>
+        <ion-list class="modal-map-data-loading-content">
+          <ion-item *ngFor="let item of listDataLoading()">
+            <ion-spinner name="lines-sharp-small"></ion-spinner>
+            <ion-label>{{ item }}</ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>
