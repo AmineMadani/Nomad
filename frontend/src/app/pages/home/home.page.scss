@@ -1,8 +1,8 @@
 $width-actions-layers-mobile: 100%;
 $width-actions-layers-left: 300px;
 
-ion-modal {
-  --border-radius: 28px 28px 0px 0px !important;
+#modal-bottom-sheet {
+    --border-radius: 28px 28px 0px 0px !important;
 }
 
 .home-main-content {
@@ -11,7 +11,7 @@ ion-modal {
     height: 100%;
 
     ion-col {
-      padding: 0;
+        padding: 0;
     }
 
     .home-main-content-map {
@@ -77,6 +77,17 @@ ion-modal {
     }
 }
 
+.home-main-content-fab-loader {
+    bottom: 70px;
+    left: 10px;
+
+    .home-main-content-fab-loader-selector {
+        --background: var(--ion-color-secondary-variant-90);
+        --color: var(--ion-color-secondary-variant-10);
+        --border-radius: 12px;
+    }
+}
+
 .home-main-content-fab-map {
     .home-main-content-fab-map-selector {
         --background: var(--ion-color-primary-variant-90);
@@ -104,3 +115,32 @@ ion-modal {
         min-width: 40px;
     }
 }
+
+#modal-map-data-loading {
+    --width: fit-content;
+    --min-width: 250px;
+    --min-height: 50px;
+    --max-width: 90%;
+    --height: fit-content;
+    --max-height: 50vh;
+    --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+    --border-radius: 5px;
+
+    .modal-map-data-loading-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-height: 50vh;
+        min-height: 30px;
+
+        .modal-map-data-loading-header {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.344);
+        }
+
+        .modal-map-data-loading-content {
+            flex: 1;
+            overflow: auto;
+        }
+    }
+}
+

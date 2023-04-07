@@ -164,7 +164,7 @@ update config.layer set num_order = id ;
 
 -- creating grid
 with metro_grid as (
-select config.ST_CreateFishnet(10, 10, 100000, 100000, 99040, 6125317) as res
+select config.ST_CreateFishnet(100, 100, 10000, 10000, 99040, 6125317) as res
 ),
 temp_metro_grid as
 (

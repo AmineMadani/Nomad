@@ -50,7 +50,7 @@ export const layers: Layer[] = [
   {
     id: 5,
     key: 'aep_vanne',
-    type: LayerTypeEnum.CLUSTER,
+    type: LayerTypeEnum.VECTOR,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20,
