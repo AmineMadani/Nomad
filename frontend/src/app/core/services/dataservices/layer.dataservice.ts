@@ -49,6 +49,7 @@ export class LayerDataService {
     if (tile) {
       return tile.data;
     }
+
     /* It's getting the number from the file name. */
     const featureNumber: number = +file.match(
       new RegExp(`${layerKey}_(\\d+)\\.geojson`)

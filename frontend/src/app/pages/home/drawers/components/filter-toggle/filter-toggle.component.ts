@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ToggleData } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { FilterService } from '../filter.service';
 
 @Component({
   selector: 'app-filter-toggle',
@@ -9,21 +10,21 @@ import { MapService } from 'src/app/core/services/map/map.service';
 })
 export class FilterToggleComponent implements OnInit {
   constructor(
-    private mapService: MapService
+    private filterService: FilterService,
   ) {}
 
   @Input() data: ToggleData[];
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.data.forEach((tData: ToggleData) => {
+      this.filterService.setToggleData(tData.key!, false);
+    })
+  }
 
   changeToggle(data:ToggleData, e:Event){
     if(data.key) {
       data.value = (e as CustomEvent).detail.checked;
-      if((e as CustomEvent).detail.checked){
-        this.mapService.addEventLayer(data.key);
-      } else {
-        this.mapService.removeEventLayer(data.key);
-      }
+      this.filterService.setToggleData(data.key!, Boolean(data.value!));
     }
   }
 }

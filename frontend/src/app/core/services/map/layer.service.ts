@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapLayer } from '../../models/map-layer.model';
 import Feature from 'ol/Feature';
+import { fromEvent } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
