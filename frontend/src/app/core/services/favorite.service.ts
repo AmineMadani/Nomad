@@ -158,7 +158,7 @@ export class FavoriteService {
     const favs: FavData[] = this.filter.segments.flatMap((s) => {
       const favoriteFilter = s.components.find((c) => c instanceof FavoriteFilter);
       if (favoriteFilter) {
-        return favoriteFilter?.data.filter(Boolean);
+        return (favoriteFilter?.data as FavData[]).filter(Boolean);
       }
       return [];
     });
