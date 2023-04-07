@@ -102,7 +102,7 @@ export const layers: Layer[] = [
     key: 'intervention',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 13,
+    minZoom: 17,
     maxZoom: 20
   }
 ]
