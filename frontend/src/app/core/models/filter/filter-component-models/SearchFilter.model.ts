@@ -4,17 +4,20 @@ export class SearchFilter implements BaseFilter {
   public id: number;
   public isRecordableFavorite: boolean;
   public position: number;
-  public data: SearchData[];
+  public data: SearchData;
+  public tableKey: string;
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    data: SearchData[]
+    tableKey: string,
+    data: SearchData
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;
     this.position = position;
+    this.tableKey= tableKey;
     this.data = data;
   }
 
@@ -27,18 +30,17 @@ export class SearchFilter implements BaseFilter {
   }
 
   reset(): void {
-    for (let data of this.data) {
-      data.value = false;
-    }
+    this.data.value = false;
   }
 }
 
 export interface SearchData extends BaseFilterData {
     selects?: Select[];
+    dateKey?: string[];
 }
 
 export interface Select {
     label: string;
     key: string;
-    choices: string[];
+    choices: Map<string,string>;
 }

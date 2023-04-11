@@ -2,9 +2,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DateTime } from 'luxon';
 import { filter } from 'rxjs/internal/operators/filter';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { SearchData } from 'src/app/core/models/filter/filter-component-models/SearchFilter.model';
+import { SearchFilter } from 'src/app/core/models/filter/filter-component-models/SearchFilter.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
+import { FilterService } from '../filter.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-filter-search',
@@ -14,11 +16,16 @@ import { DialogService } from 'src/app/core/services/dialog.service';
 export class FilterSearchComponent implements OnInit {
   constructor(
     private dialogService: DialogService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private filterService: FilterService,
+    private datePipe: DatePipe
   ) {}
 
-  @Input() data: SearchData[];
+  @Input() searchFilter: SearchFilter;
   public isMobile: boolean;
+
+  startDate: DateTime | undefined;
+  endDate: DateTime | undefined;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
@@ -29,11 +36,53 @@ export class FilterSearchComponent implements OnInit {
     this.dialogService
       .open(DatepickerComponent, {
         backdrop: false,
+        data: {
+          multiple: true
+        }
       })
       .afterClosed()
-      .pipe(filter((dts: DateTime[]) => dts && dts.length === 2))
+      .pipe(filter((dts: DateTime[]) => dts && (dts.length === 2 || dts.length === 1)))
       .subscribe((result: DateTime[]) => {
-        console.log(result);
+        this.startDate=result[0];
+        this.endDate=result[1];
+        for(let dateKey of this.searchFilter.data.dateKey!) {
+          let dates:string[] = [];
+          let dateNone = 0;
+          if(this.startDate){
+            dates.push(this.datePipe.transform(this.startDate.toJSDate(),"MM/dd/yyyy")!);
+          } else {
+            dates.push('none');
+            dateNone++;
+          }
+          if(this.endDate){
+            dates.push(this.datePipe.transform(this.endDate.toJSDate(),"MM/dd/yyyy")!);
+          } else {
+            dates.push('none');
+            dateNone++;
+          }
+          if(dateNone == 2) dates = [];
+          this.filterService.setSearchFilter(this.searchFilter.tableKey, dateKey, dates);
+        }        
       });
+  }
+
+  changeSelectData(event: Event, key: string) {
+    this.filterService.setSearchFilter(this.searchFilter.tableKey, key, (event as CustomEvent).detail.value);
+  }
+
+  getDateLibelle(){
+    if(this.startDate && this.endDate) {
+      return 'Du '+this.datePipe.transform(this.startDate.toJSDate(),"dd/MM/yyyy")+' au '+this.datePipe.transform(this.endDate.toJSDate(),"dd/MM/yyyy");
+    } else {
+      return 'Sélectionner plages de dates';
+    }
+  }
+
+  onClearDate(){
+    this.startDate=undefined;
+    this.endDate=undefined;
+    for(let dateKey of this.searchFilter.data.dateKey!) {
+      this.filterService.setSearchFilter(this.searchFilter.tableKey, dateKey, []);
+    }
   }
 }

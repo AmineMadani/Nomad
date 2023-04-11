@@ -5,7 +5,7 @@ import { SearchFilter } from "./filter-component-models/SearchFilter.model";
 import { ToggleFilter } from "./filter-component-models/ToggleFilter.model";
 import { TreeFilter } from "./filter-component-models/TreeFilter.model";
 
-export type FilterType = (AccordeonFilter | TreeFilter | ToggleFilter | SearchFilter | InterventionFilter | FavoriteFilter);
+export type FilterType = (AccordeonFilter | TreeFilter | ToggleFilter | SearchFilter | InterventionFilter | FavoriteFilter | any);
 
 export interface FilterSegment {
     id:number,

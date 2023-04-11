@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
-import Feature from 'ol/Feature';
-import { finalize, map } from 'rxjs';
+import { finalize } from 'rxjs';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { LayerService } from 'src/app/core/services/map/layer.service';
@@ -19,12 +18,14 @@ export class FilterService {
 
   private data: Map<string, MapFeature[]> = new Map();
 
+  private searchFilterList: Map<string, Map<string, string[]>> = new Map<string, Map<string, string[]>>();
+
   public getData(key: string): any | undefined {
     const features = this.data.get(key);
     if (features && features.length > 0) {
       return this.data.get(key);
     } else {
-      return this.layerService.getFeaturesInView(key);
+      return this.layerService.getFeaturesFilteredInView(key,this.searchFilterList.get(key));
     }
   }
 
@@ -39,6 +40,7 @@ export class FilterService {
     } else {
       this.mapService.addEventLayer(key).then(() => {
         this.data.delete(key);
+        this.layerService.passFilterToLayer(key, this.searchFilterList.get(key));
       })
     }
   }
@@ -54,5 +56,26 @@ export class FilterService {
           this.data.set(key, features);
         });
     }
+  }
+
+  public setSearchFilter(layerkey: string, key: string, listValue: string[]) {
+    if(this.searchFilterList.get(layerkey)) {
+      if(listValue.length > 0) {
+        this.searchFilterList.get(layerkey)?.set(key,listValue);
+        this.layerService.passFilterToLayer(layerkey, this.searchFilterList.get(layerkey));
+      } else {
+        this.searchFilterList.get(layerkey)?.delete(key);
+      }
+    } else {
+      let newType: Map<string, string[]> = new Map<string, string[]>();
+      newType.set(key,listValue);
+      this.searchFilterList.set(layerkey, newType);
+      this.layerService.passFilterToLayer(layerkey, newType);
+    }
+    this.layerService.refreshLayer(layerkey);
+  }
+
+  public getSearchFilterByLayerKey(layerKey: string): Map<string, string[]> | undefined {
+    return this.searchFilterList.get(layerKey);
   }
 }

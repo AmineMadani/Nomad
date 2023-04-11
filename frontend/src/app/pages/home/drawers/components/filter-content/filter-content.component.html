@@ -29,7 +29,7 @@
             <app-filter-toggle [data]="component.data" />
           </ng-container>
           <ng-container *ngIf="component.getType() == 'searchFilter'">
-            <app-filter-search [data]="component.data" />
+            <app-filter-search [searchFilter]="component" />
           </ng-container>
           <ng-container *ngIf="component.getType() == 'interventionFilter'">
             <app-filter-work-order [data]="component" />

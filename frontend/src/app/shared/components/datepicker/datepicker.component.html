@@ -17,7 +17,7 @@
     </ion-button>
   </ion-item>
   <ion-item-group *ngFor="let month of calendar.get(year)?.months">
-    <ion-item lines="none" class="ion-text-center">
+    <ion-item [id]="year+month.name" lines="none" class="ion-text-center">
       <ion-label>
         {{ month.name }}
       </ion-label>

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import { DialogRef, DIALOG_DATA } from 'src/app/core/services/dialog.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -34,6 +34,9 @@ export class DatepickerComponent implements OnInit {
     this.isMultiple = this.data?.multiple ?? true;
     this.year = DateTime.local().year;
     this.generateCalendar(this.year);
+    setTimeout(() => {
+      document.getElementById(DateTime.local().toFormat('yyyyMMMM'))?.scrollIntoView({behavior: "smooth"});
+    }, 1000);
   }
 
   public changeYear(change: number): void {
@@ -48,11 +51,7 @@ export class DatepickerComponent implements OnInit {
   }
 
   public validate(): void {
-    if (this.isMultiple) {
-      this.dialogRef.close([...this.selectedDates].map((d: Day) => d.date));
-    } else {
-      this.dialogRef.close([...this.selectedDates][0].date);
-    }
+    this.dialogRef.close([...this.selectedDates].map((d: Day) => d.date));
   }
 
   public reset(): void {
@@ -68,8 +67,8 @@ export class DatepickerComponent implements OnInit {
     const days: Day[] = new Array(MAX_DAYS);
     let dayIndex: number = 0;
 
-    const beginningMonth: number =
-      year === DateTime.local().year ? DateTime.local().month : 1;
+    const beginningMonth: number = 1;
+      //year === DateTime.local().year ? DateTime.local().month : 1;
 
     for (let i = beginningMonth; i <= 12; i++) {
       const month: Month = { name: '', days: [] };
@@ -148,7 +147,7 @@ export class DatepickerComponent implements OnInit {
           [...this.selectedDates][1].date
         )
           .splitBy({ days: 1 })
-          .map((i: Interval) => + i.start);
+          .map((i: Interval) => + i?.start);
         this.datesBetween.push(+[...this.selectedDates][1].date);
         this.datesHovered = [];
       } else {

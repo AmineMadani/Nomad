@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapLayer } from '../../models/map-layer.model';
 import Feature from 'ol/Feature';
-import { fromEvent } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayerService {
-  constructor(private mapService: MapService) {}
+  constructor(
+    private mapService: MapService
+  ) {}
 
   public highlightFeature(layerKey: string, idFeature: string): void {
     const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
@@ -33,10 +34,10 @@ export class LayerService {
     return null;
   }
 
-  public getFeaturesInView(layerKey: string): Feature[] {
-    const f: Feature[] = [];
+  public getFeaturesFilteredInView(layerKey: string, filters: Map<string, string[]> | undefined): Feature[] {
+    let f: Feature[] = [];
     const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
-    if (mapLayer) {
+    if (mapLayer && mapLayer.layer.getMinZoom() <= this.mapService.getView()?.getZoom()!) {
       mapLayer.source!.forEachFeatureIntersectingExtent(
         this.mapService.getView().calculateExtent(),
         function (feature) {
@@ -44,7 +45,21 @@ export class LayerService {
         }
       );
     }
+
+    //Add filter if exist on it
+    if(filters && filters.size > 0) {
+      f = f.filter(feature => this.mapService.getLayer(layerKey)?.onFilterFeature(feature,filters));
+    }
+
     return f;
+  }
+
+  public passFilterToLayer(layerKey: string, filters: Map<string, string[]> | undefined) {
+    const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
+    if (mapLayer) {
+      mapLayer.filteredFeatured = filters;
+    }
+    mapLayer?.source?.changed();
   }
 
   public zoomToFeatureByIdAndLayerKey(id: string, layerKey: string) {
@@ -64,5 +79,9 @@ export class LayerService {
         mLayer.highlightFeature(id);
       }
     });
+  }
+
+  public refreshLayer(layerKey:string){
+    this.mapService.getLayer(layerKey)?.layer.changed();
   }
 }

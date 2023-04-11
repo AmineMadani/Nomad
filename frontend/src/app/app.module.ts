@@ -11,6 +11,7 @@ import { OAuthModule } from 'angular-oauth2-oidc';
 import { TokenInterceptor } from './core/interceptors/token.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigurationService } from './core/services/configuration.service';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,6 +23,7 @@ import { ConfigurationService } from './core/services/configuration.service';
     OAuthModule.forRoot()
   ],
   providers: [
+    DatePipe,
     ConfigurationService,
     {
       provide: APP_INITIALIZER,
