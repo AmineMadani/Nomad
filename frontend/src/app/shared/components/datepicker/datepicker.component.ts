@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import { DialogRef, DIALOG_DATA } from 'src/app/core/services/dialog.service';
-import { UtilsService } from 'src/app/core/services/utils.service';
 import { Year, Month, Day } from './datepicker.interface';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 const MAX_DAYS = 42;
 

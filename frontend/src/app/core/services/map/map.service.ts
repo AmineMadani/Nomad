@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MapLayer } from '../../models/map-layer.model';
 import MapOpenLayer from 'ol/Map';
 import View from 'ol/View';
-import { MapStyleService } from '../map-style.service';
+import { MapStyleService } from './map-style.service';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { boundingExtent } from 'ol/extent';
 import { DrawerService } from '../drawer.service';

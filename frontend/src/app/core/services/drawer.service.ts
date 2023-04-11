@@ -5,7 +5,7 @@ import { NavController } from '@ionic/angular';
 import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
-import { UtilsService } from './utils.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Injectable({
   providedIn: 'root',
