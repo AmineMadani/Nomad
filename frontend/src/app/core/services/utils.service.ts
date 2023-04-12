@@ -5,6 +5,7 @@ import { Platform } from '@ionic/angular';
   providedIn: 'root'
 })
 export class UtilsService {
+  
   constructor(
     private platform: Platform
   ) { }
@@ -12,4 +13,16 @@ export class UtilsService {
   isMobilePlateform():boolean{
     return this.platform.is('android');
   }
+
+  mapToJson(map: Map<string, string[]> | undefined):string{
+    let jsonObject: any = undefined;
+    if(map) {
+      jsonObject = {};
+      map.forEach((value, key) => {  
+            jsonObject[key] = value  
+      });  
+    }
+    return JSON.stringify(jsonObject);
+  }
+
 }

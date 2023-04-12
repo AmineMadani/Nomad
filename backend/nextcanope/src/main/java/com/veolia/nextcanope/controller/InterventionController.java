@@ -1,11 +1,13 @@
 package com.veolia.nextcanope.controller;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,14 +30,14 @@ public class InterventionController {
     @Autowired
     public InterventionService interventionService;
 
-    @GetMapping(path = "pagination/{limit}/{offset}")
-    @Operation(summary = "Get the layer tile by key")
+    @PostMapping(path = "pagination/{limit}/{offset}")
+    @Operation(summary = "Get the interventions with search parameter in pagination format")
     @ApiResponses(value = {
-    			@ApiResponse(description= "The layer tile in geojson format", content =  {
+    			@ApiResponse(description= "The intervention filtered", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<InterventionDto> getLayerTile(@PathVariable Long limit, @PathVariable Long offset) {
-        return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset);
+    public List<InterventionDto> getLayerTile(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
+        return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
 }

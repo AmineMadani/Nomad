@@ -36,6 +36,17 @@ export class KeycloakService {
 
   initialisation() {
     if(this.configurationService.keycloak.active) {
+      this.oauthService.events.subscribe(eventResult => {
+        console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
+        if (eventResult.type == 'token_refreshed') {
+          console.log("token : " + this.oauthService.getAccessToken());
+        }
+        if(eventResult.type == 'token_received') {
+          this.router.navigate(['home']);
+        }
+        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
+      })
+      
       this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
         this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
         this.oauthService.tryLogin().then(tryLoginResult => {
@@ -53,17 +64,6 @@ export class KeycloakService {
         console.error("loadDiscoveryDocument", error);
         this.router.navigate(["/error"]);
       });
-
-      this.oauthService.events.subscribe(eventResult => {
-        console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
-        if (eventResult.type == 'token_refreshed') {
-          console.log("token : " + this.oauthService.getAccessToken());
-        }
-        if(eventResult.type == 'token_received') {
-          this.router.navigate(['home']);
-        }
-        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
-      })
     }
   }
 

@@ -42,5 +42,5 @@ export interface SearchData extends BaseFilterData {
 export interface Select {
     label: string;
     key: string;
-    choices: Map<string,string>;
+    choices: Map<string|boolean,string>;
 }

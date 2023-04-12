@@ -34,5 +34,5 @@ export class ToggleFilter implements BaseFilter {
 }
 
 export interface ToggleData extends BaseFilterData {
-  key?: string;
+  key: string;
 }

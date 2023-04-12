@@ -17,14 +17,14 @@ export class FilterToggleComponent implements OnInit {
 
   ngOnInit() {
     this.data.forEach((tData: ToggleData) => {
-      this.filterService.setToggleData(tData.key!, false);
+      this.filterService.setToggleData(tData.key, false);
     })
   }
 
   changeToggle(data:ToggleData, e:Event){
     if(data.key) {
       data.value = (e as CustomEvent).detail.checked;
-      this.filterService.setToggleData(data.key!, Boolean(data.value!));
+      this.filterService.setToggleData(data.key, Boolean(data.value));
     }
   }
 }

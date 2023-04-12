@@ -1,12 +1,8 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { CacheService } from './core/services/cache.service';
 import { KeycloakService } from './core/services/keycloak.service';
 import { Location } from '@angular/common';
 import { IonRouterOutlet, Platform } from '@ionic/angular';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { Subscription } from 'rxjs/internal/Subscription';
-import { from } from 'rxjs/internal/observable/from';
-import { of } from 'rxjs/internal/observable/of';
 import { DialogService } from './core/services/dialog.service';
 
 @Component({
@@ -24,7 +20,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ];
   constructor(
     private keycloakService: KeycloakService,
-    private cacheService: CacheService,
     private dialog: DialogService,
     private location: Location,
     private platform: Platform

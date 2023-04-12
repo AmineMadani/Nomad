@@ -30,16 +30,17 @@ export class FilterService {
   }
 
   public setToggleData(key: string, toogle: boolean): void {
+    this.data.delete(key);
     if (!toogle) {
       this.mapService.removeEventLayer(key);
       this.expDataservice
-        .getFeaturePagination(key, 20, 0)
+        .getFeaturePagination(key, 20, 0, this.searchFilterList.get(key))
         .subscribe((features: MapFeature[]) => {
           this.data.set(key, features);
+          console.log(this.data);
         });
     } else {
       this.mapService.addEventLayer(key).then(() => {
-        this.data.delete(key);
         this.layerService.passFilterToLayer(key, this.searchFilterList.get(key));
       })
     }
@@ -49,7 +50,7 @@ export class FilterService {
     let features = this.data.get(key);
     if (features) {
       this.expDataservice
-        .getFeaturePagination(key, 20, features.length)
+        .getFeaturePagination(key, 20, features.length, this.searchFilterList.get(key))
         .pipe(finalize(() => ev?.target.complete()))
         .subscribe((f: MapFeature[]) => {
           features = [...features!, ...f];
@@ -73,6 +74,9 @@ export class FilterService {
       this.layerService.passFilterToLayer(layerkey, newType);
     }
     this.layerService.refreshLayer(layerkey);
+    if(!this.mapService.getLayer(layerkey)){
+      this.setToggleData(layerkey, false);
+    }
   }
 
   public getSearchFilterByLayerKey(layerKey: string): Map<string, string[]> | undefined {

@@ -49,13 +49,13 @@ export class FilterSearchComponent implements OnInit {
           let dates:string[] = [];
           let dateNone = 0;
           if(this.startDate){
-            dates.push(this.datePipe.transform(this.startDate.toJSDate(),"MM/dd/yyyy")!);
+            dates.push(this.datePipe.transform(this.startDate.toJSDate(),"yyyy-MM-dd")!);
           } else {
             dates.push('none');
             dateNone++;
           }
           if(this.endDate){
-            dates.push(this.datePipe.transform(this.endDate.toJSDate(),"MM/dd/yyyy")!);
+            dates.push(this.datePipe.transform(this.endDate.toJSDate(),"yyyy-MM-dd")!);
           } else {
             dates.push('none');
             dateNone++;
