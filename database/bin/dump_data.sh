@@ -3,7 +3,7 @@
 ROOT_DIR=`dirname $0`
 ROOT_DIR=$($ROOT_DIR/readlink_wrapper.sh "$ROOT_DIR/../")
 source "$ROOT_DIR/bin/common.sh"
-CONNINFO="service=VIGIE_NAT"
+CONNINFO="service=NEXT_CANOPE"
 dumpschema="consolidated_data"
 source "$ROOT_DIR/bin/common.sh"
 

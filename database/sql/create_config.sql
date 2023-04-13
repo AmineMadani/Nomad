@@ -199,7 +199,7 @@ create table layer
   , business_object_type text references business_object(type)
   , tree_group_id integer references tree(id)
   , simplified_tree_group_id  integer references tree(id)
-  , pg_table regclass --FIXME not null
+  , pg_table regclass unique  --FIXME not null
   , geom_column_name text not null
   , uuid_column_name text not null
   , geom_srid text not null
@@ -345,17 +345,17 @@ COMMENT ON COLUMN app_grid.last_edited_date IS 'Last edited date';
 -- Create table layer_references to store the corresponding columns for each layers
 CREATE TABLE config.layer_references(
     id SERIAL PRIMARY KEY,
-    layer_id INT NOT NULL REFERENCES config.layer(id),
-    reference_key VARCHAR(63) NOT NULL,
-    alias text, 
-    created_date timestamp default current_date, 
+    pg_table regclass NOT NULL REFERENCES config.layer(pg_table),
+    reference_key text NOT NULL,
+    alias text,
+    created_date timestamp default current_date,
     last_edited_date timestamp default current_date
 );
 /* Comments on table */
 COMMENT ON TABLE config.layer_references IS 'This table defines the corresponding columns (reference_key) for each layers';
 /* Comments on fields */
 COMMENT ON COLUMN config.layer_references.id IS 'Table unique ID';
-COMMENT ON COLUMN config.layer_references.layer_id IS 'Layer ID';
+COMMENT ON COLUMN config.layer_references.pg_table IS 'Postgres Table';
 COMMENT ON COLUMN config.layer_references.reference_key IS 'Reference key. It is the column name in the layer table';
 COMMENT ON COLUMN config.layer_references.alias IS 'Alias to display in the app';
 COMMENT ON COLUMN config.layer_references.created_date IS 'Created date';
@@ -368,8 +368,10 @@ CREATE TABLE config.layer_references_default(
     id SERIAL PRIMARY KEY,
     layer_reference_id INT NOT NULL REFERENCES config.layer_references (id),
     position INT NOT NULL,
-    display_type layer_references_display_type NOT NULL, 
-    created_date timestamp default current_date, 
+    section text,
+    isvisible boolean default true,
+    display_type layer_references_display_type NOT NULL,
+    created_date timestamp default current_date,
     last_edited_date timestamp default current_date
 );
 /* Comments on table */
@@ -379,6 +381,8 @@ COMMENT ON COLUMN config.layer_references_default.id IS 'Table unique ID';
 COMMENT ON COLUMN config.layer_references_default.layer_reference_id IS 'Layer reference ID';
 COMMENT ON COLUMN config.layer_references_default.position IS 'Position in the app';
 COMMENT ON COLUMN config.layer_references_default.display_type IS 'Display type (SYNTHETIC or DETAILED)';
+COMMENT ON COLUMN config.layer_references_default.section IS 'Section to group properties';
+COMMENT ON COLUMN config.layer_references_default.isvisible IS 'If visible, true else false';
 COMMENT ON COLUMN config.layer_references_default.created_date IS 'Created date';
 COMMENT ON COLUMN config.layer_references_default.last_edited_date IS 'Last edited date';
 
@@ -388,8 +392,10 @@ CREATE TABLE config.layer_references_user(
     layer_reference_id INT NOT NULL REFERENCES config.layer_references (id),
     user_id INT NOT NULL REFERENCES config.app_user(id),
     position INT NOT NULL,
-    display_type VARCHAR NOT NULL, 
-    created_date timestamp default current_date, 
+    display_type VARCHAR NOT NULL,
+    section text,
+    isvisible boolean default true,
+    created_date timestamp default current_date,
     last_edited_date timestamp default current_date
 );
 /* Comments on table */
@@ -400,5 +406,7 @@ COMMENT ON COLUMN config.layer_references_user.layer_reference_id IS 'Layer refe
 COMMENT ON COLUMN config.layer_references_user.user_id IS 'User ID';
 COMMENT ON COLUMN config.layer_references_user.position IS 'Position in the app';
 COMMENT ON COLUMN config.layer_references_user.display_type IS 'Display type (SYNTHETIC or DETAILED)';
+COMMENT ON COLUMN config.layer_references_user.isvisible IS 'If visible, true else false';
+COMMENT ON COLUMN config.layer_references_user.section IS 'Section to group properties';
 COMMENT ON COLUMN config.layer_references_user.created_date IS 'Created date';
 COMMENT ON COLUMN config.layer_references_user.last_edited_date IS 'Last edited date';
