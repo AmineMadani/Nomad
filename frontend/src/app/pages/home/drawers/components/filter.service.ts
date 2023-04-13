@@ -37,7 +37,6 @@ export class FilterService {
         .getFeaturePagination(key, 20, 0, this.searchFilterList.get(key))
         .subscribe((features: MapFeature[]) => {
           this.data.set(key, features);
-          console.log(this.data);
         });
     } else {
       this.mapService.addEventLayer(key).then(() => {
