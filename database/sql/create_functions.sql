@@ -21,15 +21,22 @@ $$ LANGUAGE sql IMMUTABLE STRICT;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function get_geojson_from_tile(layer text, tile_id integer, list_fields text = NULL)
+create or replace function get_geojson_from_tile(layer_name text, tile_id integer, user_ident int = NULL)
 returns jsonb
 language plpgsql
 as $$
 declare
 	geojson jsonb;
 	tile_geom geometry;
+  list_fields text;
 begin
   tile_geom := (select geom from config.app_grid where id = tile_id);
+  -- Get list of fields from conf
+  select string_agg(reference_key, ', ')  into list_fields
+    from config.get_layer_references_user(user_ident)
+   where layer = layer_name;
+  --
+  raise notice 'list_fields: %', list_fields;
   execute format($sql$
   with
   records as
@@ -47,7 +54,7 @@ begin
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), layer, tile_geom::text) into geojson;
+  $sql$, coalesce(list_fields, '*'), layer_name, tile_geom::text) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
@@ -92,31 +99,35 @@ $$;
 -- Function to get the list of layers of a user
 CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER)
     RETURNS TABLE(
-         layer_key VARCHAR,
+         layer text,
          reference_id INT,
-         reference_key VARCHAR,
+         reference_key text,
          alias TEXT,
          "position" INT,
-         display_type VARCHAR
+         display_type text,
+         isvisible boolean,
+         section text
      ) LANGUAGE plpgsql AS $$
 BEGIN
     RETURN QUERY
-        SELECT
-            cast(substring(cast(layer.pg_table as varchar), position('.' IN cast(layer.pg_table as varchar)) + 1) as varchar) as layerKey,
-            reference.id,
-            reference.reference_key,
-            reference.alias,
-            COALESCE(user_reference.position, default_reference.position) AS position,
-            COALESCE(cast(user_reference.display_type as varchar), cast(default_reference.display_type as varchar)) as displayType
-        FROM config.layer_references reference
-                 INNER JOIN config.layer ON reference.layer_id = layer.id
-                 INNER JOIN config.layer_references_default default_reference ON reference.id = default_reference.layer_reference_id
-                 LEFT JOIN config.layer_references_user user_reference ON reference.id = user_reference.layer_reference_id AND user_reference.user_id = searched_user_id
-        ORDER BY layer.id;
+    SELECT pg_table::text as _layer,
+           r.id as _id,
+           r.reference_key as _reference_key,
+           r.alias as _alias,
+           --- if specific conf for user, get the conf
+           COALESCE(u.position, d.position) AS _position,
+           COALESCE(u.display_type, d.display_type)::text as _displayType,
+           COALESCE(u.isvisible, d.isvisible) as _isvisible,
+           COALESCE(u.section, d.section)::text as _section
+      FROM config.layer_references r
+      JOIN config.layer_references_default d ON r.id = d.layer_reference_id
+ LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = NULL
+  ORDER BY 1, 5;
 END;
 $$;
 
 -- Function to get the default list of layers
+-- FIXME doit on la garder sachant que la fonction ci dessus ressort a conf par défaut si user = NULL
 CREATE OR REPLACE FUNCTION get_layer_references_default()
     RETURNS TABLE(
          layer_key VARCHAR,

@@ -392,7 +392,7 @@ CREATE TABLE config.layer_references_user(
     layer_reference_id INT NOT NULL REFERENCES config.layer_references (id),
     user_id INT NOT NULL REFERENCES config.app_user(id),
     position INT NOT NULL,
-    display_type VARCHAR NOT NULL,
+    display_type layer_references_display_type NOT NULL,
     section text,
     isvisible boolean default true,
     created_date timestamp default current_date,
