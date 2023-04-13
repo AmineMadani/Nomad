@@ -46,20 +46,7 @@ export class LayerService {
       );
     }
 
-    //Add filter if exist on it
-    if(filters && filters.size > 0) {
-      f = f.filter(feature => this.mapService.getLayer(layerKey)?.onFilterFeature(feature,filters));
-    }
-
     return f;
-  }
-
-  public passFilterToLayer(layerKey: string, filters: Map<string, string[]> | undefined) {
-    const mapLayer: MapLayer | undefined = this.mapService.getLayer(layerKey);
-    if (mapLayer) {
-      mapLayer.filteredFeatured = filters;
-    }
-    mapLayer?.source?.changed();
   }
 
   public zoomToFeatureByIdAndLayerKey(id: string, layerKey: string) {
