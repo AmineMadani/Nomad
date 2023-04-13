@@ -24,9 +24,6 @@ export class MapLayer {
       zIndex: layer.zindex,
       declutter: true,
       style: (feature: FeatureLike) => {
-        if(this.isFilteredFeature(feature)) {
-          return undefined;
-        }
         if (
           this.hoverFeature.has(feature) ||
           feature.getId()?.toString() === this.featureHighlighted
@@ -77,46 +74,5 @@ export class MapLayer {
         break;
     }
     return this.source;
-  }
-
-  private isFilteredFeature(feature: FeatureLike): boolean {
-    let isHide = false;
-    if(this.filteredFeatured && this.filteredFeatured?.size > 0) {
-      isHide = !this.onFilterFeature(feature, this.filteredFeatured);
-    }
-    return isHide;
-  }
-
-  public onFilterFeature(feature: Feature | FeatureLike, filters: Map<string, string[]>): boolean{
-    let isInFilter = true;
-    let oneDateOk: 'nc' | 'true' | 'false' = 'nc';
-    for(let item of filters) {
-      if(item[0].includes('date')){
-        if(oneDateOk == 'nc'){
-          oneDateOk='false';
-        }
-        if(oneDateOk == 'false' && feature.getProperties()[item[0]]) {
-          if(item[1][0] != 'none' && item[1][1] != 'none') {
-            const startDate = new Date(item[1][0]);
-            const endDate = new Date(item[1][1]);
-            const dateFeature = new Date(feature.getProperties()[item[0]]);
-            if((dateFeature.getTime() < startDate.getTime())
-              || (dateFeature.getTime() > endDate.getTime())) {
-                oneDateOk='false';
-            } else {
-              oneDateOk='true';
-            }
-          }
-        }
-      } else {
-        if(!item[1].includes(feature.getProperties()[item[0]])){
-          isInFilter=false;
-        }
-      }
-    }
-    if(oneDateOk == 'nc'){
-      oneDateOk = 'true'
-    }
-    return isInFilter && (oneDateOk == 'true');
   }
 }
