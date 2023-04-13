@@ -36,7 +36,13 @@ begin
     from config.get_layer_references_user(user_ident)
    where layer = layer_name;
   --
-  raise notice 'list_fields: %', list_fields;
+  if list_fields is null then
+    -- Get list of fields from postgres
+    select string_agg(column_name, ', ')  into list_fields
+      from information_schema.columns
+     where table_schema||'.'||table_name = layer_name;  
+  end if;
+  --
   execute format($sql$
   with
   records as
