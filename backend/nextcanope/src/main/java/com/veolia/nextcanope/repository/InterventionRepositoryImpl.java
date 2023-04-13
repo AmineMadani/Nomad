@@ -30,7 +30,7 @@ public class InterventionRepositoryImpl {
 	public List<Intervention> getInterventionPaginationWithCustomCriteria(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
         String clauseWhere = "";
         String clauseDate = "";
-		if(searchParameter != null) {
+		if(searchParameter != null && searchParameter.size() > 0) {
 			clauseWhere+="where ";
 			for (Map.Entry<String, String[]> entry : searchParameter.entrySet()) {
 				if(!clauseWhere.equals("where ")) {
