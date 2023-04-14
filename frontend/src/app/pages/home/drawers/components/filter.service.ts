@@ -118,6 +118,25 @@ export class FilterService {
   }
 
   /**
+   * Method to get values by the layer and the property key
+   * @param layerkey layer exploitation data
+   * @param key property key
+   * @return list of values
+   */
+  public getSearchFilterValuesByLayerKeyAndProperty(layerkey: string, key: string): string[] | undefined {
+    return this.searchFilterList.get(layerkey)?.get(key);
+  }
+
+  /**
+   * Method to expose if exist a layer data
+   * @param layerkey layer exploitation data
+   * @returns true if layer data exist
+   */
+  public isExistLayerData(layerkey: string): boolean {
+    return this.data.has(layerkey) 
+  }
+
+  /**
    * Method to apply the filter on the map for a specific layer
    * @param layerKey layer exploitation data
    * @param filters list of property filter

@@ -8,7 +8,7 @@
       <ion-list class="ion-padding">
         <ion-item fill="outline" *ngFor="let select of searchFilter.data.selects">
           <ion-label position="floating">{{ select.key | titlecase }}</ion-label>
-          <ion-select [placeholder]="select.label" (ionChange)="changeSelectData($event,select.key)" [multiple]="true">
+          <ion-select [placeholder]="select.label" (ionChange)="changeSelectData($event,select.key)" [multiple]="true" [value]="getValues(select.key)">
             <ion-select-option *ngFor="let item of select.choices | keyvalue" [value]="item.key">{{item.value}}</ion-select-option>
           </ion-select>
         </ion-item>

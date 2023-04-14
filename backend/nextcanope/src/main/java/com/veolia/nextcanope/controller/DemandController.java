@@ -23,21 +23,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/exploitation/intervention")
-@Tag(name = "Exploitation - Intervention Management System", description = "Operations pertaining to intervention in the Intervention Management System")
-public class InterventionController {
+@RequestMapping("/exploitation/demand")
+@Tag(name = "Exploitation - Demand Management System", description = "Operations pertaining to demand in the Demand Management System")
+public class DemandController {
 
     @Autowired
     public InterventionService interventionService;
 
     @PostMapping(path = "pagination/{limit}/{offset}")
-    @Operation(summary = "Get the interventions with search parameter in pagination format")
+    @Operation(summary = "Get the demands with search parameter in pagination format")
     @ApiResponses(value = {
-    			@ApiResponse(description= "The intervention filtered", content =  {
+    			@ApiResponse(description= "The demands filtered", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<InterventionDto> getInterventions(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
+    public List<InterventionDto> getDemands(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
         return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
 }

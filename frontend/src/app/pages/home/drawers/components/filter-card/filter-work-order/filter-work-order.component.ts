@@ -27,7 +27,7 @@ export class FilterWorkOrderComponent implements OnInit {
   ngOnInit() {}
 
   public getFeatures(): any[] {
-    const res = this.filterService.getData('intervention');
+    const res = this.filterService.getData(this.data.type);
     if (this.workOrders?.length !== res?.length) {
       if (!(res[0] instanceof MapFeature)) {
         this.isFromCache = true;
@@ -43,12 +43,12 @@ export class FilterWorkOrderComponent implements OnInit {
   }
 
   public getPaginationData(ev: InfiniteScrollCustomEvent): void {
-    this.filterService.updateData('intervention', ev);
+    this.filterService.updateData(this.data.type, ev);
   }
 
   public openIntervention(featureId: string): void {
     const feature: Feature = this.layerService.getFeatureById(
-      'intervention',
+      this.data.type,
       featureId
     )!;
     this.drawer.navigateTo(

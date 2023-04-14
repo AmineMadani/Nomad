@@ -24,12 +24,27 @@ export class FilterSearchComponent implements OnInit {
   @Input() searchFilter: SearchFilter;
   public isMobile: boolean;
 
-  startDate: DateTime | undefined;
-  endDate: DateTime | undefined;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+    if(!this.startDate && this.searchFilter.data.dateKey) {
+      for(let dateKey of this.searchFilter.data.dateKey) {
+        const datesFilter: string[] | undefined = this.filterService.getSearchFilterValuesByLayerKeyAndProperty(this.searchFilter.tableKey,dateKey);
+        if(datesFilter){
+          this.startDate=new Date(datesFilter[0]);
+          this.endDate=new Date(datesFilter[1]);
+        }
+        break;
+      }
+    }
   }
+
+  customActionSheetOptions = {
+    header: 'Colors',
+    subHeader: 'Select your favorite color',
+  };
 
   public openCalendar(): void {
     this.dialogService.close();
@@ -43,19 +58,19 @@ export class FilterSearchComponent implements OnInit {
       .afterClosed()
       .pipe(filter((dts: DateTime[]) => dts && (dts.length === 2 || dts.length === 1)))
       .subscribe((result: DateTime[]) => {
-        this.startDate=result[0];
-        this.endDate=result[1];
+        this.startDate=result[0].toJSDate();
+        this.endDate=result[1].toJSDate();
         for(let dateKey of this.searchFilter.data.dateKey!) {
           let dates:string[] = [];
           let dateNone = 0;
           if(this.startDate){
-            dates.push(this.datePipe.transform(this.startDate.toJSDate(),"yyyy-MM-dd")!);
+            dates.push(this.datePipe.transform(this.startDate,"yyyy-MM-dd")!);
           } else {
             dates.push('none');
             dateNone++;
           }
           if(this.endDate){
-            dates.push(this.datePipe.transform(this.endDate.toJSDate(),"yyyy-MM-dd")!);
+            dates.push(this.datePipe.transform(this.endDate,"yyyy-MM-dd")!);
           } else {
             dates.push('none');
             dateNone++;
@@ -72,7 +87,7 @@ export class FilterSearchComponent implements OnInit {
 
   getDateLibelle(){
     if(this.startDate && this.endDate) {
-      return 'Du '+this.datePipe.transform(this.startDate.toJSDate(),"dd/MM/yyyy")+' au '+this.datePipe.transform(this.endDate.toJSDate(),"dd/MM/yyyy");
+      return 'Du '+this.datePipe.transform(this.startDate,"dd/MM/yyyy")+' au '+this.datePipe.transform(this.endDate,"dd/MM/yyyy");
     } else {
       return 'Sélectionner plages de dates';
     }
@@ -85,4 +100,9 @@ export class FilterSearchComponent implements OnInit {
       this.filterService.setSearchFilter(this.searchFilter.tableKey, dateKey, []);
     }
   }
+
+  getValues(key: string){
+    return this.filterService.getSearchFilterValuesByLayerKeyAndProperty(this.searchFilter.tableKey,key);
+  }
 }
+

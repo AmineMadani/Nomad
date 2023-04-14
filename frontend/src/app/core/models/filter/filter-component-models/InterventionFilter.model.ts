@@ -5,14 +5,14 @@ export class InterventionFilter implements BaseFilter {
   public id: number;
   public isRecordableFavorite: boolean;
   public position: number;
-  public type: 'intervention' | 'demande';
+  public type: 'intervention' | 'demand';
   public data: InterventionData[];
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    type: 'intervention' | 'demande', 
+    type: 'intervention' | 'demand', 
     data: InterventionData[]
   ) {
     this.id = id;

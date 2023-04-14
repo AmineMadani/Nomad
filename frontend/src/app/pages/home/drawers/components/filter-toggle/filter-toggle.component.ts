@@ -17,8 +17,10 @@ export class FilterToggleComponent implements OnInit {
 
   ngOnInit() {
     this.data.forEach((tData: ToggleData) => {
-      this.filterService.setToggleData(tData.key, false);
-    })
+      if(!tData.value) {
+        this.filterService.setToggleData(tData.key, false);
+      }
+    });
   }
 
   changeToggle(data:ToggleData, e:Event){
@@ -26,5 +28,9 @@ export class FilterToggleComponent implements OnInit {
       data.value = (e as CustomEvent).detail.checked;
       this.filterService.setToggleData(data.key, Boolean(data.value));
     }
+  }
+
+  isChecked(data: ToggleData) {
+    return this.filterService.isExistLayerData(data.key);
   }
 }
