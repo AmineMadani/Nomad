@@ -31,4 +31,9 @@ public class ConfigConstants {
 	 * Label /**
 	 */
 	public static final String SYMBOL_SUB_URL  = "/**";
+
+	/**
+	 * Label /**
+	 */
+	public static final String SCHEMA  = "asset";
 }

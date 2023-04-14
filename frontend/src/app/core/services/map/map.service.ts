@@ -202,12 +202,13 @@ export class MapService {
       }
 
       const properties = ctFeature[0].getProperties();
+      properties['id'] = ctFeature[0].getId();
       if (properties['geometry']) delete properties['geometry'];
       // We pass the layerKey to the drawer to be able to select the equipment on the layer
       properties['layerKey'] = layerKey;
       this.drawerService.navigateTo(
         DrawerRouteEnum.EQUIPMENT,
-        [ctFeature[0].get('id')],
+        [properties['id']],
         properties
       );
     }
