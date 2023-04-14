@@ -64,7 +64,7 @@ export class FilterService {
     } else {
       this.mapService.addEventLayer(layerkey).then(() => {
         this.applyFilterOnMap(layerkey,this.searchFilterList.get(layerkey));
-      })
+      });
     }
   }
 
@@ -94,7 +94,7 @@ export class FilterService {
    */
   public setSearchFilter(layerkey: string, key: string, listValue: string[]) {
     if(this.searchFilterList.get(layerkey)) {
-      if(listValue.length > 0) {
+      if(listValue && listValue.length > 0) {
         this.searchFilterList.get(layerkey)?.set(key,listValue);
       } else {
         this.searchFilterList.get(layerkey)?.delete(key);
