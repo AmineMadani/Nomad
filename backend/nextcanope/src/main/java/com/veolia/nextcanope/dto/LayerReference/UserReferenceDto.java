@@ -1,12 +1,14 @@
 package com.veolia.nextcanope.dto.LayerReference;
 
 public class UserReferenceDto {
-    public UserReferenceDto(Integer referenceId, String referenceKey, String alias, String displayType, Integer position) {
+    public UserReferenceDto(Integer referenceId, String referenceKey, String alias, String displayType, Integer position, Boolean isVisible, String section) {
         this.referenceId = referenceId;
         this.referenceKey = referenceKey;
         this.alias = alias;
         this.displayType = displayType;
         this.position = position;
+        this.isVisible = isVisible;
+        this.section = section;
     }
 
     private Integer referenceId;
@@ -14,6 +16,8 @@ public class UserReferenceDto {
     private String alias;
     private String displayType;
     private Integer position;
+    private Boolean isVisible;
+    private String section;
 
     public Integer getReferenceId() {
         return referenceId;
@@ -53,5 +57,21 @@ public class UserReferenceDto {
 
     public void setPosition(Integer position) {
         this.position = position;
+    }
+
+    public Boolean getIsVisible() {
+        return isVisible;
+    }
+
+    public void setIsVisible(Boolean isVisible) {
+        this.isVisible = isVisible;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 }

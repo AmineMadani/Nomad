@@ -51,9 +51,9 @@ public class LayerController {
     public String getLayerTile(
             @PathVariable String key,
             @PathVariable Long tileNumber,
-            @RequestParam List<String> referenceKeys
+            AccountTokenDto account
     ) {
-        return this.layerService.getLayerTile(key, tileNumber, referenceKeys);
+        return this.layerService.getLayerTile(key, tileNumber, account.getId());
     }
 
     @GetMapping(path = "/references/{type}")

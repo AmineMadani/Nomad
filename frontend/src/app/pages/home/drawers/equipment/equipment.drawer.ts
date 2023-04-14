@@ -59,7 +59,7 @@ export class EquipmentDrawer implements OnInit {
 
             // Remove empty references from the list
             this.userReferences =
-              this.userReferences.filter((element: UserReference) => this.equipment[element.referenceKey]);
+              this.userReferences.filter((element: UserReference) => this.equipment[element.referenceKey] || !element.isVisible);
           });
         }
       });

@@ -32,7 +32,7 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      * @return the default list of layer references.
      */
     @Query(
-            value = "SELECT * FROM get_layer_references_default()",
+            value = "SELECT * FROM get_layer_references_user()",
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getDefaultLayerReferences();

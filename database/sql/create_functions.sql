@@ -32,9 +32,9 @@ declare
 begin
   tile_geom := (select geom from config.app_grid where id = tile_id);
   -- Get list of fields from conf
-  select string_agg(reference_key, ', ')  into list_fields
+  select string_agg("referenceKey", ', ')  into list_fields
     from config.get_layer_references_user(user_ident)
-   where layer = layer_name;
+   where layer = layer_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
   --
   if list_fields is null then
     -- Get list of fields from postgres
@@ -103,58 +103,31 @@ end;
 $$;
 
 -- Function to get the list of layers of a user
-CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER)
+CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER = NULL)
     RETURNS TABLE(
          layer text,
-         reference_id INT,
-         reference_key text,
+         "referenceId" INT,
+         "referenceKey" text,
          alias TEXT,
          "position" INT,
-         display_type text,
-         isvisible boolean,
+         "displayType" text,
+         "isVisible" boolean,
          section text
      ) LANGUAGE plpgsql AS $$
 BEGIN
     RETURN QUERY
     SELECT pg_table::text as _layer,
            r.id as _id,
-           r.reference_key as _reference_key,
+           r.reference_key as _referenceKey,
            r.alias as _alias,
            --- if specific conf for user, get the conf
            COALESCE(u.position, d.position) AS _position,
            COALESCE(u.display_type, d.display_type)::text as _displayType,
-           COALESCE(u.isvisible, d.isvisible) as _isvisible,
+           COALESCE(u.isvisible, d.isvisible) as _isVisible,
            COALESCE(u.section, d.section)::text as _section
       FROM config.layer_references r
       JOIN config.layer_references_default d ON r.id = d.layer_reference_id
- LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = NULL
+ LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
   ORDER BY 1, 5;
-END;
-$$;
-
--- Function to get the default list of layers
--- FIXME doit on la garder sachant que la fonction ci dessus ressort a conf par défaut si user = NULL
-CREATE OR REPLACE FUNCTION get_layer_references_default()
-    RETURNS TABLE(
-         layer_key VARCHAR,
-         reference_id INT,
-         reference_key VARCHAR,
-         alias TEXT,
-         "position" INT,
-         display_type VARCHAR
-     ) LANGUAGE plpgsql AS $$
-BEGIN
-    RETURN QUERY
-        SELECT
-            cast(substring(cast(layer.pg_table as varchar), position('.' IN cast(layer.pg_table as varchar)) + 1) as varchar) as layerKey,
-            reference.id,
-            reference.reference_key,
-            reference.alias,
-            default_reference.position AS position,
-            cast(default_reference.display_type as varchar) as displayType
-        FROM config.layer_references reference
-                 INNER JOIN config.layer ON reference.layer_id = layer.id
-                 INNER JOIN config.layer_references_default default_reference ON reference.id = default_reference.layer_reference_id
-        ORDER BY layer.id;
 END;
 $$;

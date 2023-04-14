@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.repository.LayerRepositoryImpl;
 
-import java.util.List;
-
 /**
  * PatrimonyService is a service class for managing patrimony-related data.
  * It interacts with the PatrimonyRepositoryImpl to access and manipulate the data.
@@ -34,7 +32,7 @@ public class LayerService {
      * @param tileNumber The tile number to search for in the database.
      * @return The equipment tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber, List<String> referenceKeys) {
-        return layerRepositoryImpl.getLayerTile(key, tileNumber, referenceKeys);
+    public String getLayerTile(String key, Long tileNumber, Integer userId) {
+        return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
     }
 }

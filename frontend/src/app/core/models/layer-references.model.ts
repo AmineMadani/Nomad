@@ -9,6 +9,8 @@ export interface UserReference {
   alias: string;
   displayType: ReferenceDisplayType,
   position: number;
+  section: string;
+  isVisible: boolean;
 }
 
 export enum ReferenceDisplayType {

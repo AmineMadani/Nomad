@@ -7,6 +7,7 @@ import com.veolia.nextcanope.repository.LayerReferencesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,18 +55,26 @@ public class LayerReferencesService {
 
         // Group the list by layer key
         listFlatDto.stream()
-                .collect(Collectors.groupingBy(LayerReferencesFlatDto::getLayerKey))
+                .collect(Collectors.groupingBy(LayerReferencesFlatDto::getLayer))
                 .forEach((String layerKey, List<LayerReferencesFlatDto> group) -> {
                     LayerReferencesDto resultLayer = new LayerReferencesDto();
-                    resultLayer.setLayerKey(layerKey);
+                    resultLayer.setLayerKey(layerKey.split("\\.")[1]);
 
-                    List<UserReferenceDto> references = group.stream().map(item -> new UserReferenceDto(
-                            item.getReferenceId(),
-                            item.getReferenceKey(),
-                            item.getAlias(),
-                            item.getDisplayType(),
-                            item.getPosition()
-                    )).collect(Collectors.toList());
+                    List<UserReferenceDto> references = group.stream().map(item -> {
+                        // Convertir l'alias de ISO-8859-1 en UTF-8
+                        byte[] isoBytes = item.getAlias().getBytes(StandardCharsets.ISO_8859_1);
+                        String alias = new String(isoBytes, StandardCharsets.UTF_8);
+
+                        return new UserReferenceDto(
+                                item.getReferenceId(),
+                                item.getReferenceKey(),
+                                alias,
+                                item.getDisplayType(),
+                                item.getPosition(),
+                                item.getIsVisible(),
+                                item.getSection()
+                        );
+                    }).collect(Collectors.toList());
 
                     resultLayer.setReferences(references);
                     layerReferences.add(resultLayer);

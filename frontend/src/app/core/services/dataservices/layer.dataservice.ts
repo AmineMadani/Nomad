@@ -15,7 +15,6 @@ export class LayerDataService {
   constructor(
     private http: HttpClient,
     private configurationService: ConfigurationService,
-    private layerReferenceService: LayerReferencesService
   ) {
     this.db = new AppDB();
   }
@@ -56,19 +55,12 @@ export class LayerDataService {
       return tile.data;
     }
 
-    // Add user references to query parameters.
-    const syntheticReferenceKeys = await this.layerReferenceService.getSyntheticUserReferenceKeys(layerKey);
-    const queryParams = new HttpParams().append("referenceKeys", syntheticReferenceKeys.join(','));
-
     // Get the feature number from the file name.
     const featureNumber: number = +file.match(new RegExp(`${layerKey}_(\\d+)\\.geojson`))![1];
 
     // Fetch the GeoJSON file from the server.
     const req = await lastValueFrom(
-      this.http.get<GeoJSONObject>(
-        `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`,
-        { params: queryParams }
-      )
+      this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`)
     );
 
     // Throw an error if the request failed.
