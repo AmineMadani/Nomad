@@ -189,7 +189,7 @@ export class FilterService {
           }
         }
       } else {
-        if(!item[1].includes(feature.getProperties()[item[0]])){
+        if(!item[1].includes(feature.getProperties()[item[0]].toString())){
           isInFilter=false;
         }
       }
