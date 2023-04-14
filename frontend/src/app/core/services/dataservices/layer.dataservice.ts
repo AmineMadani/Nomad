@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
+import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject } from '../../models/geojson.model';
-import { ConfigurationService } from '../configuration.service';
+import { LayerReferencesService } from '../layer-reference.service';
 
 @Injectable({
   providedIn: 'root',
@@ -51,38 +52,32 @@ export class LayerDataService {
   }
 
   /**
-   * It fetches the tile of a layer from indexed db if present or server
-   * If successful, it stores the layer's file in IndexedDB.
-   * @param {string} layerKey - string - key of the layer
-   * @param {string} file - string - the file where the view is
-   * @returns The geojson file for the current tile
-   */
+    * Fetches the tile of a layer from indexed db if present or server.
+    * If successful, stores the layer's file in IndexedDB.
+    * @param {string} layerKey - Key of the layer.
+    * @param {string} file - The file where the view is.
+    * @returns The GeoJSON file for the current tile.
+  */
   public async getLayerFile(layerKey: string, file: string): Promise<GeoJSONObject> {
     /*const tile = await this.db.tiles.get(file);
     if (tile) {
       return tile.data;
-    }*/
+    }
     /* It's getting the number from the file name. */
     const featureNumber: number = +file.match(
       new RegExp(`${layerKey}_(\\d+)\\.geojson`)
     )![1];
-
-    if(!this.listTileOnLoad.has(layerKey+featureNumber)) {
-      this.listTileOnLoad.set(layerKey+featureNumber,"Chargement de la zone de la couche "+layerKey);
-      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-      const req = await firstValueFrom(
-        this.http.get<GeoJSONObject>(
-          `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
-        )
-      );
-      if (!req) {
-        throw new Error(`Failed to fetch index for ${layerKey}`);
-      }
-      //await this.db.tiles.put({ data: req, key: file }, file);
-      this.listTileOnLoad.delete(layerKey+featureNumber);
-      return req;
+    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
+    const req = await lastValueFrom(
+      this.http.get<GeoJSONObject>(
+        `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
+      )
+    );
+    if (!req) {
+      throw new Error(`Failed to fetch index for ${layerKey}`);
     }
-    return {};
+    await this.db.tiles.put({ data: req, key: file }, file);
+    return req;
   }
 
   public getLayerStyle(layerKey: string): Observable<any> {

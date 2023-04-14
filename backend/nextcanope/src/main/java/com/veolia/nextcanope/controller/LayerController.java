@@ -1,11 +1,11 @@
 package com.veolia.nextcanope.controller;
 
+import com.veolia.nextcanope.constants.LayerConstants;
+import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
+import com.veolia.nextcanope.service.LayerReferencesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.service.LayerService;
 
@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/layer")
@@ -24,6 +26,9 @@ public class LayerController {
 
     @Autowired
     public LayerService layerService;
+
+    @Autowired
+    public LayerReferencesService layerReferencesService;
 
     @GetMapping(path = "/{key}")
     @Operation(summary = "Get the index by key")
@@ -43,7 +48,26 @@ public class LayerController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public String getLayerTile(@PathVariable String key, @PathVariable Long tileNumber) {
-        return this.layerService.getLayerTile(key, tileNumber);
+    public String getLayerTile(
+            @PathVariable String key,
+            @PathVariable Long tileNumber,
+            AccountTokenDto account
+    ) {
+        return this.layerService.getLayerTile(key, tileNumber, account.getId());
+    }
+
+    @GetMapping(path = "/references/{type}")
+    @Operation(summary = "Get the layer references")
+    @ApiResponses(value = {
+        @ApiResponse(description= "All layer references with customization", content =  {
+                @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<LayerReferencesDto> getLayerReferences(@PathVariable String type, AccountTokenDto account) {
+        if (LayerConstants.USER_LAYER_REFERENCE_SEARCH.equals(type)) {
+            return this.layerReferencesService.getUserLayerReferences(account.getId());
+        } else {
+            return this.layerReferencesService.getDefaultLayerReferences();
+        }
     }
 }

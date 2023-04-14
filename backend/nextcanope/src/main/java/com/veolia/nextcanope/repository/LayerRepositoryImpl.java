@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.repository;
 
+import com.veolia.nextcanope.constants.ConfigConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -34,9 +35,10 @@ public class LayerRepositoryImpl {
      * @param tileNumber The tile number to search for in the database.
      * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber) {
-    	String schema = "patrimony";
-    	String param = ",'id, commune, rue, geom'";
+    public String getLayerTile(String key, Long tileNumber, Integer userId) {
+    	String schema = ConfigConstants.SCHEMA;
+
+		String param = ",'" + userId.toString() + "'";
     	if(key.equals("intervention")) {
     		schema = "exploitation";
     		param = "";

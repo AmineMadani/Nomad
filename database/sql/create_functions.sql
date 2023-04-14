@@ -21,15 +21,28 @@ $$ LANGUAGE sql IMMUTABLE STRICT;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function get_geojson_from_tile(layer text, tile_id integer, list_fields text = NULL)
+create or replace function get_geojson_from_tile(layer_name text, tile_id integer, user_ident int = NULL)
 returns jsonb
 language plpgsql
 as $$
 declare
 	geojson jsonb;
 	tile_geom geometry;
+  list_fields text;
 begin
   tile_geom := (select geom from config.app_grid where id = tile_id);
+  -- Get list of fields from conf
+  select string_agg("referenceKey", ', ')  into list_fields
+    from config.get_layer_references_user(user_ident)
+   where layer = layer_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
+  --
+  if list_fields is null then
+    -- Get list of fields from postgres
+    select string_agg(column_name, ', ')  into list_fields
+      from information_schema.columns
+     where table_schema||'.'||table_name = layer_name;  
+  end if;
+  --
   execute format($sql$
   with
   records as
@@ -47,7 +60,7 @@ begin
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), layer, tile_geom::text) into geojson;
+  $sql$, coalesce(list_fields, '*'), layer_name, tile_geom::text) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
@@ -87,4 +100,34 @@ exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
   return null;
 end;
+$$;
+
+-- Function to get the list of layers of a user
+CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER = NULL)
+    RETURNS TABLE(
+         layer text,
+         "referenceId" INT,
+         "referenceKey" text,
+         alias TEXT,
+         "position" INT,
+         "displayType" text,
+         "isVisible" boolean,
+         section text
+     ) LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+    SELECT pg_table::text as _layer,
+           r.id as _id,
+           r.reference_key as _referenceKey,
+           r.alias as _alias,
+           --- if specific conf for user, get the conf
+           COALESCE(u.position, d.position) AS _position,
+           COALESCE(u.display_type, d.display_type)::text as _displayType,
+           COALESCE(u.isvisible, d.isvisible) as _isVisible,
+           COALESCE(u.section, d.section)::text as _section
+      FROM config.layer_references r
+      JOIN config.layer_references_default d ON r.id = d.layer_reference_id
+ LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
+  ORDER BY 1, 5;
+END;
 $$;

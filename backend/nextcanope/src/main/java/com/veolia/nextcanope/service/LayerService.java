@@ -32,7 +32,7 @@ public class LayerService {
      * @param tileNumber The tile number to search for in the database.
      * @return The equipment tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber) {
-        return layerRepositoryImpl.getLayerTile(key, tileNumber);
+    public String getLayerTile(String key, Long tileNumber, Integer userId) {
+        return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
     }
 }
