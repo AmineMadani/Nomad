@@ -64,7 +64,7 @@ export class FilterService {
     } else {
       this.mapService.addEventLayer(layerkey).then(() => {
         this.applyFilterOnMap(layerkey,this.searchFilterList.get(layerkey));
-      })
+      });
     }
   }
 
@@ -94,7 +94,7 @@ export class FilterService {
    */
   public setSearchFilter(layerkey: string, key: string, listValue: string[]) {
     if(this.searchFilterList.get(layerkey)) {
-      if(listValue.length > 0) {
+      if(listValue && listValue.length > 0) {
         this.searchFilterList.get(layerkey)?.set(key,listValue);
       } else {
         this.searchFilterList.get(layerkey)?.delete(key);
@@ -115,6 +115,25 @@ export class FilterService {
     if(!this.mapService.getLayer(layerkey)){
       this.setToggleData(layerkey, false);
     }
+  }
+
+  /**
+   * Method to get values by the layer and the property key
+   * @param layerkey layer exploitation data
+   * @param key property key
+   * @return list of values
+   */
+  public getSearchFilterValuesByLayerKeyAndProperty(layerkey: string, key: string): string[] | undefined {
+    return this.searchFilterList.get(layerkey)?.get(key);
+  }
+
+  /**
+   * Method to expose if exist a layer data
+   * @param layerkey layer exploitation data
+   * @returns true if layer data exist
+   */
+  public isExistLayerData(layerkey: string): boolean {
+    return this.data.has(layerkey) 
   }
 
   /**

@@ -6,21 +6,27 @@
     </ion-item>
     <div slot="content" class="intervention-filter">
       <ion-list class="ion-padding">
-        <ion-item fill="outline" *ngFor="let select of searchFilter.data.selects">
-          <ion-label position="floating">{{ select.key | titlecase }}</ion-label>
-          <ion-select [placeholder]="select.label" (ionChange)="changeSelectData($event,select.key)" [multiple]="true">
-            <ion-select-option *ngFor="let item of select.choices | keyvalue" [value]="item.key">{{item.value}}</ion-select-option>
-          </ion-select>
-        </ion-item>
-        <ion-item lines="none" color="none">
-          <ion-button fill="clear" color="primary" (click)="openCalendar()">
-            <ion-icon slot="start" name="calendar-outline"></ion-icon>
-            <ion-label>{{getDateLibelle()}}</ion-label>
-          </ion-button>
-          <ion-button *ngIf="startDate || endDate" fill="clear" color="primary" (click)="onClearDate()">
-            <ion-icon slot="end" name="close-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
+        <ng-container *ngFor="let widget of searchFilter.data.widgets">
+          <ng-container *ngIf="widget.type == 'select'">
+            <ion-item fill="outline">
+              <ion-label position="floating">{{ widget.label | titlecase }}</ion-label>
+              <ion-select [placeholder]="widget.placeholder" (ionChange)="changeSelectData($event,widget)" [multiple]="widget.multiple" [value]="getValues(widget.key[0])">
+                <ion-select-option *ngFor="let item of widget.choices | keyvalue" [value]="item.key">{{item.value}}</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ng-container>
+          <ng-container *ngIf="widget.type == 'date'">
+            <ion-item lines="none" color="none">
+              <ion-button fill="clear" color="primary" (click)="openCalendar(widget)">
+                <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                <ion-label>{{getDateLibelle(widget)}}</ion-label>
+              </ion-button>
+              <ion-button *ngIf="false" fill="clear" color="primary" (click)="onClearDate()">
+                <ion-icon slot="end" name="close-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ng-container>
+        </ng-container> 
       </ion-list>
     </div>
   </ion-accordion>

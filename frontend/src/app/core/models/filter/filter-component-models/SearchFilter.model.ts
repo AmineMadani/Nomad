@@ -35,12 +35,16 @@ export class SearchFilter implements BaseFilter {
 }
 
 export interface SearchData extends BaseFilterData {
-    selects?: Select[];
+    widgets?: Widget[];
     dateKey?: string[];
 }
 
-export interface Select {
+export interface Widget {
+    type: string;
+    multiple?: boolean;
     label: string;
-    key: string;
+    placeholder?: string;
+    key: string[];
     choices: Map<string|boolean,string>;
+    rule?: string;
 }
