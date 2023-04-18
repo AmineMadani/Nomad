@@ -12,7 +12,6 @@ import { UserService } from './user.service';
 export class KeycloakService {
 
   public userProfile: any;
-  public hasValidAccessToken = false;
   public realmRoles: string[] = [];
 
   constructor(
@@ -23,9 +22,15 @@ export class KeycloakService {
     private userService: UserService,
     private platform: Platform,
     private router: Router) {
-    if(configurationService.keycloak.active) {
+    
+  }
+
+  configure(){
+    if(this.configurationService.keycloak.active) {
       if (this.platform.IOS) {
         this.configureIOS();
+      } else if (this.platform.ANDROID) {
+        this.configureAndroid();
       } else if (this.platform.isBrowser) {
         this.configureWeb();
       } else {
@@ -44,18 +49,14 @@ export class KeycloakService {
         if(eventResult.type == 'token_received') {
           this.router.navigate(['home']);
         }
-        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
       })
       
       this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
-        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
         this.oauthService.tryLogin().then(tryLoginResult => {
           //console.log(tryLoginResult)
-          if (this.hasValidAccessToken) {
+          if (this.oauthService.hasValidAccessToken()) {
             this.loadUserProfile();
             this.realmRoles = this.getRealmRoles();
-          } else {
-            this.login();
           }
         }).catch(err => {
           this.router.navigate(["/error"]);
@@ -68,8 +69,7 @@ export class KeycloakService {
   }
 
   public hasValidToken(): boolean {
-    console.log("token : " + this.oauthService.getAccessToken());
-    return this.configurationService.keycloak.active ? this.oauthService.hasValidAccessToken() : true;
+    return this.oauthService.hasValidAccessToken();
   }
 
   public login(): void {
@@ -102,7 +102,7 @@ export class KeycloakService {
   public loadUserProfile(): void {
     this.oauthService.loadUserProfile()
       .then(loadUserProfileResult => {
-        //console.log("loadUserProfile", loadUserProfileResult);
+        console.log("loadUserProfile", loadUserProfileResult);
         this.userProfile = loadUserProfileResult;
       })
       .catch(error => {
@@ -158,6 +158,7 @@ export class KeycloakService {
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);
+
       if (url.host != "login") {
         return;
       }
@@ -177,9 +178,66 @@ export class KeycloakService {
           })
           .then(navigateResult => {
             this.oauthService.tryLogin().then(tryLoginResult => {
-              if (this.hasValidAccessToken) {
+              if (this.oauthService.hasValidAccessToken()) {
                 this.loadUserProfile();
                 this.realmRoles = this.getRealmRoles();
+              }
+            })
+          })
+          .catch(error => console.error(error));
+
+      });
+    });
+  }
+
+  private configureAndroid(): void {
+    let authConfig: AuthConfig = {
+      issuer: this.configurationService.keycloak.issuer,
+      redirectUri: this.configurationService.keycloak.redirectUriAndroid,
+      clientId: this.configurationService.keycloak.clientId,
+      responseType: 'code',
+      scope: 'openid profile email offline_access',
+      revocationEndpoint: this.configurationService.keycloak.revocationEndpoint,
+      showDebugInformation: true,
+      requireHttps: false
+    }
+    this.oauthService.configure(authConfig);
+    this.oauthService.setupAutomaticSilentRefresh();
+
+    App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      let url = new URL(event.url);
+      console.log(url);
+      if (url.host != "www.nomad.com") {
+        // Only interested in redirects to myschema://login
+        console.log('out');
+        return;
+      }
+
+      this.zone.run(() => {
+
+        // Building a query param object for Angular Router
+        const queryParams: Params = {};
+        for (const [key, value] of url.searchParams.entries()) {
+          queryParams[key] = value;
+        }
+
+        // Add query params to current route
+        this.router.navigate(
+          [],
+          {
+            relativeTo: this.activatedRoute,
+            queryParams: queryParams,
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+          })
+          .then(navigateResult => {
+            // After updating the route, trigger login in oauthlib and
+            this.oauthService.tryLogin().then(tryLoginResult => {
+              console.log("tryLogin", tryLoginResult);
+              console.log('is token mobile ok : ' + this.oauthService.hasValidAccessToken());
+              if (this.oauthService.hasValidAccessToken()) {
+                this.loadUserProfile();
+                this.realmRoles = this.getRealmRoles();
+                console.log(this.userProfile);
               }
             })
           })

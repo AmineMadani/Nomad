@@ -3,7 +3,7 @@
   "keycloak": {
     "active": true,
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
-    "redirectUri": "https://nomad-rec.hp.m-ve.com/#/login",
+    "redirectUri": "https://nomad-rec.hp.m-ve.com/login",
     "redirectUriIos": "myschema://login",
     "redirectUriAndroid": "myschema://login",
     "clientId": "veolia-client",

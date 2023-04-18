@@ -3,7 +3,7 @@
   "keycloak": {
     "active": true,
     "issuer": "[keycloakIssuer]",
-    "redirectUri": "[currentOrigin]/#/login",
+    "redirectUri": "[currentOrigin]/login",
     "redirectUriIos": "myschema://login",
     "redirectUriAndroid": "myschema://login",
     "clientId": "[keycloakClientId]",

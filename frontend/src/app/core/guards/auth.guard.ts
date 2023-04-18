@@ -26,7 +26,7 @@ export class AuthGuardService implements CanActivate {
  */
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
     // If the user doesn't have a valid token and Keycloak is active
-    if (!this.keycloakService.hasValidToken() && this.configurationService.keycloak.active) {
+    if (!this.keycloakService.hasValidToken()) {
       // If the user isn't trying to access the login page, redirect them to the login page
       if (route.routeConfig?.path !== 'login') {
         this.router.navigate(['login']);

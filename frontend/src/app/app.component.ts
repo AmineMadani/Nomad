@@ -1,9 +1,12 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { KeycloakService } from './core/services/keycloak.service';
 import { Location } from '@angular/common';
 import { IonRouterOutlet, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { DialogService } from './core/services/dialog.service';
+import { App, URLOpenListenerEvent } from '@capacitor/app';
+import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -23,11 +26,19 @@ export class AppComponent implements OnInit, OnDestroy {
     private dialog: DialogService,
     private location: Location,
     private platform: Platform
-  ) {}
+  ) {
+    this.keycloakService.configure()
+  }
+
+  public userProfile: any;
+  public hasValidAccessToken = false;
+  public realmRoles: string[] = [];
 
   private sub: Subscription = new Subscription();
 
   ngOnInit(): void {
+    this.keycloakService.initialisation();
+
     this.sub.add(
       this.platform.backButton.subscribeWithPriority(0, () => {
         if (this.dialog.hasDialog()) {
@@ -37,20 +48,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       })
     );
-
-    if (this.keycloakService.hasValidToken()) {
-      // from(this.cacheService.cacheIsAlreadySet())
-      //   .pipe(
-      //     switchMap((cacheSet: boolean) => {
-      //       return cacheSet ? of(cacheSet) : this.cacheService.loadZips();
-      //     })
-      //   )
-      //   .subscribe(() => {
-      //     this.cacheService.setCacheLoaded(true);
-      //   });
-    } else {
-      this.keycloakService.initialisation();
-    }
   }
 
   ngOnDestroy(): void {
