@@ -29,6 +29,7 @@ export class AuthGuardService implements CanActivate {
     if (!this.keycloakService.hasValidToken()) {
       // If the user isn't trying to access the login page, redirect them to the login page
       if (route.routeConfig?.path !== 'login') {
+        this.keycloakService.initialState = window.location.pathname+window.location.search;
         this.router.navigate(['login']);
         return false;
       }

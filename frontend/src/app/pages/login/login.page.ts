@@ -13,7 +13,9 @@ export class LoginPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.keycloakService.login();
+    setTimeout(() => {
+      this.keycloakService.login();
+    }, 2000);
   }
 
 }

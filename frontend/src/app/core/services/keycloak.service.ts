@@ -13,6 +13,7 @@ export class KeycloakService {
 
   public userProfile: any;
   public realmRoles: string[] = [];
+  public initialState: string | undefined;
 
   constructor(
     private oauthService: OAuthService,
@@ -47,7 +48,9 @@ export class KeycloakService {
           console.log("token : " + this.oauthService.getAccessToken());
         }
         if(eventResult.type == 'token_received') {
-          this.router.navigate(['home']);
+          console.log("*********************** : ");
+          console.log("state : "+decodeURIComponent(this.oauthService.state));
+          this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
         }
       })
       
@@ -73,7 +76,7 @@ export class KeycloakService {
   }
 
   public login(): void {
-    this.oauthService.loadDiscoveryDocumentAndLogin()
+    this.oauthService.loadDiscoveryDocumentAndLogin({state:this.initialState})
       .then(loadDiscoveryDocumentAndLoginResult => {
         console.log("loadDiscoveryDocumentAndLogin", loadDiscoveryDocumentAndLoginResult);
       })
