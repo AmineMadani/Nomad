@@ -66,7 +66,7 @@ export const patrimonyFilterMock: Filter = {
               {
                 id: 10,
                 imgSrc: 'assets/img/patrimony/eq_regulation.png',
-                name: 'Equipements régulation',
+                name: 'Autre équipements',
                 position: 5,
               },
             ],
@@ -90,7 +90,7 @@ export const patrimonyFilterMock: Filter = {
           {
             id: 13,
             key: 'ass_collecteur',
-            name: 'Collecteur',
+            name: 'Collecteurs',  
             position: 2,
           },
           {
