@@ -13,6 +13,7 @@ import WKT from 'ol/format/WKT.js';
 import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
 import { MapEventService } from './map-event.service';
+import { FilterDataService } from '../dataservices/filter.dataservice';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,8 @@ export class MapService {
     private mapStyle: MapStyleService,
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
-    private layerDataService: LayerDataService
+    private layerDataService: LayerDataService,
+    private filterDataService: FilterDataService
   ) {}
 
   private map: MapOpenLayer;
@@ -174,6 +176,7 @@ export class MapService {
                 .getFormat()!
                 .readFeatures(tile) as Feature[];
               mapLayer.source!.addFeatures(features);
+              this.applyFilterOnMap(mapLayer.key);
               geoJSONAlreadyLoading.push(file);
             }
           }
@@ -212,6 +215,71 @@ export class MapService {
         properties
       );
     }
+  }
+
+  /**
+   * Method to apply the filter on the map for a specific layer
+   * @param layerKey layer exploitation data
+   * @param filters list of property filter
+   */
+  public applyFilterOnMap(layerKey: string) {
+    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
+    const mapLayer: MapLayer | undefined = this.getLayer(layerKey);
+    if(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0){
+      mapLayer?.source?.addFeatures(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!);
+      this.filterDataService.getMapRemovedFeaturedByLayers().delete(layerKey);
+    }
+    if(filters && filters.size > 0) {
+      if (mapLayer) {
+        this.filterDataService.getMapRemovedFeaturedByLayers().set(layerKey, mapLayer.source?.getFeatures().filter(feature => {
+          return !this.filterFeature(feature, filters);
+        }));
+        if(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0){
+          for(let feature of this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!){
+            mapLayer.source?.removeFeature(feature);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Method to check if the feature should be filter
+   * @param feature feature from openLayer
+   * @param filters List of filters
+   * @returns true if feature filtered
+   */
+  private filterFeature(feature: Feature, filters: Map<string, string[]>): boolean{
+    let isInFilter = true;
+    let oneDateOk: 'nc' | 'true' | 'false' = 'nc';
+    for(let item of filters) {
+      if(item[0].includes('date')){
+        if(oneDateOk == 'nc'){
+          oneDateOk='false';
+        }
+        if(oneDateOk == 'false' && feature.getProperties()[item[0]]) {
+          if(item[1][0] != 'none' && item[1][1] != 'none') {
+            const startDate = new Date(item[1][0]);
+            const endDate = new Date(item[1][1]);
+            const dateFeature = new Date(feature.getProperties()[item[0]]);
+            if((dateFeature.getTime() < startDate.getTime())
+              || (dateFeature.getTime() > endDate.getTime())) {
+                oneDateOk='false';
+            } else {
+              oneDateOk='true';
+            }
+          }
+        }
+      } else {
+        if(!item[1].includes(feature.getProperties()[item[0]].toString())){
+          isInFilter=false;
+        }
+      }
+    }
+    if(oneDateOk == 'nc'){
+      oneDateOk = 'true'
+    }
+    return isInFilter && (oneDateOk == 'true');
   }
 }
 
