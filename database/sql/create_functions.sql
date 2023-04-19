@@ -53,7 +53,7 @@ begin
 	'type',       'Feature',
 	'id',         id,
 	'geometry',   ST_AsGeoJSON(geom)::jsonb,
-  'properties', to_jsonb(r.*) - 'id' - 'geom') as feature
+  'properties', to_jsonb(r.*) - 'geom') as feature
   from records r
   )
   SELECT jsonb_build_object(
