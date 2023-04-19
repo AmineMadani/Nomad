@@ -11,13 +11,18 @@ import { GeolocationControl } from './controls/geolocation.control';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ScalelineControl } from './controls/scaleline.control';
 import { ZoomControl } from './controls/zoom.control';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements OnInit {
-  constructor(private mapService: MapService) {}
+
+  constructor(
+    private mapService: MapService,
+    private layerService: LayerService
+  ) {}
 
   public projection = getProjection('EPSG:3857');
   public resolutions: number[] = new Array(21);
@@ -31,7 +36,7 @@ export class MapComponent implements OnInit {
     if (this.projection != null) {
       this.map = this.mapService.createMap();
       // Controls need to be added the map creation
-      this.map.addControl(new GeolocationControl());
+      this.map.addControl(new GeolocationControl(this.layerService));
       this.map.addControl(new ScalelineControl());
       this.map.addControl(new ZoomControl(this.map));
       this.generateMap();

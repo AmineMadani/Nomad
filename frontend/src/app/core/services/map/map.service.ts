@@ -193,19 +193,9 @@ export class MapService {
   private onFeaturesClick(features: FeatureLike[], layerKey: string) {
     if (features.length > 0) {
       const ctFeature: Feature[] = features[0].get('features') || [features[0]];
-
-      if (ctFeature.length > 1) {
-        const extent = boundingExtent(
-          ctFeature.map((r: any) => r.getGeometry()!.getCoordinates())
-        );
-        this.map.getView().fit(extent, {
-          duration: 1000,
-          padding: [50, 50, 50, 50],
-        });
-      }
-
       const properties = ctFeature[0].getProperties();
       properties['id'] = ctFeature[0].getId();
+      properties['extent'] = ctFeature[0].getGeometry().getExtent().join(',');
       if (properties['geometry']) delete properties['geometry'];
       // We pass the layerKey to the drawer to be able to select the equipment on the layer
       properties['layerKey'] = layerKey;

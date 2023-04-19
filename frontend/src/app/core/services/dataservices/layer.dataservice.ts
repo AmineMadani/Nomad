@@ -62,7 +62,8 @@ export class LayerDataService {
     /*const tile = await this.db.tiles.get(file);
     if (tile) {
       return tile.data;
-    }
+    }*/
+    this.listTileOnLoad.set(layerKey,"Chargement de la couche "+layerKey);
     /* It's getting the number from the file name. */
     const featureNumber: number = +file.match(
       new RegExp(`${layerKey}_(\\d+)\\.geojson`)
@@ -77,6 +78,7 @@ export class LayerDataService {
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
     await this.db.tiles.put({ data: req, key: file }, file);
+    this.listTileOnLoad.delete(layerKey);
     return req;
   }
 

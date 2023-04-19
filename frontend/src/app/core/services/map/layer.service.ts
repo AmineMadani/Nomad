@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapLayer } from '../../models/map-layer.model';
 import Feature from 'ol/Feature';
+import { boundingExtent } from 'ol/extent';
+import { Geolocation } from '@capacitor/geolocation';
+import { transform } from 'ol/proj';
 
 @Injectable({
   providedIn: 'root',
@@ -60,12 +63,28 @@ export class LayerService {
             .getView()
             .fit(feature.getGeometry()!.getExtent(), {
               duration: 2000,
-              padding: [250, 250, 250, 50],
+              padding: [250, 250, 250, 250],
             });
         }
         mLayer.highlightFeature(id);
       }
     });
+  }
+
+  public zoomOnXyToFeatureByIdAndLayerKey(extent: number[],id: string, layerKey: string) {
+    this.mapService
+        .getMap()
+        .getView()
+        .fit(extent, {duration: 2000, padding: [250, 250, 250, 250]});
+    this.zoomToFeatureByIdAndLayerKey(id,layerKey);
+  }
+
+  public async zoomOnMe() {
+    const coordinates = await Geolocation.getCurrentPosition();
+    this.mapService
+          .getMap()
+          .getView()
+          .fit(boundingExtent([transform([coordinates.coords.longitude,coordinates.coords.latitude],'EPSG:4326','EPSG:3857')]), {padding: [250, 250, 250, 50], duration:2000});
   }
 
   public refreshLayer(layerKey:string){

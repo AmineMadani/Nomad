@@ -45,8 +45,12 @@ export class EquipmentDrawer implements OnInit {
       .pipe(switchMap((params: any) => of(params)))
       .subscribe(async (params: any) => {
         if (params.layerKey && params.id) {
-          // Zoom to the feature
-          this.layerService.zoomToFeatureByIdAndLayerKey(params.id.toString(), params.layerKey);
+
+          if(params.extent) {
+            // Zoom to the feature
+            this.layerService.zoomOnXyToFeatureByIdAndLayerKey(params.extent.split(','),params.id.toString(),params.layerKey)
+          }
+          
           // Get references
           this.userReferences = await this.layerReferencesService.getUserReferences(params.layerKey);
           // Set equipement
