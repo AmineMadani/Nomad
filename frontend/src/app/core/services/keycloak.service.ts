@@ -11,10 +11,6 @@ import { UserService } from './user.service';
 })
 export class KeycloakService {
 
-  public userProfile: any;
-  public realmRoles: string[] = [];
-  public initialState: string | undefined;
-
   constructor(
     private oauthService: OAuthService,
     private activatedRoute: ActivatedRoute,
@@ -22,9 +18,13 @@ export class KeycloakService {
     private configurationService: ConfigurationService,
     private userService: UserService,
     private platform: Platform,
-    private router: Router) {
-    
-  }
+    private router: Router) 
+  {}
+
+  public userProfile: any;
+  public realmRoles: string[] = [];
+  public initialState: string | undefined;
+  private mobileUrlState: string | undefined;
 
   configure(){
     if(this.configurationService.keycloak.active) {
@@ -43,13 +43,11 @@ export class KeycloakService {
   initialisation() {
     if(this.configurationService.keycloak.active) {
       this.oauthService.events.subscribe(eventResult => {
-        console.log("isvalid token : ", this.oauthService.hasValidAccessToken());
         if (eventResult.type == 'token_refreshed') {
           console.log("token : " + this.oauthService.getAccessToken());
         }
         if(eventResult.type == 'token_received') {
-          console.log("*********************** : ");
-          console.log("state : "+decodeURIComponent(this.oauthService.state));
+          console.log("token : " + this.oauthService.getAccessToken());
           this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
         }
       })
@@ -89,7 +87,6 @@ export class KeycloakService {
     return new Promise((resolve, reject) => {
       this.oauthService.revokeTokenAndLogout()
         .then(revokeTokenAndLogoutResult => {
-          console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
           this.userProfile = null;
           this.realmRoles = [];
           this.userService.resetUser();
@@ -145,7 +142,6 @@ export class KeycloakService {
   }
 
   private configureIOS(): void {
-    //console.log("Using iOS configuration")
     let authConfig: AuthConfig = {
       issuer: this.configurationService.keycloak.issuer,
       redirectUri: this.configurationService.keycloak.redirectUriIos,
@@ -209,11 +205,15 @@ export class KeycloakService {
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);
-      console.log(url);
-      if (url.host != "www.nomad.com") {
+      if (url.host != "nomad-dev.hp.m-ve.com") {
         // Only interested in redirects to myschema://login
-        console.log('out');
         return;
+      } else {
+        if(!this.oauthService.hasValidAccessToken()){
+          if(!url.href.replace(url.origin,'').includes('/login')) {
+            this.mobileUrlState=url.href.replace(url.origin,''); //Save the last state url in mobile case
+          }
+        }
       }
 
       this.zone.run(() => {
@@ -235,17 +235,21 @@ export class KeycloakService {
           .then(navigateResult => {
             // After updating the route, trigger login in oauthlib and
             this.oauthService.tryLogin().then(tryLoginResult => {
-              console.log("tryLogin", tryLoginResult);
-              console.log('is token mobile ok : ' + this.oauthService.hasValidAccessToken());
               if (this.oauthService.hasValidAccessToken()) {
+                if(!url.href.replace(url.origin,'').includes('/login')) {
+                  this.router.navigateByUrl(url.href.replace(url.origin,''));
+                } else {
+                  if(this.mobileUrlState){
+                    this.router.navigateByUrl(this.mobileUrlState);
+                    this.mobileUrlState=undefined;
+                  }
+                }
                 this.loadUserProfile();
                 this.realmRoles = this.getRealmRoles();
-                console.log(this.userProfile);
               }
             })
           })
           .catch(error => console.error(error));
-
       });
     });
   }
