@@ -19,17 +19,18 @@ import { ActionsLayerComponent } from './components/actions-layer/actions-layer.
 import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
 import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/filter-accordeon.component';
 import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
-import { EquipmentDrawer } from './drawers/equipment/equipment.drawer';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
 import { FilterCardComponent } from './drawers/components/filter-card/filter-card.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
 import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
-import { InterventionDrawer } from './drawers/intervention/intervention.drawer';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
 import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
+import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
+import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
+import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 
 @NgModule({
   imports: [
@@ -59,9 +60,11 @@ import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
     FilterCardComponent,
     FilterSearchComponent,
     FilterFavoriteComponent,
-    EquipmentDrawer,
-    InterventionDrawer,
     FilterWorkOrderComponent,
+    SynthesisDrawer,
+    WorkOrderDrawer,
+    DemandeDrawer,
+    EquipmentDrawer,
   ],
 })
 export class HomePageModule {}

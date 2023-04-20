@@ -1,0 +1,21 @@
+<ion-item lines="none" class="picture ion-no-margin ion-no-padding">
+  <ion-label class="label">
+    <h3>Pièces jointes</h3>
+    <p>
+      <ion-item *ngFor="let att of attributes.value" lines="none">
+        <ion-thumbnail slot="start" (click)="openImgReader(att)">
+          <img alt="Silhouette of mountains" [src]="'./assets/img/' + att.filename" />
+        </ion-thumbnail>
+        <ion-label>
+          <ion-label>
+            <h4>{{ att.filename }}</h4>
+            <p>Taille du fichier : <br />{{ att.size }}</p>
+          </ion-label>
+        </ion-label>
+        <ion-button fill="clear" slot="end">
+          <ion-icon size="small" slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </p>
+  </ion-label>
+</ion-item>

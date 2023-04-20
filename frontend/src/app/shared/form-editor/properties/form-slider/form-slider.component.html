@@ -1,0 +1,18 @@
+<ng-container *ngIf="edit; else labelTemplate">
+  <ion-range labelPlacement="start" [ticks]="true" [snaps]="true" [min]="attributes.min" [max]="attributes.max" [pin]="true" [pinFormatter]="pinFormatter">
+    <div slot="label">{{ definition.label }}</div>
+  </ion-range>
+
+  <ng-container *ngIf="definition.rules">
+    <ng-container *ngFor="let rule of definition.rules">
+      <ng-container *ngIf="control.hasError(rule.key) && control.touched">
+        <ion-label color="danger" lines="none">
+          {{ rule.message }}
+        </ion-label>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-container>
+<ng-template #labelTemplate>
+  <app-form-label [definition]="definition"></app-form-label>
+</ng-template>

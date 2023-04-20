@@ -1,0 +1,21 @@
+<ng-container *ngIf="editMode; else textarea">
+  <ion-item>
+    <ion-label>
+      <h3>{{ definition.label }}</h3>
+      <p>{{ attributes.value }}</p>
+    </ion-label>
+  </ion-item>
+</ng-container>
+<ng-template #textarea>
+  <ion-textarea labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label"
+    [placeholder]="attributes.placeholder" [value]="attributes.value" [formControl]="control"></ion-textarea>
+    <ng-container *ngIf="definition.rules">
+      <ng-container *ngFor="let rule of definition.rules">
+        <ng-container *ngIf="control.hasError(rule.key) && control.touched">
+          <ion-label color="danger" lines="none">
+            {{ rule.message }}
+          </ion-label>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+</ng-template>

@@ -31,7 +31,7 @@
           <ng-container *ngIf="component.getType() == 'searchFilter'">
             <app-filter-search [searchFilter]="component" />
           </ng-container>
-          <ng-container *ngIf="component.getType() == 'interventionFilter'">
+          <ng-container *ngIf="component.getType() == 'workOrderFilter'">
             <app-filter-work-order [data]="component" />
           </ng-container>
         </ng-container>

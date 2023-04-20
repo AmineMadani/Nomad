@@ -2,8 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { FilterService } from '../../filter.service';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
-import { LayerService } from 'src/app/core/services/map/layer.service';
-import Feature from 'ol/Feature';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
@@ -15,7 +13,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 export class FilterWorkOrderComponent implements OnInit {
   constructor(
     private filterService: FilterService,
-    private layerService: LayerService,
     private drawer: DrawerService
   ) {}
 
@@ -27,7 +24,7 @@ export class FilterWorkOrderComponent implements OnInit {
   ngOnInit() {}
 
   public getFeatures(): any[] {
-    const res = this.filterService.getData(this.data.type);
+    const res = this.filterService.getData('intervention');
     if (this.workOrders?.length !== res?.length) {
       if (!(res[0] instanceof MapFeature)) {
         this.isFromCache = true;
@@ -46,15 +43,13 @@ export class FilterWorkOrderComponent implements OnInit {
     this.filterService.updateData(this.data.type, ev);
   }
 
-  public openIntervention(featureId: string): void {
-    const feature: Feature = this.layerService.getFeatureById(
-      this.data.type,
-      featureId
-    )!;
+  public openIntervention(feature: MapFeature): void {
+    const layer = 'intervention';
+    const route = this.data.type === 'intervention' ? DrawerRouteEnum.WORKORDER : DrawerRouteEnum.DEMANDE;
     this.drawer.navigateTo(
-      DrawerRouteEnum.INTERVENTION,
-      [featureId],
-      feature.getProperties()
+      route,
+      [feature.id],
+      { layer, ...feature }
     );
   }
 }

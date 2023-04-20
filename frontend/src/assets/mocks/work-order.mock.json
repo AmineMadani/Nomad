@@ -1,0 +1,101 @@
+{
+  "key": "work-orders",
+  "editable": true,
+  "definitions": [
+    {
+      "key": "workorderlist",
+      "type": "section",
+      "component": "list",
+      "editable": true,
+      "label": "",
+      "attributes": {}
+    },
+    {
+      "key": "reason",
+      "type": "property",
+      "component": "input",
+      "editable": true,
+      "label": "Raison",
+      "attributes": {
+        "value": "",
+        "placeholder": "Raison de l'intervention",
+        "default": "Inconnu",
+        "type": "text",
+        "hiddenNull": false
+      },
+      "section": "workorderlist"
+    },
+    {
+      "key": "date",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Dates",
+      "attributes": {
+        "value": "",
+        "default": "Inconnu"
+      },
+      "section": "workorderlist"
+    },
+    {
+      "key": "contract",
+      "type": "property",
+      "component": "input",
+      "editable": true,
+      "label": "Contrat",
+      "attributes": {
+        "value": "",
+        "placeholder": "Contrat de l'intervention",
+        "default": "Inconnu",
+        "type": "text",
+        "hiddenNull": false
+      },
+      "section": "workorderlist"
+    },
+    {
+      "key": "address",
+      "type": "property",
+      "component": "input",
+      "editable": true,
+      "label": "Adresse",
+      "attributes": {
+        "value": "",
+        "placeholder": "Adresse de l'intervention",
+        "default": "Inconnu",
+        "type": "text",
+        "hiddenNull": false
+      },
+      "section": "workorderlist"
+    },
+    {
+      "key": "agents",
+      "type": "property",
+      "component": "slider",
+      "editable": true,
+      "label": "Nombre d'agent",
+      "attributes": {
+        "value": 0,
+        "min": 0,
+        "max": 20,
+        "default": 0,
+        "hiddenNull": false
+      },
+      "section": "workorderlist"
+    },
+    {
+      "key": "attachment",
+      "type": "property",
+      "component": "attachment",
+      "editable": false,
+      "label": "Pièces jointes",
+      "attributes": {
+        "value": [
+          { "filename": "ameno_cat.jpg", "size": "128ko" },
+          { "filename": "knife_cat.jpg", "size": "254ko" },
+          { "filename": "meh_cat.jpg", "size": "89ko" }
+        ]
+      },
+      "section": "workorderlist"
+    }
+  ]
+}

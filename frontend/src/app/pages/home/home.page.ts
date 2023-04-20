@@ -101,6 +101,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onBottomSheetDismiss() {
+    console.log('dismiss');
     this.drawerService.closeDrawer();
   }
 

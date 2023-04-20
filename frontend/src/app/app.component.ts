@@ -4,9 +4,9 @@ import { Location } from '@angular/common';
 import { IonRouterOutlet, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { DialogService } from './core/services/dialog.service';
-import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { register } from 'swiper/element/bundle';
+
+register();
 
 @Component({
   selector: 'app-root',

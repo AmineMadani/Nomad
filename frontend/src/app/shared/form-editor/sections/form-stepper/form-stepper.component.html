@@ -1,0 +1,6 @@
+<mat-stepper linear #stepper>
+  <mat-step *ngFor="let child of section.children">
+    <ng-container [ngTemplateOutlet]="template"
+    [ngTemplateOutletContext]="{ $implicit: child }"></ng-container>
+  </mat-step>
+</mat-stepper>

@@ -131,3 +131,24 @@
   -ms-animation: slideInRightPanel 0.5s ease 0.1s forwards;
   animation: slideInRightPanel 0.5s ease 0.1s forwards;
 }
+
+ion-label.label {
+  h3 {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    color: var(--ion-color-neutral-variant-10);
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.25px;
+    color: var(--ion-color-neutral-variant-30);
+  }
+}
+
+.img-reader {
+  --background: transparent;
+  --box-shadow: unset;
+}

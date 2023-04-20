@@ -81,7 +81,7 @@ export class DrawerService {
           }
           // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
           if (
-            [DrawerRouteEnum.EQUIPMENT, DrawerRouteEnum.INTERVENTION].includes(currentRouteName) &&
+            [DrawerRouteEnum.EQUIPMENT, DrawerRouteEnum.WORKORDER, DrawerRouteEnum.DEMANDE].includes(currentRouteName) &&
             this.utilsService.isMobilePlateform()
           ) {
             this.currentDrawerType$.next(DrawerTypeEnum.BOTTOM_SHEET);

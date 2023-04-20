@@ -23,7 +23,7 @@ export class MapFeature {
     let mFeature: MapFeature;
     if (fromProperties) {
       mFeature = new MapFeature()
-      mFeature.id = obj['id'].toString();
+      mFeature.id = obj['id'];
       mFeature.reason = obj['reason'];
       mFeature.status = obj['status'];
       mFeature.datebegin = obj['datebegin'];

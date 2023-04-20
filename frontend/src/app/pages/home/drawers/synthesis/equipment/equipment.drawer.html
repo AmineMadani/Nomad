@@ -1,0 +1,31 @@
+<ng-template #buttonsTemplate>
+  <div class="overflow-row">
+    <div class="equipment-drawer-action-button-row" [class.mobile]="isMobile">
+      <div *ngFor="let button of buttons" class="equipment-drawer-action-button">
+        <ion-icon [name]="button.icon"></ion-icon>
+        <span>{{ button.label }}</span>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #equipmentTemplate>
+  <ng-container *ngIf="userReferences">
+    <ng-container *ngFor="let reference of userReferences">
+      <ng-container *ngIf="equipment">
+        <ng-container *ngIf="equipment[reference.referenceKey]">
+          <ion-item lines="none" class="ion-no-margin">
+            <ion-label class="label">
+              <h3>{{ reference.alias }}</h3>
+              <p>{{ equipment[reference.referenceKey] }}</p>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<app-synthesis [drawerTitle]="equipment?.id" [hasFile]="true" [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons"
+[contentTemplate]="equipmentTemplate">
+</app-synthesis>

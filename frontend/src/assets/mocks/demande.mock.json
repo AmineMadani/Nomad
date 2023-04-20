@@ -1,0 +1,76 @@
+{
+    "key": "work-orders",
+    "editable": false,
+    "definitions": [
+      {
+        "key": "contract",
+        "type": "property",
+        "component": "label",
+        "editable": false,
+        "label": "Contrat",
+        "attributes": {
+          "value": "",
+          "default": "Inconnu"
+        }
+      },
+      {
+        "key": "address",
+        "type": "property",
+        "component": "label",
+        "editable": false,
+        "label": "Adresse",
+        "attributes": {
+          "value": "",
+          "default": "Inconnu"
+        }
+      },
+      {
+        "key": "agents",
+        "type": "property",
+        "component": "label",
+        "editable": false,
+        "label": "Nombre d'agent",
+        "attributes": {
+          "value": "",
+          "default": "Inconnu"
+        }
+      },
+      {
+        "key": "urgence",
+        "type": "property",
+        "component": "label",
+        "editable": false,
+        "label": "Urgence de l'intervention",
+        "attributes": {
+          "value": "",
+          "default": "Pas urgent"
+        }
+      },
+      {
+        "key": "slot",
+        "type": "property",
+        "component": "label",
+        "editable": false,
+        "label": "Créneau d'intervention envisagé",
+        "attributes": {
+          "value": "",
+          "default": "Inconnu"
+        }
+      },
+      {
+        "key": "attachment",
+        "type": "property",
+        "component": "attachment",
+        "editable": false,
+        "label": "Pièces jointes",
+        "attributes": {
+          "value": [
+            { "filename": "img_01.jpg", "size": "128ko" },
+            { "filename": "img_02.jpg", "size": "254ko" },
+            { "filename": "img_03.jpg", "size": "89ko" }
+          ]
+        }
+      }
+    ]
+  }
+  

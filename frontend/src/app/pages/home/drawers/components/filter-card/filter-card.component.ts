@@ -45,7 +45,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() fromCache: boolean;
 
   @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
-  @Output() onFeatureSelected: EventEmitter<string> = new EventEmitter();
+  @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();
   
   public featureHovered: string | undefined;
 
@@ -75,7 +75,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
     this.onLoadingEvent.next(ev);
   }
 
-  public openFeature(featureId: string): void {
-    this.onFeatureSelected.next(featureId);
+  public openFeature(feature: MapFeature): void {
+    this.onFeatureSelected.next(feature);
   }
 }

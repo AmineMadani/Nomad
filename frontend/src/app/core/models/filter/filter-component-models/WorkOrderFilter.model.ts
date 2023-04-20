@@ -1,19 +1,19 @@
 import { InterventionStatusEnum } from '../../map-feature.model';
 import { BaseFilterData, BaseFilter } from './BaseFilter.model';
 
-export class InterventionFilter implements BaseFilter {
+export class WorkOrderFilter implements BaseFilter {
   public id: number;
   public isRecordableFavorite: boolean;
   public position: number;
-  public type: 'intervention' | 'demand';
-  public data: InterventionData[];
+  public type: 'intervention' | 'demande';
+  public data: WorkOrderData[];
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    type: 'intervention' | 'demand', 
-    data: InterventionData[]
+    type: 'intervention' | 'demande', 
+    data: WorkOrderData[]
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;
@@ -27,7 +27,7 @@ export class InterventionFilter implements BaseFilter {
   }
 
   getType(): string {
-    return 'interventionFilter';
+    return 'workOrderFilter';
   }
 
   reset(): void {
@@ -37,7 +37,7 @@ export class InterventionFilter implements BaseFilter {
   }
 }
 
-export interface InterventionData extends BaseFilterData {
+export interface WorkOrderData extends BaseFilterData {
   isIntervention?: boolean;
   subtitle?: string;
   content?: string;
