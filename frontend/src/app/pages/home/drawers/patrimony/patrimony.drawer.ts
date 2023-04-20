@@ -167,6 +167,7 @@ export class PatrimonyDrawer implements OnInit {
       equipments: [],
     };
     const eq: EqData[] = [];
+    let existingFav : FavData ;
     this.currentSegment?.components.forEach((c: FilterType) => {
       if (c.getType() === 'accordeonFilter') {
         c.data.forEach((acc: AccordeonData) => {
@@ -204,18 +205,19 @@ export class PatrimonyDrawer implements OnInit {
             role: 'confirm',
             handler: async data => {
               let favorites = this.favService.getAllFavList();
-              let isDuplicate = favorites.some((u) => u.name == data.name);;
+              existingFav = favorites.find((u) => u.name == data.name);
+              let isDuplicate = existingFav !== undefined ;
               isDuplicate = favorites.some((u) => u.name == data.name);
               if (isDuplicate ){
                 const alertDoublon = await this.alertController.create({
-                  header: "Ce nom existe déjà, voulez-vous continuer ?",
+                  header: "Il existe un favori du même nom. Voulez-vous le remplacer  ?",
                   buttons: [
                             {
-                              text: 'Annuler',
+                              text: 'Non',
                               role: 'cancel',
                             },
                             {
-                              text: 'Ok',
+                              text: 'Oui',
                               role: 'confirm',
                             },
                           ]
@@ -248,7 +250,11 @@ export class PatrimonyDrawer implements OnInit {
 
       if (role === 'confirm' && ( finalCreateConfirmation === null  || finalCreateConfirmation === true)) {
         eqFavs.name = data.values.name;
-        this.favService.addFavorite(eqFavs);
+        existingFav.equipments = eqFavs.equipments;
+        this.favService.modifyCurrentFavorite(existingFav);
+      }
+      else {
+        this.addFavorite();
       }
     }
   }
