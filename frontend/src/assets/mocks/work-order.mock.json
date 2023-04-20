@@ -90,9 +90,9 @@
       "label": "Pièces jointes",
       "attributes": {
         "value": [
-          { "filename": "ameno_cat.jpg", "size": "128ko" },
-          { "filename": "knife_cat.jpg", "size": "254ko" },
-          { "filename": "meh_cat.jpg", "size": "89ko" }
+          { "filename": "demo1.jpg", "size": "128ko" },
+          { "filename": "demo2.jpg", "size": "254ko" },
+          { "filename": "demo3.jpg", "size": "89ko" }
         ]
       },
       "section": "workorderlist"

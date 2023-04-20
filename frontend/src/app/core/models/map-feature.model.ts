@@ -23,15 +23,15 @@ export class MapFeature {
     let mFeature: MapFeature;
     if (fromProperties) {
       mFeature = new MapFeature()
-      mFeature.id = obj['id'];
+      mFeature.id = obj['id']?.toString();
       mFeature.reason = obj['reason'];
       mFeature.status = obj['status'];
       mFeature.datebegin = obj['datebegin'];
       mFeature.dateend = obj['dateend'];
       mFeature.urgent = obj['urgent'];
       mFeature.appointment = obj['appointment'];
-      mFeature.x = obj['id'];
-      mFeature.y = obj['id'];
+      mFeature.x = obj['x'];
+      mFeature.y = obj['y'];
       return mFeature;
     } else {
       mFeature = Object.assign(new MapFeature(), obj)
