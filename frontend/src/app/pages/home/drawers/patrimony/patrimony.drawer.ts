@@ -167,7 +167,7 @@ export class PatrimonyDrawer implements OnInit {
       equipments: [],
     };
     const eq: EqData[] = [];
-    let existingFav : FavData ;
+    let existingFav : FavData | undefined;
     this.currentSegment?.components.forEach((c: FilterType) => {
       if (c.getType() === 'accordeonFilter') {
         c.data.forEach((acc: AccordeonData) => {
@@ -247,16 +247,21 @@ export class PatrimonyDrawer implements OnInit {
       await alert.present();
 
       const { role, data } = await alert.onDidDismiss();
-
-      if (role === 'confirm' && ( finalCreateConfirmation === null  || finalCreateConfirmation === true)) {
-        eqFavs.name = data.values.name;
-        existingFav.equipments = eqFavs.equipments;
-        this.favService.modifyCurrentFavorite(existingFav);
-      }
-      else {
-        this.addFavorite();
+      if (role === 'confirm') {
+        if (finalCreateConfirmation === true) {
+          existingFav.equipments = eqFavs.equipments;
+          this.favService.modifyCurrentFavorite(existingFav);
+          }
+        else if (finalCreateConfirmation === false){
+          this.addFavorite();
+        }
+        else {
+          eqFavs.name = data.values.name;
+          this.favService.addFavorite(eqFavs);
+        }
       }
     }
+
   }
 
 
