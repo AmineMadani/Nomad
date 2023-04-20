@@ -283,7 +283,7 @@ export class MapService {
           }
         }
       } else {
-        if(!item[1].includes(feature.getProperties()[item[0]].toString())){
+        if(!item[1].includes(feature.getProperties()[item[0]]?.toString())){
           isInFilter=false;
         }
       }

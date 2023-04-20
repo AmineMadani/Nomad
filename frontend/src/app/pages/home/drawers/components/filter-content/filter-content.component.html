@@ -26,7 +26,7 @@
             </ion-accordion-group>
           </ng-container>
           <ng-container *ngIf="component.getType() == 'toggleFilter'">
-            <app-filter-toggle [data]="component.data" />
+            <app-filter-toggle [data]="component.data" [tableKey]="component.tableKey" />
           </ng-container>
           <ng-container *ngIf="component.getType() == 'searchFilter'">
             <app-filter-search [searchFilter]="component" />
