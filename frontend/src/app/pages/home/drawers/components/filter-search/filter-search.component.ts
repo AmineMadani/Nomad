@@ -71,7 +71,7 @@ export class FilterSearchComponent implements OnInit {
       });
   }
 
-  changeSelectData(event: Event, widget: Widget) {
+  onChangeData(event: Event, widget: Widget) {
     if(widget.multiple) {
       this.filterService.setSearchFilter(this.searchFilter.tableKey, widget.key[0], (event as CustomEvent).detail.value);
     } else {

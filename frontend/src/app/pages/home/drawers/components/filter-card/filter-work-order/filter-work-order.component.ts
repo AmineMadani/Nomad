@@ -23,6 +23,12 @@ export class FilterWorkOrderComponent implements OnInit {
 
   ngOnInit() {}
 
+  /**
+   * Retrieves and returns a list of features for interventions, either from cache or by
+   * mapping properties to MapFeature objects.
+   * @returns The `getFeatures()` method is returning an array of `MapFeature` objects, which are either
+   * obtained from the `filterService` or cached in the `workOrders` property.
+   */
   public getFeatures(): any[] {
     const res = this.filterService.getData('intervention');
     if (this.workOrders?.length !== res?.length) {
@@ -45,11 +51,10 @@ export class FilterWorkOrderComponent implements OnInit {
 
   public openIntervention(feature: MapFeature): void {
     const layer = 'intervention';
-    const route = this.data.type === 'intervention' ? DrawerRouteEnum.WORKORDER : DrawerRouteEnum.DEMANDE;
-    this.drawer.navigateTo(
-      route,
-      [feature.id],
-      { layer, ...feature }
-    );
+    const route =
+      this.data.type === 'intervention'
+        ? DrawerRouteEnum.WORKORDER
+        : DrawerRouteEnum.DEMANDE;
+    this.drawer.navigateTo(route, [feature.id], { layer, ...feature });
   }
 }

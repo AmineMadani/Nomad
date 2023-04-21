@@ -1,9 +1,12 @@
-import { Component, Input, OnInit, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-} from '@angular/forms';
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+} from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { FormDefinition, Form } from './models/form.model';
 import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
@@ -45,6 +48,10 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  /**
+   * Checks if the edit mode has changed and updates the value accordingly.
+   * @param {SimpleChanges} changes - SimpleChanges
+   */
   ngOnChanges(changes: SimpleChanges): void {
     const { currentValue, previousValue } = changes['editMode'];
     if (currentValue && !previousValue && !this.nomadForm.editable) {
@@ -57,6 +64,12 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
+  /**
+   * Builds a tree structure of FormNodes from an array of FormDefinitions for the templates
+   * @param {FormDefinition[]} definitions - Represent the structure of a form.
+   * @param {string} [section] - Optional string parameter that specifies the section FormNode belongs to.
+   * @returns An array of FormNode objects is being returned.
+   */
   buildTree(definitions: FormDefinition[], section?: string): FormNode[] {
     const nodes: FormNode[] = [];
     for (const definition of definitions) {
@@ -72,22 +85,26 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     return nodes;
   }
 
+  /**
+   * Builds a FormGroup with FormControl objects based on an array of field definitions,
+   * applying validation rules if specified.
+   * @returns A FormGroup object is being returned.
+   */
   public buildForm(): FormGroup {
-    const controlsArray = this.nomadForm.definitions
-      .map((field) => {
-        const validators = [];
-        if (field.rules) {
-          for (const rule of field.rules) {
-            validators.push(
-              this.rulesService.createValidators(rule.key, rule.value)
-            );
-          }
+    const controlsArray = this.nomadForm.definitions.map((field) => {
+      const validators = [];
+      if (field.rules) {
+        for (const rule of field.rules) {
+          validators.push(
+            this.rulesService.createValidators(rule.key, rule.value)
+          );
         }
-        return [
-          field.key,
-          new FormControl(field.attributes.value, { validators }),
-        ];
-      });
+      }
+      return [
+        field.key,
+        new FormControl(field.attributes.value, { validators }),
+      ];
+    });
     const controls = Object.fromEntries(controlsArray);
     return this.fb.group(controls);
   }

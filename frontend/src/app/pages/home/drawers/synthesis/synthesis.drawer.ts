@@ -77,7 +77,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   public onDrawerBack(): void {
-    this.drawerService.goBack();
+    this.drawerService.setLocationBack();
   }
 
   public onDrawerClose(): void {

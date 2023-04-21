@@ -25,7 +25,7 @@ export class FilterFavoriteComponent implements OnInit {
     return this.favService.getSelectedFavorite();
   }
 
-  checkOpeningRule(data: FavData): void {
+  onOpenAccordion(data: FavData): void {
     if (this.currentFavOpen === data) {
       this.currentFavOpen = undefined;
     } else {
@@ -42,7 +42,7 @@ export class FilterFavoriteComponent implements OnInit {
     }
   }
 
-  public async renameFav(fav: FavData): Promise<void> {
+  public async renameFavorite(fav: FavData): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: `Voulez-vous renommer le favori ?`,
       buttons: [
@@ -73,7 +73,7 @@ export class FilterFavoriteComponent implements OnInit {
     }
   }
 
-  public async delFav(data: FavData): Promise<void> {
+  public async deleteFavorite(data: FavData): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: `Voulez-vous supprimer le favori ${data.name} ?`,
       buttons: [

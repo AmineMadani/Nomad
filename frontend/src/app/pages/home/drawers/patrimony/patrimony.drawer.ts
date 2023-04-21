@@ -24,7 +24,7 @@ export class PatrimonyDrawer implements OnInit {
     private alertController: AlertController,
     private mapService: MapService,
     private favService: FavoriteService
-  ) { }
+  ) {}
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
@@ -35,8 +35,8 @@ export class PatrimonyDrawer implements OnInit {
 
   title(): string {
     let val = 'Patrimoine';
-    if(this.favService.getSelectedFavorite()){
-      val += ' ('+this.favService.getSelectedFavorite()?.name+')';
+    if (this.favService.getSelectedFavorite()) {
+      val += ' (' + this.favService.getSelectedFavorite()?.name + ')';
     }
     return val;
   }
@@ -93,11 +93,19 @@ export class PatrimonyDrawer implements OnInit {
   };
 
   isFavoriteDataChange = () => {
-    const currentFav: FavData | undefined = this.favService.getSelectedFavorite();
+    const currentFav: FavData | undefined =
+      this.favService.getSelectedFavorite();
     if (currentFav) {
-      let listIdFav: number[] | undefined = currentFav.equipments?.map(equ => equ.id);
-      let listIdSelected: number[] | undefined = this.getFavData().map(equ => equ.id);
-      return listIdFav && listIdFav.sort().join(',') !== listIdSelected.sort().join(',');
+      let listIdFav: number[] | undefined = currentFav.equipments?.map(
+        (equ) => equ.id
+      );
+      let listIdSelected: number[] | undefined = this.getFavoriteData().map(
+        (equ) => equ.id
+      );
+      return (
+        listIdFav &&
+        listIdFav.sort().join(',') !== listIdSelected.sort().join(',')
+      );
     }
     return false;
   };
@@ -112,9 +120,16 @@ export class PatrimonyDrawer implements OnInit {
     this.favService.removeCurrentFavorite();
   }
 
+  /**
+   * This is an async function that displays an alert asking the user if they want to modify a selected
+   * favorite, and if confirmed, updates the selected favorite with new equipment data.
+   */
   async modifyFavorite(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Voulez-vous modifier le favori '+this.favService.getSelectedFavorite()?.name+' ?',
+      header:
+        'Voulez-vous modifier le favori ' +
+        this.favService.getSelectedFavorite()?.name +
+        ' ?',
       buttons: [
         {
           text: 'Annuler',
@@ -135,29 +150,33 @@ export class PatrimonyDrawer implements OnInit {
       const currentFav: FavData | undefined =
         this.favService.getSelectedFavorite();
       if (currentFav) {
-        currentFav.equipments = this.getFavData();
+        currentFav.equipments = this.getFavoriteData();
         this.favService.modifyCurrentFavorite(currentFav);
       }
     }
   }
 
-  getFavData(): EqData[] {
+  getFavoriteData(): EqData[] {
     const eq: EqData[] = [];
     this.currentSegment?.components.forEach((c: FilterType) => {
       if (c.getType() === 'accordeonFilter') {
         c.data.forEach((acc: AccordeonData) => {
           if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
           if (acc.children) {
-            acc.children.forEach(child => {
+            acc.children.forEach((child) => {
               if (child.value) eq.push({ id: child.id!, key: child.key! });
-            })
+            });
           }
-        })
+        });
       }
     });
     return eq;
   }
 
+  /**
+   * Adds a new favorite to a list of favorites, with the option to modify an existing
+   * favorite if a duplicate name is found.
+   */
   async addFavorite() {
     const eqFavs: FavData = {
       id: 0,
@@ -167,17 +186,17 @@ export class PatrimonyDrawer implements OnInit {
       equipments: [],
     };
     const eq: EqData[] = [];
-    let existingFav : FavData | undefined;
+    let existingFav: FavData | undefined;
     this.currentSegment?.components.forEach((c: FilterType) => {
       if (c.getType() === 'accordeonFilter') {
         c.data.forEach((acc: AccordeonData) => {
           if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
           if (acc.children) {
-            acc.children.forEach(child => {
+            acc.children.forEach((child) => {
               if (child.value) eq.push({ id: child.id!, key: child.key! });
-            })
+            });
           }
-        })
+        });
       }
     });
     eqFavs.equipments = eq;
@@ -192,7 +211,7 @@ export class PatrimonyDrawer implements OnInit {
         n += 1;
         defaultName = `${this.currentSegment?.name} - favoris - ${n}`;
       }
-      let finalCreateConfirmation :  boolean |null = null;
+      let finalCreateConfirmation: boolean | null = null;
       const alert = await this.alertController.create({
         header: "Création d'un nouveau favori",
         buttons: [
@@ -203,38 +222,37 @@ export class PatrimonyDrawer implements OnInit {
           {
             text: 'Ok',
             role: 'confirm',
-            handler: async data => {
+            handler: async (data) => {
               let favorites = this.favService.getAllFavList();
               existingFav = favorites.find((u) => u.name == data.name);
-              let isDuplicate = existingFav !== undefined ;
+              let isDuplicate = existingFav !== undefined;
               isDuplicate = favorites.some((u) => u.name == data.name);
-              if (isDuplicate ){
+              if (isDuplicate) {
                 const alertDoublon = await this.alertController.create({
-                  header: "Il existe un favori du même nom. Voulez-vous le remplacer  ?",
+                  header:
+                    'Il existe un favori du même nom. Voulez-vous le remplacer  ?',
                   buttons: [
-                            {
-                              text: 'Non',
-                              role: 'cancel',
-                            },
-                            {
-                              text: 'Oui',
-                              role: 'confirm',
-                            },
-                          ]
-                        }
-                    );
-                    await alertDoublon.present();
-                    const {role, data} = await alertDoublon.onDidDismiss();
-                    if (role === 'confirm'){
-                      finalCreateConfirmation = true;
-                    }
-                    else  {
-                      finalCreateConfirmation = false;
-                      return ;
-                    }
-            }
+                    {
+                      text: 'Non',
+                      role: 'cancel',
+                    },
+                    {
+                      text: 'Oui',
+                      role: 'confirm',
+                    },
+                  ],
+                });
+                await alertDoublon.present();
+                const { role, data } = await alertDoublon.onDidDismiss();
+                if (role === 'confirm') {
+                  finalCreateConfirmation = true;
+                } else {
+                  finalCreateConfirmation = false;
+                  return;
+                }
+              }
+            },
           },
-        }
         ],
         inputs: [
           {
@@ -251,18 +269,13 @@ export class PatrimonyDrawer implements OnInit {
         if (finalCreateConfirmation === true) {
           existingFav.equipments = eqFavs.equipments;
           this.favService.modifyCurrentFavorite(existingFav);
-          }
-        else if (finalCreateConfirmation === false){
+        } else if (finalCreateConfirmation === false) {
           this.addFavorite();
-        }
-        else {
+        } else {
           eqFavs.name = data.values.name;
           this.favService.addFavorite(eqFavs);
         }
       }
     }
-
   }
-
-
 }

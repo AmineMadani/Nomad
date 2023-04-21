@@ -132,7 +132,7 @@ export class DrawerService {
     return url;
   }
 
-  goBack() {
+  setLocationBack() {
     this.location.back();
   }
 }

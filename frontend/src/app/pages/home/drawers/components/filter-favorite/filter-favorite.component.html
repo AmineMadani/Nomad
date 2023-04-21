@@ -1,7 +1,7 @@
 <ion-accordion-group>
   <ion-radio-group [allowEmptySelection]="true" [value]="getCurrentFavorite()" (ionChange)="onFavoriteSelected($event)">
     <ion-accordion *ngFor="let fd of data" [toggleIcon]="''">
-      <ion-item slot="header" (click)="checkOpeningRule(fd)">
+      <ion-item slot="header" (click)="onOpenAccordion(fd)">
         <ion-radio slot="start" mode="md" [value]="fd"></ion-radio>
         <ion-label>{{ fd.name }}</ion-label>
         <ion-icon slot="end" color="primary"
@@ -11,8 +11,8 @@
         <ion-item class="favorites-action" lines="none">
           <ion-label>
             <div class="scrolling-wrapper">
-              <ion-button fill="clear" (click)="renameFav(fd)">Renommer</ion-button>
-              <ion-button fill="clear" (click)="delFav(fd)">Supprimer</ion-button>
+              <ion-button fill="clear" (click)="renameFavorite(fd)">Renommer</ion-button>
+              <ion-button fill="clear" (click)="deleteFavorite(fd)">Supprimer</ion-button>
             </div>
           </ion-label>
         </ion-item>

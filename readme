@@ -52,6 +52,15 @@ Note : Swagger disponible à l'url /api/gmao/swagger-ui.html
  - command demarrage : kc.bat start-dev --http-port 9191
 
 
+#### Convention Nommage Angular
+ - attribute$ => Subject, Observable
+ - onFunction => Action lié à un évènement (click, output, observable)
+ - setFunction => Donner une valeur à un attribut
+ - getFunction => Récupérer la valeur d'un attribut
+ - isFunction/hasFunction => Fonction qui retourne un boolean
+ - function => Fonction basique
+
+
 ## Authors
 
 - [Veolia](https://www.service.eau.veolia.fr/home.html)

@@ -17,7 +17,7 @@ export class ErrorPage implements OnInit {
   ngOnInit() {
   }
 
-  retryAuthent(){
+  onRetry(){
     if (!this.keycloakService.hasValidToken()) {
       this.keycloakService.initialisation();
     }

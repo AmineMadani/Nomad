@@ -8,19 +8,17 @@ import { UtilsService } from 'src/app/core/services/utils.service';
   styleUrls: ['./filter-content.component.scss'],
 })
 export class FilterContentComponent implements OnInit {
-
-  constructor(
-    private utilsService: UtilsService
-  ) { }
+  constructor(private utilsService: UtilsService) {}
 
   @Input() filter: Filter;
   @Output() segmentChange: EventEmitter<number> = new EventEmitter();
 
   selectedSegment?: number;
 
-
   ngOnInit() {
-    this.selectedSegment = this.filter.segments.find(segment => segment.selected)?.id;
+    this.selectedSegment = this.filter.segments.find(
+      (segment) => segment.selected
+    )?.id;
     this.segmentChange.emit(this.selectedSegment);
   }
 
@@ -28,17 +26,21 @@ export class FilterContentComponent implements OnInit {
     return this.utilsService.isMobilePlateform();
   }
 
-  onSegmentChange(event:any) {
+  /**
+   * Updates the selected segment and emits a change event
+   * @param {any} event - The event of the segment button
+   */
+  onSegmentChange(event: any) {
     let valSegment = Number(event.detail.value);
     this.selectedSegment = valSegment;
     this.segmentChange.emit(this.selectedSegment);
-    this.filter.segments.forEach(segment => {
-      if(segment.id != valSegment) {
+    this.filter.segments.forEach((segment) => {
+      if (segment.id != valSegment) {
         segment.selected = false;
       } else {
         segment.selected = true;
       }
-    })
+    });
   }
 
   customScrollBarStyle(): string {
@@ -56,5 +58,4 @@ export class FilterContentComponent implements OnInit {
       background: var(--ion-color-neutral-variant-50);
     }`;
   }
-
 }

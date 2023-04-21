@@ -26,7 +26,7 @@ export class FilterToggleComponent implements OnInit {
     });
   }
 
-  changeToggle(data: ToggleData, e: Event) {
+  onToggleChange(data: ToggleData, e: Event) {
     data.checked = (e as CustomEvent).detail.checked;
     if (!this.tableKey) {
       this.filterService.setToggleLayer(data.key, data.checked);

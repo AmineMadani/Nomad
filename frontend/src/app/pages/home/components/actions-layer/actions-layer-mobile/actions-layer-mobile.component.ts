@@ -27,7 +27,7 @@ export class ActionsLayerMobileComponent implements OnInit {
     this.isOpen = true;
   }
 
-  closeActionLayer(): void {
+  onCloseAction(): void {
     this.isOpen = false;
   }
 }

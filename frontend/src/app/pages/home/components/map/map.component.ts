@@ -18,7 +18,6 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements OnInit {
-
   constructor(
     private mapService: MapService,
     private layerService: LayerService
@@ -30,7 +29,7 @@ export class MapComponent implements OnInit {
 
   public map!: MapOpenLayer;
   public mapLayers: Map<string, BaseLayer> = new Map();
-  
+
   ngOnInit() {
     this.projection = getProjection('EPSG:3857');
     if (this.projection != null) {
@@ -43,6 +42,12 @@ export class MapComponent implements OnInit {
     }
   }
 
+  /**
+   * This function adds or removes an event layer from a map service based on whether it already exists
+   * or not.
+   * @param {string} layerKey - string parameter representing the unique identifier for the event layer
+   * being added or removed.
+   */
   addEventLayer(layerKey: string) {
     if (!this.mapService.hasEventLayer(layerKey)) {
       this.mapService.addEventLayer(layerKey);
@@ -51,6 +56,9 @@ export class MapComponent implements OnInit {
     }
   }
 
+  /**
+   * This function generates a map with default layers based on a given projection.
+   */
   generateMap() {
     if (this.projection != null) {
       const projectionExtent = this.projection.getExtent();
@@ -68,6 +76,12 @@ export class MapComponent implements OnInit {
     }
   }
 
+  /**
+   * Creates layers for a map based on the type of layer specified in the input parameter.
+   * @param {string} backLayerKey - A string representing the key of the back layer to be created.
+   * @param {BackLayer} [layer] - Optional parameter of type BackLayer, which contains information about
+   * the layer to be created.
+   */
   createLayers(backLayerKey: string, layer?: BackLayer): void {
     if (!layer) {
       layer = MAP_DATASET.find((bl) => bl.key === backLayerKey);
@@ -98,6 +112,10 @@ export class MapComponent implements OnInit {
     }
   }
 
+  /**
+   * The function displays a specific layer on a map while hiding all other layers.
+   * @param {string} keyLayer - a string representing the key of a layer in a mapLayers Map object
+   */
   displayLayer(keyLayer: string) {
     if (!this.mapLayers.has(keyLayer)) {
       this.createLayers(keyLayer);
@@ -116,6 +134,11 @@ export class MapComponent implements OnInit {
       });
   }
 
+  /**
+   * Builds a WMTS layer
+   * @param {BackLayer} layer - BackLayer object containing information about the WMTS
+   * @returns A WMTS object is being returned.
+   */
   private buildWMTS(layer: BackLayer): WMTS {
     return new WMTS({
       attributions: layer.attributions!,
@@ -125,7 +148,7 @@ export class MapComponent implements OnInit {
       format: layer.format!,
       projection: this.projection!,
       tileGrid: new WMTSTileGrid({
-        origin: getTopLeft(this.projection ? this.projection.getExtent():[]),
+        origin: getTopLeft(this.projection ? this.projection.getExtent() : []),
         resolutions: this.resolutions,
         matrixIds: this.matrixIds,
       }),
@@ -134,6 +157,10 @@ export class MapComponent implements OnInit {
     });
   }
 
+  /**
+   * Builds a OpenStreetMap layer
+   * @returns A OSM object is being returned.
+   */
   private buildOSM(): OSM {
     return new OSM();
   }

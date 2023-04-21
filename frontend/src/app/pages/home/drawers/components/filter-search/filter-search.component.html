@@ -10,7 +10,7 @@
           <ng-container *ngIf="widget.type == 'select'">
             <ion-item fill="outline">
               <ion-label position="floating">{{ widget.label | titlecase }}</ion-label>
-              <ion-select [clearData]="getValues(widget.key[0])" (onClearData)="onClearSelection(widget)" [placeholder]="widget.placeholder" (ionChange)="changeSelectData($event,widget)" [multiple]="widget.multiple" [value]="getValues(widget.key[0])">
+              <ion-select [clearData]="getValues(widget.key[0])" (onClearData)="onClearSelection(widget)" [placeholder]="widget.placeholder" (ionChange)="onChangeData($event,widget)" [multiple]="widget.multiple" [value]="getValues(widget.key[0])">
                 <ion-select-option *ngFor="let item of widget.choices | keyvalue" [value]="item.key">{{item.value}}</ion-select-option>
               </ion-select>
             </ion-item>
