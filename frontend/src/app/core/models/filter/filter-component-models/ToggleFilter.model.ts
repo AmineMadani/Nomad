@@ -22,7 +22,7 @@ export class ToggleFilter implements BaseFilter {
   }
 
   isSelectedData(): boolean {
-    return this.data.some(data => data);
+    return this.data.some(data => data.checked);
   }
 
   getType(): string {
