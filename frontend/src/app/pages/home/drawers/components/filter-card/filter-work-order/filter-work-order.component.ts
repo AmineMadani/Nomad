@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { FilterService } from '../../filter.service';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { FilterService } from 'src/app/core/services/filter.service';
 
 @Component({
   selector: 'app-filter-work-order',

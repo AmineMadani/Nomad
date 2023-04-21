@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ToggleData } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
-import { FilterService } from '../filter.service';
+import { FilterService } from 'src/app/core/services/filter.service';
 
 @Component({
   selector: 'app-filter-toggle',

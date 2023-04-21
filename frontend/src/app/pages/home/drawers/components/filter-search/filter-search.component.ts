@@ -5,9 +5,9 @@ import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepi
 import { SearchFilter, Widget } from 'src/app/core/models/filter/filter-component-models/SearchFilter.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
-import { FilterService } from '../filter.service';
 import { DatePipe } from '@angular/common';
 import { IonAccordionGroup } from '@ionic/angular';
+import { FilterService } from 'src/app/core/services/filter.service';
 
 @Component({
   selector: 'app-filter-search',
