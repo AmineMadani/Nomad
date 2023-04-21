@@ -13,6 +13,11 @@ export class LayerReferencesService {
     private userService: UserService,
   ) { }
 
+  /**
+   * Get the list of user references for a given layer key.
+   * @param layerKey The layer key to get the references for.
+   * @returns A Promise that resolves to an array of UserReference objects.
+   */
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
 
@@ -30,6 +35,11 @@ export class LayerReferencesService {
     return layerReferences;
   }
 
+  /**
+   * Get the list of synthetic reference keys for a given layer key.
+   * @param layerKey The layer key to get the synthetic reference keys for.
+   * @returns A Promise that resolves to an array of string reference keys.
+   */
   async getSyntheticUserReferenceKeys(layerKey: string): Promise<string[]> {
     const userLayerReferences: UserReference[] = await this.getUserReferences(layerKey);
     return userLayerReferences.filter((ref) => ref.displayType === ReferenceDisplayType.SYNTHETIC).map((ref) => ref.referenceKey);;

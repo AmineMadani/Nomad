@@ -25,9 +25,16 @@ export class MapService {
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private filterDataService: FilterDataService
-  ) {}
+  ) { }
 
+  /**
+   * Map object created by OpenLayers.
+   */
   private map: MapOpenLayer;
+
+  /**
+   * A map of layers added to the map, with the layer key as the key.
+   */
   private layers: Map<string, MapLayer> = new Map();
 
   /**
@@ -46,22 +53,42 @@ export class MapService {
     return this.map;
   }
 
+  /**
+   * Returns the map object.
+   * @returns The map object.
+   */
   public getMap(): MapOpenLayer {
     return this.map;
   }
 
+  /**
+   * Returns the view of the map.
+   * @returns The view of the map.
+   */
   public getView(): View {
     return this.map.getView();
   }
 
+  /**
+   * Returns the MapLayer object corresponding to the provided layer key.
+   * @param layerKey layerKey The key of the MapLayer to return.
+   * @returns The MapLayer object corresponding to the provided layer key, or undefined if no such layer exists.
+   */
   public getLayer(layerKey: string): MapLayer | undefined {
     return this.layers.get(layerKey);
   }
 
+  /**
+   * Returns an array of strings representing the keys of all current layers added to the map.
+   * @returns An array of strings representing the keys of all current layers added to the map.
+   */
   public getCurrentLayersKey(): string[] {
     return [...this.layers.keys()];
   }
 
+  /**
+   * Removes all layers from the map.
+   */
   public resetLayers(): void {
     [...this.layers.keys()].forEach((layerKey: string) => {
       this.removeEventLayer(layerKey);
@@ -77,6 +104,10 @@ export class MapService {
     return this.layers.has(layerKey);
   }
 
+  /**
+   * Bind different events to a layer like click, change or hovered
+   * @param {string} layerKey - string - The key of the layer to bind events
+   */
   public async addEventLayer(layerKey: string): Promise<void> {
     if (layerKey && layerKey != '' && !this.hasEventLayer(layerKey)) {
       const mLayer: MapLayer = new MapLayer(
@@ -130,6 +161,33 @@ export class MapService {
   }
 
   /**
+   * Method to apply the filter on the map for a specific layer
+   * @param layerKey layer exploitation data
+   * @param filters list of property filter
+   */
+  public applyFilterOnMap(layerKey: string) {
+    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
+    const mapLayer: MapLayer | undefined = this.getLayer(layerKey);
+    if (this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0) {
+      mapLayer?.source?.addFeatures(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!);
+      this.filterDataService.getMapRemovedFeaturedByLayers().delete(layerKey);
+    }
+    if (filters && filters.size > 0) {
+      if (mapLayer) {
+        this.filterDataService.getMapRemovedFeaturedByLayers().set(layerKey, mapLayer.source?.getFeatures().filter(feature => {
+          return !this.filterFeature(feature, filters);
+        }));
+        if (this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0) {
+          for (let feature of this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!) {
+            mapLayer.source?.removeFeature(feature);
+          }
+        }
+      }
+    }
+  }
+
+
+  /**
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.
    */
@@ -155,15 +213,15 @@ export class MapService {
     const wkt = new WKT();
     mapLayer.source!.setLoader(async (extent: number[]) => {
       const index = await this.layerDataService.getLayerIndex(mapLayer.key);
-      if(index['features']){
-        for(let el of (index['features'] as any[])){
+      if (index['features']) {
+        for (let el of (index['features'] as any[])) {
           const file: string = el.properties.file;
           const isIn = wkt
             .readFeature(el.properties.bbox)
             .getGeometry()
             ?.intersectsExtent(extent);
           if (isIn && !geoJSONAlreadyLoading.includes(file)) {
-            if(geoJSONAlreadyLoading.length >= 3) {
+            if (geoJSONAlreadyLoading.length >= 3) {
               mapLayer.source!.clear();
               geoJSONAlreadyLoading.length = 0;
             }
@@ -211,7 +269,7 @@ export class MapService {
 
         properties['layer'] = layerKey;
         let route;
-        switch(layerKey) {
+        switch (layerKey) {
           case 'intervention':
             route = DrawerRouteEnum.WORKORDER;
             break;
@@ -230,65 +288,39 @@ export class MapService {
   }
 
   /**
-   * Method to apply the filter on the map for a specific layer
-   * @param layerKey layer exploitation data
-   * @param filters list of property filter
-   */
-  public applyFilterOnMap(layerKey: string) {
-    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
-    const mapLayer: MapLayer | undefined = this.getLayer(layerKey);
-    if(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0){
-      mapLayer?.source?.addFeatures(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!);
-      this.filterDataService.getMapRemovedFeaturedByLayers().delete(layerKey);
-    }
-    if(filters && filters.size > 0) {
-      if (mapLayer) {
-        this.filterDataService.getMapRemovedFeaturedByLayers().set(layerKey, mapLayer.source?.getFeatures().filter(feature => {
-          return !this.filterFeature(feature, filters);
-        }));
-        if(this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey) && this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!.length > 0){
-          for(let feature of this.filterDataService.getMapRemovedFeaturedByLayers().get(layerKey)!){
-            mapLayer.source?.removeFeature(feature);
-          }
-        }
-      }
-    }
-  }
-
-  /**
    * Method to check if the feature should be filter
    * @param feature feature from openLayer
    * @param filters List of filters
    * @returns true if feature filtered
    */
-  private filterFeature(feature: Feature, filters: Map<string, string[]>): boolean{
+  private filterFeature(feature: Feature, filters: Map<string, string[]>): boolean {
     let isInFilter = true;
     let oneDateOk: 'nc' | 'true' | 'false' = 'nc';
-    for(let item of filters) {
-      if(item[0].includes('date')){
-        if(oneDateOk == 'nc'){
-          oneDateOk='false';
+    for (let item of filters) {
+      if (item[0].includes('date')) {
+        if (oneDateOk == 'nc') {
+          oneDateOk = 'false';
         }
-        if(oneDateOk == 'false' && feature.getProperties()[item[0]]) {
-          if(item[1][0] != 'none' && item[1][1] != 'none') {
+        if (oneDateOk == 'false' && feature.getProperties()[item[0]]) {
+          if (item[1][0] != 'none' && item[1][1] != 'none') {
             const startDate = new Date(item[1][0]);
             const endDate = new Date(item[1][1]);
             const dateFeature = new Date(feature.getProperties()[item[0]]);
-            if((dateFeature.getTime() < startDate.getTime())
+            if ((dateFeature.getTime() < startDate.getTime())
               || (dateFeature.getTime() > endDate.getTime())) {
-                oneDateOk='false';
+              oneDateOk = 'false';
             } else {
-              oneDateOk='true';
+              oneDateOk = 'true';
             }
           }
         }
       } else {
-        if(!item[1].includes(feature.getProperties()[item[0]]?.toString())){
-          isInFilter=false;
+        if (!item[1].includes(feature.getProperties()[item[0]]?.toString())) {
+          isInFilter = false;
         }
       }
     }
-    if(oneDateOk == 'nc'){
+    if (oneDateOk == 'nc') {
       oneDateOk = 'true'
     }
     return isInFilter && (oneDateOk == 'true');

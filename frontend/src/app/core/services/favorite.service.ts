@@ -16,16 +16,23 @@ import { MapService } from './map/map.service';
   providedIn: 'root',
 })
 export class FavoriteService {
-  constructor(private mapService: MapService) {}
+  constructor(private mapService: MapService) { }
 
   private filter: Filter = patrimonyFilterMock;
 
   private currentFavorite: FavData | undefined;
 
+  /**
+   * Returns the current filter object used for favorites.
+   */
   public getFilter(): Filter {
     return this.filter;
   }
 
+  /**
+   * Sets the current favorite and applies it on the map.
+   * @param fav - The favorite to be set as current.
+   */
   public setCurrentFavorite(fav: FavData): void {
     if (this.currentFavorite) {
       this.removeCurrentFavorite();
@@ -33,6 +40,10 @@ export class FavoriteService {
     this.applyFavorite(fav);
   }
 
+  /**
+   * Applies a favorite on the map.
+   * @param fav - The favorite to be applied.
+   */
   public applyFavorite(fav: FavData): void {
     if (this.mapService.getCurrentLayersKey().length > 0) {
       this.mapService.resetLayers();
@@ -45,6 +56,9 @@ export class FavoriteService {
     this.currentFavorite.value = true;
   }
 
+  /**
+   * Removes the current favorite from the map.
+   */
   public removeCurrentFavorite(): void {
     if (this.currentFavorite) {
       this.currentFavorite.value = false;
@@ -52,6 +66,10 @@ export class FavoriteService {
     }
   }
 
+  /**
+   * Removes a favorite from the map.
+   * @param fav - The favorite to be removed.
+   */
   public removeFavorite(fav: FavData): void {
     fav?.equipments?.forEach((eq: EqData) => {
       this.mapService.removeEventLayer(eq.key);
@@ -59,10 +77,18 @@ export class FavoriteService {
     this.currentFavorite = undefined;
   }
 
+  /**
+   * Returns the currently selected favorite.
+   * @returns The currently selected favorite or undefined.
+   */
   public getSelectedFavorite(): FavData | undefined {
     return this.currentFavorite;
   }
 
+  /**
+   * Modifies the currently selected favorite.
+   * @param fav - The modified favorite to be set as current.
+   */
   public modifyCurrentFavorite(fav: FavData): void {
     this.currentFavorite = fav;
     this.filter.segments.forEach((fs: FilterSegment) => {
@@ -79,12 +105,17 @@ export class FavoriteService {
     });
   }
 
+  /**
+   * Returns a list of favorites for a specific segment.
+   * @param segment - The segment ID.
+   * @returns A list of favorites for the given segment.
+   */
   public getFavList(segment: number): FavData[] {
     const favs: FavData[] = this.filter.segments
       .flatMap(
         (s) => {
           let fav: FavoriteFilter | undefined = s.components.find((c) => c instanceof FavoriteFilter);
-          if(fav) {
+          if (fav) {
             return fav.data.filter((f: FavData) => f.segment === segment)
           }
           return []
@@ -94,6 +125,10 @@ export class FavoriteService {
     return favs;
   }
 
+  /**
+  * Adds a favorite filter to the filter segments
+  * @param fav The favorite filter to add
+  */
   public addFavorite(fav: FavData): void {
     const favs = this.getFavList(fav.segment!);
 
@@ -125,6 +160,10 @@ export class FavoriteService {
     });
   }
 
+  /**
+  * Deletes a favorite filter from the filter segments
+  * @param fav The favorite filter to delete
+  */
   public deleteFavorite(fav: FavData): void {
     this.filter.segments.some((s) => {
       return s.components.some((c) => {
@@ -140,9 +179,14 @@ export class FavoriteService {
     });
   }
 
+  /**
+  * Renames a favorite filter
+  * @param fav The favorite filter to rename
+  * @param name The new name for the favorite filter
+  */
   public renameFavorite(fav: FavData, name: string): void {
     let n = 0;
-    while(this.getFavList(fav.segment!).map(f => f.name).includes(name)) {
+    while (this.getFavList(fav.segment!).map(f => f.name).includes(name)) {
       n += 1;
       name = `${name} - ${n}`;
     }
@@ -151,9 +195,10 @@ export class FavoriteService {
     this.modifyCurrentFavorite(fav);
   }
 
-/**
-*  Returns the complete list of favorites
-*/
+  /**
+  * Gets all favorite filters in the filter segments
+  * @returns An array of favorite filters
+  */
   public getAllFavList(): FavData[] {
     const favs: FavData[] = this.filter.segments.flatMap((s) => {
       const favoriteFilter = s.components.find((c) => c instanceof FavoriteFilter);

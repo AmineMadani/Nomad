@@ -86,11 +86,19 @@ export class LayerDataService {
     return this.http.get('./assets/sample/canalisation_style.json');
   }
 
+  /**
+   * Method to know if layer data is currently loading from the server
+   * @returns true is data is currently loading
+   */
   public isDataLoading(): boolean {
     return (this.listTileOnLoad.size > 0 || this.listIndexOnLoad.size > 0)
   }
 
-  public listLoadingData(): string[] {
+  /**
+   * Method to get the list of layer currently loading from server (index or tile)
+   * @returns The list of layer currently loading
+   */
+  public getListLoadingData(): string[] {
     return [ ...Array.from(this.listIndexOnLoad.values()), ...Array.from(this.listTileOnLoad.values())];
   }
 }

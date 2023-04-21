@@ -124,7 +124,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   listDataLoading(): string[] {
-    return this.layerDataServie.listLoadingData();
+    return this.layerDataServie.getListLoadingData();
   }
 
   openModal() {

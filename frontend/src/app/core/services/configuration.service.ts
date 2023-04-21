@@ -23,6 +23,10 @@ export class ConfigurationService {
     private httpClient: HttpClient
   ) {}
 
+  /**
+   * Ensure that the configurations are initialized before using them
+   * @returns The configuration
+   */
   ensureInit(): Promise<any> {
     return new Promise((resolve, reject) => {
       // Config

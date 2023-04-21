@@ -14,6 +14,11 @@ export class UserService {
     private userDataService: UserDataService
   ) { }
 
+  /**
+   * Get the current user from local storage.
+   * If the user is not found in local storage, get the user from the server and store it in local storage.
+   * @returns A Promise that resolves to the current user, or undefined if the user is not found.
+   */
   async getUser(): Promise<User | undefined> {
     const user: User | undefined = await this.preferenceService.getPreference('user');
     if(!user) {
@@ -24,10 +29,17 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Store the given user in local storage.
+   * @param user The user to store in local storage.
+   */
   setUser(user:User){
     this.preferenceService.setPreference('user',user);
   }
 
+  /**
+   * Remove the current user from local storage.
+   */
   resetUser(){
     this.preferenceService.deletePreference('user');
   }

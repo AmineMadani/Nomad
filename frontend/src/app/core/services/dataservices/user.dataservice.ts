@@ -14,6 +14,10 @@ export class UserDataService {
     private configurationService: ConfigurationService  
   ) {}
 
+  /**
+   * Method to get all the user informations from server
+   * @returns User information
+   */
   getUserInformation(): Observable<User> {
     return this.http.get<User>(`${this.configurationService.apiUrl}user/information`);
   }
