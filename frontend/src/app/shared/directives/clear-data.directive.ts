@@ -35,6 +35,10 @@ export class ClearDataDirective implements OnInit, OnChanges {
    */
   ngOnInit(): void {
     const ionElem = this.el.nativeElement;
+    if(this.clearIcon) {
+      this.renderer.removeChild(this.renderer.parentNode(ionElem),this.clearIcon);
+      this.clearIcon = undefined;
+    }
     if(this.data) {
       this.addClearDataElement(ionElem);
     }
