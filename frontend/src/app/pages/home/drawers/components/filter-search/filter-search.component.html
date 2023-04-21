@@ -1,5 +1,5 @@
-<ion-accordion-group>
-  <ion-accordion>
+<ion-accordion-group (ionChange)="onAccordionChange($event)" #accordionGroup>
+  <ion-accordion [value]="searchFilter.data.id.toString()">
     <ion-item slot="header" color="light" lines="full">
       <ion-icon slot="start" name="filter-outline"></ion-icon>
       <ion-label>{{ searchFilter.data.name }}</ion-label>
@@ -10,19 +10,16 @@
           <ng-container *ngIf="widget.type == 'select'">
             <ion-item fill="outline">
               <ion-label position="floating">{{ widget.label | titlecase }}</ion-label>
-              <ion-select [placeholder]="widget.placeholder" (ionChange)="changeSelectData($event,widget)" [multiple]="widget.multiple" [value]="getValues(widget.key[0])">
+              <ion-select [clearData]="getValues(widget.key[0])" (onClearData)="onClearSelection(widget)" [placeholder]="widget.placeholder" (ionChange)="changeSelectData($event,widget)" [multiple]="widget.multiple" [value]="getValues(widget.key[0])">
                 <ion-select-option *ngFor="let item of widget.choices | keyvalue" [value]="item.key">{{item.value}}</ion-select-option>
               </ion-select>
             </ion-item>
           </ng-container>
           <ng-container *ngIf="widget.type == 'date'">
             <ion-item lines="none" color="none">
-              <ion-button fill="clear" color="primary" (click)="openCalendar(widget)">
+              <ion-button fill="clear" color="primary" (click)="openCalendar(widget)" [clearData]="getValues(widget.key[0])" (onClearData)="onClearSelection(widget)">
                 <ion-icon slot="start" name="calendar-outline"></ion-icon>
                 <ion-label>{{getDateLibelle(widget)}}</ion-label>
-              </ion-button>
-              <ion-button *ngIf="false" fill="clear" color="primary" (click)="onClearDate()">
-                <ion-icon slot="end" name="close-outline"></ion-icon>
               </ion-button>
             </ion-item>
           </ng-container>

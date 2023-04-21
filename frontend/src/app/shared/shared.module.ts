@@ -22,6 +22,7 @@ import { FormLabelComponent } from './form-editor/properties/form-label/form-lab
 import { FormAttachmentComponent } from './form-editor/properties/form-attachment/form-attachment.component';
 import { FormSliderComponent } from './form-editor/properties/form-slider/form-slider.component';
 import { ImageReaderComponent } from './components/image-reader/image-reader.component';
+import { ClearDataDirective } from './directives/clear-data.directive';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { ImageReaderComponent } from './components/image-reader/image-reader.com
     FormLabelComponent,
     FormAttachmentComponent,
     FormSliderComponent,
+    ClearDataDirective,
   ],
   imports: [
     CommonModule,
@@ -58,6 +60,7 @@ import { ImageReaderComponent } from './components/image-reader/image-reader.com
     DatepickerComponent,
     ImageReaderComponent,
     FormEditorComponent,
+    ClearDataDirective
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

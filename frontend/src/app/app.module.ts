@@ -15,7 +15,9 @@ import { ConfigurationService } from './core/services/configuration.service';
 import { DatePipe } from '@angular/common';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent
+  ],
   imports: [
     BrowserModule, 
     IonicModule.forRoot(), 

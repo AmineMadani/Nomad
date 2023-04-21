@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DateTime } from 'luxon';
 import { filter } from 'rxjs/internal/operators/filter';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
@@ -7,6 +7,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { FilterService } from '../filter.service';
 import { DatePipe } from '@angular/common';
+import { IonAccordionGroup } from '@ionic/angular';
 
 @Component({
   selector: 'app-filter-search',
@@ -22,16 +23,20 @@ export class FilterSearchComponent implements OnInit {
   ) {}
 
   @Input() searchFilter: SearchFilter;
+
+  @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;
+
   public isMobile: boolean;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+    setTimeout(() => {
+      if(this.searchFilter.data.value) {
+        const nativeEl = this.accordionGroup;
+        nativeEl.value = this.searchFilter.data.id.toString();
+      }
+    });
   }
-
-  customActionSheetOptions = {
-    header: 'Colors',
-    subHeader: 'Select your favorite color',
-  };
 
   public openCalendar(widget: Widget): void {
     this.dialogService.close();
@@ -83,14 +88,18 @@ export class FilterSearchComponent implements OnInit {
     return label;
   }
 
-  onClearDate(){
-    for(let dateKey of this.searchFilter.data.dateKey!) {
-      this.filterService.setSearchFilter(this.searchFilter.tableKey, dateKey, []);
-    }
-  }
-
   getValues(key: string){
     return this.filterService.getSearchFilterValuesByLayerKeyAndProperty(this.searchFilter.tableKey,key);
+  }
+
+  onAccordionChange(evt: Event) {
+    this.searchFilter.data.value = (evt as CustomEvent).detail.value != undefined;
+  }
+
+  onClearSelection(widget: Widget) {
+    for(let key of widget.key) {
+      this.filterService.setSearchFilter(this.searchFilter.tableKey, key, []);
+    }
   }
 }
 

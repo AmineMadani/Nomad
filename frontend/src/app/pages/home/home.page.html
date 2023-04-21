@@ -22,7 +22,7 @@
         <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
       </ion-col>
       <!-- Bottom sheet -->
-      <ion-modal id="modal-bottom-sheet" *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME" show-backdrop="false"
+      <ion-modal id="modal-bottom-sheet" *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME" backdropDismiss="false" show-backdrop="false"
         (didDismiss)="onBottomSheetDismiss()" [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75, 1]" backdropBreakpoint="0.5">
         <ng-template>
           <ion-router-outlet></ion-router-outlet>
@@ -42,7 +42,7 @@
     </ion-fab-list>
   </ion-fab>
 
-  <ion-modal #modalDataLoading id="modal-map-data-loading" #modal>
+  <ion-modal #modalDataLoading id="modal-map-data-loading">
     <ng-template>
       <div class="modal-map-data-loading-wrapper">
         <div class="modal-map-data-loading-header">Données en cours de chargement</div>
