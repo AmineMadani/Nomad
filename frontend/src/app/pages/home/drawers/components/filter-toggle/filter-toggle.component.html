@@ -1,4 +1,4 @@
 <ion-item *ngFor="let toggle of data">
   <ion-label>{{ toggle.name }}</ion-label>
-  <ion-toggle (ionChange)="changeToggle(toggle, $event)" slot="end" [checked]="toggle.value"></ion-toggle>
+  <ion-toggle (ionChange)="changeToggle(toggle, $event)" slot="end" [checked]="toggle.checked"></ion-toggle>
 </ion-item>

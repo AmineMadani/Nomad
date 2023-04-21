@@ -16,7 +16,7 @@ export class FilterService {
     private layerService: LayerService,
     private expDataservice: ExploitationDataService,
     private filterDataService: FilterDataService
-  ) {}
+  ) { }
 
   /**
    * Method to get all data
@@ -28,7 +28,7 @@ export class FilterService {
     if (features && features.length > 0) {
       return this.filterDataService.getFilterData().get(layerkey);
     } else {
-      return this.layerService.getFeaturesFilteredInView(layerkey,this.filterDataService.getSearchFilterListData().get(layerkey));
+      return this.layerService.getFeaturesFilteredInView(layerkey, this.filterDataService.getSearchFilterListData().get(layerkey));
     }
   }
 
@@ -37,7 +37,7 @@ export class FilterService {
    * @param layerkey layer exploitation data
    * @param toogle boolean true: map - false: DB
    */
-  public setToggleData(layerkey: string, toogle: boolean): void {
+  public setToggleLayer(layerkey: string, toogle: boolean): void {
     this.filterDataService.getFilterData().delete(layerkey);
     if (!toogle) {
       this.mapService.removeEventLayer(layerkey);
@@ -50,6 +50,49 @@ export class FilterService {
       this.mapService.addEventLayer(layerkey).then(() => {
         this.mapService.applyFilterOnMap(layerkey);
       });
+    }
+  }
+
+  /**
+   * Method to define a new property filter to add and run on target layers
+   * @param tablekey  target layers
+   * @param key property key
+   * @param value value to filter
+   * @param toogle toogle
+   */
+  public setToggleFilter(tablekey: string[], key: string, value: string, toogle: boolean): void {
+    for (let layerkey of tablekey) {
+      if (toogle) {
+        if (this.filterDataService.getSearchFilterListData().has(layerkey)) {
+          let listValue = this.filterDataService.getSearchFilterListData().get(layerkey).get(key);
+          if (listValue && listValue.length > 0) {
+            listValue = listValue.filter(f => f !== value).concat([value]);
+            this.filterDataService.getSearchFilterListData().get(layerkey).set(key, listValue);
+          }
+          else {
+            this.filterDataService.getSearchFilterListData().get(layerkey).set(key, [value]);
+          }
+        }
+        else {
+          let newType: Map<string, string[]> = new Map<string, string[]>();
+          newType.set(key, [value]);
+          this.filterDataService.getSearchFilterListData().set(layerkey, newType);
+        }
+      }
+      else {
+        let listValue = this.filterDataService.getSearchFilterListData().get(layerkey)?.get(key);
+        if (listValue && listValue.length > 0) {
+          listValue = listValue.filter(f => f !== value);
+          this.filterDataService.getSearchFilterListData().get(layerkey).set(key, listValue);
+        }
+      }
+      if (this.mapService.getLayer(layerkey)) {
+        //Applied the filter on the map
+        this.mapService.applyFilterOnMap(layerkey);
+
+        //Refresh manually de layer
+        this.layerService.refreshLayer(layerkey);
+      }
     }
   }
 
@@ -78,15 +121,15 @@ export class FilterService {
    * @param listValue  list of values to filter
    */
   public setSearchFilter(layerkey: string, key: string, listValue: string[]) {
-    if(this.filterDataService.getSearchFilterListData().get(layerkey)) {
-      if(listValue && listValue.length > 0) {
-        this.filterDataService.getSearchFilterListData().get(layerkey)?.set(key,listValue);
+    if (this.filterDataService.getSearchFilterListData().get(layerkey)) {
+      if (listValue && listValue.length > 0) {
+        this.filterDataService.getSearchFilterListData().get(layerkey)?.set(key, listValue);
       } else {
         this.filterDataService.getSearchFilterListData().get(layerkey)?.delete(key);
       }
     } else {
       let newType: Map<string, string[]> = new Map<string, string[]>();
-      newType.set(key,listValue);
+      newType.set(key, listValue);
       this.filterDataService.getSearchFilterListData().set(layerkey, newType);
     }
 
@@ -97,8 +140,8 @@ export class FilterService {
     this.layerService.refreshLayer(layerkey);
 
     //In the case of the data from DB
-    if(!this.mapService.getLayer(layerkey)){
-      this.setToggleData(layerkey, false);
+    if (!this.mapService.getLayer(layerkey)) {
+      this.setToggleLayer(layerkey, false);
     }
   }
 
@@ -118,6 +161,6 @@ export class FilterService {
    * @returns true if layer data exist
    */
   public isExistLayerData(layerkey: string): boolean {
-    return this.filterDataService.getFilterData().has(layerkey) 
+    return this.filterDataService.getFilterData().has(layerkey)
   }
 }

@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ToggleData } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
-import { MapService } from 'src/app/core/services/map/map.service';
 import { FilterService } from '../filter.service';
 
 @Component({
@@ -11,26 +10,33 @@ import { FilterService } from '../filter.service';
 export class FilterToggleComponent implements OnInit {
   constructor(
     private filterService: FilterService,
-  ) {}
+  ) { }
 
   @Input() data: ToggleData[];
+  @Input() tableKey: string[];
 
   ngOnInit() {
     this.data.forEach((tData: ToggleData) => {
-      if(!tData.value) {
-        this.filterService.setToggleData(tData.key, false);
+      if (!this.tableKey) {
+        this.filterService.setToggleLayer(tData.key, tData.checked);
+      }
+      else {
+        this.filterService.setToggleFilter(this.tableKey, tData.key, tData.value, tData.checked)
       }
     });
   }
 
-  changeToggle(data:ToggleData, e:Event){
-    if(data.key) {
-      data.value = (e as CustomEvent).detail.checked;
-      this.filterService.setToggleData(data.key, Boolean(data.value));
+  changeToggle(data: ToggleData, e: Event) {
+    data.checked = (e as CustomEvent).detail.checked;
+    if (!this.tableKey) {
+      this.filterService.setToggleLayer(data.key, data.checked);
+    }
+    else {
+      this.filterService.setToggleFilter(this.tableKey, data.key, data.value, data.checked)
     }
   }
 
   isChecked(data: ToggleData) {
-    return this.filterService.isExistLayerData(data.key);
+    return (!this.tableKey) ? this.filterService.isExistLayerData(data.key) : true;
   }
 }

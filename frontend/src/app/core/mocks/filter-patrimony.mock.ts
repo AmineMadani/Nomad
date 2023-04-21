@@ -1,5 +1,6 @@
 import { AccordeonFilter } from '../models/filter/filter-component-models/AccordeonFilter.model';
 import { FavoriteFilter } from '../models/filter/filter-component-models/FavoriteFilter.model';
+import { ToggleFilter } from '../models/filter/filter-component-models/ToggleFilter.model';
 import { TreeFilter } from '../models/filter/filter-component-models/TreeFilter.model';
 import { Filter } from '../models/filter/filter.model';
 
@@ -80,7 +81,33 @@ export const patrimonyFilterMock: Filter = {
       position: 2,
       selected: false,
       components: [
-        new AccordeonFilter(1, true, 1, [
+        new ToggleFilter(1, false, 1, [
+          {
+            id: 41,
+            name: 'Pluviale',
+            checked: true,
+            position: 1,
+            key:'type_eau',
+            value:'Eaux pluviales'
+          },
+          {
+            id: 42,
+            name: 'Eau usée',
+            checked: true,
+            position: 2,
+            key:'type_eau',
+            value:'Eaux usées'
+          },
+          {
+            id: 43,
+            name: 'Unitaire',
+            checked: false,
+            position: 3,
+            key:'type_eau',
+            value:'Unitaire'
+          },
+        ],['ass_branche','ass_collecteur','ass_regard']),
+        new AccordeonFilter(2, true, 1, [
           {
             id: 12,
             key: 'ass_branche',

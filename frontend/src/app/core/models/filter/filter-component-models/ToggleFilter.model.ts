@@ -5,21 +5,24 @@ export class ToggleFilter implements BaseFilter {
   public isRecordableFavorite: boolean;
   public position: number;
   public data: ToggleData[];
+  public tableKey?: string[];
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    data: ToggleData[]
+    data: ToggleData[],
+    tableKey: string[] = null,
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;
     this.position = position;
     this.data = data;
+    this.tableKey = tableKey;
   }
 
   isSelectedData(): boolean {
-    throw new Error('Method not implemented.');
+    return this.data.some(data => data.checked);
   }
 
   getType(): string {
@@ -28,11 +31,13 @@ export class ToggleFilter implements BaseFilter {
 
   reset(): void {
     for (let data of this.data) {
-      data.value = false;
+      data.checked = false;
     }
   }
 }
 
 export interface ToggleData extends BaseFilterData {
   key: string;
+  checked: boolean;
+  value?: string,
 }
