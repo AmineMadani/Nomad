@@ -85,6 +85,17 @@ export class HomePage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.drawerUnsubscribe))
       .subscribe((drawerType: DrawerTypeEnum) => {
         this.drawerType = drawerType;
+        //Fix for mobile version to stop bottom sheet scroll on scrollable content
+        if(drawerType == DrawerTypeEnum.BOTTOM_SHEET){
+          setTimeout(() => {
+            const sContents = document.getElementsByClassName('synthesis-content');
+            for(let content of Array.from(sContents)){
+              (content as any).ontouchmove = function (e) {
+                e.stopPropagation();
+              };
+            }
+          }, 1000);
+        }
       });
   }
 
@@ -101,7 +112,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onBottomSheetDismiss() {
-    console.log('dismiss');
     this.drawerService.closeDrawer();
   }
 
