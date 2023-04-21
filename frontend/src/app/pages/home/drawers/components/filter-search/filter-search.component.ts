@@ -88,6 +88,10 @@ export class FilterSearchComponent implements OnInit {
     return label;
   }
 
+  isExistFilter() {
+    return this.filterService.hasSearchFilterLayer(this.searchFilter.tableKey);
+  }
+
   getValues(key: string){
     return this.filterService.getSearchFilterValuesByLayerKeyAndProperty(this.searchFilter.tableKey,key);
   }

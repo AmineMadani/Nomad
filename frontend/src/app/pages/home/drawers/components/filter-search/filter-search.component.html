@@ -1,7 +1,7 @@
 <ion-accordion-group (ionChange)="onAccordionChange($event)" #accordionGroup>
   <ion-accordion [value]="searchFilter.data.id.toString()">
     <ion-item slot="header" color="light" lines="full">
-      <ion-icon slot="start" name="filter-outline"></ion-icon>
+      <ion-icon slot="start" [name]="isExistFilter() ? 'filter-circle-outline':'filter-outline'"></ion-icon>
       <ion-label>{{ searchFilter.data.name }}</ion-label>
     </ion-item>
     <div slot="content" class="intervention-filter">

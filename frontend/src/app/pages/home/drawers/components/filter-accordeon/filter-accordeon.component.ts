@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { IonAccordionGroup } from '@ionic/angular';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
@@ -18,13 +19,15 @@ export class FilterAccordeonComponent implements OnInit {
 
   @Input() datas: AccordeonData[];
 
-  accordionToOpen: string[] = [];
+  @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;
 
   ngOnInit() {
     this.datas.forEach(data => {
-      if(data.children && data.children.length > 0) {
-        this.accordionToOpen.push(data.id.toString());
-        data.isOpen = true;
+      if(data.children && data.children.length > 0 && data.isOpen) {
+        setTimeout(() => {
+          const nativeEl = this.accordionGroup;
+          nativeEl.value = data.id.toString();
+        });
       }
       if (data.children?.filter((acc) => acc.value).length !== 0 
           && data.children?.filter((acc) => acc.value).length !== data.children?.length) {
@@ -112,6 +115,22 @@ export class FilterAccordeonComponent implements OnInit {
       }
       data.isIndeterminate = data.children?.some((child) => child.value);
     }
+  }
+
+  /**
+   * Save the last state after accordion group change
+   * @param evt event on accordion group change
+   */
+  onAccordionChange(evt: Event) {
+    this.datas.forEach(data => {
+      if(data.children && data.children.length > 0) {
+        if((evt as CustomEvent).detail.value.includes(data.id.toString())){
+          data.isOpen = true;
+        } else {
+          data.isOpen=false;
+        }
+      }
+    });
   }
 
 }

@@ -156,6 +156,17 @@ export class FilterService {
   }
 
   /**
+   * Method to know if exist a search filter on a layer
+   * @param layerkey layer exploitation data
+   * @returns true if exist search filter
+   */
+  public hasSearchFilterLayer(layerkey: string) {
+    return this.filterDataService.getSearchFilterListData() 
+            && this.filterDataService.getSearchFilterListData().get(layerkey) 
+            && this.filterDataService.getSearchFilterListData().get(layerkey).size > 0;
+  }
+
+  /**
    * Method to expose if exist a layer data
    * @param layerkey layer exploitation data
    * @returns true if layer data exist

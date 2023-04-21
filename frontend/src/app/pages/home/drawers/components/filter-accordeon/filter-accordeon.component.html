@@ -1,4 +1,4 @@
-<ion-accordion-group multiple="true" [value]="accordionToOpen">
+<ion-accordion-group multiple="true" (ionChange)="onAccordionChange($event)" #accordionGroup>
   <ng-container *ngFor="let data of datas">
     <ion-accordion *ngIf="data" [toggleIcon]="''" [value]="data.id.toString()">
       <ion-item slot="header" (click)="checkOpeningRule(data,$event)">

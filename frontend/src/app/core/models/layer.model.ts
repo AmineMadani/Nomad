@@ -102,7 +102,7 @@ export const layers: Layer[] = [
     key: 'intervention',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 17,
+    minZoom: 16,
     maxZoom: 20
   },
   {
@@ -110,7 +110,7 @@ export const layers: Layer[] = [
     key: 'demand',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
-    minZoom: 17,
+    minZoom: 16,
     maxZoom: 20
   }
 ]
