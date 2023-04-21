@@ -101,7 +101,7 @@ export const patrimonyFilterMock: Filter = {
           {
             id: 43,
             name: 'Unitaire',
-            checked: false,
+            checked: true,
             position: 3,
             key:'type_eau',
             value:'Unitaire'
