@@ -144,6 +144,7 @@ export class MapService {
             .then((features: FeatureLike[]) => {
               this.onFeaturesClick(features, layerKey);
             });
+            this.onMapClick(event.pixel, layerKey);
         })
       );
 
@@ -248,6 +249,17 @@ export class MapService {
     }
   }
 
+  //Event on map click to find the closest feature
+  private onMapClick(pixel : any, layerkey : any){
+    const mapLayer: MapLayer | undefined = this.getLayer(layerkey);
+    let coordinate = this.map.getCoordinateFromPixel(pixel);
+    let closestFeature = mapLayer.source.getClosestFeatureToCoordinate(coordinate);
+    
+    if (closestFeature){
+      this.selectFeature(closestFeature, layerkey);
+    }
+  }
+
   private onFeaturesClick(features: FeatureLike[], layerKey: string) {
     if (features.length > 0) {
       const ctFeature: Feature[] = features[0].get('features') || [features[0]];
@@ -261,9 +273,19 @@ export class MapService {
           padding: [50, 50, 50, 50],
         });
       } else if (ctFeature.length === 1) {
-        const properties = ctFeature[0].getProperties();
-        properties['id'] = ctFeature[0].getId();
-        properties['extent'] = ctFeature[0].getGeometry().getExtent().join(',');
+        this.selectFeature(ctFeature[0],layerKey);
+      }
+    }
+  }
+
+  private selectFeature(feature : any, layerKey : string)
+  {
+    if (!feature){
+      return;
+    }
+    const properties = feature.getProperties();
+        properties['id'] = feature.getId();
+        properties['extent'] = feature.getGeometry().getExtent().join(',');
         if (properties['geometry']) delete properties['geometry'];
         // We pass the layerKey to the drawer to be able to select the equipment on the layer
 
@@ -283,8 +305,6 @@ export class MapService {
           [properties['id']],
           properties
         );
-      }
-    }
   }
 
   /**
