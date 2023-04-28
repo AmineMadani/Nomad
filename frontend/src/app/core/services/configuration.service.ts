@@ -9,7 +9,8 @@ export interface Keycloak {
   redirectUriIos: string,
   redirectUriAndroid: string,
   clientId: string,
-  revocationEndpoint: string
+  revocationEndpoint: string,
+  hitTolerance: number
 }
 
 @Injectable()

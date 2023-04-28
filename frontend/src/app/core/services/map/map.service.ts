@@ -14,6 +14,8 @@ import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
 import { MapEventService } from './map-event.service';
 import { FilterDataService } from '../dataservices/filter.dataservice';
+import Geometry from 'ol/geom/Geometry';
+import { ConfigurationService } from '../configuration.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +26,8 @@ export class MapService {
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
-    private filterDataService: FilterDataService
+    private filterDataService: FilterDataService,
+    private configurationService: ConfigurationService
   ) { }
 
   /**
@@ -251,13 +254,22 @@ export class MapService {
 
   //Event on map click to find the closest feature
   private onMapClick(pixel : any, layerkey : any){
-    const mapLayer: MapLayer | undefined = this.getLayer(layerkey);
-    let coordinate = this.map.getCoordinateFromPixel(pixel);
-    let closestFeature = mapLayer.source.getClosestFeatureToCoordinate(coordinate);
-    
+    let closestFeature  = this.closestFeatureInTolerancePixel(pixel);
     if (closestFeature){
       this.selectFeature(closestFeature, layerkey);
     }
+  }
+
+  //Check if the feature is visible in the current view (extent)
+  private closestFeatureInTolerancePixel(pixel : any) : FeatureLike {
+    let closestFeature : FeatureLike = null;
+    this.map.forEachFeatureAtPixel(pixel,function(feature){
+      if (!closestFeature){
+        closestFeature = feature;
+      }
+      }
+    ,{hitTolerance: this.configurationService.keycloak.hitTolerance});
+    return closestFeature;
   }
 
   private onFeaturesClick(features: FeatureLike[], layerKey: string) {
