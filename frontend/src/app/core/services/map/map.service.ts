@@ -14,6 +14,8 @@ import { stylefunction } from 'ol-mapbox-style';
 import { GeoJSONArray } from '../../models/geojson.model';
 import { MapEventService } from './map-event.service';
 import { FilterDataService } from '../dataservices/filter.dataservice';
+import Geometry from 'ol/geom/Geometry';
+import { ConfigurationService } from '../configuration.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +26,8 @@ export class MapService {
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
-    private filterDataService: FilterDataService
+    private filterDataService: FilterDataService,
+    private configurationService: ConfigurationService
   ) { }
 
   /**
@@ -144,6 +147,7 @@ export class MapService {
             .then((features: FeatureLike[]) => {
               this.onFeaturesClick(features, layerKey);
             });
+            this.onMapClick(event.pixel, layerKey);
         })
       );
 
@@ -248,6 +252,26 @@ export class MapService {
     }
   }
 
+  //Event on map click to find the closest feature
+  private onMapClick(pixel : any, layerkey : any){
+    let closestFeature  = this.closestFeatureInTolerancePixel(pixel);
+    if (closestFeature){
+      this.selectFeature(closestFeature, layerkey);
+    }
+  }
+
+  //Check if the feature is visible in the current view (extent)
+  private closestFeatureInTolerancePixel(pixel : any) : FeatureLike {
+    let closestFeature : FeatureLike = null;
+    this.map.forEachFeatureAtPixel(pixel,function(feature){
+      if (!closestFeature){
+        closestFeature = feature;
+      }
+      }
+    ,{hitTolerance: this.configurationService.hitTolerance});
+    return closestFeature;
+  }
+
   private onFeaturesClick(features: FeatureLike[], layerKey: string) {
     if (features.length > 0) {
       const ctFeature: Feature[] = features[0].get('features') || [features[0]];
@@ -261,9 +285,19 @@ export class MapService {
           padding: [50, 50, 50, 50],
         });
       } else if (ctFeature.length === 1) {
-        const properties = ctFeature[0].getProperties();
-        properties['id'] = ctFeature[0].getId();
-        properties['extent'] = ctFeature[0].getGeometry().getExtent().join(',');
+        this.selectFeature(ctFeature[0],layerKey);
+      }
+    }
+  }
+
+  private selectFeature(feature : any, layerKey : string)
+  {
+    if (!feature){
+      return;
+    }
+    const properties = feature.getProperties();
+        properties['id'] = feature.getId();
+        properties['extent'] = feature.getGeometry().getExtent().join(',');
         if (properties['geometry']) delete properties['geometry'];
         // We pass the layerKey to the drawer to be able to select the equipment on the layer
 
@@ -283,8 +317,6 @@ export class MapService {
           [properties['id']],
           properties
         );
-      }
-    }
   }
 
   /**
