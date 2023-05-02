@@ -7,7 +7,7 @@
     "redirectUriIos": "myschema://login",
     "redirectUriAndroid": "myschema://login",
     "clientId": "veolia-client",
-    "revocationEndpoint": "http://localhost:9191/realms/veolia/protocol/openid-connect/revoke",
-    "hitTolerance":50
-  }
+    "revocationEndpoint": "http://localhost:9191/realms/veolia/protocol/openid-connect/revoke"
+  },
+  "hitTolerance":50
 }

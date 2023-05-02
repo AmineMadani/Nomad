@@ -268,7 +268,7 @@ export class MapService {
         closestFeature = feature;
       }
       }
-    ,{hitTolerance: this.configurationService.keycloak.hitTolerance});
+    ,{hitTolerance: this.configurationService.hitTolerance});
     return closestFeature;
   }
 
