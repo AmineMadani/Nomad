@@ -29,14 +29,16 @@ export class FilterAccordeonComponent implements OnInit {
           nativeEl.value = data.id.toString();
         });
       }
-      if (data.children?.filter((acc) => acc.value).length !== 0 
+      if (data.children?.filter((acc) => acc.value).length !== 0
           && data.children?.filter((acc) => acc.value).length !== data.children?.length) {
         data.isIndeterminate = true;
       }
-  
+
       setTimeout(() => {
         this.checkFavValue(data);
       });
+
+      this.updateLayer(data);
     });
   }
 
@@ -49,25 +51,34 @@ export class FilterAccordeonComponent implements OnInit {
     data.value = (e as CustomEvent).detail.checked;
     data.isIndeterminate = data.value ? false : data.isIndeterminate;
 
+    this.updateLayer(data);
+  }
+
+  private updateLayer(data: AccordeonData) {
     if (!data.isIndeterminate) {
       if (data.value) {
         data.children?.forEach((child: AccordeonData) => {
           if (!child.value) {
-            child.value=true;
-            if (child.key && child.key.length > 0) this.mapService.addEventLayer(child.key);
+            child.value = true;
+            if (child.key && child.key.length > 0)
+              this.mapService.addEventLayer(child.key);
           }
         });
-        if (data.key && data.key.length > 0) this.mapService.addEventLayer(data.key);
+        if (data.key && data.key.length > 0)
+          this.mapService.addEventLayer(data.key);
       } else {
         data.children?.forEach((child: AccordeonData) => {
           if (child.value) {
-            child.value=false;
-            if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
+            child.value = false;
+            if (child.key && child.key.length > 0)
+              this.mapService.removeEventLayer(child.key);
           } else {
-            if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
+            if (child.key && child.key.length > 0)
+              this.mapService.removeEventLayer(child.key);
           }
         });
-        if (data.key && data.key.length > 0) this.mapService.removeEventLayer(data.key);
+        if (data.key && data.key.length > 0)
+          this.mapService.removeEventLayer(data.key);
       }
     }
   }

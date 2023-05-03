@@ -410,3 +410,7 @@ COMMENT ON COLUMN config.layer_references_user.isvisible IS 'If visible, true el
 COMMENT ON COLUMN config.layer_references_user.section IS 'Section to group properties';
 COMMENT ON COLUMN config.layer_references_user.created_date IS 'Created date';
 COMMENT ON COLUMN config.layer_references_user.last_edited_date IS 'Last edited date';
+
+--update table 
+alter table config.app_user ADD Column user_context jsonb ;
+COMMENT ON COLUMN config.app_user.user_context IS 'User context';

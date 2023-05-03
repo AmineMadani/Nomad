@@ -11,7 +11,7 @@ import {
 } from '../models/filter/filter-segment.model';
 import { Filter } from '../models/filter/filter.model';
 import { MapService } from './map/map.service';
-import { AccordeonFilter } from '../models/filter/filter-component-models/AccordeonFilter.model';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,14 +20,31 @@ export class FavoriteService {
   constructor(private mapService: MapService) { }
 
   private filter: Filter = patrimonyFilterMock;
-
+  private _filterForm$ = new BehaviorSubject<Filter>(this.filter);
   private currentFavorite: FavData | undefined;
+
+  public setfilterForm(filter: Filter) {
+    this._filterForm$.next(filter);
+  }
+
+  public filterForm(): Observable<Filter> {
+    return this._filterForm$.asObservable();
+  }
 
   /**
    * Returns the current filter object used for favorites.
    */
   public getFilter(): Filter {
     return this.filter;
+  }
+
+  /**
+   *
+   * @param filter - filter to update
+   */
+  public setFilter(filter: Filter): void {
+    this.filter = filter;
+    this.setfilterForm(this.filter);
   }
 
   /**
@@ -210,19 +227,4 @@ export class FavoriteService {
     });
     return favs;
   }
-
-
-  public setFilter(filter: Filter): void {
-    console.log("avant restore", this.filter);
-    // this.filter = filter;
-
-    this.filter.segments.forEach ( (oneSegment : FilterSegment) => {
-        if (oneSegment instanceof AccordeonFilter) {
-          (oneSegment as AccordeonFilter).reset();
-        }
-    });
-
-    console.log("après restore", this.filter);
-  }
-
 }
