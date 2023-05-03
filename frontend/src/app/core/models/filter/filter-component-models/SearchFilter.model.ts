@@ -8,11 +8,11 @@ export class SearchFilter implements BaseFilter {
   public tableKey: string;
 
   constructor(
-    id: number,
-    isRecordableFavorite: boolean,
-    position: number,
-    tableKey: string,
-    data: SearchData
+    id?: number,
+    isRecordableFavorite?: boolean,
+    position?: number,
+    tableKey?: string,
+    data?: SearchData
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;

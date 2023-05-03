@@ -5,7 +5,13 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+
+//import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
+import javax.json.bind.Jsonb;
 
 /**
  * JPA entity class for "AppUser"
@@ -34,6 +40,11 @@ public class AppUser implements Serializable {
 
     @Column(name="email", length=2147483647)
     private String email ;
+
+
+    @Type(JsonType.class)
+    @Column(name="user_context", columnDefinition = "jsonb")
+    private String userContext ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -73,6 +84,10 @@ public class AppUser implements Serializable {
     public String getEmail() {
         return this.email;
     }
+
+    public String getUserContext() {   return userContext;   }
+
+    public void setUserContext(String userContext) { this.userContext = userContext;  }
 
     //--- GETTERS FOR LINKS
 

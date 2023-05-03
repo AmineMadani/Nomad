@@ -9,11 +9,11 @@ export class WorkOrderFilter implements BaseFilter {
   public data: WorkOrderData[];
 
   constructor(
-    id: number,
-    isRecordableFavorite: boolean,
-    position: number,
-    type: 'intervention' | 'demande', 
-    data: WorkOrderData[]
+    id?: number,
+    isRecordableFavorite?: boolean,
+    position?: number,
+    type?: 'intervention' | 'demande',
+    data?: WorkOrderData[]
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;

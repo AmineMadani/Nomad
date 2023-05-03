@@ -11,6 +11,7 @@ import {
 } from '../models/filter/filter-segment.model';
 import { Filter } from '../models/filter/filter.model';
 import { MapService } from './map/map.service';
+import { AccordeonFilter } from '../models/filter/filter-component-models/AccordeonFilter.model';
 
 @Injectable({
   providedIn: 'root',
@@ -208,6 +209,20 @@ export class FavoriteService {
       return [];
     });
     return favs;
+  }
+
+
+  public setFilter(filter: Filter): void {
+    console.log("avant restore", this.filter);
+    // this.filter = filter;
+
+    this.filter.segments.forEach ( (oneSegment : FilterSegment) => {
+        if (oneSegment instanceof AccordeonFilter) {
+          (oneSegment as AccordeonFilter).reset();
+        }
+    });
+
+    console.log("après restore", this.filter);
   }
 
 }
