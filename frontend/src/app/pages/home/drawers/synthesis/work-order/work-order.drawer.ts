@@ -10,6 +10,7 @@ import {
   FormDefinition,
 } from 'src/app/shared/form-editor/models/form.model';
 import { DatePipe } from '@angular/common';
+import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-work-order',
@@ -26,6 +27,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((params) => {
         this.workOrder = MapFeature.from(params);
+        if(!this.workOrder?.id) {
+          this.buttons = [];
+        }
         this.createForm();
       });
   }
@@ -42,7 +46,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
@@ -56,27 +61,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   public createForm(): void {
+    let form = 'work-order.mock.json';
+    if(!this.workOrder.id){
+      form = 'work-order-create.mock.json';
+      this.editMode = true;
+    }
     this.http
-      .get<Form>('./assets/mocks/work-order.mock.json')
+      .get<Form>('./assets/mocks/'+form)
       .subscribe((woForm: Form) => {
-        woForm.definitions.map((def: FormDefinition) => {
-          if (this.workOrder[def.key]) {
-            def.attributes.value = this.workOrder[def.key];
-          } else {
-            if (def.key === 'date') {
-              def.attributes.value = `${this.datePipe.transform(
-                this.workOrder.datebegin,
-                'dd/MM/yyyy'
-              )} - ${this.datePipe.transform(
-                this.workOrder.dateend,
-                'dd/MM/yyyy'
-              )}`;
-            } else if (def.attributes.default) {
-              def.attributes.value = def.attributes.default;
-            }
-          }
-          return def;
-        });
         this.workOrderForm = woForm;
       });
   }
@@ -90,5 +82,18 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  /**
+   * Generate title for workorder drawer
+   * @returns Title of the workorder drawer
+   */
+  getTitle(): string {
+    return this.workOrder?.id ? 'I'+this.workOrder.id : 'Générer une intervention';
+  }
+
+  onSubmit(form:FormGroup){
+    console.log(form.getRawValue());
+    form.markAllAsTouched();
   }
 }

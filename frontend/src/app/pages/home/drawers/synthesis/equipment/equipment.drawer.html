@@ -1,7 +1,7 @@
 <ng-template #buttonsTemplate>
   <div class="overflow-row">
     <div class="equipment-drawer-action-button-row" [class.mobile]="isMobile">
-      <div *ngFor="let button of buttons" class="equipment-drawer-action-button">
+      <div *ngFor="let button of buttons" class="equipment-drawer-action-button" (click)="onTabButtonClicked(button)">
         <ion-icon [name]="button.icon"></ion-icon>
         <span>{{ button.label }}</span>
       </div>

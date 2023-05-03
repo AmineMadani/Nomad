@@ -4,3 +4,20 @@ ion-label.rdv-label {
   letter-spacing: 0.1px;
   --color: var(--ion-color-primary);
 }
+
+.edit-title {
+  font-style: normal;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  margin: 16px;
+}
+
+.footer {
+  border-top: solid 1px var(--ion-color-neutral-variant-80);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 34px 0px;
+}

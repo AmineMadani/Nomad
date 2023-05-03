@@ -5,6 +5,8 @@ import {
   OnChanges,
   OnDestroy,
   SimpleChanges,
+  EventEmitter,
+  Output,
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { FormDefinition, Form } from './models/form.model';
@@ -31,6 +33,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() nomadForm: Form;
   @Input() editMode: boolean;
+  @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
 
   public form: FormGroup;
   public sections: FormNode[] = [];
@@ -46,6 +49,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.form.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
       this.relationService.checkRelation(this.nomadForm.relations, this.form);
     });
+
+    console.log(this.form);
   }
 
   /**
@@ -107,5 +112,9 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
     const controls = Object.fromEntries(controlsArray);
     return this.fb.group(controls);
+  }
+
+  onSubmit(){
+    this.submitAction.emit(this.form);
   }
 }

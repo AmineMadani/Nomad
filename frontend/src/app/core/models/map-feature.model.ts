@@ -35,7 +35,7 @@ export class MapFeature {
       return mFeature;
     } else {
       mFeature = Object.assign(new MapFeature(), obj)
-      mFeature.id = mFeature.id.toString();
+      mFeature.id = mFeature.id?.toString();
       return mFeature;
     }
   }

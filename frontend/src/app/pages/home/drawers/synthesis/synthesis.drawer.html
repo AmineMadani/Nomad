@@ -14,7 +14,7 @@
 
 <!-- BUTTONS -->
 <ng-template #defaultBar>
-    <ion-tab-bar class="action-bar" slot="top">
+    <ion-tab-bar class="action-bar" slot="top" *ngIf="tabButtons && tabButtons.length > 0">
         <ion-tab-button *ngFor="let tb of tabButtons" (click)="onTabButtonClicked(tb)">
             <ion-icon [name]="tb.icon + '-outline'"></ion-icon>
             {{ tb.label }}
@@ -34,7 +34,12 @@
 
 <!-- FOOTER -->
 <div class="bottom-item">
+    <ng-container [ngTemplateOutlet]="footerTemplate || defaultFooter"></ng-container>
+</div>
+
+
+<ng-template #defaultFooter>
     <ion-item lines="none">
         <ion-button fill="clear" slot="end" (click)="onDetailsClicked()">Détails</ion-button>
     </ion-item>
-</div>
+</ng-template>

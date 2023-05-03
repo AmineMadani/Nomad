@@ -54,6 +54,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   @Input() tabButtons: SynthesisButton[];
   @Input() buttonTemplate: TemplateRef<any>;
   @Input() contentTemplate: TemplateRef<any>;
+  @Input() footerTemplate: TemplateRef<any>;
   @Output() onAttachFile: EventEmitter<void> = new EventEmitter();
   @Output() onTabButton: EventEmitter<SynthesisButton> = new EventEmitter();
   @Output() onDetails: EventEmitter<void> = new EventEmitter();

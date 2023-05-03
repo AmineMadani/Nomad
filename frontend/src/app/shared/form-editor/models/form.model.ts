@@ -51,8 +51,19 @@ export interface FormInput {
 
 export interface FormSelect {
   value: string;
+  default: string;
   placeholder: string;
-  options: FormSelectOpt[];
+  options?: FormSelectOpt[];
+}
+
+export interface FormSelectReferential {
+  value: string;
+  default: string;
+  placeholder: string;
+  repository: string,
+  repositoryKey: string,
+  repositoryValue: string
+  filters?: string[]
 }
 
 export interface FormSelectOpt {

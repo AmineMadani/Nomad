@@ -23,6 +23,8 @@ import { FormAttachmentComponent } from './form-editor/properties/form-attachmen
 import { FormSliderComponent } from './form-editor/properties/form-slider/form-slider.component';
 import { ImageReaderComponent } from './components/image-reader/image-reader.component';
 import { ClearDataDirective } from './directives/clear-data.directive';
+import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
+import { FormSelectReferentialComponent } from './form-editor/properties/form-select-referential/form-select-referential.component';
 
 @NgModule({
   declarations: [
@@ -42,10 +44,12 @@ import { ClearDataDirective } from './directives/clear-data.directive';
     FormDatepickerComponent,
     FormInputComponent,
     FormSelectComponent,
+    FormSelectReferentialComponent,
     FormTextaeraComponent,
     FormLabelComponent,
     FormAttachmentComponent,
     FormSliderComponent,
+    FormRadioComponent,
     ClearDataDirective,
   ],
   imports: [

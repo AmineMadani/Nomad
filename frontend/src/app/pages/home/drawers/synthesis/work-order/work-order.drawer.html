@@ -1,5 +1,5 @@
 <ng-template #workOrderTemplate>
-  <ng-container *ngIf="workOrder">
+  <ng-container *ngIf="workOrder && !editMode">
     <ion-item lines="none" class="ion-text-center">
       <ion-label class="rdv-label">
         Rendez-vous le X à Y - [Type Motif]
@@ -22,9 +22,23 @@
       </ion-label>
     </ion-item>
   </ng-container>
-  <app-form-editor *ngIf="workOrderForm" [nomadForm]="workOrderForm" [editMode]="editMode"></app-form-editor>
+  <ng-container *ngIf="workOrder && editMode">
+    <div class="edit-title">
+      Les champs suivis d'un * sont obligatoires
+    </div>
+  </ng-container>
+  <app-form-editor *ngIf="workOrderForm" [nomadForm]="workOrderForm" [editMode]="editMode"
+    (submitAction)="onSubmit($event)"></app-form-editor>
 </ng-template>
 
-<app-synthesis [drawerTitle]="'I-' + workOrder.id" [hasFile]="true" [tabButtons]="buttons"
-  [contentTemplate]="workOrderTemplate" (onTabButton)="onTabButtonClicked($event)">
+<ng-template #workOrderfooter>
+  <div lines="none" class="footer">
+    <ion-button fill="clear">Annuler</ion-button>
+    <ion-button fill="clear">Reinitialiser</ion-button>
+    <ion-button fill="clear" fill="clear" slot="end" type="submit" [form]="workOrderForm?.key">Valider</ion-button>
+  </div>
+</ng-template>
+
+<app-synthesis [drawerTitle]="getTitle()" [hasFile]="false" [tabButtons]="buttons" [contentTemplate]="workOrderTemplate"
+  [footerTemplate]="workOrderfooter" (onTabButton)="onTabButtonClicked($event)">
 </app-synthesis>

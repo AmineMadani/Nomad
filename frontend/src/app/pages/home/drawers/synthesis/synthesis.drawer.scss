@@ -25,10 +25,10 @@ ion-tab-bar.action-bar {
 
 .synthesis-content {
   position: fixed;
-  top: 145px;
+  //top: 145px;
   width: 100%;
   overflow: auto;
-  height: calc(100% - 202px);
+  height: calc(100% - 177px);
   background-color: var(--ion-color-surface-light-1);
 
   .synthesis-container {
@@ -40,10 +40,9 @@ ion-tab-bar.action-bar {
   position: fixed;
   width: 100%;
   bottom: 0;
-  padding: 0 16px;
   
   ion-item {
     border-top: 1px solid var(--ion-color-neutral-variant-80);
-    --min-height: 57px;
+    height: 100%;
   }
 }

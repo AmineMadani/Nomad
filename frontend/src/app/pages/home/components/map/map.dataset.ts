@@ -43,12 +43,12 @@ export const MAP_DATASET: BackLayer[] = [
     matrixSet: 'PM',
     format: 'image/png',
     visible: true,
-    default: true
+    default: false
   },
   {
     type: 'OSM',
     key: 'osm',
     visible: true,
-    default: false
+    default: true
   }
 ];

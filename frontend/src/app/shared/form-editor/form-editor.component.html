@@ -1,5 +1,5 @@
 <!-- -------- MAIN FORM -------- -->
-<form [formGroup]="form">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" [id]="nomadForm.key">
   <ng-container *ngIf="sections.length > 0">
     <ng-container *ngFor="let node of sections">
       <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node }"></ng-container>
@@ -69,6 +69,12 @@
     </ng-container>
     <ng-container *ngSwitchCase="'select'">
       <app-form-select [definition]="definition" [control]="form.controls[definition.key]"></app-form-select>
+    </ng-container>
+    <ng-container *ngSwitchCase="'referential'">
+      <app-form-select-referential [definition]="definition" [control]="form.controls[definition.key]"></app-form-select-referential>
+    </ng-container>
+    <ng-container *ngSwitchCase="'radio'">
+      <app-form-radio [definition]="definition" [control]="form.controls[definition.key]"></app-form-radio>
     </ng-container>
     <ng-container *ngSwitchCase="'textarea'">
       <app-form-textaera [definition]="definition" [control]="form.controls[definition.key]"

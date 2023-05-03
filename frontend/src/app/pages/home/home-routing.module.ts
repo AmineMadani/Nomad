@@ -54,6 +54,13 @@ const routes: Routes = [
         },
       },
       {
+        path: 'work-order',
+        component: WorkOrderDrawer,
+        data: {
+          name: DrawerRouteEnum.WORKORDER,
+        },
+      },
+      {
         path: 'demande/:id',
         component: DemandeDrawer,
         data: {
