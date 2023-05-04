@@ -7,6 +7,9 @@
   /** Global App Variable **/
   --width-right-panel-interactive: 500px;
   --width-right-panel-interactive--: calc(var(--width-right-panel-interactive) * -1);
+
+  --width-right-panel-interactive-full: 100%;
+  --width-right-panel-interactive-full--: calc(var(--width-right-panel-interactive-full) * -1);
   /*************************/
 
   --ion-font-family: "TheSans";
@@ -73,6 +76,11 @@
 	--ion-color-light-tint: #f5f6f9;
 
 	--ion-color-surface-light-1: #FBFEFF;
+  --ion-color-surface-neutral: #F9FCFF;
+
+  --ion-color-primary-10: #001C37;
+  --ion-color-primary-10-value: 0, 28,55;
+  --ion-color-primary-95: #EAF1FF;
 
   --ion-color-neutral-variant-10: #1C1B1F;
 	--ion-color-neutral-variant-30: #49454F;
@@ -157,6 +165,11 @@
     --ion-color-light-tint: #383a3e;
 
     --ion-color-surface-light-1: #FBFEFF;
+    --ion-color-surface-neutral: #1B1C1F;
+
+    --ion-color-primary-10: #001C37;
+    --ion-color-primary-10-value: 0, 28,55;
+    --ion-color-primary-95: #EAF1FF;
 
     --ion-color-neutral-variant-10: #E6E1E5;
     --ion-color-neutral-variant-30: #CAC4D0;
@@ -166,7 +179,6 @@
     --ion-color-openlayer-button-bg-hover: #eeebf2;
     --ion-color-openlayer-button-bg-focus: #e4e0eb;
   }
-
   /*
    * iOS Dark Theme
    * -------------------------------------------

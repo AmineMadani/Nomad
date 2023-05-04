@@ -16,7 +16,6 @@ export class FormTextaeraComponent implements OnInit {
   public attributes: FormTextaera;
 
   ngOnInit() {
-    console.log(this.attributes);
     this.attributes = this.definition.attributes as FormTextaera;
   }
 }

@@ -1,5 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -19,7 +20,8 @@ import { DatePipe } from '@angular/common';
     AppComponent
   ],
   imports: [
-    BrowserModule, 
+    BrowserModule,
+    BrowserAnimationsModule,
     IonicModule.forRoot(), 
     AppRoutingModule,
     HttpClientModule,

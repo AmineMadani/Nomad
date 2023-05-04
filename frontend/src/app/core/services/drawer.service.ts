@@ -2,7 +2,7 @@ import { LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { BehaviorSubject, filter, Observable, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, Subject, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -30,8 +30,10 @@ export class DrawerService {
   private drawerHasBeenOpened$: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   // We use a BehaviorSubject to store the previous route
-  private currentDrawerType$: BehaviorSubject<DrawerTypeEnum> =
-    new BehaviorSubject<DrawerTypeEnum>(DrawerTypeEnum.DRAWER);
+  private currentDrawerType$: Subject<DrawerTypeEnum> = new Subject();
+
+  // If needing closing the modal on mobile
+  private closeModal$: Subject<void> = new Subject();
 
   onCurrentRouteChanged(): Observable<DrawerRouteEnum> {
     return this.currentRoute$.asObservable();
@@ -49,11 +51,15 @@ export class DrawerService {
     return this.currentDrawerType$.asObservable();
   }
 
+  onCloseModal(): Observable<void> {
+    return this.closeModal$.asObservable();
+  }
+
   initDrawerListener() {
     this.routerEventsSubscription = this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
-        tap((event: any) => {
+        map((event: any) => {
           let route: ActivatedRoute = this.router.routerState.root;
           while (route!.firstChild) {
             route = route.firstChild;
@@ -64,10 +70,32 @@ export class DrawerService {
           ) {
             event['name'] = route!.snapshot.data['name'];
           }
+          return event;
         })
       )
       .subscribe((currentRoute: any) => {
         const currentRouteName: DrawerRouteEnum = currentRoute.name;
+        // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
+        if (
+          [
+            DrawerRouteEnum.EQUIPMENT,
+            DrawerRouteEnum.WORKORDER,
+            DrawerRouteEnum.DEMANDE
+          ].includes(currentRouteName) &&
+          this.utilsService.isMobilePlateform()
+        ) {
+          this.currentDrawerType$.next(DrawerTypeEnum.BOTTOM_SHEET);
+          this.drawerHasBeenOpened$.next(false);
+
+        } else if ([DrawerRouteEnum.EQUIPMENT_DETAILS].includes(currentRouteName)) {
+          this.currentDrawerType$.next(DrawerTypeEnum.DRAWER_FULL);
+
+        } else if (currentRouteName === DrawerRouteEnum.HOME) {
+          this.currentDrawerType$.next(DrawerTypeEnum.NONE);
+          
+        } else {
+          this.currentDrawerType$.next(DrawerTypeEnum.DRAWER);
+        }
         // If the current route name is in the drawer routes
         if (drawerRoutes.some((route) => route.name === currentRouteName)) {
           // We stock the previous route
@@ -78,16 +106,6 @@ export class DrawerService {
           // If the current route is not the home route we set the drawer to opened
           if (currentRouteName !== DrawerRouteEnum.HOME) {
             this.drawerHasBeenOpened$.next(true);
-          }
-          // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
-          if (
-            [DrawerRouteEnum.EQUIPMENT, DrawerRouteEnum.WORKORDER, DrawerRouteEnum.DEMANDE].includes(currentRouteName) &&
-            this.utilsService.isMobilePlateform()
-          ) {
-            this.currentDrawerType$.next(DrawerTypeEnum.BOTTOM_SHEET);
-            this.drawerHasBeenOpened$.next(false);
-          } else {
-            this.currentDrawerType$.next(DrawerTypeEnum.DRAWER);
           }
         }
       });
@@ -116,6 +134,10 @@ export class DrawerService {
     const url: string = this.getUrlFromDrawerName(DrawerRouteEnum.HOME);
     //this.router.navigate([url]);
     this.nav.navigateBack(url);
+  }
+
+  closeModal() {
+    this.closeModal$.next();
   }
 
   private getUrlFromDrawerName(route: DrawerRouteEnum): string {

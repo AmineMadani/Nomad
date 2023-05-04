@@ -1,16 +1,19 @@
 export enum DrawerRouteEnum {
-  HOME,
-  PERIMETER,
-  EXPLOITATION,
-  PATRIMONY,
-  EQUIPMENT,
-  WORKORDER,
-  DEMANDE,
+  HOME = 'HOME',
+  PERIMETER = 'PERIMETER',
+  EXPLOITATION = 'EXPLOITATION',
+  PATRIMONY = 'PATRIMONY',
+  EQUIPMENT = 'EQUIPMENT',
+  EQUIPMENT_DETAILS = 'EQUIPMENT_DETAILS',
+  WORKORDER = 'WORKORDER',
+  DEMANDE = 'DEMANDE',
 }
 
 export enum DrawerTypeEnum {
-  BOTTOM_SHEET,
-  DRAWER,
+  BOTTOM_SHEET = 'BOTTOM_SHEET',
+  DRAWER = 'DRAWER',
+  DRAWER_FULL = 'DRAWER_FULL',
+  NONE = 'NONE',
 }
 
 export const drawerRoutes = [
@@ -35,11 +38,15 @@ export const drawerRoutes = [
     name: DrawerRouteEnum.EQUIPMENT,
   },
   {
+    path: '/home/equipment/:id/details',
+    name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+  },
+  {
     path: '/home/work-order/:id',
-    name: DrawerRouteEnum.WORKORDER
+    name: DrawerRouteEnum.WORKORDER,
   },
   {
     path: '/home/demande/:id',
-    name: DrawerRouteEnum.DEMANDE
-  }
+    name: DrawerRouteEnum.DEMANDE,
+  },
 ];

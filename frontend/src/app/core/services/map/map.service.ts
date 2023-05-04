@@ -216,6 +216,7 @@ export class MapService {
     const geoJSONAlreadyLoading: string[] = [];
     const wkt = new WKT();
     mapLayer.source!.setLoader(async (extent: number[]) => {
+      console.log(extent);
       const index = await this.layerDataService.getLayerIndex(mapLayer.key);
       if (index['features']) {
         for (let el of (index['features'] as any[])) {
