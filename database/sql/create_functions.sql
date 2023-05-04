@@ -29,18 +29,23 @@ declare
 	geojson jsonb;
 	tile_geom geometry;
   list_fields text;
+  crs jsonb;
 begin
   tile_geom := (select geom from config.app_grid where id = tile_id);
+  --
+  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||config.get_srid());
+  crs :=  jsonb_build_object('type', 'name', 'properties', crs);
+  --
   -- Get list of fields from conf
   select string_agg("referenceKey", ', ')  into list_fields
     from config.get_layer_references_user(user_ident)
-   where layer = layer_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
+   where layer = layer_name and ("displayType" is not null or "isVisible" = false);
   --
   if list_fields is null then
     -- Get list of fields from postgres
     select string_agg(column_name, ', ')  into list_fields
       from information_schema.columns
-     where table_schema||'.'||table_name = layer_name;  
+     where table_schema||'.'||table_name = layer_name;
   end if;
   --
   execute format($sql$
@@ -57,10 +62,12 @@ begin
   from records r
   )
   SELECT jsonb_build_object(
+  'crs', '%4s'::jsonb,
+  'name',  '%2$s',    
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), layer_name, tile_geom::text) into geojson;
+  $sql$, coalesce(list_fields, '*'), layer_name, tile_geom::text, crs) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
