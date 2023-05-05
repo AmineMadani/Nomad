@@ -6,12 +6,13 @@ import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import { getWidth, getTopLeft } from 'ol/extent.js';
 import BaseLayer from 'ol/layer/Base';
-import { BackLayer, MAP_DATASET } from './map.dataset';
+import { BackLayer } from './map.dataset';
 import { GeolocationControl } from './controls/geolocation.control';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ScalelineControl } from './controls/scaleline.control';
 import { ZoomControl } from './controls/zoom.control';
 import { LayerService } from 'src/app/core/services/map/layer.service';
+import { pipe, tap } from 'rxjs';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -67,12 +68,14 @@ export class MapComponent implements OnInit {
         this.resolutions[z] = size / Math.pow(2, z);
         this.matrixIds[z] = z.toString();
       }
-      const defaultBackLayer: BackLayer | undefined = MAP_DATASET.find(
-        (bl) => bl.default
-      );
-      if (defaultBackLayer) {
-        this.createLayers(defaultBackLayer.key, defaultBackLayer);
-      }
+      this.mapService.getBaseMaps().subscribe(res => {
+        const defaultBackLayer: BackLayer | undefined = res.find(
+          (bl) => bl.default
+        );
+        if (defaultBackLayer) {
+          this.createLayers(defaultBackLayer.key, defaultBackLayer);
+        }
+        });
     }
   }
 
@@ -84,7 +87,10 @@ export class MapComponent implements OnInit {
    */
   createLayers(backLayerKey: string, layer?: BackLayer): void {
     if (!layer) {
-      layer = MAP_DATASET.find((bl) => bl.key === backLayerKey);
+      this.mapService.getBaseMaps().subscribe(res =>
+        {
+          layer = res.find(bl => bl.key === backLayerKey);
+        });
     }
     if (layer) {
       switch (layer.type) {
@@ -92,7 +98,7 @@ export class MapComponent implements OnInit {
           const wmtsLayer = new TileLayer({
             preload: Infinity,
             source: this.buildWMTS(layer),
-            visible: layer.visible,
+            visible: layer.display,
             zIndex: 0,
           });
           this.mapLayers.set(layer.key, wmtsLayer);
@@ -102,7 +108,7 @@ export class MapComponent implements OnInit {
           const osmLayer = new TileLayer({
             preload: Infinity,
             source: this.buildOSM(),
-            visible: layer.visible,
+            visible: layer.display,
             zIndex: 0,
           });
           this.mapLayers.set(layer.key, osmLayer);

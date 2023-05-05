@@ -16,6 +16,9 @@ import { MapEventService } from './map-event.service';
 import { FilterDataService } from '../dataservices/filter.dataservice';
 import Geometry from 'ol/geom/Geometry';
 import { ConfigurationService } from '../configuration.service';
+import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
+import { Observable } from 'rxjs';
+import { BackLayer } from 'src/app/pages/home/components/map/map.dataset';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +30,8 @@ export class MapService {
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private filterDataService: FilterDataService,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private baseMapsDataService : BaseMapsDataService
   ) { }
 
   /**
@@ -357,6 +361,10 @@ export class MapService {
       oneDateOk = 'true'
     }
     return isInFilter && (oneDateOk == 'true');
+  }
+
+  public getBaseMaps() : Observable<BackLayer[]>{
+    return this.baseMapsDataService.getBaseMaps();
   }
 }
 

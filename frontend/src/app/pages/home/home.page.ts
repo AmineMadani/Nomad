@@ -1,12 +1,13 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { BackLayer, MAP_DATASET } from './components/map/map.dataset';
-import { Subject, takeUntil } from 'rxjs';
+import { BackLayer } from './components/map/map.dataset';
+import { Subject, filter, takeUntil, tap } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-home',
@@ -17,7 +18,8 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
     public drawerService: DrawerService,
-    private layerDataServie: LayerDataService
+    private layerDataServie: LayerDataService,
+    private mapService : MapService
   ) {}
 
   animationBuilder = (baseEl: any, opts?: any) => {
@@ -53,7 +55,7 @@ export class HomePage implements OnInit, OnDestroy {
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
-    this.backLayers = MAP_DATASET.filter((bl) => bl.visible);
+      this.mapService.getBaseMaps().subscribe(res => this.backLayers = res.filter(b => b.display));
     this.initDrawer();
   }
 
