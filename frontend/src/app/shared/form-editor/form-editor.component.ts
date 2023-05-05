@@ -49,8 +49,6 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.form.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
       this.relationService.checkRelation(this.nomadForm.relations, this.form);
     });
-
-    console.log(this.form);
   }
 
   /**

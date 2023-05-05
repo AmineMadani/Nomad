@@ -102,7 +102,6 @@ export class KeycloakService {
   public loadUserProfile(): void {
     this.oauthService.loadUserProfile()
       .then(loadUserProfileResult => {
-        console.log("loadUserProfile", loadUserProfileResult);
         this.userProfile = loadUserProfileResult;
       })
       .catch(error => {

@@ -214,7 +214,19 @@ ion-chip.status {
   }
 }
 
-.alert-wrapper{
-  max-width: 80% !important;
-  width: 70% !Important;
+ion-select::part(placeholder),
+ion-select::part(text) {
+  white-space: normal !important;
+}
+
+// Force text-wrap on <ion-select-option>'s when shown in an Ionic Alert
+ion-alert.select-alert {
+  // These widths are pretty arbitrary, so you're use-case(s) could required different widths:
+  --width: 30% !important;
+  --max-width: 66vw !important;
+
+  .select-interface-option .alert-radio-label,
+  .select-interface-option .alert-checkbox-label {
+    white-space: normal !important;
+  }
 }

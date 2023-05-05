@@ -1,6 +1,15 @@
-<ion-select labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label"
-  [placeholder]="attributes.placeholder" [formControl]="control">
-  <ion-select-option *ngFor="let opt of attributes.options" [value]="opt.key">
-    {{ opt.value }}
-  </ion-select-option>
-</ion-select>
+<div class="form-property-select">
+  <ion-select aria-label="def-select" labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label"
+    [placeholder]="attributes.placeholder" [formControl]="control">
+    <ion-select-option *ngFor="let opt of attributes.options" [value]="opt.key">
+      {{ opt.value }}
+    </ion-select-option>
+  </ion-select>
+  <ng-container *ngIf="control.touched">
+    <ng-container *ngFor="let val of control.errors | keyvalue">
+      <ion-label color="danger" lines="none">
+        {{ getMessageError(val) }}
+      </ion-label>
+    </ng-container>
+  </ng-container>
+</div>

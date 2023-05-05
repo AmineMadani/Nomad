@@ -35,4 +35,9 @@ export class FormSelectComponent implements OnInit {
       this.control.disable();
     }
   }
+
+  getMessageError(val: any):string{
+    let error = this.definition.rules.find(rule => rule.key == val.key)?.message;
+    return error ? error : val.value;
+  }
 }

@@ -5,12 +5,10 @@ import { SynthesisButton } from '../synthesis.drawer';
 import { ActivatedRoute } from '@angular/router';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { HttpClient } from '@angular/common/http';
-import {
-  Form,
-  FormDefinition,
-} from 'src/app/shared/form-editor/models/form.model';
-import { DatePipe } from '@angular/common';
+import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { FormGroup } from '@angular/forms';
+import { AlertController } from '@ionic/angular';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-work-order',
@@ -21,12 +19,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   constructor(
     private router: ActivatedRoute,
     private http: HttpClient,
-    private datePipe: DatePipe
+    private alertCtrl: AlertController,
+    private location: Location
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((params) => {
         this.workOrder = MapFeature.from(params);
+        this.workOrder.id = this.router.snapshot.paramMap.get('id');
         if(!this.workOrder?.id) {
           this.buttons = [];
         }
@@ -95,5 +95,29 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   onSubmit(form:FormGroup){
     console.log(form);
     form.markAllAsTouched();
+  }
+
+  async onCancel(){
+    const alert = await this.alertCtrl.create({
+      header: `Souhaitez-vous vraiment annuler cette génération d’intervention ?`,
+      buttons: [
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+        {
+          text: 'Non',
+          role: 'cancel',
+        },
+      ]
+    });
+
+    await alert.present();
+
+    const { role, data } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      this.location.back();
+    }
   }
 }
