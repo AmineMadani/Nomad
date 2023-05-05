@@ -1,5 +1,7 @@
-<ion-list-header *ngIf="section.definition.label.length > 0">
-  <ion-label>{{ section.definition.label }}</ion-label>
+<ion-list-header *ngIf="section.definition.label.length > 0" class="list-header ion-no-margin ion-no-padding">
+  <ion-item>
+    <ion-label>{{ section.definition.label }}</ion-label>
+  </ion-item>
 </ion-list-header>
 <ion-list>
   <ng-content></ng-content>

@@ -1,5 +1,5 @@
 <!-- -------- MAIN FORM -------- -->
-<form [formGroup]="form">
+<form [formGroup]="form" class="form-editor">
   <ng-container *ngIf="sections.length > 0">
     <ng-container *ngFor="let node of sections">
       <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node }"></ng-container>
@@ -26,6 +26,13 @@
     <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node: child }"></ng-container>
   </ng-container>
 </ng-template>
+<ng-template #listTemplate let-children="children">
+  <ion-item *ngFor="let child of children" lines="none">
+    <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node: child }"></ng-container>
+  </ion-item>
+</ng-template>
+
+
 
 <ng-template #section let-node="node">
   <ng-container [ngSwitch]="node.definition.component">
@@ -38,7 +45,7 @@
     <!-- ITEM GROUP -->
     <ng-container *ngSwitchCase="'list'">
       <app-form-list [section]="node">
-        <ng-container *ngTemplateOutlet="childTemplate; context: { children: node.children }"></ng-container>
+        <ng-container *ngTemplateOutlet="listTemplate; context: { children: node.children }"></ng-container>
       </app-form-list>
     </ng-container>
     <!-- STEPPER -->
@@ -49,12 +56,26 @@
     <ng-container *ngSwitchCase="'form'">
       <ng-container *ngTemplateOutlet="childTemplate; context: { children: node.children }"></ng-container>
     </ng-container>
-    <!-- STEP -->
-    <!-- <ng-container *ngSwitchCase="'step'">
-      <app-form-step [section]="node">
+    <!-- GRID -->
+    <ng-container *ngSwitchCase="'grid'">
+      <ng-container *ngTemplateOutlet="gridTemplate; context: { node: node }"></ng-container>
+    </ng-container>
+    <!-- COL -->
+    <ng-container *ngSwitchCase="'col'">
+      <app-form-col>
         <ng-container *ngTemplateOutlet="childTemplate; context: { children: node.children }"></ng-container>
-      </app-form-step>
-    </ng-container> -->
+      </app-form-col>
+    </ng-container>
+    <!-- SEGMENT -->
+    <ng-container *ngSwitchCase="'tabs'">
+      <ng-container *ngTemplateOutlet="tabsTemplate; context: { node: node }"></ng-container>
+    </ng-container>
+    <!-- CONTAINER -->
+    <ng-container *ngSwitchCase="'container'">
+      <div class="form-container">
+        <ng-container *ngTemplateOutlet="childTemplate; context: { children: node.children }"></ng-container>
+      </div>
+    </ng-container>
   </ng-container>
 </ng-template>
 
@@ -65,7 +86,8 @@
       <app-form-label [definition]="definition" [control]="form.controls[definition.key]"></app-form-label>
     </ng-container>
     <ng-container *ngSwitchCase="'input'">
-      <app-form-input [definition]="definition" [control]="form.controls[definition.key]" [edit]="editMode"></app-form-input>
+      <app-form-input [definition]="definition" [control]="form.controls[definition.key]"
+        [edit]="editMode"></app-form-input>
     </ng-container>
     <ng-container *ngSwitchCase="'select'">
       <app-form-select [definition]="definition" [control]="form.controls[definition.key]"></app-form-select>
@@ -81,7 +103,17 @@
       <app-form-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-attachment>
     </ng-container>
     <ng-container *ngSwitchCase="'slider'">
-      <app-form-slider [definition]="definition" [control]="form.controls[definition.key]" [edit]="editMode"></app-form-slider>
+      <app-form-slider [definition]="definition" [control]="form.controls[definition.key]"
+        [edit]="editMode"></app-form-slider>
+    </ng-container>
+    <ng-container *ngSwitchCase="'work-order'">
+      <app-form-work-order></app-form-work-order>
+    </ng-container>
+    <ng-container *ngSwitchCase="'life-cycle'">
+      <app-form-life-cycle></app-form-life-cycle>
+    </ng-container>
+    <ng-container *ngSwitchCase="'bottom-attachment'">
+      <app-form-bottom-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-bottom-attachment>
     </ng-container>
   </ng-container>
 </ng-template>
@@ -95,4 +127,22 @@
       </app-form-step>
     </mat-step>
   </mat-stepper>
+</ng-template>
+
+<ng-template #tabsTemplate let-node="node">
+  <mat-tab-group mat-align-tabs="center" class="form-tabs" [disableRipple]="true" [class.mobile-tabs]="isMobile">
+    <mat-tab *ngFor="let child of node.children" [label]="child.definition.label">
+      <ng-container *ngTemplateOutlet="childTemplate; context: { children: child.children }"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</ng-template>
+
+<ng-template #gridTemplate let-node="node">
+  <ion-grid class="form-grid">
+    <ion-row>
+      <ion-col *ngFor="let child of node.children">
+        <ng-container *ngTemplateOutlet="childTemplate; context: { children: child.children }"></ng-container>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ng-template>

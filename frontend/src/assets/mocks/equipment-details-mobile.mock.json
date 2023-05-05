@@ -1,0 +1,189 @@
+{
+  "key": "equipment-details",
+  "editable": false,
+  "definitions": [
+    {
+      "key": "segments",
+      "type": "section",
+      "component": "tabs",
+      "editable": false,
+      "label": "Caractéristiques",
+      "attributes": {}
+    },
+    {
+      "key": "tab1",
+      "type": "section",
+      "component": "tab",
+      "editable": false,
+      "label": "Caractéristiques",
+      "attributes": {},
+      "section": "segments"
+    },
+    {
+      "key": "tab2",
+      "type": "section",
+      "component": "tab",
+      "editable": false,
+      "label": "Historique des interventions",
+      "attributes": {},
+      "section": "segments"
+    },
+    {
+      "key": "tab3",
+      "type": "section",
+      "component": "tab",
+      "editable": false,
+      "label": "Cycle de vie",
+      "attributes": {},
+      "section": "segments"
+    },
+    {
+      "key": "diametre",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Diametre",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "exploitant",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Exploitant",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "exploitant",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Exploitant",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "position",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Position",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "fermeture",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Fermeture",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "insee_code",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Code Insee",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "prec_clas",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Prec Clas",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "type",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Type",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    
+    {
+      "key": "date_serv",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Date Service",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "comment",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Commentaire",
+      "attributes": {
+        "value": "Inconnu"
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "work-order",
+      "type": "property",
+      "component": "work-order",
+      "editable": false,
+      "label": "Interventions",
+      "attributes": {
+        "value": "",
+        "default": ""
+      },
+      "section": "tab2"
+    },
+    {
+      "key": "work-order-cycle",
+      "type": "property",
+      "component": "life-cycle",
+      "editable": false,
+      "label": "",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab3"
+    },
+    {
+      "key": "attachment",
+      "type": "property",
+      "component": "bottom-attachment",
+      "editable": false,
+      "label": "Pièces jointes",
+      "attributes": {
+        "value": [
+          { "filename": "demo1.jpg", "size": "128ko" },
+          { "filename": "demo2.jpg", "size": "254ko" },
+          { "filename": "demo3.jpg", "size": "89ko" }
+        ]
+      }
+    }
+  ]
+}

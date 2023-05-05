@@ -1,0 +1,42 @@
+ion-tab-bar.action-bar {
+    overflow: auto;
+    height: 70px;
+}
+
+ion-item.summary {
+    --background: var(--ion-color-surface-neutral);
+
+    ion-label.labels {
+        display: flex;
+        flex-direction: row;
+        gap: 44px;
+    }
+
+    ion-label.mobile-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    ion-label {
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0.1px;
+        --color: var(--ion-color-primary);
+    }
+}
+
+.border-bar {
+    width: 92%;
+    margin: auto;
+    border: 1px solid var(--ion-color-neutral-variant-80);
+}
+
+.detail-form {
+    height: calc(100% - 150px);
+    width: 100%;
+}
+
+.mobile-form {
+    height: calc(100% - 300px) !important;
+}

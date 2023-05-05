@@ -12,6 +12,8 @@ import { LayerReferencesService } from 'src/app/core/services/layer-reference.se
 import { UserReference } from 'src/app/core/models/layer-references.model';
 import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-equipment',
@@ -23,28 +25,35 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private router: ActivatedRoute,
     private layerReferencesService: LayerReferencesService,
     private equipmentService: EquipmentDataService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private drawer: DrawerService
   ) {
-    this.router.queryParams.pipe(
-      takeUntil(this.ngUnsubscribe),
-      switchMap((params) => {
-        this.eqTemp = params;
-        return from(this.layerReferencesService.getUserReferences(params['layer']))
-      }),
-      switchMap((refs: UserReference[]) => {
-        this.userReferences = refs;
-        return this.equipmentService.getById(this.eqTemp.id);
-      }),
-      catchError(() => {
-        return of(this.eqTemp);
-      }),
-    ).subscribe((equipment) => {
-      this.equipment = equipment;
+    this.router.queryParams
+      .pipe(
+        takeUntil(this.ngUnsubscribe),
+        switchMap((params) => {
+          this.eqTemp = params;
+          return from(
+            this.layerReferencesService.getUserReferences(params['layer'])
+          );
+        }),
+        switchMap((refs: UserReference[]) => {
+          this.userReferences = refs;
+          return this.equipmentService.getById(this.eqTemp.id);
+        }),
+        catchError(() => {
+          return of(this.eqTemp);
+        })
+      )
+      .subscribe((equipment) => {
+        this.equipment = equipment;
 
-      // Remove empty references from the list
-      this.userReferences =
-        this.userReferences.filter((element: UserReference) => this.equipment[element.referenceKey] || !element.isVisible);
-    })
+        // Remove empty references from the list
+        this.userReferences = this.userReferences.filter(
+          (element: UserReference) =>
+            this.equipment[element.referenceKey] || !element.isVisible
+        );
+      });
   }
 
   public buttons: SynthesisButton[] = [
@@ -79,5 +88,16 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   ionViewWillLeave(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  public navigateToDetails(): void {
+    // if (this.isMobile) {
+    //   this.drawer.closeModal();
+    // }
+    this.drawer.navigateTo(
+      DrawerRouteEnum.EQUIPMENT_DETAILS,
+      [this.equipment.id],
+      this.equipment
+    );
   }
 }

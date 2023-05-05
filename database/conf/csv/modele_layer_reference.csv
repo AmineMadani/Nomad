@@ -1090,7 +1090,7 @@ ass_boite_de_branchement;cote_sol;Niveau sol;numeric;;;;
 ass_boite_de_branchement;radier;Cote radier;numeric;;;;
 ass_boite_de_branchement;prof;Profondeur;numeric;;;;
 ass_boite_de_branchement;old_id;ID SIG Source;int4;;;;
-ass_boite_de_branchement;geom;Geom;geometry;;;;
+ass_boite_de_branchement;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 ass_branche;id;ID;text;1;SYNTHETIC;Identification;
 ass_branche;contrat;Contrat;text;2;SYNTHETIC;Identification;
 ass_branche;type_br;Type de branche;text;3;DETAILED;Identification;

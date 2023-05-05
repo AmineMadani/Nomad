@@ -23,6 +23,9 @@
         "type": "text",
         "hiddenNull": false
       },
+      "rules": [
+        { "key": "required", "value": true, "message": "Obl" }
+      ],
       "section": "workorderlist"
     },
     {
