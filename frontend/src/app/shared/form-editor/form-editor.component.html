@@ -81,7 +81,8 @@
         [editMode]="editMode"></app-form-textaera>
     </ng-container>
     <ng-container *ngSwitchCase="'datepicker'">
-      <app-form-datepicker></app-form-datepicker>
+      <app-form-datepicker [definition]="definition" [control]="form.controls[definition.key]"
+        [editMode]="editMode"></app-form-datepicker>
     </ng-container>
     <ng-container *ngSwitchCase="'attachment'">
       <app-form-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-attachment>

@@ -39,6 +39,8 @@ export interface FormRelation {
   relatedFrom: string;
   relatedTo: string;
   relation: string;
+  message: string;
+  options: any
 }
 
 export interface FormInput {
@@ -47,6 +49,15 @@ export interface FormInput {
   default: string;
   type: string;
   hiddenNull: boolean;
+}
+
+export interface FormDatePicker {
+  value: string;
+  placeholder: string;
+  default: string;
+  type: string;
+  hiddenNull: boolean;
+  dateformat:string
 }
 
 export interface FormSelect {

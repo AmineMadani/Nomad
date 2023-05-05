@@ -58,9 +58,11 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @param {SimpleChanges} changes - SimpleChanges
    */
   ngOnChanges(changes: SimpleChanges): void {
-    const { currentValue, previousValue } = changes['editMode'];
-    if (currentValue && !previousValue && !this.nomadForm.editable) {
-      this.editMode = false;
+    if(changes['editMode']) {
+      const { currentValue, previousValue } = changes['editMode'];
+      if (currentValue && !previousValue && !this.nomadForm.editable) {
+        this.editMode = false;
+      }
     }
   }
 
@@ -101,7 +103,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
       if (field.rules) {
         for (const rule of field.rules) {
           validators.push(
-            this.rulesService.createValidators(rule.key, rule.value)
+            this.rulesService.createValidators(rule.key, rule.value, rule.message)
           );
         }
       }

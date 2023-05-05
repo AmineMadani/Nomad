@@ -93,7 +93,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   onSubmit(form:FormGroup){
-    console.log(form.getRawValue());
+    console.log(form);
     form.markAllAsTouched();
   }
 }

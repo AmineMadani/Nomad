@@ -1,7 +1,17 @@
-<ion-datetime-button datetime="datetime"></ion-datetime-button>
-
-<ion-modal [keepContentsMounted]="true">
-  <ng-template>
-    <ion-datetime id="datetime"></ion-datetime>
-  </ng-template>
-</ion-modal>
+<div class="form-property-date">
+  <div class="form-property-date-input">
+    <ion-input aria-label="def-input" labelPlacement="floating" fill="outline" [id]="definition.key"
+      [label]="definition.label" [placeholder]="attributes.placeholder" [formControl]="control"
+      [type]="attributes.type"></ion-input>
+    <ion-button fill="clear" class="form-property-date-button" (click)="openCalendar()">
+      <ion-icon class="form-property-date-icon" name="calendar-outline" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+  <ng-container *ngIf="control.touched">
+    <ng-container *ngFor="let val of control.errors | keyvalue">
+      <ion-label color="danger" lines="none">
+        {{ getMessageError(val) }}
+      </ion-label>
+    </ng-container>
+  </ng-container>
+</div>

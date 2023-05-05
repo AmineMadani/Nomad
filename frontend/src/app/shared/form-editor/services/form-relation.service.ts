@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormRelation } from '../models/form.model';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +37,7 @@ export class FormRelationService {
     if (relations && relations.length > 0) {
       for (const relation of relations) {
         switch (relation.relation) {
+
           case 'enableAfter':
             if (
               form.get(relation.relatedTo)?.dirty &&
@@ -44,6 +46,26 @@ export class FormRelationService {
               form.get(relation.relatedFrom)?.enable();
             }
             break;
+
+          case 'dateBefore':
+            if(form.get(relation.relatedFrom).hasError('dateBefore')) {
+              delete form.get(relation.relatedFrom).errors['dateBefore'];
+              if(Object.keys(form.get(relation.relatedFrom).errors).length === 0){
+                form.get(relation.relatedFrom).setErrors(null);
+              }
+            }
+
+            if(form.get(relation.relatedTo).value?.length > 0 && form.get(relation.relatedFrom).value?.length > 0) {
+              const dateRelatedTo = DateTime.fromFormat(form.get(relation.relatedTo).value, relation.options.dateformat);
+              const dateRelatedFrom = DateTime.fromFormat(form.get(relation.relatedFrom).value, relation.options.dateformat);
+              if(dateRelatedFrom.startOf("day") > dateRelatedTo.startOf("day")) {
+                form.get(relation.relatedFrom).setErrors({
+                  dateBefore: relation.message
+                });
+              }
+            }
+            break;
+
         }
       }
     }

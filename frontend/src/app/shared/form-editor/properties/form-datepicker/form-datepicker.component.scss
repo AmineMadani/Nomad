@@ -1,0 +1,19 @@
+.form-property-date {
+
+    margin-bottom: 15px;
+
+    .form-property-date-input {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .form-property-date-button {
+        margin: auto;
+    }
+
+    .form-property-date-icon {
+        height: 30px;
+        width: 30px;
+        padding-right: 10px;
+    }
+}

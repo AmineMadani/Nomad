@@ -32,7 +32,7 @@
 </ng-template>
 
 <ng-template #workOrderfooter>
-  <div lines="none" class="footer">
+  <div lines="none" class="footer" *ngIf="editMode">
     <ion-button fill="clear">Annuler</ion-button>
     <ion-button fill="clear">Reinitialiser</ion-button>
     <ion-button fill="clear" fill="clear" slot="end" type="submit" [form]="workOrderForm?.key">Valider</ion-button>

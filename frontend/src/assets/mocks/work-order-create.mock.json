@@ -137,6 +137,59 @@
       ]
     },
     {
+      "key": "datebegin",
+      "type": "property",
+      "component": "datepicker",
+      "editable": false,
+      "label": "Date de début *",
+      "attributes": {
+        "value": "",
+        "dateformat": "dd/MM/YYYY",
+        "type": "text",
+        "hiddenNull": false
+      },
+      "section": "workordercreationlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        },
+        {
+          "key": "dateformat",
+          "value": "dd/MM/yyyy",
+          "message": "La date saisie est incorrect"
+        }
+      ]
+    },
+    {
+      "key": "dateend",
+      "type": "property",
+      "component": "datepicker",
+      "editable": false,
+      "label": "Date de fin *",
+      "attributes": {
+        "value": "",
+        "placeholder": "DD/MM/YYYY",
+        "dateformat": "dd/MM/YYYY",
+        "type": "text",
+        "hiddenNull": false
+      },
+      "section": "workordercreationlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        },
+        {
+          "key": "dateformat",
+          "value": "dd/MM/yyyy",
+          "message": "La date saisie est incorrect"
+        }
+      ]
+    },
+    {
       "key": "urgent",
       "type": "property",
       "component": "radio",
@@ -192,6 +245,18 @@
         "hiddenNull": false
       },
       "section": "workordercreationlist"
+    }
+  ],
+  "relations": [
+    {
+      "key": "rel1",
+      "relatedFrom": "datebegin",
+      "relatedTo": "dateend",
+      "relation": "dateBefore",
+      "message": "La date de début doit être inférieur ou égale à la date de fin",
+      "options": {
+        "dateformat": "dd/MM/yyyy"
+      }
     }
   ]
 }
