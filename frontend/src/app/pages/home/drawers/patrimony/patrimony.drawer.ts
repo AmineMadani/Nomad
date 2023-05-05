@@ -43,6 +43,11 @@ export class PatrimonyDrawer implements OnInit {
 
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
+    this.favService.filterForm().subscribe((res: Filter) => {
+        if (res) {
+            console.log("res",res); this.filter=res;
+          }
+    });
   }
 
   onClose() {

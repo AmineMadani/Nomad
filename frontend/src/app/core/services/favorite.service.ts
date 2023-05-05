@@ -20,15 +20,15 @@ export class FavoriteService {
   constructor(private mapService: MapService) { }
 
   private filter: Filter = patrimonyFilterMock;
-  private _filterForm$ = new BehaviorSubject<Filter>(this.filter);
+  private filterForm$ = new BehaviorSubject<Filter>(this.filter);
   private currentFavorite: FavData | undefined;
 
   public setfilterForm(filter: Filter) {
-    this._filterForm$.next(filter);
+    this.filterForm$.next(filter);
   }
 
   public filterForm(): Observable<Filter> {
-    return this._filterForm$.asObservable();
+    return this.filterForm$.asObservable();
   }
 
   /**
