@@ -17,7 +17,7 @@ import { FilterDataService } from '../dataservices/filter.dataservice';
 import Geometry from 'ol/geom/Geometry';
 import { ConfigurationService } from '../configuration.service';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { BackLayer } from 'src/app/pages/home/components/map/map.dataset';
 
 @Injectable({
@@ -32,7 +32,9 @@ export class MapService {
     private filterDataService: FilterDataService,
     private configurationService: ConfigurationService,
     private baseMapsDataService : BaseMapsDataService
-  ) { }
+  ) {}
+
+  private backLayerArray : BackLayer[];
 
   /**
    * Map object created by OpenLayers.
@@ -68,6 +70,17 @@ export class MapService {
     return this.map;
   }
 
+   /**
+   * Returns the backLayerArray object.
+   * @returns The backLayerArray object.
+   */
+  public getBackLayerArray() : BackLayer[]{
+    return this.backLayerArray;
+  }
+
+  public setBackLayerArray(blArray : BackLayer[]) : void{
+    this.backLayerArray = blArray;
+  }
   /**
    * Returns the view of the map.
    * @returns The view of the map.
@@ -364,7 +377,14 @@ export class MapService {
   }
 
   public getBaseMaps() : Observable<BackLayer[]>{
-    return this.baseMapsDataService.getBaseMaps();
+    if (this.getBackLayerArray()){
+      return of (this.getBackLayerArray());
+    }
+    return  this.baseMapsDataService.getBaseMaps().pipe(
+      tap(
+        (res : BackLayer[]) => this.setBackLayerArray(res)
+      )
+    );
   }
 }
 

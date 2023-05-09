@@ -12,7 +12,8 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { ScalelineControl } from './controls/scaleline.control';
 import { ZoomControl } from './controls/zoom.control';
 import { LayerService } from 'src/app/core/services/map/layer.service';
-import { pipe, tap } from 'rxjs';
+import { map } from 'rxjs';
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -68,8 +69,8 @@ export class MapComponent implements OnInit {
         this.resolutions[z] = size / Math.pow(2, z);
         this.matrixIds[z] = z.toString();
       }
-      this.mapService.getBaseMaps().subscribe(res => {
-        const defaultBackLayer: BackLayer | undefined = res.find(
+      this.mapService.getBaseMaps().subscribe(backLayerArray => {
+        const defaultBackLayer: BackLayer | undefined = backLayerArray.find(
           (bl) => bl.default
         );
         if (defaultBackLayer) {
@@ -87,10 +88,13 @@ export class MapComponent implements OnInit {
    */
   createLayers(backLayerKey: string, layer?: BackLayer): void {
     if (!layer) {
-      this.mapService.getBaseMaps().subscribe(res =>
-        {
-          layer = res.find(bl => bl.key === backLayerKey);
-        });
+      this.mapService.getBaseMaps().pipe(
+        map(
+          (backLayerArray : BackLayer[]) => backLayerArray.filter(
+            (backLayer : BackLayer) => backLayer.key === backLayerKey
+          )
+        )
+      );
     }
     if (layer) {
       switch (layer.type) {

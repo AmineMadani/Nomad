@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
 import { BackLayer } from './components/map/map.dataset';
-import { Subject, filter, takeUntil, tap } from 'rxjs';
+import { Subject,takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, createAnimation } from '@ionic/angular';
@@ -55,7 +55,7 @@ export class HomePage implements OnInit, OnDestroy {
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
-      this.mapService.getBaseMaps().subscribe(res => this.backLayers = res.filter(b => b.display));
+      this.mapService.getBaseMaps().subscribe(backLayerArray => this.backLayers = backLayerArray.filter(bl => bl.display));
     this.initDrawer();
   }
 
