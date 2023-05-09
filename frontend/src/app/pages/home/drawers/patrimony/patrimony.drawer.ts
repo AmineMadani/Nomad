@@ -1,5 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
+import { Subject, takeUntil } from 'rxjs';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData, FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import {
@@ -17,7 +18,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
   templateUrl: './patrimony.drawer.html',
   styleUrls: ['./patrimony.drawer.scss'],
 })
-export class PatrimonyDrawer implements OnInit {
+export class PatrimonyDrawer implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
@@ -26,10 +27,12 @@ export class PatrimonyDrawer implements OnInit {
     private favService: FavoriteService
   ) {}
 
+
   @ViewChild('scrolling') scrolling: ElementRef;
 
   public filter: Filter = this.favService.getFilter();
   public currentSegment: FilterSegment | undefined;
+  private ngUnsubscribe: Subject<void> = new Subject();
 
   isMobile: boolean = false;
 
@@ -43,15 +46,22 @@ export class PatrimonyDrawer implements OnInit {
 
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
-    this.favService.filterForm().subscribe((res: Filter) => {
+    this.favService.onFilterForm()
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe((res: Filter) => {
         if (res) {
-            console.log("res",res); this.filter=res;
+            this.filter=res;
           }
     });
   }
 
   onClose() {
     this.drawerService.closeDrawer();
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   asIsOrder(a: any, b: any) {

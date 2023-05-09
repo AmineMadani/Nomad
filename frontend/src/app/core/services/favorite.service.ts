@@ -27,7 +27,7 @@ export class FavoriteService {
     this.filterForm$.next(filter);
   }
 
-  public filterForm(): Observable<Filter> {
+  public onFilterForm(): Observable<Filter> {
     return this.filterForm$.asObservable();
   }
 
