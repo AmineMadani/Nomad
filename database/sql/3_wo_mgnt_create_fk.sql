@@ -4,7 +4,7 @@ alter table exploitation.workorder add constraint  fk_wko_wtr_id      foreign ke
 alter table exploitation.workorder add constraint  fk_wko_wts_id      foreign key (wts_id ) references exploitation.workorder_task_status ( id);             
 alter table exploitation.workorder add constraint  fk_wko_wko_ucre_id foreign key (wko_ucre_id ) references exploitation.user ( id);       
 alter table exploitation.workorder add constraint  fk_wko_wko_umod_id foreign key (wko_umod_id ) references exploitation.user ( id);            
-alter table exploitation.workorder add constraint  fk_wko_str_id      foreign key (str_id) references exploitation.workorder_task_status ( id);              
+alter table exploitation.workorder add constraint  fk_wko_str_id      foreign key (str_id) references exploitation.street ( id);              
 alter table exploitation.workorder add constraint  fk_wko_ctr_id      foreign key (ctr_id) references exploitation.contract ( id);               
 
 alter table exploitation.task add constraint fk_tsk_wko_id		            foreign key(wko_id) references exploitation.workorder ( id);	         
