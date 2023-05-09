@@ -5,12 +5,16 @@ import {
   OnChanges,
   OnDestroy,
   SimpleChanges,
+  ViewChildren,
+  QueryList
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { FormDefinition, Form } from './models/form.model';
 import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
+import { MatTabGroup } from '@angular/material/tabs';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 export interface FormNode {
   definition: any;
@@ -26,7 +30,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private rulesService: FormRulesService,
-    private relationService: FormRelationService
+    private relationService: FormRelationService,
+    private utils: UtilsService
   ) {}
 
   @Input() nomadForm: Form;
@@ -34,10 +39,12 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   public form: FormGroup;
   public sections: FormNode[] = [];
+  public isMobile: boolean;
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
+    this.isMobile = this.utils.isMobilePlateform();
     // Construct sections from form
     this.sections = this.buildTree(this.nomadForm.definitions);
     this.form = this.buildForm();
@@ -53,9 +60,11 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @param {SimpleChanges} changes - SimpleChanges
    */
   ngOnChanges(changes: SimpleChanges): void {
-    const { currentValue, previousValue } = changes['editMode'];
-    if (currentValue && !previousValue && !this.nomadForm.editable) {
-      this.editMode = false;
+    if (changes['editMode']) {
+      const { currentValue, previousValue } = changes['editMode'];
+      if (currentValue && !previousValue && !this.nomadForm.editable) {
+        this.editMode = false;
+      }
     }
   }
 

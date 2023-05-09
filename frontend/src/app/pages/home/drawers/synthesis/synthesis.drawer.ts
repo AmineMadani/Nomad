@@ -7,7 +7,7 @@ import {
   TemplateRef,
   EventEmitter,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -15,6 +15,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { boundingExtent } from 'ol/extent';
 import { transform } from 'ol/proj';
+import { Location } from '@angular/common';
 
 export interface SynthesisButton {
   key: string;
@@ -32,7 +33,9 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     private router: ActivatedRoute,
     private utils: UtilsService,
     private layerService: LayerService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private location: Location,
+    private route: Router
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -77,10 +80,12 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   public onDrawerBack(): void {
+    //this.location.back();
     this.drawerService.setLocationBack();
   }
 
   public onDrawerClose(): void {
+    //this.route.navigate(['home']);
     this.drawerService.closeDrawer();
   }
 

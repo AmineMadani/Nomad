@@ -59,10 +59,10 @@ export class LayerDataService {
     * @returns The GeoJSON file for the current tile.
   */
   public async getLayerFile(layerKey: string, file: string): Promise<GeoJSONObject> {
-    /*const tile = await this.db.tiles.get(file);
+    const tile = await this.db.tiles.get(file);
     if (tile) {
       return tile.data;
-    }*/
+    }
     this.listTileOnLoad.set(layerKey,"Chargement de la couche "+layerKey);
     /* It's getting the number from the file name. */
     const featureNumber: number = +file.match(

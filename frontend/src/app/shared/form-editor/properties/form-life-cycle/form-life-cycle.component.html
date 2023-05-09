@@ -1,0 +1,19 @@
+<ion-list lines="none">
+  <ng-container *ngFor="let n of array; let i = index">
+    <ion-item>
+      <ion-fab-button slot="start" size="small">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+      <ion-label>
+        <h4>Hors Service</h4>
+        <p>Mock</p>
+      </ion-label>
+      <ion-note slot="end">
+        22/02/2023
+      </ion-note>
+    </ion-item>
+    <ion-item *ngIf="i < array.length - 1">
+      <div slot="start" class="separator"></div>
+    </ion-item>
+  </ng-container>
+</ion-list>

@@ -1,0 +1,28 @@
+.bottom-attachment {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100;
+    z-index: 1;
+    background-color: rgba(var(--ion-color-primary-10-value), .8);
+
+    ion-item {
+        --color: white;
+    }
+
+    ion-button {
+        --color: white;
+    }
+
+    .swiper {
+        ion-item {
+            width: 375px;
+        }
+    }
+
+    ion-thumbnail {
+        --size: 140px;
+        --border-radius: 14px;
+    }
+}

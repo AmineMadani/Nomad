@@ -9,6 +9,7 @@ import { HomePage } from './home.page';
 import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
+import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 
 const routes: Routes = [
   {
@@ -44,6 +45,13 @@ const routes: Routes = [
         component: EquipmentDrawer,
         data: {
           name: DrawerRouteEnum.EQUIPMENT,
+        },
+      },
+      {
+        path: 'equipment/:id/details',
+        component: EquipmentDetailsComponent,
+        data: {
+          name: DrawerRouteEnum.EQUIPMENT_DETAILS,
         },
       },
       {

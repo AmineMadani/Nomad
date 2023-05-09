@@ -1,0 +1,16 @@
+ion-fab-button {
+    margin-right: 18px;
+    --box-shadow: none;
+}
+
+ion-label {
+    --color: var(--ion-color-neutral-variant-10);
+}
+
+.separator {
+    width: 45px;
+    height: 0;
+    border: 1px solid var(--ion-color-neutral-variant-80);
+    transform: rotate(90deg);
+    margin-left: 6px;
+}

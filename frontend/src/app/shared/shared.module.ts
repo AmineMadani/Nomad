@@ -4,8 +4,11 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTabsModule } from '@angular/material/tabs';
+// COMPONENTS
 import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.component';
 import { DatepickerComponent } from './components/datepicker/datepicker.component';
+import { PageHeaderComponent } from './components/page-header/page-header.component';
 // FORM EDITOR
 import { FormEditorComponent } from './form-editor/form-editor.component';
 // FORM SECTIONS
@@ -23,6 +26,9 @@ import { FormAttachmentComponent } from './form-editor/properties/form-attachmen
 import { FormSliderComponent } from './form-editor/properties/form-slider/form-slider.component';
 import { ImageReaderComponent } from './components/image-reader/image-reader.component';
 import { ClearDataDirective } from './directives/clear-data.directive';
+import { FormWorkOrderComponent } from './form-editor/properties/form-work-order/form-work-order.component';
+import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
+import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +36,7 @@ import { ClearDataDirective } from './directives/clear-data.directive';
     MainToolbarComponent,
     DatepickerComponent,
     ImageReaderComponent,
+    PageHeaderComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -46,6 +53,10 @@ import { ClearDataDirective } from './directives/clear-data.directive';
     FormLabelComponent,
     FormAttachmentComponent,
     FormSliderComponent,
+    FormWorkOrderComponent,
+    FormBottomAttachmentComponent,
+    FormLifeCycleComponent,
+    // DIRECTIVES
     ClearDataDirective,
   ],
   imports: [
@@ -54,13 +65,15 @@ import { ClearDataDirective } from './directives/clear-data.directive';
     FormsModule,
     ReactiveFormsModule,
     MatStepperModule,
+    MatTabsModule
   ],
   exports:[
     MainToolbarComponent,
     DatepickerComponent,
     ImageReaderComponent,
+    PageHeaderComponent,
     FormEditorComponent,
-    ClearDataDirective
+    ClearDataDirective,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
