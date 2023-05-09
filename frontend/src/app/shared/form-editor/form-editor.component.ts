@@ -13,6 +13,7 @@ import { FormDefinition, Form } from './models/form.model';
 import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 export interface FormNode {
   definition: any;
@@ -37,11 +38,15 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   public form: FormGroup;
   public sections: FormNode[] = [];
+  public paramMap: Map<string,string>;
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
-  ngOnInit() {
+  async ngOnInit() {
     // Construct sections from form
+    const urlParams = new URLSearchParams(window.location.search);
+    this.paramMap = new Map(urlParams.entries());
+
     this.sections = this.buildTree(this.nomadForm.definitions);
     this.form = this.buildForm();
     this.relationService.setRelation(this.nomadForm.relations, this.form);
