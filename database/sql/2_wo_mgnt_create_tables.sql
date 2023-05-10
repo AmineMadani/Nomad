@@ -12,7 +12,7 @@ id                           bigserial primary key,
 usr_first_name               text,
 usr_last_name	        	 text,
 usr_email	        	     text,
-usr_valid                    char default 'O',
+usr_valid                    boolean default true,
 usr_ucre_id                  bigint default 0,
 usr_umod_id                  bigint default 0,
 usr_dcre                     timestamp without time zone  default current_timestamp,
@@ -30,9 +30,9 @@ create table if not exists exploitation.workorder(
 id                           bigserial primary key,
 -- Work order properties
 wko_name                     text,
-wko_external_app		         text,
+wko_external_app	         text,
 wko_external_id	             text,
-wko_dcre        	           timestamp without time zone  default current_timestamp,
+wko_dcre        	         timestamp without time zone  default current_timestamp,
 wko_creation_cell            text,
 wko_creation_comment         text,
 wko_emergency                char,
@@ -40,21 +40,24 @@ wko_appointment              char,
 wko_dmod                     timestamp without time zone  default current_timestamp,
 wko_address                  text,
 wko_street_number            text,
-wko_planning_start_date	     timestamp without time zone,
-wko_planning_end_date	       timestamp without time zone,
+wko_planning_start_date      timestamp without time zone,
+wko_planning_end_date	     timestamp without time zone,
 wko_completion_date	         timestamp without time zone,
 wko_realization_user         text,
 wko_realization_cell         text,
 wko_realization_comment      text,
 ------
 usr_ucre_id                  integer references user(id),
-usr_umod_id                  bigint default 0,
+usr_umod_id                  integer references user(id),
+wko_dcre        	         timestamp without time zone  default current_timestamp,
+wko_dmod                     timestamp without time zone  default current_timestamp,
+
 -------
 city_code                    text,
 city_name                    text,
 
-wtt_id		                   bigint,
-wtr_id           	           bigint,
+wtt_id                       bigint,
+wtr_id                       bigint,
 
 wts_id                       bigint,
 
@@ -62,14 +65,15 @@ str_id                       bigint,
 
 ctr_id                       bigint,
 
-water_stop_id                 bigint,
+water_stop_id                bigint,
 program_id                   bigint,
 worksite_id                  bigint,
 delivery_point_id            bigint,
 
 longitude                    numeric,
-latitude                     numeric
-geom                         geometry('POINT', :srid));
+latitude                     numeric,
+geom                         geometry('POINT', :srid)
+);
 
 
 create index if not exists idx_wko_wtt_id		         on exploitation.workorder(wtt_id	);
@@ -90,8 +94,8 @@ create index if not exists idx_wko_wko_geometry          on exploitation.workord
 create table if not exists exploitation.task(
 id                           bigserial primary key,
 tsk_name                     text,
-wko_id		                   bigint,
-wtt_id		                   bigint,
+wko_id		                 bigint,
+wtt_id		                 bigint,
 wtr_id         	             bigint,
 wts_id                       bigint,
 tsk_comment                  text,
@@ -100,13 +104,14 @@ tsk_latitude                 numeric,
 ctr_id                       bigint,
 ass_id                       bigint,
 tsk_planning_start_date	     timestamp without time zone,
-tsk_planning_end_date	       timestamp without time zone,
+tsk_planning_end_date	     timestamp without time zone,
 tsk_completion_date	         timestamp without time zone,
 tsk_realization_user         bigint,
-tsk_dcre        	           timestamp without time zone  default current_timestamp,
-tsk_ucre_id                  bigint default 0,
+usr_ucre_id                  integer references user(id),
+usr_umod_id                  integer references user(id),
+tsk_dcre        	         timestamp without time zone  default current_timestamp,
 tsk_dmod                     timestamp without time zone  default current_timestamp,
-tsk_umod_id                  bigint default 0
+geom                         geometry('POINT', :srid)
 );
 
 
@@ -126,11 +131,11 @@ id                           bigserial primary key,
 wts_code                     text,
 wts_slabel	        	     text,
 wts_llabel	        	     text,
-wts_wo     	  	             char  default 'O',
-wts_task     	  	         char  default 'O',
-wts_valid                    char  default 'O',
-wts_ucre_id                  bigint default 0,
-wts_umod_id                  bigint default 0,
+wts_wo     	  	             boolean default true,
+wts_task     	  	         boolean default true,
+wts_valid                    boolean default true,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 wts_dcre                     timestamp without time zone  default current_timestamp,
 wts_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -148,14 +153,14 @@ id                           bigserial primary key,
 wtt_code                     text,
 wtt_slabel	        	     text,
 wtt_llabel	        	     text,
-wtt_valid                    char default 'O',
-wtt_work_request             char default 'O',
-wtt_report                   char default 'O',
-wtr_wo     	  	             char default 'O',
-wtr_task     	  	         char default 'O',
+wtt_valid                    boolean default true,
+wtt_work_request             boolean default true,
+wtt_report                   boolean default true,
+wtr_wo     	  	             boolean default true,
+wtr_task     	  	         boolean default true,
 act_id                       bigint,
-wtt_ucre_id                  bigint default 0,
-wtt_umod_id                  bigint default 0,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 wtt_dcre                     timestamp without time zone  default current_timestamp,
 wtt_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -167,18 +172,19 @@ create index if not exists idx_wtt_wtt_ucre_id  	 on exploitation.workorder_task
 create index if not exists idx_wtt_wtt_umod_id  	 on exploitation.workorder_task_type(wtt_umod_id );
 
 
-create table if not exists exploitation.workorder_task_reason(
+create table if not exists exploitation.workorder_task_reason
+(
 id                           bigserial primary key,
 wtr_code                     text,
 wtr_slabel	        	     text,
 wtr_llabel	        	     text,
-wtr_valid                    char default 'O',
-wtr_work_request             char default 'O',
-wtr_report                   char default 'O',
-wtr_wo     	  	             char default 'O',
-wtr_task     	  	         char default 'O',
-wtr_ucre_id                  bigint default 0,
-wtr_umod_id                  bigint default 0,
+wtr_valid                    boolean default true,
+wtr_work_request             boolean default true,
+wtr_report                   boolean default true,
+wtr_wo     	  	             boolean default true,
+wtr_task     	  	         boolean default true,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 wtr_dcre                     timestamp without time zone  default current_timestamp,
 wtr_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -195,11 +201,11 @@ id                           bigserial primary key,
 ctr_code                     text,
 ctr_slabel	        	     text,
 ctr_llabel	        	     text,
-ctr_valid                    char default 'O',
+ctr_valid                    boolean default true,
 ctr_start_date               timestamp without time zone,
 ctr_end_date                 timestamp without time zone,
-ctr_ucre_id                  bigint default 0,
-ctr_umod_id                  bigint default 0,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 ctr_dcre                     timestamp without time zone  default current_timestamp,
 ctr_dmod                     timestamp without time zone  default current_timestamp,
 act_id                       bigint
@@ -219,9 +225,9 @@ id                           bigserial primary key,
 act_code                     text,
 act_slabel	        	     text,
 act_llabel	        	     text,
-act_valid                    char default 'O',
-act_ucre_id                  bigint default 0,
-act_umod_id                  bigint default 0,
+act_valid                    boolean default true,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 act_dcre                     timestamp without time zone  default current_timestamp,
 act_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -240,10 +246,10 @@ str_code                     text,
 str_slabel	        	     text,
 str_llabel	        	     text,
 str_source	        	     text,
-str_valid                    char default 'O',
-str_geometry                 geometry,
-str_ucre_id                  bigint default 0,
-str_umod_id                  bigint default 0,
+str_valid                    boolean default true,
+geom                         geometry(multilinestring, :srid),
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 str_dcre                     timestamp without time zone  default current_timestamp,
 str_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -260,8 +266,8 @@ create index if not exists idx_str_str_umod_id  	on exploitation.street(str_umod
 create table if not exists exploitation.wtt_wtr(
 wtr_id                       bigint,
 wtt_id	        	         bigint,
-wtx_ucre_id                  bigint default 0,
-wtx_umod_id                  bigint default 0,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 wtx_dcre                     timestamp without time zone  default current_timestamp,
 wtx_dmod                     timestamp without time zone  default current_timestamp,
 primary key (wtr_id, wtt_id)
@@ -279,9 +285,9 @@ create table if not exists exploitation.asset(
 id                           bigserial primary key,
 ass_obj_ref                  text,
 ass_obj_table                regclass NOT NULL REFERENCES config.layer(pg_table),
-ass_valid                    char default 'O',
-ass_ucre_id                  bigint default 0,
-ass_umod_id                  bigint default 0,
+ass_valid                    boolean default true,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 ass_dcre                     timestamp without time zone  default current_timestamp,
 ass_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -296,8 +302,8 @@ create table if not exists exploitation.report(
 id                           bigserial primary key,
 tsk_id                       bigint,
 rpt_report_date              timestamp without time zone  default current_timestamp,
-rpt_ucre_id                  bigint default 0,
-rpt_umod_id                  bigint default 0,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 rpt_dcre                     timestamp without time zone  default current_timestamp,
 rpt_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -314,8 +320,8 @@ id                           bigserial primary key,
 rpt_id                       bigint,
 rpf_id                       bigint,
 rpd_value                    text,
-rpd_ucre_id                  bigint default 0,
-rpd_umod_id                  bigint default 0,
+ucre_id                      integer references user(id),
+umod_id                      integer references user(id),
 rpd_dcre                     timestamp without time zone  default current_timestamp,
 rpd_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -329,13 +335,13 @@ create index if not exists idx_rpd_rpd_umod_id 	on exploitation.report_detail(rp
 
 
 create table if not exists exploitation.report_field(
-id                           bigserial primary key,
-rpf_code                     text,
-rpf_slabel	        	     text,
-rpf_llabel	        	     text,
-rpf_valid                    char default 'O',
-rpf_ucre_id                  bigint default 0,
-rpf_umod_id                  bigint default 0,
+id                           bigserial primary key, -- Report field technical id
+rpf_code                     text, -- Report field code
+rpf_slabel	        	     text,-- Report field short label
+rpf_llabel	        	     text,-- Report field long label
+rpf_valid                    boolean default true, -- Validity
+ucre_id                      integer references user(id), -- creation user id
+umod_id                      integer references user(id),-- update user id
 rpf_dcre                     timestamp without time zone  default current_timestamp,
 rpf_dmod                     timestamp without time zone  default current_timestamp
 );
