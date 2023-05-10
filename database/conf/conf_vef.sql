@@ -87,46 +87,9 @@ insert into config.tree
 update config.tree set num_order = id ;
 
 
--- insert into application_object
-insert into config.business_object
-  (domain_type, type, topology_type )
-  values
-  ( 'dw' , 'dw_facility'       , 'node')
-, ( 'dw' , 'dw_equipment'      , 'point')
-, ( 'dw' , 'dw_valve'          , 'node')
-, ( 'dw' , 'dw_water_meter'    , 'node')
-, ( 'dw' , 'dw_regulation'     , 'node')
-, ( 'dw' , 'dw_lateral_valve'  , 'lateral_point')
-, ( 'dw' , 'dw_lateral_line'   , 'lateral_line')
-, ( 'dw' , 'dw_purge'          , 'lateral_node')
-, ( 'dw' , 'dw_public_eqpt'    , 'lateral_node')
-, ( 'dw' , 'dw_hydrant'        , 'lateral_node')
-, ( 'dw' , 'dw_delivery_point' , 'lateral_node')
-, ( 'dw' , 'dw_pipe'           , 'arc')
-, ( 'dw' , 'dw_abandoned_pipe' , null)
-----
-, ( 'ww' , 'ww_facility'       , 'node')
-, ( 'ww' , 'ww_equipment'      , 'point')
-, ( 'ww' , 'ww_manhole'        , 'node')
-, ( 'ww' , 'ww_lateral_line'   , 'lateral_line')
-, ( 'ww' , 'ww_connection'     , 'lateral_node')
-, ( 'ww' , 'ww_intake'         , 'lateral_node')
-, ( 'ww' , 'ww_pipe'           , 'arc')
-, ( 'ww' , 'ww_abandoned_pipe' , null)
-, ( 'ww' , 'ww_water_area'     , 'arc')
-, ( 'ww' , 'ww_drain'          , 'arc')
-, ( 'ww' , 'ww_fictive_pipe'   , 'arc')
-----
-, ( 'wo' , 'work_order'        , null)
-, ('geo' , 'city'              , null)
-, ('geo' , 'contract'          , null)
-;
-
-
 insert into config.layer
 (
     domain_type
-  , business_object_type
   , tree_group_id
   , simplified_tree_group_id
   , pg_table
@@ -137,29 +100,31 @@ insert into config.layer
 )
 values
 
-  ( 'dw' , 'dw_facility'       , 102, 102, 'asset.aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage')
-, ( 'dw' , 'dw_equipment'      , 103, 103, 'asset.aep_equipement', 'geom', 'uuid', '3857', 'Equipement')
-, ( 'dw' , 'dw_lateral_valve'  , 106, 104, 'asset.aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement')
-, ( 'dw' , 'dw_valve'          , 106, 103, 'asset.aep_vanne', 'geom', 'uuid', '3857', 'Vanne')
-, ( 'dw' , 'dw_water_meter'    , 103, 103, 'asset.aep_compteur', 'geom', 'uuid', '3857', 'Compteur')
-, ( 'dw' , 'dw_regulation'     , 103, 103, 'asset.aep_regulation', 'geom', 'uuid', '3857', 'Regulateur')
-, ( 'dw' , 'dw_purge'          , 103, 103, 'asset.aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange')
-, ( 'dw' , 'dw_public_eqpt'    , 103, 103, 'asset.aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public')
-, ( 'dw' , 'dw_lateral_line'   , 104, 104, 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement')
-, ( 'dw' , 'dw_pipe'           , 100, 105, 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation')
-, ( 'dw' , 'dw_abandoned_pipe' , 100, 105, 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée')
+  ( 'dw' ,  102, 102, 'asset.aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage')
+, ( 'dw' ,  103, 103, 'asset.aep_equipement', 'geom', 'uuid', '3857', 'Equipement')
+, ( 'dw' ,  106, 104, 'asset.aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement')
+, ( 'dw' ,  106, 103, 'asset.aep_vanne', 'geom', 'uuid', '3857', 'Vanne')
+, ( 'dw' ,  103, 103, 'asset.aep_compteur', 'geom', 'uuid', '3857', 'Compteur')
+, ( 'dw' ,  103, 103, 'asset.aep_regulation', 'geom', 'uuid', '3857', 'Regulateur')
+, ( 'dw' ,  103, 103, 'asset.aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange')
+, ( 'dw' ,  103, 103, 'asset.aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public')
+, ( 'dw' ,  103, 103, 'asset.aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie')
+, ( 'dw' ,  103, 103, 'asset.aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte')
+, ( 'dw' ,  104, 104, 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement')
+, ( 'dw' ,  100, 105, 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation')
+, ( 'dw' ,  100, 105, 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée')
 ----
-, ( 'ww' , 'ww_facility'       , 202, 202, 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage')
-, ( 'ww' , 'ww_equipment'      , 203, 203, 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement')
-, ( 'ww' , 'ww_connection'     , 203, 203, 'asset.ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement')
-, ( 'ww' , 'ww_intake'         , 203, 203, 'asset.ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille')
-, ( 'ww' , 'ww_manhole'        , 200, 203, 'asset.ass_regard', 'geom', 'uuid', '3857', 'Regard')
-, ( 'ww' , 'ww_lateral_line'   , 204, 204, 'asset.ass_branche', 'geom', 'uuid', '3857', 'Branchement')
-, ( 'ww' , 'ww_pipe'           , 200, 205, 'asset.ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur')
-, ( 'ww' , 'ww_abandoned_pipe' , 200, 205, 'asset.ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné')
-, ( 'ww' , 'ww_water_area'     , 200, 205, 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé')
-, ( 'ww' , 'ww_drain'          , 200, 205, 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain')
-, ( 'ww' , 'ww_fictive_pipe'   , 200, 205, 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive')
+, ( 'ww' ,  202, 202, 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage')
+, ( 'ww' ,  203, 203, 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement')
+, ( 'ww' ,  203, 203, 'asset.ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement')
+, ( 'ww' ,  203, 203, 'asset.ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille')
+, ( 'ww' ,  200, 203, 'asset.ass_regard', 'geom', 'uuid', '3857', 'Regard')
+, ( 'ww' ,  204, 204, 'asset.ass_branche', 'geom', 'uuid', '3857', 'Branchement')
+, ( 'ww' ,  200, 205, 'asset.ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur')
+, ( 'ww' ,  200, 205, 'asset.ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné')
+, ( 'ww' ,  200, 205, 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé')
+, ( 'ww' ,  200, 205, 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain')
+, ( 'ww' ,  200, 205, 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive')
 ---
 ;
 

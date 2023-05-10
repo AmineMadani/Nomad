@@ -2,7 +2,7 @@
  * Scripts to Create config objects in the database *
  ****************************************************/
 
-set search_path to config, public;
+set search_path to nomad, public;
 
 create table float_setting (
     name text primary key
@@ -69,16 +69,6 @@ begin
 end;
 $$;
 --
--- Set the current version of product
-create or replace function set_product_version(version text) returns void
-language plpgsql
-as
-$$
-begin
-  insert into config.text_setting values ('product.version', version)
-         ON CONFLICT (name) DO UPDATE SET value=version;
-end;
-$$;
 
 --
 -- Domain appication type
@@ -108,20 +98,32 @@ COMMENT ON COLUMN domain.short IS 'Short alias of the domain';
 -- User appication
 -- This table defines the application users.
 
-create table app_user
+create table user
 (
-    id serial primary key
-  , first_name text
-  , last_name text
-  , email text
+  id                serial primary key,
+  usr_first_name    text not null,
+  usr_last_name	    text not null,
+  usr_email	        text unique not null,
+  --usr_valid         boolean default 'O',  --FIXME Besoin de définition
+  usr_ucre_id       integer references user(id),
+  usr_umod_id       bigint default 0,
+  --- FIXME Plus facile d'harmoniser les métadonnées
+  usr_dcre          timestamp without time zone  default current_timestamp,
+  usr_dmod          timestamp without time zone  default current_timestamp
 );
 
 /* Comments on table */
-COMMENT ON TABLE app_user IS 'This table defines the application users.';
+COMMENT ON TABLE user IS 'This table defines the application users.';
 /* Comments on fields */
-COMMENT ON COLUMN app_user.id IS 'Table unique ID';
-COMMENT ON COLUMN app_user.first_name IS 'User first name';
-COMMENT ON COLUMN app_user.last_name IS 'User last nale';
+COMMENT ON COLUMN user.id IS 'Table unique ID';
+COMMENT ON COLUMN user.usr_first_name IS 'User first name';
+COMMENT ON COLUMN user.usr_last_name IS 'User last name';
+--
+COMMENT ON COLUMN user.usr_ucre_id IS 'User last name';
+
+
+
+
 
 -- Layer tree
 -- This table defines the layer tree exposed in the application.
@@ -410,3 +412,98 @@ COMMENT ON COLUMN config.layer_references_user.isvisible IS 'If visible, true el
 COMMENT ON COLUMN config.layer_references_user.section IS 'Section to group properties';
 COMMENT ON COLUMN config.layer_references_user.created_date IS 'Created date';
 COMMENT ON COLUMN config.layer_references_user.last_edited_date IS 'Last edited date';
+
+create table if not exists exploitation.contract(
+  id                           bigserial primary key,
+  ctr_code                     text,
+  ctr_slabel	        	       text,
+  ctr_llabel	        	       text,
+  ctr_valid                    char default 'O',
+  ctr_start_date               timestamp without time zone,
+  ctr_end_date                 timestamp without time zone,
+  ctr_ucre_id                  bigint default 0,
+  ctr_umod_id                  bigint default 0,
+  ctr_dcre                     timestamp without time zone  default current_timestamp,
+  ctr_dmod                     timestamp without time zone  default current_timestamp,
+  act_id                       bigint
+);
+
+create table if not exists task_status
+(
+  id                           serial primary key,
+  wts_code                     text unique,
+  wts_slabel	        	       text not null,
+  wts_llabel	        	       text,
+  wts_wo     	  	             char default 'O',
+  wts_task     	  	           char default 'O',
+  wts_valid                    char default 'O',
+  wts_ucre_id                  bigint default 0,
+  wts_umod_id                  bigint default 0,
+  wts_dcre                     timestamp without time zone  default current_timestamp,
+  wts_dmod                     timestamp without time zone  default current_timestamp
+);
+
+create table if not exists task_reason
+(
+  id                           bigserial primary key,
+  wtr_code                     text,
+  wtr_slabel	        	       text,
+  wtr_llabel	        	       text,
+  wtr_valid                    char default 'O',
+  wtr_work_request             char default 'O',
+  wtr_report                   char default 'O',
+  wtr_wo     	  	             char default 'O',
+  wtr_task     	  	           char default 'O',
+  wtr_ucre_id                  bigint default 0,
+  wtr_umod_id                  bigint default 0,
+  wtr_dcre                     timestamp without time zone  default current_timestamp,
+  wtr_dmod                     timestamp without time zone  default current_timestamp
+);
+
+create table if not exists workorder
+(
+  id                           bigserial primary key,
+  -- Work order properties
+  wko_name                     text,
+  wko_external_app		         text,
+  wko_external_id	             text,
+  wko_creation_cell            text,
+  wko_creation_comment         text,
+  wko_emergency                boolean default False,
+  wko_appointment              boolean default False,
+  wko_address                  text,
+  wko_street_number            text,
+  wko_planning_start_date	     timestamp without time zone,
+  wko_planning_end_date	       timestamp without time zone,
+  wko_completion_date	         timestamp without time zone,
+  wko_realization_user         text,
+  wko_realization_cell         text,
+  wko_realization_comment      text,
+  ------
+  usr_ucre_id                  integer references user(id),
+  usr_umod_id                  integer references user(id),
+  wko_dmod                     timestamp without time zone  default current_timestamp,
+  wko_dcre        	           timestamp without time zone  default current_timestamp,
+  ------
+  city_code                    text,
+  city_name                    text,
+  ------
+  layer		                     text not null references layer(id),
+  asset_id           	         text,
+  ------
+  wts_id                       bigint, -- status
+  wtr_id                       bigint, -- reason
+  ------
+  str_id                       bigint,
+  ------
+  ctr_code                     text,
+  ------
+  water_stop_id                bigint,
+  program_id                   bigint,
+  worksite_id                  bigint,
+  delivery_point_id            bigint,
+  ------
+  longitude                    numeric,
+  latitude                     numeric
+  geom                         geometry('POINT', :srid)
+);
