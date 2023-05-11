@@ -1,5 +1,60 @@
 set search_path to nomad, public;
 
+--
+-- Get the current value of the given float setting name.
+-- By default, it looks for the parameter in the float_settings table.
+-- But the setting can be overriden by a SET command in the current session.
+create or replace function current_float(setting text) returns double precision
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return current_setting(setting);
+exception when others then
+  return (select value from nomad.float_setting where name=setting);
+end;
+$$;
+
+--
+-- Get the current value of the given text setting name.
+-- By default, it looks for the parameter in the text_settings table.
+-- But the setting can be overriden by a SET command in the current session.
+create or replace function current_text(setting text) returns text
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select value from nomad.text_setting where name=setting);
+end;
+$$;
+
+--
+-- Get the current version of product
+create or replace function get_product_version() returns text
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select nomad.current_text('product.version'));
+end;
+$$;
+
+
+--
+-- Get the current srid
+create or replace function get_srid() returns integer
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select nomad.current_text('srid')::integer);
+end;
+$$;
+
 -- Function to create a grid
 -- used to produce geojson on a specified extent
 
@@ -123,7 +178,7 @@ CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER = 
      ) LANGUAGE plpgsql AS $$
 BEGIN
     RETURN QUERY
-    SELECT pg_table::text as _layer,
+    SELECT lyr_table_name::text as _layer,
            r.id as _id,
            r.reference_key as _referenceKey,
            r.alias as _alias,
