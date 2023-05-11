@@ -64,7 +64,7 @@ domains as
 
 -- Create view to generate for each layer
 -- the list of workorder reason
-create or replace view layer_wtr as
+create or replace view v_layer_wtr as
    select t1.domain_type, lyr_table_name, t2.*
      from asset_type t1
      join asset_type_wtr t2 on t1.code =  t2.asset_type
