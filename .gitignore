@@ -52,3 +52,6 @@ Thumbs.db
 # Database dump
 database/dump/*.*
 .vscode/settings.json
+
+# geojson
+database/geojson
