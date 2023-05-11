@@ -19,7 +19,7 @@ echo "-------------------------------------------"
 # ############################################################################
 # EXPORT TILE
 
-LAYERS=$(echo "select string_agg(distinct r.pg_table::text, ' ')  from config.layer_references r join config.layer_references_default d on d.layer_reference_id  =  r.id " | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
+LAYERS=$(echo "select string_agg(distinct r.lyr_table_name::text, ' ')  from nomad.layer_references r join nomad.layer_references_default d on d.layer_reference_id  =  r.id " | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
 echo "---> EXPORTING:"
 
 if [ ! -d "$GEOJSON_DIR" ]; then
