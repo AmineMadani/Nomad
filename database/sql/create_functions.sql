@@ -31,14 +31,14 @@ declare
   list_fields text;
   crs jsonb;
 begin
-  tile_geom := (select geom from config.app_grid where id = tile_id);
+  tile_geom := (select geom from nomad.app_grid where id = tile_id);
   --
-  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||config.get_srid());
+  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||nomad.get_srid());
   crs :=  jsonb_build_object('type', 'name', 'properties', crs);
   --
   -- Get list of fields from conf
   select string_agg("referenceKey", ', ')  into list_fields
-    from config.get_layer_references_user(user_ident)
+    from nomad.get_layer_references_user(user_ident)
    where layer = layer_name and ("displayType" is not null or "isVisible" = false);
   --
   if list_fields is null then
@@ -51,7 +51,7 @@ begin
   execute format($sql$
   with
   records as
-  (select %1$s from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
+  (select %1$s from asset.%2$s t where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
 	select jsonb_build_object(
@@ -87,7 +87,7 @@ declare
 begin
   with
   records as
-  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from config.app_grid group by id, geom order by id),
+  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
@@ -132,9 +132,9 @@ BEGIN
            COALESCE(u.display_type, d.display_type)::text as _displayType,
            COALESCE(u.isvisible, d.isvisible) as _isVisible,
            COALESCE(u.section, d.section)::text as _section
-      FROM config.layer_references r
-      JOIN config.layer_references_default d ON r.id = d.layer_reference_id
- LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
+      FROM nomad.layer_references r
+      JOIN nomad.layer_references_default d ON r.id = d.layer_reference_id
+ LEFT JOIN nomad.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
   ORDER BY 1, 5;
 END;
 $$;
