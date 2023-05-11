@@ -156,6 +156,17 @@ values
 
 update layer set num_order = id ;
 
+
+insert into workorder_task_status( wts_code, wts_slabel, wts_llabel)
+  values
+('CREE','créé','créé'),
+('ENVOYEPLANIF','envoyé à la planification','envoyé à la planification'),
+('PLANIFIE','planifié','planifié'),
+('TERMINE','terminé','terminé'),
+('ANNULE','annulé','annulé');
+
+
+
 -- creating grid
 with metro_grid as (
 select ST_CreateFishnet(100, 100, 10000, 10000, 99040, 6125317) as res
