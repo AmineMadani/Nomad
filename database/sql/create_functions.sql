@@ -1,4 +1,59 @@
-set search_path to config, public;
+set search_path to nomad, public;
+
+--
+-- Get the current value of the given float setting name.
+-- By default, it looks for the parameter in the float_settings table.
+-- But the setting can be overriden by a SET command in the current session.
+create or replace function current_float(setting text) returns double precision
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return current_setting(setting);
+exception when others then
+  return (select value from nomad.float_setting where name=setting);
+end;
+$$;
+
+--
+-- Get the current value of the given text setting name.
+-- By default, it looks for the parameter in the text_settings table.
+-- But the setting can be overriden by a SET command in the current session.
+create or replace function current_text(setting text) returns text
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select value from nomad.text_setting where name=setting);
+end;
+$$;
+
+--
+-- Get the current version of product
+create or replace function get_product_version() returns text
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select nomad.current_text('product.version'));
+end;
+$$;
+
+
+--
+-- Get the current srid
+create or replace function get_srid() returns integer
+language plpgsql
+immutable -- immutable is required to get good plans
+as
+$$
+begin
+  return (select nomad.current_text('srid')::integer);
+end;
+$$;
 
 -- Function to create a grid
 -- used to produce geojson on a specified extent
@@ -31,14 +86,14 @@ declare
   list_fields text;
   crs jsonb;
 begin
-  tile_geom := (select geom from config.app_grid where id = tile_id);
+  tile_geom := (select geom from nomad.app_grid where id = tile_id);
   --
-  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||config.get_srid());
+  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||nomad.get_srid());
   crs :=  jsonb_build_object('type', 'name', 'properties', crs);
   --
   -- Get list of fields from conf
   select string_agg("referenceKey", ', ')  into list_fields
-    from config.get_layer_references_user(user_ident)
+    from nomad.get_layer_references_user(user_ident)
    where layer = layer_name and ("displayType" is not null or "isVisible" = false);
   --
   if list_fields is null then
@@ -51,7 +106,7 @@ begin
   execute format($sql$
   with
   records as
-  (select %1$s from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
+  (select %1$s from asset.%2$s t where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
 	select jsonb_build_object(
@@ -63,7 +118,7 @@ begin
   )
   SELECT jsonb_build_object(
   'crs', '%4s'::jsonb,
-  'name',  '%2$s',    
+  'name',  '%2$s',
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
@@ -87,7 +142,7 @@ declare
 begin
   with
   records as
-  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from config.app_grid group by id, geom order by id),
+  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
@@ -123,7 +178,7 @@ CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER = 
      ) LANGUAGE plpgsql AS $$
 BEGIN
     RETURN QUERY
-    SELECT pg_table::text as _layer,
+    SELECT lyr_table_name::text as _layer,
            r.id as _id,
            r.reference_key as _referenceKey,
            r.alias as _alias,
@@ -132,9 +187,9 @@ BEGIN
            COALESCE(u.display_type, d.display_type)::text as _displayType,
            COALESCE(u.isvisible, d.isvisible) as _isVisible,
            COALESCE(u.section, d.section)::text as _section
-      FROM config.layer_references r
-      JOIN config.layer_references_default d ON r.id = d.layer_reference_id
- LEFT JOIN config.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
+      FROM nomad.layer_references r
+      JOIN nomad.layer_references_default d ON r.id = d.layer_reference_id
+ LEFT JOIN nomad.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
   ORDER BY 1, 5;
 END;
 $$;
