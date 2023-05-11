@@ -22,6 +22,7 @@ create table text_setting (
 -- Layers and business objects are referenced to a domain
 -- A domain can have child domains, for example, the asset
 -- Domain can be divided in 2 sub domains : drinking water, ans waste water
+--
 
 create table domain
 (
@@ -50,10 +51,9 @@ create table "user"
   usr_first_name    text not null,
   usr_last_name	    text not null,
   usr_email	        text unique not null,
-  --usr_valid         boolean default 'O',  --FIXME Besoin de définition
-  usr_ucre_id       integer references nomad.user(id),
-  usr_umod_id       bigint default 0,
-  --- FIXME Plus facile d'harmoniser les métadonnées
+  usr_valid         boolean default True,
+  ucre_id           integer references nomad.user(id),
+  umod_id           integer references nomad.user(id),
   usr_dcre          timestamp without time zone  default current_timestamp,
   usr_dmod          timestamp without time zone  default current_timestamp
 );
@@ -64,8 +64,7 @@ COMMENT ON TABLE "user" IS 'This table defines the application users.';
 COMMENT ON COLUMN "user".id IS 'Table unique ID';
 COMMENT ON COLUMN "user".usr_first_name IS 'User first name';
 COMMENT ON COLUMN "user".usr_last_name IS 'User last name';
---
-COMMENT ON COLUMN "user".usr_ucre_id IS 'User last name';
+COMMENT ON COLUMN "user".ucre_id IS 'Creation date';
 
 
 -- Layer tree
@@ -307,6 +306,7 @@ create table if not exists contract_activity(
   act_dmod                     timestamp without time zone  default current_timestamp
 );
 
+
 --FIXME manque la notion d'exploitant / de DICT / DSP ou Hors DSP / statut . Type client
 --FIXME manque la notion de territoire
 create table if not exists contract(
@@ -330,12 +330,12 @@ create index on contract using gist(geom);
 --FIXME manque la notion de territoire
 create table if not exists city(
   id                           serial primary key,
-  city_code                    text unique,
-  city_label	        	       text,
+  cty_code                     text unique,
+  cty_label	        	         text,
   usr_cre_id                   integer references nomad.user(id),
   usr_mod_id                   integer references nomad.user(id),
-  city_dcre                    timestamp without time zone  default current_timestamp,
-  city_dmod                    timestamp without time zone  default current_timestamp,
+  cty_dcre                    timestamp without time zone  default current_timestamp,
+  cty_dmod                    timestamp without time zone  default current_timestamp,
   geom                         geometry('MULTIPOLYGON', :srid)
 );
 
@@ -359,7 +359,7 @@ create table if not exists workorder_task_status
 create table if not exists workorder_task_reason
 (
   id                           serial primary key,
-  wtr_code                     text not null,
+  wtr_code                     text unique not null,
   wtr_slabel	        	       text not null,
   wtr_llabel	        	       text,
   wtr_valid                    boolean default True,
@@ -375,14 +375,14 @@ create table if not exists workorder_task_reason
 
 create table if not exists asset_type_wtr
 (
-  wtr_id                       integer not null references workorder_task_reason(id),
+  wtr_code                     text not null references workorder_task_reason(wtr_code),
   asset_type	        	       text not null references asset_type(code),
   ---
   usr_cre_id                   integer references nomad.user(id),
   usr_mod_id                   integer references nomad.user(id),
   wtx_dcre                     timestamp without time zone  default current_timestamp,
   wtx_dmod                     timestamp without time zone  default current_timestamp,
-  primary key (wtr_id, asset_type)
+  primary key (wtr_code, asset_type)
 );
 
 create table if not exists workorder
@@ -422,10 +422,12 @@ create table if not exists workorder
   ------
   ctr_code                     text references contract(ctr_code),
   ------
+  /*
   water_stop_id                bigint,
   program_id                   bigint,
   worksite_id                  bigint, -- FIXME: territoirre ? pourquoi le mettre dans les workorder ?
   delivery_point_id            bigint,
+  */
   ------
   longitude                    numeric,
   latitude                     numeric,
@@ -468,14 +470,14 @@ create table if not exists report(
   rpt_detail                   jsonb
 );
 
-
-
 create table if not exists report_field(
   id                           bigserial primary key,
   rpf_code                     text,
   rpf_slabel	        	       text,
   rpf_llabel	        	       text,
   rpf_valid                    boolean default true,
+  --FIXME wtr_id
+  --FIXME asset_type
   usr_cre_id                   integer references nomad.user(id),
   usr_mod_id                   integer references nomad.user(id),
   rpf_dcre                     timestamp without time zone  default current_timestamp,

@@ -35,6 +35,5 @@ fi
 for l in ${LAYERS}; do \
 	echo "-------> Layer $l...";
   GEOJSON=$(echo "select config.get_geojson_from_tile('$l', $MAPTILE)" | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
-  echo "$GEOJSON" > "$GEOJSON_DIR$l.geojson"
 	ogr2ogr  "$GEOJSON_DIR/4326/$l.geojson" -t_srs "EPSG:4326" "$GEOJSON_DIR$l.geojson"
 done
