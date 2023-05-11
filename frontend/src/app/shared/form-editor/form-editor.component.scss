@@ -1,0 +1,25 @@
+form.form-editor {
+    height: 100%;
+    width: 100%;
+}
+
+ion-grid.form-grid {
+    width: 100%;
+    height: 100%;
+
+    ion-row {
+        height: 100%;
+        flex-wrap: nowrap;
+    }
+}
+
+.form-container {
+    width: 100%;
+    height: 100%;
+    background-color: var(--ion-color-primary-95);
+    padding: 16px;
+
+    mat-tab-group {
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+    }
+}

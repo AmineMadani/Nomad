@@ -65,6 +65,8 @@
   src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
 
+
+
 /* width */
 ::-webkit-scrollbar {
   width: 4px;
@@ -228,5 +230,33 @@ ion-alert.select-alert {
   .select-interface-option .alert-radio-label,
   .select-interface-option .alert-checkbox-label {
     white-space: normal !important;
+  }
+}
+
+mat-tab-group.form-tabs {
+  height: 100%;
+
+  .mat-mdc-tab-header {
+    background-color: var(--ion-color-primary-contrast);
+
+    .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label,
+    .mat-mdc-tab-link:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
+      color: var(--ion-color-primary);
+    }
+
+    .mdc-tab-indicator__content {
+      border-color: var(--ion-color-primary);
+    }
+  }
+
+  .mat-mdc-tab-body-wrapper {
+    height: 100%;
+    background-color: var(--ion-color-primary-contrast);
+  }
+}
+
+mat-tab-group.mobile-tabs {
+  .mat-mdc-tab-body-wrapper {
+    margin-left: 16px;
   }
 }

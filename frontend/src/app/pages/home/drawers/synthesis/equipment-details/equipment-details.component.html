@@ -1,0 +1,56 @@
+<ion-content>
+  <app-page-header [headerLabel]="'Fiche ' + type" [template]="buttonsTemplate" [forceButtons]="true"></app-page-header>
+  <ng-container *ngIf="isMobile">
+    <ion-tab-bar class="action-bar">
+      <ion-tab-button>
+        <ion-icon name="add-outline"></ion-icon>
+        Générer une intervention
+      </ion-tab-button>
+      <ion-tab-button>
+        <ion-icon name="download-outline"></ion-icon>
+        Exporter
+      </ion-tab-button>
+      <ion-tab-button>
+        <ion-icon name="link-outline"></ion-icon>
+        Ajouter un programme
+      </ion-tab-button>
+      <ion-tab-button>
+        <ion-icon name="pencil-outline"></ion-icon>
+        Mettre à jour
+      </ion-tab-button>
+    </ion-tab-bar>
+    <div class="border-bar"></div>
+  </ng-container>
+  <ion-item lines="none" class="summary">
+    <ion-label class="labels" [class.mobile-labels]="isMobile">
+      <ion-label>Etat : Mise en Service</ion-label>
+      <ion-label>ID : {{ equipment?.id }}</ion-label>
+      <ion-label>Type : {{ type }}</ion-label>
+      <ion-label *ngIf="!isMobile">Contrat : {{ equipment?.contrat }}</ion-label>
+    </ion-label>
+  </ion-item>
+  <div class="detail-form" [class.mobile-form]="isMobile">
+    <app-form-editor *ngIf="form" [nomadForm]="form"></app-form-editor>
+  </div>
+</ion-content>
+
+<ng-template #buttonsTemplate>
+  <ng-container *ngIf="!isMobile">
+    <ion-button fill="clear" slot="end">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Générer une intervention
+    </ion-button>
+    <ion-button fill="clear" slot="end">
+      <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+      Compte rendu
+    </ion-button>
+    <ion-button fill="clear" slot="end">
+      <ion-icon slot="start" name="link-outline"></ion-icon>
+      Ajouter à un programme
+    </ion-button>
+    <ion-button fill="clear" slot="end">
+      <ion-icon slot="start" name="pencil-outline"></ion-icon>
+      Mettre à jour
+    </ion-button>
+  </ng-container>
+</ng-template>

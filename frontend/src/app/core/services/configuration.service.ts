@@ -16,7 +16,8 @@ export interface Keycloak {
 export class ConfigurationService {
 
   apiUrl: string;
-  keycloak: Keycloak
+  keycloak: Keycloak;
+  hitTolerance: number;
   
 
   constructor(
@@ -34,6 +35,7 @@ export class ConfigurationService {
         next: (response: any) => { 
           this.apiUrl = response.body.apiUrl;
           this.keycloak= response.body.keycloak;
+          this.hitTolerance = response.body.hitTolerance;
           resolve(this);
         },
         error: (err) => {reject(err)}

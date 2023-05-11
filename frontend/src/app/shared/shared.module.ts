@@ -4,8 +4,11 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTabsModule } from '@angular/material/tabs';
+// COMPONENTS
 import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.component';
 import { DatepickerComponent } from './components/datepicker/datepicker.component';
+import { PageHeaderComponent } from './components/page-header/page-header.component';
 // FORM EDITOR
 import { FormEditorComponent } from './form-editor/form-editor.component';
 // FORM SECTIONS
@@ -25,6 +28,9 @@ import { ImageReaderComponent } from './components/image-reader/image-reader.com
 import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
 import { FormSelectReferentialComponent } from './form-editor/properties/form-select-referential/form-select-referential.component';
+import { FormWorkOrderComponent } from './form-editor/properties/form-work-order/form-work-order.component';
+import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
+import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +38,7 @@ import { FormSelectReferentialComponent } from './form-editor/properties/form-se
     MainToolbarComponent,
     DatepickerComponent,
     ImageReaderComponent,
+    PageHeaderComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -50,6 +57,10 @@ import { FormSelectReferentialComponent } from './form-editor/properties/form-se
     FormAttachmentComponent,
     FormSliderComponent,
     FormRadioComponent,
+    FormWorkOrderComponent,
+    FormBottomAttachmentComponent,
+    FormLifeCycleComponent,
+    // DIRECTIVES
     ClearDataDirective,
   ],
   imports: [
@@ -58,13 +69,15 @@ import { FormSelectReferentialComponent } from './form-editor/properties/form-se
     FormsModule,
     ReactiveFormsModule,
     MatStepperModule,
+    MatTabsModule
   ],
   exports:[
     MainToolbarComponent,
     DatepickerComponent,
     ImageReaderComponent,
+    PageHeaderComponent,
     FormEditorComponent,
-    ClearDataDirective
+    ClearDataDirective,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

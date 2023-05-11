@@ -31,6 +31,7 @@ import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
+import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 
 @NgModule({
   imports: [
@@ -65,6 +66,7 @@ import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer'
     WorkOrderDrawer,
     DemandeDrawer,
     EquipmentDrawer,
+    EquipmentDetailsComponent,
   ],
 })
 export class HomePageModule {}

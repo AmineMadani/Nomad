@@ -8,5 +8,6 @@
     "redirectUriAndroid": "myschema://login",
     "clientId": "[keycloakClientId]",
     "revocationEndpoint": "[keycloakRevocation]"
-  }
+  },
+  "hitTolerance":50
 }

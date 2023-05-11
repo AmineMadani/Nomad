@@ -6,14 +6,14 @@ import {
   OnDestroy,
   SimpleChanges,
   EventEmitter,
-  Output,
+  Output
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { FormDefinition, Form } from './models/form.model';
 import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 export interface FormNode {
   definition: any;
@@ -29,8 +29,9 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private rulesService: FormRulesService,
-    private relationService: FormRelationService
-  ) {}
+    private relationService: FormRelationService,
+    private utils: UtilsService
+  ) { }
 
   @Input() nomadForm: Form;
   @Input() editMode: boolean;
@@ -38,11 +39,14 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   public form: FormGroup;
   public sections: FormNode[] = [];
-  public paramMap: Map<string,string>;
+  public paramMap: Map<string, string>;
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
-  async ngOnInit() {
+  public isMobile: boolean;
+
+  ngOnInit() {
+    this.isMobile = this.utils.isMobilePlateform();
     // Construct sections from form
     const urlParams = new URLSearchParams(window.location.search);
     this.paramMap = new Map(urlParams.entries());
@@ -61,10 +65,12 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @param {SimpleChanges} changes - SimpleChanges
    */
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes['editMode']) {
-      const { currentValue, previousValue } = changes['editMode'];
-      if (currentValue && !previousValue && !this.nomadForm.editable) {
-        this.editMode = false;
+    if (changes['editMode']) {
+      if (changes['editMode']) {
+        const { currentValue, previousValue } = changes['editMode'];
+        if (currentValue && !previousValue && !this.nomadForm.editable) {
+          this.editMode = false;
+        }
       }
     }
   }
@@ -119,7 +125,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     return this.fb.group(controls);
   }
 
-  onSubmit(){
+  onSubmit() {
     this.submitAction.emit(this.form);
   }
 }

@@ -1,4 +1,3 @@
-
 //--------------- right panel animation IN -------------------
 @keyframes slideInRightPanel {
     from {
@@ -33,6 +32,46 @@
 @-ms-keyframes slideInRightPanel {
     from {
         margin-right: var(--width-right-panel-interactive--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@keyframes slideFullInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-moz-keyframes slideFullInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-webkit-keyframes slideFullInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+
+    to {
+        margin-right: 0;
+    }
+}
+
+@-ms-keyframes slideFullInRightPanel {
+    from {
+        margin-right: var(--width-right-panel-interactive-full--);
     }
 
     to {
@@ -81,13 +120,53 @@
     }
 }
 
-@keyframes slideOutRightPanel {
+@keyframes slideFullOutRightPanel {
     from {
         margin-right: 0;
     }
 
     to {
-        margin-right: var(--width-right-panel-interactive--);
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+}
+
+@-moz-keyframes slideFullOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+}
+
+@-webkit-keyframes slideFullOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+}
+
+@-ms-keyframes slideFullOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive-full--);
+    }
+}
+
+@keyframes slideFullOutRightPanel {
+    from {
+        margin-right: 0;
+    }
+
+    to {
+        margin-right: var(--width-right-panel-interactive-full--);
     }
 }
 

@@ -40,6 +40,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   @ViewChild('interactiveMap') interactiveMap: MapComponent;
   @ViewChild('modalDataLoading') modal: IonModal;
+  @ViewChild('modal') drawerModal: IonModal;
 
   public drawerRouteEnum = DrawerRouteEnum;
   public drawerTypeEnum = DrawerTypeEnum;
@@ -53,7 +54,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.backLayers = MAP_DATASET.filter((bl) => bl.visible);
-
     this.initDrawer();
   }
 
@@ -97,6 +97,15 @@ export class HomePage implements OnInit, OnDestroy {
           }, 1000);
         }
       });
+
+          // Subscribe to drawer open changes
+    // this.drawerService
+    // .onCloseModal()
+    // .pipe(takeUntil(this.drawerUnsubscribe))
+    // .subscribe(() => {
+    //   //this.drawerModal.dismiss();
+    //   //this.drawerModal.dismiss({ rerouting: true });
+    // });
   }
 
   private destroyDrawer() {
@@ -111,7 +120,10 @@ export class HomePage implements OnInit, OnDestroy {
     this.interactiveMap.displayLayer(keyMap);
   }
 
-  onBottomSheetDismiss() {
+  onBottomSheetDismiss(e: Event) {
+    // if (e && (e as any)?.detail?.data?.rerouting) {
+    //   return;
+    // }
     this.drawerService.closeDrawer();
   }
 
