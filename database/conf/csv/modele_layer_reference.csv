@@ -1,4 +1,4 @@
-pg_table;column_name;alias_name;data_type;position;display_type;section;notvisible
+lyr_table_name;column_name;alias_name;data_type;position;display_type;section;notvisible
 aep_alimentation_externe;id;ID;text;1;SYNTHETIC;Identification;
 aep_alimentation_externe;contrat;Contrat;text;;;;
 aep_alimentation_externe;uuid;UUID;uuid;;;;

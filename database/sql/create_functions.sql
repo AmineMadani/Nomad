@@ -1,4 +1,4 @@
-set search_path to config, public;
+set search_path to nomad, public;
 
 -- Function to create a grid
 -- used to produce geojson on a specified extent
@@ -63,7 +63,7 @@ begin
   )
   SELECT jsonb_build_object(
   'crs', '%4s'::jsonb,
-  'name',  '%2$s',    
+  'name',  '%2$s',
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
