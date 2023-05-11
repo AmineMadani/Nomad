@@ -510,3 +510,28 @@ create table if not exists task
   latitude                     numeric,
   geom                         geometry('POINT', :srid)
 );
+
+create table if not exists report(
+  id                           bigserial primary key,
+  tsk_id                       bigint,
+  rpt_report_date              timestamp without time zone  default current_timestamp,
+  usr_cre_id                   integer references nomad.user(id),
+  usr_mod_id                   integer references nomad.user(id),
+  rpt_dcre                     timestamp without time zone  default current_timestamp,
+  rpt_dmod                     timestamp without time zone  default current_timestamp,
+  rpt_detail                   jsonb
+);
+
+
+
+create table if not exists report_field(
+  id                           bigserial primary key,
+  rpf_code                     text,
+  rpf_slabel	        	       text,
+  rpf_llabel	        	       text,
+  rpf_valid                    boolean default true,
+  usr_cre_id                   integer references nomad.user(id),
+  usr_mod_id                   integer references nomad.user(id),
+  rpf_dcre                     timestamp without time zone  default current_timestamp,
+  rpf_dmod                     timestamp without time zone  default current_timestamp
+);
