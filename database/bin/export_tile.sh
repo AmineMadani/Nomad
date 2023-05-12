@@ -19,7 +19,7 @@ echo "-------------------------------------------"
 # ############################################################################
 # EXPORT TILE
 
-LAYERS=$(echo "select string_agg(distinct r.lyr_table_name::text, ' ')  from nomad.layer_references r join nomad.layer_references_default d on d.layer_reference_id  =  r.id " | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
+LAYERS=$(echo "select lyr_table_name::text from nomad.layer " | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
 echo "---> EXPORTING:"
 
 if [ ! -d "$GEOJSON_DIR" ]; then
@@ -34,6 +34,7 @@ fi
 
 for l in ${LAYERS}; do \
 	echo "-------> Layer $l...";
-  GEOJSON=$(echo "select config.get_geojson_from_tile('$l', $MAPTILE)" | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
-	ogr2ogr  "$GEOJSON_DIR/4326/$l.geojson" -t_srs "EPSG:4326" "$GEOJSON_DIR$l.geojson"
+  GEOJSON=$(echo "select nomad.f_get_geojson_from_tile('$l', $MAPTILE)" | psql -v ON_ERROR_STOP=1 -t $CONNINFO)
+  echo "$GEOJSON" > "$GEOJSON_DIR$l.geojson"
+  ogr2ogr  "$GEOJSON_DIR/4326/$l.geojson" -t_srs "EPSG:4326" "$GEOJSON_DIR$l.geojson"
 done
