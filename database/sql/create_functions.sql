@@ -76,7 +76,7 @@ $$ LANGUAGE sql IMMUTABLE STRICT;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function get_geojson_from_tile(layer_name text, tile_id integer, user_ident int = NULL)
+create or replace function f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
 returns jsonb
 language plpgsql
 as $$
@@ -93,8 +93,8 @@ begin
   --
   -- Get list of fields from conf
   select string_agg("referenceKey", ', ')  into list_fields
-    from nomad.get_layer_references_user(user_ident)
-   where layer = layer_name and ("displayType" is not null or "isVisible" = false);
+    from nomad.f_get_layer_references_user(user_ident) f
+   where layer = lyr_table_name and ("displayType" is not null or "isVisible" = false);
   --
   if list_fields is null then
     -- Get list of fields from postgres
@@ -106,7 +106,7 @@ begin
   execute format($sql$
   with
   records as
-  (select %1$s from asset.%2$s t where st_intersects(t.geom, '%3$s'::geometry)),
+  (select %1$s from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
 	select jsonb_build_object(
@@ -122,7 +122,7 @@ begin
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), layer_name, tile_geom::text, crs) into geojson;
+  $sql$, coalesce(list_fields, '*'), lyr_table_name::text, tile_geom::text, crs) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
@@ -132,7 +132,7 @@ $$;
 
 -- Function to create a geojson index
 -- for a specific layer
-create or replace function get_geojson_index(layer text)
+create or replace function f_get_geojson_index(lyr_table_name text)
 returns jsonb
 language plpgsql
 as $$
@@ -142,7 +142,7 @@ declare
 begin
   with
   records as
-  (select layer||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(layer, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
@@ -165,10 +165,10 @@ end;
 $$;
 
 -- Function to get the list of layers of a user
-CREATE OR REPLACE FUNCTION get_layer_references_user(searched_user_id INTEGER = NULL)
+CREATE OR REPLACE FUNCTION f_get_layer_references_user(searched_user_id INTEGER = NULL)
     RETURNS TABLE(
          layer text,
-         "referenceId" INT,
+         "referenceId" BIGINT,
          "referenceKey" text,
          alias TEXT,
          "position" INT,
@@ -180,16 +180,17 @@ BEGIN
     RETURN QUERY
     SELECT lyr_table_name::text as _layer,
            r.id as _id,
-           r.reference_key as _referenceKey,
-           r.alias as _alias,
+           r.lrf_reference_key as _referenceKey,
+           r.lrf_alias as _alias,
            --- if specific conf for user, get the conf
-           COALESCE(u.position, d.position) AS _position,
-           COALESCE(u.display_type, d.display_type)::text as _displayType,
-           COALESCE(u.isvisible, d.isvisible) as _isVisible,
-           COALESCE(u.section, d.section)::text as _section
+           COALESCE(u.lru_position, d.lrd_position) AS _position,
+           COALESCE(u.lru_display_type, d.lrd_display_type)::text as _displayType,
+           COALESCE(u.lru_isvisible, d.lrd_isvisible) as _isVisible,
+           COALESCE(u.lru_section, d.lrd_section)::text as _section
       FROM nomad.layer_references r
-      JOIN nomad.layer_references_default d ON r.id = d.layer_reference_id
- LEFT JOIN nomad.layer_references_user u ON r.id = u.layer_reference_id AND u.user_id = searched_user_id
+      join nomad.layer l on l.id = r.lyr_id
+      JOIN nomad.layer_references_default d ON r.id = d.lrd_id
+ LEFT JOIN nomad.layer_references_user u ON r.id = u.lrf_id AND u.lru_user_id = searched_user_id
   ORDER BY 1, 5;
 END;
 $$;
