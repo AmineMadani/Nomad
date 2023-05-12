@@ -69,7 +69,7 @@ create table domains
 (
   id                           bigserial primary key,
 	dom_type                     text unique not null,
-	dom_parent_id                bigint  references domain(id),
+	dom_parent_id                bigint  references domains(id),
 	dom_short                    text,
 	dom_alias                    text,
 	dom_ucre_id                  integer references users(id) default 0,
