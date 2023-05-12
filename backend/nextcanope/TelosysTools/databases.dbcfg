@@ -3,6 +3,6 @@
     <db dialect="org.hibernate.dialect.PostgreSQLDialect" driver="org.postgresql.Driver" id="1" isolationLevel="" name="POSTGRESQL" poolSize="1" typeName="POSTGRESQL" url="jdbc:postgresql://localhost:5435/postgres">
         <property name="user" value="postgres"/>
         <property name="password" value="postgres"/>
-        <metadata catalog="" schema="config" table-name-exclude="" table-name-include="" table-name-pattern="%" table-types="TABLE"/>
+        <metadata catalog="" schema="nomad" table-name-exclude="" table-name-include="" table-name-pattern="%" table-types="TABLE"/>
     </db>
 </databases>
