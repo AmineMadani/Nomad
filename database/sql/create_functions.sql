@@ -181,7 +181,7 @@ BEGIN
     SELECT lyr_table_name::text as _layer,
            r.id as _id,
            r.lrf_reference_key as _referenceKey,
-           r.lrf_alias as _alias,
+           r.lrf_llabel as _alias,
            --- if specific conf for user, get the conf
            COALESCE(u.lru_position, d.lrd_position) AS _position,
            COALESCE(u.lru_display_type, d.lrd_display_type)::text as _displayType,

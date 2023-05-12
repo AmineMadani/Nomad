@@ -7,7 +7,7 @@ insert into float_setting values ('topo.snap_tolerance', 0.05 );
 insert into text_setting values ('srid', 3857::integer);
 
 -- insert raster Layer
-insert into basemaps (map_alias, map_type, map_url, map_layer, map_matrixset, map_format, map_projection, map_tilegrid, map_style, map_attributions, map_default, map_display)
+insert into basemaps (map_slabel, map_type, map_url, map_layer, map_matrixset, map_format, map_projection, map_tilegrid, map_style, map_attributions, map_default, map_display)
 values
 ('OpenStreetMap',
  'OSM',
@@ -54,14 +54,14 @@ values
 -- insert into domain
 
 insert into domains
-  ( dom_type    , dom_parent_id,   dom_alias             , dom_short)
+  ( dom_type    , dom_parent_id,   dom_llabel             , dom_slabel)
   values
   ( 'asset' , NULL       , 'Patrimoine'        , 'PAT'   ),
   ( 'wo'    , NULL       , 'Intervention'      , 'INT'   ),
   ( 'geo'   , NULL       , 'Périmètre'         , 'GEO'   )
 ;
 insert into domains
-  ( dom_type    , dom_parent_id,   dom_alias             , dom_short)
+  ( dom_type    , dom_parent_id,   dom_llabel             , dom_slabel)
   values
 ( 'dw'  , (select id from domains where dom_type = 'asset')    , 'Eau Potable'       , 'AEP'   ),
 ( 'ww'  , (select id from domains where dom_type = 'asset')    , 'Assainissement'    , 'ASS'   );

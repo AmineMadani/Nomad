@@ -6,11 +6,11 @@ set search_path to nomad, public;
 create or replace view v_simplified_layer_tree as
 with recursive doms as
  (
- SELECT id, dom_alias as parent_domain_alias, dom_type as domain_type, dom_alias as tab
+ SELECT id, dom_llabel as parent_domain_alias, dom_type as domain_type, dom_llabel as tab
    FROM domains
   where dom_parent_id is null
   union all
- select d1.id as id, d2.parent_domain_alias, d1.dom_type as domain_type, d1.dom_alias as tab
+ select d1.id as id, d2.parent_domain_alias, d1.dom_type as domain_type, d1.dom_llabel as tab
    from doms d2
    join domains d1
      on d1.dom_parent_id = d2.id
@@ -45,11 +45,11 @@ doms as
 (
   with recursive doms as
   (
- SELECT id, dom_alias as parent_domain_alias, dom_type as domain_type, dom_alias as tab
+ SELECT id, dom_llabel as parent_domain_alias, dom_type as domain_type, dom_llabel as tab
    FROM domains
   where dom_parent_id is null
   union all
- select d1.id as id, d2.parent_domain_alias, d1.dom_type as domain_type, d1.dom_alias as tab
+ select d1.id as id, d2.parent_domain_alias, d1.dom_type as domain_type, d1.dom_llabel as tab
    from doms d2
    join domains d1
      on d1.dom_parent_id = d2.id

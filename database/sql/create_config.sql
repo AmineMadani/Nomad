@@ -80,8 +80,8 @@ create table domains
   id                           bigserial primary key,
 	dom_type                     text unique not null,
 	dom_parent_id                bigint  references domains(id),
-	dom_short                    text,
-	dom_alias                    text,
+	dom_slabel                    text,
+	dom_llabel                    text,
   -- Technical metadata
   dom_valid                    boolean default True,
 	dom_ucre_id                  integer references users(id) default 0,
@@ -96,8 +96,8 @@ comment on table domains is 'This table lists up all the application domains: dr
 comment on column domains.id is 'Table unique ID';
 comment on column domains.dom_type is 'Type of the domain, used to prefix domain related objects';
 comment on column domains.dom_parent_id is 'Parent Id';
-comment on column domains.dom_short is 'Short alias of the domain';
-comment on column domains.dom_alias is 'Alias of the domain';
+comment on column domains.dom_slabel is 'Short label (alias) of the domain';
+comment on column domains.dom_llabel is 'Long label (alias) of the domain';
 comment on column domains.dom_valid is 'If valid, true else false';
 comment on column domains.dom_ucre_id is 'creator Id';
 comment on column domains.dom_umod_id is 'Last modificator Id';
@@ -339,7 +339,8 @@ CREATE TABLE layer_references(
     id                 bigserial PRIMARY KEY,
     lyr_id             bigint NOT NULL REFERENCES layer(id),
     lrf_reference_key  text NOT NULL,
-    lrf_alias          text,
+    lrf_slabel          text,
+    lrf_llabel          text,
     -- Technical metadata
     lrf_valid          boolean default True,
     lrf_ucre_id        bigint references users(id) default 0,
@@ -353,7 +354,8 @@ comment on table layer_references is 'This table defines the corresponding colum
 comment on column layer_references.id is 'Table unique ID';
 comment on column layer_references.lyr_id is 'Layer Id';
 comment on column layer_references.lrf_reference_key is 'Reference key. It is the column name in the layer table';
-comment on column layer_references.lrf_alias is  'Alias to display in the app';
+comment on column layer_references.lrf_slabel is  'Short label to display in the app';
+comment on column layer_references.lrf_llabel is  'Long label (Alias) to display in the app';
 comment on column layer_references.lrf_valid is 'If valid, true else false';
 comment on column layer_references.lrf_ucre_id is 'creator Id';
 comment on column layer_references.lrf_umod_id is 'Last modificator Id';
@@ -885,3 +887,5 @@ create table if not exists frm_rpf(
   primary key (frm_id, rpf_id)
 );
 */
+
+

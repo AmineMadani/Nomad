@@ -4,7 +4,7 @@ set search_path to nomad, public;
 insert into layer_references(
     lyr_id,
     lrf_reference_key,
-    lrf_alias)
+    lrf_llabel)
     select l.id, column_name, initcap(replace(column_name,'_',' '))
       from information_schema.columns c
       join layer l on table_schema::text||'.'||table_name::text = l.lyr_table_name::text
@@ -17,7 +17,7 @@ insert into layer_references(
 --   set pg_table = 'asset.' || pg_table;
 
 update layer_references r
-   set lrf_alias = t.alias_name
+   set lrf_llabel = t.alias_name
   from public.temp_layer_references t
   join layer l on split_part(l.lyr_table_name::text,'.',2) = t.lyr_table_name::text
  where t.column_name = r.lrf_reference_key;
