@@ -55,7 +55,9 @@ export class HomePage implements OnInit, OnDestroy {
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
-      this.mapService.getBaseMaps().subscribe(backLayerArray => this.backLayers = backLayerArray.filter(bl => bl.display));
+    this.mapService.getBaseMaps().subscribe(backLayerArray => {
+      this.backLayers = backLayerArray.filter(bl => bl.display)
+    });
     this.initDrawer();
   }
 

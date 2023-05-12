@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import MapOpenLayer from 'ol/Map';
 import { OSM, WMTS } from 'ol/source';
 import TileLayer from 'ol/layer/Tile';
+import { firstValueFrom } from 'rxjs';
 import { get as getProjection } from 'ol/proj.js';
 import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
 import { getWidth, getTopLeft } from 'ol/extent.js';
@@ -86,15 +87,10 @@ export class MapComponent implements OnInit {
    * @param {BackLayer} [layer] - Optional parameter of type BackLayer, which contains information about
    * the layer to be created.
    */
-  createLayers(backLayerKey: string, layer?: BackLayer): void {
+  async createLayers(backLayerKey: string, layer?: BackLayer): Promise<void> {
     if (!layer) {
-      this.mapService.getBaseMaps().pipe(
-        map(
-          (backLayerArray : BackLayer[]) => backLayerArray.filter(
-            (backLayer : BackLayer) => backLayer.key === backLayerKey
-          )
-        )
-      );
+      const baseLayers:BackLayer[] = await firstValueFrom(this.mapService.getBaseMaps());
+      layer = baseLayers.find(layer => layer.layer === backLayerKey);
     }
     if (layer) {
       switch (layer.type) {
@@ -105,7 +101,7 @@ export class MapComponent implements OnInit {
             visible: layer.display,
             zIndex: 0,
           });
-          this.mapLayers.set(layer.key, wmtsLayer);
+          this.mapLayers.set(layer.layer, wmtsLayer);
           this.map.addLayer(wmtsLayer);
           break;
         case 'OSM':
@@ -115,7 +111,7 @@ export class MapComponent implements OnInit {
             visible: layer.display,
             zIndex: 0,
           });
-          this.mapLayers.set(layer.key, osmLayer);
+          this.mapLayers.set(layer.layer, osmLayer);
           this.map.addLayer(osmLayer);
           break;
       }
@@ -154,7 +150,7 @@ export class MapComponent implements OnInit {
       attributions: layer.attributions!,
       url: layer.url!,
       layer: layer.layer!,
-      matrixSet: layer.matrixSet!,
+      matrixSet: layer.matrixset!,
       format: layer.format!,
       projection: this.projection!,
       tileGrid: new WMTSTileGrid({

@@ -4,7 +4,7 @@ export interface BackLayer {
   attributions?: string[];
   url?: string;
   layer?: string;
-  matrixSet?: string;
+  matrixset?: string;
   format?: string;
   origin?: number[];
   display: boolean;
