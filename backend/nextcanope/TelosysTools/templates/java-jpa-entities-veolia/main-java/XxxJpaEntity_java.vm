@@ -44,6 +44,12 @@ import $b;
 import $b;
 #end
 
+#foreach( $link in $entity.links )
+#if($link.fieldName.contains('createdBy'))
+import com.fasterxml.jackson.annotation.JsonIgnore;
+#end
+#end
+
 /**
  * JPA entity class for "${entity.name}"
  *
@@ -79,9 +85,13 @@ $jpa.fieldAnnotations(4, $attribute)
     //--- ENTITY LINKS ( RELATIONSHIP )
 #foreach( $link in $entity.links )
 ## all annotations : Cardinality, JoinColumn(s), etc
+
 $jpa.linkAnnotations(4, $link, $entity.attributes)
 ## $jpa.linkCardinalityAnnotation(4, $link)
 ## $jpa.linkJoinAnnotation(4, $link)
+#if($link.fieldName.contains('createdBy') ||  $link.fieldName.contains('modifiedBy')) 
+	@JsonIgnore
+#end
     private ${link.formattedFieldType(1)} $link.fieldName ; 
 
 #end
