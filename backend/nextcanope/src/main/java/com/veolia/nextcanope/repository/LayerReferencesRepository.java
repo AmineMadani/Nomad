@@ -20,11 +20,11 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      * @return the list of layer references.
      */
     @Query(
-            value = "SELECT * FROM config.get_layer_references_user(:userId)",
+            value = "SELECT * FROM nomad.f_get_layer_references_user(:userId)",
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getLayerReferencesWithUserId(
-            @Param("userId") Integer userId
+            @Param("userId") Long userId
     );
 
     /**
@@ -32,7 +32,7 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      * @return the default list of layer references.
      */
     @Query(
-            value = "SELECT * FROM config.get_layer_references_user()",
+            value = "SELECT * FROM nomad.f_get_layer_references_user()",
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getDefaultLayerReferences();

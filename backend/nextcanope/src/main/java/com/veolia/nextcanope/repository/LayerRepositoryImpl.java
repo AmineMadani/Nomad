@@ -23,7 +23,7 @@ public class LayerRepositoryImpl {
      */
 	public String getIndexByKey(String key) {
         return this.jdbcTemplate.queryForObject(
-                "select config.get_geojson_index('" + key + "')",
+                "select nomad.f_get_geojson_index('" + key + "')",
                 String.class
         );
     }
@@ -35,17 +35,17 @@ public class LayerRepositoryImpl {
      * @param tileNumber The tile number to search for in the database.
      * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber, Integer userId) {
+    public String getLayerTile(String key, Long tileNumber, Long userId) {
     	String schema = ConfigConstants.SCHEMA;
 
 		String param = ",'" + userId.toString() + "'";
     	if(key.equals("intervention")) {
-    		schema = "exploitation";
+    		schema = "nomad";
     		param = "";
     	}
     	
         return this.jdbcTemplate.queryForObject(
-                "select config.get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",
+                "select nomad.f_get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",
                 String.class
         );
     }

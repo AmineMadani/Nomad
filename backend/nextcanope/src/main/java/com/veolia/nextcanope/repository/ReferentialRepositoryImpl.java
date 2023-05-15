@@ -24,7 +24,7 @@ public class ReferentialRepositoryImpl {
      * @return The data referential to load.
      */
 	public List<Map<String, Object>> getReferentialData(String referential) {
-		final List<Map<String, Object>> rows = jdbcTemplate.queryForList("select * from referential."+referential);
+		final List<Map<String, Object>> rows = jdbcTemplate.queryForList("select * from nomad."+referential);
 		return rows;
     }
 }

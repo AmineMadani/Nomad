@@ -25,7 +25,7 @@ public class LayerReferencesService {
      * Retrieves the user list of layer references.
      * @return the list of layer references.
      */
-    public List<LayerReferencesDto> getUserLayerReferences(Integer userId) {
+    public List<LayerReferencesDto> getUserLayerReferences(Long userId) {
         // Result list of the query
         List<LayerReferencesFlatDto> listFlatDto = layerReferencesRepository.getLayerReferencesWithUserId(userId);
 

@@ -1,12 +1,11 @@
 export interface BackLayer {
-  type: string;
-  key: string;
-  attributions?: string[];
-  url?: string;
-  layer?: string;
-  matrixset?: string;
-  format?: string;
-  origin?: number[];
-  display: boolean;
-  default: boolean;
+  mapType: string;
+  mapAttributions?: string[];
+  mapUrl?: string;
+  mapLayer?: string;
+  mapMatrixset?: string;
+  mapFormat?: string;
+  mapOrigin?: number[];
+  mapDisplay: boolean;
+  mapDefault: boolean;
 }

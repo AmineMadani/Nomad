@@ -94,7 +94,7 @@ begin
   -- Get list of fields from conf
   select string_agg("referenceKey", ', ')  into list_fields
     from nomad.f_get_layer_references_user(user_ident) f
-   where layer = lyr_table_name and ("displayType" is not null or "isVisible" = false);
+   where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
   --
   if list_fields is null then
     -- Get list of fields from postgres
