@@ -31,7 +31,7 @@ comment on column text_setting.value is 'Setting value';
 -- This table defines the application users.
 create table users
 (
-  id                serial primary key,
+  id                bigserial primary key,
   usr_first_name    text not null,
   usr_last_name	    text not null,
   usr_email	        text unique not null,
