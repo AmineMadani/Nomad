@@ -386,7 +386,7 @@ create table if not exists contract(
   ctr_dcre                     timestamp without time zone  default current_timestamp,
   ctr_dmod                     timestamp without time zone  default current_timestamp,
   cta_id                       bigint references contract_activity(id),
-  geom                         geometry('MULTIPOLYGON', :srid)
+  geom                         geometry('MULTIPOLYGON', 3857)
 );
 
 create index on contract using gist(geom);
@@ -401,7 +401,7 @@ create table if not exists city(
   cty_umod_id                  bigint references users(id) default 0,
   cty_dcre                     timestamp without time zone  default current_timestamp,
   cty_dmod                     timestamp without time zone  default current_timestamp,
-  geom                         geometry('MULTIPOLYGON', :srid)
+  geom                         geometry('MULTIPOLYGON', 3857)
 );
 
 create index on city using gist(geom);
@@ -530,7 +530,7 @@ create table if not exists workorder
   ------
   longitude                    numeric,
   latitude                     numeric,
-  geom                         geometry('POINT', :srid)
+  geom                         geometry('POINT', 3857)
 );
 
 create table if not exists task
@@ -555,7 +555,7 @@ create table if not exists task
   --------
   longitude                    numeric,
   latitude                     numeric,
-  geom                         geometry('POINT', :srid)
+  geom                         geometry('POINT', 3857)
 );
 
 

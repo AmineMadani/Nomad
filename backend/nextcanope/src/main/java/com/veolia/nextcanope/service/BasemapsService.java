@@ -25,6 +25,6 @@ public class BasemapsService {
      */
     public List<Basemaps> getVisibleBasemaps() {
         // TO DO - find by user's contracts ids
-        return this.basemapsRepository.findByDisplay(true);
+        return this.basemapsRepository.findByMapDisplay(true);
     }
 }

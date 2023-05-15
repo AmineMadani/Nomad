@@ -6,7 +6,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.model.AppUser;
+import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.UserRepository;
 
 /**
@@ -24,7 +24,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 	@Override
 	public AbstractAuthenticationToken convert(Jwt source) {
 		String principalClaimValue = source.getClaimAsString(ConfigConstants.LABEL_EMAIL);
-        AppUser user = userRepository.findByEmail(principalClaimValue);
+        Users user = userRepository.findByUsrEmail(principalClaimValue);
         return new AccountTokenDto(source,null,user);
 	}
 

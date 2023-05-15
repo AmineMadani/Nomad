@@ -9,14 +9,14 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.veolia.nextcanope.model.Intervention;
+import com.veolia.nextcanope.model.Workorder;
 
 /**
- * InterventionRepositoryImpl is a repository class for managing intervention-related data in the persistence layer.
+ * WorkOrderRepositoryImpl is a repository class for managing WorkOrder-related data in the persistence layer.
  * It uses JdbcTemplate for executing SQL queries.
  */
 @Repository
-public class InterventionRepositoryImpl {
+public class WorkOrderRepositoryImpl {
 
 	@Autowired
     private JdbcTemplate jdbcTemplate;
@@ -27,7 +27,7 @@ public class InterventionRepositoryImpl {
      * @param key The key to search for in the database.
      * @return The index as a string, associated with the given key.
      */
-	public List<Intervention> getInterventionPaginationWithCustomCriteria(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
+	public List<Workorder> getWorkOrderPaginationWithCustomCriteria(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
         String clauseWhere = "";
         String clauseDate = "";
 		if(searchParameter != null && searchParameter.size() > 0) {
@@ -58,8 +58,8 @@ public class InterventionRepositoryImpl {
         }
 		System.out.println(clauseWhere);
 		return this.jdbcTemplate.query(
-                "select * from exploitation.intervention "+clauseWhere+" order by datebegin desc limit "+limit+" offset "+offset,
-                new BeanPropertyRowMapper<Intervention>(Intervention.class)
+                "select * from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
+                new BeanPropertyRowMapper<Workorder>(Workorder.class)
         );
     }
 	

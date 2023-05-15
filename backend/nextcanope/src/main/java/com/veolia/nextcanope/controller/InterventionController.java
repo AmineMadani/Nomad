@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.veolia.nextcanope.dto.InterventionDto;
-import com.veolia.nextcanope.service.InterventionService;
+import com.veolia.nextcanope.dto.WorkOrderDto;
+import com.veolia.nextcanope.service.WorkOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class InterventionController {
 
     @Autowired
-    public InterventionService interventionService;
+    public WorkOrderService interventionService;
 
     @PostMapping(path = "pagination/{limit}/{offset}")
     @Operation(summary = "Get the interventions with search parameter in pagination format")
@@ -37,7 +37,7 @@ public class InterventionController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<InterventionDto> getInterventions(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
+    public List<WorkOrderDto> getInterventions(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
         return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
 }

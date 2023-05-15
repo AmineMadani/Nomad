@@ -3,11 +3,11 @@ package com.veolia.nextcanope.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.veolia.nextcanope.model.Intervention;
+import com.veolia.nextcanope.model.Workorder;
 
-public class InterventionDto {
+public class WorkOrderDto {
 
-	private Integer id;
+	private Long id;
 
     private String reason;
 
@@ -25,11 +25,11 @@ public class InterventionDto {
 
     private BigDecimal y;
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -97,16 +97,16 @@ public class InterventionDto {
 		this.y = y;
 	}
 
-	public InterventionDto(Intervention interventionEntity) {
+	public WorkOrderDto(Workorder workOrderEntity) {
 		super();
-		this.id=interventionEntity.getId();
-	    this.reason=interventionEntity.getReason();
-	    this.status=interventionEntity.getStatus();
-	    this.datebegin=interventionEntity.getDatebegin();
-	    this.dateend=interventionEntity.getDateend();
-	    this.urgent=interventionEntity.getUrgent();
-	    this.appointment=interventionEntity.getAppointment();
-	    this.x=interventionEntity.getX();
-	    this.y=interventionEntity.getY();
+		this.id=workOrderEntity.getId();
+	    this.reason=workOrderEntity.getWkoName();
+	    this.status=workOrderEntity.getWorkorderTaskStatus().getWtsCode();
+	    this.datebegin=workOrderEntity.getWkoPlanningStartDate();
+	    this.dateend=workOrderEntity.getWkoPlanningStartDate();
+	    this.urgent=workOrderEntity.getWkoEmergency();
+	    this.appointment=workOrderEntity.getWkoAppointment();
+	    this.x=workOrderEntity.getLongitude();
+	    this.y=workOrderEntity.getLatitude();
 	}
 }
