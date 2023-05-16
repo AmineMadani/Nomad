@@ -321,14 +321,13 @@ export class MapService {
         properties['layer'] = layerKey;
         let route;
         switch (layerKey) {
-          case 'intervention':
+          case 'workorder':
             route = DrawerRouteEnum.WORKORDER;
             break;
           default:
             route = DrawerRouteEnum.EQUIPMENT;
             break;
         }
-        console.log(route);
         this.drawerService.navigateTo(
           route,
           [properties['id']],

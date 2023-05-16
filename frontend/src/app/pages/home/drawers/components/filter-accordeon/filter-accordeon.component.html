@@ -2,7 +2,7 @@
   <ng-container *ngFor="let data of datas">
     <ion-accordion *ngIf="data" [toggleIcon]="''" [value]="data.id.toString()">
       <ion-item slot="header" (click)="checkOpeningRule(data,$event)">
-        <ion-checkbox slot="start" [checked]='data.value' [indeterminate]="data.isIndeterminate"
+        <ion-checkbox aria-label="checkbox" slot="start" [checked]='data.value' [indeterminate]="data.isIndeterminate"
           (ionChange)="onCheckboxChange(data,$event)" (click)="$event.stopPropagation()"></ion-checkbox>
         <ion-label>{{ data.name }}</ion-label>
         <ion-icon slot="end" color="primary" [name]="(data.children && data.children.length > 0) ? (data.isOpen ? 'remove-outline' : 'add-outline'):''"></ion-icon>

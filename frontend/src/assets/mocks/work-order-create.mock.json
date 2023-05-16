@@ -11,7 +11,7 @@
       "attributes": {}
     },
     {
-      "key": "code_contrat",
+      "key": "id",
       "type": "property",
       "component": "referential",
       "editable": false,
@@ -19,8 +19,8 @@
       "attributes": {
         "value": "",
         "repository": "contract",
-        "repositoryKey": "code_contrat",
-        "repositoryValue": "label"
+        "repositoryKey": "id",
+        "repositoryValue": "ctr_slabel"
       },
       "section": "workordercreationlist",
       "rules": [
@@ -32,16 +32,16 @@
       ]
     },
     {
-      "key": "insee_code",
+      "key": "id",
       "type": "property",
       "component": "referential",
       "editable": false,
       "label": "Commune *",
       "attributes": {
         "value": "",
-        "repository": "town",
-        "repositoryKey": "insee_code",
-        "repositoryValue": "label"
+        "repository": "city",
+        "repositoryKey": "id",
+        "repositoryValue": "cty_slabel"
       },
       "section": "workordercreationlist",
       "rules": [

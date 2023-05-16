@@ -45,6 +45,6 @@ export interface Widget {
     label: string;
     placeholder?: string;
     key: string[];
-    choices: Map<string|boolean,string>;
+    choices: Map<string|boolean|number,string>;
     rule?: string;
 }

@@ -27,9 +27,9 @@
   </ng-container>
 </ng-template>
 <ng-template #listTemplate let-children="children">
-  <ion-item *ngFor="let child of children" lines="none">
+  <ng-container *ngFor="let child of children" lines="none">
     <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node: child }"></ng-container>
-  </ion-item>
+  </ng-container>
 </ng-template>
 
 

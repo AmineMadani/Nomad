@@ -33,9 +33,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     private router: ActivatedRoute,
     private utils: UtilsService,
     private layerService: LayerService,
-    private drawerService: DrawerService,
-    private location: Location,
-    private route: Router
+    private drawerService: DrawerService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe))
