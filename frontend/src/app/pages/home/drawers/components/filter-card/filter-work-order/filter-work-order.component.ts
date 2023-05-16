@@ -4,6 +4,9 @@ import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { FilterService } from 'src/app/core/services/filter.service';
+import { ReferentialService } from 'src/app/core/services/referential.service';
+import { Status } from 'src/app/core/models/status.model';
+import { stat } from 'fs';
 
 @Component({
   selector: 'app-filter-work-order',
@@ -13,15 +16,22 @@ import { FilterService } from 'src/app/core/services/filter.service';
 export class FilterWorkOrderComponent implements OnInit {
   constructor(
     private filterService: FilterService,
-    private drawer: DrawerService
+    private drawer: DrawerService,
+    private referentialService: ReferentialService
   ) {}
 
   @Input() data: any;
 
   public workOrders: MapFeature[] = [];
   public isFromCache: boolean = false;
+  public lStatus: Status[] = [];
+  
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.referentialService.getReferential('workorder_task_status').then(res => {
+      this.lStatus = res;
+    })
+  }
 
   /**
    * Retrieves and returns a list of features for interventions, either from cache or by
@@ -56,5 +66,9 @@ export class FilterWorkOrderComponent implements OnInit {
         ? DrawerRouteEnum.WORKORDER
         : DrawerRouteEnum.DEMANDE;
     this.drawer.navigateTo(route, [feature.id], { layer, ...feature });
+  }
+
+  public getStatus(id:number):Status {
+    return this.lStatus.find(status => status.id===id)
   }
 }

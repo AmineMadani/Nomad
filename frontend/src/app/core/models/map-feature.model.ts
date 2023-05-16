@@ -1,15 +1,7 @@
-export enum InterventionStatusEnum {
-  TERMINE = 'TERMINE',
-  ANNULE = 'ANNULE',
-  PLANIFIE = 'PLANIFIE',
-  ENVOYEPLANIF = 'ENVOYEPLANIF',
-  CREE = 'CREE',
-}
-
 export class MapFeature {
   public id: string;
   public reason: string;
-  public status: InterventionStatusEnum;
+  public status: number;
   public datebegin: Date;
   public dateend: Date;
   public urgent: boolean;
@@ -24,12 +16,12 @@ export class MapFeature {
     if (fromProperties) {
       mFeature = new MapFeature()
       mFeature.id = obj['id']?.toString();
-      mFeature.reason = obj['reason'];
-      mFeature.status = obj['status'];
-      mFeature.datebegin = obj['datebegin'];
-      mFeature.dateend = obj['dateend'];
-      mFeature.urgent = obj['urgent'];
-      mFeature.appointment = obj['appointment'];
+      mFeature.reason = obj['wko_name'];
+      mFeature.status = obj['wts_id'];
+      mFeature.datebegin = obj['wko_planning_start_date'];
+      mFeature.dateend = obj['wko_planning_end_date'];
+      mFeature.urgent = obj['wko_emergency'];
+      mFeature.appointment = obj['wko_appointment'];
       mFeature.x = obj['x'];
       mFeature.y = obj['y'];
       return mFeature;
@@ -42,38 +34,5 @@ export class MapFeature {
 
   public getLabel(): string {
     return `${this.datebegin} - ${this.dateend}`;
-  }
-
-  public getStatusIcon(): string {
-    switch (this.status) {
-      case InterventionStatusEnum.CREE:
-        return 'checkmark';
-      case InterventionStatusEnum.ANNULE:
-        return 'close';
-      case InterventionStatusEnum.ENVOYEPLANIF:
-      case InterventionStatusEnum.PLANIFIE:
-        return 'calendar';
-      case InterventionStatusEnum.TERMINE:
-        return 'checkmark-done';
-      default:
-        return '';
-    }
-  }
-
-  public getStatusLabel(): string {
-    switch (this.status) {
-      case InterventionStatusEnum.CREE:
-        return 'Créé';
-      case InterventionStatusEnum.ANNULE:
-        return 'Annulé';
-      case InterventionStatusEnum.PLANIFIE:
-        return 'Planifiée';
-      case InterventionStatusEnum.ENVOYEPLANIF:
-        return 'Envoyé à la planification';
-      case InterventionStatusEnum.TERMINE:
-        return 'Terminée';
-      default:
-        return '';
-    }
   }
 }

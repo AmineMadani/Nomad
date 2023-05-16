@@ -11,7 +11,7 @@ public class WorkOrderDto {
 
     private String reason;
 
-    private String status;
+    private Long status;
 
     private Date datebegin;
 
@@ -41,11 +41,11 @@ public class WorkOrderDto {
 		this.reason = reason;
 	}
 
-	public String getStatus() {
+	public Long getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Long status) {
 		this.status = status;
 	}
 
@@ -101,7 +101,7 @@ public class WorkOrderDto {
 		super();
 		this.id=workOrderEntity.getId();
 	    this.reason=workOrderEntity.getWkoName();
-	    this.status=workOrderEntity.getWorkorderTaskStatus().getWtsCode();
+	    this.status=workOrderEntity.getWtsId();
 	    this.datebegin=workOrderEntity.getWkoPlanningStartDate();
 	    this.dateend=workOrderEntity.getWkoPlanningStartDate();
 	    this.urgent=workOrderEntity.getWkoEmergency();

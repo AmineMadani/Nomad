@@ -7,9 +7,9 @@
     </ion-item>
     <ion-item lines="none" class="ion-text-center">
       <ion-label>
-        <ion-chip *ngIf="workOrder.status" [ngClass]="'status-' + workOrder.status" [outline]="false">
-          <ion-icon [name]="workOrder.getStatusIcon() + '-outline'"></ion-icon>
-          <ion-label>{{ workOrder.getStatusLabel() }}</ion-label>
+        <ion-chip *ngIf="workOrder.status" [ngClass]="'status-nf'" [outline]="false">
+          <ion-icon [name]="'close-outline'"></ion-icon>
+          <ion-label>{{ workOrder.status }}</ion-label>
         </ion-chip>
         <ion-chip *ngIf="workOrder.urgent" class="status" [outline]="true">
           <ion-icon name="calendar-outline"></ion-icon>

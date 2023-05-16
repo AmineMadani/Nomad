@@ -241,8 +241,8 @@ export class MapStyleService {
       .set('ass_ouvrage_selected', assOuvrageSelected)
       .set('ass_regard', assRegard)
       .set('ass_regard_selected', assRegardSelected)
-      .set('intervention', intervention)
-      .set('intervention_selected', interventionSelected);
+      .set('workorder', intervention)
+      .set('workorder_selected', interventionSelected);
   }
 
   private mapStyle: Map<string, Style> = new Map();

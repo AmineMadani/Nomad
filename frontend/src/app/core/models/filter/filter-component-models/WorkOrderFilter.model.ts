@@ -1,4 +1,3 @@
-import { InterventionStatusEnum } from '../../map-feature.model';
 import { BaseFilterData, BaseFilter } from './BaseFilter.model';
 
 export class WorkOrderFilter implements BaseFilter {
@@ -52,6 +51,6 @@ export interface Tag {
 
 export interface InterventionStatus {
   label: string;
-  status: InterventionStatusEnum;
+  status: number;
 }
 
