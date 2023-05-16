@@ -3,6 +3,7 @@ package com.veolia.nextcanope.repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,6 +21,9 @@ public class WorkOrderRepositoryImpl {
 
 	@Autowired
     private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private WorkorderRepository workOrderRepository;
 
 	/**
      * Retrieves the index associated with a specific key.
@@ -56,11 +60,20 @@ public class WorkOrderRepositoryImpl {
 				}
 			}
         }
-		System.out.println(clauseWhere);
-		return this.jdbcTemplate.query(
+
+		List<Workorder> lWorkOrders = this.jdbcTemplate.query(
                 "select * from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
                 new BeanPropertyRowMapper<Workorder>(Workorder.class)
         );
+		
+		if(lWorkOrders.size() > 0) {
+			for(int i = 0; i < lWorkOrders.size(); i++) {
+				Optional<Workorder> optWorkOrder = workOrderRepository.findById(lWorkOrders.get(i).getId());
+				lWorkOrders.set(i, optWorkOrder.get());
+			}
+		}
+		
+		return lWorkOrders;
     }
 	
 	private String arrayToStringClause(String[] in) {

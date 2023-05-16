@@ -72,17 +72,17 @@ public class Street implements Serializable {
     private City city ; 
 
 
-    @OneToMany(mappedBy="street")
-    private List<Workorder> listOfWorkorder ; 
-
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="str_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
-    @ManyToOne
+    @OneToMany(mappedBy="street")
+    private List<Workorder> listOfWorkorder ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="str_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -185,12 +185,12 @@ public class Street implements Serializable {
         return this.city;
     } 
 
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
-    } 
-
     public Users getCreatedBy() {
         return this.createdBy;
+    } 
+
+    public List<Workorder> getListOfWorkorder() {
+        return this.listOfWorkorder;
     } 
 
     public Users getModifiedBy() {

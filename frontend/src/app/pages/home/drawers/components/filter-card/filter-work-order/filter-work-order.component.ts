@@ -30,7 +30,7 @@ export class FilterWorkOrderComponent implements OnInit {
    * obtained from the `filterService` or cached in the `workOrders` property.
    */
   public getFeatures(): any[] {
-    const res = this.filterService.getData('intervention');
+    const res = this.filterService.getData('workorder');
     if (this.workOrders?.length !== res?.length) {
       if (!(res[0] instanceof MapFeature)) {
         this.isFromCache = true;
@@ -50,9 +50,9 @@ export class FilterWorkOrderComponent implements OnInit {
   }
 
   public openIntervention(feature: MapFeature): void {
-    const layer = 'intervention';
+    const layer = 'workorder';
     const route =
-      this.data.type === 'intervention'
+      this.data.type === 'workorder'
         ? DrawerRouteEnum.WORKORDER
         : DrawerRouteEnum.DEMANDE;
     this.drawer.navigateTo(route, [feature.id], { layer, ...feature });

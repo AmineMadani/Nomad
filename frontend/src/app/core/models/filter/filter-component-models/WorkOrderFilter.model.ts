@@ -5,14 +5,14 @@ export class WorkOrderFilter implements BaseFilter {
   public id: number;
   public isRecordableFavorite: boolean;
   public position: number;
-  public type: 'intervention' | 'demande';
+  public type: 'workorder' | 'demande';
   public data: WorkOrderData[];
 
   constructor(
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    type: 'intervention' | 'demande', 
+    type: 'workorder' | 'demande', 
     data: WorkOrderData[]
   ) {
     this.id = id;

@@ -45,10 +45,10 @@ public class Domains implements Serializable {
     private Boolean domValid ;
 
     @Column(name="dom_ucre_id")
-    private Integer domUcreId ;
+    private Long domUcreId ;
 
     @Column(name="dom_umod_id")
-    private Integer domUmodId ;
+    private Long domUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dom_dcre")
@@ -61,32 +61,32 @@ public class Domains implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @OneToMany(mappedBy="domains")
+    private List<AssetType> listOfAssetType ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dom_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
 
 
     @OneToMany(mappedBy="domains")
-    private List<AssetType> listOfAssetType ; 
+    private List<Domains> listOfDomains ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dom_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
     @OneToMany(mappedBy="domains")
-    private List<Domains> listOfDomains ; 
+    private List<Layer> listOfLayer ; 
 
 
     @OneToMany(mappedBy="domains")
     private List<Tree> listOfTree ; 
-
-
-    @OneToMany(mappedBy="domains")
-    private List<Layer> listOfLayer ; 
 
 
     @ManyToOne
@@ -144,17 +144,17 @@ public class Domains implements Serializable {
         return this.domValid;
     }
 
-    public void setDomUcreId( Integer domUcreId ) {
+    public void setDomUcreId( Long domUcreId ) {
         this.domUcreId = domUcreId ;
     }
-    public Integer getDomUcreId() {
+    public Long getDomUcreId() {
         return this.domUcreId;
     }
 
-    public void setDomUmodId( Integer domUmodId ) {
+    public void setDomUmodId( Long domUmodId ) {
         this.domUmodId = domUmodId ;
     }
-    public Integer getDomUmodId() {
+    public Long getDomUmodId() {
         return this.domUmodId;
     }
 
@@ -173,28 +173,28 @@ public class Domains implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    } 
-
     public List<AssetType> getListOfAssetType() {
         return this.listOfAssetType;
     } 
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
     public List<Domains> getListOfDomains() {
         return this.listOfDomains;
     } 
 
-    public List<Tree> getListOfTree() {
-        return this.listOfTree;
+    public Users getCreatedBy() {
+        return this.createdBy;
     } 
 
     public List<Layer> getListOfLayer() {
         return this.listOfLayer;
+    } 
+
+    public List<Tree> getListOfTree() {
+        return this.listOfTree;
     } 
 
     public Domains getDomains() {

@@ -58,7 +58,7 @@ public class ContractActivity implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="cta_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
@@ -68,7 +68,7 @@ public class ContractActivity implements Serializable {
     private List<Contract> listOfContract ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="cta_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 

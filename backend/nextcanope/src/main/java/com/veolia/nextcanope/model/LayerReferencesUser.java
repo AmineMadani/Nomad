@@ -71,7 +71,7 @@ public class LayerReferencesUser implements Serializable {
     private LayerReferences layerReferences ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lru_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -82,7 +82,7 @@ public class LayerReferencesUser implements Serializable {
     private Users user ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lru_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 

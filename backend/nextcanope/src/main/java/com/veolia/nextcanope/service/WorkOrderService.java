@@ -19,20 +19,20 @@ import com.veolia.nextcanope.repository.WorkOrderRepositoryImpl;
 public class WorkOrderService {
 
     @Autowired
-    private WorkOrderRepositoryImpl interventionRepositoryImpl;
+    private WorkOrderRepositoryImpl workOrderRepositoryImpl;
 
     /**
-	 * Retrieve the list of workorder by most recent date planned limited in number with offset for pagination
+	 * Retrieve the list of workorders by most recent date planned limited in number with offset for pagination
 	 * @param limitNb The number of workorder to get
 	 * @param offset The pagination offset to set
      * @param searchParameter 
 	 * @return the workorder list
 	 */
-    public List<WorkOrderDto> getInterventionsWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
-    	List<Workorder> lWorkOrderEntity = interventionRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
+    public List<WorkOrderDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
+    	List<Workorder> lWorkOrderEntity = workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
     	List<WorkOrderDto> lWorkOrderDto = new ArrayList<WorkOrderDto>();
-    	lWorkOrderEntity.forEach(interventionEntity -> {
-    		lWorkOrderDto.add(new WorkOrderDto(interventionEntity));
+    	lWorkOrderEntity.forEach(workOrderEntity -> {
+    		lWorkOrderDto.add(new WorkOrderDto(workOrderEntity));
     	});
         return lWorkOrderDto;
     }

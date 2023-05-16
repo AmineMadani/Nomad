@@ -142,7 +142,7 @@ declare
 begin
   with
   records as
-  (select split_part(layer, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(lyr_table_name, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
@@ -153,7 +153,7 @@ begin
   )
   SELECT jsonb_build_object(
   'type',     'FeatureCollection',
-  'name',     layer||'_index',
+  'name',     lyr_table_name||'_index',
   'features', jsonb_agg(feature))
   from features f
   into geojson;

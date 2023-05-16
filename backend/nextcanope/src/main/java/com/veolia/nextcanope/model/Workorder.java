@@ -151,7 +151,7 @@ public class Workorder implements Serializable {
     private Asset asset ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wko_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -162,20 +162,20 @@ public class Workorder implements Serializable {
     private Contract contract ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wko_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
     @ManyToOne
-    @JoinColumn(name="cty_id", referencedColumnName="id", insertable=false, updatable=false)
-    private City city ; 
+    @JoinColumn(name="str_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Street street ; 
 
 
     @ManyToOne
-    @JoinColumn(name="str_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Street street ; 
+    @JoinColumn(name="cty_id", referencedColumnName="id", insertable=false, updatable=false)
+    private City city ; 
 
 
     /**
@@ -439,12 +439,12 @@ public class Workorder implements Serializable {
         return this.createdBy;
     } 
 
-    public City getCity() {
-        return this.city;
-    } 
-
     public Street getStreet() {
         return this.street;
+    } 
+
+    public City getCity() {
+        return this.city;
     } 
 
 

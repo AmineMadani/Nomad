@@ -38,6 +38,6 @@ public class DemandController {
     					})
     			})
     public List<WorkOrderDto> getDemands(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
-        return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
+        return this.interventionService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
 }

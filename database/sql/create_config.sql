@@ -84,8 +84,8 @@ create table domains
 	dom_llabel                    text,
   -- Technical metadata
   dom_valid                    boolean default True,
-	dom_ucre_id                  integer references users(id) default 0,
-  dom_umod_id                  integer references users(id) default 0,
+	dom_ucre_id                  bigint references users(id) default 0,
+  dom_umod_id                  bigint references users(id) default 0,
   dom_dcre                     timestamp without time zone  default current_timestamp,
   dom_dmod                     timestamp without time zone  default current_timestamp
 );
@@ -216,7 +216,7 @@ create table layer
     ast_id                   bigint references asset_type(id) ,-- code hérité de CANOPE / PICRU (20, 21...)
     tre_group_id             bigint references tree(id),
     tre_simplified_group_id  bigint references tree(id),
-    lyr_table_name           regclass unique not null,
+    lyr_table_name           text unique not null,
     lyr_geom_column_name     text not null,
     lyr_uuid_column_name     text not null,
     lyr_geom_srid            text not null,
@@ -658,7 +658,7 @@ comment on column ast_wtr.asw_dmod is 'Last modification date';
 create table if not exists asset(
 id                           bigserial primary key,
 ass_obj_ref                  text,
-ass_obj_table                regclass NOT NULL REFERENCES layer(lyr_table_name),
+ass_obj_table                text NOT NULL REFERENCES layer(lyr_table_name),
 -- Technical metadata
 ass_valid                    boolean default True,
 ass_ucre_id                  bigint references users(id) default 0,
@@ -786,8 +786,8 @@ create table if not exists task
   tsk_completion_date	     timestamp without time zone,
   tsk_realization_user     bigint,
   -- Technical metadata
-  tsk_ucre_id              integer references users(id) default 0,
-  tsk_umod_id              integer references users(id) default 0,
+  tsk_ucre_id              bigint references users(id) default 0,
+  tsk_umod_id              bigint references users(id) default 0,
   tsk_dcre        	       timestamp without time zone  default current_timestamp,
   tsk_dmod                 timestamp without time zone  default current_timestamp,
   tsk_ddel                 timestamp without time zone default null,

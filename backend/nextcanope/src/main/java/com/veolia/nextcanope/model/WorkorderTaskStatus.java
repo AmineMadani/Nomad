@@ -64,21 +64,21 @@ public class WorkorderTaskStatus implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wts_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
     @OneToMany(mappedBy="workorderTaskStatus")
-    private List<Workorder> listOfWorkorder ; 
-
-
-    @OneToMany(mappedBy="workorderTaskStatus")
     private List<Task> listOfTask ; 
 
 
-    @ManyToOne
+    @OneToMany(mappedBy="workorderTaskStatus")
+    private List<Workorder> listOfWorkorder ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wts_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -174,12 +174,12 @@ public class WorkorderTaskStatus implements Serializable {
         return this.createdBy;
     } 
 
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
-    } 
-
     public List<Task> getListOfTask() {
         return this.listOfTask;
+    } 
+
+    public List<Workorder> getListOfWorkorder() {
+        return this.listOfWorkorder;
     } 
 
     public Users getModifiedBy() {

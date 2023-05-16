@@ -61,14 +61,10 @@ public class LayerReferences implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lrf_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
-
-
-    @OneToMany(mappedBy="layerReferences")
-    private List<LayerReferencesDefault> listOfLayerReferencesDefault ; 
 
 
     @ManyToOne
@@ -77,10 +73,14 @@ public class LayerReferences implements Serializable {
 
 
     @OneToMany(mappedBy="layerReferences")
+    private List<LayerReferencesDefault> listOfLayerReferencesDefault ; 
+
+
+    @OneToMany(mappedBy="layerReferences")
     private List<LayerReferencesUser> listOfLayerReferencesUser ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lrf_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
@@ -169,12 +169,12 @@ public class LayerReferences implements Serializable {
         return this.modifiedBy;
     } 
 
-    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
-        return this.listOfLayerReferencesDefault;
-    } 
-
     public Layer getLayer() {
         return this.layer;
+    } 
+
+    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
+        return this.listOfLayerReferencesDefault;
     } 
 
     public List<LayerReferencesUser> getListOfLayerReferencesUser() {

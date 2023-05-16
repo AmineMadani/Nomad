@@ -65,14 +65,16 @@ public class AssetType implements Serializable {
     private List<Layer> listOfLayer ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ast_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
 
 
-    @OneToMany(mappedBy="assetType")
-    private List<AstWtr> listOfAstWtr ; 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ast_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users createdBy ; 
 
 
     @ManyToOne
@@ -80,10 +82,8 @@ public class AssetType implements Serializable {
     private Domains domains ; 
 
 
-    @ManyToOne
-    @JoinColumn(name="ast_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
+    @OneToMany(mappedBy="assetType")
+    private List<AstWtr> listOfAstWtr ; 
 
 
     /**
@@ -173,16 +173,16 @@ public class AssetType implements Serializable {
         return this.modifiedBy;
     } 
 
-    public List<AstWtr> getListOfAstWtr() {
-        return this.listOfAstWtr;
+    public Users getCreatedBy() {
+        return this.createdBy;
     } 
 
     public Domains getDomains() {
         return this.domains;
     } 
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public List<AstWtr> getListOfAstWtr() {
+        return this.listOfAstWtr;
     } 
 
 

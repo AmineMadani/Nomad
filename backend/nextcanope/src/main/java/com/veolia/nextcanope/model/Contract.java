@@ -77,21 +77,21 @@ public class Contract implements Serializable {
     private ContractActivity contractActivity ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
     @OneToMany(mappedBy="contract")
-    private List<Workorder> listOfWorkorder ; 
-
-
-    @OneToMany(mappedBy="contract")
     private List<Task> listOfTask ; 
 
 
-    @ManyToOne
+    @OneToMany(mappedBy="contract")
+    private List<Workorder> listOfWorkorder ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -205,12 +205,12 @@ public class Contract implements Serializable {
         return this.createdBy;
     } 
 
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
-    } 
-
     public List<Task> getListOfTask() {
         return this.listOfTask;
+    } 
+
+    public List<Workorder> getListOfWorkorder() {
+        return this.listOfWorkorder;
     } 
 
     public Users getModifiedBy() {

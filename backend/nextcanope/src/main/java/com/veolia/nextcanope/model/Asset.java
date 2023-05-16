@@ -55,18 +55,18 @@ public class Asset implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @OneToMany(mappedBy="asset")
-    private List<Workorder> listOfWorkorder ; 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ass_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users modifiedBy ; 
 
 
     @OneToMany(mappedBy="asset")
     private List<Task> listOfTask ; 
 
 
-    @ManyToOne
-    @JoinColumn(name="ass_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
+    @OneToMany(mappedBy="asset")
+    private List<Workorder> listOfWorkorder ; 
 
 
     @ManyToOne
@@ -74,7 +74,7 @@ public class Asset implements Serializable {
     private Layer layer ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ass_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
@@ -145,16 +145,16 @@ public class Asset implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
     public List<Task> getListOfTask() {
         return this.listOfTask;
     } 
 
-    public Users getModifiedBy() {
-        return this.modifiedBy;
+    public List<Workorder> getListOfWorkorder() {
+        return this.listOfWorkorder;
     } 
 
     public Layer getLayer() {

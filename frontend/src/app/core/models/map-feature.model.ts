@@ -1,9 +1,9 @@
 export enum InterventionStatusEnum {
-  T = 'T', //Terminée
-  I = 'I', // Infructueuse
-  P = 'P', // Planifiée
-  NP = 'NP', // Non planifiée
-  NF = 'NF', // Non fait
+  TERMINE = 'TERMINE',
+  ANNULE = 'ANNULE',
+  PLANIFIE = 'PLANIFIE',
+  ENVOYEPLANIF = 'ENVOYEPLANIF',
+  CREE = 'CREE',
 }
 
 export class MapFeature {
@@ -46,14 +46,14 @@ export class MapFeature {
 
   public getStatusIcon(): string {
     switch (this.status) {
-      case InterventionStatusEnum.NF:
+      case InterventionStatusEnum.CREE:
         return 'checkmark';
-      case InterventionStatusEnum.I:
+      case InterventionStatusEnum.ANNULE:
         return 'close';
-      case InterventionStatusEnum.P:
-      case InterventionStatusEnum.NP:
+      case InterventionStatusEnum.ENVOYEPLANIF:
+      case InterventionStatusEnum.PLANIFIE:
         return 'calendar';
-      case InterventionStatusEnum.T:
+      case InterventionStatusEnum.TERMINE:
         return 'checkmark-done';
       default:
         return '';
@@ -62,15 +62,15 @@ export class MapFeature {
 
   public getStatusLabel(): string {
     switch (this.status) {
-      case InterventionStatusEnum.NF:
-        return 'Non fait';
-      case InterventionStatusEnum.I:
-        return 'Infructueuse';
-      case InterventionStatusEnum.P:
+      case InterventionStatusEnum.CREE:
+        return 'Créé';
+      case InterventionStatusEnum.ANNULE:
+        return 'Annulé';
+      case InterventionStatusEnum.PLANIFIE:
         return 'Planifiée';
-      case InterventionStatusEnum.NP:
-        return 'Non Planifiée';
-      case InterventionStatusEnum.T:
+      case InterventionStatusEnum.ENVOYEPLANIF:
+        return 'Envoyé à la planification';
+      case InterventionStatusEnum.TERMINE:
         return 'Terminée';
       default:
         return '';

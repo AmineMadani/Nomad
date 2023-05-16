@@ -58,196 +58,196 @@ public class Users implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<AstWtr> listOfModifiedAstWtr ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<AstWtr> listOfCreatedAstWtr ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Users> listOfModifiedUsers ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<AssetType> listOfModifiedAssetType ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Task> listOfModifiedTask ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<AssetType> listOfCreatedAssetType ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Task> listOfCreatedTask ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<ContractActivity> listOfModifiedContractActivity ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Asset> listOfModifiedAsset ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<ContractActivity> listOfCreatedContractActivity ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<City> listOfModifiedCity ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Contract> listOfModifiedContract ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Asset> listOfCreatedAsset ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<City> listOfCreatedCity ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Contract> listOfCreatedContract ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferences> listOfLayerModifiedReferences ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferences> listOfLayerCreatedReferences ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<AppGrid> listOfModifiedAppGrid ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<AppGrid> listOfCreatedAppGrid ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Basemaps> listOfModifiedBasemaps ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<WorkorderTaskStatus> listOfModifiedWorkorderTaskStatus ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Basemaps> listOfCreatedBasemaps ; 
 
 
-    @OneToMany(mappedBy="modifiedUser")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedUser")
     private List<Tree> listOfModifiedTree ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason ; 
 
 
-    @OneToMany(mappedBy="createdUser")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdUser")
     private List<Tree> listOfCreatedTree ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<WorkorderTaskReason> listOfCreatedWorkorderTaskReason ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferencesDefault> listOfModifiedLayerReferencesDefault ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Users> listOfCreatedUsers ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Street> listOfModifiedStreet ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<VlTopologyType> listOfModifiedVlTopologyType ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Report> listOfModifiedReport ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Domains> listOfModifiedDomains ; 
 
 
-    @OneToMany(mappedBy="user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="user")
     private List<LayerReferencesUser> listOfLayerReferences ; 
 
 
-    @OneToMany(mappedBy="createdBy")
-    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
-
-
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Street> listOfCreatedStreet ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Report> listOfCreatedReport ; 
 
 
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Domains> listOfCreatedDomains ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
-    private List<Workorder> listOfModifiedWorkorder ; 
-
-
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
 
 
-    @OneToMany(mappedBy="modifiedBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<Workorder> listOfModifiedWorkorder ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Layer> listOfModifiedLayer ; 
 
 
-    @OneToMany(mappedBy="createdBy")
-    private List<Workorder> listOfCreatedWorkorder ; 
-
-
-    @OneToMany(mappedBy="createdBy")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
 
 
-    @ManyToOne
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Workorder> listOfCreatedWorkorder ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Layer> listOfCreatedLayer ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
-
-
-    @OneToMany(mappedBy="createdBy")
-    private List<Layer> listOfCreatedLayer ; 
 
 
     /**
@@ -466,12 +466,12 @@ public class Users implements Serializable {
         return this.listOfLayerReferences;
     } 
 
-    public List<VlTopologyType> getListOfCreatedVlTopologyType() {
-        return this.listOfCreatedVlTopologyType;
-    } 
-
     public List<Street> getListOfCreatedStreet() {
         return this.listOfCreatedStreet;
+    } 
+
+    public List<VlTopologyType> getListOfCreatedVlTopologyType() {
+        return this.listOfCreatedVlTopologyType;
     } 
 
     public List<Report> getListOfCreatedReport() {
@@ -482,32 +482,32 @@ public class Users implements Serializable {
         return this.listOfCreatedDomains;
     } 
 
-    public List<Workorder> getListOfModifiedWorkorder() {
-        return this.listOfModifiedWorkorder;
-    } 
-
     public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
         return this.listOfModifiedLayerReferences;
+    } 
+
+    public List<Workorder> getListOfModifiedWorkorder() {
+        return this.listOfModifiedWorkorder;
     } 
 
     public List<Layer> getListOfModifiedLayer() {
         return this.listOfModifiedLayer;
     } 
 
-    public List<Workorder> getListOfCreatedWorkorder() {
-        return this.listOfCreatedWorkorder;
-    } 
-
     public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
         return this.listOfCreatedLayerReferences;
     } 
 
-    public Users getModifiedBy() {
-        return this.modifiedBy;
+    public List<Workorder> getListOfCreatedWorkorder() {
+        return this.listOfCreatedWorkorder;
     } 
 
     public List<Layer> getListOfCreatedLayer() {
         return this.listOfCreatedLayer;
+    } 
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
 

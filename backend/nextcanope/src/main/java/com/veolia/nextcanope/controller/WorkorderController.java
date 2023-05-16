@@ -23,21 +23,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/exploitation/intervention")
-@Tag(name = "Exploitation - Intervention Management System", description = "Operations pertaining to intervention in the Intervention Management System")
-public class InterventionController {
+@RequestMapping("/exploitation/workorder")
+@Tag(name = "Exploitation - WorkOrder Management System", description = "Operations pertaining to workOrder in the WorkOrder Management System")
+public class WorkorderController {
 
     @Autowired
-    public WorkOrderService interventionService;
+    public WorkOrderService workOrderService;
 
     @PostMapping(path = "pagination/{limit}/{offset}")
-    @Operation(summary = "Get the interventions with search parameter in pagination format")
+    @Operation(summary = "Get the workorders with search parameter in pagination format")
     @ApiResponses(value = {
-    			@ApiResponse(description= "The intervention filtered", content =  {
+    			@ApiResponse(description= "The workorders filtered", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<WorkOrderDto> getInterventions(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
-        return this.interventionService.getInterventionsWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
+    public List<WorkOrderDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
+        return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
 }

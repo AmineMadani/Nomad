@@ -58,18 +58,18 @@ public class AstWtr implements Serializable {
     private AssetType assetType ; 
 
 
-    @ManyToOne
-    @JoinColumn(name="wtr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskReason workorderTaskReason ; 
-
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="asw_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
 
 
     @ManyToOne
+    @JoinColumn(name="wtr_id", referencedColumnName="id", insertable=false, updatable=false)
+    private WorkorderTaskReason workorderTaskReason ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="asw_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
@@ -137,12 +137,12 @@ public class AstWtr implements Serializable {
         return this.assetType;
     } 
 
-    public WorkorderTaskReason getWorkorderTaskReason() {
-        return this.workorderTaskReason;
-    } 
-
     public Users getModifiedBy() {
         return this.modifiedBy;
+    } 
+
+    public WorkorderTaskReason getWorkorderTaskReason() {
+        return this.workorderTaskReason;
     } 
 
     public Users getCreatedBy() {

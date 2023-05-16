@@ -99,7 +99,7 @@ export const layers: Layer[] = [
   },
   {
     id: 11,
-    key: 'intervention',
+    key: 'workorder',
     type: LayerTypeEnum.VECTOR,
     zindex: 1,
     minZoom: 16,

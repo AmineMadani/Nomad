@@ -98,16 +98,14 @@ public class Layer implements Serializable {
     private Domains domains ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lyr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
 
 
-    @ManyToOne
-    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
+    @OneToMany(mappedBy="layer")
+    private List<Asset> listOfAsset ; 
 
 
     @ManyToOne
@@ -115,17 +113,19 @@ public class Layer implements Serializable {
     private AssetType assetType ; 
 
 
-    @OneToMany(mappedBy="layer")
-    private List<Asset> listOfAsset ; 
-
-
-    @OneToMany(mappedBy="layer")
-    private List<LayerReferences> listOfLayerReferences ; 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users createdBy ; 
 
 
     @ManyToOne
     @JoinColumn(name="tre_simplified_group_id", referencedColumnName="id", insertable=false, updatable=false)
     private Tree simplifiedTree ; 
+
+
+    @OneToMany(mappedBy="layer")
+    private List<LayerReferences> listOfLayerReferences ; 
 
 
     /**
@@ -282,24 +282,24 @@ public class Layer implements Serializable {
         return this.modifiedBy;
     } 
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
     } 
 
     public AssetType getAssetType() {
         return this.assetType;
     } 
 
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
-    } 
-
-    public List<LayerReferences> getListOfLayerReferences() {
-        return this.listOfLayerReferences;
+    public Users getCreatedBy() {
+        return this.createdBy;
     } 
 
     public Tree getSimplifiedTree() {
         return this.simplifiedTree;
+    } 
+
+    public List<LayerReferences> getListOfLayerReferences() {
+        return this.listOfLayerReferences;
     } 
 
 

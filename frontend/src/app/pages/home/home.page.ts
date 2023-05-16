@@ -56,7 +56,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.mapService.getBaseMaps().subscribe(backLayerArray => {
-      console.log(backLayerArray);
       this.backLayers = backLayerArray.filter(bl => bl.mapDisplay)
     });
     this.initDrawer();

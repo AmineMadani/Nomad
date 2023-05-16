@@ -67,10 +67,10 @@ public class Task implements Serializable {
     private Long tskRealizationUser ;
 
     @Column(name="tsk_ucre_id")
-    private Integer tskUcreId ;
+    private Long tskUcreId ;
 
     @Column(name="tsk_umod_id")
-    private Integer tskUmodId ;
+    private Long tskUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_dcre")
@@ -106,7 +106,7 @@ public class Task implements Serializable {
     private WorkorderTaskStatus workorderTaskStatus ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tsk_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
@@ -117,7 +117,7 @@ public class Task implements Serializable {
     private Asset asset ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tsk_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
@@ -229,17 +229,17 @@ public class Task implements Serializable {
         return this.tskRealizationUser;
     }
 
-    public void setTskUcreId( Integer tskUcreId ) {
+    public void setTskUcreId( Long tskUcreId ) {
         this.tskUcreId = tskUcreId ;
     }
-    public Integer getTskUcreId() {
+    public Long getTskUcreId() {
         return this.tskUcreId;
     }
 
-    public void setTskUmodId( Integer tskUmodId ) {
+    public void setTskUmodId( Long tskUmodId ) {
         this.tskUmodId = tskUmodId ;
     }
-    public Integer getTskUmodId() {
+    public Long getTskUmodId() {
         return this.tskUmodId;
     }
 

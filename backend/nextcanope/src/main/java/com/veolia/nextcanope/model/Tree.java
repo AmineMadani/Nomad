@@ -68,13 +68,13 @@ public class Tree implements Serializable {
     private Domains domains ; 
 
 
-    @ManyToOne
-    @JoinColumn(name="tre_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users modifiedUser ; 
-
-
     @OneToMany(mappedBy="tree")
     private List<Tree> listOfTree ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="tre_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Users modifiedUser ; 
 
 
     @OneToMany(mappedBy="simplifiedTree")
@@ -85,7 +85,7 @@ public class Tree implements Serializable {
     private List<Layer> listOfLayer ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tre_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
     private Users createdUser ; 
 
@@ -185,12 +185,12 @@ public class Tree implements Serializable {
         return this.domains;
     } 
 
-    public Users getModifiedUser() {
-        return this.modifiedUser;
-    } 
-
     public List<Tree> getListOfTree() {
         return this.listOfTree;
+    } 
+
+    public Users getModifiedUser() {
+        return this.modifiedUser;
     } 
 
     public List<Layer> getListOfSimplifiedLayer() {

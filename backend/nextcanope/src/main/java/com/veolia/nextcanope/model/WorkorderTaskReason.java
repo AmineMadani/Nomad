@@ -70,24 +70,24 @@ public class WorkorderTaskReason implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wtr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wtr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users createdBy ; 
 
 
     @OneToMany(mappedBy="workorderTaskReason")
-    private List<Workorder> listOfWorkorder ; 
+    private List<Task> listOfTask ; 
 
 
     @OneToMany(mappedBy="workorderTaskReason")
-    private List<Task> listOfTask ; 
+    private List<Workorder> listOfWorkorder ; 
 
 
     @OneToMany(mappedBy="workorderTaskReason")
@@ -202,12 +202,12 @@ public class WorkorderTaskReason implements Serializable {
         return this.createdBy;
     } 
 
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
-    } 
-
     public List<Task> getListOfTask() {
         return this.listOfTask;
+    } 
+
+    public List<Workorder> getListOfWorkorder() {
+        return this.listOfWorkorder;
     } 
 
     public List<AstWtr> getListOfAstWtr() {
