@@ -93,6 +93,9 @@ public class Task implements Serializable {
     @Column(name="geom", length=2147483647)
     private String geom ;
 
+    @Column(name="tsk_agent_nb")
+    private Integer tskAgentNb ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -283,6 +286,13 @@ public class Task implements Serializable {
     }
     public String getGeom() {
         return this.geom;
+    }
+
+    public void setTskAgentNb( Integer tskAgentNb ) {
+        this.tskAgentNb = tskAgentNb ;
+    }
+    public Integer getTskAgentNb() {
+        return this.tskAgentNb;
     }
 
     //--- GETTERS FOR LINKS

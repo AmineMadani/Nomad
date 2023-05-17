@@ -260,3 +260,9 @@ mat-tab-group.mobile-tabs {
     margin-left: 16px;
   }
 }
+
+.alert-checkbox-group.sc-ion-alert-md::-webkit-scrollbar,
+.alert-radio-group.sc-ion-alert-md::-webkit-scrollbar,
+.alert-message.sc-ion-alert-md::-webkit-scrollbar {
+    display: block;
+}

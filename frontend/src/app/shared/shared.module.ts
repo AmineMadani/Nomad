@@ -31,6 +31,7 @@ import { FormSelectReferentialComponent } from './form-editor/properties/form-se
 import { FormWorkOrderComponent } from './form-editor/properties/form-work-order/form-work-order.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -69,7 +70,8 @@ import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle
     FormsModule,
     ReactiveFormsModule,
     MatStepperModule,
-    MatTabsModule
+    MatTabsModule,
+    ScrollingModule
   ],
   exports:[
     MainToolbarComponent,

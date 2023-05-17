@@ -21,17 +21,19 @@ export interface ILayerReferences {
 
 export class AppDB extends Dexie {
   constructor() {
-    super('nextcanope');
+    super('nomad');
     this.version(1).stores({
         tiles: 'key',
         indexes: 'key',
-        layerReferences: 'key'
+        layerReferences: 'key',
+        referentials: 'key'
     });
   }
 
   tiles: Dexie.Table<ITiles, string>;
   indexes: Dexie.Table<IIndexes, string>;
   layerReferences: Dexie.Table<ILayerReferences, string>;
+  referentials: Dexie.Table<any, string>;
 }
 
 export const db = new AppDB();

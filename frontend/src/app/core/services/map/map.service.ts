@@ -318,7 +318,7 @@ export class MapService {
         if (properties['geometry']) delete properties['geometry'];
         // We pass the layerKey to the drawer to be able to select the equipment on the layer
 
-        properties['layer'] = layerKey;
+        properties['lyr_table_name'] = layerKey;
         let route;
         switch (layerKey) {
           case 'workorder':

@@ -699,6 +699,7 @@ create table if not exists workorder
   wko_realization_user         text,
   wko_realization_cell         text,
   wko_realization_comment      text,
+  wko_agent_nb                 INT,
   ------
   cty_id                       bigint references city(id),
   cty_llabel                   text,
@@ -785,6 +786,7 @@ create table if not exists task
   tsk_planning_end_date	   timestamp without time zone,
   tsk_completion_date	     timestamp without time zone,
   tsk_realization_user     bigint,
+  tsk_agent_nb             INT,
   -- Technical metadata
   tsk_ucre_id              bigint references users(id) default 0,
   tsk_umod_id              bigint references users(id) default 0,

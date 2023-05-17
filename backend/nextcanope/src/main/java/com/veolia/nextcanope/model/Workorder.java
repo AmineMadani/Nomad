@@ -129,6 +129,9 @@ public class Workorder implements Serializable {
     @Column(name="geom", length=2147483647)
     private String geom ;
 
+    @Column(name="wko_agent_nb")
+    private Integer wkoAgentNb ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -408,6 +411,13 @@ public class Workorder implements Serializable {
     }
     public String getGeom() {
         return this.geom;
+    }
+
+    public void setWkoAgentNb( Integer wkoAgentNb ) {
+        this.wkoAgentNb = wkoAgentNb ;
+    }
+    public Integer getWkoAgentNb() {
+        return this.wkoAgentNb;
     }
 
     //--- GETTERS FOR LINKS

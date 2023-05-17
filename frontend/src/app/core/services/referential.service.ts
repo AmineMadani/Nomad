@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { PreferenceService } from './preference.service';
 import { ReferentialDataService } from './dataservices/referential.dataservice';
+import { AppDB } from '../models/app-db.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReferentialService {
 
+  private db: AppDB;
+
   constructor(
-    private preferenceService: PreferenceService,
     private referentialDataService: ReferentialDataService
-  ) { }
+  ) { 
+    this.db = new AppDB();
+  }
 
   /**
    * Get the wanted referential from local storage.
@@ -19,10 +22,10 @@ export class ReferentialService {
    * @returns A Promise that resolves to the referential
    */
   async getReferential(referentialName: string): Promise<any[]> {
-    let referential: any[] = await this.preferenceService.getPreference(referentialName);
+    let referential = (await this.db.referentials.get(referentialName))?.data;
     if(!referential) {
       referential = await firstValueFrom(this.referentialDataService.getReferential(referentialName));
-      this.preferenceService.setPreference(referentialName,referential);
+      await this.db.referentials.put({ data: referential, key: referentialName }, referentialName);
     }
     return referential;
   }
