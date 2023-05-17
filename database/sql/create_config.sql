@@ -412,5 +412,5 @@ COMMENT ON COLUMN config.layer_references_user.created_date IS 'Created date';
 COMMENT ON COLUMN config.layer_references_user.last_edited_date IS 'Last edited date';
 
 --update table 
-alter table config.app_user ADD Column user_context jsonb ;
+alter table config.app_user ADD Column user_context TEXT ;
 COMMENT ON COLUMN config.app_user.user_context IS 'User context';

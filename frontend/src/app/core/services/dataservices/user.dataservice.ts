@@ -28,17 +28,9 @@ export class UserDataService {
    */
   public saveUsercontext(userContext : UserContext) : void {
     this.http.put(`${this.configurationService.apiUrl}user/user-context/${userContext.userId}`, userContext).subscribe({
-    next : () => console.log("ok"),
+    //next : () => ,
     error : (err) => console.error(err)
-  })
-}
-
-/**
- * Lecture en base des dernières préférences sauvegardées d'un utilisateur
- * @param id : Identifiant unique de l'utilisateur
- */
-  public  getUsercontext(id : number) : Observable<UserContext> {
-    return this.http.get<UserContext>(`${this.configurationService.apiUrl}user/user-context/${id}`);
+    })
   }
 }
 

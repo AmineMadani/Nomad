@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { UserInfo } from 'angular-oauth2-oidc';
 import View from 'ol/View';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
@@ -15,6 +16,7 @@ import { ConfigurationService } from 'src/app/core/services/configuration.servic
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { PreferenceService } from 'src/app/core/services/preference.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -36,7 +38,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private mapService : MapService,
     private userDataService : UserDataService,
     private preferenceService : PreferenceService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private layerService : LayerService
   ) {}
 
   @Input('title') title: string;
@@ -109,7 +112,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       throw new Error('failed to load user informations');
     }
     let filterJson=JSON.stringify(filterStored, (key, value) => {
-      if (typeof value.getType !== "undefined") {
+      if (typeof value?.getType !== "undefined") {
       value.type=value.getType();
       }
       return value;
@@ -128,9 +131,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    */
   public async restoreContext(): Promise<void> {
     const userId: User = await this.preferenceService.getPreference('user');
-    const userContext = this.userDataService.getUsercontext(userId.id).subscribe((userContext: UserContext) => {
-      this.mapService.getView().setZoom(userContext.zoom);
-      let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
+    const userInfo = this.userDataService.getUserInformation().subscribe((userInfo: User) => {
+      this.mapService.getView().setZoom(userInfo.userContext.zoom);
+      let userPrefJson = JSON.parse(userInfo.userContext.userPreferences, (key, value) => {
         switch (value.type) {
           case 'accordeonFilter':
             return this.utilsService.deserialize(new AccordeonFilter(), value);
@@ -148,9 +151,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
             return value;
         }
       });
-      console.log("userPrefJson", userPrefJson);
       this.favoriteService.setFilter(userPrefJson);
-      this.mapService.getView().setCenter(userContext.center);
+      this.mapService.getView().setCenter(userInfo.userContext.center);
     });
   }
 }

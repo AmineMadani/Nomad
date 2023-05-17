@@ -34,6 +34,12 @@ export class UtilsService {
     return JSON.stringify(jsonObject);
   }
 
+  /**
+   * Derialize a Json to a type
+   * @param instanceCible l'objet qui va contenir les valeurs
+   * @param instanceData  l'objet source
+   * @returns an full filled object
+   */
   deserialize(instanceCible: any,instanceData: any):any {
     const keys = Object.keys(instanceCible);
     for (const key of keys) {

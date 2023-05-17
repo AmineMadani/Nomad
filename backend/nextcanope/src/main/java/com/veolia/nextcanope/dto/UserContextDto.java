@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.dto;
 
-public class userContextDto {
+public class UserContextDto {
     private String userPreferences;
 
     public  String getUserPreferences() { return userPreferences;}

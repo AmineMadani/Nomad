@@ -3,6 +3,7 @@ import { IonAccordionGroup } from '@ionic/angular';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class FilterAccordeonComponent implements OnInit {
   constructor(
     private mapService: MapService,
     private favService: FavoriteService,
+    private layerService : LayerService
   ) { }
 
   @Input() datas: AccordeonData[];
@@ -50,37 +52,43 @@ export class FilterAccordeonComponent implements OnInit {
   onCheckboxChange(data: AccordeonData, e: Event): void {
     data.value = (e as CustomEvent).detail.checked;
     data.isIndeterminate = data.value ? false : data.isIndeterminate;
-
+    data.children?.forEach(element => {
+      element.value = data.value;
+    });
     this.updateLayer(data);
   }
 
-  private updateLayer(data: AccordeonData) {
-    if (!data.isIndeterminate) {
-      if (data.value) {
+  /**
+   * Update layer(s) with AccordeonData
+   * @param data : AccordeonData
+   */
+  private updateLayer(data: AccordeonData) : void {
+    if (!data.isIndeterminate || data.children?.some( oneChild => oneChild.value) ) {
         data.children?.forEach((child: AccordeonData) => {
-          if (!child.value) {
-            child.value = true;
-            if (child.key && child.key.length > 0)
-              this.mapService.addEventLayer(child.key);
-          }
+            if (child.value) {
+              if (child.key )
+                this.mapService.addEventLayer(child.key);
+            }
+            else {
+              if (child.key)
+                this.mapService.removeEventLayer(child.key);
+            }
         });
-        if (data.key && data.key.length > 0)
+        if (data.key )
           this.mapService.addEventLayer(data.key);
       } else {
         data.children?.forEach((child: AccordeonData) => {
           if (child.value) {
-            child.value = false;
-            if (child.key && child.key.length > 0)
-              this.mapService.removeEventLayer(child.key);
+            if (child.key )
+              this.mapService.addEventLayer(child.key);
           } else {
-            if (child.key && child.key.length > 0)
-              this.mapService.removeEventLayer(child.key);
+            if (child.key )
+                this.mapService.removeEventLayer(child.key);
           }
         });
-        if (data.key && data.key.length > 0)
+        if (data.key)
           this.mapService.removeEventLayer(data.key);
       }
-    }
   }
 
   /**
@@ -95,10 +103,16 @@ export class FilterAccordeonComponent implements OnInit {
       if(child.key) this.mapService.addEventLayer(child.key);
       child.value = true;
     }
-    //this.managerEvent(child,true,this.accordeonData,'select');
     data.value = data?.children?.filter(e => e.value).length === data?.children?.length ? true : false;
     if(!data.value || data.value) {
-      data.isIndeterminate = data?.children?.filter(e => e.value).length != 0 ? true : false;
+      let nbChildCheck = data?.children?.filter(e => e.value).length;
+      if (nbChildCheck == data?.children?.length){
+          data.value=true;
+          data.isIndeterminate = false;
+      }
+      else  {
+          data.isIndeterminate = data?.children?.filter(e => e.value).length != 0 ? true : false;
+      }
     }
   }
 
