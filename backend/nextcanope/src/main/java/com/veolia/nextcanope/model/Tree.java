@@ -9,6 +9,10 @@ import java.util.List;
 import jakarta.persistence.*;
 
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Tree"
  *
@@ -17,47 +21,58 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name="tree", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tree implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="dom_id")
+	@JsonProperty("dom_id")
     private Long domId ;
 
     @Column(name="tre_parent_id")
+	@JsonProperty("tre_parent_id")
     private Long treParentId ;
 
     @Column(name="tre_num_order")
+	@JsonProperty("tre_num_order")
     private Integer treNumOrder ;
 
     @Column(name="tre_llabel", length=2147483647)
+	@JsonProperty("tre_llabel")
     private String treLlabel ;
 
     @Column(name="tre_slabel", length=2147483647)
+	@JsonProperty("tre_slabel")
     private String treSlabel ;
 
     @Column(name="tre_ucre_id")
+	@JsonProperty("tre_ucre_id")
     private Long treUcreId ;
 
     @Column(name="tre_valid")
+	@JsonProperty("tre_valid")
     private Boolean treValid ;
 
     @Column(name="tre_umod_id")
+	@JsonProperty("tre_umod_id")
     private Long treUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tre_dcre")
+	@JsonProperty("tre_dcre")
     private Date treDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tre_dmod")
+	@JsonProperty("tre_dmod")
     private Date treDmod ;
 
 
@@ -110,72 +125,82 @@ public class Tree implements Serializable {
         return this.id;
     }
 
-    public void setDomId( Long domId ) {
+	public void setDomId( Long domId ) {
         this.domId = domId ;
     }
+
     public Long getDomId() {
         return this.domId;
     }
 
-    public void setTreParentId( Long treParentId ) {
+	public void setTreParentId( Long treParentId ) {
         this.treParentId = treParentId ;
     }
+
     public Long getTreParentId() {
         return this.treParentId;
     }
 
-    public void setTreNumOrder( Integer treNumOrder ) {
+	public void setTreNumOrder( Integer treNumOrder ) {
         this.treNumOrder = treNumOrder ;
     }
+
     public Integer getTreNumOrder() {
         return this.treNumOrder;
     }
 
-    public void setTreLlabel( String treLlabel ) {
+	public void setTreLlabel( String treLlabel ) {
         this.treLlabel = treLlabel ;
     }
+
     public String getTreLlabel() {
         return this.treLlabel;
     }
 
-    public void setTreSlabel( String treSlabel ) {
+	public void setTreSlabel( String treSlabel ) {
         this.treSlabel = treSlabel ;
     }
+
     public String getTreSlabel() {
         return this.treSlabel;
     }
 
-    public void setTreUcreId( Long treUcreId ) {
+	public void setTreUcreId( Long treUcreId ) {
         this.treUcreId = treUcreId ;
     }
+
     public Long getTreUcreId() {
         return this.treUcreId;
     }
 
-    public void setTreValid( Boolean treValid ) {
+	public void setTreValid( Boolean treValid ) {
         this.treValid = treValid ;
     }
+
     public Boolean getTreValid() {
         return this.treValid;
     }
 
-    public void setTreUmodId( Long treUmodId ) {
+	public void setTreUmodId( Long treUmodId ) {
         this.treUmodId = treUmodId ;
     }
+
     public Long getTreUmodId() {
         return this.treUmodId;
     }
 
-    public void setTreDcre( Date treDcre ) {
+	public void setTreDcre( Date treDcre ) {
         this.treDcre = treDcre ;
     }
+
     public Date getTreDcre() {
         return this.treDcre;
     }
 
-    public void setTreDmod( Date treDmod ) {
+	public void setTreDmod( Date treDmod ) {
         this.treDmod = treDmod ;
     }
+
     public Date getTreDmod() {
         return this.treDmod;
     }

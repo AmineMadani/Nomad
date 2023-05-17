@@ -50,6 +50,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 #end
 #end
 
+#foreach( $attribute in $entity.nonKeyAttributes )
+#if($attribute.name.contains('geom'))
+import org.locationtech.jts.geom.Geometry;
+#end
+#end
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "${entity.name}"
  *
@@ -61,13 +70,14 @@ $jpa.entityAnnotations(0, $entity)
 #if ( $entity.hasCompositePrimaryKey() )  
 @IdClass(${jpaEntityIdClass}.class)
 #end
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ${entity.name} implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
 #foreach( $attribute in $entity.keyAttributes )
-$jpa.fieldAnnotations(4, $attribute)
+$jpa.fieldAnnotations(4, $attribute).replace("AUTO", "IDENTITY")
     private $attribute.formattedType(1) $attribute.name #if($attribute.hasInitialValue())= ${attribute.initialValue} #end;
 
 #end
@@ -78,8 +88,15 @@ $jpa.fieldAnnotations(4, $attribute)
 #if($valueToRewrite.contains($attribute.name)) 
 	#set( $attrName=$attribute.name+'_' )
 #end
+#if($attribute.name.contains('geom'))
+	@JsonProperty("$attribute.databaseName")
+    private Geometry $attrName #if($attribute.hasInitialValue())= ${attribute.initialValue} #end;
+
+#else
+	@JsonProperty("$attribute.databaseName")
     private $attribute.formattedType(1) $attrName #if($attribute.hasInitialValue())= ${attribute.initialValue} #end;
 
+#end
 #end
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -122,12 +139,23 @@ $jpa.linkAnnotations(4, $link, $entity.attributes)
 #if($valueToRewrite.contains($attribute.name)) 
 	#set( $attrName=$attribute.name+'_' )
 #end
-    public void ${attribute.setter}( $attribute.type $attrName ) {
+#if($attribute.name.contains('geom'))
+	public void ${attribute.setter}( Geometry $attrName ) {
         this.$attrName = $attrName ;
     }
+
+    public Geometry ${attribute.getter}() {
+        return this.$attrName;
+    }
+#else
+	public void ${attribute.setter}( $attribute.type $attrName ) {
+        this.$attrName = $attrName ;
+    }
+
     public $attribute.type ${attribute.getter}() {
         return this.$attrName;
     }
+#end
 
 #end
     //--- GETTERS FOR LINKS

@@ -9,6 +9,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Report"
  *
@@ -17,43 +21,52 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="report", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Report implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="tsk_id")
+	@JsonProperty("tsk_id")
     private Long tskId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_report_date")
+	@JsonProperty("rpt_report_date")
     private Date rptReportDate ;
 
     @Column(name="rpt_ucre_id")
+	@JsonProperty("rpt_ucre_id")
     private Long rptUcreId ;
 
     @Column(name="rpt_umod_id")
+	@JsonProperty("rpt_umod_id")
     private Long rptUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_dcre")
+	@JsonProperty("rpt_dcre")
     private Date rptDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_dmod")
+	@JsonProperty("rpt_dmod")
     private Date rptDmod ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_ddel")
+	@JsonProperty("rpt_ddel")
     private Date rptDdel ;
 
     @Column(name="rpt_detail", length=2147483647)
+	@JsonProperty("rpt_detail")
     private String rptDetail ;
 
 
@@ -91,58 +104,66 @@ public class Report implements Serializable {
         return this.id;
     }
 
-    public void setTskId( Long tskId ) {
+	public void setTskId( Long tskId ) {
         this.tskId = tskId ;
     }
+
     public Long getTskId() {
         return this.tskId;
     }
 
-    public void setRptReportDate( Date rptReportDate ) {
+	public void setRptReportDate( Date rptReportDate ) {
         this.rptReportDate = rptReportDate ;
     }
+
     public Date getRptReportDate() {
         return this.rptReportDate;
     }
 
-    public void setRptUcreId( Long rptUcreId ) {
+	public void setRptUcreId( Long rptUcreId ) {
         this.rptUcreId = rptUcreId ;
     }
+
     public Long getRptUcreId() {
         return this.rptUcreId;
     }
 
-    public void setRptUmodId( Long rptUmodId ) {
+	public void setRptUmodId( Long rptUmodId ) {
         this.rptUmodId = rptUmodId ;
     }
+
     public Long getRptUmodId() {
         return this.rptUmodId;
     }
 
-    public void setRptDcre( Date rptDcre ) {
+	public void setRptDcre( Date rptDcre ) {
         this.rptDcre = rptDcre ;
     }
+
     public Date getRptDcre() {
         return this.rptDcre;
     }
 
-    public void setRptDmod( Date rptDmod ) {
+	public void setRptDmod( Date rptDmod ) {
         this.rptDmod = rptDmod ;
     }
+
     public Date getRptDmod() {
         return this.rptDmod;
     }
 
-    public void setRptDdel( Date rptDdel ) {
+	public void setRptDdel( Date rptDdel ) {
         this.rptDdel = rptDdel ;
     }
+
     public Date getRptDdel() {
         return this.rptDdel;
     }
 
-    public void setRptDetail( String rptDetail ) {
+	public void setRptDetail( String rptDetail ) {
         this.rptDetail = rptDetail ;
     }
+
     public String getRptDetail() {
         return this.rptDetail;
     }

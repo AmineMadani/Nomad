@@ -130,7 +130,7 @@
       "label": "Date de début *",
       "attributes": {
         "value": "",
-        "dateformat": "dd/MM/YYYY",
+        "dateformat": "yyyy-MM-dd",
         "type": "text",
         "hiddenNull": false
       },
@@ -143,7 +143,7 @@
         },
         {
           "key": "dateformat",
-          "value": "dd/MM/yyyy",
+          "value": "yyyy-MM-dd",
           "message": "La date saisie est incorrect"
         }
       ]
@@ -156,8 +156,8 @@
       "label": "Date de fin *",
       "attributes": {
         "value": "",
-        "placeholder": "DD/MM/YYYY",
-        "dateformat": "dd/MM/YYYY",
+        "placeholder": "yyyy-MM-dd",
+        "dateformat": "yyyy-MM-dd",
         "type": "text",
         "hiddenNull": false
       },
@@ -170,7 +170,7 @@
         },
         {
           "key": "dateformat",
-          "value": "dd/MM/yyyy",
+          "value": "yyyy-MM-dd",
           "message": "La date saisie est incorrect"
         }
       ]
@@ -241,7 +241,7 @@
       "relation": "dateBefore",
       "message": "La date de début doit être inférieur ou égale à la date de fin",
       "options": {
-        "dateformat": "dd/MM/yyyy"
+        "dateformat": "yyyy-MM-dd"
       }
     }
   ]

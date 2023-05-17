@@ -9,6 +9,11 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.locationtech.jts.geom.Geometry;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "AppGrid"
  *
@@ -17,35 +22,42 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="app_grid", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppGrid implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="geom", length=2147483647)
-    private String geom ;
+	@JsonProperty("geom")
+    private Geometry geom ;
 
     @Column(name="agr_valid")
+	@JsonProperty("agr_valid")
     private Boolean agrValid ;
 
     @Column(name="agr_ucre_id")
+	@JsonProperty("agr_ucre_id")
     private Long agrUcreId ;
 
     @Column(name="agr_umod_id")
+	@JsonProperty("agr_umod_id")
     private Long agrUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="agr_dcre")
+	@JsonProperty("agr_dcre")
     private Date agrDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="agr_dmod")
+	@JsonProperty("agr_dmod")
     private Date agrDmod ;
 
 
@@ -78,44 +90,50 @@ public class AppGrid implements Serializable {
         return this.id;
     }
 
-    public void setGeom( String geom ) {
+	public void setGeom( Geometry geom ) {
         this.geom = geom ;
     }
-    public String getGeom() {
+
+    public Geometry getGeom() {
         return this.geom;
     }
 
-    public void setAgrValid( Boolean agrValid ) {
+	public void setAgrValid( Boolean agrValid ) {
         this.agrValid = agrValid ;
     }
+
     public Boolean getAgrValid() {
         return this.agrValid;
     }
 
-    public void setAgrUcreId( Long agrUcreId ) {
+	public void setAgrUcreId( Long agrUcreId ) {
         this.agrUcreId = agrUcreId ;
     }
+
     public Long getAgrUcreId() {
         return this.agrUcreId;
     }
 
-    public void setAgrUmodId( Long agrUmodId ) {
+	public void setAgrUmodId( Long agrUmodId ) {
         this.agrUmodId = agrUmodId ;
     }
+
     public Long getAgrUmodId() {
         return this.agrUmodId;
     }
 
-    public void setAgrDcre( Date agrDcre ) {
+	public void setAgrDcre( Date agrDcre ) {
         this.agrDcre = agrDcre ;
     }
+
     public Date getAgrDcre() {
         return this.agrDcre;
     }
 
-    public void setAgrDmod( Date agrDmod ) {
+	public void setAgrDmod( Date agrDmod ) {
         this.agrDmod = agrDmod ;
     }
+
     public Date getAgrDmod() {
         return this.agrDmod;
     }

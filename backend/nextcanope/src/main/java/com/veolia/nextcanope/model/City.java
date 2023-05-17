@@ -10,6 +10,11 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.locationtech.jts.geom.Geometry;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "City"
  *
@@ -18,45 +23,55 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="city", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class City implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="cty_code", length=2147483647)
+	@JsonProperty("cty_code")
     private String ctyCode ;
 
     @Column(name="cty_slabel", length=2147483647)
+	@JsonProperty("cty_slabel")
     private String ctySlabel ;
 
     @Column(name="cty_llabel", length=2147483647)
+	@JsonProperty("cty_llabel")
     private String ctyLlabel ;
 
     @Column(name="cty_ucre_id")
+	@JsonProperty("cty_ucre_id")
     private Long ctyUcreId ;
 
     @Column(name="cty_valid")
+	@JsonProperty("cty_valid")
     private Boolean ctyValid ;
 
     @Column(name="cty_umod_id")
+	@JsonProperty("cty_umod_id")
     private Long ctyUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cty_dcre")
+	@JsonProperty("cty_dcre")
     private Date ctyDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cty_dmod")
+	@JsonProperty("cty_dmod")
     private Date ctyDmod ;
 
     @Column(name="geom", length=2147483647)
-    private String geom ;
+	@JsonProperty("geom")
+    private Geometry geom ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -96,66 +111,75 @@ public class City implements Serializable {
         return this.id;
     }
 
-    public void setCtyCode( String ctyCode ) {
+	public void setCtyCode( String ctyCode ) {
         this.ctyCode = ctyCode ;
     }
+
     public String getCtyCode() {
         return this.ctyCode;
     }
 
-    public void setCtySlabel( String ctySlabel ) {
+	public void setCtySlabel( String ctySlabel ) {
         this.ctySlabel = ctySlabel ;
     }
+
     public String getCtySlabel() {
         return this.ctySlabel;
     }
 
-    public void setCtyLlabel( String ctyLlabel ) {
+	public void setCtyLlabel( String ctyLlabel ) {
         this.ctyLlabel = ctyLlabel ;
     }
+
     public String getCtyLlabel() {
         return this.ctyLlabel;
     }
 
-    public void setCtyUcreId( Long ctyUcreId ) {
+	public void setCtyUcreId( Long ctyUcreId ) {
         this.ctyUcreId = ctyUcreId ;
     }
+
     public Long getCtyUcreId() {
         return this.ctyUcreId;
     }
 
-    public void setCtyValid( Boolean ctyValid ) {
+	public void setCtyValid( Boolean ctyValid ) {
         this.ctyValid = ctyValid ;
     }
+
     public Boolean getCtyValid() {
         return this.ctyValid;
     }
 
-    public void setCtyUmodId( Long ctyUmodId ) {
+	public void setCtyUmodId( Long ctyUmodId ) {
         this.ctyUmodId = ctyUmodId ;
     }
+
     public Long getCtyUmodId() {
         return this.ctyUmodId;
     }
 
-    public void setCtyDcre( Date ctyDcre ) {
+	public void setCtyDcre( Date ctyDcre ) {
         this.ctyDcre = ctyDcre ;
     }
+
     public Date getCtyDcre() {
         return this.ctyDcre;
     }
 
-    public void setCtyDmod( Date ctyDmod ) {
+	public void setCtyDmod( Date ctyDmod ) {
         this.ctyDmod = ctyDmod ;
     }
+
     public Date getCtyDmod() {
         return this.ctyDmod;
     }
 
-    public void setGeom( String geom ) {
+	public void setGeom( Geometry geom ) {
         this.geom = geom ;
     }
-    public String getGeom() {
+
+    public Geometry getGeom() {
         return this.geom;
     }
 

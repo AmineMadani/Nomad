@@ -9,6 +9,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "LayerReferencesDefault"
  *
@@ -17,47 +21,58 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="layer_references_default", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LayerReferencesDefault implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="lrd_id", nullable=false)
+	@JsonProperty("lrd_id")
     private Long lrdId ;
 
     @Column(name="lrd_position", nullable=false)
+	@JsonProperty("lrd_position")
     private Integer lrdPosition ;
 
     @Column(name="lrd_section", length=2147483647)
+	@JsonProperty("lrd_section")
     private String lrdSection ;
 
     @Column(name="lrd_isvisible")
+	@JsonProperty("lrd_isvisible")
     private Boolean lrdIsvisible ;
 
     @Column(name="lrd_display_type", nullable=false, length=2147483647)
+	@JsonProperty("lrd_display_type")
     private String lrdDisplayType ;
 
     @Column(name="lrd_ucre_id")
+	@JsonProperty("lrd_ucre_id")
     private Long lrdUcreId ;
 
     @Column(name="lrd_valid")
+	@JsonProperty("lrd_valid")
     private Boolean lrdValid ;
 
     @Column(name="lrd_umod_id")
+	@JsonProperty("lrd_umod_id")
     private Long lrdUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrd_dcre")
+	@JsonProperty("lrd_dcre")
     private Date lrdDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrd_dmod")
+	@JsonProperty("lrd_dmod")
     private Date lrdDmod ;
 
 
@@ -95,72 +110,82 @@ public class LayerReferencesDefault implements Serializable {
         return this.id;
     }
 
-    public void setLrdId( Long lrdId ) {
+	public void setLrdId( Long lrdId ) {
         this.lrdId = lrdId ;
     }
+
     public Long getLrdId() {
         return this.lrdId;
     }
 
-    public void setLrdPosition( Integer lrdPosition ) {
+	public void setLrdPosition( Integer lrdPosition ) {
         this.lrdPosition = lrdPosition ;
     }
+
     public Integer getLrdPosition() {
         return this.lrdPosition;
     }
 
-    public void setLrdSection( String lrdSection ) {
+	public void setLrdSection( String lrdSection ) {
         this.lrdSection = lrdSection ;
     }
+
     public String getLrdSection() {
         return this.lrdSection;
     }
 
-    public void setLrdIsvisible( Boolean lrdIsvisible ) {
+	public void setLrdIsvisible( Boolean lrdIsvisible ) {
         this.lrdIsvisible = lrdIsvisible ;
     }
+
     public Boolean getLrdIsvisible() {
         return this.lrdIsvisible;
     }
 
-    public void setLrdDisplayType( String lrdDisplayType ) {
+	public void setLrdDisplayType( String lrdDisplayType ) {
         this.lrdDisplayType = lrdDisplayType ;
     }
+
     public String getLrdDisplayType() {
         return this.lrdDisplayType;
     }
 
-    public void setLrdUcreId( Long lrdUcreId ) {
+	public void setLrdUcreId( Long lrdUcreId ) {
         this.lrdUcreId = lrdUcreId ;
     }
+
     public Long getLrdUcreId() {
         return this.lrdUcreId;
     }
 
-    public void setLrdValid( Boolean lrdValid ) {
+	public void setLrdValid( Boolean lrdValid ) {
         this.lrdValid = lrdValid ;
     }
+
     public Boolean getLrdValid() {
         return this.lrdValid;
     }
 
-    public void setLrdUmodId( Long lrdUmodId ) {
+	public void setLrdUmodId( Long lrdUmodId ) {
         this.lrdUmodId = lrdUmodId ;
     }
+
     public Long getLrdUmodId() {
         return this.lrdUmodId;
     }
 
-    public void setLrdDcre( Date lrdDcre ) {
+	public void setLrdDcre( Date lrdDcre ) {
         this.lrdDcre = lrdDcre ;
     }
+
     public Date getLrdDcre() {
         return this.lrdDcre;
     }
 
-    public void setLrdDmod( Date lrdDmod ) {
+	public void setLrdDmod( Date lrdDmod ) {
         this.lrdDmod = lrdDmod ;
     }
+
     public Date getLrdDmod() {
         return this.lrdDmod;
     }

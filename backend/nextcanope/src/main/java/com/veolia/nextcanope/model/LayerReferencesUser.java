@@ -9,6 +9,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "LayerReferencesUser"
  *
@@ -17,50 +21,62 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="layer_references_user", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LayerReferencesUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="lrf_id", nullable=false)
+	@JsonProperty("lrf_id")
     private Long lrfId ;
 
     @Column(name="lru_user_id", nullable=false)
+	@JsonProperty("lru_user_id")
     private Long lruUserId ;
 
     @Column(name="lru_position", nullable=false)
+	@JsonProperty("lru_position")
     private Integer lruPosition ;
 
     @Column(name="lru_display_type", nullable=false, length=2147483647)
+	@JsonProperty("lru_display_type")
     private String lruDisplayType ;
 
     @Column(name="lru_section", length=2147483647)
+	@JsonProperty("lru_section")
     private String lruSection ;
 
     @Column(name="lru_isvisible")
+	@JsonProperty("lru_isvisible")
     private Boolean lruIsvisible ;
 
     @Column(name="lru_ucre_id")
+	@JsonProperty("lru_ucre_id")
     private Long lruUcreId ;
 
     @Column(name="lru_valid")
+	@JsonProperty("lru_valid")
     private Boolean lruValid ;
 
     @Column(name="lru_umod_id")
+	@JsonProperty("lru_umod_id")
     private Long lruUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lru_dcre")
+	@JsonProperty("lru_dcre")
     private Date lruDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lru_dmod")
+	@JsonProperty("lru_dmod")
     private Date lruDmod ;
 
 
@@ -103,79 +119,90 @@ public class LayerReferencesUser implements Serializable {
         return this.id;
     }
 
-    public void setLrfId( Long lrfId ) {
+	public void setLrfId( Long lrfId ) {
         this.lrfId = lrfId ;
     }
+
     public Long getLrfId() {
         return this.lrfId;
     }
 
-    public void setLruUserId( Long lruUserId ) {
+	public void setLruUserId( Long lruUserId ) {
         this.lruUserId = lruUserId ;
     }
+
     public Long getLruUserId() {
         return this.lruUserId;
     }
 
-    public void setLruPosition( Integer lruPosition ) {
+	public void setLruPosition( Integer lruPosition ) {
         this.lruPosition = lruPosition ;
     }
+
     public Integer getLruPosition() {
         return this.lruPosition;
     }
 
-    public void setLruDisplayType( String lruDisplayType ) {
+	public void setLruDisplayType( String lruDisplayType ) {
         this.lruDisplayType = lruDisplayType ;
     }
+
     public String getLruDisplayType() {
         return this.lruDisplayType;
     }
 
-    public void setLruSection( String lruSection ) {
+	public void setLruSection( String lruSection ) {
         this.lruSection = lruSection ;
     }
+
     public String getLruSection() {
         return this.lruSection;
     }
 
-    public void setLruIsvisible( Boolean lruIsvisible ) {
+	public void setLruIsvisible( Boolean lruIsvisible ) {
         this.lruIsvisible = lruIsvisible ;
     }
+
     public Boolean getLruIsvisible() {
         return this.lruIsvisible;
     }
 
-    public void setLruUcreId( Long lruUcreId ) {
+	public void setLruUcreId( Long lruUcreId ) {
         this.lruUcreId = lruUcreId ;
     }
+
     public Long getLruUcreId() {
         return this.lruUcreId;
     }
 
-    public void setLruValid( Boolean lruValid ) {
+	public void setLruValid( Boolean lruValid ) {
         this.lruValid = lruValid ;
     }
+
     public Boolean getLruValid() {
         return this.lruValid;
     }
 
-    public void setLruUmodId( Long lruUmodId ) {
+	public void setLruUmodId( Long lruUmodId ) {
         this.lruUmodId = lruUmodId ;
     }
+
     public Long getLruUmodId() {
         return this.lruUmodId;
     }
 
-    public void setLruDcre( Date lruDcre ) {
+	public void setLruDcre( Date lruDcre ) {
         this.lruDcre = lruDcre ;
     }
+
     public Date getLruDcre() {
         return this.lruDcre;
     }
 
-    public void setLruDmod( Date lruDmod ) {
+	public void setLruDmod( Date lruDmod ) {
         this.lruDmod = lruDmod ;
     }
+
     public Date getLruDmod() {
         return this.lruDmod;
     }

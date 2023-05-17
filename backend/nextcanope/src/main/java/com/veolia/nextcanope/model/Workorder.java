@@ -11,6 +11,11 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.locationtech.jts.geom.Geometry;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Workorder"
  *
@@ -19,117 +24,150 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="workorder", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Workorder implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="wko_name", length=2147483647)
+	@JsonProperty("wko_name")
     private String wkoName ;
 
     @Column(name="wko_external_app", length=2147483647)
+	@JsonProperty("wko_external_app")
     private String wkoExternalApp ;
 
     @Column(name="wko_external_id", length=2147483647)
+	@JsonProperty("wko_external_id")
     private String wkoExternalId ;
 
     @Column(name="wko_creation_cell", length=2147483647)
+	@JsonProperty("wko_creation_cell")
     private String wkoCreationCell ;
 
     @Column(name="wko_creation_comment", length=2147483647)
+	@JsonProperty("wko_creation_comment")
     private String wkoCreationComment ;
 
     @Column(name="wko_emergency")
+	@JsonProperty("wko_emergency")
     private Boolean wkoEmergency ;
 
     @Column(name="wko_appointment")
+	@JsonProperty("wko_appointment")
     private Boolean wkoAppointment ;
 
     @Column(name="wko_address", length=2147483647)
+	@JsonProperty("wko_address")
     private String wkoAddress ;
 
     @Column(name="wko_street_number", length=2147483647)
+	@JsonProperty("wko_street_number")
     private String wkoStreetNumber ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_planning_start_date")
+	@JsonProperty("wko_planning_start_date")
     private Date wkoPlanningStartDate ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_planning_end_date")
+	@JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_completion_date")
+	@JsonProperty("wko_completion_date")
     private Date wkoCompletionDate ;
 
     @Column(name="wko_realization_user", length=2147483647)
+	@JsonProperty("wko_realization_user")
     private String wkoRealizationUser ;
 
     @Column(name="wko_realization_cell", length=2147483647)
+	@JsonProperty("wko_realization_cell")
     private String wkoRealizationCell ;
 
     @Column(name="wko_realization_comment", length=2147483647)
+	@JsonProperty("wko_realization_comment")
     private String wkoRealizationComment ;
 
     @Column(name="wko_ucre_id")
+	@JsonProperty("wko_ucre_id")
     private Long wkoUcreId ;
 
     @Column(name="wko_umod_id")
+	@JsonProperty("wko_umod_id")
     private Long wkoUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_dmod")
+	@JsonProperty("wko_dmod")
     private Date wkoDmod ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_dcre")
+	@JsonProperty("wko_dcre")
     private Date wkoDcre ;
 
     @Column(name="cty_id")
+	@JsonProperty("cty_id")
     private Long ctyId ;
 
     @Column(name="cty_llabel", length=2147483647)
+	@JsonProperty("cty_llabel")
     private String ctyLlabel ;
 
     @Column(name="ass_id", nullable=false)
+	@JsonProperty("ass_id")
     private Long assId ;
 
     @Column(name="wts_id")
+	@JsonProperty("wts_id")
     private Long wtsId ;
 
     @Column(name="wtr_id")
+	@JsonProperty("wtr_id")
     private Long wtrId ;
 
     @Column(name="str_id")
+	@JsonProperty("str_id")
     private Long strId ;
 
     @Column(name="str_llabel", length=2147483647)
+	@JsonProperty("str_llabel")
     private String strLlabel ;
 
     @Column(name="ctr_id")
+	@JsonProperty("ctr_id")
     private Long ctrId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_ddel")
+	@JsonProperty("wko_ddel")
     private Date wkoDdel ;
 
     @Column(name="longitude")
+	@JsonProperty("longitude")
     private BigDecimal longitude ;
 
     @Column(name="latitude")
+	@JsonProperty("latitude")
     private BigDecimal latitude ;
 
     @Column(name="geom", length=2147483647)
-    private String geom ;
+	@JsonProperty("geom")
+    private Geometry geom ;
 
     @Column(name="wko_agent_nb")
+	@JsonProperty("wko_agent_nb")
     private Integer wkoAgentNb ;
 
 
@@ -196,226 +234,258 @@ public class Workorder implements Serializable {
         return this.id;
     }
 
-    public void setWkoName( String wkoName ) {
+	public void setWkoName( String wkoName ) {
         this.wkoName = wkoName ;
     }
+
     public String getWkoName() {
         return this.wkoName;
     }
 
-    public void setWkoExternalApp( String wkoExternalApp ) {
+	public void setWkoExternalApp( String wkoExternalApp ) {
         this.wkoExternalApp = wkoExternalApp ;
     }
+
     public String getWkoExternalApp() {
         return this.wkoExternalApp;
     }
 
-    public void setWkoExternalId( String wkoExternalId ) {
+	public void setWkoExternalId( String wkoExternalId ) {
         this.wkoExternalId = wkoExternalId ;
     }
+
     public String getWkoExternalId() {
         return this.wkoExternalId;
     }
 
-    public void setWkoCreationCell( String wkoCreationCell ) {
+	public void setWkoCreationCell( String wkoCreationCell ) {
         this.wkoCreationCell = wkoCreationCell ;
     }
+
     public String getWkoCreationCell() {
         return this.wkoCreationCell;
     }
 
-    public void setWkoCreationComment( String wkoCreationComment ) {
+	public void setWkoCreationComment( String wkoCreationComment ) {
         this.wkoCreationComment = wkoCreationComment ;
     }
+
     public String getWkoCreationComment() {
         return this.wkoCreationComment;
     }
 
-    public void setWkoEmergency( Boolean wkoEmergency ) {
+	public void setWkoEmergency( Boolean wkoEmergency ) {
         this.wkoEmergency = wkoEmergency ;
     }
+
     public Boolean getWkoEmergency() {
         return this.wkoEmergency;
     }
 
-    public void setWkoAppointment( Boolean wkoAppointment ) {
+	public void setWkoAppointment( Boolean wkoAppointment ) {
         this.wkoAppointment = wkoAppointment ;
     }
+
     public Boolean getWkoAppointment() {
         return this.wkoAppointment;
     }
 
-    public void setWkoAddress( String wkoAddress ) {
+	public void setWkoAddress( String wkoAddress ) {
         this.wkoAddress = wkoAddress ;
     }
+
     public String getWkoAddress() {
         return this.wkoAddress;
     }
 
-    public void setWkoStreetNumber( String wkoStreetNumber ) {
+	public void setWkoStreetNumber( String wkoStreetNumber ) {
         this.wkoStreetNumber = wkoStreetNumber ;
     }
+
     public String getWkoStreetNumber() {
         return this.wkoStreetNumber;
     }
 
-    public void setWkoPlanningStartDate( Date wkoPlanningStartDate ) {
+	public void setWkoPlanningStartDate( Date wkoPlanningStartDate ) {
         this.wkoPlanningStartDate = wkoPlanningStartDate ;
     }
+
     public Date getWkoPlanningStartDate() {
         return this.wkoPlanningStartDate;
     }
 
-    public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
+	public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
     }
+
     public Date getWkoPlanningEndDate() {
         return this.wkoPlanningEndDate;
     }
 
-    public void setWkoCompletionDate( Date wkoCompletionDate ) {
+	public void setWkoCompletionDate( Date wkoCompletionDate ) {
         this.wkoCompletionDate = wkoCompletionDate ;
     }
+
     public Date getWkoCompletionDate() {
         return this.wkoCompletionDate;
     }
 
-    public void setWkoRealizationUser( String wkoRealizationUser ) {
+	public void setWkoRealizationUser( String wkoRealizationUser ) {
         this.wkoRealizationUser = wkoRealizationUser ;
     }
+
     public String getWkoRealizationUser() {
         return this.wkoRealizationUser;
     }
 
-    public void setWkoRealizationCell( String wkoRealizationCell ) {
+	public void setWkoRealizationCell( String wkoRealizationCell ) {
         this.wkoRealizationCell = wkoRealizationCell ;
     }
+
     public String getWkoRealizationCell() {
         return this.wkoRealizationCell;
     }
 
-    public void setWkoRealizationComment( String wkoRealizationComment ) {
+	public void setWkoRealizationComment( String wkoRealizationComment ) {
         this.wkoRealizationComment = wkoRealizationComment ;
     }
+
     public String getWkoRealizationComment() {
         return this.wkoRealizationComment;
     }
 
-    public void setWkoUcreId( Long wkoUcreId ) {
+	public void setWkoUcreId( Long wkoUcreId ) {
         this.wkoUcreId = wkoUcreId ;
     }
+
     public Long getWkoUcreId() {
         return this.wkoUcreId;
     }
 
-    public void setWkoUmodId( Long wkoUmodId ) {
+	public void setWkoUmodId( Long wkoUmodId ) {
         this.wkoUmodId = wkoUmodId ;
     }
+
     public Long getWkoUmodId() {
         return this.wkoUmodId;
     }
 
-    public void setWkoDmod( Date wkoDmod ) {
+	public void setWkoDmod( Date wkoDmod ) {
         this.wkoDmod = wkoDmod ;
     }
+
     public Date getWkoDmod() {
         return this.wkoDmod;
     }
 
-    public void setWkoDcre( Date wkoDcre ) {
+	public void setWkoDcre( Date wkoDcre ) {
         this.wkoDcre = wkoDcre ;
     }
+
     public Date getWkoDcre() {
         return this.wkoDcre;
     }
 
-    public void setCtyId( Long ctyId ) {
+	public void setCtyId( Long ctyId ) {
         this.ctyId = ctyId ;
     }
+
     public Long getCtyId() {
         return this.ctyId;
     }
 
-    public void setCtyLlabel( String ctyLlabel ) {
+	public void setCtyLlabel( String ctyLlabel ) {
         this.ctyLlabel = ctyLlabel ;
     }
+
     public String getCtyLlabel() {
         return this.ctyLlabel;
     }
 
-    public void setAssId( Long assId ) {
+	public void setAssId( Long assId ) {
         this.assId = assId ;
     }
+
     public Long getAssId() {
         return this.assId;
     }
 
-    public void setWtsId( Long wtsId ) {
+	public void setWtsId( Long wtsId ) {
         this.wtsId = wtsId ;
     }
+
     public Long getWtsId() {
         return this.wtsId;
     }
 
-    public void setWtrId( Long wtrId ) {
+	public void setWtrId( Long wtrId ) {
         this.wtrId = wtrId ;
     }
+
     public Long getWtrId() {
         return this.wtrId;
     }
 
-    public void setStrId( Long strId ) {
+	public void setStrId( Long strId ) {
         this.strId = strId ;
     }
+
     public Long getStrId() {
         return this.strId;
     }
 
-    public void setStrLlabel( String strLlabel ) {
+	public void setStrLlabel( String strLlabel ) {
         this.strLlabel = strLlabel ;
     }
+
     public String getStrLlabel() {
         return this.strLlabel;
     }
 
-    public void setCtrId( Long ctrId ) {
+	public void setCtrId( Long ctrId ) {
         this.ctrId = ctrId ;
     }
+
     public Long getCtrId() {
         return this.ctrId;
     }
 
-    public void setWkoDdel( Date wkoDdel ) {
+	public void setWkoDdel( Date wkoDdel ) {
         this.wkoDdel = wkoDdel ;
     }
+
     public Date getWkoDdel() {
         return this.wkoDdel;
     }
 
-    public void setLongitude( BigDecimal longitude ) {
+	public void setLongitude( BigDecimal longitude ) {
         this.longitude = longitude ;
     }
+
     public BigDecimal getLongitude() {
         return this.longitude;
     }
 
-    public void setLatitude( BigDecimal latitude ) {
+	public void setLatitude( BigDecimal latitude ) {
         this.latitude = latitude ;
     }
+
     public BigDecimal getLatitude() {
         return this.latitude;
     }
 
-    public void setGeom( String geom ) {
+	public void setGeom( Geometry geom ) {
         this.geom = geom ;
     }
-    public String getGeom() {
+
+    public Geometry getGeom() {
         return this.geom;
     }
 
-    public void setWkoAgentNb( Integer wkoAgentNb ) {
+	public void setWkoAgentNb( Integer wkoAgentNb ) {
         this.wkoAgentNb = wkoAgentNb ;
     }
+
     public Integer getWkoAgentNb() {
         return this.wkoAgentNb;
     }

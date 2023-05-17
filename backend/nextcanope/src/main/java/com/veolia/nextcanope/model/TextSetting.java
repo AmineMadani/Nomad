@@ -7,6 +7,10 @@ import java.io.Serializable;
 import jakarta.persistence.*;
 
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "TextSetting"
  *
@@ -15,6 +19,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name="text_setting", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TextSetting implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -26,6 +31,7 @@ public class TextSetting implements Serializable {
 
     //--- ENTITY DATA FIELDS 
     @Column(name="value", length=2147483647)
+	@JsonProperty("value")
     private String value ;
 
 
@@ -46,9 +52,10 @@ public class TextSetting implements Serializable {
         return this.name;
     }
 
-    public void setValue( String value ) {
+	public void setValue( String value ) {
         this.value = value ;
     }
+
     public String getValue() {
         return this.value;
     }

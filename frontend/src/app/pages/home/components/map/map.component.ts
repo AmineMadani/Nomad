@@ -72,10 +72,10 @@ export class MapComponent implements OnInit {
       }
       this.mapService.getBaseMaps().subscribe(backLayerArray => {
         const defaultBackLayer: BackLayer | undefined = backLayerArray.find(
-          (bl) => bl.mapDefault
+          (bl) => bl.map_default
         );
         if (defaultBackLayer) {
-          this.createLayers(defaultBackLayer.mapLayer, defaultBackLayer);
+          this.createLayers(defaultBackLayer.map_layer, defaultBackLayer);
         }
         });
     }
@@ -91,28 +91,28 @@ export class MapComponent implements OnInit {
     if (!layer) {
       const baseLayers:BackLayer[] = await firstValueFrom(this.mapService.getBaseMaps());
       console.log(baseLayers);
-      layer = baseLayers.find(layer => layer.mapLayer === backLayerKey);
+      layer = baseLayers.find(layer => layer.map_layer === backLayerKey);
     }
     if (layer) {
-      switch (layer.mapType) {
+      switch (layer.map_type) {
         case 'WMS':
           const wmtsLayer = new TileLayer({
             preload: Infinity,
             source: this.buildWMTS(layer),
-            visible: layer.mapDisplay,
+            visible: layer.map_display,
             zIndex: 0,
           });
-          this.mapLayers.set(layer.mapLayer, wmtsLayer);
+          this.mapLayers.set(layer.map_layer, wmtsLayer);
           this.map.addLayer(wmtsLayer);
           break;
         case 'OSM':
           const osmLayer = new TileLayer({
             preload: Infinity,
             source: this.buildOSM(),
-            visible: layer.mapDisplay,
+            visible: layer.map_display,
             zIndex: 0,
           });
-          this.mapLayers.set(layer.mapLayer, osmLayer);
+          this.mapLayers.set(layer.map_layer, osmLayer);
           this.map.addLayer(osmLayer);
           break;
       }
@@ -148,11 +148,11 @@ export class MapComponent implements OnInit {
    */
   private buildWMTS(layer: BackLayer): WMTS {
     return new WMTS({
-      attributions: layer.mapAttributions!,
-      url: layer.mapUrl!,
-      layer: layer.mapLayer!,
-      matrixSet: layer.mapMatrixset!,
-      format: layer.mapFormat!,
+      attributions: layer.map_attributions!,
+      url: layer.map_url!,
+      layer: layer.map_layer!,
+      matrixSet: layer.map_matrixset!,
+      format: layer.map_format!,
       projection: this.projection!,
       tileGrid: new WMTSTileGrid({
         origin: getTopLeft(this.projection ? this.projection.getExtent() : []),

@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "WorkorderTaskStatus"
  *
@@ -18,47 +22,58 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="workorder_task_status", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkorderTaskStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="wts_code", nullable=false, length=2147483647)
+	@JsonProperty("wts_code")
     private String wtsCode ;
 
     @Column(name="wts_slabel", nullable=false, length=2147483647)
+	@JsonProperty("wts_slabel")
     private String wtsSlabel ;
 
     @Column(name="wts_llabel", length=2147483647)
+	@JsonProperty("wts_llabel")
     private String wtsLlabel ;
 
     @Column(name="wts_wo")
+	@JsonProperty("wts_wo")
     private Boolean wtsWo ;
 
     @Column(name="wts_task")
+	@JsonProperty("wts_task")
     private Boolean wtsTask ;
 
     @Column(name="wts_valid")
+	@JsonProperty("wts_valid")
     private Boolean wtsValid ;
 
     @Column(name="wts_ucre_id")
+	@JsonProperty("wts_ucre_id")
     private Long wtsUcreId ;
 
     @Column(name="wts_umod_id")
+	@JsonProperty("wts_umod_id")
     private Long wtsUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wts_dcre")
+	@JsonProperty("wts_dcre")
     private Date wtsDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wts_dmod")
+	@JsonProperty("wts_dmod")
     private Date wtsDmod ;
 
 
@@ -99,72 +114,82 @@ public class WorkorderTaskStatus implements Serializable {
         return this.id;
     }
 
-    public void setWtsCode( String wtsCode ) {
+	public void setWtsCode( String wtsCode ) {
         this.wtsCode = wtsCode ;
     }
+
     public String getWtsCode() {
         return this.wtsCode;
     }
 
-    public void setWtsSlabel( String wtsSlabel ) {
+	public void setWtsSlabel( String wtsSlabel ) {
         this.wtsSlabel = wtsSlabel ;
     }
+
     public String getWtsSlabel() {
         return this.wtsSlabel;
     }
 
-    public void setWtsLlabel( String wtsLlabel ) {
+	public void setWtsLlabel( String wtsLlabel ) {
         this.wtsLlabel = wtsLlabel ;
     }
+
     public String getWtsLlabel() {
         return this.wtsLlabel;
     }
 
-    public void setWtsWo( Boolean wtsWo ) {
+	public void setWtsWo( Boolean wtsWo ) {
         this.wtsWo = wtsWo ;
     }
+
     public Boolean getWtsWo() {
         return this.wtsWo;
     }
 
-    public void setWtsTask( Boolean wtsTask ) {
+	public void setWtsTask( Boolean wtsTask ) {
         this.wtsTask = wtsTask ;
     }
+
     public Boolean getWtsTask() {
         return this.wtsTask;
     }
 
-    public void setWtsValid( Boolean wtsValid ) {
+	public void setWtsValid( Boolean wtsValid ) {
         this.wtsValid = wtsValid ;
     }
+
     public Boolean getWtsValid() {
         return this.wtsValid;
     }
 
-    public void setWtsUcreId( Long wtsUcreId ) {
+	public void setWtsUcreId( Long wtsUcreId ) {
         this.wtsUcreId = wtsUcreId ;
     }
+
     public Long getWtsUcreId() {
         return this.wtsUcreId;
     }
 
-    public void setWtsUmodId( Long wtsUmodId ) {
+	public void setWtsUmodId( Long wtsUmodId ) {
         this.wtsUmodId = wtsUmodId ;
     }
+
     public Long getWtsUmodId() {
         return this.wtsUmodId;
     }
 
-    public void setWtsDcre( Date wtsDcre ) {
+	public void setWtsDcre( Date wtsDcre ) {
         this.wtsDcre = wtsDcre ;
     }
+
     public Date getWtsDcre() {
         return this.wtsDcre;
     }
 
-    public void setWtsDmod( Date wtsDmod ) {
+	public void setWtsDmod( Date wtsDmod ) {
         this.wtsDmod = wtsDmod ;
     }
+
     public Date getWtsDmod() {
         return this.wtsDmod;
     }

@@ -10,6 +10,11 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.locationtech.jts.geom.Geometry;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Street"
  *
@@ -18,50 +23,62 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="street", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Street implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="str_code", length=2147483647)
+	@JsonProperty("str_code")
     private String strCode ;
 
     @Column(name="cty_id")
+	@JsonProperty("cty_id")
     private Long ctyId ;
 
     @Column(name="str_slabel", length=2147483647)
+	@JsonProperty("str_slabel")
     private String strSlabel ;
 
     @Column(name="str_llabel", length=2147483647)
+	@JsonProperty("str_llabel")
     private String strLlabel ;
 
     @Column(name="str_source", length=2147483647)
+	@JsonProperty("str_source")
     private String strSource ;
 
     @Column(name="str_valid")
+	@JsonProperty("str_valid")
     private Boolean strValid ;
 
     @Column(name="geom", length=2147483647)
-    private String geom ;
+	@JsonProperty("geom")
+    private Geometry geom ;
 
     @Column(name="str_ucre_id")
+	@JsonProperty("str_ucre_id")
     private Long strUcreId ;
 
     @Column(name="str_umod_id")
+	@JsonProperty("str_umod_id")
     private Long strUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="str_dcre")
+	@JsonProperty("str_dcre")
     private Date strDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="str_dmod")
+	@JsonProperty("str_dmod")
     private Date strDmod ;
 
 
@@ -103,79 +120,90 @@ public class Street implements Serializable {
         return this.id;
     }
 
-    public void setStrCode( String strCode ) {
+	public void setStrCode( String strCode ) {
         this.strCode = strCode ;
     }
+
     public String getStrCode() {
         return this.strCode;
     }
 
-    public void setCtyId( Long ctyId ) {
+	public void setCtyId( Long ctyId ) {
         this.ctyId = ctyId ;
     }
+
     public Long getCtyId() {
         return this.ctyId;
     }
 
-    public void setStrSlabel( String strSlabel ) {
+	public void setStrSlabel( String strSlabel ) {
         this.strSlabel = strSlabel ;
     }
+
     public String getStrSlabel() {
         return this.strSlabel;
     }
 
-    public void setStrLlabel( String strLlabel ) {
+	public void setStrLlabel( String strLlabel ) {
         this.strLlabel = strLlabel ;
     }
+
     public String getStrLlabel() {
         return this.strLlabel;
     }
 
-    public void setStrSource( String strSource ) {
+	public void setStrSource( String strSource ) {
         this.strSource = strSource ;
     }
+
     public String getStrSource() {
         return this.strSource;
     }
 
-    public void setStrValid( Boolean strValid ) {
+	public void setStrValid( Boolean strValid ) {
         this.strValid = strValid ;
     }
+
     public Boolean getStrValid() {
         return this.strValid;
     }
 
-    public void setGeom( String geom ) {
+	public void setGeom( Geometry geom ) {
         this.geom = geom ;
     }
-    public String getGeom() {
+
+    public Geometry getGeom() {
         return this.geom;
     }
 
-    public void setStrUcreId( Long strUcreId ) {
+	public void setStrUcreId( Long strUcreId ) {
         this.strUcreId = strUcreId ;
     }
+
     public Long getStrUcreId() {
         return this.strUcreId;
     }
 
-    public void setStrUmodId( Long strUmodId ) {
+	public void setStrUmodId( Long strUmodId ) {
         this.strUmodId = strUmodId ;
     }
+
     public Long getStrUmodId() {
         return this.strUmodId;
     }
 
-    public void setStrDcre( Date strDcre ) {
+	public void setStrDcre( Date strDcre ) {
         this.strDcre = strDcre ;
     }
+
     public Date getStrDcre() {
         return this.strDcre;
     }
 
-    public void setStrDmod( Date strDmod ) {
+	public void setStrDmod( Date strDmod ) {
         this.strDmod = strDmod ;
     }
+
     public Date getStrDmod() {
         return this.strDmod;
     }

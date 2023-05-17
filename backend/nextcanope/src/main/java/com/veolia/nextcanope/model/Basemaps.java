@@ -9,6 +9,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Basemaps"
  *
@@ -17,75 +21,95 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="basemaps", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Basemaps implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="map_slabel", length=2147483647)
+	@JsonProperty("map_slabel")
     private String mapSlabel ;
 
     @Column(name="map_llabel", length=2147483647)
+	@JsonProperty("map_llabel")
     private String mapLlabel ;
 
     @Column(name="map_type", length=2147483647)
+	@JsonProperty("map_type")
     private String mapType ;
 
     @Column(name="map_url", length=2147483647)
+	@JsonProperty("map_url")
     private String mapUrl ;
 
     @Column(name="map_layer", length=2147483647)
+	@JsonProperty("map_layer")
     private String mapLayer ;
 
     @Column(name="map_matrixset", length=2147483647)
+	@JsonProperty("map_matrixset")
     private String mapMatrixset ;
 
     @Column(name="map_format", length=2147483647)
+	@JsonProperty("map_format")
     private String mapFormat ;
 
     @Column(name="map_projection", length=2147483647)
+	@JsonProperty("map_projection")
     private String mapProjection ;
 
     @Column(name="map_tilegrid", length=2147483647)
+	@JsonProperty("map_tilegrid")
     private String mapTilegrid ;
 
     @Column(name="map_style", length=2147483647)
+	@JsonProperty("map_style")
     private String mapStyle ;
 
     @Column(name="map_attributions", length=2147483647)
+	@JsonProperty("map_attributions")
     private String mapAttributions ;
 
     @Column(name="map_default")
+	@JsonProperty("map_default")
     private Boolean mapDefault ;
 
     @Column(name="map_display")
+	@JsonProperty("map_display")
     private Boolean mapDisplay ;
 
     @Lob
     @Column(name="map_thumbnail")
+	@JsonProperty("map_thumbnail")
     private byte[] mapThumbnail ;
 
     @Column(name="map_valid")
+	@JsonProperty("map_valid")
     private Boolean mapValid ;
 
     @Column(name="map_ucre_id")
+	@JsonProperty("map_ucre_id")
     private Long mapUcreId ;
 
     @Column(name="map_umod_id")
+	@JsonProperty("map_umod_id")
     private Long mapUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="map_dcre")
+	@JsonProperty("map_dcre")
     private Date mapDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="map_dmod")
+	@JsonProperty("map_dmod")
     private Date mapDmod ;
 
 
@@ -118,135 +142,154 @@ public class Basemaps implements Serializable {
         return this.id;
     }
 
-    public void setMapSlabel( String mapSlabel ) {
+	public void setMapSlabel( String mapSlabel ) {
         this.mapSlabel = mapSlabel ;
     }
+
     public String getMapSlabel() {
         return this.mapSlabel;
     }
 
-    public void setMapLlabel( String mapLlabel ) {
+	public void setMapLlabel( String mapLlabel ) {
         this.mapLlabel = mapLlabel ;
     }
+
     public String getMapLlabel() {
         return this.mapLlabel;
     }
 
-    public void setMapType( String mapType ) {
+	public void setMapType( String mapType ) {
         this.mapType = mapType ;
     }
+
     public String getMapType() {
         return this.mapType;
     }
 
-    public void setMapUrl( String mapUrl ) {
+	public void setMapUrl( String mapUrl ) {
         this.mapUrl = mapUrl ;
     }
+
     public String getMapUrl() {
         return this.mapUrl;
     }
 
-    public void setMapLayer( String mapLayer ) {
+	public void setMapLayer( String mapLayer ) {
         this.mapLayer = mapLayer ;
     }
+
     public String getMapLayer() {
         return this.mapLayer;
     }
 
-    public void setMapMatrixset( String mapMatrixset ) {
+	public void setMapMatrixset( String mapMatrixset ) {
         this.mapMatrixset = mapMatrixset ;
     }
+
     public String getMapMatrixset() {
         return this.mapMatrixset;
     }
 
-    public void setMapFormat( String mapFormat ) {
+	public void setMapFormat( String mapFormat ) {
         this.mapFormat = mapFormat ;
     }
+
     public String getMapFormat() {
         return this.mapFormat;
     }
 
-    public void setMapProjection( String mapProjection ) {
+	public void setMapProjection( String mapProjection ) {
         this.mapProjection = mapProjection ;
     }
+
     public String getMapProjection() {
         return this.mapProjection;
     }
 
-    public void setMapTilegrid( String mapTilegrid ) {
+	public void setMapTilegrid( String mapTilegrid ) {
         this.mapTilegrid = mapTilegrid ;
     }
+
     public String getMapTilegrid() {
         return this.mapTilegrid;
     }
 
-    public void setMapStyle( String mapStyle ) {
+	public void setMapStyle( String mapStyle ) {
         this.mapStyle = mapStyle ;
     }
+
     public String getMapStyle() {
         return this.mapStyle;
     }
 
-    public void setMapAttributions( String mapAttributions ) {
+	public void setMapAttributions( String mapAttributions ) {
         this.mapAttributions = mapAttributions ;
     }
+
     public String getMapAttributions() {
         return this.mapAttributions;
     }
 
-    public void setMapDefault( Boolean mapDefault ) {
+	public void setMapDefault( Boolean mapDefault ) {
         this.mapDefault = mapDefault ;
     }
+
     public Boolean getMapDefault() {
         return this.mapDefault;
     }
 
-    public void setMapDisplay( Boolean mapDisplay ) {
+	public void setMapDisplay( Boolean mapDisplay ) {
         this.mapDisplay = mapDisplay ;
     }
+
     public Boolean getMapDisplay() {
         return this.mapDisplay;
     }
 
-    public void setMapThumbnail( byte[] mapThumbnail ) {
+	public void setMapThumbnail( byte[] mapThumbnail ) {
         this.mapThumbnail = mapThumbnail ;
     }
+
     public byte[] getMapThumbnail() {
         return this.mapThumbnail;
     }
 
-    public void setMapValid( Boolean mapValid ) {
+	public void setMapValid( Boolean mapValid ) {
         this.mapValid = mapValid ;
     }
+
     public Boolean getMapValid() {
         return this.mapValid;
     }
 
-    public void setMapUcreId( Long mapUcreId ) {
+	public void setMapUcreId( Long mapUcreId ) {
         this.mapUcreId = mapUcreId ;
     }
+
     public Long getMapUcreId() {
         return this.mapUcreId;
     }
 
-    public void setMapUmodId( Long mapUmodId ) {
+	public void setMapUmodId( Long mapUmodId ) {
         this.mapUmodId = mapUmodId ;
     }
+
     public Long getMapUmodId() {
         return this.mapUmodId;
     }
 
-    public void setMapDcre( Date mapDcre ) {
+	public void setMapDcre( Date mapDcre ) {
         this.mapDcre = mapDcre ;
     }
+
     public Date getMapDcre() {
         return this.mapDcre;
     }
 
-    public void setMapDmod( Date mapDmod ) {
+	public void setMapDmod( Date mapDmod ) {
         this.mapDmod = mapDmod ;
     }
+
     public Date getMapDmod() {
         return this.mapDmod;
     }

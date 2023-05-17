@@ -7,6 +7,10 @@ import java.io.Serializable;
 import jakarta.persistence.*;
 
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "FloatSetting"
  *
@@ -15,6 +19,7 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name="float_setting", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FloatSetting implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -26,6 +31,7 @@ public class FloatSetting implements Serializable {
 
     //--- ENTITY DATA FIELDS 
     @Column(name="value")
+	@JsonProperty("value")
     private Double value ;
 
 
@@ -46,9 +52,10 @@ public class FloatSetting implements Serializable {
         return this.name;
     }
 
-    public void setValue( Double value ) {
+	public void setValue( Double value ) {
         this.value = value ;
     }
+
     public Double getValue() {
         return this.value;
     }

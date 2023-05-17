@@ -9,6 +9,11 @@ import java.util.Date;
 import jakarta.persistence.*;
 
 
+import org.locationtech.jts.geom.Geometry;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Intervention"
  *
@@ -17,45 +22,55 @@ import jakarta.persistence.*;
  */
 @Entity
 @Table(name="intervention", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Intervention implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Integer id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="reason", length=2147483647)
+	@JsonProperty("reason")
     private String reason ;
 
     @Column(name="status", length=2147483647)
+	@JsonProperty("status")
     private String status ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="datebegin")
+	@JsonProperty("datebegin")
     private Date datebegin ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dateend")
+	@JsonProperty("dateend")
     private Date dateend ;
 
     @Column(name="urgent")
+	@JsonProperty("urgent")
     private Boolean urgent ;
 
     @Column(name="appointment")
+	@JsonProperty("appointment")
     private Boolean appointment ;
 
     @Column(name="x")
+	@JsonProperty("x")
     private BigDecimal x ;
 
     @Column(name="y")
+	@JsonProperty("y")
     private BigDecimal y ;
 
     @Column(name="geom", length=2147483647)
-    private String geom ;
+	@JsonProperty("geom")
+    private Geometry geom ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -75,66 +90,75 @@ public class Intervention implements Serializable {
         return this.id;
     }
 
-    public void setReason( String reason ) {
+	public void setReason( String reason ) {
         this.reason = reason ;
     }
+
     public String getReason() {
         return this.reason;
     }
 
-    public void setStatus( String status ) {
+	public void setStatus( String status ) {
         this.status = status ;
     }
+
     public String getStatus() {
         return this.status;
     }
 
-    public void setDatebegin( Date datebegin ) {
+	public void setDatebegin( Date datebegin ) {
         this.datebegin = datebegin ;
     }
+
     public Date getDatebegin() {
         return this.datebegin;
     }
 
-    public void setDateend( Date dateend ) {
+	public void setDateend( Date dateend ) {
         this.dateend = dateend ;
     }
+
     public Date getDateend() {
         return this.dateend;
     }
 
-    public void setUrgent( Boolean urgent ) {
+	public void setUrgent( Boolean urgent ) {
         this.urgent = urgent ;
     }
+
     public Boolean getUrgent() {
         return this.urgent;
     }
 
-    public void setAppointment( Boolean appointment ) {
+	public void setAppointment( Boolean appointment ) {
         this.appointment = appointment ;
     }
+
     public Boolean getAppointment() {
         return this.appointment;
     }
 
-    public void setX( BigDecimal x ) {
+	public void setX( BigDecimal x ) {
         this.x = x ;
     }
+
     public BigDecimal getX() {
         return this.x;
     }
 
-    public void setY( BigDecimal y ) {
+	public void setY( BigDecimal y ) {
         this.y = y ;
     }
+
     public BigDecimal getY() {
         return this.y;
     }
 
-    public void setGeom( String geom ) {
+	public void setGeom( Geometry geom ) {
         this.geom = geom ;
     }
-    public String getGeom() {
+
+    public Geometry getGeom() {
         return this.geom;
     }
 

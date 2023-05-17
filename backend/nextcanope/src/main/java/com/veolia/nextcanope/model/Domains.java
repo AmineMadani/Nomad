@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Domains"
  *
@@ -18,44 +22,54 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="domains", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Domains implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="dom_type", nullable=false, length=2147483647)
+	@JsonProperty("dom_type")
     private String domType ;
 
     @Column(name="dom_parent_id")
+	@JsonProperty("dom_parent_id")
     private Long domParentId ;
 
     @Column(name="dom_slabel", length=2147483647)
+	@JsonProperty("dom_slabel")
     private String domSlabel ;
 
     @Column(name="dom_llabel", length=2147483647)
+	@JsonProperty("dom_llabel")
     private String domLlabel ;
 
     @Column(name="dom_valid")
+	@JsonProperty("dom_valid")
     private Boolean domValid ;
 
     @Column(name="dom_ucre_id")
+	@JsonProperty("dom_ucre_id")
     private Long domUcreId ;
 
     @Column(name="dom_umod_id")
+	@JsonProperty("dom_umod_id")
     private Long domUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dom_dcre")
+	@JsonProperty("dom_dcre")
     private Date domDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dom_dmod")
+	@JsonProperty("dom_dmod")
     private Date domDmod ;
 
 
@@ -109,65 +123,74 @@ public class Domains implements Serializable {
         return this.id;
     }
 
-    public void setDomType( String domType ) {
+	public void setDomType( String domType ) {
         this.domType = domType ;
     }
+
     public String getDomType() {
         return this.domType;
     }
 
-    public void setDomParentId( Long domParentId ) {
+	public void setDomParentId( Long domParentId ) {
         this.domParentId = domParentId ;
     }
+
     public Long getDomParentId() {
         return this.domParentId;
     }
 
-    public void setDomSlabel( String domSlabel ) {
+	public void setDomSlabel( String domSlabel ) {
         this.domSlabel = domSlabel ;
     }
+
     public String getDomSlabel() {
         return this.domSlabel;
     }
 
-    public void setDomLlabel( String domLlabel ) {
+	public void setDomLlabel( String domLlabel ) {
         this.domLlabel = domLlabel ;
     }
+
     public String getDomLlabel() {
         return this.domLlabel;
     }
 
-    public void setDomValid( Boolean domValid ) {
+	public void setDomValid( Boolean domValid ) {
         this.domValid = domValid ;
     }
+
     public Boolean getDomValid() {
         return this.domValid;
     }
 
-    public void setDomUcreId( Long domUcreId ) {
+	public void setDomUcreId( Long domUcreId ) {
         this.domUcreId = domUcreId ;
     }
+
     public Long getDomUcreId() {
         return this.domUcreId;
     }
 
-    public void setDomUmodId( Long domUmodId ) {
+	public void setDomUmodId( Long domUmodId ) {
         this.domUmodId = domUmodId ;
     }
+
     public Long getDomUmodId() {
         return this.domUmodId;
     }
 
-    public void setDomDcre( Date domDcre ) {
+	public void setDomDcre( Date domDcre ) {
         this.domDcre = domDcre ;
     }
+
     public Date getDomDcre() {
         return this.domDcre;
     }
 
-    public void setDomDmod( Date domDmod ) {
+	public void setDomDmod( Date domDmod ) {
         this.domDmod = domDmod ;
     }
+
     public Date getDomDmod() {
         return this.domDmod;
     }

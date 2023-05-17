@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "AstWtr"
  *
@@ -19,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name="ast_wtr", schema="nomad" )
 @IdClass(AstWtrId.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AstWtr implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,20 +39,25 @@ public class AstWtr implements Serializable {
 
     //--- ENTITY DATA FIELDS 
     @Column(name="asw_ucre_id")
+	@JsonProperty("asw_ucre_id")
     private Long aswUcreId ;
 
     @Column(name="asw_valid")
+	@JsonProperty("asw_valid")
     private Boolean aswValid ;
 
     @Column(name="asw_umod_id")
+	@JsonProperty("asw_umod_id")
     private Long aswUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="asw_dcre")
+	@JsonProperty("asw_dcre")
     private Date aswDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="asw_dmod")
+	@JsonProperty("asw_dmod")
     private Date aswDmod ;
 
 
@@ -97,37 +107,42 @@ public class AstWtr implements Serializable {
         return this.astId;
     }
 
-    public void setAswUcreId( Long aswUcreId ) {
+	public void setAswUcreId( Long aswUcreId ) {
         this.aswUcreId = aswUcreId ;
     }
+
     public Long getAswUcreId() {
         return this.aswUcreId;
     }
 
-    public void setAswValid( Boolean aswValid ) {
+	public void setAswValid( Boolean aswValid ) {
         this.aswValid = aswValid ;
     }
+
     public Boolean getAswValid() {
         return this.aswValid;
     }
 
-    public void setAswUmodId( Long aswUmodId ) {
+	public void setAswUmodId( Long aswUmodId ) {
         this.aswUmodId = aswUmodId ;
     }
+
     public Long getAswUmodId() {
         return this.aswUmodId;
     }
 
-    public void setAswDcre( Date aswDcre ) {
+	public void setAswDcre( Date aswDcre ) {
         this.aswDcre = aswDcre ;
     }
+
     public Date getAswDcre() {
         return this.aswDcre;
     }
 
-    public void setAswDmod( Date aswDmod ) {
+	public void setAswDmod( Date aswDmod ) {
         this.aswDmod = aswDmod ;
     }
+
     public Date getAswDmod() {
         return this.aswDmod;
     }

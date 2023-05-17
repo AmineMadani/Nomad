@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "AssetType"
  *
@@ -18,44 +22,54 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="asset_type", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AssetType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="dom_id")
+	@JsonProperty("dom_id")
     private Long domId ;
 
     @Column(name="ast_code", nullable=false, length=2147483647)
+	@JsonProperty("ast_code")
     private String astCode ;
 
     @Column(name="ast_slabel", length=2147483647)
+	@JsonProperty("ast_slabel")
     private String astSlabel ;
 
     @Column(name="ast_llabel", length=2147483647)
+	@JsonProperty("ast_llabel")
     private String astLlabel ;
 
     @Column(name="ast_valid")
+	@JsonProperty("ast_valid")
     private Boolean astValid ;
 
     @Column(name="ast_ucre_id")
+	@JsonProperty("ast_ucre_id")
     private Long astUcreId ;
 
     @Column(name="ast_umod_id")
+	@JsonProperty("ast_umod_id")
     private Long astUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ast_dcre")
+	@JsonProperty("ast_dcre")
     private Date astDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ast_dmod")
+	@JsonProperty("ast_dmod")
     private Date astDmod ;
 
 
@@ -101,65 +115,74 @@ public class AssetType implements Serializable {
         return this.id;
     }
 
-    public void setDomId( Long domId ) {
+	public void setDomId( Long domId ) {
         this.domId = domId ;
     }
+
     public Long getDomId() {
         return this.domId;
     }
 
-    public void setAstCode( String astCode ) {
+	public void setAstCode( String astCode ) {
         this.astCode = astCode ;
     }
+
     public String getAstCode() {
         return this.astCode;
     }
 
-    public void setAstSlabel( String astSlabel ) {
+	public void setAstSlabel( String astSlabel ) {
         this.astSlabel = astSlabel ;
     }
+
     public String getAstSlabel() {
         return this.astSlabel;
     }
 
-    public void setAstLlabel( String astLlabel ) {
+	public void setAstLlabel( String astLlabel ) {
         this.astLlabel = astLlabel ;
     }
+
     public String getAstLlabel() {
         return this.astLlabel;
     }
 
-    public void setAstValid( Boolean astValid ) {
+	public void setAstValid( Boolean astValid ) {
         this.astValid = astValid ;
     }
+
     public Boolean getAstValid() {
         return this.astValid;
     }
 
-    public void setAstUcreId( Long astUcreId ) {
+	public void setAstUcreId( Long astUcreId ) {
         this.astUcreId = astUcreId ;
     }
+
     public Long getAstUcreId() {
         return this.astUcreId;
     }
 
-    public void setAstUmodId( Long astUmodId ) {
+	public void setAstUmodId( Long astUmodId ) {
         this.astUmodId = astUmodId ;
     }
+
     public Long getAstUmodId() {
         return this.astUmodId;
     }
 
-    public void setAstDcre( Date astDcre ) {
+	public void setAstDcre( Date astDcre ) {
         this.astDcre = astDcre ;
     }
+
     public Date getAstDcre() {
         return this.astDcre;
     }
 
-    public void setAstDmod( Date astDmod ) {
+	public void setAstDmod( Date astDmod ) {
         this.astDmod = astDmod ;
     }
+
     public Date getAstDmod() {
         return this.astDmod;
     }

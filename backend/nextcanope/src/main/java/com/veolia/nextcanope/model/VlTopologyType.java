@@ -9,6 +9,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "VlTopologyType"
  *
@@ -17,38 +21,46 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="vl_topology_type", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VlTopologyType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="tpt_type", nullable=false, length=2147483647)
+	@JsonProperty("tpt_type")
     private String tptType ;
 
     @Column(name="tpt_required_fields", length=2147483647)
+	@JsonProperty("tpt_required_fields")
     private String tptRequiredFields ;
 
     @Column(name="tpt_valid")
+	@JsonProperty("tpt_valid")
     private Boolean tptValid ;
 
     @Column(name="tpt_ucre_id")
+	@JsonProperty("tpt_ucre_id")
     private Long tptUcreId ;
 
     @Column(name="tpt_umod_id")
+	@JsonProperty("tpt_umod_id")
     private Long tptUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tpt_dcre")
+	@JsonProperty("tpt_dcre")
     private Date tptDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tpt_dmod")
+	@JsonProperty("tpt_dmod")
     private Date tptDmod ;
 
 
@@ -81,51 +93,58 @@ public class VlTopologyType implements Serializable {
         return this.id;
     }
 
-    public void setTptType( String tptType ) {
+	public void setTptType( String tptType ) {
         this.tptType = tptType ;
     }
+
     public String getTptType() {
         return this.tptType;
     }
 
-    public void setTptRequiredFields( String tptRequiredFields ) {
+	public void setTptRequiredFields( String tptRequiredFields ) {
         this.tptRequiredFields = tptRequiredFields ;
     }
+
     public String getTptRequiredFields() {
         return this.tptRequiredFields;
     }
 
-    public void setTptValid( Boolean tptValid ) {
+	public void setTptValid( Boolean tptValid ) {
         this.tptValid = tptValid ;
     }
+
     public Boolean getTptValid() {
         return this.tptValid;
     }
 
-    public void setTptUcreId( Long tptUcreId ) {
+	public void setTptUcreId( Long tptUcreId ) {
         this.tptUcreId = tptUcreId ;
     }
+
     public Long getTptUcreId() {
         return this.tptUcreId;
     }
 
-    public void setTptUmodId( Long tptUmodId ) {
+	public void setTptUmodId( Long tptUmodId ) {
         this.tptUmodId = tptUmodId ;
     }
+
     public Long getTptUmodId() {
         return this.tptUmodId;
     }
 
-    public void setTptDcre( Date tptDcre ) {
+	public void setTptDcre( Date tptDcre ) {
         this.tptDcre = tptDcre ;
     }
+
     public Date getTptDcre() {
         return this.tptDcre;
     }
 
-    public void setTptDmod( Date tptDmod ) {
+	public void setTptDmod( Date tptDmod ) {
         this.tptDmod = tptDmod ;
     }
+
     public Date getTptDmod() {
         return this.tptDmod;
     }

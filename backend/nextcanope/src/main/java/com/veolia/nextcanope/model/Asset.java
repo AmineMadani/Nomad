@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Asset"
  *
@@ -18,38 +22,46 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="asset", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Asset implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="ass_obj_ref", length=2147483647)
+	@JsonProperty("ass_obj_ref")
     private String assObjRef ;
 
     @Column(name="ass_obj_table", nullable=false, length=2147483647)
+	@JsonProperty("ass_obj_table")
     private String assObjTable ;
 
     @Column(name="ass_valid")
+	@JsonProperty("ass_valid")
     private Boolean assValid ;
 
     @Column(name="ass_ucre_id")
+	@JsonProperty("ass_ucre_id")
     private Long assUcreId ;
 
     @Column(name="ass_umod_id")
+	@JsonProperty("ass_umod_id")
     private Long assUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ass_dcre")
+	@JsonProperty("ass_dcre")
     private Date assDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ass_dmod")
+	@JsonProperty("ass_dmod")
     private Date assDmod ;
 
 
@@ -95,51 +107,58 @@ public class Asset implements Serializable {
         return this.id;
     }
 
-    public void setAssObjRef( String assObjRef ) {
+	public void setAssObjRef( String assObjRef ) {
         this.assObjRef = assObjRef ;
     }
+
     public String getAssObjRef() {
         return this.assObjRef;
     }
 
-    public void setAssObjTable( String assObjTable ) {
+	public void setAssObjTable( String assObjTable ) {
         this.assObjTable = assObjTable ;
     }
+
     public String getAssObjTable() {
         return this.assObjTable;
     }
 
-    public void setAssValid( Boolean assValid ) {
+	public void setAssValid( Boolean assValid ) {
         this.assValid = assValid ;
     }
+
     public Boolean getAssValid() {
         return this.assValid;
     }
 
-    public void setAssUcreId( Long assUcreId ) {
+	public void setAssUcreId( Long assUcreId ) {
         this.assUcreId = assUcreId ;
     }
+
     public Long getAssUcreId() {
         return this.assUcreId;
     }
 
-    public void setAssUmodId( Long assUmodId ) {
+	public void setAssUmodId( Long assUmodId ) {
         this.assUmodId = assUmodId ;
     }
+
     public Long getAssUmodId() {
         return this.assUmodId;
     }
 
-    public void setAssDcre( Date assDcre ) {
+	public void setAssDcre( Date assDcre ) {
         this.assDcre = assDcre ;
     }
+
     public Date getAssDcre() {
         return this.assDcre;
     }
 
-    public void setAssDmod( Date assDmod ) {
+	public void setAssDmod( Date assDmod ) {
         this.assDmod = assDmod ;
     }
+
     public Date getAssDmod() {
         return this.assDmod;
     }

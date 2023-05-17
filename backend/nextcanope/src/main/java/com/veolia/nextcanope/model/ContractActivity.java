@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "ContractActivity"
  *
@@ -18,41 +22,50 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="contract_activity", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ContractActivity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="cta_code", nullable=false, length=2147483647)
+	@JsonProperty("cta_code")
     private String ctaCode ;
 
     @Column(name="cta_slabel", length=2147483647)
+	@JsonProperty("cta_slabel")
     private String ctaSlabel ;
 
     @Column(name="cta_llabel", length=2147483647)
+	@JsonProperty("cta_llabel")
     private String ctaLlabel ;
 
     @Column(name="cta_valid")
+	@JsonProperty("cta_valid")
     private Boolean ctaValid ;
 
     @Column(name="cta_ucre_id")
+	@JsonProperty("cta_ucre_id")
     private Long ctaUcreId ;
 
     @Column(name="cta_umod_id")
+	@JsonProperty("cta_umod_id")
     private Long ctaUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cta_dcre")
+	@JsonProperty("cta_dcre")
     private Date ctaDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cta_dmod")
+	@JsonProperty("cta_dmod")
     private Date ctaDmod ;
 
 
@@ -89,58 +102,66 @@ public class ContractActivity implements Serializable {
         return this.id;
     }
 
-    public void setCtaCode( String ctaCode ) {
+	public void setCtaCode( String ctaCode ) {
         this.ctaCode = ctaCode ;
     }
+
     public String getCtaCode() {
         return this.ctaCode;
     }
 
-    public void setCtaSlabel( String ctaSlabel ) {
+	public void setCtaSlabel( String ctaSlabel ) {
         this.ctaSlabel = ctaSlabel ;
     }
+
     public String getCtaSlabel() {
         return this.ctaSlabel;
     }
 
-    public void setCtaLlabel( String ctaLlabel ) {
+	public void setCtaLlabel( String ctaLlabel ) {
         this.ctaLlabel = ctaLlabel ;
     }
+
     public String getCtaLlabel() {
         return this.ctaLlabel;
     }
 
-    public void setCtaValid( Boolean ctaValid ) {
+	public void setCtaValid( Boolean ctaValid ) {
         this.ctaValid = ctaValid ;
     }
+
     public Boolean getCtaValid() {
         return this.ctaValid;
     }
 
-    public void setCtaUcreId( Long ctaUcreId ) {
+	public void setCtaUcreId( Long ctaUcreId ) {
         this.ctaUcreId = ctaUcreId ;
     }
+
     public Long getCtaUcreId() {
         return this.ctaUcreId;
     }
 
-    public void setCtaUmodId( Long ctaUmodId ) {
+	public void setCtaUmodId( Long ctaUmodId ) {
         this.ctaUmodId = ctaUmodId ;
     }
+
     public Long getCtaUmodId() {
         return this.ctaUmodId;
     }
 
-    public void setCtaDcre( Date ctaDcre ) {
+	public void setCtaDcre( Date ctaDcre ) {
         this.ctaDcre = ctaDcre ;
     }
+
     public Date getCtaDcre() {
         return this.ctaDcre;
     }
 
-    public void setCtaDmod( Date ctaDmod ) {
+	public void setCtaDmod( Date ctaDmod ) {
         this.ctaDmod = ctaDmod ;
     }
+
     public Date getCtaDmod() {
         return this.ctaDmod;
     }

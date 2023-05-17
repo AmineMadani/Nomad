@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.controller;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.WorkOrderDto;
 import com.veolia.nextcanope.service.WorkOrderService;
 
@@ -39,5 +41,16 @@ public class WorkorderController {
     			})
     public List<WorkOrderDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
         return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
+    }
+    
+    @PostMapping(path = "create")
+    @Operation(summary = "Create a workorder")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "The workorder", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public WorkOrderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) LinkedHashMap<String, String> workOrderObject) {
+    	return this.workOrderService.createWorkOrder(workOrderObject.get("workOrderRaw"),workOrderObject.get("assetRaw"), account);
     }
 }

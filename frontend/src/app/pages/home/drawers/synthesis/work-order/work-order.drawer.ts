@@ -9,6 +9,7 @@ import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
+import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 
 @Component({
   selector: 'app-work-order',
@@ -16,18 +17,22 @@ import { Location } from '@angular/common';
   styleUrls: ['./work-order.drawer.scss'],
 })
 export class WorkOrderDrawer implements OnInit, OnDestroy {
+
   constructor(
     private router: ActivatedRoute,
     private http: HttpClient,
     private alertCtrl: AlertController,
-    private location: Location
+    private location: Location,
+    private exploitationDateService: ExploitationDataService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((params) => {
         this.workOrder = MapFeature.from(params);
         this.workOrder.id = this.router.snapshot.paramMap.get('id');
-        if(!this.workOrder?.id) {
+        this.asset.set('ass_obj_ref', params['id']?.toString());
+        this.asset.set('ass_obj_table', params['lyr_table_name']?.toString());
+        if (!this.workOrder?.id) {
           this.buttons = [];
         }
         this.createForm();
@@ -45,6 +50,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   public editMode: boolean = false;
 
   private ngUnsubscribe: Subject<void> = new Subject();
+  private asset: Map<String, string> = new Map<string, string>;
 
   ngOnInit(): void {
   }
@@ -62,12 +68,12 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   public createForm(): void {
     let form = 'work-order.mock.json';
-    if(!this.workOrder.id){
+    if (!this.workOrder.id) {
       form = 'work-order-create.mock.json';
       this.editMode = true;
     }
     this.http
-      .get<Form>('./assets/mocks/'+form)
+      .get<Form>('./assets/mocks/' + form)
       .subscribe((woForm: Form) => {
         this.workOrderForm = woForm;
       });
@@ -75,7 +81,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   public onTabButtonClicked(ev: SynthesisButton): void {
     console.log(ev);
-    switch(ev.key) {
+    switch (ev.key) {
       case 'update':
         this.editMode = !this.editMode;
         break;
@@ -89,15 +95,17 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * @returns Title of the workorder drawer
    */
   getTitle(): string {
-    return this.workOrder?.id ? 'I'+this.workOrder.id : 'Générer une intervention';
+    return this.workOrder?.id ? 'I' + this.workOrder.id : 'Générer une intervention';
   }
 
-  onSubmit(form:FormGroup){
-    console.log(form);
-    form.markAllAsTouched();
+  onSubmit(form: FormGroup) {
+    if (form.valid) {
+      console.log("envoi")
+      this.exploitationDateService.createWorkOrder(form.value,this.asset).subscribe();
+    }
   }
 
-  async onCancel(){
+  async onCancel() {
     const alert = await this.alertCtrl.create({
       header: `Souhaitez-vous vraiment annuler cette génération d’intervention ?`,
       buttons: [

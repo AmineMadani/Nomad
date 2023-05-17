@@ -10,6 +10,10 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * JPA entity class for "Users"
  *
@@ -18,41 +22,50 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name="users", schema="nomad" )
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Users implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
     @Column(name="usr_first_name", nullable=false, length=2147483647)
+	@JsonProperty("usr_first_name")
     private String usrFirstName ;
 
     @Column(name="usr_last_name", nullable=false, length=2147483647)
+	@JsonProperty("usr_last_name")
     private String usrLastName ;
 
     @Column(name="usr_email", nullable=false, length=2147483647)
+	@JsonProperty("usr_email")
     private String usrEmail ;
 
     @Column(name="usr_valid")
+	@JsonProperty("usr_valid")
     private Boolean usrValid ;
 
     @Column(name="usr_ucre_id")
+	@JsonProperty("usr_ucre_id")
     private Long usrUcreId ;
 
     @Column(name="usr_umod_id")
+	@JsonProperty("usr_umod_id")
     private Long usrUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="usr_dcre")
+	@JsonProperty("usr_dcre")
     private Date usrDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="usr_dmod")
+	@JsonProperty("usr_dmod")
     private Date usrDmod ;
 
 
@@ -265,58 +278,66 @@ public class Users implements Serializable {
         return this.id;
     }
 
-    public void setUsrFirstName( String usrFirstName ) {
+	public void setUsrFirstName( String usrFirstName ) {
         this.usrFirstName = usrFirstName ;
     }
+
     public String getUsrFirstName() {
         return this.usrFirstName;
     }
 
-    public void setUsrLastName( String usrLastName ) {
+	public void setUsrLastName( String usrLastName ) {
         this.usrLastName = usrLastName ;
     }
+
     public String getUsrLastName() {
         return this.usrLastName;
     }
 
-    public void setUsrEmail( String usrEmail ) {
+	public void setUsrEmail( String usrEmail ) {
         this.usrEmail = usrEmail ;
     }
+
     public String getUsrEmail() {
         return this.usrEmail;
     }
 
-    public void setUsrValid( Boolean usrValid ) {
+	public void setUsrValid( Boolean usrValid ) {
         this.usrValid = usrValid ;
     }
+
     public Boolean getUsrValid() {
         return this.usrValid;
     }
 
-    public void setUsrUcreId( Long usrUcreId ) {
+	public void setUsrUcreId( Long usrUcreId ) {
         this.usrUcreId = usrUcreId ;
     }
+
     public Long getUsrUcreId() {
         return this.usrUcreId;
     }
 
-    public void setUsrUmodId( Long usrUmodId ) {
+	public void setUsrUmodId( Long usrUmodId ) {
         this.usrUmodId = usrUmodId ;
     }
+
     public Long getUsrUmodId() {
         return this.usrUmodId;
     }
 
-    public void setUsrDcre( Date usrDcre ) {
+	public void setUsrDcre( Date usrDcre ) {
         this.usrDcre = usrDcre ;
     }
+
     public Date getUsrDcre() {
         return this.usrDcre;
     }
 
-    public void setUsrDmod( Date usrDmod ) {
+	public void setUsrDmod( Date usrDmod ) {
         this.usrDmod = usrDmod ;
     }
+
     public Date getUsrDmod() {
         return this.usrDmod;
     }

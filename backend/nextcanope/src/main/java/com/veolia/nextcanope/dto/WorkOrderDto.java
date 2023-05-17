@@ -103,7 +103,7 @@ public class WorkOrderDto {
 	    this.reason=workOrderEntity.getWkoName();
 	    this.status=workOrderEntity.getWtsId();
 	    this.datebegin=workOrderEntity.getWkoPlanningStartDate();
-	    this.dateend=workOrderEntity.getWkoPlanningStartDate();
+	    this.dateend=workOrderEntity.getWkoPlanningEndDate();
 	    this.urgent=workOrderEntity.getWkoEmergency();
 	    this.appointment=workOrderEntity.getWkoAppointment();
 	    this.x=workOrderEntity.getLongitude();

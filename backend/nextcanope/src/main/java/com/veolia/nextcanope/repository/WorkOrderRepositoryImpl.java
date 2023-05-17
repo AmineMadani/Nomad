@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,15 +62,16 @@ public class WorkOrderRepositoryImpl {
 			}
         }
 
-		List<Workorder> lWorkOrders = this.jdbcTemplate.query(
-                "select * from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
-                new BeanPropertyRowMapper<Workorder>(Workorder.class)
+		List<Long> lWorkOrdersId = this.jdbcTemplate.queryForList(
+                "select id from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
+                Long.class
         );
 		
-		if(lWorkOrders.size() > 0) {
-			for(int i = 0; i < lWorkOrders.size(); i++) {
-				Optional<Workorder> optWorkOrder = workOrderRepository.findById(lWorkOrders.get(i).getId());
-				lWorkOrders.set(i, optWorkOrder.get());
+		List<Workorder> lWorkOrders = new ArrayList<Workorder>();
+		if(lWorkOrdersId.size() > 0) {
+			for(int i = 0; i < lWorkOrdersId.size(); i++) {
+				Optional<Workorder> optWorkOrder = workOrderRepository.findById(lWorkOrdersId.get(i));
+				lWorkOrders.add(optWorkOrder.get());
 			}
 		}
 		
