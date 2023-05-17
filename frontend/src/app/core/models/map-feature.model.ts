@@ -19,25 +19,11 @@ export class MapFeature {
 
   constructor() {}
 
-  public static from(obj: any, fromProperties?: boolean): MapFeature {
-    let mFeature: MapFeature;
-    if (fromProperties) {
-      mFeature = new MapFeature()
-      mFeature.id = obj['id']?.toString();
-      mFeature.reason = obj['reason'];
-      mFeature.status = obj['status'];
-      mFeature.datebegin = obj['datebegin'];
-      mFeature.dateend = obj['dateend'];
-      mFeature.urgent = obj['urgent'];
-      mFeature.appointment = obj['appointment'];
-      mFeature.x = obj['x'];
-      mFeature.y = obj['y'];
-      return mFeature;
-    } else {
-      mFeature = Object.assign(new MapFeature(), obj)
-      mFeature.id = mFeature.id.toString();
-      return mFeature;
-    }
+  public static from(obj: any): MapFeature {
+    const mFeature: MapFeature =
+      obj instanceof MapFeature ? obj : Object.assign(new MapFeature(), obj);
+    mFeature.id = mFeature.id.toString();
+    return mFeature;
   }
 
   public getLabel(): string {

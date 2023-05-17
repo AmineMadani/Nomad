@@ -1,6 +1,7 @@
 export enum LayerTypeEnum {
-  VECTOR,
-  CLUSTER,
+  LINE,
+  POINT,
+  VANNE,
 }
 
 export interface Layer {
@@ -18,7 +19,7 @@ export const layers: Layer[] = [
   {
     id: 1,
     key: 'aep_branche',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -26,7 +27,7 @@ export const layers: Layer[] = [
   {
     id: 2,
     key: 'aep_canalisation',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.LINE,
     zindex: 2,
     minZoom: 16,
     maxZoom: 20
@@ -34,7 +35,7 @@ export const layers: Layer[] = [
   {
     id: 3,
     key: 'aep_defense_incendie',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -42,7 +43,7 @@ export const layers: Layer[] = [
   {
     id: 4,
     key: 'aep_ouvrage',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -50,7 +51,7 @@ export const layers: Layer[] = [
   {
     id: 5,
     key: 'aep_vanne',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.VANNE,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20,
@@ -60,7 +61,7 @@ export const layers: Layer[] = [
   {
     id: 6,
     key: 'ass_avaloir',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -68,7 +69,7 @@ export const layers: Layer[] = [
   {
     id: 7,
     key: 'ass_branche',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -76,7 +77,7 @@ export const layers: Layer[] = [
   {
     id: 8,
     key: 'ass_collecteur',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.LINE,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -84,7 +85,7 @@ export const layers: Layer[] = [
   {
     id: 9,
     key: 'ass_ouvrage',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -92,7 +93,7 @@ export const layers: Layer[] = [
   {
     id: 10,
     key: 'ass_regard',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -100,7 +101,7 @@ export const layers: Layer[] = [
   {
     id: 11,
     key: 'intervention',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20
@@ -108,7 +109,7 @@ export const layers: Layer[] = [
   {
     id: 12,
     key: 'demand',
-    type: LayerTypeEnum.VECTOR,
+    type: LayerTypeEnum.POINT,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20

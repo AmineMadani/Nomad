@@ -1,177 +1,152 @@
-import { Component, OnInit } from '@angular/core';
-import MapOpenLayer from 'ol/Map';
-import { OSM, WMTS } from 'ol/source';
-import TileLayer from 'ol/layer/Tile';
-import { get as getProjection } from 'ol/proj.js';
-import WMTSTileGrid from 'ol/tilegrid/WMTS.js';
-import { getWidth, getTopLeft } from 'ol/extent.js';
-import BaseLayer from 'ol/layer/Base';
-import { BackLayer } from './map.dataset';
-import { GeolocationControl } from './controls/geolocation.control';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Basemap } from './map.dataset';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ScalelineControl } from './controls/scaleline.control';
-import { ZoomControl } from './controls/zoom.control';
-import { LayerService } from 'src/app/core/services/map/layer.service';
-import { map } from 'rxjs';
+import { Subject } from 'rxjs/internal/Subject';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { LoadingController } from '@ionic/angular';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { take } from 'rxjs';
+import * as Maplibregl from 'maplibre-gl';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
   constructor(
     private mapService: MapService,
-    private layerService: LayerService
-  ) {}
-
-  public projection = getProjection('EPSG:3857');
-  public resolutions: number[] = new Array(21);
-  public matrixIds: string[] = new Array(21);
-
-  public map!: MapOpenLayer;
-  public mapLayers: Map<string, BaseLayer> = new Map();
-
-  ngOnInit() {
-    this.projection = getProjection('EPSG:3857');
-    if (this.projection != null) {
-      this.map = this.mapService.createMap();
-      // Controls need to be added the map creation
-      this.map.addControl(new GeolocationControl(this.layerService));
-      this.map.addControl(new ScalelineControl());
-      this.map.addControl(new ZoomControl(this.map));
-      this.generateMap();
-    }
-  }
-
-  /**
-   * This function adds or removes an event layer from a map service based on whether it already exists
-   * or not.
-   * @param {string} layerKey - string parameter representing the unique identifier for the event layer
-   * being added or removed.
-   */
-  addEventLayer(layerKey: string) {
-    if (!this.mapService.hasEventLayer(layerKey)) {
-      this.mapService.addEventLayer(layerKey);
-    } else {
-      this.mapService.removeEventLayer(layerKey);
-    }
-  }
-
-  /**
-   * This function generates a map with default layers based on a given projection.
-   */
-  generateMap() {
-    if (this.projection != null) {
-      const projectionExtent = this.projection.getExtent();
-      const size = getWidth(projectionExtent) / 256;
-      for (let z = 0; z < 21; ++z) {
-        this.resolutions[z] = size / Math.pow(2, z);
-        this.matrixIds[z] = z.toString();
-      }
-      this.mapService.getBaseMaps().subscribe(backLayerArray => {
-        const defaultBackLayer: BackLayer | undefined = backLayerArray.find(
-          (bl) => bl.default
-        );
-        if (defaultBackLayer) {
-          this.createLayers(defaultBackLayer.key, defaultBackLayer);
+    private mapEvent: MapEventService,
+    private loadingCtrl: LoadingController,
+  ) {
+    this.mapEvent
+      .onMapResize()
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        if (this.map) {
+          setTimeout(() => this.map.resize());
         }
+      });
+  }
+
+  public map!: Maplibregl.Map;
+  public mapBasemaps: Map<string, any> = new Map();
+
+  public displayMap: boolean;
+
+  private basemaps: Basemap[];
+  private ngUnsubscribe$: Subject<void> = new Subject();
+
+  async ngOnInit() {
+    const loading = await this.loadingCtrl.create({
+      message: 'Chargement de la carte',
+    });
+    loading.present();
+
+    this.map = this.mapService.createMap();
+
+    fromEvent(this.map, 'load')
+      .pipe(take(1))
+      .subscribe(() => {
+        this.map.resize();
+        loading.dismiss();
+        this.generateMap();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
+    this.mapService.destroySubscription();
+  }
+
+  /**
+   * This function generates a map with a navigation control and adds a default basemap layer.
+   */
+  generateMap(): void {
+    this.map.addControl(
+      new Maplibregl.NavigationControl({
+        showCompass: true,
+        showZoom: true,
+        visualizePitch: true,
+      })
+    );
+    this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
+      this.basemaps = basemaps;
+      const defaultBackLayer: Basemap | undefined = this.basemaps.find(
+        (bl) => bl.default
+      );
+      if (defaultBackLayer) {
+        this.createLayers(defaultBackLayer.alias.replace(/\s/g, ''), defaultBackLayer);
+        setTimeout(() => {
+          this.map.addLayer({
+            id: 'basemap',
+            type: 'raster',
+            source: defaultBackLayer.alias.replace(/\s/g, ''),
+            paint: {},
+          });
         });
-    }
+      }
+      this.setMapLoaded();
+    });
+  }
+
+  public setMapLoaded(): void {
+    this.displayMap = true;
+    this.mapService.setMapLoaded();
   }
 
   /**
    * Creates layers for a map based on the type of layer specified in the input parameter.
    * @param {string} backLayerKey - A string representing the key of the back layer to be created.
-   * @param {BackLayer} [layer] - Optional parameter of type BackLayer, which contains information about
+   * @param {Basemap} [layer] - Optional parameter of type Basemap, which contains information about
    * the layer to be created.
    */
-  createLayers(backLayerKey: string, layer?: BackLayer): void {
+  createLayers(alias: string, layer?: Basemap): void {
     if (!layer) {
-      this.mapService.getBaseMaps().pipe(
-        map(
-          (backLayerArray : BackLayer[]) => backLayerArray.filter(
-            (backLayer : BackLayer) => backLayer.key === backLayerKey
-          )
-        )
-      );
+      layer = this.basemaps.find((bl: Basemap) => bl.alias.replace(/\s/g, '') === alias);
     }
     if (layer) {
       switch (layer.type) {
-        case 'WMTS':
-          const wmtsLayer = new TileLayer({
-            preload: Infinity,
-            source: this.buildWMTS(layer),
-            visible: layer.display,
-            zIndex: 0,
-          });
-          this.mapLayers.set(layer.key, wmtsLayer);
-          this.map.addLayer(wmtsLayer);
+        case 'WMS':
+          const wmtsLayer: any = {
+            tiles: [
+              `${layer.url}?layer=${layer.layer}&style=normal&tilematrixset=${
+                layer.matrixset
+              }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
+                layer.format
+              )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,
+            ],
+            type: 'raster',
+            tileSize: 128,
+            attribution: layer?.attributions?.[0] ?? '',
+          };
+          this.mapBasemaps.set(alias, wmtsLayer);
+          this.map.addSource(alias, wmtsLayer);
           break;
         case 'OSM':
-          const osmLayer = new TileLayer({
-            preload: Infinity,
-            source: this.buildOSM(),
-            visible: layer.display,
-            zIndex: 0,
-          });
-          this.mapLayers.set(layer.key, osmLayer);
-          this.map.addLayer(osmLayer);
+          const osmLayer: any = {
+            tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            type: 'raster',
+            tileSize: 128,
+          };
+          this.mapBasemaps.set(alias, osmLayer);
+          this.map.addSource(alias, osmLayer);
           break;
       }
     }
   }
 
   /**
-   * The function displays a specific layer on a map while hiding all other layers.
+   * The function displays a specific layer on a map by changing the source of the basemap layer.
    * @param {string} keyLayer - a string representing the key of a layer in a mapLayers Map object
    */
   displayLayer(keyLayer: string) {
-    if (!this.mapLayers.has(keyLayer)) {
+    if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
     }
-    this.map
-      .getLayers()
-      .getArray()
-      .forEach((layer) => {
-        if (layer == this.mapLayers.get(keyLayer)) {
-          layer.setVisible(true);
-        } else {
-          if ([...this.mapLayers.values()].find((res) => res == layer)) {
-            layer.setVisible(false);
-          }
-        }
-      });
-  }
-
-  /**
-   * Builds a WMTS layer
-   * @param {BackLayer} layer - BackLayer object containing information about the WMTS
-   * @returns A WMTS object is being returned.
-   */
-  private buildWMTS(layer: BackLayer): WMTS {
-    return new WMTS({
-      attributions: layer.attributions!,
-      url: layer.url!,
-      layer: layer.layer!,
-      matrixSet: layer.matrixSet!,
-      format: layer.format!,
-      projection: this.projection!,
-      tileGrid: new WMTSTileGrid({
-        origin: getTopLeft(this.projection ? this.projection.getExtent() : []),
-        resolutions: this.resolutions,
-        matrixIds: this.matrixIds,
-      }),
-      style: 'normal',
-      wrapX: true,
-    });
-  }
-
-  /**
-   * Builds a OpenStreetMap layer
-   * @returns A OSM object is being returned.
-   */
-  private buildOSM(): OSM {
-    return new OSM();
+    this.map.getLayer('basemap').source = keyLayer;
+    this.map.zoomTo(this.map.getZoom() + 0.001);
   }
 }

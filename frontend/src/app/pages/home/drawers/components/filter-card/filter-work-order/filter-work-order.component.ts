@@ -35,7 +35,7 @@ export class FilterWorkOrderComponent implements OnInit {
       if (!(res[0] instanceof MapFeature)) {
         this.isFromCache = true;
         this.workOrders = res.map((f: any) =>
-          MapFeature.from(f.getProperties(), true)
+          MapFeature.from(f.properties)
         );
       } else {
         this.isFromCache = false;

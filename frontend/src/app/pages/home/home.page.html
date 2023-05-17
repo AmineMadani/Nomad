@@ -62,9 +62,9 @@
       <ion-icon name="layers-outline"></ion-icon>
     </ion-fab-button>
     <ion-fab-list [side]="isMobile() ? 'top' : 'end'">
-      <ion-fab-button *ngFor="let backLayer of backLayers" class="home-main-content-fab-map-selector-item"
-        [title]="'layer-' + backLayer.key" (click)="onMapChange(backLayer.key)">
-        <ion-img [src]="'assets/img/map/' + backLayer.key + '.png'"></ion-img>
+      <ion-fab-button *ngFor="let basemap of basemaps" class="home-main-content-fab-map-selector-item"
+        [title]="'layer-' + basemap.key" (click)="onMapChange(basemap.alias)">
+        <ion-img [src]="'assets/img/map/' + getMapAlias(basemap.alias) + '.png'"></ion-img>
       </ion-fab-button>
     </ion-fab-list>
   </ion-fab>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { BackLayer } from './components/map/map.dataset';
+import { Basemap } from './components/map/map.dataset';
 import { Subject,takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -19,7 +19,7 @@ export class HomePage implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
-    private mapService : MapService
+    private mapService: MapService
   ) {}
 
   animationBuilder = (baseEl: any, opts?: any) => {
@@ -27,16 +27,16 @@ export class HomePage implements OnInit, OnDestroy {
       .addElement(opts.enteringEl)
       .fromTo('opacity', 0, 1)
       .duration(250);
-    
+
     const leavingAnimation = createAnimation()
       .addElement(opts.leavingEl)
       .fromTo('opacity', 1, 0)
       .duration(250);
-    
+
     const animation = createAnimation()
       .addAnimation(enteringAnimation)
       .addAnimation(leavingAnimation);
-      
+
     return animation;
   };
 
@@ -50,12 +50,17 @@ export class HomePage implements OnInit, OnDestroy {
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
   public drawerType: DrawerTypeEnum = DrawerTypeEnum.DRAWER;
 
-  public backLayers: BackLayer[];
+  public basemaps: Basemap[];
 
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
-      this.mapService.getBaseMaps().subscribe(backLayerArray => this.backLayers = backLayerArray.filter(bl => bl.display));
+    this.mapService
+      .getBasemaps()
+      .subscribe(
+        (baseMaps: Basemap[]) =>
+          (this.basemaps = baseMaps.filter((bl) => bl.display))
+      );
     this.initDrawer();
   }
 
@@ -64,7 +69,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private initDrawer() {
-
     // Init drawer listener
     this.drawerService.initDrawerListener();
     // Subscribe to drawer route changes
@@ -88,10 +92,11 @@ export class HomePage implements OnInit, OnDestroy {
       .subscribe((drawerType: DrawerTypeEnum) => {
         this.drawerType = drawerType;
         //Fix for mobile version to stop bottom sheet scroll on scrollable content
-        if(drawerType == DrawerTypeEnum.BOTTOM_SHEET){
+        if (drawerType == DrawerTypeEnum.BOTTOM_SHEET) {
           setTimeout(() => {
-            const sContents = document.getElementsByClassName('synthesis-content');
-            for(let content of Array.from(sContents)){
+            const sContents =
+              document.getElementsByClassName('synthesis-content');
+            for (let content of Array.from(sContents)) {
               (content as any).ontouchmove = function (e) {
                 e.stopPropagation();
               };
@@ -99,15 +104,6 @@ export class HomePage implements OnInit, OnDestroy {
           }, 1000);
         }
       });
-
-          // Subscribe to drawer open changes
-    // this.drawerService
-    // .onCloseModal()
-    // .pipe(takeUntil(this.drawerUnsubscribe))
-    // .subscribe(() => {
-    //   //this.drawerModal.dismiss();
-    //   //this.drawerModal.dismiss({ rerouting: true });
-    // });
   }
 
   private destroyDrawer() {
@@ -119,7 +115,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onMapChange(keyMap: string) {
-    this.interactiveMap.displayLayer(keyMap);
+    this.interactiveMap.displayLayer(keyMap.replace(/\s/g, ''));
+  }
+
+  public getMapAlias(alias: string): string {
+    return alias.replace(/\s/g, '');
   }
 
   onBottomSheetDismiss(e: Event) {
@@ -133,8 +133,8 @@ export class HomePage implements OnInit, OnDestroy {
     return this.utilsService.isMobilePlateform();
   }
 
-  isDataLoading(): boolean  {
-    return this.layerDataServie.isDataLoading()
+  isDataLoading(): boolean {
+    return this.layerDataServie.isDataLoading();
   }
 
   listDataLoading(): string[] {

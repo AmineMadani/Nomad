@@ -25,6 +25,6 @@
   <app-form-editor *ngIf="workOrderForm" [nomadForm]="workOrderForm" [editMode]="editMode"></app-form-editor>
 </ng-template>
 
-<app-synthesis [drawerTitle]="'I-' + workOrder.id" [hasFile]="true" [tabButtons]="buttons"
+<app-synthesis [drawerTitle]="'I-' + workOrder.id" [sourceLayer]="'intervention'" [hasFile]="true" [tabButtons]="buttons"
   [contentTemplate]="workOrderTemplate" (onTabButton)="onTabButtonClicked($event)">
 </app-synthesis>

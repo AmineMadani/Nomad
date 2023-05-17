@@ -28,7 +28,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
   public cacheLoaded: boolean = false;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   imgUrl: string|undefined;
 
@@ -37,7 +37,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.cacheService
       .onCacheLoaded()
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((loaded: boolean) => {
         this.cacheLoaded = loaded;
       });
@@ -52,8 +52,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   logout() {

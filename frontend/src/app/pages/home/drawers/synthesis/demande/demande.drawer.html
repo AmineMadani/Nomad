@@ -16,6 +16,6 @@
   <app-form-editor *ngIf="demandeForm" [nomadForm]="demandeForm"></app-form-editor>
 </ng-template>
 
-<app-synthesis [drawerTitle]="'DI-' + demande.id" [hasFile]="true" [tabButtons]="buttons"
+<app-synthesis [drawerTitle]="'DI-' + demande.id" [sourceLayer]="'demande'" [hasFile]="true" [tabButtons]="buttons"
   [contentTemplate]="demandeTemplate">
 </app-synthesis>

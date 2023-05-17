@@ -6,6 +6,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { InfiniteScrollCustomEvent, IonContent } from '@ionic/angular';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-filter-card',
@@ -14,20 +15,28 @@ import { InfiniteScrollCustomEvent, IonContent } from '@ionic/angular';
 })
 export class FilterCardComponent implements OnInit, OnDestroy {
   constructor(
-    private layerService: LayerService,
-    private mapEvent: MapEventService,
+    private mapService: MapService,
+    private mapEvent: MapEventService
   ) {
     this.mapEvent
-      .getFeatureHoverd()
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((f: Feature | undefined) => {
-        if(f) {
-          this.featureHovered = f.getId()?.toString();
-          const feature = document.getElementById('feature-' + this.featureHovered);
-          if(feature){
-            const ionContent: any = document.getElementById('filter-content-scrollable');
-            if(ionContent) {
-              (ionContent as IonContent).scrollToPoint(0,feature.offsetTop,1000);
+      .onFeatureHovered()
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((f: string | number | undefined) => {
+        if (f) {
+          this.featureHovered = f;
+          const feature = document.getElementById(
+            'feature-' + this.featureHovered
+          );
+          if (feature) {
+            const ionContent: any = document.getElementById(
+              'filter-content-scrollable'
+            );
+            if (ionContent) {
+              (ionContent as IonContent).scrollToPoint(
+                0,
+                feature.offsetTop,
+                1000
+              );
             }
           }
         } else {
@@ -44,31 +53,39 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() chipTemplateRef: TemplateRef<any>;
   @Input() fromCache: boolean;
 
-  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
+  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> =
+    new EventEmitter();
   @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();
-  
-  public featureHovered: string | undefined;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
+  public featureHovered: string | number | undefined;
+
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   ngOnInit() {}
 
   // Security while Ionic Router still used
   ionViewWillLeave(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
-  public highlightFeature(featureId: string): void {
-    this.layerService.highlightFeature(
-      this.type,
-      featureId
-    );
+  public trackByFn(index: number, feature: any): number {
+    return feature.id;
+  }
+
+  public highlightFeature(feature: MapFeature | undefined): void {
+    if (this.fromCache) {
+      this.mapEvent.highlightHoveredFeature(
+        this.mapService.getMap(),
+        this.type,
+        feature?.id ?? undefined
+      );
+    }
   }
 
   public onIonInfinite(ev: any) {

@@ -30,7 +30,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   ) {
     this.router.queryParams
       .pipe(
-        takeUntil(this.ngUnsubscribe),
+        takeUntil(this.ngUnsubscribe$),
         switchMap((params) => {
           this.eqTemp = params;
           return from(
@@ -74,20 +74,20 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   private eqTemp: any;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   ngOnInit(): void {
     this.isMobile = this.utils.isMobilePlateform();
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   ionViewWillLeave(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   public navigateToDetails(): void {

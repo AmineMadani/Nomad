@@ -1,6 +1,6 @@
-<ion-item-group *ngFor="let feature of features" class="highlightItem"
-  [class.feature-hovered]="featureHovered === feature.id" (mouseenter)="highlightFeature(feature.id)"
-  [id]="'feature-' + feature.id" (mouseleave)="highlightFeature(feature.id)" (click)="openFeature(feature)">
+<ion-item-group *ngFor="let feature of features; trackBy: trackByFn" class="highlightItem"
+  [class.feature-hovered]="featureHovered?.toString() === feature.id?.toString()" (mouseenter)="highlightFeature(feature)"
+  [id]="'feature-' + feature.id" (mouseleave)="highlightFeature(undefined)" (click)="openFeature(feature)">
   <ng-container *ngIf="feature">
     <ion-item lines="none" color="none">
       <ion-icon slot="start" name="attach-outline"></ion-icon>

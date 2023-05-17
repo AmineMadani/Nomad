@@ -6,6 +6,8 @@ import { BehaviorSubject, filter, map, Observable, Subject, tap } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { MapService } from './map/map.service';
+import { MapEventService } from './map/map-event.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +17,7 @@ export class DrawerService {
     private router: Router,
     private location: LocationStrategy,
     private utilsService: UtilsService,
+    private mapEvent: MapEventService,
     private nav: NavController
   ) {}
 
@@ -92,6 +95,7 @@ export class DrawerService {
 
         } else if (currentRouteName === DrawerRouteEnum.HOME) {
           this.currentDrawerType$.next(DrawerTypeEnum.NONE);
+          this.mapEvent.setMapResize();
           
         } else {
           this.currentDrawerType$.next(DrawerTypeEnum.DRAWER);
