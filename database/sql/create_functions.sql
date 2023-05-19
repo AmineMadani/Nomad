@@ -106,13 +106,13 @@ begin
   execute format($sql$
   with
   records as
-  (select %1$s from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
+  (select %1$s, ST_X(ST_Transform( ST_Centroid(geom), 4326 )) as x, ST_Y(ST_Transform( ST_Centroid(geom), 4326 )) as y from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
 	select jsonb_build_object(
 	'type',       'Feature',
 	'id',         id,
-	'geometry',   ST_AsGeoJSON(geom)::jsonb,
+	'geometry',   ST_AsGeoJSON(ST_Transform( geom, 4326 ))::jsonb,
   'properties', to_jsonb(r.*) - 'geom') as feature
   from records r
   )
@@ -142,7 +142,7 @@ declare
 begin
   with
   records as
-  (select split_part(lyr_table_name, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(lyr_table_name, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(ST_Transform( geom, 4326 )))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(

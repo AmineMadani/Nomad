@@ -356,7 +356,9 @@ export class MapService {
     }
 
     const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
-    layer.features.push(...newLayer.features);
+    if(newLayer.features){
+      layer.features.push(...newLayer.features);
+    }
 
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     source.setData(layer as any);
@@ -394,13 +396,13 @@ export class MapService {
       'mapbox:groups': {},
       'mapbox:uiParadigm': 'layers',
     },
-    center: [2.699596882916402, 48.407854932986936],
+    center: [2.699596882916402, 43.34],
     zoom: 15.070827661050382,
     bearing: 0,
     pitch: 0,
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: 'http://localhost:8100/assets/sprites/',
   };
 }

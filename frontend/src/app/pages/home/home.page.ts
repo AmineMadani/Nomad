@@ -58,8 +58,9 @@ export class HomePage implements OnInit, OnDestroy {
     this.mapService
       .getBasemaps()
       .subscribe(
-        (baseMaps: Basemap[]) =>
+        (baseMaps: Basemap[]) => {
           (this.basemaps = baseMaps.filter((bl) => bl.map_display))
+        }
       );
     this.initDrawer();
   }

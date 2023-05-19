@@ -12,7 +12,7 @@ values
 ('OpenStreetMap',
  'OSM',
  null, -- 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
- null,
+ 'OSM',
  null,
  null,
  null, --'EPSG:3857

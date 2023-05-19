@@ -12,6 +12,7 @@ import { Location } from '@angular/common';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 
 @Component({
   selector: 'app-work-order',
@@ -26,7 +27,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private alertCtrl: AlertController,
     private location: Location,
     private exploitationDateService: ExploitationDataService,
-    private drawer: DrawerService
+    private drawer: DrawerService,
+    private layerService: LayerService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -50,16 +52,20 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   public workOrder: MapFeature;
   public workOrderForm: Form;
   public creationDisabled: boolean;
-
   public editMode: boolean = false;
 
   private asset: Map<String, string> = new Map<string, string>;
   private ngUnsubscribe$: Subject<void> = new Subject();
+  private markerCreation: any;
 
   ngOnInit(): void {
+    if (this.editMode) {
+      this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+    }
   }
 
   ngOnDestroy(): void {
+    this.markerCreation.remove();
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }
@@ -84,7 +90,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   public onTabButtonClicked(ev: SynthesisButton): void {
-    switch(ev.key) {
+    switch (ev.key) {
       case 'update':
         this.editMode = !this.editMode;
         break;
@@ -105,9 +111,13 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     form.markAllAsTouched();
     if (form.valid) {
       this.creationDisabled = true;
-      this.exploitationDateService.createWorkOrder(form.value,this.asset).subscribe(res => {
+      let createdWorkOrder = form.value;
+      createdWorkOrder['longitude'] = this.markerCreation.getLngLat().lng;
+      createdWorkOrder['latitude'] = this.markerCreation.getLngLat().lat;
+      this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
         let mapFeature = MapFeature.from(res);
         const lyr_table_name = 'workorder';
+        this.markerCreation.remove();
         this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...mapFeature });
       });
     }

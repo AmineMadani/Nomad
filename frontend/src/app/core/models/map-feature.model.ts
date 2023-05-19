@@ -6,6 +6,8 @@ export class MapFeature {
   public dateend: Date;
   public urgent: boolean;
   public appointment: boolean;
+  public equipmentId: string;
+  public lyr_table_name: string;
   public x: number;
   public y: number;
 
@@ -15,6 +17,7 @@ export class MapFeature {
     const mFeature: MapFeature =
       obj instanceof MapFeature ? obj : Object.assign(new MapFeature(), obj);
     mFeature.id = mFeature.id.toString();
+    mFeature.equipmentId = mFeature.id.toString();
     return mFeature;
   }
 

@@ -12,11 +12,9 @@ import { Subject } from 'rxjs/internal/Subject';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { Location } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { of, forkJoin } from 'rxjs';
 import { switchMap, takeUntil, take } from 'rxjs/operators';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 export interface SynthesisButton {
   key: string;
@@ -35,9 +33,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     private utils: UtilsService,
     private layerService: LayerService,
     private drawerService: DrawerService,
-    private mapService: MapService,
-    private mapEvent: MapEventService,
-    private location: Location
+    private mapService: MapService
   ) {}
 
   @Input() drawerTitle: string;
@@ -61,7 +57,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
       .pipe(
         takeUntil(this.ngUnsubscribe$),
         switchMap((params) => {
-          if (this.checkIfSourceLoaded(params['layer'])) {
+          if (this.checkIfSourceLoaded(params['lyr_table_name'])) {
             return of([params]);
           }
           return forkJoin([
@@ -106,10 +102,12 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   private zoomToFeature(params: any): void {
-    const { id, layer } = params;
-    if (id && layer) {
-      this.layerService.zoomOnXyToFeatureByIdAndLayerKey(layer, id);
-    }
+    const { id, lyr_table_name, x, y } = params;
+    this.layerService.moveToXY(x,y).then(() => {
+      if (id && lyr_table_name) {
+        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(lyr_table_name, id);
+      }
+    });
   }
 
   /**
