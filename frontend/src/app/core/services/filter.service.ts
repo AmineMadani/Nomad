@@ -26,9 +26,35 @@ export class FilterService {
   public getData(layerkey: string): any | undefined {
     const features = this.filterDataService.getFilterData().get(layerkey);
     if (features && features.length > 0) {
-      return this.filterDataService.getFilterData().get(layerkey);
+      return features;
     } else {
-      return this.layerService.getFeaturesFilteredInView(layerkey, this.filterDataService.getSearchFilterListData().get(layerkey));
+      return this.layerService.getFeaturesInView(layerkey);
+    }
+  }
+
+  // /**
+  //  * Method to apply the filter on the map for a specific layer
+  //  * @param layerKey layer exploitation data
+  //  * @param filters list of property filter
+  //  */
+  public applyFilterOnMap(layerKey: string) {
+    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
+    const layer = this.mapService.getLayer(layerKey);
+    
+    if (!layer) {
+      return;
+    }
+  
+    const filter: any[] = ['all'];
+    
+    if (filters && filters.size > 0) {
+      for (const [key, values] of filters) {
+        filter.push(['==', ['get', key], ...values]);
+      }
+    }
+  
+    for (const style of layer.style) {
+      this.mapService.getMap().setFilter(style.id, filter as any);
     }
   }
 
@@ -48,7 +74,7 @@ export class FilterService {
         });
     } else {
       this.mapService.addEventLayer(layerkey).then(() => {
-        this.mapService.applyFilterOnMap(layerkey);
+        this.applyFilterOnMap(layerkey);
       });
     }
   }
@@ -88,10 +114,7 @@ export class FilterService {
       }
       if (this.mapService.getLayer(layerkey)) {
         //Applied the filter on the map
-        this.mapService.applyFilterOnMap(layerkey);
-
-        //Refresh manually de layer
-        this.layerService.refreshLayer(layerkey);
+        this.applyFilterOnMap(layerkey);
       }
     }
   }
@@ -133,13 +156,10 @@ export class FilterService {
       this.filterDataService.getSearchFilterListData().set(layerkey, newType);
     }
 
-    //Applied the filter on the map
-    this.mapService.applyFilterOnMap(layerkey);
+    // //Applied the filter on the map
+    this.applyFilterOnMap(layerkey);
 
-    //Refresh manually de layer
-    this.layerService.refreshLayer(layerkey);
-
-    //In the case of the data from DB
+    // In the case of the data from DB
     if (!this.mapService.getLayer(layerkey)) {
       this.setToggleLayer(layerkey, false);
     }

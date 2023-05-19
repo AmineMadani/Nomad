@@ -41,7 +41,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   public sections: FormNode[] = [];
   public paramMap: Map<string, string>;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   public isMobile: boolean;
 
@@ -55,7 +55,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.form = this.buildForm();
     this.relationService.setRelation(this.nomadForm.relations, this.form);
 
-    this.form.valueChanges.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
+    this.form.valueChanges.pipe(takeUntil(this.ngUnsubscribe$)).subscribe(() => {
       this.relationService.checkRelation(this.nomadForm.relations, this.form);
     });
   }
@@ -76,8 +76,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   /**

@@ -9,4 +9,9 @@ export interface GeoJSONObject {
   [key: string]: GeoJSONValue;
 }
 
+export interface NomadGeoJson {
+  type: string,
+  features: any[];
+}
+
 export interface GeoJSONArray extends Array<GeoJSONValue> {}

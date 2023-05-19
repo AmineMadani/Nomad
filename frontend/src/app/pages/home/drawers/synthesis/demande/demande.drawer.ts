@@ -23,7 +23,7 @@ export class DemandeDrawer implements OnInit {
     private datePipe: DatePipe
   ) {
     this.router.queryParams
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((params) => {
         this.demande = MapFeature.from(params);
         this.createForm();
@@ -38,19 +38,19 @@ export class DemandeDrawer implements OnInit {
   public demande: MapFeature;
   public demandeForm: Form;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   ngOnInit(): void {}
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   // Security while still using Ion Router
   ionViewWillLeave(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   createForm(): void {

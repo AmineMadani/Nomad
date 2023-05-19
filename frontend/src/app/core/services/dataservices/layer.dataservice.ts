@@ -4,7 +4,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
-import { GeoJSONObject } from '../../models/geojson.model';
+import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { LayerReferencesService } from '../layer-reference.service';
 
 @Injectable({
@@ -58,7 +58,7 @@ export class LayerDataService {
     * @param {string} file - The file where the view is.
     * @returns The GeoJSON file for the current tile.
   */
-  public async getLayerFile(layerKey: string, file: string): Promise<GeoJSONObject> {
+  public async getLayerFile(layerKey: string, file: string): Promise<NomadGeoJson> {
     const tile = await this.db.tiles.get(file);
     if (tile) {
       return tile.data;
@@ -70,7 +70,7 @@ export class LayerDataService {
     )![1];
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req = await lastValueFrom(
-      this.http.get<GeoJSONObject>(
+      this.http.get<NomadGeoJson>(
         `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
       )
     );

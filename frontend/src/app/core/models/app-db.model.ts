@@ -1,6 +1,6 @@
 // db.ts
 import Dexie from 'dexie';
-import { GeoJSONObject } from './geojson.model';
+import { GeoJSONObject, NomadGeoJson } from './geojson.model';
 import { LayerReferences } from './layer-references.model';
 
 export interface IIndexes {
@@ -10,7 +10,7 @@ export interface IIndexes {
 
 export interface ITiles {
   key: string;
-  data: GeoJSONObject;
+  data: NomadGeoJson;
 }
 
 export const layerReferencesKey = 'layerReferences';

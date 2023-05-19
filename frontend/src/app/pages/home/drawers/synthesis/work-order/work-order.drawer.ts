@@ -29,7 +29,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private drawer: DrawerService
   ) {
     this.router.queryParams
-      .pipe(takeUntil(this.ngUnsubscribe))
+      .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((params) => {
         this.workOrder = MapFeature.from(params);
         this.workOrder.id = this.router.snapshot.paramMap.get('id');
@@ -53,21 +53,21 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   public editMode: boolean = false;
 
-  private ngUnsubscribe: Subject<void> = new Subject();
   private asset: Map<String, string> = new Map<string, string>;
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   ngOnInit(): void {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   // Security while still using Ion Router
   ionViewWillLeave(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   public createForm(): void {
@@ -84,8 +84,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   public onTabButtonClicked(ev: SynthesisButton): void {
-    console.log(ev);
-    switch (ev.key) {
+    switch(ev.key) {
       case 'update':
         this.editMode = !this.editMode;
         break;

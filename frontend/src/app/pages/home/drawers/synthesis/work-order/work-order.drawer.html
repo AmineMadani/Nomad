@@ -38,6 +38,6 @@
   </div>
 </ng-template>
 
-<app-synthesis [drawerTitle]="getTitle()" [hasFile]="false" [tabButtons]="buttons" [contentTemplate]="workOrderTemplate"
+<app-synthesis [drawerTitle]="getTitle()" [hasFile]="true" [tabButtons]="buttons" [contentTemplate]="workOrderTemplate" [sourceLayer]="'workorder'"
   [footerTemplate]="workOrderfooter" (onTabButton)="onTabButtonClicked($event)">
 </app-synthesis>

@@ -67,6 +67,6 @@ import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details
     DemandeDrawer,
     EquipmentDrawer,
     EquipmentDetailsComponent,
-  ],
+  ]
 })
 export class HomePageModule {}

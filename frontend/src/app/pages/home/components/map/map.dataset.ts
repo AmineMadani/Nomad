@@ -1,4 +1,4 @@
-export interface BackLayer {
+export interface Basemap {
   map_type: string;
   map_attributions?: string[];
   map_url?: string;

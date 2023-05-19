@@ -14,7 +14,6 @@ import { TokenInterceptor } from './core/interceptors/token.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigurationService } from './core/services/configuration.service';
 import { DatePipe } from '@angular/common';
-import { IonSelectSearchLibModule } from 'ionic-select-search';
 
 @NgModule({
   declarations: [
@@ -26,7 +25,6 @@ import { IonSelectSearchLibModule } from 'ionic-select-search';
     IonicModule.forRoot(), 
     AppRoutingModule,
     HttpClientModule,
-    IonSelectSearchLibModule,
     OAuthModule.forRoot()
   ],
   providers: [

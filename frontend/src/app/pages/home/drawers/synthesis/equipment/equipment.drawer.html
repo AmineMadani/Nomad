@@ -26,6 +26,6 @@
   </ng-container>
 </ng-template>
 
-<app-synthesis [drawerTitle]="equipment?.id" [hasFile]="true" [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons"
+<app-synthesis [drawerTitle]="equipment?.id" [sourceLayer]="equipment?.layer" [hasFile]="true" [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons"
 [contentTemplate]="equipmentTemplate" (onDetails)="navigateToDetails()">
 </app-synthesis>
