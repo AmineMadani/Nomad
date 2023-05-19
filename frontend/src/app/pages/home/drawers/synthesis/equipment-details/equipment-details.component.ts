@@ -33,7 +33,7 @@ export class EquipmentDetailsComponent implements OnInit {
       .pipe(
         switchMap((equipment: any) => {
           this.equipment = equipment;
-          const type = equipment.layer.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
+          const type = equipment.lyr_table_name.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
           if (type) {
             this.type = type.charAt(0).toUpperCase() + type.slice(1);
           }

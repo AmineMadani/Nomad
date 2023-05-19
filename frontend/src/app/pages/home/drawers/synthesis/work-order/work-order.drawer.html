@@ -34,7 +34,7 @@
 <ng-template #workOrderfooter>
   <div lines="none" class="footer" *ngIf="editMode">
     <ion-button fill="clear" (click)="onCancel()">Annuler</ion-button>
-    <ion-button fill="clear" fill="clear" slot="end" type="submit" [form]="workOrderForm?.key">Transférer à la planification</ion-button>
+    <ion-button fill="clear" fill="clear" slot="end" type="submit" [form]="workOrderForm?.key" [disabled]="creationDisabled">Transférer à la planification</ion-button>
   </div>
 </ng-template>
 

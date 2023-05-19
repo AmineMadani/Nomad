@@ -10,6 +10,8 @@ import { FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-work-order',
@@ -23,7 +25,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private http: HttpClient,
     private alertCtrl: AlertController,
     private location: Location,
-    private exploitationDateService: ExploitationDataService
+    private exploitationDateService: ExploitationDataService,
+    private drawer: DrawerService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -46,6 +49,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   ];
   public workOrder: MapFeature;
   public workOrderForm: Form;
+  public creationDisabled: boolean;
 
   public editMode: boolean = false;
 
@@ -99,9 +103,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   onSubmit(form: FormGroup) {
+    form.markAllAsTouched();
     if (form.valid) {
-      console.log("envoi")
-      this.exploitationDateService.createWorkOrder(form.value,this.asset).subscribe();
+      this.creationDisabled = true;
+      this.exploitationDateService.createWorkOrder(form.value,this.asset).subscribe(res => {
+        let mapFeature = MapFeature.from(res);
+        const lyr_table_name = 'workorder';
+        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...mapFeature });
+      });
     }
   }
 

@@ -34,7 +34,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         switchMap((params) => {
           this.eqTemp = params;
           return from(
-            this.layerReferencesService.getUserReferences(params['layer'])
+            this.layerReferencesService.getUserReferences(params['lyr_table_name'])
           );
         }),
         switchMap((refs: UserReference[]) => {

@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ import com.veolia.nextcanope.repository.WorkorderRepository;
  */
 @Service
 public class WorkOrderService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(WorkOrderService.class);
 
     @Autowired
     private WorkOrderRepositoryImpl workOrderRepositoryImpl;
@@ -65,7 +69,7 @@ public class WorkOrderService {
      */
     public WorkOrderDto createWorkOrder(String workOrderRaw, String assetRaw, AccountTokenDto account) {
     	ObjectMapper mapper = new ObjectMapper();
-    	Workorder workorder = new Workorder();
+    	Workorder workorder = null;
     	Asset asset = new Asset();
 		try {
 			workorder = mapper.readValue(workOrderRaw, Workorder.class);
@@ -83,13 +87,14 @@ public class WorkOrderService {
 			City city = cityRepository.findById(workorder.getCtyId()).get();
 			workorder.setCtyLlabel(city.getCtyLlabel());
 			
-			workOrderRepository.save(workorder);
+			workorder = workOrderRepository.save(workorder);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error in the workorder creation for the user "+account.getId(), workOrderRaw, assetRaw);
+			logger.error("Exception",e);
 		}
-    	System.out.println(workorder);
-    	System.out.println(asset);
-    	return null;
+		if(workorder == null) {
+			return null;
+		}
+    	return new WorkOrderDto(workorder);
     }
 }

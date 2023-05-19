@@ -11,6 +11,6 @@ export class EquipmentDataService {
   ) { }
 
   getById(id: number): Observable<any> {
-    return this.http.get<any>('method/not/implemented');
+    return null//this.http.get<any>('method/not/implemented');
   }
 }
