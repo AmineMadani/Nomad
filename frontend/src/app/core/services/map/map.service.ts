@@ -236,6 +236,24 @@ export class MapService {
     }
   }
 
+  /**
+   * add a point data for a specific layerkey
+   * @param layerKey the layer key
+   */
+  public addNewPoint(layerKey: string, pointData:any) {
+    let layer = this.loadedData.get(layerKey);
+    if (!layer) {
+      layer = {
+        type: 'FeatureCollection',
+        features: [],
+      };
+      this.loadedData.set(layerKey, layer);
+    }
+    layer.features.push(pointData);
+    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    source.setData(layer as any);
+  }
+
   private onFeaturesClick(layerKey: string, features: any[]): void {
     if (features.length > 0) {
       const ctFeature: any = features[0];

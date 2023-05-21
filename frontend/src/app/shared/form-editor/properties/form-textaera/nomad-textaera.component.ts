@@ -11,7 +11,7 @@ export class FormTextaeraComponent implements OnInit {
   constructor() {}
 
   @Input() definition: FormDefinition;
-  @Input() editMode: boolean;
+  @Input() edit: boolean;
   @Input() control: any;
   public attributes: FormTextaera;
 

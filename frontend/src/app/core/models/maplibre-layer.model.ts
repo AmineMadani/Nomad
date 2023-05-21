@@ -13,7 +13,7 @@ export class MaplibreLayer {
       this.style = this.layerStyle.get('aep_vanne');
     } else {
       this.style = this.layerStyle.get('aep_point');
-      this.style[0].id = this.style[0].source + layerKey;
+      this.style[0].id = 'layer-' + layerKey;
       this.style[0].source = layerKey;
       this.style[0].paint['circle-color'] = this.random_rgba(); 
     }

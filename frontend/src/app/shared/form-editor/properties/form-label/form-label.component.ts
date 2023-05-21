@@ -11,9 +11,13 @@ export class FormLabelComponent implements OnInit {
 
   @Input() definition: FormDefinition;
   @Input() control: any;
+  @Input() paramMap: Map<string, string>;
   public attributes: FormLabel;
 
   ngOnInit() {
     this.attributes = this.definition.attributes as FormLabel;
+    if(this.paramMap?.get(this.definition.key)) {
+      this.attributes.value = this.paramMap?.get(this.definition.key);
+    }
   }
 }

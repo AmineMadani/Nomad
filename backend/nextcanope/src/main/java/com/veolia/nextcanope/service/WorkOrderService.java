@@ -1,6 +1,5 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.dto.WorkOrderDto;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
 import com.veolia.nextcanope.model.Workorder;
@@ -53,13 +51,8 @@ public class WorkOrderService {
      * @param searchParameter 
 	 * @return the workorder list
 	 */
-    public List<WorkOrderDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
-    	List<Workorder> lWorkOrderEntity = workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
-    	List<WorkOrderDto> lWorkOrderDto = new ArrayList<WorkOrderDto>();
-    	lWorkOrderEntity.forEach(workOrderEntity -> {
-    		lWorkOrderDto.add(new WorkOrderDto(workOrderEntity));
-    	});
-        return lWorkOrderDto;
+    public List<Workorder> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
+    	return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
     }
     
     /**
@@ -67,7 +60,7 @@ public class WorkOrderService {
      * @param workOrderRaw
      * @return the workorder dto
      */
-    public WorkOrderDto createWorkOrder(String workOrderRaw, String assetRaw, AccountTokenDto account) {
+    public Workorder createWorkOrder(String workOrderRaw, String assetRaw, AccountTokenDto account) {
     	ObjectMapper mapper = new ObjectMapper();
     	Workorder workorder = null;
     	Asset asset = new Asset();
@@ -88,6 +81,11 @@ public class WorkOrderService {
 			workorder.setCtyLlabel(city.getCtyLlabel());
 			
 			workorder = workOrderRepository.save(workorder);
+			
+			if(workorder.getLongitude() != null && workorder.getLatitude() != null) {
+				workOrderRepositoryImpl.updateGeom(workorder.getId());
+			}
+			
 		} catch (JsonProcessingException e) {
 			logger.error("Error in the workorder creation for the user "+account.getId(), workOrderRaw, assetRaw);
 			logger.error("Exception",e);
@@ -95,6 +93,6 @@ public class WorkOrderService {
 		if(workorder == null) {
 			return null;
 		}
-    	return new WorkOrderDto(workorder);
+    	return workorder;
     }
 }

@@ -21,10 +21,16 @@ export class FormDatepickerComponent implements OnInit {
   @Input() definition: FormDefinition;
   @Input() control: any;
   @Input() edit: boolean;
+  @Input() paramMap: Map<string, string>;
+
   public attributes: FormDatePicker;
 
   ngOnInit() {
     this.attributes = this.definition.attributes as FormDatePicker;
+    if(this.paramMap?.get(this.definition.key)) {
+      this.control.setValue(this.datePipe.transform(this.paramMap?.get(this.definition.key),this.attributes.dateformat));
+      this.attributes.value = this.datePipe.transform(this.paramMap?.get(this.definition.key),this.attributes.dateformat);
+    }
   }
 
   openCalendar() {

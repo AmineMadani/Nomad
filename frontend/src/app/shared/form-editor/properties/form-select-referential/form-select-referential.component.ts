@@ -18,6 +18,7 @@ export class FormSelectReferentialComponent implements OnInit {
   @Input() definition: FormDefinition;
   @Input() control: any;
   @Input() paramMap: Map<string, string>;
+  @Input() edit: boolean;
 
   public attributes: FormSelectReferential;
   public originalOptions: any[] = [];

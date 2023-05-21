@@ -34,7 +34,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     private layerService: LayerService,
     private drawerService: DrawerService,
     private mapService: MapService
-  ) {}
+  ) { }
 
   @Input() drawerTitle: string;
   @Input() hasFile: boolean = false;
@@ -53,22 +53,15 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isMobile = this.utils.isMobilePlateform();
-    this.router.queryParams
-      .pipe(
-        takeUntil(this.ngUnsubscribe$),
-        switchMap((params) => {
-          if (this.checkIfSourceLoaded(params['lyr_table_name'])) {
-            return of([params]);
-          }
-          return forkJoin([
-            of(params),
-            this.mapService.onMapLoaded().pipe(take(1)),
-          ]);
-        })
-      )
-      .subscribe((params) => {
-        this.zoomToFeature(params[0]);
-      });
+    const urlParams = new URLSearchParams(window.location.search);
+    let paramMap = new Map(urlParams.entries());
+    if(this.mapService.getMap()) {
+      this.zoomToFeature(paramMap);
+    } else {
+      this.mapService.onMapLoaded().subscribe(() => {
+        this.zoomToFeature(paramMap);
+      })
+    }
   }
 
   ngOnDestroy(): void {
@@ -102,10 +95,9 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   private zoomToFeature(params: any): void {
-    const { id, lyr_table_name, x, y } = params;
-    this.layerService.moveToXY(x,y).then(() => {
-      if (id && lyr_table_name) {
-        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(lyr_table_name, id);
+    this.layerService.moveToXY(params.get('x'), params.get('y')).then(() => {
+      if (params.get('id') && params.get('lyr_table_name')) {
+        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(params.get('lyr_table_name'), params.get('id'));
       }
     });
   }

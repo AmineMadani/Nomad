@@ -77,7 +77,9 @@ export class LayerDataService {
     if (!req) {
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
+    /*
     await this.db.tiles.put({ data: req, key: file }, file);
+    */
     this.listTileOnLoad.delete(layerKey);
     return req;
   }

@@ -14,6 +14,9 @@ export class FormSelectComponent implements OnInit {
 
   @Input() definition: FormDefinition;
   @Input() control: any;
+  @Input() edit: boolean;
+  @Input() paramMap: Map<string, string>;
+  
   public attributes: FormSelect;
 
   ngOnInit() {

@@ -13,6 +13,8 @@ import { ExploitationDataService } from 'src/app/core/services/dataservices/expl
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
+import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-work-order',
@@ -28,7 +30,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private location: Location,
     private exploitationDateService: ExploitationDataService,
     private drawer: DrawerService,
-    private layerService: LayerService
+    private layerService: LayerService,
+    private referentialService: ReferentialDataService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -47,9 +50,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   public buttons: SynthesisButton[] = [
     { key: 'share', label: 'Partager', icon: 'share-social' },
     { key: 'print', label: 'Imprimer', icon: 'print' },
-    { key: 'update', label: 'Mettre à jour', icon: 'pencil' },
+    //{ key: 'update', label: 'Mettre à jour', icon: 'pencil' },
   ];
-  public workOrder: MapFeature;
+  public workOrder: any;
   public workOrderForm: Form;
   public creationDisabled: boolean;
   public editMode: boolean = false;
@@ -61,11 +64,17 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.editMode) {
       this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+    } else {
+      this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
+        this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
+      });
     }
   }
 
   ngOnDestroy(): void {
-    this.markerCreation.remove();
+    if(this.markerCreation){
+      this.markerCreation.remove();
+    }
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }
@@ -108,6 +117,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   onSubmit(form: FormGroup) {
+    const lyr_table_name = 'workorder';
     form.markAllAsTouched();
     if (form.valid) {
       this.creationDisabled = true;
@@ -116,9 +126,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       createdWorkOrder['latitude'] = this.markerCreation.getLngLat().lat;
       this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
         let mapFeature = MapFeature.from(res);
-        const lyr_table_name = 'workorder';
         this.markerCreation.remove();
-        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...mapFeature });
+        this.layerService.addGeojsonToLayer(res,lyr_table_name);
+        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...res });
       });
     }
   }

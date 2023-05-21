@@ -11,13 +11,23 @@ export class MapFeature {
   public x: number;
   public y: number;
 
-  constructor() {}
+  constructor() { }
 
-  public static from(obj: any): MapFeature {
-    const mFeature: MapFeature =
-      obj instanceof MapFeature ? obj : Object.assign(new MapFeature(), obj);
+  public static from(obj: any): any {
+    const mFeature: MapFeature = obj instanceof MapFeature ? obj : Object.assign(new MapFeature(), obj);
+    mFeature.id = obj['id']?.toString();
+    mFeature.reason = obj['wko_name'];
+    mFeature.status = obj['wts_id'];
+    mFeature.datebegin = obj['wko_planning_start_date'];
+    mFeature.dateend = obj['wko_planning_end_date'];
+    mFeature.urgent = obj['wko_emergency'];
+    mFeature.appointment = obj['wko_appointment'];
+    mFeature.x = obj['longitude'] ? obj['longitude'] : obj['x'];
+    mFeature.y = obj['latitude'] ? obj['latitude'] : obj['y'];
+    mFeature.equipmentId = mFeature.id.toString();
     mFeature.id = mFeature.id.toString();
     mFeature.equipmentId = mFeature.id.toString();
+
     return mFeature;
   }
 

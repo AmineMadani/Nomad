@@ -87,24 +87,24 @@
     </ng-container>
     <ng-container *ngSwitchCase="'input'">
       <app-form-input [definition]="definition" [control]="form.controls[definition.key]"
-        [edit]="editMode"></app-form-input>
+        [edit]="editMode" [paramMap]="paramMap"></app-form-input>
     </ng-container>
     <ng-container *ngSwitchCase="'select'">
-      <app-form-select [definition]="definition" [control]="form.controls[definition.key]"></app-form-select>
+      <app-form-select [definition]="definition" [control]="form.controls[definition.key]" [edit]="editMode" [paramMap]="paramMap"></app-form-select>
     </ng-container>
     <ng-container *ngSwitchCase="'referential'">
-      <app-form-select-referential [definition]="definition" [control]="form.controls[definition.key]" [paramMap]="paramMap"></app-form-select-referential>
+      <app-form-select-referential [definition]="definition" [control]="form.controls[definition.key]" [paramMap]="paramMap" [edit]="editMode"></app-form-select-referential>
     </ng-container>
     <ng-container *ngSwitchCase="'radio'">
       <app-form-radio [definition]="definition" [control]="form.controls[definition.key]"></app-form-radio>
     </ng-container>
     <ng-container *ngSwitchCase="'textarea'">
       <app-form-textaera [definition]="definition" [control]="form.controls[definition.key]"
-        [editMode]="editMode"></app-form-textaera>
+        [edit]="editMode"></app-form-textaera>
     </ng-container>
     <ng-container *ngSwitchCase="'datepicker'">
       <app-form-datepicker [definition]="definition" [control]="form.controls[definition.key]"
-        [editMode]="editMode"></app-form-datepicker>
+        [edit]="editMode" [paramMap]="paramMap"></app-form-datepicker>
     </ng-container>
     <ng-container *ngSwitchCase="'attachment'">
       <app-form-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-attachment>

@@ -51,15 +51,14 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() chipTemplateRef: TemplateRef<any>;
   @Input() fromCache: boolean;
 
-  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> =
-    new EventEmitter();
+  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
   @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();
 
   public featureHovered: string | number | undefined;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   // Security while Ionic Router still used
   ionViewWillLeave(): void {

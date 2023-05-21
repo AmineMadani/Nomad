@@ -51,10 +51,10 @@ export class LayerService {
 
   public getFeaturesInView(layerKey: string): any[] {
     let f: any[] = [];
-    if (this.mapService.hasEventLayer(layerKey)) {
+    if (this.mapService.getMap() && this.mapService.getMap().getLayer('layer-'+layerKey)) {
       f = this.mapService
         .getMap()
-        .queryRenderedFeatures(null, { source: [layerKey] });
+        .queryRenderedFeatures(null, { layers: ['layer-'+layerKey] });
     }
     return f;
   }
@@ -107,6 +107,22 @@ export class LayerService {
         maxZoom: 17,
       });
       this.mapEvent.highlightSelectedFeature(this.mapService.getMap(), layerKey, r.id.toString());
+    });
+  }
+
+  /**
+   * Add new workorder to the geojson source
+   * @param workOrder the workorder
+   */
+  public addGeojsonToLayer(properties:any, layerKey:string) {
+    this.mapService.addEventLayer(layerKey).then(() => {
+      let newPoint:any = {
+        geometry: { type: 'Point', coordinates: [properties.longitude,properties.latitude]},
+        id: properties.id,
+        properties: properties,
+        type: "Feature"
+      }
+      this.mapService.addNewPoint(layerKey,newPoint);
     });
   }
 

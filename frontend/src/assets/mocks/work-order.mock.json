@@ -11,52 +11,103 @@
       "attributes": {}
     },
     {
-      "key": "reason",
+      "key": "wtr_id",
       "type": "property",
-      "component": "input",
-      "editable": true,
+      "component": "referential",
+      "editable": false,
       "label": "Raison",
       "attributes": {
         "value": "",
-        "placeholder": "Raison de l'intervention",
-        "default": "Inconnu",
+        "repository": "v_layer_wtr",
+        "repositoryKey": "wtr_id",
+        "repositoryValue": "wtr_llabel",
+        "filters": ["lyr_table_name"]
+      },
+      "section": "workorderlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        }
+      ]
+    },
+    {
+      "key": "wko_planning_start_date",
+      "type": "property",
+      "component": "datepicker",
+      "editable": false,
+      "label": "Date de début",
+      "attributes": {
+        "value": "",
+        "dateformat": "yyyy-MM-dd",
         "type": "text",
         "hiddenNull": false
       },
+      "section": "workorderlist",
       "rules": [
-        { "key": "required", "value": true, "message": "Obl" }
-      ],
-      "section": "workorderlist"
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        },
+        {
+          "key": "dateformat",
+          "value": "yyyy-MM-dd",
+          "message": "La date saisie est incorrect"
+        }
+      ]
     },
     {
-      "key": "date",
+      "key": "wko_planning_end_date",
       "type": "property",
-      "component": "label",
+      "component": "datepicker",
       "editable": false,
-      "label": "Dates",
+      "label": "Date de fin",
       "attributes": {
         "value": "",
-        "default": "Inconnu"
+        "placeholder": "yyyy-MM-dd",
+        "dateformat": "yyyy-MM-dd",
+        "type": "text",
+        "hiddenNull": false
       },
-      "section": "workorderlist"
+      "section": "workorderlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        },
+        {
+          "key": "dateformat",
+          "value": "yyyy-MM-dd",
+          "message": "La date saisie est incorrect"
+        }
+      ]
     },
     {
-      "key": "contract",
+      "key": "ctr_id",
       "type": "property",
-      "component": "input",
-      "editable": true,
+      "component": "referential",
+      "editable": false,
       "label": "Contrat",
       "attributes": {
         "value": "",
-        "placeholder": "Contrat de l'intervention",
-        "default": "Inconnu",
-        "type": "text",
-        "hiddenNull": false
+        "repository": "contract",
+        "repositoryKey": "id",
+        "repositoryValue": "ctr_slabel"
       },
-      "section": "workorderlist"
+      "section": "workorderlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        }
+      ]
     },
     {
-      "key": "address",
+      "key": "wko_address",
       "type": "property",
       "component": "input",
       "editable": true,
@@ -64,26 +115,47 @@
       "attributes": {
         "value": "",
         "placeholder": "Adresse de l'intervention",
-        "default": "Inconnu",
+        "default": "",
         "type": "text",
         "hiddenNull": false
       },
       "section": "workorderlist"
     },
     {
-      "key": "agents",
+      "key": "wko_agent_nb",
       "type": "property",
-      "component": "slider",
+      "component": "select",
       "editable": true,
-      "label": "Nombre d'agent",
+      "label": "Nombre d'agents",
       "attributes": {
-        "value": 0,
-        "min": 0,
-        "max": 20,
-        "default": 0,
-        "hiddenNull": false
+        "value": "",
+        "options": [
+          {
+            "key": "1",
+            "value": "1"
+          },
+          {
+            "key": "2",
+            "value": "2"
+          },
+          {
+            "key": "3",
+            "value": "3"
+          },
+          {
+            "key": "4",
+            "value": "4"
+          }
+        ]
       },
-      "section": "workorderlist"
+      "section": "workorderlist",
+      "rules": [
+        {
+          "key": "required",
+          "value": "Obligatoire",
+          "message": "Ce champs est obligatoire"
+        }
+      ]
     },
     {
       "key": "attachment",
