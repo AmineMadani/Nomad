@@ -92,9 +92,15 @@ begin
   crs :=  jsonb_build_object('type', 'name', 'properties', crs);
   --
   -- Get list of fields from conf
-  select string_agg("referenceKey", ', ')  into list_fields
-    from nomad.f_get_layer_references_user(user_ident) f
-   where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
+  if lyr_table_name != 'nomad.workorder' then
+    select CONCAT(string_agg("referenceKey", ', '), ', ' || (SELECT column_name 
+	  FROM information_schema.columns 
+	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 
+	  FROM information_schema.columns 
+	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='ctr_id'))  into list_fields
+      from nomad.f_get_layer_references_user(user_ident) f
+      where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
+  end if;
   --
   if list_fields is null then
     -- Get list of fields from postgres
