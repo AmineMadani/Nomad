@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
 import * as Maplibregl from 'maplibre-gl';
-import { features } from 'process';
 
 @Injectable({
   providedIn: 'root',

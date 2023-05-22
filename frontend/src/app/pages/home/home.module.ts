@@ -32,6 +32,7 @@ import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
+import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 
 @NgModule({
   imports: [
@@ -67,6 +68,7 @@ import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details
     DemandeDrawer,
     EquipmentDrawer,
     EquipmentDetailsComponent,
+    MobileHomeActionsComponent
   ]
 })
 export class HomePageModule {}

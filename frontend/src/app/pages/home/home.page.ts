@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { Basemap } from './components/map/map.dataset';
 import { Subject,takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
-import { IonModal, createAnimation } from '@ionic/angular';
+import { IonModal, ModalController, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
-import { MapService } from 'src/app/core/services/map/map.service';
+import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +18,7 @@ export class HomePage implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
-    private mapService: MapService
+    private modalCtrl: ModalController,
   ) {}
 
   animationBuilder = (baseEl: any, opts?: any) => {
@@ -50,18 +49,12 @@ export class HomePage implements OnInit, OnDestroy {
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
   public drawerType: DrawerTypeEnum = DrawerTypeEnum.DRAWER;
 
-  public basemaps: Basemap[];
+  public isMobile: boolean;
 
   private drawerUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
-    this.mapService
-      .getBasemaps()
-      .subscribe(
-        (baseMaps: Basemap[]) => {
-          (this.basemaps = baseMaps.filter((bl) => bl.map_display))
-        }
-      );
+    this.isMobile = this.utilsService.isMobilePlateform();
     this.initDrawer();
   }
 
@@ -115,23 +108,11 @@ export class HomePage implements OnInit, OnDestroy {
     this.drawerService.destroyDrawerListener();
   }
 
-  onMapChange(keyMap: string) {
-    this.interactiveMap.displayLayer(keyMap.replace(/\s/g, ''));
-  }
-
-  public getMapAlias(alias: string): string {
-    return alias.replace(/\s/g, '');
-  }
-
   onBottomSheetDismiss(e: Event) {
     // if (e && (e as any)?.detail?.data?.rerouting) {
     //   return;
     // }
     this.drawerService.closeDrawer();
-  }
-
-  isMobile(): boolean {
-    return this.utilsService.isMobilePlateform();
   }
 
   isDataLoading(): boolean {
@@ -144,5 +125,18 @@ export class HomePage implements OnInit, OnDestroy {
 
   openModal() {
     this.modal.present();
+  }
+
+  async openActionSheet(type: string) {
+    const modal = await this.modalCtrl.create({
+      component: MobileHomeActionsComponent,
+      componentProps: {
+        type
+      },
+      breakpoints: [0, 0.25, 0.5, 0.75],
+      initialBreakpoint: 0.25,
+      cssClass: 'mobile-home-actions'
+    });
+    modal.present();
   }
 }

@@ -106,7 +106,7 @@ begin
     -- Get list of fields from postgres
     select string_agg(column_name, ', ')  into list_fields
       from information_schema.columns
-     where table_schema||'.'||table_name = layer_name;
+     where table_schema||'.'||table_name = lyr_table_name;
   end if;
   --
   execute format($sql$
@@ -148,7 +148,7 @@ declare
 begin
   with
   records as
-  (select split_part(lyr_table_name, '.', 2)||'_'||id||'.geojson' as file, st_asText(st_extent(ST_Transform( geom, 4326 )))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(ST_Transform( geom, 4326 )))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
@@ -171,7 +171,7 @@ end;
 $$;
 
 -- Function to get the list of layers of a user
-CREATE OR REPLACE FUNCTION f_get_layer_references_user(searched_user_id INTEGER = NULL)
+CREATE OR REPLACE FUNCTION f_get_layer_references_user(searched_user_id BIGINT = NULL)
     RETURNS TABLE(
          layer text,
          "referenceId" BIGINT,

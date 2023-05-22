@@ -67,7 +67,25 @@
   src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
 
+.maplibregl-ctrl-top-right {
+  visibility: hidden;
+}
 
+.mapboxgl-ctrl-bottom-left {
+  bottom: 6px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  .maplibregl-ctrl-scale {
+    margin: 0 !important;
+    background-color: transparent;
+  }
+}
+
+.mobile-home-actions {
+  --border-radius: 28px 28px 0px 0px !important;
+  border-radius: 28px 28px 0px 0px !important;
+}
 
 /* width */
 ::-webkit-scrollbar {

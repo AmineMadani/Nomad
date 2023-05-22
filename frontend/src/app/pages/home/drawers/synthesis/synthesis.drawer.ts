@@ -13,8 +13,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { of, forkJoin } from 'rxjs';
-import { switchMap, takeUntil, take } from 'rxjs/operators';
 
 export interface SynthesisButton {
   key: string;

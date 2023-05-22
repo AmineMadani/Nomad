@@ -14,7 +14,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
-import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-work-order',
