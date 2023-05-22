@@ -1,3 +1,21 @@
 <div class="map-container">
   <div id="map" style="width: 100%;height: 100%" [style.visibility]="displayMap ? 'visible' : 'hidden'"></div>
 </div>
+
+
+<div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide" id="map-nomad-context-menu">
+  <ion-list style="border-radius: 0px 10px 10px;">
+    <ion-item button>
+      <ion-label>Sélection polygonale</ion-label>
+    </ion-item>
+    <ion-item button (click)="onGenerateWorkOrder()">
+      <ion-label id="map-nomad-context-menu-create-workorder">Générer une intervention XY</ion-label>
+    </ion-item>
+    <ion-item button>
+      <ion-label>Saisir un compte-rendu</ion-label>
+    </ion-item>
+    <ion-item button>
+      <ion-label>Faire une demande de mise à jour</ion-label>
+    </ion-item>
+  </ion-list>
+</div>

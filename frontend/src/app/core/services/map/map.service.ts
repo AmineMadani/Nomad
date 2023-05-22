@@ -52,6 +52,7 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
+    this.map.dragRotate.disable();
     fromEvent(this.map, 'moveend')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {

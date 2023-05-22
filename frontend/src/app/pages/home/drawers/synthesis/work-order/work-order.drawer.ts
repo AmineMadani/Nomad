@@ -15,6 +15,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { firstValueFrom } from 'rxjs';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-work-order',
@@ -31,7 +32,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private exploitationDateService: ExploitationDataService,
     private drawer: DrawerService,
     private layerService: LayerService,
-    private referentialService: ReferentialDataService
+    private referentialService: ReferentialDataService,
+    private mapService: MapService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -63,7 +65,21 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.editMode) {
-      this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+      if (this.mapService.getMap()) {
+        this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
+          this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
+            this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+          });
+        });
+      } else {
+        this.mapService.onMapLoaded().subscribe(() => {
+          this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
+            this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
+              this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+            });
+          });
+        });
+      }
     } else {
       this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
         this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
@@ -72,7 +88,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if(this.markerCreation){
+    if (this.markerCreation) {
       this.markerCreation.remove();
     }
     this.ngUnsubscribe$.next();
@@ -127,7 +143,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
         let mapFeature = MapFeature.from(res);
         this.markerCreation.remove();
-        this.layerService.addGeojsonToLayer(res,lyr_table_name);
+        this.layerService.addGeojsonToLayer(res, lyr_table_name);
         this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...res });
       });
     }

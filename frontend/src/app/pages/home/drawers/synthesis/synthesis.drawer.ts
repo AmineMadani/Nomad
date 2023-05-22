@@ -7,14 +7,11 @@ import {
   TemplateRef,
   EventEmitter,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs/internal/Subject';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { of, forkJoin } from 'rxjs';
-import { switchMap, takeUntil, take } from 'rxjs/operators';
 
 export interface SynthesisButton {
   key: string;
@@ -29,7 +26,6 @@ export interface SynthesisButton {
 })
 export class SynthesisDrawer implements OnInit, OnDestroy {
   constructor(
-    private router: ActivatedRoute,
     private utils: UtilsService,
     private layerService: LayerService,
     private drawerService: DrawerService,
@@ -100,23 +96,5 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
         this.layerService.zoomOnXyToFeatureByIdAndLayerKey(params.get('lyr_table_name'), params.get('id'));
       }
     });
-  }
-
-  /**
-   * This function checks if a source is loaded on a map in TypeScript.
-   * If isSourceLoaded is false, which is important to know, the lib logs an error,
-   * so the getSource & try/catch are here to prevent this awful log
-   * @param {string} source - Name of the source to be checked
-   * @returns A boolean value is being returned.
-   */
-  private checkIfSourceLoaded(source: string): boolean {
-    try {
-      return (
-        this.mapService.getMap().getSource(source) &&
-        this.mapService.getMap().isSourceLoaded(source)
-      );
-    } catch (e) {
-      return false;
-    }
   }
 }

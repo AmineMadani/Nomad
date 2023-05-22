@@ -35,9 +35,9 @@ export class LayerService {
       sourceLayer: '',
       filter: ['==', 'id', featureId],
     });
-    let val:Array<number[]> = [];
-    for(let feature of r) {
-      if(((feature as any).geometry.coordinates).some(ele => ele.length > 2)){
+    let val: Array<number[]> = [];
+    for (let feature of r) {
+      if (((feature as any).geometry.coordinates).some(ele => ele.length > 2)) {
         //val = [...val, ...((feature as any).geometry.coordinates).flat()];
       } else {
         val = [...val, ...((feature as any).geometry.coordinates)];
@@ -51,10 +51,10 @@ export class LayerService {
 
   public getFeaturesInView(layerKey: string): any[] {
     let f: any[] = [];
-    if (this.mapService.getMap() && this.mapService.getMap().getLayer('layer-'+layerKey)) {
+    if (this.mapService.getMap() && this.mapService.getMap().getLayer('layer-' + layerKey)) {
       f = this.mapService
         .getMap()
-        .queryRenderedFeatures(null, { layers: ['layer-'+layerKey] });
+        .queryRenderedFeatures(null, { layers: ['layer-' + layerKey] });
     }
     return f;
   }
@@ -83,46 +83,44 @@ export class LayerService {
    * @param id The ID of the feature to zoom to
    * @param layerKey The key of the layer
    */
-  public zoomOnXyToFeatureByIdAndLayerKey(layerKey: string, id: string): void {
-    this.mapService.addEventLayer(layerKey).then(() => {
-      const r = this.getFeatureById(layerKey, id);
+  public async zoomOnXyToFeatureByIdAndLayerKey(layerKey: string, id: string): Promise<void> {
+    await this.mapService.addEventLayer(layerKey);
+    const r = this.getFeatureById(layerKey, id);
+    if (!r || r?.id === undefined) {
+      return;
+    }
 
-      if (!r || r?.id === undefined) {
-        return;
-      }
+    const coordinates = r.geometry.coordinates;
 
-      const coordinates = r.geometry.coordinates;
+    let bounds: any;
+    if (r.geometry.type === 'Point') {
+      bounds = new Maplibregl.LngLatBounds(coordinates, coordinates).toArray();
+    } else {
+      bounds = coordinates.reduce((bounds: any, coord: any) => {
+        return bounds.extend(coord);
+      }, new Maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+    }
 
-      let bounds: any;
-      if (r.geometry.type === 'Point') {
-        bounds = new Maplibregl.LngLatBounds(coordinates, coordinates).toArray();
-      } else {
-        bounds = coordinates.reduce((bounds: any, coord: any) => {
-          return bounds.extend(coord);
-        }, new Maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
-      }
-
-      this.mapService.getMap().fitBounds(bounds, {
-        padding: 20,
-        maxZoom: 17,
-      });
-      this.mapEvent.highlightSelectedFeature(this.mapService.getMap(), layerKey, r.id.toString());
+    this.mapService.getMap().fitBounds(bounds, {
+      padding: 20,
+      maxZoom: 17,
     });
+    this.mapEvent.highlightSelectedFeature(this.mapService.getMap(), layerKey, r.id.toString());
   }
 
   /**
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
-  public addGeojsonToLayer(properties:any, layerKey:string) {
+  public addGeojsonToLayer(properties: any, layerKey: string) {
     this.mapService.addEventLayer(layerKey).then(() => {
-      let newPoint:any = {
-        geometry: { type: 'Point', coordinates: [properties.longitude,properties.latitude]},
+      let newPoint: any = {
+        geometry: { type: 'Point', coordinates: [properties.longitude, properties.latitude] },
         id: properties.id,
         properties: properties,
         type: "Feature"
       }
-      this.mapService.addNewPoint(layerKey,newPoint);
+      this.mapService.addNewPoint(layerKey, newPoint);
     });
   }
 
@@ -139,6 +137,8 @@ export class LayerService {
     if (geometry[0] instanceof Array) {
       this.limitDragMarker(geometry, marker);
       marker.on('drag', () => this.limitDragMarker(geometry, marker));
+    } else {
+      marker.setLngLat([(geometry[0] as any), (geometry[1] as any)]);
     }
     return marker;
   }
