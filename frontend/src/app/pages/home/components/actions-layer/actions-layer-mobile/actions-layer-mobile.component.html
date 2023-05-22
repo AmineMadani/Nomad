@@ -1,18 +1,8 @@
-<div *ngIf="!isOpen && currentRoute === drawerRouteEnum.HOME" slot="end" class="action-layer-mobile-closed"><ion-fab>
-    <ion-fab-button (click)="openActionLayer()">
-      <ion-icon name="search-outline"></ion-icon>
+<ion-item *ngIf="currentRoute === drawerRouteEnum.HOME" lines="none" color="none">
+  <ion-fab (click)="openMenu()">
+    <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+      <ion-icon name="menu-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-</div>
-
-<div *ngIf="isOpen" class="action-layer-mobile-open" [class.action-layer-mobile-open-animation-in]="isOpen">
-  <ion-searchbar class="ion-no-margin ion-no-padding"></ion-searchbar>
-  <div class="scrolling-wrapper">
-    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)" [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
-    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)" [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
-    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PERIMETER)" [ngClass]="currentRoute === drawerRouteEnum.PERIMETER ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
-  </div>
-  <ion-button class="actions-layer-content-button-action-close" fill="outline" (click)="onCloseAction()">
-    <ion-icon slot="icon-only" name="close-circle"></ion-icon>
-  </ion-button>
-</div>
+  <ion-searchbar class="home-search" mode="md" show-clear-button="always" placeholder="Recherche"></ion-searchbar>
+</ion-item>

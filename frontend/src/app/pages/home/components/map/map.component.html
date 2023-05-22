@@ -2,6 +2,55 @@
   <div id="map" style="width: 100%;height: 100%" [style.visibility]="displayMap ? 'visible' : 'hidden'"></div>
 </div>
 
+<div class="map-actions-container">
+  <ion-fab *ngIf="!isMobile || (isMobile && currentRoute === 'HOME')" class="layers-fab"
+    [class.mobile-layer]="isMobile">
+    <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
+      <ion-icon name="layers-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list [side]="isMobile? 'top' : 'end'">
+      <ion-fab-button *ngFor="let basemap of basemaps" [title]="'layer-' + basemap.map_slabel"
+        (click)="onBasemapChange(basemap.map_slabel)">
+        <ion-img [src]="'assets/img/map/' + getMapAlias(basemap.map_slabel) + '.png'"></ion-img>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+
+
+  <div *ngIf="map" class="right-buttons" [class.mobile-buttons]="isMobile">
+    <ion-fab (click)="onResetRotation()">
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+        <ion-icon name="compass-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <ion-fab>
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="geolocate()">
+        <ion-icon name="locate-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <ng-container *ngIf="isMobile">
+      <div class="zoom-range">
+        <input type="range" orient="vertical" step="0.1" [min]="map.getMinZoom()" [max]="map.getMaxZoom()"
+          [value]="map.getZoom()" [(ngModel)]="zoom" (ngModelChange)="onZoomChange($event)" />
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!isMobile">
+      <ion-fab (click)="onZoomChange(zoom + 1)">
+        <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+
+      <ion-fab>
+        <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="onZoomChange(zoom - 1)">
+          <ion-icon name="remove-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    </ng-container>
+  </div>
+</div>
 
 <div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide" id="map-nomad-context-menu">
   <ion-list style="border-radius: 0px 10px 10px;">

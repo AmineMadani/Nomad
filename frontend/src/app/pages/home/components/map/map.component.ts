@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener} from '@angular/core';
 import { Basemap } from './map.dataset';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
@@ -9,6 +9,9 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { take } from 'rxjs';
 import * as Maplibregl from 'maplibre-gl';
 import { Router } from '@angular/router';
+import { UtilsService } from 'src/app/core/services/utils.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-map',
@@ -17,11 +20,21 @@ import { Router } from '@angular/router';
 })
 export class MapComponent implements OnInit, OnDestroy {
   constructor(
+    private utilsService: UtilsService,
+    private drawerService: DrawerService,
     private mapService: MapService,
     private mapEvent: MapEventService,
     private loadingCtrl: LoadingController,
     private router: Router,
+    private elem: ElementRef
   ) {
+    this.drawerService
+      .onCurrentRouteChanged()
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((route: DrawerRouteEnum) => {
+        this.currentRoute = route;
+      });
+
     this.mapEvent
       .onMapResize()
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -33,15 +46,23 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   public map!: Maplibregl.Map;
+  public basemaps: Basemap[];
   public displayMap: boolean;
   public mapBasemaps: Map<string, any> = new Map();
 
-  private basemaps: Basemap[];
+  public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
+
+  public zoom: number;
+
+  public isMobile: boolean;
+
   private ngUnsubscribe$: Subject<void> = new Subject();
   private selectedFeature: any;
   private isInsideContextMenu = false;
 
   async ngOnInit() {
+    this.isMobile = this.utilsService.isMobilePlateform();
+
     const loading = await this.loadingCtrl.create({
       message: 'Chargement de la carte',
     });
@@ -69,24 +90,35 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   generateMap(): void {
     this.map.addControl(
-      new Maplibregl.NavigationControl({
-        showCompass: true,
-        showZoom: true,
-        visualizePitch: true,
+      new Maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      })
+    );
+    this.map.addControl(
+      new Maplibregl.ScaleControl({
+        unit: 'metric',
       })
     );
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
-      this.basemaps = basemaps;
+      this.basemaps = basemaps.filter((bl) => bl.map_display);
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
         (bl) => bl.map_default
       );
       if (defaultBackLayer) {
-        this.createLayers(defaultBackLayer.map_layer.replace(/\s/g, ''), defaultBackLayer);
+        this.zoom = this.map.getZoom();
+
+        this.createLayers(
+          defaultBackLayer.map_slabel.replace(/\s/g, ''),
+          defaultBackLayer
+        );
         setTimeout(() => {
           this.map.addLayer({
             id: 'basemap',
             type: 'raster',
-            source: defaultBackLayer.map_layer.replace(/\s/g, ''),
+            source: defaultBackLayer.map_slabel.replace(/\s/g, ''),
             paint: {},
           });
         });
@@ -158,16 +190,20 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param {Basemap} [layer] - Optional parameter of type Basemap, which contains information about
    * the layer to be created.
    */
-  createLayers(alias: string, layer?: Basemap): void {
+  public createLayers(alias: string, layer?: Basemap): void {
     if (!layer) {
-      layer = this.basemaps.find((bl: Basemap) => bl.map_layer.replace(/\s/g, '') === alias);
+      layer = this.basemaps.find(
+        (bl: Basemap) => bl.map_slabel.replace(/\s/g, '') === alias
+      );
     }
     if (layer) {
       switch (layer.map_type) {
         case 'WMS':
           const wmtsLayer: any = {
             tiles: [
-              `${layer.map_url}?layer=${layer.map_layer}&style=normal&tilematrixset=${
+              `${layer.map_url}?layer=${
+                layer.map_layer
+              }&style=normal&tilematrixset=${
                 layer.map_matrixset
               }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
                 layer.map_format
@@ -197,11 +233,43 @@ export class MapComponent implements OnInit, OnDestroy {
    * The function displays a specific layer on a map by changing the source of the basemap layer.
    * @param {string} keyLayer - a string representing the key of a layer in a mapLayers Map object
    */
-  displayLayer(keyLayer: string) {
+  public onBasemapChange(keyLayer: string) {
+    keyLayer = this.getMapAlias(keyLayer);
     if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
     }
     this.map.getLayer('basemap').source = keyLayer;
     this.map.zoomTo(this.map.getZoom() + 0.001);
+  }
+
+  // Temp while basemaps do not have keys
+  public getMapAlias(alias: string): string {
+    return alias.replace(/\s/g, '');
+  }
+
+  /**
+   * Resets the rotation of the map to north.
+   */
+  public onResetRotation(): void {
+    this.map.rotateTo(0);
+  }
+
+  /**
+   * Sets the zoom level of the map to the value e.
+   * @param {number} e - e is a number representing the new zoom level that the map should be set to
+   */
+  public onZoomChange(e: number): void {
+    this.map.zoomTo(e);
+    this.zoom = this.map.getZoom();
+  }
+
+  /**
+   * Use the geolocate feature of Maplibre, with their input hidden
+   */
+  public geolocate(): void {
+    const el = this.elem.nativeElement.querySelectorAll(
+      '.maplibregl-ctrl-geolocate'
+    )[0];
+    el.click();
   }
 }

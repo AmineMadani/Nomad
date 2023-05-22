@@ -6,16 +6,16 @@
   <ion-grid class="ion-no-margin ion-no-padding">
     <ion-row class="home-main-content">
   
-      <ion-col class="home-main-content-map">
+      <ion-col class="home-main-content-map" [class.home-main-content-map-mobile]="isMobile">
         <ion-fab vertical="bottom" class="home-main-content-fab-loader" *ngIf="isDataLoading()">
           <ion-fab-button class="home-main-content-fab-loader-selector" id="open-custom-dialog" (click)="openModal()">
             <ion-spinner name="dots"></ion-spinner>
           </ion-fab-button>
         </ion-fab>
         <app-map #interactiveMap
-          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? 'app-map-mobile' : '')"></app-map>
+          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? 'app-map-mobile' : '')"></app-map>
         <app-actions-layer [currentRoute]="currentRoute"
-          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile()) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
+          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
       </ion-col>
   
       <ng-container [ngSwitch]="drawerType">
@@ -23,7 +23,7 @@
         <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER">
           <!-- <ng-container *ngIf="drawerTypeEnum.DRAWER"> -->
           <ion-col class="home-main-content-interactive"
-            [class]="!isMobile() ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
+            [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
             [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
             <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
           </ion-col>
@@ -56,18 +56,22 @@
     </ion-row>
   </ion-grid>
 
-  <ion-fab *ngIf="!isMobile() || (isMobile() && currentRoute === drawerRouteEnum.HOME)" slot="fixed" vertical="bottom"
-    [horizontal]="isMobile() ? 'end' : 'start'" class="home-main-content-fab-map" [class.fab-map-mobile]="isMobile()">
-    <ion-fab-button class="home-main-content-fab-map-selector">
-      <ion-icon name="layers-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-list [side]="isMobile() ? 'top' : 'end'">
-      <ion-fab-button *ngFor="let basemap of basemaps" class="home-main-content-fab-map-selector-item"
-        [title]="'layer-' + basemap.map_layer" (click)="onMapChange(basemap.map_layer)">
-        <ion-img [src]="'assets/img/map/' + getMapAlias(basemap.map_layer) + '.png'"></ion-img>
-      </ion-fab-button>
-    </ion-fab-list>
-  </ion-fab>
+  <ng-container *ngIf="isMobile">
+    <ion-tab-bar>
+      <ion-tab-button (click)="openActionSheet('DISPLAY')">
+        <ion-icon name="options-outline"></ion-icon>
+        Affichage
+      </ion-tab-button>
+      <ion-tab-button (click)="openActionSheet('ACTIONS')">
+        <ion-icon name="add-outline"></ion-icon>
+        Actions
+      </ion-tab-button>
+      <ion-tab-button (click)="openActionSheet('TOOLS')">
+        <ion-icon name="build-outline"></ion-icon>
+        Outils
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ng-container>
 
   <ion-modal #modalDataLoading id="modal-map-data-loading">
     <ng-template>

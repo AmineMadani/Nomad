@@ -14,7 +14,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
-import { firstValueFrom } from 'rxjs';
 import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
@@ -64,6 +63,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   private markerCreation: any;
 
   ngOnInit(): void {
+    console.log("init");
     if (this.editMode) {
       if (this.mapService.getMap()) {
         this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
@@ -91,12 +91,17 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     if (this.markerCreation) {
       this.markerCreation.remove();
     }
+    console.log('destroy');
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }
 
   // Security while still using Ion Router
   ionViewWillLeave(): void {
+    console.log('leave');
+    if (this.markerCreation) {
+      this.markerCreation.remove();
+    }
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }

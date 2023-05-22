@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { MenuController } from '@ionic/angular';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
@@ -7,27 +8,15 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
   styleUrls: ['./actions-layer-mobile.component.scss'],
 })
 export class ActionsLayerMobileComponent implements OnInit {
-  constructor() {}
+  constructor(private menuCtlr: MenuController) {}
 
   @Input() currentRoute: DrawerRouteEnum;
-  @Output() selectedActionEvent: EventEmitter<DrawerRouteEnum> =
-    new EventEmitter();
 
   public drawerRouteEnum = DrawerRouteEnum;
-  public isOpen: boolean = false;
 
   ngOnInit() {}
 
-  onAction(route: DrawerRouteEnum) {
-    this.selectedActionEvent.emit(route);
-    this.isOpen = false;
-  }
-
-  openActionLayer(): void {
-    this.isOpen = true;
-  }
-
-  onCloseAction(): void {
-    this.isOpen = false;
+  public openMenu(): void {
+    this.menuCtlr.open();
   }
 }

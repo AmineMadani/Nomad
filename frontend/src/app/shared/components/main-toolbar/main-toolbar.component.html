@@ -1,9 +1,9 @@
-<ion-toolbar color="primary" class="main-toolbar">
+<ion-toolbar *ngIf="!isMobile" color="primary" class="main-toolbar">
   <ion-buttons slot="start" *ngIf="!minimalist">
     <ion-menu-button></ion-menu-button>
   </ion-buttons>
-  <ion-img slot="start" class="main-toolbar-logo" src="assets/img/logo/logo-desktop.png" *ngIf="!isMobile"></ion-img>
-  <span slot="start" class="main-toolbar-separator" *ngIf="!isMobile"></span>
+  <ion-img slot="start" class="main-toolbar-logo" src="assets/img/logo/logo-desktop.png"></ion-img>
+  <span slot="start" class="main-toolbar-separator"></span>
   <ion-title class="main-toolbar-title">{{title}}</ion-title>
   <ion-buttons slot="secondary" *ngIf="!minimalist">
     <ion-button>

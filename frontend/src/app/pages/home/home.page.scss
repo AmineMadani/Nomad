@@ -44,6 +44,10 @@ ion-grid, ion-row {
         }
     }
 
+    .home-main-content-map-mobile {
+        height: calc(100% - 80px);
+    }
+
     .home-main-content-interactive {
         padding: 12px;
         height: 100%;
@@ -115,32 +119,11 @@ ion-grid, ion-row {
     }
 }
 
-.home-main-content-fab-map {
-    .home-main-content-fab-map-selector {
-        --background: var(--ion-color-primary-variant-90);
-        --color: var(--ion-color-primary-variant-10);
-        --border-radius: 12px;
-    }
-
-    .home-main-content-fab-map-selector-item {
-        --border-radius: 12px;
-        --box-shadow: 0px 4px 8px 3px rgb(0 0 0 / 40%), 0px 1px 3px rgb(0 0 0 / 40%);
-    }
-}
-
-.fab-map-mobile {
-    transform: translateY(calc(-0.5em - 48px));
-
-    ion-fab-button {
-        width: 40px !important;
-        height: 40px !important;
-    }
-
-    ion-fab-list {
-        margin: 66px 0px 50px 0px;
-        min-height: 40px;
-        min-width: 40px;
-    }
+ion-tab-bar {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    height: 80px;;
 }
 
 #modal-map-data-loading {

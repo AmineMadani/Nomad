@@ -5,7 +5,7 @@ import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { of } from 'rxjs/internal/observable/of';
 import { from } from 'rxjs/internal/observable/from';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
 import { LayerReferencesService } from 'src/app/core/services/layer-reference.service';
 import { UserReference } from 'src/app/core/models/layer-references.model';
@@ -100,9 +100,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   }
   
   public navigateToDetails(): void {
-    // if (this.isMobile) {
-    //   this.drawer.closeModal();
-    // }
     this.drawer.navigateTo(
       DrawerRouteEnum.EQUIPMENT_DETAILS,
       [this.equipment.id],

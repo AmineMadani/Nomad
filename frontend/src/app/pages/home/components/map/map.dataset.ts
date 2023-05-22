@@ -8,4 +8,5 @@ export interface Basemap {
   map_origin?: number[];
   map_display: boolean;
   map_default: boolean;
+  map_slabel?: string;
 }

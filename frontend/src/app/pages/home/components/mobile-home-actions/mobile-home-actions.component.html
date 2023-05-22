@@ -1,0 +1,52 @@
+<ion-item-group>
+  <ng-container [ngSwitch]="type">
+    <ng-container *ngSwitchCase="'DISPLAY'">
+      <ion-item button lines="none" color="none" (click)="navigateTo(drawerRouteEnum.ASSET)">
+        <ion-label>Patrimoine</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" (click)="navigateTo(drawerRouteEnum.EXPLOITATION)">
+        <ion-label>Exploitation</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" (click)="navigateTo(drawerRouteEnum.PERIMETER)">
+        <ion-label>Périmètre</ion-label>
+      </ion-item>
+    </ng-container>
+    
+    <ng-container *ngSwitchCase="'ACTIONS'">
+      <ion-item button lines="none" color="none">
+        <ion-label>Création d'intervention</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-label>Compte rendu</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-label>Signalement</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-label>Mise à jour patrimoine</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-label>Supprimer le pin</ion-label>
+      </ion-item>
+    </ng-container>
+    
+    <ng-container *ngSwitchCase="'TOOLS'">
+      <ion-item button lines="none" color="none">
+        <ion-icon color="primary" name="share-social-outline"></ion-icon>
+        <ion-label>Partager</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-icon color="primary" name="square-outline"></ion-icon>
+        <ion-label>Polygone</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-icon color="primary" name="list-outline"></ion-icon>
+        <ion-label>Sélection multiple</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-icon color="primary" name="trending-up-outline"></ion-icon>
+        <ion-label>Distance</ion-label>
+      </ion-item>
+    </ng-container>
+  </ng-container>
+</ion-item-group>
