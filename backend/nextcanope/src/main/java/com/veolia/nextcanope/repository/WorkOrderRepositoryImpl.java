@@ -68,10 +68,19 @@ public class WorkOrderRepositoryImpl {
 		return lWorkOrders;
 	}
 	
+	/**
+	 * Update geom from a workorder with the longitude and latitude
+	 * @param workOrderId the workorder to update
+	 */
 	public void updateGeom(Long workOrderId) {
 		this.jdbcTemplate.update("update nomad.workorder set geom=(select st_transform(st_setsrid(st_geomfromtext('POINT('||longitude|| ' '||latitude||')'),4326),3857) from nomad.workorder where id=?) where id=?",workOrderId,workOrderId);
 	}
 
+	/**
+	 * Stringify an array
+	 * @param in the array
+	 * @return the string
+	 */
 	private String arrayToStringClause(String[] in) {
 		String out = "";
 		for (String str : in) {
