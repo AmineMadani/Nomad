@@ -13,11 +13,11 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
-  selector: 'app-patrimony',
-  templateUrl: './patrimony.drawer.html',
-  styleUrls: ['./patrimony.drawer.scss'],
+  selector: 'app-asset',
+  templateUrl: './asset.drawer.html',
+  styleUrls: ['./asset.drawer.scss'],
 })
-export class PatrimonyDrawer implements OnInit {
+export class AssetDrawer implements OnInit {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,

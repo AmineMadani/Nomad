@@ -2,7 +2,7 @@ export enum DrawerRouteEnum {
   HOME = 'HOME',
   PERIMETER = 'PERIMETER',
   EXPLOITATION = 'EXPLOITATION',
-  PATRIMONY = 'PATRIMONY',
+  ASSET = 'ASSET',
   EQUIPMENT = 'EQUIPMENT',
   EQUIPMENT_DETAILS = 'EQUIPMENT_DETAILS',
   WORKORDER = 'WORKORDER',
@@ -30,8 +30,8 @@ export const drawerRoutes = [
     name: DrawerRouteEnum.EXPLOITATION,
   },
   {
-    path: '/home/patrimony',
-    name: DrawerRouteEnum.PATRIMONY,
+    path: '/home/asset',
+    name: DrawerRouteEnum.ASSET,
   },
   {
     path: '/home/equipment/:id',

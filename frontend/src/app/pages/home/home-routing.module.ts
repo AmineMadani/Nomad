@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
-import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
+import { AssetDrawer } from './drawers/asset/asset.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 
 import { HomePage } from './home.page';
@@ -20,10 +20,10 @@ const routes: Routes = [
     },
     children: [
       {
-        path: 'patrimony',
-        component: PatrimonyDrawer,
+        path: 'asset',
+        component: AssetDrawer,
         data: {
-          name: DrawerRouteEnum.PATRIMONY,
+          name: DrawerRouteEnum.ASSET,
         },
       },
       {

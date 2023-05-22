@@ -12,7 +12,7 @@ import { MapComponent } from './components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
 import { HttpClientModule } from '@angular/common/http';
-import { PatrimonyDrawer } from './drawers/patrimony/patrimony.drawer';
+import { AssetDrawer } from './drawers/asset/asset.drawer';
 import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
@@ -51,7 +51,7 @@ import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details
     ActionsLayerDesktopComponent,
     ActionsLayerMobileComponent,
     MapComponent,
-    PatrimonyDrawer,
+    AssetDrawer,
     ExploitationDrawer,
     PerimeterDrawer,
     FilterContentComponent,
