@@ -180,11 +180,11 @@ export class MapComponent implements OnInit, OnDestroy {
    * The function navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    this.selectedFeature.properties['lyr_table_name'] =
-      this.selectedFeature.source;
+    this.selectedFeature['properties']['lyr_table_name'] =
+      this.selectedFeature['source'];
     document.getElementById('map-nomad-context-menu').className = 'hide';
     this.router.navigate(['/home/work-order'], {
-      queryParams: this.selectedFeature.properties,
+      queryParams: this.selectedFeature['properties'],
     });
   }
 
