@@ -20,11 +20,30 @@ public class ReferentialRepositoryImpl {
 	/**
      * Retrieves all the referential data.
      *
-     * @param key The referential to load
+     * @param referential The referential to load
      * @return The data referential to load.
      */
 	public List<Map<String, Object>> getReferentialData(String referential) {
-		final List<Map<String, Object>> rows = jdbcTemplate.queryForList("select * from nomad."+referential);
+		String getColumns = "SELECT string_agg(quote_ident(attname), ', ' ORDER BY attnum) as res FROM pg_attribute WHERE  attrelid = 'nomad."+referential+"'::regclass AND NOT attisdropped AND attnum > 0 and attname <> 'geom'";
+		List<String> columns = jdbcTemplate.queryForList(getColumns, String.class);
+		
+		final List<Map<String, Object>> rows = jdbcTemplate.queryForList("select "+columns.get(0)+" from nomad."+referential);
+		return rows;
+    }
+	
+	/**
+     * Retrieves all the referential id that intersect a coordinate.
+     *
+     * @param referential The referential to load
+     * @param longitude X coordinate
+     * @param latitude Y coordinate
+     * @return The list of ID.
+     */
+	public List<Long> getReferentialIdByLongitudeLatitude(String referential, String longitude, String latitude) {
+		String query = "SELECT id "
+				+ "FROM nomad."+referential+" c "
+				+ "WHERE ST_Intersects(c.geom, st_transform(st_setsrid(st_geomfromtext('POINT('||'"+longitude+"'|| ' '||'"+latitude+"'||')'),4326),3857))";
+		final List<Long> rows = jdbcTemplate.queryForList(query, Long.class);
 		return rows;
     }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ReferentialDataService } from './dataservices/referential.dataservice';
 import { AppDB } from '../models/app-db.model';
 
@@ -28,6 +28,14 @@ export class ReferentialService {
       await this.db.referentials.put({ data: referential, key: referentialName }, referentialName);
     }
     return referential;
+  }
+
+  /**
+   * Method to get list of id referential which intersect coordinate point
+   * @returns A Promise that resolves to the list of id referential
+   */
+  getReferentialIdByLongitudeLatitude(referentialName: string, longitude: string, latitude: string): Observable<any[]> {
+    return this.referentialDataService.getReferentialIdByLongitudeLatitude(referentialName, longitude, latitude);
   }
 
 }

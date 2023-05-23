@@ -24,9 +24,8 @@ export class MapFeature {
     mFeature.appointment = obj['wko_appointment'];
     mFeature.x = obj['longitude'] ? obj['longitude'] : obj['x'];
     mFeature.y = obj['latitude'] ? obj['latitude'] : obj['y'];
-    mFeature.equipmentId = mFeature.id.toString();
-    mFeature.id = mFeature.id.toString();
-    mFeature.equipmentId = mFeature.id.toString();
+    mFeature.equipmentId = mFeature.id?.toString();
+    mFeature.id = mFeature.id?.toString();
 
     return mFeature;
   }

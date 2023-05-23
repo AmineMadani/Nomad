@@ -20,4 +20,12 @@ export class ReferentialDataService {
   getReferential(referential:string): Observable<any[]> {
     return this.http.get<any[]>(`${this.configurationService.apiUrl}referential/`+referential);
   }
+
+  /**
+   * Method to get list of id referential which intersect coordinate point
+   * @returns List referential data
+   */
+  getReferentialIdByLongitudeLatitude(referential:string,longitude:string,latitude:string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.configurationService.apiUrl}referential/${referential}/${longitude}/${latitude}`);
+  }
 }

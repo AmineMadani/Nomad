@@ -129,11 +129,13 @@ export class LayerService {
    * @param y latitude
    * @returns the marker
    */
-  public addMarker(x: number, y: number, geometry: Array<number[]>): any {
+  public addMarker(x: number, y: number, geometry: Array<number[]>, isXY?: boolean): any {
     let marker: Maplibregl.Marker = new Maplibregl.Marker({
-      draggable: geometry[0] instanceof Array
+      draggable: geometry[0] instanceof Array ? true : isXY
     }).setLngLat([x, y]).addTo(this.mapService.getMap());
+    console.log("1",geometry);
     if (geometry[0] instanceof Array) {
+      console.log("2")
       this.limitDragMarker(geometry, marker);
       marker.on('drag', () => this.limitDragMarker(geometry, marker));
     } else {

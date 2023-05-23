@@ -1,7 +1,7 @@
 <ng-container *ngIf="edit; else labelTemplate">
   <div class="form-property-referential">
     <ion-input aria-label="def-input" labelPlacement="floating" fill="outline" [id]="'referential-'+definition.key"
-      [label]="definition.label" [placeholder]="attributes.placeholder" [value]="valueLabel" [readonly]="true"
+      [label]="definition.label" [placeholder]="attributes.placeholder" [value]="getValueLabel()" (click)="onOpenModal()" [readonly]="true"
       [disabled]="disabled" />
 
     <ng-container *ngIf="definition.rules">
@@ -16,8 +16,7 @@
   </div>
 
   <ng-container *ngIf="!disabled">
-    <ion-modal class="form-property-referential-modal" [id]="'modal-'+definition.key" #modal
-      [trigger]="'referential-'+definition.key">
+    <ion-modal class="form-property-referential-modal" [id]="'modal-'+definition.key" #modalReferential>
       <ng-template>
         <ion-header>
           <ion-toolbar>
@@ -52,7 +51,7 @@
   <ion-item lines="none" class="ion-no-margin ion-no-padding">
     <ion-label class="label">
       <h3>{{ definition.label }}</h3>
-      <p>{{ valueLabel }}</p>
+      <p>{{ getValueLabel() }}</p>
     </ion-label>
   </ion-item>
 </ng-template>

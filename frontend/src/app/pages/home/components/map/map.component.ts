@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, HostListener} from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener } from '@angular/core';
 import { Basemap } from './map.dataset';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-map',
@@ -26,7 +27,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private mapEvent: MapEventService,
     private loadingCtrl: LoadingController,
     private router: Router,
-    private elem: ElementRef
+    private elem: ElementRef,
+    private referentialService: ReferentialService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -58,6 +60,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe$: Subject<void> = new Subject();
   private selectedFeature: any;
+  private selectedCoordinate:{x:string,y:string} = {x:'',y:''};
   private isInsideContextMenu = false;
 
   async ngOnInit() {
@@ -125,38 +128,63 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       this.setMapLoaded();
     });
-   this.map.on('contextmenu', (e) => {this.openNomadContextMenu(e)});
+    this.map.on('contextmenu', (e) => { this.openNomadContextMenu(e) });
   }
 
-  onGenerateWorkOrder(){
-    this.selectedFeature['properties']['lyr_table_name'] = this.selectedFeature['source'];
-    document.getElementById("map-nomad-context-menu").className = "hide";
-    this.router.navigate(
-      ['/home/work-order'],
-      { queryParams: this.selectedFeature['properties'] }
-    );
+  /**
+   * Method to redirect to the creation of a workorder on the right click usage
+   */
+  onGenerateWorkOrder() {
+    if (this.selectedFeature) {
+      this.selectedFeature['properties']['lyr_table_name'] = this.selectedFeature['source'];
+      document.getElementById("map-nomad-context-menu").className = "hide";
+      this.router.navigate(
+        ['/home/work-order'],
+        { queryParams: this.selectedFeature['properties'] }
+      );
+    } else {
+      document.getElementById("map-nomad-context-menu").className = "hide";
+      this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.selectedCoordinate.x, this.selectedCoordinate.y).subscribe( l_ctr_id => {
+        this.referentialService.getReferentialIdByLongitudeLatitude('city', this.selectedCoordinate.x, this.selectedCoordinate.y).subscribe( l_cty_id => {
+          let param:any = {};
+          param.x = this.selectedCoordinate.x;
+          param.y = this.selectedCoordinate.y;
+          param.lyr_table_name = "xy";
+          if(l_ctr_id && l_ctr_id.length > 0) param.ctr_id = l_ctr_id.join(',');
+          if(l_cty_id && l_cty_id.length > 0) param.cty_id = l_cty_id.join(',');
+
+          this.router.navigate(
+            ['/home/work-order'],
+            { queryParams: param }
+          );
+        });
+      });
+    }
+
   }
 
   /**
    * Method to open the context menu on the map if the user right click on it
    * @param e The mouse event from the right click
    */
-  openNomadContextMenu(e){
+  openNomadContextMenu(e) {
     var width = 10;
     var height = 10;
     document.getElementById("map-nomad-context-menu").className = "show";
-    document.getElementById("map-nomad-context-menu").style.top = (e.originalEvent.clientY-56) + 'px';
+    document.getElementById("map-nomad-context-menu").style.top = (e.originalEvent.clientY - 56) + 'px';
     document.getElementById("map-nomad-context-menu").style.left = e.originalEvent.clientX + 'px';
 
-    var features = this.map.queryRenderedFeatures([[e.originalEvent.x + width / 2, (e.originalEvent.y-56) + height / 2],[e.originalEvent.x - width / 2, (e.originalEvent.y - 56) - height / 2]]);
+    var features = this.map.queryRenderedFeatures([[e.originalEvent.x + width / 2, (e.originalEvent.y - 56) + height / 2], [e.originalEvent.x - width / 2, (e.originalEvent.y - 56) - height / 2]]);
 
-    if(features.length > 0 ){
+    if (features.length > 0) {
       document.getElementById("map-nomad-context-menu-create-workorder").innerHTML = "Générer une intervention sur " + features[0].properties['id'];
       this.selectedFeature = features[0];
-      this.selectedFeature['properties']['x']=e.lngLat.lng;
-      this.selectedFeature['properties']['y']=e.lngLat.lat;
+      this.selectedFeature['properties']['x'] = e.lngLat.lng;
+      this.selectedFeature['properties']['y'] = e.lngLat.lat;
     } else {
-      this.selectedFeature=undefined;
+      this.selectedFeature = undefined;
+      this.selectedCoordinate.x = e.lngLat.lng;
+      this.selectedCoordinate.y = e.lngLat.lat;
       document.getElementById("map-nomad-context-menu-create-workorder").innerHTML = "Générer une intervention XY";
     }
   }
@@ -175,8 +203,8 @@ export class MapComponent implements OnInit, OnDestroy {
    * CHange the param isInsideContextMenu if hte user is on/out of the context menu
    * @param hover True if context menu hover
    */
-  onHoverContextMenu(hover:boolean) {
-    this.isInsideContextMenu=hover;
+  onHoverContextMenu(hover: boolean) {
+    this.isInsideContextMenu = hover;
   }
 
   setMapLoaded(): void {
@@ -201,10 +229,8 @@ export class MapComponent implements OnInit, OnDestroy {
         case 'WMS':
           const wmtsLayer: any = {
             tiles: [
-              `${layer.map_url}?layer=${
-                layer.map_layer
-              }&style=normal&tilematrixset=${
-                layer.map_matrixset
+              `${layer.map_url}?layer=${layer.map_layer
+              }&style=normal&tilematrixset=${layer.map_matrixset
               }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
                 layer.map_format
               )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,

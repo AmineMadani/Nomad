@@ -27,7 +27,7 @@
     </div>
   </ng-container>
   <app-form-editor *ngIf="workOrderForm" [nomadForm]="workOrderForm" [editMode]="editMode"
-    (submitAction)="onSubmit($event)"></app-form-editor>
+    (submitAction)="onSubmit($event)" #formEditor></app-form-editor>
 </ng-template>
 
 <ng-template #workOrderfooter>

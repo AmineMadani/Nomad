@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { SynthesisButton } from '../synthesis.drawer';
@@ -15,6 +15,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 
 @Component({
   selector: 'app-work-order',
@@ -62,22 +63,15 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private markerCreation: any;
 
+  @ViewChild('formEditor') formEditor: FormEditorComponent;
+
   ngOnInit(): void {
-    console.log("init");
     if (this.editMode) {
       if (this.mapService.getMap()) {
-        this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
-          this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
-            this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
-          });
-        });
+        this.generateMarker();
       } else {
         this.mapService.onMapLoaded().subscribe(() => {
-          this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
-            this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
-              this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
-            });
-          });
+          this.generateMarker();
         });
       }
     } else {
@@ -87,18 +81,38 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     }
   }
 
+  private generateMarker() {
+    this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
+      if (this.workOrder.equipmentId && this.workOrder.lyr_table_name) {
+        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
+          this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+        });
+      } else {
+        this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, [this.workOrder.x, this.workOrder.y], true);
+        this.markerCreation.on('dragend', (e) => {
+          this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_ctr_id => {
+            this.formEditor.paramMap.set('ctr_id',l_ctr_id.join(','));
+            console.log(this.formEditor.paramMap);
+          });
+          this.referentialService.getReferentialIdByLongitudeLatitude('city', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_cty_id => {
+            this.formEditor.paramMap.set('cty_id',l_cty_id.join(','));
+            console.log(this.formEditor.paramMap);
+          });
+        });
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     if (this.markerCreation) {
       this.markerCreation.remove();
     }
-    console.log('destroy');
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }
 
   // Security while still using Ion Router
   ionViewWillLeave(): void {
-    console.log('leave');
     if (this.markerCreation) {
       this.markerCreation.remove();
     }
@@ -140,6 +154,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   onSubmit(form: FormGroup) {
     const lyr_table_name = 'workorder';
     form.markAllAsTouched();
+
+
+    console.log(this.formEditor);
     if (form.valid) {
       this.creationDisabled = true;
       let createdWorkOrder = form.value;

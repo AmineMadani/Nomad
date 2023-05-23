@@ -34,4 +34,13 @@ public class ReferentialController {
 	public List<Map<String, Object>> getReferential(@PathVariable String key) {
 		return referentialRepositoryImpl.getReferentialData(key);
 	}
+	
+	@GetMapping(path = "/{key}/{longitude}/{latitude}")
+	@Operation(summary = "Get list of id referential which intersect coordinate point")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "List id of the referential")
+			})
+	public List<Long> getReferentialIdByLongitudeLatitude(@PathVariable String key, @PathVariable String longitude, @PathVariable String latitude) {
+		return referentialRepositoryImpl.getReferentialIdByLongitudeLatitude(key, longitude, latitude);
+	}
 }
