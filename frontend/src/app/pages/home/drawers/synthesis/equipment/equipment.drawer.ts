@@ -48,11 +48,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       .subscribe((equipment) => {
         this.equipment = equipment;
 
-        // Remove empty references from the list
-        this.userReferences = this.userReferences.filter(
-          (element: UserReference) =>
-            this.equipment[element.referenceKey] || !element.isVisible
-        );
       });
   }
 
