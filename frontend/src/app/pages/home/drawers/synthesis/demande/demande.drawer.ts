@@ -47,12 +47,6 @@ export class DemandeDrawer implements OnInit {
     this.ngUnsubscribe$.complete();
   }
 
-  // Security while still using Ion Router
-  ionViewWillLeave(): void {
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
-  }
-
   createForm(): void {
     this.http
       .get<Form>('./assets/mocks/demande.mock.json')

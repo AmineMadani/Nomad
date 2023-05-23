@@ -65,11 +65,6 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
-  ionViewWillLeave(): void {
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
-  }
-
   public onDrawerBack(): void {
     this.drawerService.setLocationBack();
   }

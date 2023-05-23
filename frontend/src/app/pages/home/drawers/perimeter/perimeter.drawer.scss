@@ -1,9 +1,6 @@
 .perimeter-drawer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: bloc;
   height: calc(100% - 56px);
-  padding: 12px;
 
   .header-label {
     font-weight: 300;

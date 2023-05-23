@@ -85,11 +85,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
-  ionViewWillLeave(): void {
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
-  }
-
   public onTabButtonClicked(ev: SynthesisButton): void {
     if(ev.key === 'create') {
       this.router.navigate(

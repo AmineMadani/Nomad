@@ -25,7 +25,9 @@
           <ion-col class="home-main-content-interactive"
             [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
             [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
-            <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
+            <div [ngClass]="{ 'router-container': !isMobile, 'router-container-mobile': isMobile }">
+              <router-outlet [animation]="animationBuilder"></router-outlet>
+            </div>
           </ion-col>
         </ng-container>
         <!-- Drawer Full Width -->
@@ -37,7 +39,9 @@
               'home-main-content-interactive-animation-full-in': drawerHasBeenOpened,
               'home-main-content-interactive-animation-full-out': !drawerHasBeenOpened
             }">
-            <ion-router-outlet [animation]="animationBuilder"></ion-router-outlet>
+            <div [ngClass]="{ 'router-container-full': !isMobile, 'router-container-full-mobile': isMobile }">
+              <router-outlet [animation]="animationBuilder"></router-outlet>
+            </div>
           </ion-col>
         </ng-container>
         <!-- Bottom sheet -->
@@ -46,7 +50,9 @@
             show-backdrop="false" (didDismiss)="onBottomSheetDismiss($event)" [initialBreakpoint]="0.25"
             [breakpoints]="[0, 0.25, 0.5, 0.75, 1]" backdropBreakpoint="0.5">
             <ng-template>
-              <ion-router-outlet></ion-router-outlet>
+              <div class="router-container">
+                <router-outlet [animation]="animationBuilder"></router-outlet>
+              </div>
             </ng-template>
           </ion-modal>
         </ng-container>
@@ -56,7 +62,7 @@
     </ion-row>
   </ion-grid>
 
-  <ng-container *ngIf="isMobile">
+  <ng-container *ngIf="isMobile && currentRoute == drawerRouteEnum.HOME">
     <ion-tab-bar>
       <ion-tab-button (click)="openActionSheet('DISPLAY')">
         <ion-icon name="options-outline"></ion-icon>

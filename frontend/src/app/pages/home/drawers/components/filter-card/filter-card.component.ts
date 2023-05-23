@@ -60,12 +60,6 @@ export class FilterCardComponent implements OnInit, OnDestroy {
 
   ngOnInit() { }
 
-  // Security while Ionic Router still used
-  ionViewWillLeave(): void {
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
-  }
-
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();

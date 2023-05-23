@@ -5,6 +5,7 @@ import { IonRouterOutlet, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { DialogService } from './core/services/dialog.service';
 import { register } from 'swiper/element/bundle';
+import { UtilsService } from './core/services/utils.service';
 
 register();
 
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private keycloakService: KeycloakService,
     private dialog: DialogService,
     private location: Location,
-    private platform: Platform
+    private platform: Platform,
+    private utils: UtilsService
   ) {
     this.keycloakService.configure()
   }
@@ -34,9 +36,12 @@ export class AppComponent implements OnInit, OnDestroy {
   public hasValidAccessToken = false;
   public realmRoles: string[] = [];
 
+  public isMobile: boolean;
+
   private sub: Subscription = new Subscription();
 
   ngOnInit(): void {
+    this.isMobile = this.utils.isMobilePlateform();
     this.keycloakService.initialisation();
 
     this.sub.add(
