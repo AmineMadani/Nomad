@@ -154,3 +154,22 @@ ion-tab-bar {
     }
 }
 
+.router-container {
+    height: 100%;
+    width: 100%;
+}
+
+.router-container-mobile {
+    height: calc(100% - 1px);
+    width: 100%;
+}
+
+.router-container-full {
+    @extend .router-container;
+    margin: -12px;
+}
+
+.router-container-full-mobile {
+    @extend .router-container;
+    margin: 0px;
+}

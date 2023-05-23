@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
 import { Observable } from 'rxjs';
-import { Basemap } from 'src/app/pages/home/components/map/map.dataset';
+import { Basemap } from '../../models/basemap.model';
 
 @Injectable({
   providedIn: 'root',

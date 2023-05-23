@@ -7,7 +7,10 @@ import * as Maplibregl from 'maplibre-gl';
   providedIn: 'root',
 })
 export class LayerService {
-  constructor(private mapService: MapService, private mapEvent: MapEventService) { }
+  constructor(
+    private mapService: MapService,
+    private mapEvent: MapEventService
+  ) {}
 
   /**
    * Get a feature by its ID on a given layer
@@ -15,12 +18,17 @@ export class LayerService {
    * @param featureId The ID of the feature to get
    * @returns The feature with the given ID, or null if there is no such feature
    */
-  public getFeatureById(layerKey: string, featureId: string): any | null {
-    const r = this.mapService.getMap().querySourceFeatures(layerKey, {
-      sourceLayer: '',
-      filter: ['==', 'id', featureId],
-    });
-    return r[0];
+  public getFeatureById(
+    layerKey: string,
+    featureId: string
+  ): Maplibregl.MapGeoJSONFeature | null {
+    const r: Maplibregl.MapGeoJSONFeature[] = this.mapService
+      .getMap()
+      .querySourceFeatures(layerKey, {
+        sourceLayer: '',
+        filter: ['==', 'id', featureId],
+      });
+    return r[0] ?? null;
   }
 
   /**
@@ -29,28 +37,40 @@ export class LayerService {
    * @param featureId The ID of the feature to get
    * @returns The feature with the given ID, or null if there is no such feature
    */
-  public getCoordinateFeaturesById(layerKey: string, featureId: string): any | null {
+  public getCoordinateFeaturesById(
+    layerKey: string,
+    featureId: string
+  ): any | null {
     const r = this.mapService.getMap().querySourceFeatures(layerKey, {
       sourceLayer: '',
       filter: ['==', 'id', featureId],
     });
     let val: Array<number[]> = [];
     for (let feature of r) {
-      if (((feature as any).geometry.coordinates).some(ele => ele.length > 2)) {
+      if ((feature as any).geometry.coordinates.some((ele) => ele.length > 2)) {
         //val = [...val, ...((feature as any).geometry.coordinates).flat()];
       } else {
-        val = [...val, ...((feature as any).geometry.coordinates)];
+        val = [...val, ...(feature as any).geometry.coordinates];
       }
     }
-    const setArray = new Set(val.map(x => JSON.stringify(x)));
-    const uniqArray = [...setArray].map(x => JSON.parse(x));
+    const setArray = new Set(val.map((x) => JSON.stringify(x)));
+    const uniqArray = [...setArray].map((x) => JSON.parse(x));
 
     return uniqArray;
   }
 
-  public getFeaturesInView(layerKey: string): any[] {
-    let f: any[] = [];
-    if (this.mapService.getMap() && this.mapService.getMap().getLayer('layer-' + layerKey)) {
+  /**
+   * Retrieves the MapGeoJSONFeatures that are currently in view for a given layer.
+   * @param {string} layerKey - Key of a layer in the map.
+   * @returns Returns the features currently in view on the map for a given layer key.
+   * If the layer key is not found or the map is not initialized, an empty array is returned.
+   */
+  public getFeaturesInView(layerKey: string): Maplibregl.MapGeoJSONFeature[] {
+    let f: Maplibregl.MapGeoJSONFeature[] = [];
+    if (
+      this.mapService.getMap() &&
+      this.mapService.getMap().getLayer('layer-' + layerKey)
+    ) {
       f = this.mapService
         .getMap()
         .queryRenderedFeatures(null, { layers: ['layer-' + layerKey] });
@@ -63,16 +83,18 @@ export class LayerService {
    * @param x longitude
    * @param y latitude
    */
-  public moveToXY(x: number, y: number) {
+  public moveToXY(x: number, y: number): Promise<string> {
     return new Promise((resolve) => {
       if (x && y) {
-        this.mapService.getMap().easeTo({ center: [x, y], zoom: 16 }).once('moveend', () => {
-          resolve('done')
-        });
+        this.mapService
+          .getMap()
+          .easeTo({ center: [x, y], zoom: 16 })
+          .once('moveend', () => {
+            resolve('done');
+          });
       } else {
-        resolve('done')
+        resolve('done');
       }
-
     });
   }
 
@@ -82,14 +104,17 @@ export class LayerService {
    * @param id The ID of the feature to zoom to
    * @param layerKey The key of the layer
    */
-  public async zoomOnXyToFeatureByIdAndLayerKey(layerKey: string, id: string): Promise<void> {
+  public async zoomOnXyToFeatureByIdAndLayerKey(
+    layerKey: string,
+    id: string
+  ): Promise<void> {
     await this.mapService.addEventLayer(layerKey);
-    const r = this.getFeatureById(layerKey, id);
+    const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
     if (!r || r?.id === undefined) {
       return;
     }
 
-    const coordinates = r.geometry.coordinates;
+    const coordinates = (r.geometry as any).coordinates;
 
     let bounds: any;
     if (r.geometry.type === 'Point') {
@@ -104,21 +129,28 @@ export class LayerService {
       padding: 20,
       maxZoom: 17,
     });
-    this.mapEvent.highlightSelectedFeature(this.mapService.getMap(), layerKey, r.id.toString());
+    this.mapEvent.highlightSelectedFeature(
+      this.mapService.getMap(),
+      layerKey,
+      r.id.toString()
+    );
   }
 
   /**
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
-  public addGeojsonToLayer(properties: any, layerKey: string) {
+  public addGeojsonToLayer(properties: any, layerKey: string): void {
     this.mapService.addEventLayer(layerKey).then(() => {
       let newPoint: any = {
-        geometry: { type: 'Point', coordinates: [properties.longitude, properties.latitude] },
+        geometry: {
+          type: 'Point',
+          coordinates: [properties.longitude, properties.latitude],
+        },
         id: properties.id,
         properties: properties,
-        type: "Feature"
-      }
+        type: 'Feature',
+      };
       this.mapService.addNewPoint(layerKey, newPoint);
     });
   }
@@ -129,17 +161,22 @@ export class LayerService {
    * @param y latitude
    * @returns the marker
    */
-  public addMarker(x: number, y: number, geometry: Array<number[]>, isXY?: boolean): any {
+  public addMarker(
+    x: number,
+    y: number,
+    geometry: Array<number[]>,
+    isXY?: boolean
+  ): Maplibregl.Marker {
     let marker: Maplibregl.Marker = new Maplibregl.Marker({
-      draggable: geometry[0] instanceof Array ? true : isXY
-    }).setLngLat([x, y]).addTo(this.mapService.getMap());
-    console.log("1",geometry);
+      draggable: geometry[0] instanceof Array ? true : isXY,
+    })
+      .setLngLat([x, y])
+      .addTo(this.mapService.getMap());
     if (geometry[0] instanceof Array) {
-      console.log("2")
       this.limitDragMarker(geometry, marker);
       marker.on('drag', () => this.limitDragMarker(geometry, marker));
     } else {
-      marker.setLngLat([(geometry[0] as any), (geometry[1] as any)]);
+      marker.setLngLat([geometry[0] as any, geometry[1] as any]);
     }
     return marker;
   }
@@ -149,9 +186,12 @@ export class LayerService {
    * @param geometry The asset geometry
    * @param marker the marker
    */
-  private limitDragMarker(geometry: Array<number[]>, marker: Maplibregl.Marker) {
+  private limitDragMarker(
+    geometry: Array<number[]>,
+    marker: Maplibregl.Marker
+  ): void {
     const lngLat = marker.getLngLat();
-    var res = this.findNearestPoint(geometry, [lngLat.lng, lngLat.lat]);
+    const res = this.findNearestPoint(geometry, [lngLat.lng, lngLat.lat]);
     marker.setLngLat([res[0], res[1]]);
   }
 
@@ -161,55 +201,50 @@ export class LayerService {
    * @param point the point
    * @returns the nearest point
    */
-  private findNearestPoint(geometry, point): number[] {
+  private findNearestPoint(
+    geometry: Array<number[]>,
+    point: number[]
+  ): number[] {
     // Calculate the squared Euclidean distance between two points
-    function distanceSquared(x1, y1, x2, y2) {
+    const distanceSquared = (
+      x1: number,
+      y1: number,
+      x2: number,
+      y2: number
+    ) => {
       const dx = x2 - x1;
       const dy = y2 - y1;
       return dx * dx + dy * dy;
-    }
+    };
 
-    let nearestPoint = null;
-    let nearestDistance = Infinity;
+    let nearestPoint: number[] | null = null;
+    let nearestDistance: number = Infinity;
+
+    const [px, py]: number[] = point;
 
     for (let i = 0; i < geometry.length - 1; i++) {
-      const [x1, y1] = geometry[i];
-      const [x2, y2] = geometry[i + 1];
-      const [px, py] = point;
+      const [x1, y1]: number[] = geometry[i];
+      const [x2, y2]: number[] = geometry[i + 1];
 
       // Calculate the squared distance from the point to the line segment
-      const lineLengthSquared = distanceSquared(x1, y1, x2, y2);
-      const t = Math.max(0, Math.min(1, ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / lineLengthSquared));
-      const x = x1 + t * (x2 - x1);
-      const y = y1 + t * (y2 - y1);
-      const distance = distanceSquared(px, py, x, y);
+      const lineLengthSquared: number = distanceSquared(x1, y1, x2, y2);
+      const t: number = Math.max(
+        0,
+        Math.min(
+          1,
+          ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / lineLengthSquared
+        )
+      );
+
+      const x: number = x1 + t * (x2 - x1);
+      const y: number = y1 + t * (y2 - y1);
+      const distance: number = distanceSquared(px, py, x, y);
 
       if (distance < nearestDistance) {
         nearestDistance = distance;
         nearestPoint = [x, y];
       }
     }
-
     return nearestPoint;
   }
-
-  /**
-   * Zoom on my location by GPS location
-   */
-  // public async zoomOnMe() {
-  //   const coordinates = await Geolocation.getCurrentPosition();
-  //   this.mapService
-  //     .getMap()
-  //     .getView()
-  //     .fit(
-  //       boundingExtent([
-  //         transform(
-  //           [coordinates.coords.longitude, coordinates.coords.latitude],
-  //           'EPSG:4326',
-  //           'EPSG:3857'
-  //         ),
-  //       ]),
-  //       { padding: [250, 250, 250, 50], duration: 2000 }
-  //     );
-  // }
 }

@@ -4,12 +4,12 @@ import { DrawerService } from '../drawer.service';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { NomadGeoJson } from '../../models/geojson.model';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
-import { Basemap } from 'src/app/pages/home/components/map/map.dataset';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
+import { Basemap } from '../../models/basemap.model';
 
 export interface Box {
   x1: number;
@@ -37,7 +37,6 @@ export class MapService {
 
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: Subject<void> = new Subject();
-  private ngUnsubscribe$: Subject<void> = new Subject();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -47,35 +46,12 @@ export class MapService {
   public createMap(): Maplibregl.Map {
     this.map = new Maplibregl.Map({
       container: 'map',
-      style: this.test,
+      style: this.mapLibreSpec,
       center: [2.699596882916402, 48.407854932986936],
       zoom: 14,
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
-    fromEvent(this.map, 'moveend')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        for (let layer of this.layers) {
-          if (this.map.getZoom() <= layer[1].conf.maxZoom) {
-            this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
-              for (let str of res) {
-                if (
-                  !this.loadedGeoJson.get(layer[0]) ||
-                  !this.loadedGeoJson.get(layer[0])!.includes(str)
-                ) {
-                  if (this.loadedGeoJson.get(layer[0])) {
-                    this.loadedGeoJson.get(layer[0])!.push(str);
-                  } else {
-                    this.loadedGeoJson.set(layer[0], [str]);
-                  }
-                  await this.loadNewTile(layer[0], str);
-                }
-              }
-            });
-          }
-        }
-      });
     return this.map;
   }
 
@@ -116,9 +92,10 @@ export class MapService {
     return this.basemaps$;
   }
 
-  public destroySubscription(): void {
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
+  /**
+   * The function destroys a subscription and resets layers if they exist.
+   */
+  public destroyLayers(): void {
     if (this.layers.size > 0) {
       this.resetLayers();
     }
@@ -172,19 +149,7 @@ export class MapService {
       this.map.addSource(layerKey, layer.source);
 
       for (let style of layer.style) {
-        setTimeout(() => this.map.addLayer(style));
-
-        this.map.on('click', style.id, (e) => {
-          this.onFeaturesClick(layerKey, e.features);
-        });
-
-        this.map.on('mousemove', style.id, (e) => {
-          this.onMouseMove(layerKey, e);
-        });
-
-        this.map.on('mouseleave', style.id, () => {
-          this.onMouseLeave(layerKey);
-        });
+        this.map.addLayer(style);
       }
 
       await new Promise<void>((resolve) => {
@@ -209,17 +174,6 @@ export class MapService {
 
       // Removing registered events
       mLayer.style.forEach((style) => {
-        this.map.off('click', style.id, (e) => {
-          this.onFeaturesClick(layerKey, e.features);
-        });
-
-        this.map.off('mousemove', style.id, (e) => {
-          this.onMouseMove(layerKey, e);
-        });
-
-        this.map.off('mouseleave', style.id, () => {
-          this.onMouseLeave(layerKey);
-        });
         this.map.removeLayer(style.id);
       });
 
@@ -241,7 +195,7 @@ export class MapService {
    * add a point data for a specific layerkey
    * @param layerKey the layer key
    */
-  public addNewPoint(layerKey: string, pointData:any) {
+  public addNewPoint(layerKey: string, pointData: any) {
     let layer = this.loadedData.get(layerKey);
     if (!layer) {
       layer = {
@@ -255,48 +209,97 @@ export class MapService {
     source.setData(layer as any);
   }
 
-  private onFeaturesClick(layerKey: string, features: any[]): void {
-    if (features.length > 0) {
-      const ctFeature: any = features[0];
-      this.selectFeature(layerKey, ctFeature);
+  /**
+   * The function loads new tiles for layers based on their maximum zoom level and checks if they have
+   * already been loaded.
+   */
+  public onMoveEnd(): void {
+    for (let layer of this.layers) {
+      if (this.map.getZoom() <= layer[1].conf.maxZoom) {
+        this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
+          for (let str of res) {
+            if (
+              !this.loadedGeoJson.get(layer[0]) ||
+              !this.loadedGeoJson.get(layer[0])!.includes(str)
+            ) {
+              if (this.loadedGeoJson.get(layer[0])) {
+                this.loadedGeoJson.get(layer[0])!.push(str);
+              } else {
+                this.loadedGeoJson.set(layer[0], [str]);
+              }
+              await this.loadNewTile(layer[0], str);
+            }
+          }
+        });
+      }
     }
   }
 
-  // Mouse hover event
-  private onMouseMove(layerKey: string, e: any): void {
-    if (e?.features?.length > 0) {
-      this.map.getCanvas().style.cursor = 'pointer';
-      this.mapEvent.highlightHoveredFeature(
-        this.map,
-        layerKey,
-        e.features[0].id.toString()
-      );
+  /**
+   * Queries the nearest rendered feature from a mouse event on the map.
+   * @param e - Mouse event on the map
+   * @returns The nearest features (if there are) from the map.
+   */
+  public queryNearestFeature(
+    e: Maplibregl.MapMouseEvent
+  ): Maplibregl.MapGeoJSONFeature {
+    var mouseCoords = this.map.unproject(e.point);
+    const selectedFeatures = this.map.queryRenderedFeatures(
+      [
+        [e.point.x - 10, e.point.y - 10],
+        [e.point.x + 10, e.point.y + 10],
+      ],
+      {
+        layers: [...this.layers.values()]
+          .flatMap((layer) => layer.style)
+          .map((s) => s.id),
+      }
+    );
+    return this.findNearestFeature(mouseCoords, selectedFeatures);
+  }
+
+  /**
+   * This function changes the cursor style and highlights a hovered feature on a map.
+   * @param feature - Closest feature hovered on the map
+   */
+  public onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
+    if (!feature) {
+      this.map.getCanvas().style.cursor = '';
+      this.mapEvent.highlightHoveredFeature(this.map, undefined, undefined);
+      return;
     }
+
+    this.map.getCanvas().style.cursor = 'pointer';
+    this.mapEvent.highlightHoveredFeature(
+      this.map,
+      feature.source,
+      feature.id.toString()
+    );
   }
 
-  // Mouse leave hover event
-  private onMouseLeave(layerKey: string): void {
-    this.map.getCanvas().style.cursor = '';
-    this.mapEvent.highlightHoveredFeature(this.map, layerKey, undefined);
-  }
-
-  private selectFeature(layerKey: string, feature: any): void {
+  /**
+   * This function highlights a selected feature on a map.
+   * @param feature - Closest feature selected on the map
+   * @returns It navigates to a specific route in the application's drawer with some additional
+   * properties.
+   */
+  public onFeatureSelected(feature: Maplibregl.MapGeoJSONFeature): void {
     if (!feature) {
       return;
     }
 
     this.mapEvent.highlightSelectedFeature(
       this.map,
-      layerKey,
+      feature.source,
       feature.id.toString()
     );
 
     const properties = feature.properties;
     if (properties['geometry']) delete properties['geometry'];
     // We pass the layerKey to the drawer to be able to select the equipment on the layer
-    properties['lyr_table_name'] = layerKey;
-    let route;
-    switch (layerKey) {
+    properties['lyr_table_name'] = feature.source;
+    let route: DrawerRouteEnum;
+    switch (feature.source) {
       case 'workorder':
         route = DrawerRouteEnum.WORKORDER;
         break;
@@ -305,18 +308,6 @@ export class MapService {
         break;
     }
     this.drawerService.navigateTo(route, [properties['id']], properties);
-  }
-
-  private getNearestFeatures(e: any, layer: string): any[] {
-    const width = 20;
-    const height = 20;
-    return this.map.queryRenderedFeatures(
-      [
-        [e.originalEvent.x + width / 2, e.originalEvent.y + height / 2],
-        [e.originalEvent.x - width / 2, e.originalEvent.y - height / 2],
-      ],
-      { layers: [layer] }
-    );
   }
 
   /**
@@ -375,7 +366,7 @@ export class MapService {
     }
 
     const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
-    if(newLayer.features){
+    if (newLayer.features) {
       layer.features.push(...newLayer.features);
     }
 
@@ -401,7 +392,51 @@ export class MapService {
     return xOverlap && yOverlap;
   }
 
-  private test: Maplibregl.StyleSpecification = {
+  /**
+   * Finds the nearest feature to a given set of coordinates from a list of features.
+   * @param mouseCoords - Coordinates of a mouse event on the map.
+   * @param {Maplibregl.MapGeoJSONFeature[]} features - Array of the features in a selected area.
+   * @returns the closest feature from the mouse in the area.
+   */
+  private findNearestFeature(
+    mouseCoords: Maplibregl.LngLat,
+    features: Maplibregl.MapGeoJSONFeature[]
+  ): Maplibregl.MapGeoJSONFeature | null {
+    if (features.length === 0) {
+      return null;
+    }
+
+    let nearestPoint: any | null = null;
+    let shortestDistance = Infinity;
+
+    for (const feature of features) {
+      const distance = this.calculateDistance(mouseCoords, feature);
+
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestPoint = feature;
+      }
+    }
+
+    return nearestPoint;
+  }
+
+  /**
+   * Calculates the distance between two points on a map using their longitude and latitude.
+   * @param mousePoint - A Maplibregl.LngLat object representing the longitude and latitude.
+   * @param feature - A MapGeoJSONFeature from the map.
+   * @returns Returns the calculated distance the coordinates.
+   */
+  private calculateDistance(
+    mousePoint: Maplibregl.LngLat,
+    feature: Maplibregl.MapGeoJSONFeature
+  ): number {
+    const dx = feature.properties['x'] - mousePoint.lng;
+    const dy = feature.properties['y'] - mousePoint.lat;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  private mapLibreSpec: Maplibregl.StyleSpecification = {
     version: 8,
     name: 'Réseau AEP',
     metadata: {
@@ -422,6 +457,6 @@ export class MapService {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/',
+    sprite: 'http://localhost:8100/assets/sprites/@2x',
   };
 }

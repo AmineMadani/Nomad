@@ -1,45 +1,51 @@
 <!-- HEADER WITH ACTIONS -->
-<ion-item class="header-item" lines="none">
-    <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
-        <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
-    </ion-button>
-    <ion-label class="header-label">{{ drawerTitle }}</ion-label>
-    <ion-button [ngClass]="{ 'attach-file': !isMobile }" *ngIf="hasFile" fill="clear" slot="end" (click)="onAttachFileClicked()">
-        <ion-icon size="small" slot="icon-only" name="attach-outline"></ion-icon>
-    </ion-button>
-    <ion-button *ngIf="!isMobile" fill="clear" slot="end" (click)="onDrawerClose()">
-        <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
-    </ion-button>
-</ion-item>
-
-<!-- BUTTONS -->
-<ng-template #defaultBar>
-    <ion-tab-bar class="action-bar" slot="top" *ngIf="tabButtons && tabButtons.length > 0">
-        <ion-tab-button *ngFor="let tb of tabButtons" (click)="onTabButtonClicked(tb)">
-            <ion-icon [name]="tb.icon + '-outline'"></ion-icon>
-            {{ tb.label }}
-        </ion-tab-button>
-    </ion-tab-bar>
-</ng-template>
-
-<ng-container [ngTemplateOutlet]="buttonTemplate || defaultBar"
-            [ngTemplateOutletContext]="{ $implicit: tabButtons }"></ng-container>
-
-<!-- CONTENT -->
-<div class="synthesis-content">
-    <div class="synthesis-container">
-        <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
-    </div>
-</div>
-
-<!-- FOOTER -->
-<div class="bottom-item">
-    <ng-container [ngTemplateOutlet]="footerTemplate || defaultFooter"></ng-container>
-</div>
-
-
-<ng-template #defaultFooter>
-    <ion-item lines="none">
-        <ion-button fill="clear" slot="end" (click)="onDetailsClicked()">Détails</ion-button>
+<div class="synthesis-drawer">
+    <ion-item class="header-item" lines="none">
+        <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
+            <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
+        </ion-button>
+        <ion-label class="header-label">{{ drawerTitle }}</ion-label>
+        <ion-button [ngClass]="{ 'attach-file': !isMobile }" *ngIf="hasFile" fill="clear" slot="end"
+            (click)="onAttachFileClicked()">
+            <ion-icon size="small" slot="icon-only" name="attach-outline"></ion-icon>
+        </ion-button>
+        <ion-button *ngIf="!isMobile" fill="clear" slot="end" (click)="onDrawerClose()">
+            <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
+        </ion-button>
     </ion-item>
-</ng-template>
+
+    <!-- BUTTONS -->
+    <ng-template #defaultBar>
+        <ion-tab-bar class="action-bar" slot="top" *ngIf="tabButtons && tabButtons.length > 0">
+            <ion-tab-button *ngFor="let tb of tabButtons" (click)="onTabButtonClicked(tb)">
+                <ion-icon [name]="tb.icon + '-outline'"></ion-icon>
+                {{ tb.label }}
+            </ion-tab-button>
+        </ion-tab-bar>
+    </ng-template>
+
+    <ng-container [ngTemplateOutlet]="buttonTemplate || defaultBar"
+        [ngTemplateOutletContext]="{ $implicit: tabButtons }"></ng-container>
+
+    <!-- CONTENT -->
+    <div class="synthesis-content" [ngClass]="{
+                'synthesis-content-mobile': isMobile,
+                'content-without-buttons': tabButtons.length == 0,
+                'content-without-buttons-mobile': isMobile && tabButtons.length == 0 
+        }">
+        <div class="content-container">
+            <ng-container [ngTemplateOutlet]="contentTemplate"></ng-container>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div #footer class="bottom-item">
+        <ng-container [ngTemplateOutlet]="footerTemplate || defaultFooter"></ng-container>
+    </div>
+
+    <ng-template #defaultFooter>
+        <ion-item lines="none">
+            <ion-button fill="clear" slot="end" (click)="onDetailsClicked()">Détails</ion-button>
+        </ion-item>
+    </ng-template>
+</div>

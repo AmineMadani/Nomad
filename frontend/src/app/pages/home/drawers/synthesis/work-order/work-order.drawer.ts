@@ -111,15 +111,6 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
-  // Security while still using Ion Router
-  ionViewWillLeave(): void {
-    if (this.markerCreation) {
-      this.markerCreation.remove();
-    }
-    this.ngUnsubscribe$.next();
-    this.ngUnsubscribe$.complete();
-  }
-
   public createForm(): void {
     let form = 'work-order.mock.json';
     if (!this.workOrder.id) {

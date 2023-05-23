@@ -21,5 +21,7 @@
       </ion-list>
     </ion-content>
   </ion-menu>
-  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <div class="main-container" [class.main-mobile-container]="isMobile" main>
+    <router-outlet id="main-content"></router-outlet>
+  </div>
 </ion-app>

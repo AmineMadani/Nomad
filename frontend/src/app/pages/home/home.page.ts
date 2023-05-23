@@ -19,7 +19,9 @@ export class HomePage implements OnInit, OnDestroy {
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
     private modalCtrl: ModalController,
-  ) {}
+  ) {
+    this.drawerService.initDrawerListener();
+  }
 
   animationBuilder = (baseEl: any, opts?: any) => {
     const enteringAnimation = createAnimation()
@@ -63,9 +65,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private initDrawer() {
-    // Init drawer listener
-    this.drawerService.initDrawerListener();
-    // Subscribe to drawer route changes
     this.drawerService
       .onCurrentRouteChanged()
       .pipe(takeUntil(this.drawerUnsubscribe))
@@ -109,9 +108,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   onBottomSheetDismiss(e: Event) {
-    // if (e && (e as any)?.detail?.data?.rerouting) {
-    //   return;
-    // }
     this.drawerService.closeDrawer();
   }
 

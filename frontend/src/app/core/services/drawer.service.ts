@@ -33,7 +33,7 @@ export class DrawerService {
   private drawerHasBeenOpened$: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   // We use a BehaviorSubject to store the previous route
-  private currentDrawerType$: Subject<DrawerTypeEnum> = new Subject();
+  private currentDrawerType$: BehaviorSubject<DrawerTypeEnum> = new BehaviorSubject(DrawerTypeEnum.DRAWER);
 
   // If needing closing the modal on mobile
   private closeModal$: Subject<void> = new Subject();
@@ -95,8 +95,6 @@ export class DrawerService {
 
         } else if (currentRouteName === DrawerRouteEnum.HOME) {
           this.currentDrawerType$.next(DrawerTypeEnum.NONE);
-          this.mapEvent.setMapResize();
-          
         } else {
           this.currentDrawerType$.next(DrawerTypeEnum.DRAWER);
         }
@@ -111,6 +109,7 @@ export class DrawerService {
           if (currentRouteName !== DrawerRouteEnum.HOME) {
             this.drawerHasBeenOpened$.next(true);
           }
+          this.mapEvent.setMapResize();
         }
       });
   }

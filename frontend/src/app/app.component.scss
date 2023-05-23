@@ -47,3 +47,12 @@
   }
 
 }
+
+.main-container {
+  // Removing 56px from toolbar
+  height: calc(100% - 56px);
+}
+
+.main-mobile-container {
+  height: 100%;
+}

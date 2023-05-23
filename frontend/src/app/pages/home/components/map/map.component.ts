@@ -1,18 +1,18 @@
-import { Component, OnInit, OnDestroy, ElementRef, HostListener } from '@angular/core';
-import { Basemap } from './map.dataset';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener} from '@angular/core';
+import { LoadingController } from '@ionic/angular';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { LoadingController } from '@ionic/angular';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { take } from 'rxjs';
-import * as Maplibregl from 'maplibre-gl';
+import { first, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
-import { UtilsService } from 'src/app/core/services/utils.service';
-import { DrawerService } from 'src/app/core/services/drawer.service';
-import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { ReferentialService } from 'src/app/core/services/referential.service';
+import * as Maplibregl from 'maplibre-gl';
+import { Basemap } from 'src/app/core/models/basemap.model';
 
 @Component({
   selector: 'app-map',
@@ -47,6 +47,16 @@ export class MapComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Method to hide the nomad context menu if the user click outside of the context menu
+   */
+  @HostListener('document:click')
+  clickout() {
+    if (!this.isInsideContextMenu) {
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+    }
+  }
+
   public map!: Maplibregl.Map;
   public basemaps: Basemap[];
   public displayMap: boolean;
@@ -59,8 +69,8 @@ export class MapComponent implements OnInit, OnDestroy {
   public isMobile: boolean;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
-  private selectedFeature: any;
   private selectedCoordinate:{x:string,y:string} = {x:'',y:''};
+  private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu = false;
 
   async ngOnInit() {
@@ -73,25 +83,57 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.map = this.mapService.createMap();
 
+    // Load event
     fromEvent(this.map, 'load')
-      .pipe(take(1))
+      .pipe(first())
       .subscribe(() => {
         this.map.resize();
         loading.dismiss();
         this.generateMap();
+      });
+
+    // Loading tiles event
+    fromEvent(this.map, 'moveend')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.mapService.onMoveEnd();
+      });
+
+    // Hovering feature event
+    fromEvent(this.map, 'mousemove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.mapService.queryNearestFeature(e);
+        this.mapService.onFeatureHovered(nearestFeature);
+      });
+
+    // Click on feature event
+    fromEvent(this.map, 'click')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.mapService.queryNearestFeature(e);
+        this.mapService.onFeatureSelected(nearestFeature);
+      });
+
+    // Right click, as context menu, event
+    fromEvent(this.map, 'contextmenu')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.mapService.queryNearestFeature(e);
+        this.openNomadContextMenu(e, nearestFeature);
       });
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
-    this.mapService.destroySubscription();
+    this.mapService.destroyLayers();
   }
 
   /**
    * This function generates a map with a navigation control and adds a default basemap layer.
    */
-  generateMap(): void {
+  public generateMap(): void {
     this.map.addControl(
       new Maplibregl.GeolocateControl({
         positionOptions: {
@@ -112,7 +154,6 @@ export class MapComponent implements OnInit, OnDestroy {
       );
       if (defaultBackLayer) {
         this.zoom = this.map.getZoom();
-
         this.createLayers(
           defaultBackLayer.map_slabel.replace(/\s/g, ''),
           defaultBackLayer
@@ -128,88 +169,78 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       this.setMapLoaded();
     });
-    this.map.on('contextmenu', (e) => { this.openNomadContextMenu(e) });
   }
 
   /**
-   * Method to redirect to the creation of a workorder on the right click usage
+   * Sets the displayMap property to true and fire the map loaded event.
    */
-  onGenerateWorkOrder() {
-    if (this.selectedFeature) {
-      this.selectedFeature['properties']['lyr_table_name'] = this.selectedFeature['source'];
-      document.getElementById("map-nomad-context-menu").className = "hide";
-      this.router.navigate(
-        ['/home/work-order'],
-        { queryParams: this.selectedFeature['properties'] }
-      );
-    } else {
-      document.getElementById("map-nomad-context-menu").className = "hide";
-      this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.selectedCoordinate.x, this.selectedCoordinate.y).subscribe( l_ctr_id => {
-        this.referentialService.getReferentialIdByLongitudeLatitude('city', this.selectedCoordinate.x, this.selectedCoordinate.y).subscribe( l_cty_id => {
-          let param:any = {};
-          param.x = this.selectedCoordinate.x;
-          param.y = this.selectedCoordinate.y;
-          param.lyr_table_name = "xy";
-          if(l_ctr_id && l_ctr_id.length > 0) param.ctr_id = l_ctr_id.join(',');
-          if(l_cty_id && l_cty_id.length > 0) param.cty_id = l_cty_id.join(',');
-
-          this.router.navigate(
-            ['/home/work-order'],
-            { queryParams: param }
-          );
-        });
-      });
-    }
-
-  }
-
-  /**
-   * Method to open the context menu on the map if the user right click on it
-   * @param e The mouse event from the right click
-   */
-  openNomadContextMenu(e) {
-    var width = 10;
-    var height = 10;
-    document.getElementById("map-nomad-context-menu").className = "show";
-    document.getElementById("map-nomad-context-menu").style.top = (e.originalEvent.clientY - 56) + 'px';
-    document.getElementById("map-nomad-context-menu").style.left = e.originalEvent.clientX + 'px';
-
-    var features = this.map.queryRenderedFeatures([[e.originalEvent.x + width / 2, (e.originalEvent.y - 56) + height / 2], [e.originalEvent.x - width / 2, (e.originalEvent.y - 56) - height / 2]]);
-
-    if (features.length > 0) {
-      document.getElementById("map-nomad-context-menu-create-workorder").innerHTML = "Générer une intervention sur " + features[0].properties['id'];
-      this.selectedFeature = features[0];
-      this.selectedFeature['properties']['x'] = e.lngLat.lng;
-      this.selectedFeature['properties']['y'] = e.lngLat.lat;
-    } else {
-      this.selectedFeature = undefined;
-      this.selectedCoordinate.x = e.lngLat.lng;
-      this.selectedCoordinate.y = e.lngLat.lat;
-      document.getElementById("map-nomad-context-menu-create-workorder").innerHTML = "Générer une intervention XY";
-    }
-  }
-
-  /**
-   * Method to hide the nomad context menu if the user click outside of the context menu
-   */
-  @HostListener('document:click')
-  clickout() {
-    if (!this.isInsideContextMenu) {
-      document.getElementById("map-nomad-context-menu").className = "hide";
-    }
-  }
-
-  /**
-   * CHange the param isInsideContextMenu if hte user is on/out of the context menu
-   * @param hover True if context menu hover
-   */
-  onHoverContextMenu(hover: boolean) {
-    this.isInsideContextMenu = hover;
-  }
-
-  setMapLoaded(): void {
+  public setMapLoaded(): void {
     this.displayMap = true;
     this.mapService.setMapLoaded();
+  }
+
+  /**
+   * The function navigates to a work order page with selected feature properties as query parameters.
+   */
+  public onGenerateWorkOrder(): void {
+    this.selectedFeature['properties']['lyr_table_name'] =
+      this.selectedFeature['source'];
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    this.router.navigate(['/home/work-order'], {
+      queryParams: this.selectedFeature['properties'],
+    });
+  }
+
+  /**
+   * Opens a context menu on the map and updates its content based on the selected feature.
+   * @param e - MapMouseEvent from Maplibre
+   */
+  public async openNomadContextMenu(
+    e: Maplibregl.MapMouseEvent,
+    feature: Maplibregl.MapGeoJSONFeature
+  ): Promise<void> {
+    const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
+    const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
+      'map-nomad-context-menu-create-workorder'
+    );
+
+    menu.className = 'show';
+    menu.style.top = e.originalEvent.clientY - 56 + 'px';
+    menu.style.left = e.originalEvent.clientX + 'px';
+
+    if (!feature) {
+      let l_ctr_id = await firstValueFrom(this.referentialService.getReferentialIdByLongitudeLatitude('contract', e.lngLat.lng.toString(), e.lngLat.lat.toString()));
+      let l_cty_id = await firstValueFrom(this.referentialService.getReferentialIdByLongitudeLatitude('city', e.lngLat.lng.toString(), e.lngLat.lat.toString()));
+      let params:any = {};
+      params.x = e.lngLat.lng;
+      params.y = e.lngLat.lat;
+      params.lyr_table_name = "xy";
+      if(l_ctr_id && l_ctr_id.length > 0) params.ctr_id = l_ctr_id.join(',');
+      if(l_cty_id && l_cty_id.length > 0) params.cty_id = l_cty_id.join(',');
+      this.selectedFeature = {
+        properties: params,
+      };
+      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      return;
+    }
+
+    contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
+    this.selectedFeature = {
+      ...feature,
+      properties: {
+        ...feature.properties,
+        x: e.lngLat.lng,
+        y: e.lngLat.lat,
+      },
+    };
+  }
+
+  /**
+   * Change the param isInsideContextMenu if hte user is on/out of the context menu
+   * @param hover True if context menu hover
+   */
+  public onHoverContextMenu(hover: boolean) {
+    this.isInsideContextMenu = hover;
   }
 
   /**
@@ -224,42 +255,48 @@ export class MapComponent implements OnInit, OnDestroy {
         (bl: Basemap) => bl.map_slabel.replace(/\s/g, '') === alias
       );
     }
-    if (layer) {
-      switch (layer.map_type) {
-        case 'WMS':
-          const wmtsLayer: any = {
-            tiles: [
-              `${layer.map_url}?layer=${layer.map_layer
-              }&style=normal&tilematrixset=${layer.map_matrixset
-              }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
-                layer.map_format
-              )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,
-            ],
-            type: 'raster',
-            tileSize: 128,
-            attribution: layer?.map_attributions?.[0] ?? '',
-          };
-          this.mapBasemaps.set(alias, wmtsLayer);
-          this.map.addSource(alias, wmtsLayer);
-          break;
-        case 'OSM':
-          const osmLayer: any = {
-            tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            type: 'raster',
-            tileSize: 128,
-          };
-          this.mapBasemaps.set(alias, osmLayer);
-          this.map.addSource(alias, osmLayer);
-          break;
-      }
+    if (!layer) {
+      return;
     }
+
+    let mapLayer: any;
+    switch (layer.map_type) {
+      case 'WMS':
+        mapLayer = {
+          tiles: [
+            `${layer.map_url}?layer=${
+              layer.map_layer
+            }&style=normal&tilematrixset=${
+              layer.map_matrixset
+            }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
+              layer.map_format
+            )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,
+          ],
+          type: 'raster',
+          tileSize: 128,
+          attribution: layer?.map_attributions?.[0] ?? '',
+        };
+        break;
+      case 'OSM':
+        mapLayer = {
+          tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          type: 'raster',
+          tileSize: 128,
+        };
+        break;
+      default:
+        return;
+    }
+
+    this.mapBasemaps.set(alias, mapLayer);
+    this.map.addSource(alias, mapLayer);
   }
 
   /**
    * The function displays a specific layer on a map by changing the source of the basemap layer.
    * @param {string} keyLayer - a string representing the key of a layer in a mapLayers Map object
    */
-  public onBasemapChange(keyLayer: string) {
+  public onBasemapChange(keyLayer: string): void {
     keyLayer = this.getMapAlias(keyLayer);
     if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
