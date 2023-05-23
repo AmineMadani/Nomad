@@ -31,10 +31,15 @@
 </ng-template>
 
 <ng-template #workOrderfooter>
-  <div lines="none" class="footer">
+  <div *ngIf="editMode" lines="none" class="footer">
     <ion-button fill="clear" (click)="onCancel()">Annuler</ion-button>
     <ion-button fill="clear" fill="clear" slot="end" type="submit" [form]="workOrderForm?.key" [disabled]="creationDisabled">Transférer à la planification</ion-button>
   </div>
+  <ng-container *ngIf="!editMode">
+    <ion-item class="item-footer" lines="none">
+      <ion-button fill="clear" slot="end">Détails</ion-button>
+    </ion-item>
+  </ng-container>
 </ng-template>
 
 <app-synthesis [drawerTitle]="getTitle()" [hasFile]="true" [tabButtons]="buttons" [contentTemplate]="workOrderTemplate" [sourceLayer]="'workorder'"

@@ -12,6 +12,7 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 export interface SynthesisButton {
   key: string;
@@ -28,9 +29,10 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   constructor(
     private utils: UtilsService,
     private layerService: LayerService,
+    private mapEventService: MapEventService,
     private drawerService: DrawerService,
     private mapService: MapService
-  ) { }
+  ) {}
 
   @Input() drawerTitle: string;
   @Input() hasFile: boolean = false;
@@ -51,12 +53,12 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     this.isMobile = this.utils.isMobilePlateform();
     const urlParams = new URLSearchParams(window.location.search);
     let paramMap = new Map(urlParams.entries());
-    if(this.mapService.getMap()) {
+    if (this.mapService.getMap()) {
       this.zoomToFeature(paramMap);
     } else {
       this.mapService.onMapLoaded().subscribe(() => {
         this.zoomToFeature(paramMap);
-      })
+      });
     }
   }
 
@@ -70,6 +72,11 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   public onDrawerClose(): void {
+    this.mapEventService.highlightSelectedFeature(
+      this.mapService.getMap(),
+      undefined,
+      undefined
+    );
     this.drawerService.closeDrawer();
   }
 
@@ -88,7 +95,10 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   private zoomToFeature(params: any): void {
     this.layerService.moveToXY(params.get('x'), params.get('y')).then(() => {
       if (params.get('id') && params.get('lyr_table_name')) {
-        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(params.get('lyr_table_name'), params.get('id'));
+        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(
+          params.get('lyr_table_name'),
+          params.get('id')
+        );
       }
     });
   }
