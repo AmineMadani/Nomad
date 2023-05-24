@@ -215,7 +215,7 @@ export class MapService {
    */
   public onMoveEnd(): void {
     for (let layer of this.layers) {
-      if (this.map.getZoom() <= layer[1].conf.maxZoom) {
+      if (this.map.getZoom() >= Math.min(...layer[1].style.map(style => style.minzoom))) {
         this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
           for (let str of res) {
             if (
@@ -457,6 +457,6 @@ export class MapService {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: 'http://localhost:8100/assets/sprites/',
   };
 }

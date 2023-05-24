@@ -74,6 +74,10 @@ public class WorkOrderService {
 			WorkorderTaskStatus status = statusService.getStatus("CREE");
 			workorder.setWtsId(status.getId());
 			
+			asset = mapper.readValue(assetRaw, Asset.class);
+			if(asset.getAssObjTable().equals("xy")) {
+				asset.setAssObjRef("none");
+			}
 			asset = assetService.getAsset(mapper.readValue(assetRaw, Asset.class), account);
 			workorder.setAssId(asset.getId());
 			

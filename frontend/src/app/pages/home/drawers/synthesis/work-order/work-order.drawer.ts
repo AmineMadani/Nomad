@@ -89,14 +89,13 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         });
       } else {
         this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, [this.workOrder.x, this.workOrder.y], true);
+        
         this.markerCreation.on('dragend', (e) => {
           this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_ctr_id => {
             this.formEditor.paramMap.set('ctr_id',l_ctr_id.join(','));
-            console.log(this.formEditor.paramMap);
           });
           this.referentialService.getReferentialIdByLongitudeLatitude('city', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_cty_id => {
             this.formEditor.paramMap.set('cty_id',l_cty_id.join(','));
-            console.log(this.formEditor.paramMap);
           });
         });
       }
@@ -146,8 +145,6 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     const lyr_table_name = 'workorder';
     form.markAllAsTouched();
 
-
-    console.log(this.formEditor);
     if (form.valid) {
       this.creationDisabled = true;
       let createdWorkOrder = form.value;

@@ -152,6 +152,7 @@ values
 , ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
 , ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
 , ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
+, ((select id from domains where dom_type = 'asset'),  null, null, 'asset.xy', 'geom', 'uuid', '3857', 'XY', null)
 ---
 ;
 

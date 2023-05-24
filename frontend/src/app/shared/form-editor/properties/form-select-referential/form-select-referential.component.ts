@@ -39,6 +39,12 @@ export class FormSelectReferentialComponent implements OnInit {
         const obj = this.originalOptions.find(val => val[this.attributes.repositoryKey].toString() == this.attributes.value.toString());
         this.valueKey = obj[this.attributes.repositoryKey].toString();
       }
+
+      //Check if the label is editable
+      this.getValueLabel();
+      if (!this.definition.editable && this.control.value && this.control.value.length > 0) {
+        this.disabled = true;
+      }
     });
   }
 
@@ -47,11 +53,6 @@ export class FormSelectReferentialComponent implements OnInit {
    * @returns the label
    */
   getValueLabel(): string {
-    //Check if the label is editable
-    if (!this.definition.editable && this.control.value && this.control.value.length > 0) {
-      this.disabled = true;
-    }
-
     // In this code block, the paramMap is checked for a single value of the current definition.key. 
     // If found, the code looks for a matching object in the filtered options and updates the control value accordingly. 
     // If not found, it returns the repositoryValue based on the control value. 
@@ -59,8 +60,8 @@ export class FormSelectReferentialComponent implements OnInit {
     if (this.paramMap.get(this.definition.key)?.split(',').length == 1) {
       const obj = this.getFilterOptions(this.querySearch).find(val => val[this.attributes.repositoryKey].toString() == this.paramMap.get(this.definition.key));
       if (obj) {
-        this.control.setValue(this.valueKey);
         this.valueKey = obj[this.attributes.repositoryKey]?.toString();
+        this.control.setValue(this.valueKey);
         return obj[this.attributes.repositoryValue];
       } else {
         if (this.control.value && this.control.value != "") {
@@ -91,7 +92,7 @@ export class FormSelectReferentialComponent implements OnInit {
       for (let filter of this.attributes.filters) {
         if (this.paramMap.get(filter)) {
           let options = this.originalOptions?.filter(option => option[this.attributes.repositoryValue].toLowerCase().indexOf(query) > -1 && ((option[filter] ? option[filter] : "xy") == this.paramMap.get(filter) || this.paramMap.get(this.definition.key) == option[this.definition.key] || this.attributes.value == option[this.definition.key]));
-          if(preSelectId.length > 0){
+          if (preSelectId.length > 0) {
             options = options.filter(option => preSelectId.includes(option['id'].toString()));
           }
           return options;
@@ -99,7 +100,7 @@ export class FormSelectReferentialComponent implements OnInit {
       }
     }
     let options = this.originalOptions.filter(option => option[this.attributes.repositoryValue].toLowerCase().indexOf(query) > -1);
-    if(preSelectId.length > 0){
+    if (preSelectId.length > 0) {
       options = options.filter(option => preSelectId.includes(option['id'].toString()));
     }
     return options;
@@ -139,7 +140,7 @@ export class FormSelectReferentialComponent implements OnInit {
   /**
    * Method to open the modal and filter the options before
    */
-  onOpenModal(){
+  onOpenModal() {
     this.displayOptions = this.getFilterOptions(this.querySearch).slice(0, 50);
     this.modal.present();
   }
