@@ -207,7 +207,7 @@ export class MaplibreLayer {
           id: 'aep_point_style',
           type: 'circle',
           source: 'aep_vanne',
-          minzoom: 10,
+          minzoom: 14,
           layout: {},
           paint: {
             'circle-radius': [
