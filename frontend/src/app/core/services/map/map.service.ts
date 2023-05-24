@@ -64,7 +64,7 @@ export class MapService  {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         for (let layer of this.layers) {
-            if (layer[1].style.some(oneStyle => oneStyle['minzoom'] >= this.map.getZoom() )) {
+            if (layer[1].style.some(oneStyle => oneStyle['minzoom'] <= this.map.getZoom() )) {
             this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
               for (let str of res) {
                 if (
