@@ -4,12 +4,13 @@ import { DrawerService } from '../drawer.service';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil, tap } from 'rxjs';
 import { NomadGeoJson } from '../../models/geojson.model';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { Basemap } from 'src/app/pages/home/components/map/map.dataset';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
+import { Layer } from '../../models/layer.model';
 
 export interface Box {
   x1: number;
@@ -21,16 +22,23 @@ export interface Box {
 @Injectable({
   providedIn: 'root',
 })
-export class MapService {
+export class MapService  {
   constructor(
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService
-  ) {}
+  ) {
+    this.layerDataService.getLayers()
+    .pipe(
+      takeUntil(this.ngUnsubscribe$)
+      )
+    .subscribe((elements ) => {this.layersConfiguration = elements ; });
+  }
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
+  private layersConfiguration : Layer[];
 
   private loadedGeoJson: Map<string, string[]> = new Map();
   private loadedData: Map<string, NomadGeoJson> = new Map();
@@ -56,7 +64,7 @@ export class MapService {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         for (let layer of this.layers) {
-          if (this.map.getZoom() <= layer[1].conf.maxZoom) {
+            if (layer[1].style.some(oneStyle => oneStyle['minzoom'] >= this.map.getZoom() )) {
             this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
               for (let str of res) {
                 if (
@@ -159,32 +167,35 @@ export class MapService {
     return this.layers.has(layerKey);
   }
 
+
   /**
    * Bind different events to a layer like click or hovered
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
     if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
-      const layer: MaplibreLayer = new MaplibreLayer(layerKey);
+      const layer: MaplibreLayer = new MaplibreLayer(this.layersConfiguration.find( element => element.lyrTableName == 'asset.'+ layerKey));
       this.layers.set(layerKey, layer);
       this.map.zoomTo(this.map.getZoom() + 0.0001);
       this.map.addSource(layerKey, layer.source);
 
-      for (let style of layer.style) {
-        setTimeout(() => this.map.addLayer(style));
+      for (let oneStyle of layer.style) {
+        //console.log('style: ' + oneStyle);
+        setTimeout(() => this.map.addLayer(oneStyle));
 
-        this.map.on('click', style.id, (e) => {
+        this.map.on('click', oneStyle.id, (e) => {
           this.onFeaturesClick(layerKey, e.features);
         });
 
-        this.map.on('mousemove', style.id, (e) => {
+        this.map.on('mousemove', oneStyle.id, (e) => {
           this.onMouseMove(layerKey, e);
         });
 
-        this.map.on('mouseleave', style.id, () => {
+        this.map.on('mouseleave', oneStyle.id, () => {
           this.onMouseLeave(layerKey);
         });
       }
+
 
       await new Promise<void>((resolve) => {
         this.map.once('idle', () => {

@@ -6,6 +6,7 @@ import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { LayerReferencesService } from '../layer-reference.service';
+import { Layer } from '../../models/layer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -81,7 +82,7 @@ export class LayerDataService {
     if(layerKey != 'workorder') {
       await this.db.tiles.put({ data: req, key: file }, file);
     }
-    
+
     this.listTileOnLoad.delete(layerKey);
     return req;
   }
@@ -104,5 +105,13 @@ export class LayerDataService {
    */
   public getListLoadingData(): string[] {
     return [ ...Array.from(this.listIndexOnLoad.values()), ...Array.from(this.listTileOnLoad.values())];
+  }
+
+  /**
+   * Method to get the configuration all available layers including styles
+   * @returns all available layers
+   */
+  public getLayers() : Observable<Layer[]>{
+    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`);
   }
 }
