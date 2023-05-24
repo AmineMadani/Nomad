@@ -54,14 +54,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     { key: 'print', label: 'Imprimer', icon: 'print' },
     //{ key: 'update', label: 'Mettre à jour', icon: 'pencil' },
   ];
+  public editMode: boolean = false;
   public workOrder: any;
   public workOrderForm: Form;
   public creationDisabled: boolean;
-  public editMode: boolean = false;
 
   private asset: Map<String, string> = new Map<string, string>;
-  private ngUnsubscribe$: Subject<void> = new Subject();
   private markerCreation: any;
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
 
@@ -81,6 +81,102 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Select the target form
+   */
+  public createForm(): void {
+    let form = 'work-order.mock.json';
+    if (!this.workOrder.id) {
+      form = 'work-order-create.mock.json';
+      this.editMode = true;
+    }
+    this.http
+      .get<Form>('./assets/mocks/' + form)
+      .subscribe((woForm: Form) => {
+        this.workOrderForm = woForm;
+      });
+  }
+
+  /**
+   * Action based on the button clicked
+   * @param ev the buttons event
+   */
+  public onTabButtonClicked(ev: SynthesisButton): void {
+    switch (ev.key) {
+      case 'update':
+        this.editMode = !this.editMode;
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
+   * Generate title for workorder drawer
+   * @returns Title of the workorder drawer
+   */
+  public getTitle(): string {
+    return this.workOrder?.id ? 'I' + this.workOrder.id : 'Générer une intervention';
+  }
+
+  /**
+   * Save the new workorder : 
+   * 1 - Check the control
+   * 2 - Save in database
+   * 3 - add the geojson to the layer
+   * 4 - redirect to the newly workorder 
+   * @param form form to save
+   */
+  public onSubmit(form: FormGroup) {
+    const lyr_table_name = 'workorder';
+    form.markAllAsTouched();
+
+    if (form.valid) {
+      this.creationDisabled = true;
+      let createdWorkOrder = form.value;
+      createdWorkOrder['longitude'] = this.markerCreation.getLngLat().lng;
+      createdWorkOrder['latitude'] = this.markerCreation.getLngLat().lat;
+      this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
+        let mapFeature = MapFeature.from(res);
+        this.markerCreation.remove();
+        this.layerService.addGeojsonToLayer(res, lyr_table_name);
+        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...res });
+      });
+    }
+  }
+
+  /**
+   * Ask the user to cancel the workorder creation
+   */
+  public async onCancel() {
+    const alert = await this.alertCtrl.create({
+      header: `Souhaitez-vous vraiment annuler cette génération d’intervention ?`,
+      buttons: [
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+        {
+          text: 'Non',
+          role: 'cancel',
+        },
+      ]
+    });
+
+    await alert.present();
+
+    const { role, data } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      this.location.back();
+    }
+  }
+
+  /**
+   * Generate a marker on the map.
+   * Case 1 : Marker on the equipment and only draggable on it
+   * Case 2 : Marker on the map and draggable on all the map. Update the params if the position change (city&contract)
+   */
   private generateMarker() {
     this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
       if (this.workOrder.equipmentId && this.workOrder.lyr_table_name) {
@@ -108,78 +204,5 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     }
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
-  }
-
-  public createForm(): void {
-    let form = 'work-order.mock.json';
-    if (!this.workOrder.id) {
-      form = 'work-order-create.mock.json';
-      this.editMode = true;
-    }
-    this.http
-      .get<Form>('./assets/mocks/' + form)
-      .subscribe((woForm: Form) => {
-        this.workOrderForm = woForm;
-      });
-  }
-
-  public onTabButtonClicked(ev: SynthesisButton): void {
-    switch (ev.key) {
-      case 'update':
-        this.editMode = !this.editMode;
-        break;
-      default:
-        break;
-    }
-  }
-
-  /**
-   * Generate title for workorder drawer
-   * @returns Title of the workorder drawer
-   */
-  getTitle(): string {
-    return this.workOrder?.id ? 'I' + this.workOrder.id : 'Générer une intervention';
-  }
-
-  onSubmit(form: FormGroup) {
-    const lyr_table_name = 'workorder';
-    form.markAllAsTouched();
-
-    if (form.valid) {
-      this.creationDisabled = true;
-      let createdWorkOrder = form.value;
-      createdWorkOrder['longitude'] = this.markerCreation.getLngLat().lng;
-      createdWorkOrder['latitude'] = this.markerCreation.getLngLat().lat;
-      this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
-        let mapFeature = MapFeature.from(res);
-        this.markerCreation.remove();
-        this.layerService.addGeojsonToLayer(res, lyr_table_name);
-        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...res });
-      });
-    }
-  }
-
-  async onCancel() {
-    const alert = await this.alertCtrl.create({
-      header: `Souhaitez-vous vraiment annuler cette génération d’intervention ?`,
-      buttons: [
-        {
-          text: 'Oui',
-          role: 'confirm',
-        },
-        {
-          text: 'Non',
-          role: 'cancel',
-        },
-      ]
-    });
-
-    await alert.present();
-
-    const { role, data } = await alert.onDidDismiss();
-
-    if (role === 'confirm') {
-      this.location.back();
-    }
   }
 }
