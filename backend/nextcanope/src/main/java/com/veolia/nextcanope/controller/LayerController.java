@@ -1,12 +1,20 @@
 package com.veolia.nextcanope.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.veolia.nextcanope.constants.LayerConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.LayerDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
+import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import com.veolia.nextcanope.service.LayerService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,8 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -27,6 +33,8 @@ public class LayerController {
     @Autowired
     public LayerService layerService;
 
+    @Autowired
+    public LayerRepository layerRepository;
     @Autowired
     public LayerReferencesService layerReferencesService;
 
@@ -70,4 +78,16 @@ public class LayerController {
             return this.layerReferencesService.getDefaultLayerReferences();
         }
     }
+
+    @GetMapping(path = "/default/definitions")
+    @Operation(summary = "Get all the layer ")
+    @ApiResponses(value = {
+            @ApiResponse(description= "All layers description", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<LayerDto> getAllLayers() {
+        return  layerService.getLayers();
+    }
+
 }
