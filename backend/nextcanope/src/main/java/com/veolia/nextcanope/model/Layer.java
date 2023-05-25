@@ -111,12 +111,12 @@ public class Layer implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tre_group_id", referencedColumnName="id", insertable=false, updatable=false)
     private Tree tree ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dom_id", referencedColumnName="id", insertable=false, updatable=false)
     private Domains domains ; 
 
@@ -127,11 +127,11 @@ public class Layer implements Serializable {
     private Users modifiedBy ; 
 
 
-    @OneToMany(mappedBy="layer")
+    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
     private List<Asset> listOfAsset ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
     private AssetType assetType ; 
 
@@ -142,12 +142,12 @@ public class Layer implements Serializable {
     private Users createdBy ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tre_simplified_group_id", referencedColumnName="id", insertable=false, updatable=false)
     private Tree simplifiedTree ; 
 
 
-    @OneToMany(mappedBy="layer")
+    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
     private List<LayerReferences> listOfLayerReferences ;
 
 

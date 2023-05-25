@@ -1,16 +1,20 @@
 package com.veolia.nextcanope.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.veolia.nextcanope.constants.LayerConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.LayerDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
-import com.veolia.nextcanope.model.Layer;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import com.veolia.nextcanope.service.LayerService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,9 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -86,11 +87,7 @@ public class LayerController {
             })
     })
     public List<LayerDto> getAllLayers() {
-        ModelMapper modelMapper = new ModelMapper();
-
-        return  layerRepository.findAll().stream()
-                               .map(objA -> modelMapper.map(objA, LayerDto.class))
-                               .collect(Collectors.toList());
+        return  layerService.getLayers();
     }
 
 }

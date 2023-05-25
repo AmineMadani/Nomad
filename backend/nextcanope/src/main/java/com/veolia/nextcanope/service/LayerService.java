@@ -1,8 +1,14 @@
 package com.veolia.nextcanope.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.veolia.nextcanope.dto.LayerDto;
+import com.veolia.nextcanope.model.Layer;
+import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.repository.LayerRepositoryImpl;
 
 /**
@@ -14,6 +20,9 @@ public class LayerService {
 
     @Autowired
     private LayerRepositoryImpl layerRepositoryImpl;
+    
+    @Autowired
+    private LayerRepository layerRepository;
 
     /**
      * Retrieves the index associated with a specific key.
@@ -34,5 +43,17 @@ public class LayerService {
      */
     public String getLayerTile(String key, Long tileNumber, Long userId) {
         return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
+    }
+    
+    /**
+     * Get all Layers.
+     */
+    public List<LayerDto> getLayers() {
+    	List<LayerDto> layersDto = new ArrayList<LayerDto>();
+    	List<Layer> layers = layerRepository.findAll();
+    	for(Layer layer:layers) {
+    		layersDto.add(new LayerDto(layer));
+    	}
+        return layersDto;
     }
 }

@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.dto;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.veolia.nextcanope.model.Layer;
 
 import java.util.Date;
 /**
@@ -199,5 +200,28 @@ public class LayerDto {
     public Date getLyrDmod() {
         return this.lyrDmod;
     }
+    
+	public LayerDto(Layer layer) {
+		super();
+		this.id = layer.getId();
+		this.lyrNumOrder = layer.getLyrNumOrder();
+		this.domId = layer.getDomId();
+		this.astId = layer.getAstId();
+		this.treGroupId = layer.getTreGroupId();
+		this.treSimplifiedGroupId = layer.getTreSimplifiedGroupId();
+		this.lyrTableName = layer.getLyrTableName();
+		this.lyrGeomColumnName = layer.getLyrGeomColumnName();
+		this.lyrUuidColumnName = layer.getLyrUuidColumnName();
+		this.lyrGeomSrid = layer.getLyrGeomSrid();
+		this.lyrStyle = layer.getLyrStyle();
+		this.lyrSlabel = layer.getLyrSlabel();
+		this.lyrLlabel = layer.getLyrLlabel();
+		this.lyrValid = layer.getLyrValid();
+		this.lyrDisplay = layer.getLyrDisplay();
+		this.lyrUcreId = layer.getLyrUcreId();
+		this.lyrUmodId = layer.getLyrUmodId();
+		this.lyrDcre = layer.getLyrDcre();
+		this.lyrDmod = layer.getLyrDmod();
+	}
 
 }
