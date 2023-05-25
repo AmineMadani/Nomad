@@ -14,7 +14,7 @@ update nomad.layer set lyr_style ='[{"id":"aep_vanne_style2","type":"circle","so
 
 
 --asset.aep_ouvrage
-update nomad.layer set lyr_style ='[{"id":"aep_ouvrage","type":"symbol","source":"composite","source-layer":"aep_ouvrage","layout":{"icon-image":["match",["get","type"],["Réservoir(surtour)"],"AEP_RESERVOIR_TOUR",["Réservoir(semienterré)"],"RESERVOIR_SEMI",["Station pompage", "Station de reprise"],["Usinedetraitement"],"AEP_USINE_TRAITEMENT"," "]},"paint":{}}]'
+update nomad.layer set lyr_style ='[{"id":"aep_ouvrage_1","type":"symbol","source":"aep_ouvrage","minzoom":10,"layout":{"icon-image":["match",["get","type"],["Réservoir (sur tour)"],"AEP_RESERVOIR_TOUR",["Réservoir (semi enterré)"],"RESERVOIR_SEMI",["Station pompage","Station de reprise"],"STATION",["Usine de traitement"],"AEP_USINE_TRAITEMENT",""]},"paint":{}}]'
 where 	lyr_table_name ='asset.aep_ouvrage';
 
 
