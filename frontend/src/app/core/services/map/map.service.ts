@@ -4,12 +4,13 @@ import { DrawerService } from '../drawer.service';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { NomadGeoJson } from '../../models/geojson.model';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { Layer } from '../../models/layer.model';
+import { Basemap } from '../../models/basemap.model';
 
 export interface Box {
   x1: number;
@@ -44,6 +45,7 @@ export class MapService  {
 
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -181,18 +183,6 @@ export class MapService  {
 
       for (let oneStyle of layer.style) {
         setTimeout(() => this.map.addLayer(oneStyle));
-
-        this.map.on('click', oneStyle.id, (e) => {
-          this.onFeaturesClick(layerKey, e.features);
-        });
-
-        this.map.on('mousemove', oneStyle.id, (e) => {
-          this.onMouseMove(layerKey, e);
-        });
-
-        this.map.on('mouseleave', oneStyle.id, () => {
-          this.onMouseLeave(layerKey);
-        });
       }
 
 
