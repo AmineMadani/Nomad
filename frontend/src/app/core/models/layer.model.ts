@@ -2,6 +2,7 @@ export enum LayerTypeEnum {
   LINE,
   POINT,
   VANNE,
+  OUVRAGE
 }
 
 export interface Layer {
@@ -43,7 +44,7 @@ export const layers: Layer[] = [
   {
     id: 4,
     key: 'aep_ouvrage',
-    type: LayerTypeEnum.POINT,
+    type: LayerTypeEnum.OUVRAGE,
     zindex: 1,
     minZoom: 16,
     maxZoom: 20

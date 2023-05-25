@@ -11,11 +11,13 @@ export class MaplibreLayer {
       this.style = this.layerStyle.get('aep_canalisation');
     } else if (this.conf.type === LayerTypeEnum.VANNE) {
       this.style = this.layerStyle.get('aep_vanne');
+    } else if (this.conf.type === LayerTypeEnum.OUVRAGE) {
+      this.style = this.layerStyle.get('aep_ouvrage');
     } else {
       this.style = this.layerStyle.get('aep_point');
       this.style[0].id = 'layer-' + layerKey;
       this.style[0].source = layerKey;
-      this.style[0].paint['circle-color'] = this.random_rgba(); 
+      this.style[0].paint['circle-color'] = this.random_rgba();
     }
 
     this.subscriptions = new Subscription();
@@ -232,5 +234,32 @@ export class MaplibreLayer {
         },
       ],
     ],
+    [
+      'aep_ouvrage',
+      [
+        {
+          id: 'aep_ouvrage_1',
+          type: 'symbol',
+          source: 'aep_ouvrage',
+          minzoom: 10,
+          layout: {
+            'icon-image': [
+              'match',
+              ['get', 'type'],
+              ['Réservoir (sur tour)'],
+              'AEP_RESERVOIR_TOUR',
+              ['Réservoir (semi enterré)'],
+              'RESERVOIR_SEMI',
+              ['Station pompage', 'Station de reprise'],
+              'STATION',
+              ['Usine de traitement'],
+              'AEP_USINE_TRAITEMENT',
+              ''
+            ]
+          },
+          'paint': {}
+        }
+      ]
+    ]
   ]);
 }
