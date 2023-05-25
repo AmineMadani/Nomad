@@ -13,8 +13,8 @@
     </ng-container>
     
     <ng-container *ngSwitchCase="'ACTIONS'">
-      <ion-item button lines="none" color="none">
-        <ion-label>Création d'intervention</ion-label>
+      <ion-item button lines="none" color="none" (click)="onGenerateWorkOrder()">
+        <ion-label>Générer une intervention XY</ion-label>
       </ion-item>
       <ion-item button lines="none" color="none">
         <ion-label>Compte rendu</ion-label>
