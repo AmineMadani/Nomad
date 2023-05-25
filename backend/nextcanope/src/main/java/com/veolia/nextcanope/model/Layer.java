@@ -148,7 +148,7 @@ public class Layer implements Serializable {
 
 
     @OneToMany(mappedBy="layer")
-    private List<LayerReferences> listOfLayerReferences ; 
+    private List<LayerReferences> listOfLayerReferences ;
 
 
     /**
@@ -340,8 +340,8 @@ public class Layer implements Serializable {
     } 
 
     public List<LayerReferences> getListOfLayerReferences() {
-        return this.listOfLayerReferences;
-    } 
+      return this.listOfLayerReferences;
+    }
 
 
 }

@@ -9,7 +9,7 @@ import { NomadGeoJson } from '../../models/geojson.model';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
-import { Basemap } from '../../models/basemap.model';
+import { Layer } from '../../models/layer.model';
 
 export interface Box {
   x1: number;
@@ -21,16 +21,23 @@ export interface Box {
 @Injectable({
   providedIn: 'root',
 })
-export class MapService {
+export class MapService  {
   constructor(
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService
-  ) {}
+  ) {
+    this.layerDataService.getLayers()
+    .pipe(
+      takeUntil(this.ngUnsubscribe$)
+      )
+    .subscribe((elements ) => {this.layersConfiguration = elements ; });
+  }
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
+  private layersConfiguration : Layer[];
 
   private loadedGeoJson: Map<string, string[]> = new Map();
   private loadedData: Map<string, NomadGeoJson> = new Map();
@@ -51,6 +58,29 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
+    fromEvent(this.map, 'moveend')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        for (let layer of this.layers) {
+            if (layer[1].style.some(oneStyle => oneStyle['minzoom'] <= this.map.getZoom() )) {
+            this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
+              for (let str of res) {
+                if (
+                  !this.loadedGeoJson.get(layer[0]) ||
+                  !this.loadedGeoJson.get(layer[0])!.includes(str)
+                ) {
+                  if (this.loadedGeoJson.get(layer[0])) {
+                    this.loadedGeoJson.get(layer[0])!.push(str);
+                  } else {
+                    this.loadedGeoJson.set(layer[0], [str]);
+                  }
+                  await this.loadNewTile(layer[0], str);
+                }
+              }
+            });
+          }
+        }
+      });
     this.map.dragRotate.disable();
     return this.map;
   }
@@ -137,20 +167,34 @@ export class MapService {
     return this.layers.has(layerKey);
   }
 
+
   /**
    * Bind different events to a layer like click or hovered
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
     if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
-      const layer: MaplibreLayer = new MaplibreLayer(layerKey);
+      const layer: MaplibreLayer = new MaplibreLayer(this.layersConfiguration.find( element => element.lyrTableName == 'asset.'+ layerKey));
       this.layers.set(layerKey, layer);
       this.map.zoomTo(this.map.getZoom() + 0.0001);
       this.map.addSource(layerKey, layer.source);
 
-      for (let style of layer.style) {
-        this.map.addLayer(style);
+      for (let oneStyle of layer.style) {
+        setTimeout(() => this.map.addLayer(oneStyle));
+
+        this.map.on('click', oneStyle.id, (e) => {
+          this.onFeaturesClick(layerKey, e.features);
+        });
+
+        this.map.on('mousemove', oneStyle.id, (e) => {
+          this.onMouseMove(layerKey, e);
+        });
+
+        this.map.on('mouseleave', oneStyle.id, () => {
+          this.onMouseLeave(layerKey);
+        });
       }
+
 
       await new Promise<void>((resolve) => {
         this.map.once('idle', () => {
@@ -457,6 +501,6 @@ export class MapService {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/',
+    sprite: 'http://localhost:8100/assets/sprites/@2x',
   };
 }
