@@ -107,6 +107,10 @@ where 	lyr_table_name = 'asset.ass_drain';
 update nomad.layer set lyr_style ='[{"id":"ass_canalisation_fictive_style_1","type":"line","source":"ass_canalisation_fictive","minzoom":10,"layout":{"line-cap":"round","line-join":"round","visibility":"visible"},"paint":{"line-width":4,"line-color":"#00A5E9"},"line-dasharray":["literal",[0.5,0.5]]},{"id":"ass_canalisation_fictive_syle_3","type":"symbol","source":"ass_canalisation_fictive","minzoom":16,"layout":{"text-size":12,"text-allow-overlap":true,"symbol-spacing":159,"symbol-placement":"line","text-rotation-alignment":"map","text-anchor":"top","text-pitch-alignment":"map","text-field":["to-string",["get","id"]]},"paint":{"text-color":["case",["boolean",["feature-state","selected"],false],"#FFC0CB",["!=",["get","exploitant"],"Veolia"],"#000000",["coalesce",["get","cde_rvb"],"#00A1FF"]],"text-halo-width":10,"text-halo-color":"hsla(0, 0%, 96%, 0)"}}]'
 where 	lyr_table_name = 'asset.ass_canalisation_fictive';
 
+-- asset.workorder
+update nomad.layer set lyr_style ='[{"id":"workorder_point_style","type":"circle","source":"workorder","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(0, 100%, 50%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+where 	lyr_table_name = 'asset.workorder';
+
 
 
 
