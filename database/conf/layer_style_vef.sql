@@ -108,7 +108,7 @@ update nomad.layer set lyr_style ='[{"id":"layer.ass_canalisation_fictive","type
 where 	lyr_table_name = 'asset.ass_canalisation_fictive';
 
 -- asset.workorder
-update nomad.layer set lyr_style ='[{"id":"layer-workorder","type":"circle","source":"workorder","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(0, 100%, 50%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+update nomad.layer set lyr_style ='[{"id":"layer-workorder","type":"symbol","source":"workorder","minzoom":10,"layout":{"icon-image":["case",["==",["get","wko_appointment"],true],"pin-rdv",["==",["get","wko_emergency"],true],"pin-urgent","pin-default"]},"paint":{}}]'
 where 	lyr_table_name = 'asset.workorder';
 
 
