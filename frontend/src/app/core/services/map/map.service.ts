@@ -399,13 +399,14 @@ export class MapService  {
       this.loadedData.set(layerKey, layer);
     }
 
-    const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
-    if (newLayer.features) {
-      layer.features.push(...newLayer.features);
-    }
-
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
-    source.setData(layer as any);
+    if(source){
+      const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
+      if (newLayer.features) {
+        layer.features.push(...newLayer.features);
+      }
+      source.setData(layer as any);
+    }
   }
 
   /**
