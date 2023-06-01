@@ -7,10 +7,10 @@ export class FavoriteFilter implements BaseFilter {
   public data: FavData[];
 
   constructor(
-    id: number,
-    isRecordableFavorite: boolean,
-    position: number,
-    data: FavData[]
+    id?: number,
+    isRecordableFavorite?: boolean,
+    position?: number,
+    data?: FavData[]
   ) {
     this.id = id;
     this.isRecordableFavorite = isRecordableFavorite;

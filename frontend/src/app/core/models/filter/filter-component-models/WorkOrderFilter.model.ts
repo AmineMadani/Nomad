@@ -11,7 +11,7 @@ export class WorkOrderFilter implements BaseFilter {
     id: number,
     isRecordableFavorite: boolean,
     position: number,
-    type: 'workorder' | 'demande', 
+    type: 'workorder' | 'demande',
     data: WorkOrderData[]
   ) {
     this.id = id;

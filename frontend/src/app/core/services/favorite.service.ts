@@ -11,6 +11,7 @@ import {
 } from '../models/filter/filter-segment.model';
 import { Filter } from '../models/filter/filter.model';
 import { MapService } from './map/map.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +20,31 @@ export class FavoriteService {
   constructor(private mapService: MapService) { }
 
   private filter: Filter = patrimonyFilterMock;
-
+  private filterForm$ = new BehaviorSubject<Filter>(this.filter);
   private currentFavorite: FavData | undefined;
+
+  public setfilterForm(filter: Filter) {
+    this.filterForm$.next(filter);
+  }
+
+  public onFilterForm(): Observable<Filter> {
+    return this.filterForm$.asObservable();
+  }
 
   /**
    * Returns the current filter object used for favorites.
    */
   public getFilter(): Filter {
     return this.filter;
+  }
+
+  /**
+   *
+   * @param filter - filter to update
+   */
+  public setFilter(filter: Filter): void {
+    this.filter = filter;
+    this.setfilterForm(this.filter);
   }
 
   /**
@@ -209,5 +227,4 @@ export class FavoriteService {
     });
     return favs;
   }
-
 }

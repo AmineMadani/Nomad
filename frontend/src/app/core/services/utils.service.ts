@@ -5,7 +5,7 @@ import { Platform } from '@ionic/angular';
   providedIn: 'root'
 })
 export class UtilsService {
-  
+
   constructor(
     private platform: Platform
   ) { }
@@ -27,11 +27,26 @@ export class UtilsService {
     let jsonObject: any = undefined;
     if(map) {
       jsonObject = {};
-      map.forEach((value, key) => {  
-            jsonObject[key] = value  
-      });  
+      map.forEach((value, key) => {
+            jsonObject[key] = value
+      });
     }
     return JSON.stringify(jsonObject);
   }
 
+  /**
+   * Derialize a Json to a type
+   * @param instanceCible l'objet qui va contenir les valeurs
+   * @param instanceData  l'objet source
+   * @returns an full filled object
+   */
+  deserialize(instanceCible: any,instanceData: any):any {
+    const keys = Object.keys(instanceCible);
+    for (const key of keys) {
+      if (instanceData.hasOwnProperty(key)) {
+          instanceCible[key] = instanceData[key];
+        }
+    }
+    return instanceCible;
+    }
 }
