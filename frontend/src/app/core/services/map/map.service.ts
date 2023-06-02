@@ -446,6 +446,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8081/assets/sprites/@2x',
+    sprite: 'http://localhost:8100/assets/sprites/@2x',
   };
 }
