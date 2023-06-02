@@ -35,7 +35,8 @@ export class MapEventService {
   public highlightSelectedFeature(
     mapLibre: Maplibregl.Map,
     sourceKey: string,
-    featureId: string | undefined
+    featureId: string | undefined,
+    fireEvent: boolean = true
   ): void {
     if (this.selectedFeatureId && this.selectedFeatureId !== featureId) {
       mapLibre.setFeatureState(
@@ -44,7 +45,9 @@ export class MapEventService {
       );
       this.selectedFeatureId = undefined;
       this.selectedLayer = undefined;
-      this.onFeatureSelected$.next(undefined);
+      if (fireEvent) {
+        this.onFeatureSelected$.next(undefined);
+      }
     }
 
     if (featureId && this.selectedFeatureId !== featureId) {
@@ -54,7 +57,9 @@ export class MapEventService {
       );
       this.selectedFeatureId = featureId;
       this.selectedLayer = sourceKey;
-      this.onFeatureSelected$.next(featureId);
+      if (fireEvent) {
+        this.onFeatureSelected$.next(featureId);
+      }
 
     } else if (!featureId && this.selectedFeatureId) {
       mapLibre.setFeatureState(
@@ -63,7 +68,9 @@ export class MapEventService {
       );
       this.selectedFeatureId = undefined;
       this.selectedLayer = undefined;
-      this.onFeatureSelected$.next(undefined);
+      if (fireEvent) {
+        this.onFeatureSelected$.next(undefined);
+      }
     }
   }
 
@@ -76,7 +83,8 @@ export class MapEventService {
   public highlightHoveredFeature(
     mapLibre: Maplibregl.Map,
     sourceKey: string,
-    featureId: string | undefined
+    featureId: string | undefined,
+    fireEvent: boolean = true
   ): void {
     if (this.hoveredFeatureId && this.hoveredFeatureId !== featureId) {
       mapLibre.setFeatureState(
@@ -85,7 +93,9 @@ export class MapEventService {
       );
       this.hoveredFeatureId = undefined;
       this.hoveredLayer = undefined;
-      this.onFeatureHovered$.next(undefined);
+      if (fireEvent) {
+        this.onFeatureHovered$.next(undefined);
+      }
     }
 
     if (featureId && this.hoveredFeatureId !== featureId) {
@@ -95,7 +105,9 @@ export class MapEventService {
       );
       this.hoveredFeatureId = featureId;
       this.hoveredLayer = sourceKey;
-      this.onFeatureHovered$.next(featureId);
+      if (fireEvent) {
+        this.onFeatureHovered$.next(featureId);
+      }
 
     } else if (!featureId && this.hoveredFeatureId) {
       mapLibre.setFeatureState(
@@ -104,7 +116,9 @@ export class MapEventService {
       );
       this.hoveredFeatureId = undefined;
       this.hoveredLayer = undefined;
-      this.onFeatureHovered$.next(undefined);
+      if (fireEvent) {
+        this.onFeatureHovered$.next(undefined);
+      }
     }
   }
 }

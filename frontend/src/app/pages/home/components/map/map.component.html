@@ -30,12 +30,6 @@
       </ion-fab-button>
     </ion-fab>
 
-    <ng-container *ngIf="isMobile">
-      <div class="zoom-range">
-        <input type="range" orient="vertical" step="0.1" [min]="map.getMinZoom()" [max]="map.getMaxZoom()"
-          [value]="map.getZoom()" [(ngModel)]="zoom" (ngModelChange)="onZoomChange($event)" />
-      </div>
-    </ng-container>
     <ng-container *ngIf="!isMobile">
       <ion-fab (click)="onZoomChange(zoom + 1)">
         <ion-fab-button size="small" class="ion-no-margin ion-no-padding">

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Basemap } from 'src/app/core/models/basemap.model';
+import { CustomZoomControl } from './zoom.control';
 
 @Component({
   selector: 'app-map',
@@ -137,6 +138,9 @@ export class MapComponent implements OnInit, OnDestroy {
         unit: 'metric',
       })
     );
+    if (this.isMobile) {
+      this.map.addControl(new CustomZoomControl(), 'bottom-right');
+    }
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
@@ -314,8 +318,8 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param {number} e - e is a number representing the new zoom level that the map should be set to
    */
   public onZoomChange(e: number): void {
-    this.map.zoomTo(e);
-    this.zoom = this.map.getZoom();
+    this.zoom = e;
+    this.map.zoomTo(this.zoom);
   }
 
   /**
