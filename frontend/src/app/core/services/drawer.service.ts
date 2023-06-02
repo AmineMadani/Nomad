@@ -109,7 +109,6 @@ export class DrawerService {
           if (currentRouteName !== DrawerRouteEnum.HOME) {
             this.drawerHasBeenOpened$.next(true);
           }
-          this.mapEvent.setMapResize();
         }
       });
   }

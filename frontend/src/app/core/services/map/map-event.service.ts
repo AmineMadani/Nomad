@@ -13,18 +13,10 @@ export class MapEventService {
   private hoveredLayer: string;
   private selectedLayer: string;
 
-  private onMapResize$: Subject<void> = new Subject();
   private onFeatureHovered$: Subject<string | undefined> = new Subject();
   private onFeatureSelected$: Subject<string | undefined> = new Subject();
 
   constructor() {}
-
-  public onMapResize(): Observable<void> {
-    return this.onMapResize$.asObservable();
-  }
-  public setMapResize(): void {
-    this.onMapResize$.next();
-  }
 
   public onFeatureHovered(): Observable<string | undefined> {
     return this.onFeatureHovered$.asObservable();

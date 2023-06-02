@@ -36,15 +36,6 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe((route: DrawerRouteEnum) => {
         this.currentRoute = route;
       });
-
-    this.mapEvent
-      .onMapResize()
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        if (this.map) {
-          setTimeout(() => this.map.resize());
-        }
-      });
   }
 
   /**
@@ -87,7 +78,6 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'load')
       .pipe(first())
       .subscribe(() => {
-        this.map.resize();
         loading.dismiss();
         this.generateMap();
       });

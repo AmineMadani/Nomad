@@ -41,7 +41,6 @@ export class MapService  {
   private layersConfiguration : Layer[];
 
   private loadedGeoJson: Map<string, string[]> = new Map();
-  private loadedData: Map<string, NomadGeoJson> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: Subject<void> = new Subject();
@@ -108,13 +107,6 @@ export class MapService  {
    */
   public onMapLoaded(): Observable<void> {
     return this.onMapLoaded$.asObservable();
-  }
-
-  /**
-   * Resizes the map (used when drawer closing)
-   */
-  public resizeMap(): void {
-    this.map.resize();
   }
 
   public getBasemaps(): Observable<Basemap[]> {
@@ -213,13 +205,11 @@ export class MapService  {
 
       // Removing data from Maps
       this.loadedGeoJson.delete(layerKey);
-      this.loadedData.delete(layerKey);
       this.layers.delete(layerKey);
 
       // Deletion of layers & source, putting an empty array to avoid cloning data later
-      (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).setData({
-        type: 'FeatureCollection',
-        features: [],
+      (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
+        removeAll: true
       });
       this.map.removeSource(layerKey);
     }
@@ -230,17 +220,11 @@ export class MapService  {
    * @param layerKey the layer key
    */
   public addNewPoint(layerKey: string, pointData: any) {
-    let layer = this.loadedData.get(layerKey);
-    if (!layer) {
-      layer = {
-        type: 'FeatureCollection',
-        features: [],
-      };
-      this.loadedData.set(layerKey, layer);
-    }
-    layer.features.push(pointData);
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
-    source.setData(layer as any);
+    const addData:Maplibregl.GeoJSONSourceDiff = {
+      add : [pointData]
+    }
+    source.updateData(addData);
   }
 
   /**
@@ -390,22 +374,15 @@ export class MapService  {
    * @param {string} file - Path of the file that contains the data to be loaded.
    */
   private async loadNewTile(layerKey: string, file: string): Promise<void> {
-    let layer = this.loadedData.get(layerKey);
-    if (!layer) {
-      layer = {
-        type: 'FeatureCollection',
-        features: [],
-      };
-      this.loadedData.set(layerKey, layer);
-    }
-
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     if(source){
       const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
-      if (newLayer.features) {
-        layer.features.push(...newLayer.features);
+      const addData:Maplibregl.GeoJSONSourceDiff = {
+        add : newLayer.features
       }
-      source.setData(layer as any);
+      setTimeout(() => {
+        source.updateData(addData);
+      });
     }
   }
 
