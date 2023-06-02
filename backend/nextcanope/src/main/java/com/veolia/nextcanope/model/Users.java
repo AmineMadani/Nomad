@@ -260,9 +260,12 @@ public class Users implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
-    private Users modifiedBy ; 
+    private Users modifiedBy ;
 
 
+    @Column(name="usr_ctxt", columnDefinition = "text")
+    @JsonProperty("user_context")
+    private String userContext ;
     /**
      * Constructor
      */
@@ -529,7 +532,11 @@ public class Users implements Serializable {
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+
+    public String getUserContext() {   return userContext;   }
+
+    public void setUserContext(String userContext) { this.userContext = userContext;  }
 
 }

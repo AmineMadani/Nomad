@@ -39,8 +39,6 @@ export class FilterAccordeonComponent implements OnInit {
       setTimeout(() => {
         this.checkFavValue(data);
       });
-
-      this.updateLayer(data);
     });
   }
 
@@ -52,44 +50,30 @@ export class FilterAccordeonComponent implements OnInit {
   onCheckboxChange(data: AccordeonData, e: Event): void {
     data.value = (e as CustomEvent).detail.checked;
     data.isIndeterminate = data.value ? false : data.isIndeterminate;
-    data.children?.forEach(element => {
-      element.value = data.value;
-    });
-    this.updateLayer(data);
-  }
 
-  /**
-   * Update layer(s) with AccordeonData
-   * @param data : AccordeonData
-   */
-  private updateLayer(data: AccordeonData) : void {
-    if (!data.isIndeterminate || data.children?.some( oneChild => oneChild.value) ) {
+    if (!data.isIndeterminate) {
+      if (data.value) {
         data.children?.forEach((child: AccordeonData) => {
-            if (child.value) {
-              if (child.key )
-                this.mapService.addEventLayer(child.key);
-            }
-            else {
-              if (child.key)
-                this.mapService.removeEventLayer(child.key);
-            }
+          if (!child.value) {
+            child.value=true;
+            if (child.key && child.key.length > 0) this.mapService.addEventLayer(child.key);
+          }
         });
-        if (data.key )
-          this.mapService.addEventLayer(data.key);
+        if (data.key && data.key.length > 0) this.mapService.addEventLayer(data.key);
       } else {
         data.children?.forEach((child: AccordeonData) => {
           if (child.value) {
-            if (child.key )
-              this.mapService.addEventLayer(child.key);
+            child.value=false;
+            if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
           } else {
-            if (child.key )
-                this.mapService.removeEventLayer(child.key);
+            if (child.key && child.key.length > 0) this.mapService.removeEventLayer(child.key);
           }
         });
-        if (data.key)
-          this.mapService.removeEventLayer(data.key);
+        if (data.key && data.key.length > 0) this.mapService.removeEventLayer(data.key);
       }
+    }
   }
+
 
   /**
    * If the child is already in the Set, delete it, otherwise add it

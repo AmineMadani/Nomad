@@ -3,14 +3,17 @@
  */
 export class UserContext {
   constructor (currentZoom : number,
-              currentCenter : Array<number>
+              currentLng : number,
+              currentLat : number
               ){
     this.zoom  =currentZoom;
-    this.center = currentCenter;
+    this.lng = currentLng;
+    this.lat = currentLat
   }
   public userId : number;
   public zoom : number;
-  public center : Array<number>;
   public userPreferences : string;
+  public  lng: number;
+	public lat: number;
 
 }

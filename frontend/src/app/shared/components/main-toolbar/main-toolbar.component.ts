@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { UserInfo } from 'angular-oauth2-oidc';
-import View from 'ol/View';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
 import { AccordeonFilter } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
@@ -16,7 +16,6 @@ import { ConfigurationService } from 'src/app/core/services/configuration.servic
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
-import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { PreferenceService } from 'src/app/core/services/preference.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -39,7 +38,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private userDataService : UserDataService,
     private preferenceService : PreferenceService,
     private favoriteService: FavoriteService,
-    private layerService : LayerService
+    private router: Router
   ) {}
 
   @Input('title') title: string;
@@ -104,10 +103,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Sauvegarde des préférences d'affichages
    */
   public async saveContext (): Promise<void>  {
-    const view : View =  this.mapService.getView();
+    const mapLibre : maplibregl.Map =  this.mapService.getMap();
     const userId : User = await this.preferenceService.getPreference('user');
     const filterStored = this.favoriteService.getFilter();
-    console.log("filterStored" ,filterStored);
     if (!userId){
       throw new Error('failed to load user informations');
     }
@@ -118,8 +116,9 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       return value;
     });
     const  userContext = <UserContext>{
-      zoom : view.getZoom(),
-      center : view.getCenter(),
+      zoom : mapLibre.getZoom(),
+      lng :mapLibre.getCenter().lng,
+      lat:mapLibre.getCenter().lat,
       userId: userId.id,
       userPreferences: filterJson
     }
@@ -127,12 +126,15 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Restauration des préférences d'affichages
+   * Restoring users view preferences
    */
   public async restoreContext(): Promise<void> {
-    const userId: User = await this.preferenceService.getPreference('user');
-    const userInfo = this.userDataService.getUserInformation().subscribe((userInfo: User) => {
-      this.mapService.getView().setZoom(userInfo.userContext.zoom);
+    //showing drawer panel if needed
+    if (!this.router.url.includes('asset')) {
+      this.router.navigate(['/home/asset']);
+    }
+    this.userDataService.getUserInformation().subscribe((userInfo: User) => {
+      this.mapService.getMap().setZoom(userInfo.userContext.zoom);
       let userPrefJson = JSON.parse(userInfo.userContext.userPreferences, (key, value) => {
         switch (value.type) {
           case 'accordeonFilter':
@@ -152,7 +154,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
         }
       });
       this.favoriteService.setFilter(userPrefJson);
-      this.mapService.getView().setCenter(userInfo.userContext.center);
+      this.mapService.getMap().setCenter([userInfo.userContext.lng,userInfo.userContext.lat]);
     });
   }
 }

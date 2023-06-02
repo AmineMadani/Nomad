@@ -20,12 +20,7 @@ export class FilterDataService {
     Map<string, string[]>
   >();
 
-  /**
-   * Map with all the removed features of a layer
-   */
-  private mapRemovedFeaturedByLayers:  Map<string, Feature[]|undefined> =  new Map<string, Feature[]|undefined>();
-
-  public getFilterData(): Map<string, MapFeature[]>{
+  public getFilterData(): Map<string, MapFeature[]> {
     return this.filterData;
   }
 
