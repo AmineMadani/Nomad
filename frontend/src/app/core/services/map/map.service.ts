@@ -59,29 +59,6 @@ export class MapService  {
       zoom: 14,
       maxZoom: 22,
     });
-    fromEvent(this.map, 'moveend')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        for (let layer of this.layers) {
-            if (layer[1].style.some(oneStyle => oneStyle['minzoom'] <= this.map.getZoom() )) {
-            this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
-              for (let str of res) {
-                if (
-                  !this.loadedGeoJson.get(layer[0]) ||
-                  !this.loadedGeoJson.get(layer[0])!.includes(str)
-                ) {
-                  if (this.loadedGeoJson.get(layer[0])) {
-                    this.loadedGeoJson.get(layer[0])!.push(str);
-                  } else {
-                    this.loadedGeoJson.set(layer[0], [str]);
-                  }
-                  await this.loadNewTile(layer[0], str);
-                }
-              }
-            });
-          }
-        }
-      });
     this.map.dragRotate.disable();
     return this.map;
   }
@@ -469,6 +446,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: 'http://localhost:8081/assets/sprites/@2x',
   };
 }
