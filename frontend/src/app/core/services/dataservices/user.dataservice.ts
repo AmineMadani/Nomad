@@ -23,7 +23,7 @@ export class UserDataService {
     return this.http.get<User>(`${this.configurationService.apiUrl}user/information`);
   }
   /**
-   * Save in database the user's préferences
+   * Save in database the user's preferences
    * @param userContext : contenu des préférence de l'utilisateur
    */
   public saveUsercontext(userContext : UserContext) : void {
