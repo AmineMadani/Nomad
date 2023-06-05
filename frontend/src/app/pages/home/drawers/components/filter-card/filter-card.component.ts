@@ -74,7 +74,8 @@ export class FilterCardComponent implements OnInit, OnDestroy {
       this.mapEvent.highlightHoveredFeature(
         this.mapService.getMap(),
         this.type,
-        feature?.id ?? undefined
+        feature?.id ?? undefined,
+        false
       );
     }
   }

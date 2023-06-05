@@ -55,7 +55,7 @@ update nomad.layer set lyr_style ='[{"id":"layer.aep_point_desserte","type":"cir
 where 	lyr_table_name ='asset.aep_point_desserte';
 
 -- asset.ass_ouvrage
-update nomad.layer set lyr_style ='[{"id":"layer.ass_ouvrage","type":"circle","source":"ass_ouvrage","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(345, 34%, 42)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_ouvrage","type":"circle","source":"ass_ouvrage","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(345, 34%, 42%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
 where 	lyr_table_name ='asset.ass_ouvrage';
 
 
@@ -66,16 +66,16 @@ where 	lyr_table_name ='asset.ass_equipement';
 
 
 -- asset.ass_boite_de_branchement
-update nomad.layer set lyr_style ='[{"id":"layer.ass_boite_de_branchement","type":"circle","source":"ass_boite_de_branchement","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(345, 20%, 20)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_boite_de_branchement","type":"circle","source":"ass_boite_de_branchement","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(345, 20%, 20%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
 where 	lyr_table_name ='asset.ass_boite_de_branchement';
 
 -- asset.ass_avaloir
-update nomad.layer set lyr_style ='[{"id":"layer.ass_avaloir","type":"circle","source":"ass_avaloir","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(330, 20%, 20)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_avaloir","type":"circle","source":"ass_avaloir","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(330, 20%, 20%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
 where 	lyr_table_name ='asset.ass_avaloir';
 
 
 -- asset.ass_regard
-update nomad.layer set lyr_style ='[{"id":"layer.ass_regard","type":"circle","source":"ass_regard","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(330, 20%, 20)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_regard","type":"circle","source":"ass_regard","minzoom":10,"layout":{},"paint":{"circle-radius":["case",["boolean",["feature-state","selected"],false],20,["boolean",["feature-state","hover"],false],12,7.5],"circle-color":"hsl(330, 20%, 20%)","circle-blur":0.1,"circle-opacity":["case",["boolean",["feature-state","selected"],false],1,["boolean",["feature-state","hover"],false],1,0.7]}}]'
 where 	lyr_table_name ='asset.ass_regard';
 
 
@@ -89,12 +89,12 @@ update nomad.layer set lyr_style ='[{"id":"layer.ass_branche","type":"line","sou
 where 	lyr_table_name = 'asset.ass_branche';
 
 -- asset.ass_collecteur
-update nomad.layer set lyr_style ='[{"id":"layer.ass_collecteur","type":"line","source":"ass_collecteur","minzoom":10,"layout":{"line-cap":"round","line-join":"round","visibility":"visible"},"paint":{"line-width":4,"line-color":"#00A1EA"},"line-dasharray":["literal",[3,2]]},{"id":"ass_collecteur_style_3","type":"symbol","source":"ass_collecteur","minzoom":16,"layout":{"text-size":12,"text-allow-overlap":true,"symbol-spacing":159,"symbol-placement":"line","text-rotation-alignment":"map","text-anchor":"top","text-pitch-alignment":"map","text-field":["to-string",["get","id"]]},"paint":{"text-color":["case",["boolean",["feature-state","selected"],false],"#FFC0CB",["!=",["get","exploitant"],"Veolia"],"#000000",["coalesce",["get","cde_rvb"],"#00A1FF"]],"text-halo-width":10,"text-halo-color":"hsla(0, 0%, 96%, 0)"}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_collecteur","type":"line","source":"ass_collecteur","minzoom":10,"layout":{"line-cap":"round","line-join":"round","visibility":"visible"},"paint":{"line-width":4,"line-color":"#6f5563"},"line-dasharray":["literal",[3,2]]},{"id":"ass_collecteur_style_3","type":"symbol","source":"ass_collecteur","minzoom":16,"layout":{"text-size":12,"text-allow-overlap":true,"symbol-spacing":159,"symbol-placement":"line","text-rotation-alignment":"map","text-anchor":"top","text-pitch-alignment":"map","text-field":["to-string",["get","id"]]},"paint":{"text-color":["case",["boolean",["feature-state","selected"],false],"#FFC0CB",["!=",["get","exploitant"],"Veolia"],"#000000",["coalesce",["get","cde_rvb"],"#00A1FF"]],"text-halo-width":10,"text-halo-color":"hsla(0, 0%, 96%, 0)"}}]'
 where 	lyr_table_name = 'asset.ass_collecteur';
 
 
 -- asset.ass_canalisation_abandonnee
-update nomad.layer set lyr_style ='[{"id":"layer.ass_canalisation_abandonnee","type":"line","source":"ass_canalisation_abandonnee","minzoom":10,"layout":{"line-cap":"round","line-join":"round","visibility":"visible"},"paint":{"line-width":4,"line-color":"#00A9EF"},"line-dasharray":["literal",[1,1]]},{"id":"ass_canalisation_abandonnee_style_3","type":"symbol","source":"ass_canalisation_abandonnee","minzoom":16,"layout":{"text-size":12,"text-allow-overlap":true,"symbol-spacing":159,"symbol-placement":"line","text-rotation-alignment":"map","text-anchor":"top","text-pitch-alignment":"map","text-field":["to-string",["get","id"]]},"paint":{"text-color":["case",["boolean",["feature-state","selected"],false],"#FFC0CB",["!=",["get","exploitant"],"Veolia"],"#000000",["coalesce",["get","cde_rvb"],"#00A1FF"]],"text-halo-width":10,"text-halo-color":"hsla(0, 0%, 96%, 0)"}}]'
+update nomad.layer set lyr_style ='[{"id":"layer.ass_canalisation_abandonnee","type":"line","source":"ass_canalisation_abandonnee","minzoom":10,"layout":{"line-cap":"round","line-join":"round","visibility":"visible"},"paint":{"line-width":4,"line-color":"#891151"},"line-dasharray":["literal",[1,1]]},{"id":"ass_canalisation_abandonnee_style_3","type":"symbol","source":"ass_canalisation_abandonnee","minzoom":16,"layout":{"text-size":12,"text-allow-overlap":true,"symbol-spacing":159,"symbol-placement":"line","text-rotation-alignment":"map","text-anchor":"top","text-pitch-alignment":"map","text-field":["to-string",["get","id"]]},"paint":{"text-color":["case",["boolean",["feature-state","selected"],false],"#FFC0CB",["!=",["get","exploitant"],"Veolia"],"#000000",["coalesce",["get","cde_rvb"],"#00A1FF"]],"text-halo-width":10,"text-halo-color":"hsla(0, 10%, 96%, 0)"}}]'
 where 	lyr_table_name = 'asset.ass_canalisation_abandonnee';
 
 

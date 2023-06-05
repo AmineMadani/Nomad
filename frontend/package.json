@@ -40,7 +40,7 @@
     "ionicons": "^6.0.3",
     "jszip": "^3.10.1",
     "luxon": "^3.2.1",
-    "maplibre-gl": "^2.4.0",
+    "maplibre-gl": "^3.0.1",
     "rxjs": "^7.5.0",
     "swiper": "^9.2.3",
     "tslib": "^2.3.0",

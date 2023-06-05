@@ -19,7 +19,6 @@ export class MaplibreLayer {
   private buildSource(): any {
     return {
       type: 'geojson',
-      generateId: true,
       promoteId: 'id',
       data: {
         type: 'FeatureCollection',

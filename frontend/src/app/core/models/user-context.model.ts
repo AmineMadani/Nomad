@@ -1,5 +1,5 @@
 /**
- * Context/préférence d'un utilisateur
+ * class to store  User's context and preferences
  */
 export class UserContext {
   constructor (currentZoom : number,

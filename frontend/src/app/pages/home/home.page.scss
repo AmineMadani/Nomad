@@ -74,37 +74,19 @@ ion-grid, ion-row {
     }
 
     .home-main-content-interactive-animation-in {
-        -moz-animation: slideInRightPanel 0.5s ease 0.1s forwards;
-        -webkit-animation: slideInRightPanel 0.5s ease 0.1s forwards;
-        -o-animation: slideInRightPanel 0.5s ease 0.1s forwards;
-        -ms-animation: slideInRightPanel 0.5s ease 0.1s forwards;
-        animation: slideInRightPanel 0.5s ease 0.1s forwards;
+        margin-right: 0;
     }
 
     .home-main-content-interactive-animation-out {
-        margin-right: 0px;
-        -moz-animation: slideOutRightPanel 0.5s ease 0.1s forwards;
-        -webkit-animation: slideOutRightPanel 0.5s ease 0.1s forwards;
-        -o-animation: slideOutRightPanel 0.5s ease 0.1s forwards;
-        -ms-animation: slideOutRightPanel 0.5s ease 0.1s forwards;
-        animation: slideOutRightPanel 0.5s ease 0.1s forwards;
+        margin-right: var(--width-right-panel-interactive--);
     }
 
     .home-main-content-interactive-animation-full-in {
-        -moz-animation: slideFullInRightPanel 0.5s ease 0.1s forwards;
-        -webkit-animation: slideFullInRightPanel 0.5s ease 0.1s forwards;
-        -o-animation: slideFullInRightPanel 0.5s ease 0.1s forwards;
-        -ms-animation: slideFullInRightPanel 0.5s ease 0.1s forwards;
-        animation: slideFullInRightPanel 0.5s ease 0.1s forwards;
+        margin-right: 0;
     }
 
     .home-main-content-interactive-animation-full-out {
-        margin-right: 0px;
-        -moz-animation: slideFullOutRightPanel 0.5s ease 0.1s forwards;
-        -webkit-animation: slideFullOutRightPanel 0.5s ease 0.1s forwards;
-        -o-animation: slideFullOutRightPanel 0.5s ease 0.1s forwards;
-        -ms-animation: slideFullOutRightPanel 0.5s ease 0.1s forwards;
-        animation: slideFullOutRightPanel 0.5s ease 0.1s forwards;
+        margin-right: var(--width-right-panel-interactive-full--);
     }
 }
 

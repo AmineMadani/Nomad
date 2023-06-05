@@ -8,11 +8,12 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { first, firstValueFrom } from 'rxjs';
+import { debounceTime, first, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Basemap } from 'src/app/core/models/basemap.model';
+import { CustomZoomControl } from './zoom.control';
 
 @Component({
   selector: 'app-map',
@@ -35,15 +36,6 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((route: DrawerRouteEnum) => {
         this.currentRoute = route;
-      });
-
-    this.mapEvent
-      .onMapResize()
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        if (this.map) {
-          setTimeout(() => this.map.resize());
-        }
       });
   }
 
@@ -87,14 +79,13 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'load')
       .pipe(first())
       .subscribe(() => {
-        this.map.resize();
         loading.dismiss();
         this.generateMap();
       });
 
     // Loading tiles event
     fromEvent(this.map, 'moveend')
-      .pipe(takeUntil(this.ngUnsubscribe$))
+      .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
       .subscribe(() => {
         this.mapService.onMoveEnd();
       });
@@ -147,6 +138,9 @@ export class MapComponent implements OnInit, OnDestroy {
         unit: 'metric',
       })
     );
+    if (this.isMobile) {
+      this.map.addControl(new CustomZoomControl(), 'bottom-right');
+    }
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
@@ -324,8 +318,8 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param {number} e - e is a number representing the new zoom level that the map should be set to
    */
   public onZoomChange(e: number): void {
-    this.map.zoomTo(e);
-    this.zoom = this.map.getZoom();
+    this.zoom = e;
+    this.map.zoomTo(this.zoom);
   }
 
   /**

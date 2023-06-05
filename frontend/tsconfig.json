@@ -18,6 +18,8 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
     "target": "es2015",
     "module": "es2020",
     "lib": [
@@ -32,7 +34,8 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": false
   },
   "skipLibCheck": true,
 }
