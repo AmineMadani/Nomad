@@ -36,17 +36,17 @@ export class UtilsService {
 
   /**
    * Derialize a Json to a type
-   * @param instanceCible l'objet qui va contenir les valeurs
-   * @param instanceData  l'objet source
+   * @param targetInstance destination objevt
+   * @param sourceInstance  source object
    * @returns an full filled object
    */
-  deserialize(instanceCible: any,instanceData: any):any {
-    const keys = Object.keys(instanceCible);
+  deserialize(targetInstance: any,sourceInstance: any):any {
+    const keys = Object.keys(targetInstance);
     for (const key of keys) {
-      if (instanceData.hasOwnProperty(key)) {
-          instanceCible[key] = instanceData[key];
+      if (sourceInstance.hasOwnProperty(key)) {
+          targetInstance[key] = sourceInstance[key];
         }
     }
-    return instanceCible;
+    return targetInstance;
     }
 }

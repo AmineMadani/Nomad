@@ -24,7 +24,7 @@ export class UserDataService {
   }
   /**
    * Save in database the user's preferences
-   * @param userContext : contenu des préférence de l'utilisateur
+   * @param userContext : user's preferences
    */
   public saveUsercontext(userContext : UserContext) : void {
     this.http.put(`${this.configurationService.apiUrl}user/user-context/${userContext.userId}`, userContext).subscribe({
