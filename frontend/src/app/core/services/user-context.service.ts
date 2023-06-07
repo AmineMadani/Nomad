@@ -15,6 +15,7 @@ import { WorkOrderFilter } from '../models/filter/filter-component-models/WorkOr
 import { FavoriteService } from './favorite.service';
 import { UserContext } from '../models/user-context.model';
 import { UserService } from './user.service';
+import { DrawerService } from './drawer.service';
 /**
  * Enum of cache items in local storage
  */
@@ -37,6 +38,7 @@ export class UserContextService {
     private utilsService : UtilsService,
     private mapService: MapService,
     private favoriteService : FavoriteService,
+    private drawerService : DrawerService
     
   ) { }
 
@@ -151,6 +153,8 @@ export class UserContextService {
    * Restoring users view preferences
    */
   public async restoreUserContext(userContext : UserContext): Promise<void> {
+    if (!userContext)
+    return;
     if (userContext.url){
       this.router.navigate([userContext.url]);
       }

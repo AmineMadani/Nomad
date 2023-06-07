@@ -7,7 +7,6 @@ import { IonModal, ModalController, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
-import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -19,8 +18,7 @@ export class HomePage implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
-    private modalCtrl: ModalController,
-    private userService : UserService
+    private modalCtrl: ModalController
   ) {
     this.drawerService.initDrawerListener();
   }
