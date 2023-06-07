@@ -18,7 +18,7 @@ export class HomePage implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
-    private modalCtrl: ModalController,
+    private modalCtrl: ModalController
   ) {
     this.drawerService.initDrawerListener();
   }

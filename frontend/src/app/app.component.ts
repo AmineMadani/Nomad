@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { KeycloakService } from './core/services/keycloak.service';
 import { Location } from '@angular/common';
 import { IonRouterOutlet, Platform } from '@ionic/angular';
@@ -6,6 +6,10 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { DialogService } from './core/services/dialog.service';
 import { register } from 'swiper/element/bundle';
 import { UtilsService } from './core/services/utils.service';
+import { Router } from '@angular/router';
+import { DrawerRouteEnum } from './core/models/drawer.model';
+import { UserContext } from './core/models/user-context.model';
+import { UserContextService } from './core/services/user-context.service';
 
 register();
 
@@ -27,7 +31,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private dialog: DialogService,
     private location: Location,
     private platform: Platform,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private userContextService : UserContextService,
+    private router: Router
   ) {
     this.keycloakService.configure()
   }
@@ -58,4 +64,16 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sub.unsubscribe();
   }
+
+  async onClick(url : string){
+
+    const currentRoute = this.userContextService.getMainDrawerNameRoute(this.router.url);
+    let userContext = new UserContext();
+    //save current context (currently, we only have filter for HOME)
+    if (currentRoute == DrawerRouteEnum.HOME){
+      userContext = (await this.userContextService.getCurrentUserContextHome());
+    }
+    // Save the current context Home
+    this.userContextService.setUserContextInLocalStorage(currentRoute, userContext);
+  } 
 }
