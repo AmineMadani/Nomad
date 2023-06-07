@@ -15,6 +15,7 @@ public class AccountDto {
 	private String imgUrl;
 	
 	private Boolean isValid = false;
+	
 	@JsonRawValue
 	private String userContext;
 
@@ -66,9 +67,13 @@ public class AccountDto {
 		this.isValid = isValid;
 	}
 
+	public String getUserContext() {
+		return userContext;
+	}
 
-	public  String getUserContext() { return userContext;}
-	public  void setUserContext(String userContext) { this.userContext = userContext;}
+	public void setUserContext(String userContext) {
+		this.userContext = userContext;
+	}
 
 	public AccountDto(AccountTokenDto accountTokenDto) {
 		super();

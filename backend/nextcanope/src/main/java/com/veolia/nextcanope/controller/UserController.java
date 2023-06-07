@@ -38,23 +38,23 @@ public class UserController {
 
 
 
-	@PutMapping(path ="/user-context/{id}")
+	@PutMapping(path ="/user-context")
 	@Operation(summary = "Set the user context")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "save the context in database")
 	})
-	public String putUserContext(@PathVariable("id") Long idInput, @RequestBody UserContextDto userContextDto) throws Exception {
-		Long id = idInput;
+	public String putUserContext(AccountTokenDto account, @RequestBody UserContextDto userContextDto) throws Exception {
+		Long id = account.getId();
 		Optional<Users> user = userRepository.findById(id);
 		ObjectMapper mapper = new ObjectMapper();
 		if (user.isEmpty())
 		{
 			throw new Exception("unknown user");
 		}
-		user.get().setUserContext(mapper.writeValueAsString(userContextDto));
+		user.get().setUsrCtxt(mapper.writeValueAsString(userContextDto));
 
 		userRepository.save(user.get());
-		return user.get().getUserContext();
+		return user.get().getUsrCtxt();
 	}
 
 }

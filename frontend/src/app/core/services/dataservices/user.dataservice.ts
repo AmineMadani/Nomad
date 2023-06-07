@@ -27,7 +27,7 @@ export class UserDataService {
    * @param userContext : user's preferences
    */
   public saveUsercontext(userContext : UserContext) : void {
-    this.http.put(`${this.configurationService.apiUrl}user/user-context/${userContext.userId}`, userContext).subscribe({
+    this.http.put(`${this.configurationService.apiUrl}user/user-context`, userContext).subscribe({
     //next : () => ,
     error : (err) => console.error(err)
     })
