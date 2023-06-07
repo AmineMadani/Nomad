@@ -105,33 +105,10 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Sauvegarde des préférences d'affichages
    */
   public async saveContext (): Promise<void>  {
-    const userContext : UserContext = await this.getCurrentContext();
+    const userContext : UserContext = await this.userContextService.getCurrentUserContextHome();
     this.userDataService.saveUsercontext(userContext);
   }
 
-  async getCurrentContext() : Promise<UserContext>{
-    const mapLibre : maplibregl.Map =  this.mapService.getMap();
-    const userId : User = await this.preferenceService.getPreference(LocalStorageKey.USER);
-    const filterStored = this.favoriteService.getFilter();
-    if (!userId){
-      throw new Error('failed to load user informations');
-    }
-    let filterJson=JSON.stringify(filterStored, (key, value) => {
-      if (typeof value?.getType !== "undefined") {
-      value.type=value.getType();
-      }
-      return value;
-    });
-    const  userContext = <UserContext>{
-      zoom : mapLibre.getZoom(),
-      lng :mapLibre.getCenter().lng,
-      lat:mapLibre.getCenter().lat,
-      userId: userId.id,
-      userPreferences: filterJson
-    }
-    return userContext;
-  }
-  
   /**
    * Restoring users view preferences
    */

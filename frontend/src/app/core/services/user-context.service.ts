@@ -143,6 +143,10 @@ export class UserContextService {
 
   public restoreUserContextFromBase() : void{
     this.userDataService.getUserInformation().subscribe((userInfo: User) => {
+      //showing drawer panel if needed
+    if (!this.router.url.includes('asset')) {
+      this.router.navigate(['/home/asset']);
+    }
       this.restoreUserContext(userInfo.userContext);
     });
   }
