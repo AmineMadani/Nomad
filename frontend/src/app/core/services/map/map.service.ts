@@ -181,8 +181,7 @@ export class MapService  {
     if (!layer || !filters) {
       return;
     }
-    console.log("filters",filters);
-    console.log("layer",layer);
+
     const filter: any[] = ['all'];
 
     if (filters && filters.size > 0) {
@@ -190,7 +189,7 @@ export class MapService  {
         filter.push(['in', ['get', key], ['literal',values]]);
       }
     }
-    console.log("filter=",filter);
+    
     for (const style of layer.style) {
       this.map.setFilter(style.id, filter as any);
     }
