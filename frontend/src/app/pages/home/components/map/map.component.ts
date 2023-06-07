@@ -14,6 +14,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
+import { UserContextService } from 'src/app/core/services/user-context.service';
 
 @Component({
   selector: 'app-map',
@@ -29,7 +30,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private loadingCtrl: LoadingController,
     private router: Router,
     private elem: ElementRef,
-    private referentialService: ReferentialService
+    private referentialService: ReferentialService,
+    private userContextService : UserContextService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -171,6 +173,8 @@ export class MapComponent implements OnInit, OnDestroy {
   public setMapLoaded(): void {
     this.displayMap = true;
     this.mapService.setMapLoaded();
+    //Set previous user context
+    this.userContextService.restoreUserContextHome();
   }
 
   /**

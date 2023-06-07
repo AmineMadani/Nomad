@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { PreferenceService } from './preference.service';
-import { drawerRoutes } from '../models/drawer.model';
+import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { Router } from '@angular/router';
 import { UtilsService } from './utils.service';
 import { MapService } from './map/map.service';
@@ -91,7 +91,7 @@ export class UserContextService {
    return routeEnumResult.toUpperCase();
    }
 
-   public async getCurrentUserContext() : Promise<UserContext>{
+   public async getCurrentUserContextHome() : Promise<UserContext>{
     const mapLibre : maplibregl.Map =  this.mapService.getMap();
     const userId : User = await this.userService.getUser();
     const filterStored = this.favoriteService.getFilter();
@@ -104,13 +104,14 @@ export class UserContextService {
       }
       return value;
     });
+
     const  userContext = <UserContext>{
       zoom : mapLibre.getZoom(),
       lng :mapLibre.getCenter().lng,
       lat:mapLibre.getCenter().lat,
       userId: userId.id,
       userPreferences: filterJson,
-      url : encodeURI(this.router.url),
+      url : this.router.url, //TODO
     }
     
     return userContext;
@@ -122,7 +123,7 @@ export class UserContextService {
    * Sauvegarde des préférences d'affichages
    */
   public async saveUserContextInLocalStorage (): Promise<void>  {
-    const userContext =  await this.getCurrentUserContext();
+    const userContext =  await this.getCurrentUserContextHome();
     this.setUserContextInLocalStorage(this.router.url,userContext);
   }
 
@@ -134,7 +135,7 @@ export class UserContextService {
    * Sauvegarde des préférences d'affichages
    */
   public async saveUserContextInBase (): Promise<void>  {
-    const userContext =  await this.getCurrentUserContext();
+    const userContext =  await this.getCurrentUserContextHome();
     this.userDataService.saveUsercontext(userContext);
   }
 
@@ -149,15 +150,12 @@ export class UserContextService {
   /**
    * Restoring users view preferences
    */
-  public restoreUserContext(userContext : UserContext): void {
-    //showing drawer panel if needed
-    // if (!this.router.url.includes('asset')) {
-    //   this.router.navigate(['/home/asset']);
-    // }
+  public async restoreUserContext(userContext : UserContext): Promise<void> {
     if (userContext.url){
-      this.router.navigateByUrl(userContext.url);
-    }
-      this.mapService.getMap().setZoom(userContext.zoom);
+      this.router.navigate([userContext.url]);
+      }
+    this.mapService.getMap().setZoom(userContext.zoom);
+    this.mapService.getMap().setCenter([userContext.lng,userContext.lat]);
       let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
         switch (value.type) {
           case 'accordeonFilter':
@@ -177,7 +175,11 @@ export class UserContextService {
         }
       });
       this.favoriteService.setFilter(userPrefJson);
-      this.mapService.getMap().setCenter([userContext.lng,userContext.lat]);
+  }
+
+  public async restoreUserContextHome() : Promise<void>{
+    const userContextHome = await this.getUserContextInLocalStorage(DrawerRouteEnum.HOME);
+    await this.restoreUserContext(userContextHome);
   }
 
 }

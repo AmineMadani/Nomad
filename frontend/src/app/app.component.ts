@@ -8,7 +8,6 @@ import { register } from 'swiper/element/bundle';
 import { UtilsService } from './core/services/utils.service';
 import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
-import { FavoriteService } from './core/services/favorite.service';
 import { UserContext } from './core/models/user-context.model';
 import { UserContextService } from './core/services/user-context.service';
 
@@ -69,23 +68,12 @@ export class AppComponent implements OnInit, OnDestroy {
   async onClick(url : string){
 
     const currentRoute = this.userContextService.getMainDrawerNameRoute(this.router.url);
+    let userContext = new UserContext();
     //save current context (currently, we only have filter for HOME)
-    if (currentRoute == DrawerRouteEnum.HOME)
-    {
-      let userContextHome = (await this.userContextService.getCurrentUserContext());
-         // Save the current context Home
-        this.userContextService.setUserContextInLocalStorage(currentRoute, userContextHome);
+    if (currentRoute == DrawerRouteEnum.HOME){
+      userContext = (await this.userContextService.getCurrentUserContextHome());
     }
-
-    //create new localstorage for new route if not exist
-    const newRoute = this.userContextService.getMainDrawerNameRoute(url);
-    let navigationContext : UserContext = await this.userContextService.getUserContextInLocalStorage(newRoute);
-    if (!navigationContext){
-     navigationContext = new UserContext();
-     this.userContextService.setUserContextInLocalStorage(newRoute, navigationContext);
-    }
-    else{
-      this.userContextService.restoreUserContext(navigationContext);
-    }
+    // Save the current context Home
+    this.userContextService.setUserContextInLocalStorage(currentRoute, userContext);
   } 
 }
