@@ -3,6 +3,7 @@ import { IonAccordionGroup } from '@ionic/angular';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import { FavoriteService } from 'src/app/core/services/favorite.service';
+import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class FilterAccordeonComponent implements OnInit {
   constructor(
     private mapService: MapService,
     private favService: FavoriteService,
+    private layerService : LayerService
   ) { }
 
   @Input() datas: AccordeonData[];
@@ -29,11 +31,11 @@ export class FilterAccordeonComponent implements OnInit {
           nativeEl.value = data.id.toString();
         });
       }
-      if (data.children?.filter((acc) => acc.value).length !== 0 
+      if (data.children?.filter((acc) => acc.value).length !== 0
           && data.children?.filter((acc) => acc.value).length !== data.children?.length) {
         data.isIndeterminate = true;
       }
-  
+
       setTimeout(() => {
         this.checkFavValue(data);
       });
@@ -72,6 +74,7 @@ export class FilterAccordeonComponent implements OnInit {
     }
   }
 
+
   /**
    * If the child is already in the Set, delete it, otherwise add it
    * @param {AccordeonData} child - Accordeon
@@ -84,10 +87,16 @@ export class FilterAccordeonComponent implements OnInit {
       if(child.key) this.mapService.addEventLayer(child.key);
       child.value = true;
     }
-    //this.managerEvent(child,true,this.accordeonData,'select');
     data.value = data?.children?.filter(e => e.value).length === data?.children?.length ? true : false;
     if(!data.value || data.value) {
-      data.isIndeterminate = data?.children?.filter(e => e.value).length != 0 ? true : false;
+      let nbChildCheck = data?.children?.filter(e => e.value).length;
+      if (nbChildCheck == data?.children?.length){
+          data.value=true;
+          data.isIndeterminate = false;
+      }
+      else  {
+          data.isIndeterminate = data?.children?.filter(e => e.value).length != 0 ? true : false;
+      }
     }
   }
 

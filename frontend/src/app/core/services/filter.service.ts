@@ -38,24 +38,7 @@ export class FilterService {
   //  * @param filters list of property filter
   //  */
   public applyFilterOnMap(layerKey: string) {
-    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
-    const layer = this.mapService.getLayer(layerKey);
-    
-    if (!layer) {
-      return;
-    }
-  
-    const filter: any[] = ['all'];
-    
-    if (filters && filters.size > 0) {
-      for (const [key, values] of filters) {
-        filter.push(['==', ['get', key], ...values]);
-      }
-    }
-  
-    for (const style of layer.style) {
-      this.mapService.getMap().setFilter(style.id, filter as any);
-    }
+    this.mapService.applyFilterOnMap(layerKey);
   }
 
   /**
@@ -138,7 +121,7 @@ export class FilterService {
   }
 
   /**
-   * Method to set the new property filter to add and execute it on the target layer 
+   * Method to set the new property filter to add and execute it on the target layer
    * @param layerkey layer exploitation data
    * @param key property key
    * @param listValue  list of values to filter
@@ -181,8 +164,8 @@ export class FilterService {
    * @returns true if exist search filter
    */
   public hasSearchFilterLayer(layerkey: string) {
-    return this.filterDataService.getSearchFilterListData() 
-            && this.filterDataService.getSearchFilterListData().get(layerkey) 
+    return this.filterDataService.getSearchFilterListData()
+            && this.filterDataService.getSearchFilterListData().get(layerkey)
             && this.filterDataService.getSearchFilterListData().get(layerkey).size > 0;
   }
 

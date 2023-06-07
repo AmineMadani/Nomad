@@ -68,6 +68,10 @@ public class Users implements Serializable {
 	@JsonProperty("usr_dmod")
     private Date usrDmod ;
 
+    @Column(name="usr_ctxt", length=2147483647)
+	@JsonProperty("usr_ctxt")
+    private String usrCtxt ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -218,11 +222,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Street> listOfCreatedStreet ; 
+    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
+    private List<Street> listOfCreatedStreet ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -234,11 +238,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
+    private List<Workorder> listOfModifiedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Workorder> listOfModifiedWorkorder ; 
+    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -246,21 +250,21 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
-
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Workorder> listOfCreatedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Layer> listOfCreatedLayer ; 
+    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Layer> listOfCreatedLayer ; 
 
 
     /**
@@ -340,6 +344,14 @@ public class Users implements Serializable {
 
     public Date getUsrDmod() {
         return this.usrDmod;
+    }
+
+	public void setUsrCtxt( String usrCtxt ) {
+        this.usrCtxt = usrCtxt ;
+    }
+
+    public String getUsrCtxt() {
+        return this.usrCtxt;
     }
 
     //--- GETTERS FOR LINKS
@@ -487,12 +499,12 @@ public class Users implements Serializable {
         return this.listOfLayerReferences;
     } 
 
-    public List<Street> getListOfCreatedStreet() {
-        return this.listOfCreatedStreet;
-    } 
-
     public List<VlTopologyType> getListOfCreatedVlTopologyType() {
         return this.listOfCreatedVlTopologyType;
+    } 
+
+    public List<Street> getListOfCreatedStreet() {
+        return this.listOfCreatedStreet;
     } 
 
     public List<Report> getListOfCreatedReport() {
@@ -503,32 +515,32 @@ public class Users implements Serializable {
         return this.listOfCreatedDomains;
     } 
 
-    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
-        return this.listOfModifiedLayerReferences;
-    } 
-
     public List<Workorder> getListOfModifiedWorkorder() {
         return this.listOfModifiedWorkorder;
+    } 
+
+    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
+        return this.listOfModifiedLayerReferences;
     } 
 
     public List<Layer> getListOfModifiedLayer() {
         return this.listOfModifiedLayer;
     } 
 
-    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
-        return this.listOfCreatedLayerReferences;
-    } 
-
     public List<Workorder> getListOfCreatedWorkorder() {
         return this.listOfCreatedWorkorder;
     } 
 
-    public List<Layer> getListOfCreatedLayer() {
-        return this.listOfCreatedLayer;
+    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
+        return this.listOfCreatedLayerReferences;
     } 
 
     public Users getModifiedBy() {
         return this.modifiedBy;
+    } 
+
+    public List<Layer> getListOfCreatedLayer() {
+        return this.listOfCreatedLayer;
     } 
 
 

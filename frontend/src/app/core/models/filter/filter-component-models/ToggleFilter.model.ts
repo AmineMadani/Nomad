@@ -8,10 +8,10 @@ export class ToggleFilter implements BaseFilter {
   public tableKey?: string[];
 
   constructor(
-    id: number,
-    isRecordableFavorite: boolean,
-    position: number,
-    data: ToggleData[],
+    id?: number,
+    isRecordableFavorite?: boolean,
+    position?: number,
+    data?: ToggleData[],
     tableKey: string[] = null,
   ) {
     this.id = id;

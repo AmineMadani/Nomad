@@ -6,7 +6,7 @@ export class TreeFilter implements BaseFilter{
     public position: number;
     public data: TreeData[];
 
-    constructor(id: number, isRecordableFavorite: boolean, position: number, data: TreeData[]) {
+    constructor(id?: number, isRecordableFavorite?: boolean, position?: number, data?: TreeData[]) {
         this.id = id;
         this.isRecordableFavorite = isRecordableFavorite;
         this.position = position;

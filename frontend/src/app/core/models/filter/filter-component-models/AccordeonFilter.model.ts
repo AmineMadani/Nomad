@@ -6,7 +6,7 @@ export class AccordeonFilter implements BaseFilter {
     public position: number;
     public data: AccordeonData[];
 
-    constructor(id: number, isRecordableFavorite: boolean, position: number, data: AccordeonData[]) {
+    constructor(id?: number, isRecordableFavorite?: boolean, position?: number, data?: AccordeonData[]) {
         this.id = id;
         this.isRecordableFavorite = isRecordableFavorite;
         this.position = position;

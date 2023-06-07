@@ -11,6 +11,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { Layer } from '../../models/layer.model';
 import { Basemap } from '../../models/basemap.model';
+import { FilterDataService } from '../dataservices/filter.dataservice';
 
 export interface Box {
   x1: number;
@@ -27,7 +28,8 @@ export class MapService  {
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
-    private basemapsDataservice: BaseMapsDataService
+    private basemapsDataservice: BaseMapsDataService,
+    private filterDataService: FilterDataService
   ) {
     this.layerDataService.getLayers()
     .pipe(
@@ -157,6 +159,7 @@ export class MapService  {
 
       await new Promise<void>((resolve) => {
         this.map.once('idle', () => {
+          this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
             layer.style.every((style) => this.map.getLayer(style.id));
           if (isValid()) {
@@ -167,6 +170,30 @@ export class MapService  {
     }
   }
 
+ /**
+  * Method to apply the filter on the map for a specific layer
+  * @param layerKey  layer exploitation data
+  * @returns
+  */
+  public applyFilterOnMap(layerKey: string) : void{
+    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
+    const layer = this.getLayer(layerKey);
+    if (!layer || !filters) {
+      return;
+    }
+
+    const filter: any[] = ['all'];
+
+    if (filters && filters.size > 0) {
+      for (const [key, values] of filters) {
+        filter.push(['in', ['get', key], ['literal',values]]);
+      }
+    }
+    
+    for (const style of layer.style) {
+      this.map.setFilter(style.id, filter as any);
+    }
+  }
   /**
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.

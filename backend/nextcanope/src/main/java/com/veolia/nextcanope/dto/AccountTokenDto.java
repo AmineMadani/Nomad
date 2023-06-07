@@ -24,6 +24,8 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 	
 	private Boolean isValid = false;
 
+	private String userContext;
+
 	public String getEmail() {
 		return email;
 	}
@@ -72,6 +74,14 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 		this.imgUrl = imgUrl;
 	}
 
+	public String getUserContext() {
+		return userContext;
+	}
+
+	public void setUserContext(String userContext) {
+		this.userContext = userContext;
+	}
+
 	public AccountTokenDto(Jwt jwt, Collection<? extends GrantedAuthority> authorities, Users user) {
 		super(jwt, authorities, jwt.getClaimAsString("email"));
 		this.email = jwt.getClaimAsString("email");
@@ -81,6 +91,7 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 		if(user != null) {
 			this.id = user.getId();
 			this.isValid = user.getUsrValid();
+			this.userContext = user.getUsrCtxt();
 		}
 	}
 }
