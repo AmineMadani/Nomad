@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { PreferenceService } from './preference.service';
+import { LocalStorageKey } from './user-context.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class UserService {
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
   async getUser(): Promise<User | undefined> {
-    const user: User | undefined = await this.preferenceService.getPreference('user');
+    const user: User | undefined = await this.preferenceService.getPreference(LocalStorageKey.USER);
     if(!user) {
       const refreshUser:User = await firstValueFrom(this.userDataService.getUserInformation());
       this.setUser(refreshUser);
@@ -34,13 +35,13 @@ export class UserService {
    * @param user The user to store in local storage.
    */
   setUser(user:User){
-    this.preferenceService.setPreference('user',user);
+    this.preferenceService.setPreference(LocalStorageKey.USER,user);
   }
 
   /**
    * Remove the current user from local storage.
    */
   resetUser(){
-    this.preferenceService.deletePreference('user');
+    this.preferenceService.deletePreference(LocalStorageKey.USER);
   }
 }
