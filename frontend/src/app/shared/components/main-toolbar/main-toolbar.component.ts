@@ -18,6 +18,7 @@ import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { PreferenceService } from 'src/app/core/services/preference.service';
+import { LocalStorageKey, UserContextService } from 'src/app/core/services/user-context.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -38,7 +39,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private userDataService : UserDataService,
     private preferenceService : PreferenceService,
     private favoriteService: FavoriteService,
-    private router: Router
+    private router: Router,
+    private userContextService : UserContextService
   ) {}
 
   @Input('title') title: string;
@@ -103,8 +105,13 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Sauvegarde des préférences d'affichages
    */
   public async saveContext (): Promise<void>  {
+    const userContext : UserContext = await this.getCurrentContext();
+    this.userDataService.saveUsercontext(userContext);
+  }
+
+  async getCurrentContext() : Promise<UserContext>{
     const mapLibre : maplibregl.Map =  this.mapService.getMap();
-    const userId : User = await this.preferenceService.getPreference('user');
+    const userId : User = await this.preferenceService.getPreference(LocalStorageKey.USER);
     const filterStored = this.favoriteService.getFilter();
     if (!userId){
       throw new Error('failed to load user informations');
@@ -122,39 +129,13 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       userId: userId.id,
       userPreferences: filterJson
     }
-    this.userDataService.saveUsercontext(userContext);
+    return userContext;
   }
-
+  
   /**
    * Restoring users view preferences
    */
-  public async restoreContext(): Promise<void> {
-    //showing drawer panel if needed
-    if (!this.router.url.includes('asset')) {
-      this.router.navigate(['/home/asset']);
-    }
-    this.userDataService.getUserInformation().subscribe((userInfo: User) => {
-      this.mapService.getMap().setZoom(userInfo.userContext.zoom);
-      let userPrefJson = JSON.parse(userInfo.userContext.userPreferences, (key, value) => {
-        switch (value.type) {
-          case 'accordeonFilter':
-            return this.utilsService.deserialize(new AccordeonFilter(), value);
-          case 'searchFilter':
-            return this.utilsService.deserialize(new SearchFilter(), value);
-          case 'toggleFilter':
-            return this.utilsService.deserialize(new ToggleFilter(), value);
-          case 'treeFilter':
-            return this.utilsService.deserialize(new TreeFilter(), value);
-          case 'workOrderFilter':
-            return this.utilsService.deserialize(new WorkOrderFilter(), value);
-          case 'favoriteFilter':
-            return this.utilsService.deserialize(new FavoriteFilter(), value);
-          default:
-            return value;
-        }
-      });
-      this.favoriteService.setFilter(userPrefJson);
-      this.mapService.getMap().setCenter([userInfo.userContext.lng,userInfo.userContext.lat]);
-    });
+  public restoreContext(): void {
+    this.userContextService.restoreUserContextFromBase();
   }
 }
