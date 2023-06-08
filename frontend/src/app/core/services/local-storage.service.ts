@@ -17,6 +17,9 @@ export enum LocalStorageKey {
   providedIn: 'root'
 })
 
+/**
+ * Service of Local Storage
+ */
 export class LocalStorageService {
 
   constructor(

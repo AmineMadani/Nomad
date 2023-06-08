@@ -10,10 +10,6 @@ export class UserContext {
   public userPreferences : string;
   public lng: number;
 	public lat: number;
-
-  // public route : string;
-  // public pathVariable : any[];
-  // public queryParams : any;
   public url : string;
   
 }
