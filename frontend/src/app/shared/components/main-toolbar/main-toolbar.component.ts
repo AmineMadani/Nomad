@@ -1,24 +1,12 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { UserInfo } from 'angular-oauth2-oidc';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
-import { AccordeonFilter } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
-import { FavoriteFilter } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { SearchFilter } from 'src/app/core/models/filter/filter-component-models/SearchFilter.model';
-import { ToggleFilter } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
-import { TreeFilter } from 'src/app/core/models/filter/filter-component-models/TreeFilter.model';
-import { WorkOrderFilter } from 'src/app/core/models/filter/filter-component-models/WorkOrderFilter.model';
 import { UserContext } from 'src/app/core/models/user-context.model';
-import { User } from 'src/app/core/models/user.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
-import { FavoriteService } from 'src/app/core/services/favorite.service';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
-import { MapService } from 'src/app/core/services/map/map.service';
-import { PreferenceService } from 'src/app/core/services/preference.service';
-import { LocalStorageKey, UserContextService } from 'src/app/core/services/user-context.service';
+import { LocalStorageService } from 'src/app/core/services/local-storage.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -35,13 +23,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private userService: UserService,
     private configurationService: ConfigurationService,
-    private mapService : MapService,
     private userDataService : UserDataService,
-    private preferenceService : PreferenceService,
-    private favoriteService: FavoriteService,
-    private router: Router,
-    private userContextService : UserContextService
-  ) {}
+    private localStorageService : LocalStorageService  ) {}
 
   @Input('title') title: string;
 
@@ -66,7 +49,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
 
     if(!this.minimalist) {
-      this.userService.getUser().then(usr => {
+      this.localStorageService.getUser().then(usr => {
         this.imgUrl = usr?.imgUrl;
       });
     }
@@ -79,7 +62,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
   logout() {
     if (this.configurationService.keycloak.active) {
-      this.keycloakService.logout().then(res => {
+      this.keycloakService.logout().then(() => {
         window.location.reload();
       });
     }
@@ -105,7 +88,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Sauvegarde des préférences d'affichages
    */
   public async saveContext (): Promise<void>  {
-    const userContext : UserContext = await this.userContextService.getCurrentUserContextHome();
+    const userContext : UserContext = await this.userService.getCurrentUserContext();
     this.userDataService.saveUsercontext(userContext);
   }
 
@@ -113,6 +96,6 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Restoring users view preferences
    */
   public restoreContext(): void {
-    this.userContextService.restoreUserContextFromBase();
+    this.userService.restoreUserContextFromBase();
   }
 }

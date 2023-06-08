@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { ConfigurationService } from '../services/configuration.service';
 import { KeycloakService } from '../services/keycloak.service';
-import { UserService } from '../services/user.service';
 import { InitService } from '../services/init.service';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +12,8 @@ export class AuthGuardService implements CanActivate {
   constructor(
     private router: Router,
     private keycloakService: KeycloakService,
-    private userService: UserService,
-    private configurationService: ConfigurationService,
-    private initService: InitService
-  ) { }
+    private localStorageService: LocalStorageService,
+    private initService: InitService  ) { }
 
   /**
  * Determines whether the user can activate a particular route.
@@ -35,7 +32,7 @@ export class AuthGuardService implements CanActivate {
       }
     } else {
       // Try to get the user data
-      const user = await this.userService.getUser();
+      const user = await this.localStorageService.getUser();
 
       if (user) {
         // Get initialization data for the user

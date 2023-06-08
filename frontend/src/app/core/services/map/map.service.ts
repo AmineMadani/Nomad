@@ -327,13 +327,6 @@ export class MapService  {
         route = DrawerRouteEnum.EQUIPMENT;
         break;
     }
-    //TODO 
-    // let currentContext =  this.userContextService.getCurrentUserContextHome();
-    // currentContext.then( cc => {
-    //   cc.url = url;
-    //   cc.queryParams = queryParams;
-    //   cc.pathVariable = pathVariables;
-    // })
     this.drawerService.navigateTo(route, [properties['id']], properties);
   }
 

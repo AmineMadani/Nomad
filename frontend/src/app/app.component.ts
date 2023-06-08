@@ -9,7 +9,9 @@ import { UtilsService } from './core/services/utils.service';
 import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserContext } from './core/models/user-context.model';
-import { UserContextService } from './core/services/user-context.service';
+import { LocalStorageService } from './core/services/local-storage.service';
+import { MapService } from './core/services/map/map.service';
+import { UserService } from './core/services/user.service';
 
 register();
 
@@ -32,8 +34,10 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private platform: Platform,
     private utils: UtilsService,
-    private userContextService : UserContextService,
-    private router: Router
+    private localStorageService : LocalStorageService,
+    private router: Router,
+    private mapService : MapService,
+    private userService : UserService
   ) {
     this.keycloakService.configure()
   }
@@ -65,15 +69,26 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sub.unsubscribe();
   }
 
+  /**
+   * Click on page navigation
+   * @param url : page we are navigating to
+   */
   async onClick(url : string){
 
-    const currentRoute = this.userContextService.getMainDrawerNameRoute(this.router.url);
+    const currentPage = this.localStorageService.getPageRoute(this.router.url);
+    const newPage = this.localStorageService.getPageRoute(url);
     let userContext = new UserContext();
-    //save current context (currently, we only have filter for HOME)
-    if (currentRoute == DrawerRouteEnum.HOME){
-      userContext = (await this.userContextService.getCurrentUserContextHome());
+    //save user context when we quit the Home Page
+    if (currentPage == DrawerRouteEnum.HOME){
+      userContext = await this.userService.getCurrentUserContext();
+      this.localStorageService.setUserContext(userContext);
     }
-    // Save the current context Home
-    this.userContextService.setUserContextInLocalStorage(currentRoute, userContext);
+    // if navigate to Home page, restore user context
+    if (newPage == DrawerRouteEnum.HOME)
+    {
+      this.mapService.onMapLoaded().subscribe(() => {
+        this.userService.restoreUserContextFromLocalStorage();
+      });
+    }    
   } 
 }
