@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
+import com.veolia.nextcanope.dto.LayerReference.UserReferenceBaseDto;
 import com.veolia.nextcanope.model.LayerReferences;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,4 +37,22 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getDefaultLayerReferences();
+
+    /**
+     * Get the list of user references for a specific user and a specific layer.
+     * It merges the default one with the user one.
+     * @param userId the user id.
+     * @param lyrTableName the layer table name.
+     * @return the list of user references.
+     */
+    @Query(
+            value = "SELECT * " +
+                    "FROM nomad.f_get_layer_references_user(:userId)" +
+                    "where layer = :lyrTableName and \"isVisible\" = true",
+            nativeQuery = true
+    )
+    List<UserReferenceBaseDto> getLayerReferencesWithUserIdAndLyrTableName(
+            @Param("userId") Long userId,
+            @Param("lyrTableName") String lyrTableName
+    );
 }

@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.dto.LayerReference;
 
-public class UserReferenceDto {
+public class UserReferenceDto implements UserReferenceBaseDto {
     public UserReferenceDto(Integer referenceId, String referenceKey, String alias, String displayType, Integer position, Boolean isVisible, String section) {
         this.referenceId = referenceId;
         this.referenceKey = referenceKey;

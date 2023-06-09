@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
 import { AppDB, layerReferencesKey } from '../../models/app-db.model';
-import { LayerReferences } from '../../models/layer-references.model';
+import { LayerReferences, UserReference } from '../../models/layer-references.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,7 @@ export class LayerReferencesDataService {
  * @param userId The ID of the user to get the layer references for.
  * @returns A promise that resolves to the layer references.
  */
-  public async getUserLayerReferences(userId: number): Promise<LayerReferences[]> {
+  public async getUserLayerReferences(): Promise<LayerReferences[]> {
     // Get the layer references data from IndexedDB cache
     const layerReferences = await this.db.layerReferences.get(layerReferencesKey);
     // If layer references data exists, return it
@@ -37,7 +38,7 @@ export class LayerReferencesDataService {
 
     // Check if layer references data was fetched successfully
     if (!layerReferencesData) {
-      throw new Error(`Failed to fetch the layer references for user ${userId}`);
+      throw new Error(`Failed to fetch the layer references for the current user`);
     }
 
     // Store layer references data in IndexedDB
@@ -45,5 +46,15 @@ export class LayerReferencesDataService {
 
     // Return the layer references data fetched from the API
     return layerReferencesData;
+  }
+
+  /**
+ * Gets the user references for a user by a lyrTableName.
+ * @param userId The ID of the user to get the user references for.
+ * @param lyrTableName The layer name to get the user references.
+ * @returns A promise that resolves to the user references.
+ */
+  public getUserLayerReferencesByLyrTableName(lyrTableName: string): Observable<UserReference[]> {
+    return this.http.get<UserReference[]>(`${this.configurationService.apiUrl}layer/references/user/layer/${lyrTableName}`);
   }
 }

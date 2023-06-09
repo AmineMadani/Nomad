@@ -5,7 +5,6 @@ import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { LayerReferencesService } from '../layer-reference.service';
 import { Layer } from '../../models/layer.model';
 
 @Injectable({

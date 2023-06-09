@@ -2,6 +2,7 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
+import com.veolia.nextcanope.dto.LayerReference.UserReferenceBaseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,6 +80,21 @@ public class LayerController {
         }
     }
 
+    @GetMapping(path = "/references/{type}/layer/{lyrTableName}")
+    @Operation(summary = "Get the layer references")
+    @ApiResponses(value = {
+            @ApiResponse(description= "All layer references with customization", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<UserReferenceBaseDto> getLayerReferencesWithLyrTableName(@PathVariable String type, @PathVariable String lyrTableName, AccountTokenDto account) throws Exception {
+        if (LayerConstants.USER_LAYER_REFERENCE_SEARCH.equals(type)) {
+            return this.layerReferencesService.getUserLayerReferencesWithLyrTableName(account.getId(), lyrTableName);
+        } else {
+            throw new Exception("Get the default references for a specific lyrTableName is not implemented yet.");
+        }
+    }
+
     @GetMapping(path = "/default/definitions")
     @Operation(summary = "Get all the layer ")
     @ApiResponses(value = {
@@ -89,5 +105,4 @@ public class LayerController {
     public List<LayerDto> getAllLayers() {
         return  layerService.getLayers();
     }
-
 }

@@ -1,0 +1,43 @@
+<ion-content>
+  <!-- Un switch button -->
+  <app-settings-segment></app-settings-segment>
+  <!-- Un rectangle avec des borders -->
+  <div class="settings-content-template">
+    <div class="settings-content-template-header">
+      <ion-label class="label">
+        <h2>Affichage des données attributaires</h2>
+      </ion-label>
+
+      <ion-button class="actions-layer-content-button-action actions-layer-content-button-action-active">Enregistrer</ion-button>
+    </div>
+
+
+    <div class="separation-line" style="margin-top: 15px;"></div>
+
+    <div class="settings-layer-references">
+      <ion-select aria-label="search-select" label="Couche à paramétrer" label-placement="floating" class="layer-select"
+        (ionChange)="handleLayerChange($event)">
+        <ion-select-option *ngFor="let layer of layers" [value]="layer">
+          {{ layer.lyrSlabel }}
+        </ion-select-option>
+      </ion-select>
+
+      <div class="separation-line"></div>
+
+      <div class="synthetic-references-selection">
+        <ion-segment value="default">
+          <ion-segment-button value="default" style="max-width: 500px;">
+            <ion-label>Données attributaires à afficher en vue synthétique</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <div class="synthetic-references-selection-content">
+          <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
+            <ion-toggle [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC" mode="ios" style="margin-right: 15px"></ion-toggle>
+            <ion-label>{{ ref.alias }}</ion-label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

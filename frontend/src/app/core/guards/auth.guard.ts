@@ -39,7 +39,7 @@ export class AuthGuardService implements CanActivate {
 
       if (user) {
         // Get initialization data for the user
-        const isComplete: boolean = await this.initService.getInitData(user.id);
+        const isComplete: boolean = await this.initService.getInitData();
 
         // If the user is on the login page and initialization is complete, redirect them to the home page
         if (route.routeConfig?.path === 'login' && isComplete) {

@@ -2,12 +2,12 @@ package com.veolia.nextcanope.service;
 
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
+import com.veolia.nextcanope.dto.LayerReference.UserReferenceBaseDto;
 import com.veolia.nextcanope.dto.LayerReference.UserReferenceDto;
 import com.veolia.nextcanope.repository.LayerReferencesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,25 +60,27 @@ public class LayerReferencesService {
                     LayerReferencesDto resultLayer = new LayerReferencesDto();
                     resultLayer.setLayerKey(layerKey.split("\\.")[1]);
 
-                    List<UserReferenceDto> references = group.stream().map(item -> {
-                        // Convertir l'alias de ISO-8859-1 en UTF-8
-                        byte[] isoBytes = item.getAlias().getBytes(StandardCharsets.ISO_8859_1);
-                        String alias = new String(isoBytes, StandardCharsets.UTF_8);
-
-                        return new UserReferenceDto(
-                                item.getReferenceId(),
-                                item.getReferenceKey(),
-                                alias,
-                                item.getDisplayType(),
-                                item.getPosition(),
-                                item.getIsVisible(),
-                                item.getSection()
-                        );
-                    }).collect(Collectors.toList());
+                    List<UserReferenceDto> references = group.stream().map(item -> new UserReferenceDto(
+                            item.getReferenceId(),
+                            item.getReferenceKey(),
+                            item.getAlias(),
+                            item.getDisplayType(),
+                            item.getPosition(),
+                            item.getIsVisible(),
+                            item.getSection()
+                    )).collect(Collectors.toList());
 
                     resultLayer.setReferences(references);
                     layerReferences.add(resultLayer);
                 });
         return layerReferences;
+    }
+
+    /**
+     * Retrieves the user list of layer references of a specific layer.
+     * @return the list of layer references.
+     */
+    public List<UserReferenceBaseDto> getUserLayerReferencesWithLyrTableName(Long userId, String lyrTableName) {
+        return layerReferencesRepository.getLayerReferencesWithUserIdAndLyrTableName(userId, lyrTableName);
     }
 }

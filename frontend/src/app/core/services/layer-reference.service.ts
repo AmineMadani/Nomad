@@ -23,7 +23,7 @@ export class LayerReferencesService {
 
     const currentUser = await this.userService.getUser();
     if (currentUser) {
-      const listLayerReferences = await this.layerReferencesDataService.getUserLayerReferences(currentUser.id);
+      const listLayerReferences = await this.layerReferencesDataService.getUserLayerReferences();
       if (listLayerReferences) {
         const layer = listLayerReferences.find((layer) => layer.layerKey === layerKey);
         if (layer) {

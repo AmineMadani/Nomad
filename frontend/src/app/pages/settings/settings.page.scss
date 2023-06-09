@@ -1,0 +1,21 @@
+.settings-content {
+
+  .settings-grid {
+    height: 100%;
+
+    .settings-row {
+      padding-top: 30px;
+      height: 100%;
+
+      .settings-menu {
+        padding-left: 30px;
+
+        .line-delimiter {
+          border: 1px solid #CAC4D0;
+          margin-bottom: 30px;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}
