@@ -1,3 +1,5 @@
+\encoding UTF8
+
 -- Insert all column names from tables in asset schema
 set search_path to nomad, public;
 
