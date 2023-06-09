@@ -75,16 +75,16 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async onClick(url : string){
 
-    const currentPage = this.localStorageService.getPageRoute(this.router.url);
-    const newPage = this.localStorageService.getPageRoute(url);
+    const navigatePageFrom = this.localStorageService.getPageRoute(this.router.url);
+    const navigatePageTo = this.localStorageService.getPageRoute(url);
     let userContext = new UserContext();
     //save user context when we quit the Home Page
-    if (currentPage == DrawerRouteEnum.HOME){
+    if (navigatePageFrom == DrawerRouteEnum.HOME){
       userContext = await this.userService.getCurrentUserContext();
       this.localStorageService.setUserContext(userContext);
     }
     // if navigate to Home page, restore user context
-    if (newPage == DrawerRouteEnum.HOME)
+    if (navigatePageTo == DrawerRouteEnum.HOME)
     {
       this.mapService.onMapLoaded().subscribe(() => {
         this.userService.restoreUserContextFromLocalStorage();
