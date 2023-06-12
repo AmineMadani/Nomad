@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UserDataService } from './dataservices/user.dataservice';
 import { PreferenceService } from './preference.service';
-import { drawerRoutes } from '../models/drawer.model';
 import { UserContext } from '../models/user-context.model';
 import { firstValueFrom } from 'rxjs';
 import { User } from '../models/user.model';

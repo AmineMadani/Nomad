@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { UserService } from './user.service';
 import { LayerReferencesDataService } from './dataservices/layer-reference.dataservice';
 import { UserReference, ReferenceDisplayType } from '../models/layer-references.model';
+import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ export class LayerReferencesService {
 
   constructor(
     private layerReferencesDataService: LayerReferencesDataService,
-    private userService : UserService
+    private localStorageService : LocalStorageService
   ) { }
 
   /**
@@ -21,7 +21,7 @@ export class LayerReferencesService {
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
 
-    const currentUser = await this.userService.getUser();
+    const currentUser = await this.localStorageService.getUser();
     if (currentUser) {
       const listLayerReferences = await this.layerReferencesDataService.getUserLayerReferences(currentUser.id);
       if (listLayerReferences) {

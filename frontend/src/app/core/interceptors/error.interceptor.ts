@@ -10,12 +10,13 @@ import { Observable, catchError } from 'rxjs';
 
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
+import { LocalStorageService } from '../services/local-storage.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   constructor(
     private router: Router,
-    private userService: UserService
+    private localStorageService: LocalStorageService
   ) {}
 
   public intercept(
@@ -25,7 +26,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
-          this.userService.resetUser();
+          this.localStorageService.resetUser();
           this.router.navigate(['/error']);
         }
         throw err;
