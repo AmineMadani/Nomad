@@ -1,9 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
-import { AccordeonData, AccordeonFilter } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
+import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData, FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { ToggleFilter } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
 import {
   FilterSegment,
   FilterType,
