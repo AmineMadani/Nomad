@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 import { KeycloakService } from '../services/keycloak.service';
 import { InitService } from '../services/init.service';
-import { UserService } from '../services/user.service';
 import { LocalStorageService } from '../services/local-storage.service';
 
 @Injectable({

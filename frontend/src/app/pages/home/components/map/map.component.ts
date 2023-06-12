@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ElementRef, HostListener} from '@angular/core';
 import { LoadingController } from '@ionic/angular';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -14,7 +13,6 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
-import { LocalStorageService } from 'src/app/core/services/local-storage.service';
 
 @Component({
   selector: 'app-map',
@@ -26,13 +24,10 @@ export class MapComponent implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private mapService: MapService,
-    private mapEvent: MapEventService,
     private loadingCtrl: LoadingController,
     private router: Router,
     private elem: ElementRef,
-    private referentialService: ReferentialService,
-    private userContextService : LocalStorageService
-  ) {
+    private referentialService: ReferentialService  ) {
     this.drawerService
       .onCurrentRouteChanged()
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -63,7 +58,6 @@ export class MapComponent implements OnInit, OnDestroy {
   public isMobile: boolean;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
-  private selectedCoordinate:{x:string,y:string} = {x:'',y:''};
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu = false;
 

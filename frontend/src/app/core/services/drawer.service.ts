@@ -2,8 +2,7 @@ import { LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { BehaviorSubject, filter, map, Observable, Subject, tap } from 'rxjs';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, Subject, Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
