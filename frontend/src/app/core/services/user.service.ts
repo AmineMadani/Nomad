@@ -42,7 +42,7 @@ export class UserService {
     */
   public async getCurrentUserContext() : Promise<UserContext>{
     const mapLibre : maplibregl.Map =  this.mapService.getMap();
-    const userId : User = await this.localStorageService.getUser();
+    const userId : User = await this.getUser();
     const filterStored = this.favoriteService.getFilter();
     if (!userId){
       throw new Error('failed to load user informations');
@@ -63,6 +63,30 @@ export class UserService {
       url : this.router.url,
     }
         return userContext;
+   }
+
+  /**
+   * Get the current user from local storage.
+   * If the user is not found in local storage, get the user from the server and store it in local storage.
+   * @returns A Promise that resolves to the current user, or undefined if the user is not found.
+   */
+   public async getUser() : Promise<User|undefined>{
+      return await this.localStorageService.getUser();
+   }
+
+   /**
+ * Store the given user in local storage.
+ * @param user The user to store in local storage.
+ */
+   public setUser(user : User) : void {
+    this.localStorageService.setUser(user);
+   }
+
+   /**
+ * Remove the current user from local storage.
+ */
+   public resetUser(){
+    this.localStorageService.resetUser();
    }
 
 /**

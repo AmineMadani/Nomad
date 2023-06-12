@@ -23,8 +23,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private userService: UserService,
     private configurationService: ConfigurationService,
-    private userDataService : UserDataService,
-    private localStorageService : LocalStorageService  ) {}
+    private userDataService : UserDataService ) {}
 
   @Input('title') title: string;
 
@@ -49,7 +48,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
 
     if(!this.minimalist) {
-      this.localStorageService.getUser().then(usr => {
+      this.userService.getUser().then(usr => {
         this.imgUrl = usr?.imgUrl;
       });
     }

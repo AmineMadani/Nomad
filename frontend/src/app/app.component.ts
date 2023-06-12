@@ -10,7 +10,6 @@ import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserContext } from './core/models/user-context.model';
 import { LocalStorageService } from './core/services/local-storage.service';
-import { MapService } from './core/services/map/map.service';
 import { UserService } from './core/services/user.service';
 
 register();
@@ -75,7 +74,6 @@ export class AppComponent implements OnInit, OnDestroy {
   async onClick(url : string){
 
     const navigatePageFrom = this.utils.getMainPageName(this.router.url);
-    // const navigatePageTo = this.utils.getMainPageName(url);
     let userContext = new UserContext();
     //save user context when we quit the Home Page
     if (navigatePageFrom == DrawerRouteEnum.HOME){

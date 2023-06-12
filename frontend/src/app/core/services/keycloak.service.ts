@@ -4,7 +4,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { ConfigurationService } from './configuration.service';
-import { LocalStorageService } from './local-storage.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class KeycloakService {
     private activatedRoute: ActivatedRoute,
     private zone: NgZone,
     private configurationService: ConfigurationService,
-    private localStorageService: LocalStorageService,
+    private userService: UserService,
     private platform: Platform,
     private router: Router) 
   {}
@@ -89,7 +89,7 @@ export class KeycloakService {
         .then(revokeTokenAndLogoutResult => {
           this.userProfile = null;
           this.realmRoles = [];
-          this.localStorageService.resetUser();
+          this.userService.resetUser();
           resolve(revokeTokenAndLogoutResult);
         })
         .catch(error => {
