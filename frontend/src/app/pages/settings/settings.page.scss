@@ -10,6 +10,10 @@
       .settings-menu {
         padding-left: 30px;
 
+        .ion-activated-background {
+          --ion-item-background: var(--ion-color-activated-menu-item);
+        }
+
         .line-delimiter {
           border: 1px solid #CAC4D0;
           margin-bottom: 30px;

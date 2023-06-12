@@ -1,29 +1,44 @@
-.settings-layer-references {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  margin-top: 15px;
-  // padding-left: 70px;
-  // padding-right: 70px;
+.settings-flex {
+  height: 100%; // Assurez-vous que le parent prend toute la hauteur disponible
+}
 
-  .layer-select {
-    width: 300px;
+.settings-segment-flex {
+  height: 15%;
+}
+
+.settings-content-template {
+  overflow-y: auto;
+  height: 85%;
+
+  .settings-content-header-height {
+    height: 180px;
   }
 
-  .synthetic-references-selection {
+  .settings-layer-references {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-top: 15px;
+    height: calc(100% - 180px);
 
-    ion-segment-button {
-      text-transform: none;
+    .layer-select {
+      width: 300px;
     }
 
-    .synthetic-references-selection-content {
-      max-height: calc(72vh - 175px); //TODO: à calculer et variabiliser
-      overflow-y: auto;
-      margin-top: 15px;
+    .synthetic-references-selection {
+      display: flex;
+      flex-direction: column;
 
-      .synthetic-references-selection-toggle {
+      ion-segment-button {
+        text-transform: none;
+        max-width: 500px;
+      }
+
+      .synthetic-references-selection-content {
+        overflow-y: auto;
+        margin-top: 15px;
+
+        .synthetic-references-selection-toggle {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -32,9 +47,10 @@
           margin-left: 20px;
 
           ion-toggle {
-            height: 32px;
+            margin-right: 10px
           }
         }
+      }
     }
   }
 }

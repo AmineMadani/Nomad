@@ -13,7 +13,7 @@
   /*************************/
 
   --ion-font-family: "TheSans";
-  
+
 	--ion-color-primary: #0062A9;
 	--ion-color-primary-rgb: 0,98,169;
 	--ion-color-primary-contrast: #ffffff;
@@ -89,6 +89,8 @@
 
   --ion-color-openlayer-button-bg-hover: #eeebf2;
   --ion-color-openlayer-button-bg-focus: #e4e0eb;
+
+  --ion-color-activated-menu-item: #E7E0EC;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -175,7 +177,7 @@
     --ion-color-neutral-variant-30: #CAC4D0;
     --ion-color-neutral-variant-50: #938F99;
     --ion-color-neutral-variant-80: #49454F;
-  
+
     --ion-color-openlayer-button-bg-hover: #eeebf2;
     --ion-color-openlayer-button-bg-focus: #e4e0eb;
   }

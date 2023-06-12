@@ -35,7 +35,7 @@ export class SettingsPage implements OnInit {
         },
         {
           url: 'workorder',
-          title: 'Génération d\intervention',
+          title: 'Génération d\'intervention',
         },
         {
           url: 'report',
