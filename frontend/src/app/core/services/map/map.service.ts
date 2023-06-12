@@ -62,6 +62,9 @@ export class MapService  {
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
+    this.onMapLoaded().subscribe(() => {
+      this.map.resize();
+    });
     return this.map;
   }
 
@@ -156,16 +159,23 @@ export class MapService  {
         setTimeout(() => this.map.addLayer(oneStyle));
       }
 
-
-      await new Promise<void>((resolve) => {
-        this.map.once('idle', () => {
+      return new Promise<void>((resolve) => {
+        this.map.once('idle', e => {
           this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
-            layer.style.every((style) => this.map.getLayer(style.id));
-          if (isValid()) {
+          layer.style.every((style) => this.map.getLayer(style.id));
+          if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
             resolve();
+          } else {
+            setTimeout(() => {
+              resolve();
+            }, 3000);
           }
         });
+      });
+    } else {
+      new Promise<void>((resolve) => {
+        resolve()
       });
     }
   }

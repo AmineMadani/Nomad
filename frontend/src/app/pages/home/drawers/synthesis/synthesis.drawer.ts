@@ -13,6 +13,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { ActivatedRoute } from '@angular/router';
 
 export interface SynthesisButton {
   key: string;
@@ -31,7 +32,8 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
     private layerService: LayerService,
     private mapEventService: MapEventService,
     private drawerService: DrawerService,
-    private mapService: MapService
+    private mapService: MapService,
+    private route: ActivatedRoute
   ) {}
 
   @Input() drawerTitle: string;
@@ -44,6 +46,7 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   @Output() onAttachFile: EventEmitter<void> = new EventEmitter();
   @Output() onTabButton: EventEmitter<SynthesisButton> = new EventEmitter();
   @Output() onDetails: EventEmitter<void> = new EventEmitter();
+  @Output() onInitComponent: EventEmitter<void> = new EventEmitter();
 
   public isMobile: boolean;
 
@@ -93,13 +96,14 @@ export class SynthesisDrawer implements OnInit, OnDestroy {
   }
 
   private zoomToFeature(params: any): void {
-    this.layerService.moveToXY(params.get('x'), params.get('y')).then(() => {
-      if (params.get('id') && params.get('lyr_table_name')) {
-        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(
-          params.get('lyr_table_name'),
-          params.get('id')
-        );
-      }
+    this.route.params.subscribe(localParam => {
+      this.layerService.moveToXY(params.get('x'), params.get('y')).then(() => {
+        if (localParam['id'] && params.get('lyr_table_name')) {
+          this.layerService.zoomOnXyToFeatureByIdAndLayerKey(params.get('lyr_table_name'),localParam['id']).then( () => {
+            this.onInitComponent.emit();
+          });
+        }
+      });
     });
   }
 }
