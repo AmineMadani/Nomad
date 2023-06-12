@@ -73,10 +73,11 @@ export class UserService {
    */
   public async restoreUserContext(userContext : UserContext): Promise<void> {
 
-    if (!userContext)
+    if (!userContext){
       return;
-        this.mapService.getMap().setZoom(userContext.zoom);
-        this.mapService.getMap().setCenter([userContext.lng,userContext.lat]);
+    }
+        this.mapService.setZoom(userContext.zoom);
+        this.mapService.setCenter([userContext.lng,userContext.lat]);
           let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
             switch (value.type) {
               case 'accordeonFilter':
@@ -95,6 +96,7 @@ export class UserService {
                 return value;
             }
           });
+         this.favoriteService.setFilter(userPrefJson);
          this.filterService.applyFilter(userPrefJson);
          if (userContext.url){
           this.router.navigateByUrl(userContext.url);

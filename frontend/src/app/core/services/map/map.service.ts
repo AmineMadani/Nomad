@@ -10,6 +10,8 @@ import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { Layer } from '../../models/layer.model';
 import { Basemap } from '../../models/basemap.model';
 import { FilterDataService } from '../dataservices/filter.dataservice';
+import { Zoom } from 'swiper';
+import { LngLatLike } from 'maplibre-gl';
 
 export interface Box {
   x1: number;
@@ -448,6 +450,16 @@ export class MapService  {
     const dx = feature.properties['x'] - mousePoint.lng;
     const dy = feature.properties['y'] - mousePoint.lat;
     return Math.sqrt(dx * dx + dy * dy);
+  }
+
+
+  public setZoom( zoom : number) : void
+  {
+    this.getMap().setZoom(zoom);
+  }
+
+  public setCenter( location : LngLatLike){
+    this.getMap().setCenter(location);
   }
 
   private mapLibreSpec: Maplibregl.StyleSpecification = {
