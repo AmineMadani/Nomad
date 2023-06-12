@@ -89,9 +89,7 @@ export class LayerService {
         this.mapService
           .getMap()
           .easeTo({ center: [x, y], zoom: 16 })
-          .once('moveend', () => {
             resolve('done');
-          });
       } else {
         resolve('done');
       }

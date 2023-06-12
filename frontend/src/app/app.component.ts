@@ -36,7 +36,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private utils: UtilsService,
     private localStorageService : LocalStorageService,
     private router: Router,
-    private mapService : MapService,
     private userService : UserService
   ) {
     this.keycloakService.configure()
@@ -75,20 +74,13 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   async onClick(url : string){
 
-    const navigatePageFrom = this.localStorageService.getPageRoute(this.router.url);
-    const navigatePageTo = this.localStorageService.getPageRoute(url);
+    const navigatePageFrom = this.utils.getMainPageName(this.router.url);
+    // const navigatePageTo = this.utils.getMainPageName(url);
     let userContext = new UserContext();
     //save user context when we quit the Home Page
     if (navigatePageFrom == DrawerRouteEnum.HOME){
       userContext = await this.userService.getCurrentUserContext();
       this.localStorageService.setUserContext(userContext);
     }
-    // if navigate to Home page, restore user context
-    if (navigatePageTo == DrawerRouteEnum.HOME)
-    {
-      this.mapService.onMapLoaded().subscribe(() => {
-        this.userService.restoreUserContextFromLocalStorage();
-      });
-    }    
   } 
 }

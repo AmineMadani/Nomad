@@ -23,7 +23,7 @@ export class FavoriteService {
   private filterForm$ = new BehaviorSubject<Filter>(this.filter);
   private currentFavorite: FavData | undefined;
 
-  public setfilterForm(filter: Filter) {
+  public setFilterForm(filter: Filter) {
     this.filterForm$.next(filter);
   }
 
@@ -44,7 +44,7 @@ export class FavoriteService {
    */
   public setFilter(filter: Filter): void {
     this.filter = filter;
-    this.setfilterForm(this.filter);
+    this.setFilterForm(this.filter);
   }
 
   /**

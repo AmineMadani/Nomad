@@ -112,26 +112,4 @@ resetUser(){
     this.preferenceService.deletePreference(LocalStorageKey.USER_CONTEXT);
   }
 
-  /**
-   * Get the route Enum in DrawerRouteEnum
-   * Exemple : /home/asset => return HOME
-   * @param url 
-   * @returns 
-   */
-  public getPageRoute(url : string) : string {
-    let temp  = url.split('/');
-    let routePage : string;
-    if (url.startsWith('/')){
-      routePage = temp[1];
-    }
-    else{
-      routePage = temp[0];
-    }
-    let routeEnumResult : string | undefined = drawerRoutes.find( 
-      (drawerRoute) => drawerRoute.name.toUpperCase() === routePage.toUpperCase())?.name;
-    if (!routeEnumResult){
-      routeEnumResult = routePage.toUpperCase();
-    }
-    return routeEnumResult;
-  }
 }

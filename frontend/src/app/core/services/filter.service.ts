@@ -6,6 +6,9 @@ import { ExploitationDataService } from 'src/app/core/services/dataservices/expl
 import { FilterDataService } from 'src/app/core/services/dataservices/filter.dataservice';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { AccordeonFilter } from '../models/filter/filter-component-models/AccordeonFilter.model';
+import { ToggleFilter } from '../models/filter/filter-component-models/ToggleFilter.model';
+import { Filter } from '../models/filter/filter.model';
 
 @Injectable({
   providedIn: 'root',
@@ -177,4 +180,44 @@ export class FilterService {
   public isExistLayerData(layerkey: string): boolean {
     return this.filterDataService.getFilterData().has(layerkey)
   }
+
+  /**
+   * Apply the filter on the map 
+   * @param filter 
+   */
+  public applyFilter(filter : Filter){
+    filter.segments.forEach(segment => {
+      segment.components.forEach( basefilter =>{
+        if (basefilter instanceof AccordeonFilter){
+          (basefilter as AccordeonFilter).data.forEach(oneData => {
+            if (oneData.children?.some(child => child.value)){
+              oneData.children.filter(child => child.value)
+              .forEach( item => this.mapService.addEventLayer( item.key) );
+            }
+            else if (oneData.value){
+              this.mapService.addEventLayer( oneData.key);
+            }
+            else{
+              this.mapService.removeEventLayer(oneData.key);
+            }
+          });
+        }
+          if (basefilter instanceof ToggleFilter){
+            const toggleFilter : ToggleFilter = basefilter as ToggleFilter;
+            if(!toggleFilter.tableKey){
+              toggleFilter.data.forEach(toggleData =>
+                this.setToggleLayer(toggleData.key, toggleData.checked)
+                );
+            }
+            else {
+              toggleFilter.data.forEach(toggleData =>
+                this.setToggleFilter(toggleFilter.tableKey, toggleData.key,toggleData.value,  toggleData.checked)
+                );
+              }
+          }
+      })
+    });
+}
+
+
 }
