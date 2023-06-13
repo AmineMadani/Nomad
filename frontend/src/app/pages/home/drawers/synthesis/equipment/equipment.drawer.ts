@@ -56,7 +56,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     }
   }
 
-  public navigateToDetails(): void {
+  public onNavigateToDetails(): void {
     this.drawer.navigateTo(
       DrawerRouteEnum.EQUIPMENT_DETAILS,
       [this.equipment.id],

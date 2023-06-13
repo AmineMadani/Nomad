@@ -38,10 +38,10 @@
 
 <ng-template #footerTemplate>
   <ion-item lines="none">
-      <ion-button fill="clear" slot="end" (click)="navigateToDetails()" [disabled]="!equipment">Détails</ion-button>
+      <ion-button fill="clear" slot="end" (click)="onNavigateToDetails()" [disabled]="!equipment">Détails</ion-button>
   </ion-item>
 </ng-template>
 
 <app-synthesis [drawerTitle]="equipment?.id" [sourceLayer]="equipment?.layer" [hasFile]="true" [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons"
-[contentTemplate]="equipmentTemplate" [footerTemplate]="footerTemplate" (onDetails)="navigateToDetails()" (onInitComponent)="onInitEquipment()">
+[contentTemplate]="equipmentTemplate" [footerTemplate]="footerTemplate" (onDetails)="onNavigateToDetails()" (onInitComponent)="onInitEquipment()">
 </app-synthesis>
