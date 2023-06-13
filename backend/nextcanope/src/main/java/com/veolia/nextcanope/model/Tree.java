@@ -75,6 +75,19 @@ public class Tree implements Serializable {
 	@JsonProperty("tre_dmod")
     private Date treDmod ;
 
+    @Column(name="lyr_id")
+    @JsonProperty("lyr_id")
+    private Long lyrId ;
+
+    @Column(name="style_id")
+    @JsonProperty("style_id")
+    private String styleId ;
+
+
+
+    @Column(name="tre_img")
+    @JsonProperty("tre_img")
+    private String treImg ;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -107,8 +120,11 @@ public class Tree implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="tre_parent_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree tree ; 
+    private Tree tree ;
 
+    @ManyToOne
+    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Layer layer ;
 
     /**
      * Constructor
@@ -205,6 +221,28 @@ public class Tree implements Serializable {
         return this.treDmod;
     }
 
+    public void setLyrId(Long lyrId) {
+        this.lyrId = lyrId;
+    }
+
+    public Long getLyrId() {
+        return lyrId;
+    }
+    public void setStyleId(String styleId) {
+        this.styleId = styleId;
+    }
+
+    public String getStyleId() {
+        return styleId;
+    }
+
+    public String getTreImg() {
+        return treImg;
+    }
+
+    public void setTreImg(String treImg) {
+        this.treImg = treImg;
+    }
     //--- GETTERS FOR LINKS
     public Domains getDomains() {
         return this.domains;
@@ -232,7 +270,11 @@ public class Tree implements Serializable {
 
     public Tree getTree() {
         return this.tree;
-    } 
+    }
+
+    public Layer getLayer() {
+        return layer;
+    }
 
 
 }

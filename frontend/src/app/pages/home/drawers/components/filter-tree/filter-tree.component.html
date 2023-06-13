@@ -1,20 +1,20 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="details-tree">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle class="non-children-node">
     <ion-item lines="none">
-      <ion-checkbox aria-label="checkbox" class="ion-no-margin" [checked]="node.value" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
-      <img [src]="node.imgSrc" width="24" height="24" />
-      <ion-label>{{ node.name }}</ion-label>
+      <ion-checkbox aria-label="checkbox" slot="start" class="ion-no-margin" [checked]="node.value" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
+      <img [src]="node.imgSrc" width="24" height="24" slot="end"  />
+      <ion-label slot="end">{{ node.name }}</ion-label>
     </ion-item>
   </mat-tree-node>
 
   <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
     <div class="mat-tree-node">
       <ion-item lines="none">
-        <ion-button fill="clear" matTreeNodeToggle><ion-icon
+        <ion-button  fill="clear" matTreeNodeToggle><ion-icon
           [name]="treeControl.isExpanded(node) ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon></ion-button>
-        <ion-checkbox aria-label="checkbox" class="ion-no-margin" [checked]="descendantsAllSelected(node)" [indeterminate]="descendantsPartiallySelected(node)" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
-        <img [src]="node.imgSrc" width="24" height="24" />
-        <ion-label>{{ node.name }}</ion-label>
+        <ion-checkbox aria-label="checkbox" slot="start" class="ion-no-margin" [checked]="descendantsAllSelected(node)" [indeterminate]="descendantsPartiallySelected(node)" (ionChange)="onCheckboxChange($event, node)"></ion-checkbox>
+        <img [src]="node.imgSrc" width="24" height="24"   />
+        <ion-label slot="end">{{ node.name }}</ion-label>
       </ion-item>
     </div>
 

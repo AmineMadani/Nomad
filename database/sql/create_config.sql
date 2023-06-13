@@ -115,6 +115,9 @@ create table tree
   id                bigserial primary key,
   dom_id            bigint references domains(id),
   tre_parent_id     bigint references tree(id),
+  lyr_id            bigint references layer(id),
+  style_id          text,
+  tre_img           text,
   tre_num_order     integer,
   tre_llabel        text,
   tre_slabel        text,
@@ -132,6 +135,9 @@ comment on table tree is 'This table defines all groups and sub-groups to genera
 comment on column tree.id is 'Table unique ID';
 comment on column tree.dom_id is 'Application domain (ie: drinking water, ...) Id';
 comment on column tree.tre_parent_id is 'Parent id';
+comment on column tree.lyr_id is 'Layer Id';
+comment on column tree.style_id is 'Style Id';
+comment on column tree.tre_img is 'Url Image';
 comment on column tree.tre_num_order is 'Num order of the tree group';
 comment on column tree.tre_llabel is 'Long label of the tree group';
 comment on column tree.tre_slabel is 'Short label of the tree group';

@@ -2,6 +2,7 @@ import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { TreeData } from 'src/app/core/models/filter/filter-component-models/TreeFilter.model';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-filter-tree',
@@ -10,7 +11,7 @@ import { TreeData } from 'src/app/core/models/filter/filter-component-models/Tre
 })
 export class FilterTreeComponent implements OnInit {
 
-  constructor() { 
+  constructor(private mapService: MapService) { 
     this.selectedNodes = new Set<TreeData>();
     this.dataSource = new MatTreeNestedDataSource<TreeData>();
     this.treeControl = new NestedTreeControl<TreeData>(
@@ -84,6 +85,28 @@ export class FilterTreeComponent implements OnInit {
       this.selectedNodes.delete(node);
     }
     node.value=checked;
+    if (node.layerName && !node.children && !node.styleId){
+      if (node.value){
+        this.mapService.addEventLayer(node.layerName);
+      }
+      else{
+        this.mapService.removeEventLayer(node.layerName);
+      }
+    }
+    if (node.layerName && node.styleId){
+      this.applyStyleOnMap(node.layerName,node.styleId,node.value);
+    }
+  }
+
+  private applyStyleOnMap(layerKey: string,styleId: string,checked: boolean) {
+    this.mapService.addEventLayer(layerKey,true).then(() => {
+      if (checked){
+        this.mapService.getMap().setLayoutProperty(styleId, "visibility", "visible");
+      }
+      else{
+        this.mapService.getMap().setLayoutProperty(styleId, "visibility", "none");
+      }
+    });
   }
 
 }

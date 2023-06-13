@@ -40,7 +40,7 @@ export const patrimonyFilterMock: Filter = {
             children: [
               {
                 id: 6,
-                imgSrc: 'assets/img/patrimony/vanne.png',
+                imgSrc: 'assets/img/patrimony/aep_vanne/vanne.png',
                 name: 'Vanne',
                 key: 'aep_vanne',
                 position: 1,
@@ -230,123 +230,287 @@ export const patrimonyFilterMock: Filter = {
       components: [
         new TreeFilter(1, true, 1, [
           {
-            name: 'Réseau AEP',
+            name: 'Eau Potable',
+            imgSrc: 'assets/img/patrimony/detail_secteur.png',
+            children: [{
+              id: 1,
+              name: "AEP - Branchement",
+              imgSrc: 'assets/img/patrimony/detail_autre.png',
+              layerName: 'aep_branche',
+              },
+              {
+                  id: 2,
+                  name: "AEP - Canalisation",
+                  imgSrc: 'assets/img/patrimony/detail_autre.png',
+                  layerName: 'aep_canalisation',
+              },
+              {
+                name: 'AEP - Equipement',
+                imgSrc: 'assets/img/patrimony/detail_autre.png',
+                children: [
+                  {
+                    name: 'AEP - Vanne',
+                    imgSrc: 'assets/img/patrimony/aep_vanne/vanne.png',
+                    layerName:'aep_vanne',
+                    children: [
+                      {
+                        name: 'Fermée',
+                        imgSrc: 'assets/img/patrimony/aep_vanne/vanne_fermee.png',
+                        children: [
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_fermee_electro_style',
+                            name: 'Electrovanne',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ELECTRO.png',
+                            id: 6,
+                            position: 1,
+                          },
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_fermee_robinet_style',
+                            name: 'Robinet Vanne',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ROBINET.png',
+                            id: 7,
+                            position: 2,
+                          },
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_fermee_tour_style',
+                            name: '1/4 de tour',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_TOUR.png',
+                            id: 8,
+                            position: 2,
+                          },
+                        ],
+                        id: 5,
+                        position: 1,
+                      },
+                      {
+                        name: 'Ouvert',
+                        imgSrc: 'assets/img/patrimony/aep_vanne/vanne_ouvert.png',
+                        children: [
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_ouvert_electro_style',
+                            name: 'Electrovanne',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ELECTRO.png',
+                            id: 10,
+                            position: 1,
+                          },
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_ouvert_robinet_style',
+                            name: 'Robinet Vanne',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ROBINET.png',
+                            id: 11,
+                            position: 2,
+                          },
+                          {
+                            layerName:'aep_vanne',
+                            styleId:'aep_vanne_ouvert_tour_style',
+                            name: '1/4 de tour',
+                            imgSrc: 'assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_TOUR.png',
+                            id: 12,
+                            position: 2,
+                          },
+                        ],
+                        id: 9,
+                        position: 2,
+                      },
+                    ],
+                    id: 13,
+                    position: 1,
+                  },
+                  {
+                    name: 'AEP - Equipement incendie',
+                    imgSrc: 'assets/img/patrimony/detail_autre.png',
+                    children: [
+                      {
+                        name: 'Poteau incendie',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 15,
+                        position: 1,
+                      },
+                      {
+                        name: 'Bouche incendie',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 16,
+                        position: 2,
+                      },
+                      {
+                        name: 'Prise accessoire',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 17,
+                        position: 2,
+                      },
+                    ],
+                    id: 14,
+                    position: 2,
+                  }
+                ],
+                id: 18,
+                position: 1,
+              }
+            ],
+            id: 19,
+            position: 1,
+          },
+          {
+            name: 'Assainissement',
             imgSrc: 'assets/img/patrimony/detail_secteur.png',
             children: [
               {
-                name: 'Unité fonctionelle',
+                name: 'ASS - Branchement',
                 imgSrc: 'assets/img/patrimony/detail_autre.png',
-                key: '',
                 children: [
                   {
-                    name: 'AEP - Secteur',
+                    name: 'Grille / Avaloir',
                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                    id: 25,
+                    id: 20,
                     position: 1,
                   },
                   {
-                    name: 'AEP - Etape de pression',
+                    name: 'Caniveau grille',
                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                    id: 26,
+                    id: 21,
                     position: 2,
                   },
                   {
-                    name: 'AEP - Unité de distribution',
+                    name: 'Boîte de branchement',
                     imgSrc: 'assets/img/patrimony/detail_autre.png',
-                    id: 27,
-                    position: 3,
+                    id: 22,
+                    position: 2,
                   },
                 ],
-                id: 1,
+                id: 23,
                 position: 1,
               },
               {
-                name: 'Alimentation Externe',
+                name: 'ASS - Equipement',
                 imgSrc: 'assets/img/patrimony/detail_autre.png',
                 children: [
                   {
-                    name: 'AEP - Cables abandonnés',
-                    imgSrc: 'assets/img/patrimony/detail_cables_abandonnes.png',
-                    id: 27,
-                    position: 1,
-                  },
-                  {
-                    name: 'AEP - Cable alimentation',
-                    imgSrc:
-                      'assets/img/patrimony/detail_cable_alimentation.png',
-                    id: 28,
-                    position: 2,
-                  },
-                  {
-                    name: 'AEP - Alimentation externe',
+                    name: 'ASS - Regard',
                     imgSrc: 'assets/img/patrimony/detail_autre.png',
+                    layerName:'ass_regard',
                     children: [
                       {
-                        name: 'No data',
-                        imgSrc: 'assets/img/patrimony/detail_autre.png',
-                        id: 29,
-                        position: 3,
-                      },
-                    ],
-                    id: 30,
-                    position: 3,
-                  },
-                ],
-                id: 31,
-                position: 2,
-              },
-              {
-                name: 'Ouvrage',
-                imgSrc: 'assets/img/patrimony/detail_autre.png',
-                children: [
-                  {
-                    name: 'AEP - Ouvrage',
-                    imgSrc: 'assets/img/patrimony/detail_autre.png',
-                    children: [
-                      {
-                        name: 'Captage/Forage',
+                        name: 'Unitaire',
+                        layerName:'ass_regard',
                         imgSrc: 'assets/img/patrimony/detail_autre.png',
                         children: [
                           {
-                            name: 'No data',
+                            name: 'Regard',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            layerName:'ass_regard',
+                            id: 24,
+                            position: 1,
+                          },
+                          {
+                            name: 'Regard borgne',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 25,
+                            position: 2,
+                          },
+                          {
+                            name: 'Regard de transfert',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 26,
+                            position: 2,
+                          },
+                        ],
+                        id: 27,
+                        position: 1,
+                      },
+                      {
+                        name: 'Eaux usées',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        layerName:'ass_regard',
+                        children: [
+                          {
+                            name: 'Regard',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 28,
+                            position: 1,
+                          },
+                          {
+                            name: 'Regard borgne',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 29,
+                            position: 2,
+                          },
+                          {
+                            name: 'Regard de transfert',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 30,
+                            position: 2,
+                          },
+                        ],
+                        id: 31,
+                        position: 2,
+                      },
+                      {
+                        name: 'Eaux pluviales',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        children: [
+                          {
+                            name: 'Regard',
                             imgSrc: 'assets/img/patrimony/detail_autre.png',
                             id: 32,
                             position: 1,
                           },
-                        ],
-                        id: 33,
-                        position: 1,
-                      },
-                      {
-                        name: 'Réservoirs',
-                        imgSrc: 'assets/img/patrimony/detail_autre.png',
-                        children: [
                           {
-                            name: 'No data',
+                            name: 'Regard borgne',
+                            imgSrc: 'assets/img/patrimony/detail_autre.png',
+                            id: 33,
+                            position: 2,
+                          },
+                          {
+                            name: 'Regard de transfert',
                             imgSrc: 'assets/img/patrimony/detail_autre.png',
                             id: 34,
-                            position: 1,
+                            position: 2,
                           },
                         ],
                         id: 35,
                         position: 2,
                       },
-                      {
-                        name: 'Production/Pompage',
-                        imgSrc: 'assets/img/patrimony/detail_autre.png',
-                        id: 36,
-                        position: 3,
-                      },
                     ],
-                    id: 37,
+                    id: 36,
                     position: 1,
                   },
+                  {
+                    name: 'ASS - Autre équipement',
+                    imgSrc: 'assets/img/patrimony/detail_autre.png',
+                    children: [
+                      {
+                        name: 'Raccord',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 37,
+                        position: 1,
+                      },
+                      {
+                        name: 'Equipement branche',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 38,
+                        position: 2,
+                      },
+                      {
+                        name: 'Equipement disperse',
+                        imgSrc: 'assets/img/patrimony/detail_autre.png',
+                        id: 39,
+                        position: 2,
+                      },
+                    ],
+                    id: 40,
+                    position: 2,
+                  }
                 ],
-                id: 38,
-                position: 3,
-              },
+                id: 41,
+                position: 1,
+              }
             ],
-            id: 39,
+            id: 42,
             position: 1,
           },
         ]),

@@ -145,7 +145,7 @@ export class MapService  {
    * Bind different events to a layer like click or hovered
    * @param {string} layerKey - string - The key of the layer to bind events
    */
-  public async addEventLayer(layerKey: string): Promise<void> {
+  public async addEventLayer(layerKey: string, invisible?: boolean): Promise<void> {
     if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
       const layer: MaplibreLayer = new MaplibreLayer(this.layersConfiguration.find( element => element.lyrTableName == 'asset.'+ layerKey));
       this.layers.set(layerKey, layer);
@@ -153,7 +153,11 @@ export class MapService  {
       this.map.addSource(layerKey, layer.source);
 
       for (let oneStyle of layer.style) {
-        setTimeout(() => this.map.addLayer(oneStyle));
+        setTimeout(() => {
+          if (invisible) oneStyle['layout']['visibility'] = 'none';
+          else oneStyle['layout']['visibility'] = 'visible';
+          this.map.addLayer(oneStyle);
+        });
       }
 
 
@@ -473,6 +477,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: 'http://localhost:8100/assets/sprites/@1x',//[{id:'1x',url:'http://localhost:8100/assets/sprites/@1x'},{id:'2x',url:'http://localhost:8100/assets/sprites/@2x'}],
   };
 }

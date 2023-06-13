@@ -59,7 +59,8 @@ export class TreeFilter implements BaseFilter{
 
 export interface TreeData extends BaseFilterData {
     imgSrc?: string;
-    key?: string;
+    layerName?:string;
+    styleId?: string;
     children?: TreeData[];
     isIndeterminate?: boolean
 }
