@@ -50,6 +50,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() labelTemplateRef: TemplateRef<any>;
   @Input() chipTemplateRef: TemplateRef<any>;
   @Input() fromCache: boolean;
+  @Input() isLoading: boolean = false;
 
   @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
   @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();

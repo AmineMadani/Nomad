@@ -21,6 +21,8 @@ export class FilterService {
     private filterDataService: FilterDataService
   ) { }
 
+  public isLoading = false;
+
   /**
    * Method to get all data
    * @param layerkey layer exploitation data
@@ -53,14 +55,18 @@ export class FilterService {
     this.filterDataService.getFilterData().delete(layerkey);
     if (!toogle) {
       this.mapService.removeEventLayer(layerkey);
+      this.isLoading = true;
       this.expDataservice
         .getFeaturePagination(layerkey, 20, 0, this.filterDataService.getSearchFilterListData().get(layerkey))
         .subscribe((features: MapFeature[]) => {
           this.filterDataService.getFilterData().set(layerkey, features);
+          this.isLoading = false;
         });
     } else {
+      this.isLoading = true;
       this.mapService.addEventLayer(layerkey).then(() => {
-        this.applyFilterOnMap(layerkey);
+        this.applyFilterOnMap(layerkey); 
+        this.isLoading = false;
       });
     }
   }

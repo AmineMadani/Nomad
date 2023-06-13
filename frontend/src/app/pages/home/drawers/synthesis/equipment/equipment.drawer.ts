@@ -8,6 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
+import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 
 @Component({
   selector: 'app-equipment',
@@ -21,7 +22,8 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private utils: UtilsService,
     private drawer: DrawerService,
     private activatedRoute: ActivatedRoute,
-    private layerService: LayerService
+    private layerService: LayerService,
+    private layerDataService: LayerDataService
   ) { }
 
   public buttons: SynthesisButton[] = [
@@ -35,6 +37,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public userReferences: UserReference[] = [];
   public equipment: any;
   public isMobile: boolean;
+  public isDetailAvailabled: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -56,7 +59,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     }
   }
 
-  public navigateToDetails(): void {
+  public onNavigateToDetails(): void {
     this.drawer.navigateTo(
       DrawerRouteEnum.EQUIPMENT_DETAILS,
       [this.equipment.id],
@@ -73,6 +76,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       this.activatedRoute.params.subscribe(localParam => {
         if (localParam['id'] && paramMap.get('lyr_table_name')) {
           this.equipment = this.layerService.getFeatureById(paramMap.get('lyr_table_name'), localParam['id']).properties;
+          this.equipment.lyr_table_name = paramMap.get('lyr_table_name');
+          this.layerDataService.getEquipmentByLayerAndId(this.equipment.lyr_table_name, this.equipment.id).subscribe( res => {
+            this.equipment=res[0];
+            this.equipment.lyr_table_name = paramMap.get('lyr_table_name');
+            this.isDetailAvailabled = true;
+          });
         }
       });
     })

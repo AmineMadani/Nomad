@@ -1,6 +1,10 @@
 package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -48,5 +52,16 @@ public class LayerRepositoryImpl {
                 "select nomad.f_get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",
                 String.class
         );
+    }
+    
+    /**
+     * Retrieve the equipment by layer and id
+     *
+     * @param layer The layer
+     * @param id The object id
+     * @return the equipment
+     */
+	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
+        return jdbcTemplate.queryForList("select * from asset."+layer+" where id=?",id);
     }
 }

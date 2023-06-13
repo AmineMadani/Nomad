@@ -57,6 +57,8 @@ export class MapComponent implements OnInit, OnDestroy {
 
   public isMobile: boolean;
 
+  public scale:  string;
+
   private ngUnsubscribe$: Subject<void> = new Subject();
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu = false;
@@ -77,6 +79,7 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         loading.dismiss();
         this.generateMap();
+       // this.scale = this.mapService.calculateScale();
       });
 
     // Loading tiles event
@@ -109,6 +112,15 @@ export class MapComponent implements OnInit, OnDestroy {
         const nearestFeature = this.mapService.queryNearestFeature(e);
         this.openNomadContextMenu(e, nearestFeature);
       });
+
+    /**
+     * zoomend, event
+     */
+    fromEvent(this.map, 'zoomend')
+    .pipe(takeUntil(this.ngUnsubscribe$))
+    .subscribe((e: Maplibregl.MapMouseEvent) => {
+    this.scale = this.mapService. calculateScale();
+    });
   }
 
   ngOnDestroy(): void {
@@ -159,6 +171,7 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       this.setMapLoaded();
     });
+    this.scale = this.mapService.calculateScale();
   }
 
   /**

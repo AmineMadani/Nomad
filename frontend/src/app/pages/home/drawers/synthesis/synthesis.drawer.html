@@ -4,7 +4,12 @@
         <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
             <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
         </ion-button>
-        <ion-label class="header-label">{{ drawerTitle }}</ion-label>
+        <ion-label class="header-label" *ngIf="!drawerTitle">
+            <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
+        </ion-label>
+        <ion-label class="header-label" *ngIf="drawerTitle">
+            {{ drawerTitle }}
+        </ion-label>
         <ion-button [ngClass]="{ 'attach-file': !isMobile }" *ngIf="hasFile" fill="clear" slot="end"
             (click)="onAttachFileClicked()">
             <ion-icon size="small" slot="icon-only" name="attach-outline"></ion-icon>
