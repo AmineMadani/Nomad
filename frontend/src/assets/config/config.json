@@ -9,5 +9,5 @@
     "clientId": "[keycloakClientId]",
     "revocationEndpoint": "[keycloakRevocation]"
   },
-  "hitTolerance":50
+  "host": "[hostNomad]"
 }

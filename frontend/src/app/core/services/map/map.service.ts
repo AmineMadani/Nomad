@@ -10,6 +10,7 @@ import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { Layer } from '../../models/layer.model';
 import { Basemap } from '../../models/basemap.model';
 import { FilterDataService } from '../dataservices/filter.dataservice';
+import { ConfigurationService } from '../configuration.service';
 
 export interface Box {
   x1: number;
@@ -27,7 +28,8 @@ export class MapService  {
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService,
-    private filterDataService: FilterDataService
+    private filterDataService: FilterDataService,
+    private configurationService: ConfigurationService
   ) {
     this.layerDataService.getLayers().then(layers => {
       this.layersConfiguration = layers;
@@ -498,6 +500,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'https://nomad-dev.hp.m-ve.com/assets/sprites/@2x',
+    sprite: this.configurationService.host+'assets/sprites/@2x',
   };
 }
