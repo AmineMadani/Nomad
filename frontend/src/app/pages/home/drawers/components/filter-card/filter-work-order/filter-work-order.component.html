@@ -25,7 +25,7 @@
   </ion-chip>
 </ng-template>
 
-<app-filter-card [features]="getFeatures()" [type]="'workorder'" [titleTemplateRef]="titleTemplateRef"
+<app-filter-card [features]="getFeatures()" [type]="'workorder'" [titleTemplateRef]="titleTemplateRef" [isLoading]="isLoading()"
   [subtitleTemplateRef]="subtitleTemplateRef" [labelTemplateRef]="labelTemplateRef" [chipTemplateRef]="chipTemplateRef"
   [fromCache]="isFromCache" (onLoadingEvent)="getPaginationData($event)" (onFeatureSelected)="openIntervention($event)">
 </app-filter-card>

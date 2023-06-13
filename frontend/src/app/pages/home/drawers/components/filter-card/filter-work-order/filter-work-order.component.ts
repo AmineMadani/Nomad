@@ -6,7 +6,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { FilterService } from 'src/app/core/services/filter.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { Status } from 'src/app/core/models/status.model';
-import { stat } from 'fs';
 
 @Component({
   selector: 'app-filter-work-order',
@@ -25,6 +24,9 @@ export class FilterWorkOrderComponent implements OnInit {
   public workOrders: MapFeature[] = [];
   public isFromCache: boolean = false;
   public lStatus: Status[] = [];
+  public isLoading = () => {
+    return this.filterService.isLoading;
+  };
   
 
   ngOnInit() {

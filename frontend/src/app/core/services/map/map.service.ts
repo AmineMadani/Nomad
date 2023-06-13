@@ -502,6 +502,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: 'https://nomad-dev.hp.m-ve.com/assets/sprites/@2x',
   };
 }
