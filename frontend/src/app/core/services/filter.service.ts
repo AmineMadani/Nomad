@@ -195,13 +195,13 @@ export class FilterService {
     filter.segments.forEach(segment => {
       segment.components.forEach( basefilter =>{
         if (basefilter instanceof AccordeonFilter){
-          (basefilter as AccordeonFilter).data.forEach(oneData => {
-            if (oneData.children?.some(child => child.value)){
+          (basefilter as AccordeonFilter).data.forEach(async oneData => {
+            if (oneData.children?.some( child => child.value)){
               oneData.children.filter(child => child.value)
-              .forEach( item => this.mapService.addEventLayer( item.key) );
+              .forEach( async item => await this.mapService.addEventLayer( item.key) );
             }
             else if (oneData.value){
-              this.mapService.addEventLayer( oneData.key);
+              await this.mapService.addEventLayer( oneData.key);
             }
             else{
               this.mapService.removeEventLayer(oneData.key);
