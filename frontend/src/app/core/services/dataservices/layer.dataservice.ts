@@ -114,4 +114,14 @@ export class LayerDataService {
   public getLayers() : Observable<Layer[]>{
     return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`);
   }
+
+  /**
+   * Method to get an equipment from a layer
+   * @param layer the layer
+   * @param id the id
+   * @returns the equipment
+   */
+  getEquipmentByLayerAndId(layer:string, id: number): Observable<any> {
+    return this.http.get<any>(`${this.configurationService.apiUrl}layer/`+layer+`/equipment/`+id);
+  }
 }
