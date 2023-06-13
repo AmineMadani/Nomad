@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { DrawerService } from '../drawer.service';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { NomadGeoJson } from '../../models/geojson.model';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
@@ -31,11 +29,9 @@ export class MapService  {
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService
   ) {
-    this.layerDataService.getLayers()
-    .pipe(
-      takeUntil(this.ngUnsubscribe$)
-      )
-    .subscribe((elements ) => {this.layersConfiguration = elements ; });
+    this.layerDataService.getLayers().then(layers => {
+      this.layersConfiguration = layers;
+    });
   }
 
   private map: Maplibregl.Map;

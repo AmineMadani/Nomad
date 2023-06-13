@@ -88,7 +88,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       () => console.log('Cache réinitialisé')
     ).catch((err) => {
       console.log(`Erreur lors de la réinitialisation : ${err}`)
-    })
+    });
+    window.location.reload();
   }
 
   public reloadStorage(): void {
