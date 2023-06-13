@@ -73,6 +73,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       this.activatedRoute.params.subscribe(localParam => {
         if (localParam['id'] && paramMap.get('lyr_table_name')) {
           this.equipment = this.layerService.getFeatureById(paramMap.get('lyr_table_name'), localParam['id']).properties;
+          this.equipment.lyr_table_name = paramMap.get('lyr_table_name');
         }
       });
     })

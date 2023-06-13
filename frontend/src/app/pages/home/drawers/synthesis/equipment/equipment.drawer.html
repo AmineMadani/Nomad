@@ -1,15 +1,27 @@
 <ng-template #buttonsTemplate>
   <div class="overflow-row">
     <div class="equipment-drawer-action-button-row" [class.mobile]="isMobile">
-      <div *ngFor="let button of buttons" class="equipment-drawer-action-button" (click)="onTabButtonClicked(button)">
+      <ion-tab-button *ngFor="let button of buttons" class="equipment-drawer-action-button" (click)="onTabButtonClicked(button)" [disabled]="!equipment">
         <ion-icon [name]="button.icon"></ion-icon>
         <span>{{ button.label }}</span>
-      </div>
+      </ion-tab-button>
     </div>
   </div>
 </ng-template>
 
 <ng-template #equipmentTemplate>
+  <ion-list *ngIf="!equipment">
+    <ion-item lines="none" class="ion-no-margin" *ngFor="let number of [0,1,2,3,4,5,6,7]">
+      <ion-label class="label">
+        <h3>
+          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+        </h3>
+        <p>
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
   <ng-container *ngIf="userReferences">
     <ng-container *ngFor="let reference of userReferences">
       <ng-container *ngIf="equipment">
@@ -24,6 +36,12 @@
   </ng-container>
 </ng-template>
 
+<ng-template #footerTemplate>
+  <ion-item lines="none">
+      <ion-button fill="clear" slot="end" (click)="navigateToDetails()" [disabled]="!equipment">Détails</ion-button>
+  </ion-item>
+</ng-template>
+
 <app-synthesis [drawerTitle]="equipment?.id" [sourceLayer]="equipment?.layer" [hasFile]="true" [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons"
-[contentTemplate]="equipmentTemplate" (onDetails)="navigateToDetails()" (onInitComponent)="onInitEquipment()">
+[contentTemplate]="equipmentTemplate" [footerTemplate]="footerTemplate" (onDetails)="navigateToDetails()" (onInitComponent)="onInitEquipment()">
 </app-synthesis>
