@@ -3,15 +3,15 @@ import { DrawerService } from '../drawer.service';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { Layer } from '../../models/layer.model';
 import { Basemap } from '../../models/basemap.model';
 import { FilterDataService } from '../dataservices/filter.dataservice';
-import { Zoom } from 'swiper';
 import { LngLatLike } from 'maplibre-gl';
+import { ConfigurationService } from '../configuration.service';
 
 export interface Box {
   x1: number;
@@ -29,13 +29,12 @@ export class MapService  {
     private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService,
-    private filterDataService: FilterDataService
+    private filterDataService: FilterDataService,
+    private configurationService: ConfigurationService
   ) {
-    this.layerDataService.getLayers()
-    .pipe(
-      takeUntil(this.ngUnsubscribe$)
-      )
-    .subscribe((elements ) => {this.layersConfiguration = elements ; });
+    this.layerDataService.getLayers().then(layers => {
+      this.layersConfiguration = layers;
+    });
   }
 
   private map: Maplibregl.Map;
@@ -512,6 +511,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'https://nomad-dev.hp.m-ve.com/assets/sprites/@2x',
+    sprite: this.configurationService.host+'assets/sprites/@2x',
   };
 }
