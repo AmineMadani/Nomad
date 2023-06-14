@@ -1,6 +1,22 @@
 <div class="actions-layer-desktop-content">
-  <ion-searchbar show-clear-button="always" placeholder="Recherche" class="actions-layer-desktop-content-button-search"></ion-searchbar>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)" [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)" [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PERIMETER)" [ngClass]="currentRoute === drawerRouteEnum.PERIMETER ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
+  <ion-searchbar show-clear-button="always" placeholder="Recherche"
+    class="actions-layer-desktop-content-button-search"></ion-searchbar>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
+    [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"
+    [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PERIMETER)"
+    [ngClass]="currentRoute === drawerRouteEnum.PERIMETER ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
+  <ion-button id="click-trigger" class="actions-layer-content-button-action">Outils</ion-button>
 </div>
+
+<ion-popover #toolbox showBackdrop="false" trigger="click-trigger" triggerAction="click">
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item lines="none" button (click)="openDrawingMode()">
+        <ion-icon slot="start" name="hammer-outline"></ion-icon>
+        <ion-label>Polygone</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>

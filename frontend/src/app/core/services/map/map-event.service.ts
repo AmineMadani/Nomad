@@ -3,6 +3,8 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs/internal/Observable';
 import * as Maplibregl from 'maplibre-gl';
 
+interface MultiSelection { source: string, id: string }
+
 @Injectable({
   providedIn: 'root',
 })
@@ -12,6 +14,8 @@ export class MapEventService {
 
   private hoveredLayer: string;
   private selectedLayer: string;
+
+  private multiSelection: MultiSelection[] = [];
 
   private onFeatureHovered$: Subject<string | undefined> = new Subject();
   private onFeatureSelected$: Subject<string | undefined> = new Subject();
@@ -51,6 +55,9 @@ export class MapEventService {
     }
 
     if (featureId && this.selectedFeatureId !== featureId) {
+      if (this.multiSelection.length > 0) {
+        this.highlighSelectedFeatures(mapLibre, undefined);
+      }
       mapLibre.setFeatureState(
         { source: sourceKey, id: featureId },
         { selected: true }
@@ -120,5 +127,46 @@ export class MapEventService {
         this.onFeatureHovered$.next(undefined);
       }
     }
+  }
+
+  public highlighSelectedFeatures(mapLibre: Maplibregl.Map, features: MultiSelection[]) {
+    if (!features && this.multiSelection.length > 0) {
+      this.multiSelection.forEach((sel: MultiSelection) => {
+        mapLibre.setFeatureState(
+          { source: sel.source, id: sel.id },
+          { selected: false }
+        );
+      });
+      this.multiSelection = [];
+      return;
+    }
+
+    if (features) {
+      this.highlighSelectedFeatures(mapLibre, undefined);
+
+      if (this.selectedFeatureId) {
+        this.highlightSelectedFeature(mapLibre, undefined, undefined);
+      }
+
+      features.forEach((f: MultiSelection) => {
+        this.multiSelection.push(f);
+        mapLibre.setFeatureState(
+          { source: f.source, id: f.id },
+          { selected: true }
+        );
+      });
+    }
+  }
+
+  public removeFeatureFromSelected(mapLibre: Maplibregl.Map, featureId: string): void {
+    if (!this.multiSelection || this.multiSelection.length === 0) {
+      return;
+    }
+
+    const selectionToRemove = this.multiSelection.splice(this.multiSelection.findIndex((m) => m.id === featureId), 1);
+    mapLibre.setFeatureState(
+      { source: selectionToRemove[0].source, id: selectionToRemove[0].id },
+      { selected: false }
+    );
   }
 }

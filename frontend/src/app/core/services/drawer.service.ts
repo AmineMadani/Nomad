@@ -79,7 +79,8 @@ export class DrawerService {
           [
             DrawerRouteEnum.EQUIPMENT,
             DrawerRouteEnum.WORKORDER,
-            DrawerRouteEnum.DEMANDE
+            DrawerRouteEnum.DEMANDE,
+            DrawerRouteEnum.SELECTION,
           ].includes(currentRouteName) &&
           this.utilsService.isMobilePlateform()
         ) {
@@ -118,14 +119,28 @@ export class DrawerService {
   navigateTo(
     route: DrawerRouteEnum,
     pathVariables: any[] = [],
-    queryParams?: any
+    queryParams?: any,
+    replaceUrl: boolean = false
   ) {
     let url: string = this.getUrlFromDrawerName(route);
 
-    pathVariables.forEach((pathVariable) => {
+    pathVariables?.forEach((pathVariable) => {
       url = url.replace(/:[^\/]+/, pathVariable);
     });
-    this.router.navigate([url], { queryParams: queryParams });
+
+    if (Array.isArray(queryParams )) {
+      queryParams = queryParams.map((param: any) => {
+        // Convert each object in the array to a web query parameter string
+        return Object.entries(param)
+          .map(
+            ([key, value]) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(value as any)}`
+          )
+          .join('&');
+      });
+    }
+
+    this.router.navigate([url], { queryParams: queryParams, replaceUrl });
   }
 
   closeDrawer() {
