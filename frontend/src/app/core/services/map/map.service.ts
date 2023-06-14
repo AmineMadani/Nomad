@@ -347,6 +347,15 @@ export class MapService {
     return xOverlap && yOverlap;
   }
 
+  public setZoom( zoom : number) : void
+  {
+    this.getMap().setZoom(zoom);
+  }
+
+  public setCenter( location : LngLatLike){
+    this.getMap().setCenter(location);
+  }
+  
   private mapLibreSpec: Maplibregl.StyleSpecification = {
     version: 8,
     name: 'Réseau AEP',
