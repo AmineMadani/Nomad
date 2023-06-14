@@ -9,6 +9,7 @@ import { Basemap } from '../../models/basemap.model';
 import { Layer } from '../../models/layer.model';
 import { ConfigurationService } from '../configuration.service';
 import * as Maplibregl from 'maplibre-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 export interface Box {
   x1: number;
@@ -36,6 +37,9 @@ export class MapService {
   private layers: Map<string, MaplibreLayer> = new Map();
   private layersConfiguration: Layer[];
 
+  private draw: MapboxDraw;
+  private drawActive: boolean;
+
   private loadedGeoJson: Map<string, string[]> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
@@ -55,6 +59,13 @@ export class MapService {
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
+    this.draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+    });
     return this.map;
   }
 
@@ -269,6 +280,25 @@ export class MapService {
         });
       }
     }
+  }
+
+  public setDrawingControl(status: boolean): void {
+    if (status) {
+      this.map.addControl(this.draw as any, 'top-left');
+      this.drawActive = true;
+    } else {
+      this.map.removeControl(this.draw as any);
+      this.drawActive = false;
+      document.getElementById('map-container').classList.remove('cursor-pointer');
+    }
+  }
+
+  public getDrawActive(): boolean {
+    return this.drawActive;
+  }
+
+  public deleteDrawing(): void {
+    this.draw.deleteAll();
   }
 
   /**
