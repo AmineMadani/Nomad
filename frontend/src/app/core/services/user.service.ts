@@ -76,31 +76,41 @@ export class UserService {
     if (!userContext){
       return;
     }
-        this.mapService.setZoom(userContext.zoom);
-        this.mapService.setCenter([userContext.lng,userContext.lat]);
-          let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
-            switch (value.type) {
-              case 'accordeonFilter':
-                return this.utilsService.deserialize(new AccordeonFilter(), value);
-              case 'searchFilter':
-                return this.utilsService.deserialize(new SearchFilter(), value);
-              case 'toggleFilter':
-                return this.utilsService.deserialize(new ToggleFilter(), value);
-              case 'treeFilter':
-                return this.utilsService.deserialize(new TreeFilter(), value);
-              case 'workOrderFilter':
-                return this.utilsService.deserialize(new WorkOrderFilter(), value);
-              case 'favoriteFilter':
-                return this.utilsService.deserialize(new FavoriteFilter(), value);
-              default:
-                return value;
-            }
-          });
-         this.favoriteService.setFilter(userPrefJson);
-         this.filterService.applyFilter(userPrefJson);
-         if (userContext.url){
-          this.router.navigateByUrl(userContext.url);
-           }
+    if (userContext.url){
+      this.router.navigateByUrl(userContext.url).then( () => {
+        this.restoreFilter(userContext);
+      });
+       }
+       else
+       {
+        this.restoreFilter(userContext);
+       }
+       
+  }
+
+  private restoreFilter(userContext : UserContext): void {
+    this.mapService.setZoom(userContext.zoom);
+    this.mapService.setCenter([userContext.lng,userContext.lat]);
+      let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
+        switch (value.type) {
+          case 'accordeonFilter':
+            return this.utilsService.deserialize(new AccordeonFilter(), value);
+          case 'searchFilter':
+            return this.utilsService.deserialize(new SearchFilter(), value);
+          case 'toggleFilter':
+            return this.utilsService.deserialize(new ToggleFilter(), value);
+          case 'treeFilter':
+            return this.utilsService.deserialize(new TreeFilter(), value);
+          case 'workOrderFilter':
+            return this.utilsService.deserialize(new WorkOrderFilter(), value);
+          case 'favoriteFilter':
+            return this.utilsService.deserialize(new FavoriteFilter(), value);
+          default:
+            return value;
+        }
+      });
+     this.favoriteService.setFilter(userPrefJson);
+     this.filterService.applyFilter(userPrefJson);
   }
   
  /**

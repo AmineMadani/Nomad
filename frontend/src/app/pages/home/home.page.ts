@@ -149,13 +149,12 @@ export class HomePage implements OnInit, OnDestroy {
     .subscribe( (route : any ) => {
       if (route.url == this.utilsService.getPagePath(DrawerRouteEnum.HOME)){
         this.mapService.onMapLoaded().subscribe( () => {
-          if (this.interactiveMap.displayMap)
-          this.userService.restoreUserContextFromLocalStorage();
+          if (this.interactiveMap.displayMap){
+            this.userService.restoreUserContextFromLocalStorage();
+          }
         })
-        
       }
     });
 }
-
 }
 
