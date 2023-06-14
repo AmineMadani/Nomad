@@ -115,7 +115,6 @@ export class LayerService {
     }
 
     const coordinates = (r.geometry as any).coordinates;
-
     let bounds: any;
     if (r.geometry.type === 'Point') {
       bounds = new Maplibregl.LngLatBounds(coordinates, coordinates).toArray();
@@ -179,6 +178,17 @@ export class LayerService {
       marker.setLngLat([geometry[0] as any, geometry[1] as any]);
     }
     return marker;
+  }
+
+  public fitBounds(e: any): void {
+    const bounds = e.reduce((bounds: any, coord: any) => {
+      return bounds.extend(coord);
+    }, new Maplibregl.LngLatBounds(e[0], e[0]));
+
+    this.mapService.getMap().fitBounds(bounds, {
+      padding: 20,
+      maxZoom: 17,
+    });
   }
 
   /**
