@@ -70,8 +70,10 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       if (this.mapService.getMap()) {
         this.generateMarker();
       } else {
-        this.mapService.onMapLoaded().subscribe(() => {
-          this.generateMarker();
+        this.mapService.onMapLoaded().subscribe((isMapLoaded) => {
+          if(isMapLoaded){
+            this.generateMarker();
+          }
         });
       }
     } else {

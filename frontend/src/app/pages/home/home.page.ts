@@ -69,6 +69,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyDrawer();
+    this.mapService.setMapUnloaded();
   }
 
   private initDrawer() {
@@ -148,8 +149,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.router.events.pipe(filter( (event) => event instanceof NavigationEnd))
     .subscribe( (route : any ) => {
       if (route.url == this.utilsService.getPagePath(DrawerRouteEnum.HOME)){
-        this.mapService.onMapLoaded().subscribe( () => {
-          if (this.interactiveMap.displayMap){
+        this.mapService.onMapLoaded().subscribe( (isMapLoaded) => {
+          if (isMapLoaded){
             this.userService.restoreUserContextFromLocalStorage();
           }
         })

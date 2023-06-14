@@ -39,7 +39,7 @@ export class MapService {
   private loadedGeoJson: Map<string, string[]> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
-  private onMapLoaded$: ReplaySubject<void> = new ReplaySubject();
+  private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -70,14 +70,21 @@ export class MapService {
    * This function sets the "onMapLoaded$" observable to emit a value.
    */
   public setMapLoaded(): void {
-    this.onMapLoaded$.next();
+    this.onMapLoaded$.next(true);
   }
+
+    /**
+   * This function sets the "onMapLoaded$" observable to emit a value.
+   */
+    public setMapUnloaded(): void {
+      this.onMapLoaded$.next(false);
+    }
 
   /**
    * Observable that emits when the map is loaded.
    * @returns An Observable of type `void` is being returned.
    */
-  public onMapLoaded(): Observable<void> {
+  public onMapLoaded(): Observable<boolean> {
     return this.onMapLoaded$.asObservable();
   }
 

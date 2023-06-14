@@ -71,16 +71,13 @@ export class UserService {
   /**
    * Restoring users view preferences
    */
-  public async restoreUserContext(userContext : UserContext): Promise<void> {
-
+  public async restoreUserContextNavigation(userContext : UserContext): Promise<void> {
     if (!userContext){
       return;
     }
     if (userContext.url){
       this.router.navigateByUrl(userContext.url).then( (res) => {
-        if (res){
-          this.restoreFilter(userContext);
-        }
+           this.restoreFilter(userContext);
       });
       }
       else{
@@ -89,6 +86,8 @@ export class UserService {
   }
 
   private restoreFilter(userContext : UserContext): void {
+    if (!userContext)
+      return;
     this.mapService.setZoom(userContext.zoom);
     this.mapService.setCenter([userContext.lng,userContext.lat]);
       let userPrefJson = JSON.parse(userContext.userPreferences, (key, value) => {
@@ -118,7 +117,7 @@ export class UserService {
    */
   public async restoreUserContextFromBase() : Promise<void>{
     this.userDataService.getUserInformation().subscribe((userInfo: User) => {
-      this.restoreUserContext(userInfo.userContext);
+      this.restoreFilter(userInfo.userContext);
     });
   }
 
@@ -128,7 +127,7 @@ export class UserService {
    */
     public async restoreUserContextFromLocalStorage() : Promise<void>{
       const userContextHome = await this.localStorageService.getUserContext();
-      await this.restoreUserContext(userContextHome);
+      await this.restoreUserContextNavigation(userContextHome);
     }
   
 

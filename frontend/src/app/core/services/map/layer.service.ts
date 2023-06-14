@@ -106,7 +106,7 @@ export class LayerService {
     layerKey: string,
     id: string
   ): Promise<void> {
-    await this.mapService.addEventLayer(layerKey);
+    await this.mapService.addEventLayer(layerKey).then( () => {
     const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
     if (!r || r?.id === undefined) {
       return;
@@ -130,7 +130,8 @@ export class LayerService {
       this.mapService.getMap(),
       layerKey,
       r.id.toString()
-    );
+    );      
+  });
   }
 
   /**
