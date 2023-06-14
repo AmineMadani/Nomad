@@ -55,3 +55,9 @@ database/dump/*.*
 
 # geojson
 database/geojson
+
+
+#subfolder
+**/.classpath
+**/.project
+**/.settings

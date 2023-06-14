@@ -1,3 +1,5 @@
+\encoding UTF8
+
 /****************************************************
  * Scripts to Create config objects in the database *
  ****************************************************/
@@ -739,7 +741,12 @@ create table if not exists workorder
   -- Geometry
   longitude                    numeric,
   latitude                     numeric,
-  geom                         geometry('POINT', 3857)
+  geom                         geometry('POINT', 3857),
+  -- external app
+  wko_ext_ref                  text,
+  wko_ext_date_sync            timestamp without time zone default null,
+  wko_ext_to_sync              boolean default False,
+  wko_ext_error                text
 );
 create index on workorder using gist(geom);
 /* Comments on table */
@@ -769,6 +776,7 @@ comment on column workorder.wtr_id is 'Workorder reason';
 comment on column workorder.str_id is 'Street';
 comment on column workorder.str_llabel is 'Long label of the street';
 comment on column workorder.ctr_id is 'Contract';
+COMMENT ON COLUMN workorder.wko_agent_nb IS 'Number of agent';
 comment on column workorder.wko_ucre_id is 'creator Id';
 comment on column workorder.wko_umod_id is 'Last modificator Id';
 comment on column workorder.wko_dmod is 'Last modification date';
@@ -777,6 +785,10 @@ comment on column workorder.wko_ddel is 'Deletion date';
 comment on column workorder.longitude is 'longitude';
 comment on column workorder.latitude is 'latitude';
 comment on column workorder.geom is 'Geometry of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_ref IS 'External reference of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_date_sync IS 'Last date of synchronization with an external application';
+COMMENT ON COLUMN workorder.wko_ext_to_sync IS 'True if there is a need to synchronize the workorder with the external app';
+COMMENT ON COLUMN workorder.wko_ext_error IS 'Error message during synchronisation';
 
 -- Table task
 -- Contains the tasks

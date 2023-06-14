@@ -9,5 +9,5 @@
     "clientId": "veolia-client",
     "revocationEndpoint": "http://localhost:9191/realms/veolia/protocol/openid-connect/revoke"
   },
-  "hitTolerance":50
+  "host":"http://localhost:8100/"
 }

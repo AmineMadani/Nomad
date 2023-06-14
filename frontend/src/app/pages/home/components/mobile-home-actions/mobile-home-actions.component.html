@@ -13,7 +13,7 @@
     </ng-container>
     
     <ng-container *ngSwitchCase="'ACTIONS'">
-      <ion-item button lines="none" color="none" (click)="onGenerateWorkOrder()">
+      <ion-item button lines="none" color="none" button (click)="onGenerateWorkOrder()">
         <ion-label>Générer une intervention XY</ion-label>
       </ion-item>
       <ion-item button lines="none" color="none">
@@ -35,7 +35,7 @@
         <ion-icon color="primary" name="share-social-outline"></ion-icon>
         <ion-label>Partager</ion-label>
       </ion-item>
-      <ion-item button lines="none" color="none">
+      <ion-item button lines="none" color="none" button (click)="onPolygonTool()">
         <ion-icon color="primary" name="square-outline"></ion-icon>
         <ion-label>Polygone</ion-label>
       </ion-item>

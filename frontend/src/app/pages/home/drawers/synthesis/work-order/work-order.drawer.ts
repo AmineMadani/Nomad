@@ -50,9 +50,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   public buttons: SynthesisButton[] = [
-    { key: 'share', label: 'Partager', icon: 'share-social' },
-    { key: 'print', label: 'Imprimer', icon: 'print' },
-    //{ key: 'update', label: 'Mettre à jour', icon: 'pencil' },
+    { key: 'note', label: 'Compte-rendu', icon: 'reader' },
+    { key: 'add', label: 'Ajouter à un programme', icon: 'link' },
+    { key: 'update', label: 'Mettre à jour', icon: 'pencil' },
   ];
   public editMode: boolean = false;
   public workOrder: any;

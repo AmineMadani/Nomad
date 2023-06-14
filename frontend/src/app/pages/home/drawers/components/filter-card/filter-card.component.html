@@ -50,6 +50,34 @@
     </ion-item>
   </ng-container>
 </ion-item-group>
+<ng-container *ngIf="isLoading">
+  <ion-item-group *ngFor="let feature of [1,2,3]">
+    <ion-item lines="none" color="none">
+      <ion-label>
+        <ion-label class="ion-no-margin">
+          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+        </ion-label>
+        <ion-note slot="helperText">
+          <ion-skeleton-text [animated]="true" style="width: 50%;"></ion-skeleton-text>
+        </ion-note>
+      </ion-label>
+      <ion-button slot="end" fill="clear">
+        <ion-icon slot="icon-only" name="chevron-forward-outline">
+        </ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item lines="none" class="date-item" color="none">
+      <ion-label class="intervention-date ion-no-margin">
+        <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
+      </ion-label>
+    </ion-item>
+    <ion-item lines="none" color="none">
+      <ion-thumbnail slot="start" style="width:50px;height:20px">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-thumbnail>
+    </ion-item>
+  </ion-item-group>
+</ng-container>
 <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)" [disabled]="fromCache">
   <ion-infinite-scroll-content loadingSpinner="bubbles">
   </ion-infinite-scroll-content>

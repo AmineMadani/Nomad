@@ -2,6 +2,7 @@ package com.veolia.nextcanope.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,5 +56,16 @@ public class LayerService {
     		layersDto.add(new LayerDto(layer));
     	}
         return layersDto;
+    }
+    
+    /**
+     * Retrieve the equipment by layer and id
+     *
+     * @param layer The layer
+     * @param id The object id
+     * @return the equipment
+     */
+	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
+        return layerRepositoryImpl.getEquipmentByLayerAndId(layer, id);
     }
 }

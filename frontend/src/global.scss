@@ -69,7 +69,7 @@ html, body { height: 100%; width: 100%; margin: 0; }
   src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
 
-.maplibregl-ctrl-top-right {
+.maplibregl-ctrl-top-right, .maplibregl-ctrl-top-left {
   visibility: hidden;
 }
 
@@ -116,7 +116,7 @@ html, body { height: 100%; width: 100%; margin: 0; }
   --background: var(--ion-color-surface-light-1);
   --color: var(--ion-color-primary);
 }
-
+  
 .actions-layer-content-button-action-active {
   --background: var(--ion-color-primary);
   --color: var(--ion-color-surface-light-1);
