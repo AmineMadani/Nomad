@@ -77,15 +77,15 @@ export class UserService {
       return;
     }
     if (userContext.url){
-      this.router.navigateByUrl(userContext.url).then( () => {
-        this.restoreFilter(userContext);
+      this.router.navigateByUrl(userContext.url).then( (res) => {
+        if (res){
+          this.restoreFilter(userContext);
+        }
       });
-       }
-       else
-       {
+      }
+      else{
         this.restoreFilter(userContext);
-       }
-       
+      }
   }
 
   private restoreFilter(userContext : UserContext): void {
