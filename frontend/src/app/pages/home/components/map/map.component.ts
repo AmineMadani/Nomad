@@ -146,8 +146,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.resize();
     this.displayMap = true;
     this.mapService.setMapLoaded();
-    //Set previous user context
-    //  this.userContextService.restoreUserContextHome();
   }
 
   /**
