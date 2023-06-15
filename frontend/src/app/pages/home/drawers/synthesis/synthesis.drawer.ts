@@ -72,8 +72,9 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.mapService
         .onMapLoaded()
-        .pipe(filter((isMapLoaded) => isMapLoaded),
-          takeUntil(this.ngUnsubscribe$))
+        .pipe(
+          filter((isMapLoaded) => isMapLoaded)
+          ,takeUntil(this.ngUnsubscribe$))
         .subscribe(() => {
             this.zoomToFeature(paramMap);
         });
