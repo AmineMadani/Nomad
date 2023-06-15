@@ -76,8 +76,8 @@ export class UserService {
       return;
     }
     if (userContext.url){
-      this.router.navigateByUrl(userContext.url).then( (res) => {
-           this.restoreFilter(userContext);
+      this.router.navigateByUrl(userContext.url).then(() => {
+        this.restoreFilter(userContext);
       });
       }
       else{

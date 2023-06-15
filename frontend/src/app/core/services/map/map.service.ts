@@ -11,6 +11,7 @@ import { Layer } from '../../models/layer.model';
 import { ConfigurationService } from '../configuration.service';
 import { Basemap } from '../../models/basemap.model';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { MapEventService } from './map-event.service';
 
 export interface Box {
   x1: number;
@@ -27,7 +28,8 @@ export class MapService {
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private mapEventService : MapEventService
   ) {
     from(this.layerDataService.getLayers()).subscribe((layers: Layer[]) => {
       this.layersConfiguration = layers;
@@ -45,6 +47,9 @@ export class MapService {
 
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
+
+  private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
+  private loadedLayer: Array<string> = new Array<string>();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -85,7 +90,7 @@ export class MapService {
     this.onMapLoaded$.next(true);
   }
 
-    /**
+   /**
    * This function sets the "onMapLoaded$" observable to emit a value.
    */
     public setMapUnloaded(): void {
@@ -147,6 +152,7 @@ export class MapService {
       this.removeEventLayer(layerKey);
     });
     this.layers.clear();
+    this.mapEventService.setSelectedFeature(undefined);
   }
 
   /**
@@ -163,7 +169,19 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
-    if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
+
+    if(!layerKey)
+      return;
+    //If layer is loaded
+    if (this.loadedLayer.indexOf(layerKey) >= 0){
+      return new  Promise<void>((resolve) =>  resolve() );
+    }
+    else{
+      //If layer is on loading (has event)
+      if (this.loadingLayer.has(layerKey)){
+        return this.loadingLayer.get(layerKey);
+      }
+      //else create the layer
       const layer: MaplibreLayer = new MaplibreLayer(
         this.layersConfiguration.find(
           (element) => element.lyrTableName == 'asset.' + layerKey
@@ -177,25 +195,27 @@ export class MapService {
         setTimeout(() => this.map.addLayer(oneStyle));
       }
 
-      return new Promise<void>((resolve) => {
+      const layerPromise =  new Promise<void>((resolve) => {
         this.map.once('idle', (e) => {
           this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
             layer.style.every((style) => this.map.getLayer(style.id));
           if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
-            resolve();
+              this.loadedLayer.push(layerKey);
+              this.loadingLayer.delete(layerKey);
+      resolve();
           } else {
             setTimeout(() => {
-              resolve();
+              this.loadedLayer.push(layerKey);
+              this.loadingLayer.delete(layerKey);
+      resolve();
             }, 3000);
           }
         });
       });
-    } else {
-      new Promise<void>((resolve) => {
-        resolve();
-      });
-    }
+      this.loadingLayer.set(layerKey,layerPromise);
+      return layerPromise;
+    }   
   }
 
   /**
@@ -224,12 +244,21 @@ export class MapService {
       this.map.setFilter(style.id, filter as any);
     }
   }
+
+  private removeLoadedLayer(layerKey : string) : void {
+    const index = this.loadedLayer.indexOf(layerKey);
+    if (index >= 0){
+      this.loadedLayer.splice(index,1);
+    }
+  }
+
   /**
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.
    */
   public removeEventLayer(layerKey: string): void {
     if (this.hasEventLayer(layerKey)) {
+      this.removeLoadedLayer(layerKey);
       const mLayer = this.layers.get(layerKey)!;
 
       // Removing registered events

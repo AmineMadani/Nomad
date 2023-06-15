@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { Subject,filter,takeUntil } from 'rxjs';
+import { Subject,filter,take,takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
@@ -145,16 +145,14 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private initRestoreUserContext() : void {
-    //Lorsque la navigation vers la page est finie 
-    this.router.events.pipe(filter( (event) => event instanceof NavigationEnd))
-    .subscribe( (route : any ) => {
-      if (route.url == this.utilsService.getPagePath(DrawerRouteEnum.HOME)){
-        this.mapService.onMapLoaded().subscribe( (isMapLoaded) => {
-          if (isMapLoaded){
-            this.userService.restoreUserContextFromLocalStorage();
-          }
-        })
-      }
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd && event.url === this.utilsService.getPagePath(DrawerRouteEnum.HOME))
+      ,take(1))
+    .subscribe( () => {
+        this.mapService.onMapLoaded().pipe(
+          filter((isMapLoaded) => isMapLoaded)
+          ,take(1))
+        .subscribe(() => { this.userService.restoreUserContextFromLocalStorage() })
     });
 }
 }
