@@ -4,6 +4,7 @@ import {
   OnDestroy,
   ElementRef,
   HostListener,
+  ViewChild,
 } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -56,6 +57,8 @@ export class MapComponent implements OnInit, OnDestroy {
       document.getElementById('map-nomad-context-menu').className = 'hide';
     }
   }
+
+  @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
 
   public map!: Maplibregl.Map;
   public basemaps: Basemap[];
@@ -265,11 +268,9 @@ export class MapComponent implements OnInit, OnDestroy {
     e: Maplibregl.MapMouseEvent,
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
-    // If the drawing mode is in use, the polygon tool stay active with the menu, which causes bugs
-    const el = this.elem.nativeElement.querySelectorAll('.mapbox-gl-draw_ctrl-draw-btn')[0];
-    // If currently in use (active), a click remove the drawing mode
-    if (el.classList.contains('active')){
-      el.click();
+    if (this.mapService.getDrawActive()) {
+      this.mapService.deleteDrawing();
+      this.mapService.setDrawingControl(false);
     }
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
@@ -342,14 +343,26 @@ export class MapComponent implements OnInit, OnDestroy {
     this.isInsideContextMenu = hover;
   }
 
-    /**
+  /**
    * Use the polygon drawing tool of MapboxDraw, with their input hidden
    */
   public onPolygonalSelection(): void {
-    const el = this.elem.nativeElement.querySelectorAll(
-      '.mapbox-gl-draw_ctrl-draw-btn'
-    )[0];
-    el.click();
+    if (this.mapService.getDrawActive()) {
+      (
+        document.getElementsByClassName(
+          'mapbox-gl-draw_ctrl-draw-btn'
+        )[0] as HTMLButtonElement
+      ).click();
+      this.mapService.setDrawingControl(false);
+    } else {
+      this.mapService.setDrawingControl(true);
+      (
+        document.getElementsByClassName(
+          'mapbox-gl-draw_ctrl-draw-btn'
+        )[0] as HTMLButtonElement
+      ).click();
+    }
+
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
 
@@ -364,16 +377,6 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private addControls(): void {
-    this.draw = new MapboxDraw({
-      displayControlsDefault: false,
-      controls: {
-        polygon: true,
-        trash: true,
-      },
-    });
-    if (!this.isMobile) {
-      this.map.addControl(this.draw as any, 'top-left');
-    }
     this.map.addControl(
       new Maplibregl.GeolocateControl({
         positionOptions: {
@@ -393,6 +396,20 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private addEvents(): void {
+    fromEvent(this.map, 'mousemove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        const mapElement = document.getElementById('map');
+        const canvasElement =
+          document.getElementsByClassName('maplibregl-canvas')[0];
+
+        if (mapElement.classList.contains('mode-draw_polygon')) {
+          canvasElement.classList.add('cursor-pointer');
+        } else if (canvasElement.classList.contains('cursor-pointer')) {
+          canvasElement.classList.remove('cursor-pointer');
+        }
+      });
+
     // Loading tiles event
     fromEvent(this.map, 'moveend')
       .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
@@ -435,14 +452,14 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
+        this.mapService.deleteDrawing();
+        
         const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
         const features = this.map.queryRenderedFeatures(
           [this.map.project([maxX, maxY]), this.map.project([minX, minY])],
           { layers: this.mapService.getCurrentLayersIds() }
         );
-
-        this.draw.deleteAll();
 
         if (features.length > 0) {
           const featuresMap = [...new Set(features.map((item) => item.id))].map(

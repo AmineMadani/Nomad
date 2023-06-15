@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild }
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapComponent } from '../../map/map.component';
 import { IonPopover } from '@ionic/angular';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -9,7 +10,7 @@ import { IonPopover } from '@ionic/angular';
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
 export class ActionsLayerDesktopComponent implements OnInit {
-  constructor() {}
+  constructor(private mapService: MapService) {}
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
 
@@ -27,8 +28,21 @@ export class ActionsLayerDesktopComponent implements OnInit {
   }
 
   public openDrawingMode(): void {
-    const button: Element = document.getElementsByClassName('mapbox-gl-draw_ctrl-draw-btn')[0];
-    (button as any).click();
+    if (this.mapService.getDrawActive()) {
+      (
+        document.getElementsByClassName(
+          'mapbox-gl-draw_ctrl-draw-btn'
+        )[0] as HTMLButtonElement
+      ).click();
+      this.mapService.setDrawingControl(false);
+    } else {
+      this.mapService.setDrawingControl(true);
+      (
+        document.getElementsByClassName(
+          'mapbox-gl-draw_ctrl-draw-btn'
+        )[0] as HTMLButtonElement
+      ).click();
+    }
     this.toolboxPopover.dismiss();
   }
 }
