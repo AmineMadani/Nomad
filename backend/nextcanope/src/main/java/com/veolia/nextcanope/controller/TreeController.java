@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.controller;
 
-import com.veolia.nextcanope.dto.NodeDto;
+import com.veolia.nextcanope.dto.TreeDto;
 import com.veolia.nextcanope.service.TreeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -34,7 +34,7 @@ public class TreeController
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public List<NodeDto> getDefaultTree(){
+    public List<TreeDto> getDefaultTree(){
         return treeService.getTree();
     }
 }

@@ -9,6 +9,7 @@ import { Basemap } from '../../models/basemap.model';
 import { Layer } from '../../models/layer.model';
 import { ConfigurationService } from '../configuration.service';
 import * as Maplibregl from 'maplibre-gl';
+import { aep_vanne_images } from '../../mocks/Styles.moc';
 
 export interface Box {
   x1: number;
@@ -54,8 +55,21 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
+    //this.map.getStyle().sprite=[{id:'1x',url:this.configurationService.host+'assets/sprites/@1x'},{id:'2x',url:this.configurationService.host+'assets/sprites/@2x'}];
+    //this.map.setSprite(this.configurationService.host+'assets/sprites/@1x');//Sprite('sprite-tow',this.configurationService.host+'assets/sprites/@1x');
+    this.AddExtraImages();
     this.map.dragRotate.disable();
     return this.map;
+  }
+
+  private AddExtraImages() {
+    aep_vanne_images.forEach((idImage: string) => {
+      this.map.loadImage(this.configurationService.host + 'assets/img/patrimony/aep_vanne/'+idImage+'.png', (error, image) => {
+        if (error) throw error;
+        this.map.addImage(idImage, image);
+      });
+    });
+    
   }
 
   /**
