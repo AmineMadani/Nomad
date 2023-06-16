@@ -10,7 +10,7 @@
           <h2>Affichage des données attributaires</h2>
         </ion-label>
 
-        <ion-button class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
+        <ion-button [disabled]="form.pristine" class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
           Enregistrer
         </ion-button>
       </div>
@@ -49,7 +49,7 @@
 
         <div class="synthetic-references-selection-content">
           <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
-            <ion-toggle aria-label="ion-toggle" [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC" (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
+            <ion-toggle [disabled]="isToggleDisabled(ref)" aria-label="ion-toggle" [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC" (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
             <ion-label>{{ ref.alias }}</ion-label>
           </div>
         </div>

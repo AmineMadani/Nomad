@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, catchError, firstValueFrom, timeout } from 'rxjs';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
@@ -52,26 +52,32 @@ export class LayerDataService {
   }
 
   /**
-    * Fetches the tile of a layer from indexed db if present or server.
+    * Fetches the tile of a layer from server.
     * If successful, stores the layer's file in IndexedDB.
+    * If the network duration is superior to 2 seconds, it returns the indexedDB data.
     * @param {string} layerKey - Key of the layer.
     * @param {string} file - The file where the view is.
     * @returns The GeoJSON file for the current tile.
   */
   public async getLayerFile(layerKey: string, file: string): Promise<NomadGeoJson> {
-    const tile = await this.db.tiles.get(file);
-    if (tile) {
-      return tile.data;
-    }
     this.listTileOnLoad.set(layerKey,"Chargement de la couche "+layerKey);
     /* It's getting the number from the file name. */
     const featureNumber: number = +file.match(
       new RegExp(`${layerKey}_(\\d+)\\.geojson`)
     )![1];
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-    const req = await lastValueFrom(
+    const req: NomadGeoJson = await lastValueFrom(
       this.http.get<NomadGeoJson>(
         `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
+      ).pipe(
+        timeout(2000),
+        catchError(async () => {
+          const tile = await this.db.tiles.get(file);
+          if (tile) {
+            return tile.data;
+          }
+          return null;
+        })
       )
     );
     if (!req) {
@@ -134,7 +140,7 @@ export class LayerDataService {
    * @param id the id
    * @returns the equipment
    */
-  getEquipmentByLayerAndId(layer:string, id: number): Observable<any> {
-    return this.http.get<any>(`${this.configurationService.apiUrl}layer/`+layer+`/equipment/`+id);
+  getEquipmentByLayerAndId(layer:string, id: number): Promise<any> {
+    return firstValueFrom(this.http.get<any>(`${this.configurationService.apiUrl}layer/` + layer + `/equipment/` + id));
   }
 }

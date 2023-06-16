@@ -39,7 +39,7 @@ export class LayerReferencesSettingsComponent implements OnInit {
     });
 
     this.userDataService.getAllUserAccount().subscribe((users: User[]) => this.allUsers = users);
-    this.layerService.getLayers().subscribe((layers: Layer[]) => this.layers = layers);
+    this.layerService.getLayers().then((layers: Layer[]) => this.layers = layers);
 
     // Écoute des modifications de la valeur de lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((value) => {
@@ -66,10 +66,12 @@ export class LayerReferencesSettingsComponent implements OnInit {
     listUserIdControl.updateValueAndValidity();
   }
 
+  isToggleDisabled(ref: UserReference) {
+    return ref.referenceKey === 'id' || ref.referenceKey === 'x' || ref.referenceKey === 'y';
+  }
+
   async save() {
     const formValues = this.form.value;
-    console.log(formValues);
-    console.log(this.userReferences);
     if (this.form.valid) {
       let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
@@ -77,11 +79,9 @@ export class LayerReferencesSettingsComponent implements OnInit {
         listUserId = [currentUser.id];
       }
 
-      console.log(listUserId);
       this.layerReferencesDataService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe((result) => console.log(result));
     } else {
       this.form.markAllAsTouched();
-      console.log('form not valid');
     }
   }
 }
