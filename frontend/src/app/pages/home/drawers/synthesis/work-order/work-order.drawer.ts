@@ -16,6 +16,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
+import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 
 @Component({
   selector: 'app-work-order',
@@ -26,14 +27,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   constructor(
     private router: ActivatedRoute,
-    private http: HttpClient,
     private alertCtrl: AlertController,
     private location: Location,
     private exploitationDateService: ExploitationDataService,
     private drawer: DrawerService,
     private layerService: LayerService,
     private referentialService: ReferentialDataService,
-    private mapService: MapService
+    private mapService: MapService,
+    private templateDataService: TemplateDataService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -44,15 +45,16 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         this.asset.set('ass_obj_table', params['lyr_table_name']?.toString());
         if (!this.workOrder?.id) {
           this.buttons = [];
+          this.editMode = true;
         }
         this.createForm();
       });
   }
 
   public buttons: SynthesisButton[] = [
-    { key: 'share', label: 'Partager', icon: 'share-social' },
-    { key: 'print', label: 'Imprimer', icon: 'print' },
-    //{ key: 'update', label: 'Mettre à jour', icon: 'pencil' },
+    { key: 'note', label: 'Compte-rendu', icon: 'reader' },
+    { key: 'add', label: 'Ajouter à un programme', icon: 'link' },
+    { key: 'update', label: 'Mettre à jour', icon: 'pencil' },
   ];
   public editMode: boolean = false;
   public workOrder: any;
@@ -75,9 +77,11 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         });
       }
     } else {
-      this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
-        this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
-      });
+      if(this.workOrder['wts_id']) {
+        this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
+          this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
+        });
+      }
     }
   }
 
@@ -85,16 +89,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * Select the target form
    */
   public createForm(): void {
-    let form = 'work-order.mock.json';
-    if (!this.workOrder.id) {
-      form = 'work-order-create.mock.json';
-      this.editMode = true;
-    }
-    this.http
-      .get<Form>('./assets/mocks/' + form)
-      .subscribe((woForm: Form) => {
-        this.workOrderForm = woForm;
-      });
+    this.templateDataService.getformsTemplate().then(forms => {
+      if (!this.workOrder.id) {
+        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_CREATION').definition);
+        this.editMode = true;
+      } else {
+        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
+      }
+    });
   }
 
   /**

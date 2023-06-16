@@ -40,14 +40,6 @@ public class Workorder implements Serializable {
 	@JsonProperty("wko_name")
     private String wkoName ;
 
-    @Column(name="wko_external_app", length=2147483647)
-	@JsonProperty("wko_external_app")
-    private String wkoExternalApp ;
-
-    @Column(name="wko_external_id", length=2147483647)
-	@JsonProperty("wko_external_id")
-    private String wkoExternalId ;
-
     @Column(name="wko_creation_cell", length=2147483647)
 	@JsonProperty("wko_creation_cell")
     private String wkoCreationCell ;
@@ -170,6 +162,23 @@ public class Workorder implements Serializable {
 	@JsonProperty("wko_agent_nb")
     private Integer wkoAgentNb ;
 
+    @Column(name="wko_ext_ref", length=2147483647)
+	@JsonProperty("wko_ext_ref")
+    private String wkoExtRef ;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name="wko_ext_date_sync")
+	@JsonProperty("wko_ext_date_sync")
+    private Date wkoExtDateSync ;
+
+    @Column(name="wko_ext_to_sync", nullable=false)
+	@JsonProperty("wko_ext_to_sync")
+    private Boolean wkoExtToSync ;
+
+    @Column(name="wko_ext_error", length=2147483647)
+	@JsonProperty("wko_ext_error")
+    private String wkoExtError ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -240,22 +249,6 @@ public class Workorder implements Serializable {
 
     public String getWkoName() {
         return this.wkoName;
-    }
-
-	public void setWkoExternalApp( String wkoExternalApp ) {
-        this.wkoExternalApp = wkoExternalApp ;
-    }
-
-    public String getWkoExternalApp() {
-        return this.wkoExternalApp;
-    }
-
-	public void setWkoExternalId( String wkoExternalId ) {
-        this.wkoExternalId = wkoExternalId ;
-    }
-
-    public String getWkoExternalId() {
-        return this.wkoExternalId;
     }
 
 	public void setWkoCreationCell( String wkoCreationCell ) {
@@ -488,6 +481,38 @@ public class Workorder implements Serializable {
 
     public Integer getWkoAgentNb() {
         return this.wkoAgentNb;
+    }
+
+	public void setWkoExtRef( String wkoExtRef ) {
+        this.wkoExtRef = wkoExtRef ;
+    }
+
+    public String getWkoExtRef() {
+        return this.wkoExtRef;
+    }
+
+	public void setWkoExtDateSync( Date wkoExtDateSync ) {
+        this.wkoExtDateSync = wkoExtDateSync ;
+    }
+
+    public Date getWkoExtDateSync() {
+        return this.wkoExtDateSync;
+    }
+
+	public void setWkoExtToSync( Boolean wkoExtToSync ) {
+        this.wkoExtToSync = wkoExtToSync ;
+    }
+
+    public Boolean getWkoExtToSync() {
+        return this.wkoExtToSync;
+    }
+
+	public void setWkoExtError( String wkoExtError ) {
+        this.wkoExtError = wkoExtError ;
+    }
+
+    public String getWkoExtError() {
+        return this.wkoExtError;
     }
 
     //--- GETTERS FOR LINKS

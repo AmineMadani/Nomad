@@ -69,7 +69,7 @@ html, body { height: 100%; width: 100%; margin: 0; }
   src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
 
-.maplibregl-ctrl-top-right {
+.maplibregl-ctrl-top-right, .maplibregl-ctrl-top-left {
   visibility: hidden;
 }
 
@@ -349,4 +349,9 @@ ion-segment-button {
   letter-spacing: 0.1px;
   text-transform: capitalize;
   --color: var(--ion-color-neutral-variant-30);
+}
+
+
+.cursor-pointer {
+  cursor: crosshair;
 }

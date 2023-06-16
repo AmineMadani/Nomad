@@ -110,7 +110,31 @@ export class LayerDataService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public getLayers() : Observable<Layer[]>{
-    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`);
+  public async getLayers() : Promise<Layer[]>{
+    const layers = await this.db.referentials.get('layers');
+    if (layers) {
+      return layers.data;
+    }
+
+    const res = await lastValueFrom(
+      this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`)
+    );
+    if (!res) {
+      throw new Error(`Failed to fetch layers`);
+    }
+
+    await this.db.referentials.put({ data: res, key: 'layers' }, 'layers');
+
+    return res;
+  }
+
+  /**
+   * Method to get an equipment from a layer
+   * @param layer the layer
+   * @param id the id
+   * @returns the equipment
+   */
+  getEquipmentByLayerAndId(layer:string, id: number): Observable<any> {
+    return this.http.get<any>(`${this.configurationService.apiUrl}layer/`+layer+`/equipment/`+id);
   }
 }

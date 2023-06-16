@@ -15,6 +15,10 @@ public class LayerDto {
 
     private Long domId ;
 
+    private String domLLabel;
+
+    private String domCode;
+
     private Long astId ;
 
     private Long treGroupId ;
@@ -73,7 +77,23 @@ public class LayerDto {
         return this.domId;
     }
 
-    public void setAstId( Long astId ) {
+    public String getDomLLabel() {
+        return domLLabel;
+    }
+
+    public void setDomLLabel(String domLLabel) {
+        this.domLLabel = domLLabel;
+    }
+
+    public String getDomCode() {
+        return domCode;
+    }
+
+    public void setDomCode(String domCode) {
+        this.domCode = domCode;
+    }
+
+    public void setAstId(Long astId ) {
         this.astId = astId ;
     }
 
@@ -206,6 +226,8 @@ public class LayerDto {
 		this.id = layer.getId();
 		this.lyrNumOrder = layer.getLyrNumOrder();
 		this.domId = layer.getDomId();
+        this.domLLabel = layer.getDomains().getDomLlabel();
+        this.domCode = layer.getDomains().getDomType();
 		this.astId = layer.getAstId();
 		this.treGroupId = layer.getTreGroupId();
 		this.treSimplifiedGroupId = layer.getTreSimplifiedGroupId();

@@ -1,18 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { catchError } from 'rxjs/internal/operators/catchError';
-import { of } from 'rxjs/internal/observable/of';
 import { from } from 'rxjs/internal/observable/from';
-import { ActivatedRoute, Router } from '@angular/router';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
 import { LayerReferencesService } from 'src/app/core/services/layer-reference.service';
 import { UserReference } from 'src/app/core/models/layer-references.model';
-import { EquipmentDataService } from 'src/app/core/services/dataservices/equipment.dataservice';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { LayerService } from 'src/app/core/services/map/layer.service';
+import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { filter, of } from 'rxjs';
 
 @Component({
   selector: 'app-equipment',
@@ -21,35 +21,14 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 })
 export class EquipmentDrawer implements OnInit, OnDestroy {
   constructor(
-    private activatedRouter: ActivatedRoute,
     private router: Router,
     private layerReferencesService: LayerReferencesService,
-    private equipmentService: EquipmentDataService,
     private utils: UtilsService,
-    private drawer: DrawerService
-  ) {
-    this.activatedRouter.queryParams
-      .pipe(
-        takeUntil(this.ngUnsubscribe$),
-        switchMap((params) => {
-          this.eqTemp = params;
-          return from(
-            this.layerReferencesService.getUserReferences(params['lyr_table_name'])
-          );
-        }),
-        switchMap((refs: UserReference[]) => {
-          this.userReferences = refs;
-          return this.equipmentService.getById(this.eqTemp.id);
-        }),
-        catchError(() => {
-          return of(this.eqTemp);
-        })
-      )
-      .subscribe((equipment) => {
-        this.equipment = equipment;
-
-      });
-  }
+    private drawer: DrawerService,
+    private activatedRoute: ActivatedRoute,
+    private layerService: LayerService,
+    private layerDataService: LayerDataService
+  ) {}
 
   public buttons: SynthesisButton[] = [
     { key: 'create', label: 'Générer une intervention', icon: 'person-circle' },
@@ -66,8 +45,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public userReferences: UserReference[] = [];
   public equipment: any;
   public isMobile: boolean;
-
-  private eqTemp: any;
+  public isDetailAvailabled: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -81,19 +59,56 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   }
 
   public onTabButtonClicked(ev: SynthesisButton): void {
-    if(ev.key === 'create') {
-      this.router.navigate(
-        ['/home/work-order'],
-        { queryParams: this.equipment }
-      );
+    if (ev.key === 'create') {
+      this.router.navigate(['/home/work-order'], {
+        queryParams: this.equipment,
+      });
     }
   }
-  
-  public navigateToDetails(): void {
+
+  public onNavigateToDetails(): void {
     this.drawer.navigateTo(
       DrawerRouteEnum.EQUIPMENT_DETAILS,
       [this.equipment.id],
       this.equipment
     );
+  }
+
+  public onInitEquipment(paramMap: Map<string, string>) {
+    from(
+      this.layerReferencesService.getUserReferences(
+        paramMap.get('lyr_table_name')
+      )
+    )
+      .pipe(
+        switchMap((ref: UserReference[]) => {
+          this.userReferences = ref;
+          this.equipment = paramMap;
+          return this.activatedRoute.params;
+        }),
+        switchMap((localParams: Params) => {
+          if (localParams['id'] && paramMap.get('lyr_table_name')) {
+            this.equipment = this.layerService.getFeatureById(
+              paramMap.get('lyr_table_name'),
+              localParams['id']
+            ).properties;
+            this.equipment = Object.assign(
+              this.equipment,
+              Object.fromEntries(paramMap)
+            );
+            return this.layerDataService.getEquipmentByLayerAndId(
+              this.equipment.lyr_table_name,
+              this.equipment.id
+            );
+          }
+          return of(undefined);
+        }),
+        filter((res: any | undefined) => res !== undefined),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe((res: any) => {
+        this.equipment = Object.assign(this.equipment, res[0]);
+        this.isDetailAvailabled = true;
+      });
   }
 }

@@ -1,8 +1,10 @@
-<div class="map-container">
+<div id="map-container" class="map-container">
   <div id="map" style="width: 100%;height: 100%" [style.visibility]="displayMap ? 'visible' : 'hidden'"></div>
 </div>
 
 <div class="map-actions-container">
+  <div id="scale" class="custom-scale">{{scale}}</div>
+
   <ion-fab *ngIf="!isMobile || (isMobile && currentRoute === 'HOME')" class="layers-fab"
     [class.mobile-layer]="isMobile">
     <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
@@ -49,7 +51,7 @@
 <div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide"
   id="map-nomad-context-menu">
   <ion-list style="border-radius: 0px 10px 10px;">
-    <ion-item button>
+    <ion-item button (click)="onPolygonalSelection()">
       <ion-label>Sélection polygonale</ion-label>
     </ion-item>
     <ion-item button (click)="onGenerateWorkOrder()">

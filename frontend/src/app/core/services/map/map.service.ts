@@ -1,17 +1,15 @@
+
 import { Injectable } from '@angular/core';
-import { fromEvent } from 'rxjs/internal/observable/fromEvent';
-import { DrawerService } from '../drawer.service';
+import { Observable, ReplaySubject, Subject, from } from 'rxjs';
 import { LayerDataService } from '../dataservices/layer.dataservice';
-import { MapEventService } from './map-event.service';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
-import { Observable, Subject, takeUntil } from 'rxjs';
-import { NomadGeoJson } from '../../models/geojson.model';
-import { DrawerRouteEnum } from '../../models/drawer.model';
-import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
-import { Layer } from '../../models/layer.model';
-import { Basemap } from '../../models/basemap.model';
 import { FilterDataService } from '../dataservices/filter.dataservice';
+import { Basemap } from '../../models/basemap.model';
+import { Layer } from '../../models/layer.model';
+import { ConfigurationService } from '../configuration.service';
+import * as Maplibregl from 'maplibre-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 export interface Box {
   x1: number;
@@ -23,30 +21,29 @@ export interface Box {
 @Injectable({
   providedIn: 'root',
 })
-export class MapService  {
+export class MapService {
   constructor(
-    private drawerService: DrawerService,
-    private mapEvent: MapEventService,
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService,
-    private filterDataService: FilterDataService
+    private filterDataService: FilterDataService,
+    private configurationService: ConfigurationService
   ) {
-    this.layerDataService.getLayers()
-    .pipe(
-      takeUntil(this.ngUnsubscribe$)
-      )
-    .subscribe((elements ) => {this.layersConfiguration = elements ; });
+    from(this.layerDataService.getLayers()).subscribe((layers: Layer[]) => {
+      this.layersConfiguration = layers;
+    });
   }
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
-  private layersConfiguration : Layer[];
+  private layersConfiguration: Layer[];
+
+  private draw: MapboxDraw;
+  private drawActive: boolean;
 
   private loadedGeoJson: Map<string, string[]> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
-  private onMapLoaded$: Subject<void> = new Subject();
-  private ngUnsubscribe$: Subject<void> = new Subject();
+  private onMapLoaded$: ReplaySubject<void> = new ReplaySubject();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -62,6 +59,13 @@ export class MapService  {
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
+    this.draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+    });
     return this.map;
   }
 
@@ -113,10 +117,16 @@ export class MapService  {
     return this.layers.get(layerKey);
   }
 
-  /**
-   * Returns an array of strings representing the keys of all current layers added to the map.
-   * @returns An array of strings representing the keys of all current layers added to the map.
-   */
+  public getCurrentLayers(): Map<string, MaplibreLayer> {
+    return this.layers;
+  }
+
+  public getCurrentLayersIds(): string[] {
+    return Array.from(this.layers.values())
+      .flatMap((layer) => layer.style)
+      .map((s) => s.id);
+  }
+
   public getCurrentLayersKey(): string[] {
     return [...this.layers.keys()];
   }
@@ -140,14 +150,17 @@ export class MapService  {
     return this.layers.has(layerKey);
   }
 
-
   /**
    * Bind different events to a layer like click or hovered
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
     if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
-      const layer: MaplibreLayer = new MaplibreLayer(this.layersConfiguration.find( element => element.lyrTableName == 'asset.'+ layerKey));
+      const layer: MaplibreLayer = new MaplibreLayer(
+        this.layersConfiguration.find(
+          (element) => element.lyrTableName == 'asset.' + layerKey
+        )
+      );
       this.layers.set(layerKey, layer);
       this.map.zoomTo(this.map.getZoom() + 0.0001);
       this.map.addSource(layerKey, layer.source);
@@ -156,27 +169,36 @@ export class MapService  {
         setTimeout(() => this.map.addLayer(oneStyle));
       }
 
-
-      await new Promise<void>((resolve) => {
-        this.map.once('idle', () => {
+      return new Promise<void>((resolve) => {
+        this.map.once('idle', (e) => {
           this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
             layer.style.every((style) => this.map.getLayer(style.id));
-          if (isValid()) {
+          if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
             resolve();
+          } else {
+            setTimeout(() => {
+              resolve();
+            }, 3000);
           }
         });
+      });
+    } else {
+      new Promise<void>((resolve) => {
+        resolve();
       });
     }
   }
 
- /**
-  * Method to apply the filter on the map for a specific layer
-  * @param layerKey  layer exploitation data
-  * @returns
-  */
-  public applyFilterOnMap(layerKey: string) : void{
-    const filters: Map<string, string[]> = this.filterDataService.getSearchFilterListData().get(layerKey);
+  /**
+   * Method to apply the filter on the map for a specific layer
+   * @param layerKey  layer exploitation data
+   * @returns
+   */
+  public applyFilterOnMap(layerKey: string): void {
+    const filters: Map<string, string[]> = this.filterDataService
+      .getSearchFilterListData()
+      .get(layerKey);
     const layer = this.getLayer(layerKey);
     if (!layer || !filters) {
       return;
@@ -186,10 +208,10 @@ export class MapService  {
 
     if (filters && filters.size > 0) {
       for (const [key, values] of filters) {
-        filter.push(['in', ['get', key], ['literal',values]]);
+        filter.push(['in', ['get', key], ['literal', values]]);
       }
     }
-    
+
     for (const style of layer.style) {
       this.map.setFilter(style.id, filter as any);
     }
@@ -213,7 +235,7 @@ export class MapService  {
 
       // Deletion of layers & source, putting an empty array to avoid cloning data later
       (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
-        removeAll: true
+        removeAll: true,
       });
       this.map.removeSource(layerKey);
     }
@@ -225,9 +247,9 @@ export class MapService  {
    */
   public addNewPoint(layerKey: string, pointData: any) {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
-    const addData:Maplibregl.GeoJSONSourceDiff = {
-      add : [pointData]
-    }
+    const addData: Maplibregl.GeoJSONSourceDiff = {
+      add: [pointData],
+    };
     source.updateData(addData);
   }
 
@@ -237,7 +259,10 @@ export class MapService  {
    */
   public onMoveEnd(): void {
     for (let layer of this.layers) {
-      if (this.map.getZoom() >= Math.min(...layer[1].style.map(style => style.minzoom))) {
+      if (
+        this.map.getZoom() >=
+        Math.min(...layer[1].style.map((style) => style.minzoom))
+      ) {
         this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
           for (let str of res) {
             if (
@@ -257,79 +282,23 @@ export class MapService  {
     }
   }
 
-  /**
-   * Queries the nearest rendered feature from a mouse event on the map.
-   * @param e - Mouse event on the map
-   * @returns The nearest features (if there are) from the map.
-   */
-  public queryNearestFeature(
-    e: Maplibregl.MapMouseEvent
-  ): Maplibregl.MapGeoJSONFeature {
-    var mouseCoords = this.map.unproject(e.point);
-    const selectedFeatures = this.map.queryRenderedFeatures(
-      [
-        [e.point.x - 10, e.point.y - 10],
-        [e.point.x + 10, e.point.y + 10],
-      ],
-      {
-        layers: [...this.layers.values()]
-          .flatMap((layer) => layer.style)
-          .map((s) => s.id),
-      }
-    );
-    return this.findNearestFeature(mouseCoords, selectedFeatures);
+  public setDrawingControl(status: boolean): void {
+    if (status) {
+      this.map.addControl(this.draw as any, 'top-left');
+      this.drawActive = true;
+    } else {
+      this.map.removeControl(this.draw as any);
+      this.drawActive = false;
+      document.getElementById('map-container').classList.remove('cursor-pointer');
+    }
   }
 
-  /**
-   * This function changes the cursor style and highlights a hovered feature on a map.
-   * @param feature - Closest feature hovered on the map
-   */
-  public onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
-    if (!feature) {
-      this.map.getCanvas().style.cursor = '';
-      this.mapEvent.highlightHoveredFeature(this.map, undefined, undefined);
-      return;
-    }
-
-    this.map.getCanvas().style.cursor = 'pointer';
-    this.mapEvent.highlightHoveredFeature(
-      this.map,
-      feature.source,
-      feature.id.toString()
-    );
+  public getDrawActive(): boolean {
+    return this.drawActive;
   }
 
-  /**
-   * This function highlights a selected feature on a map.
-   * @param feature - Closest feature selected on the map
-   * @returns It navigates to a specific route in the application's drawer with some additional
-   * properties.
-   */
-  public onFeatureSelected(feature: Maplibregl.MapGeoJSONFeature): void {
-    if (!feature) {
-      return;
-    }
-
-    this.mapEvent.highlightSelectedFeature(
-      this.map,
-      feature.source,
-      feature.id.toString()
-    );
-
-    const properties = feature.properties;
-    if (properties['geometry']) delete properties['geometry'];
-    // We pass the layerKey to the drawer to be able to select the equipment on the layer
-    properties['lyr_table_name'] = feature.source;
-    let route: DrawerRouteEnum;
-    switch (feature.source) {
-      case 'workorder':
-        route = DrawerRouteEnum.WORKORDER;
-        break;
-      default:
-        route = DrawerRouteEnum.EQUIPMENT;
-        break;
-    }
-    this.drawerService.navigateTo(route, [properties['id']], properties);
+  public deleteDrawing(): void {
+    this.draw.deleteAll();
   }
 
   /**
@@ -379,11 +348,11 @@ export class MapService  {
    */
   private async loadNewTile(layerKey: string, file: string): Promise<void> {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
-    if(source){
+    if (source) {
       const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
-      const addData:Maplibregl.GeoJSONSourceDiff = {
-        add : newLayer.features
-      }
+      const addData: Maplibregl.GeoJSONSourceDiff = {
+        add: newLayer.features,
+      };
       setTimeout(() => {
         source.updateData(addData);
       });
@@ -408,50 +377,6 @@ export class MapService  {
     return xOverlap && yOverlap;
   }
 
-  /**
-   * Finds the nearest feature to a given set of coordinates from a list of features.
-   * @param mouseCoords - Coordinates of a mouse event on the map.
-   * @param {Maplibregl.MapGeoJSONFeature[]} features - Array of the features in a selected area.
-   * @returns the closest feature from the mouse in the area.
-   */
-  private findNearestFeature(
-    mouseCoords: Maplibregl.LngLat,
-    features: Maplibregl.MapGeoJSONFeature[]
-  ): Maplibregl.MapGeoJSONFeature | null {
-    if (features.length === 0) {
-      return null;
-    }
-
-    let nearestPoint: any | null = null;
-    let shortestDistance = Infinity;
-
-    for (const feature of features) {
-      const distance = this.calculateDistance(mouseCoords, feature);
-
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        nearestPoint = feature;
-      }
-    }
-
-    return nearestPoint;
-  }
-
-  /**
-   * Calculates the distance between two points on a map using their longitude and latitude.
-   * @param mousePoint - A Maplibregl.LngLat object representing the longitude and latitude.
-   * @param feature - A MapGeoJSONFeature from the map.
-   * @returns Returns the calculated distance the coordinates.
-   */
-  private calculateDistance(
-    mousePoint: Maplibregl.LngLat,
-    feature: Maplibregl.MapGeoJSONFeature
-  ): number {
-    const dx = feature.properties['x'] - mousePoint.lng;
-    const dy = feature.properties['y'] - mousePoint.lat;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
   private mapLibreSpec: Maplibregl.StyleSpecification = {
     version: 8,
     name: 'Réseau AEP',
@@ -473,6 +398,6 @@ export class MapService  {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: 'http://localhost:8100/assets/sprites/@2x',
+    sprite: this.configurationService.host+'assets/sprites/@2x',
   };
 }

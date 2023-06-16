@@ -45,6 +45,10 @@ ion-tab-bar.action-bar {
     height: calc(100% - 176px) !important;
   }
 
+  &.content-without-footer {
+    height: calc(100% - 176px) !important;
+  }
+
   .content-container {
     margin: 0 12px;
   }
@@ -57,4 +61,8 @@ ion-tab-bar.action-bar {
     border-top: 1px solid var(--ion-color-neutral-variant-80);
     height: 100%;
   }
+}
+
+.bottom-item:empty + .synthesis-content {
+  height: calc(100% - 160px) !important;
 }

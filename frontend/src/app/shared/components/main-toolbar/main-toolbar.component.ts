@@ -1,6 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserInfo } from 'angular-oauth2-oidc';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
 import { AccordeonFilter } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
@@ -89,7 +88,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
       () => console.log('Cache réinitialisé')
     ).catch((err) => {
       console.log(`Erreur lors de la réinitialisation : ${err}`)
-    })
+    });
+    window.location.reload();
   }
 
   public reloadStorage(): void {

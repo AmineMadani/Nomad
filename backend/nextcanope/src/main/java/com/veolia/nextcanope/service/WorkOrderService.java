@@ -70,6 +70,7 @@ public class WorkOrderService {
 			workorder.setWkoUmodId(account.getId());
 			workorder.setWkoDcre(new Date());
 			workorder.setWkoDmod(new Date());
+			workorder.setWkoExtToSync(true);
 			
 			WorkorderTaskStatus status = statusService.getStatus("CREE");
 			workorder.setWtsId(status.getId());

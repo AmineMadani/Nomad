@@ -50,6 +50,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() labelTemplateRef: TemplateRef<any>;
   @Input() chipTemplateRef: TemplateRef<any>;
   @Input() fromCache: boolean;
+  @Input() isLoading: boolean = false;
 
   @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
   @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();
@@ -71,12 +72,19 @@ export class FilterCardComponent implements OnInit, OnDestroy {
 
   public highlightFeature(feature: MapFeature | undefined): void {
     if (this.fromCache) {
-      this.mapEvent.highlightHoveredFeature(
-        this.mapService.getMap(),
+      if (feature?.id) {
+        this.mapEvent.highlightHoveredFeature(this.mapService.getMap(),
         this.type,
         feature?.id ?? undefined,
         false
-      );
+        )
+      } else {
+        this.mapEvent.highlightHoveredFeature(this.mapService.getMap(),
+        this.type,
+        undefined,
+        false
+        )
+      }
     }
   }
 

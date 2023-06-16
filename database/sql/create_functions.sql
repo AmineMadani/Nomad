@@ -1,3 +1,5 @@
+\encoding UTF8
+
 set search_path to nomad, public;
 
 --

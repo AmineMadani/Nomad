@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
 import com.veolia.nextcanope.dto.LayerReference.SaveLayerReferenceUserDto;
@@ -102,6 +103,21 @@ public class LayerController {
     })
     public List<LayerDto> getAllLayers() {
         return  layerService.getLayers();
+    }
+    
+    @GetMapping(path = "/{key}/equipment/{id}")
+    @Operation(summary = "Get the equipment by layer and id")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "The equipment", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public List<Map<String, Object>> getEquipmentByLayerAndId(
+            @PathVariable String key,
+            @PathVariable String id,
+            AccountTokenDto account
+    ) {
+        return this.layerService.getEquipmentByLayerAndId(key, id);
     }
 
     @PostMapping(path = "/references/user")

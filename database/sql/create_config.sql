@@ -1,3 +1,5 @@
+\encoding UTF8
+
 /****************************************************
  * Scripts to Create config objects in the database *
  ****************************************************/
@@ -735,7 +737,12 @@ create table if not exists workorder
   -- Geometry
   longitude                    numeric,
   latitude                     numeric,
-  geom                         geometry('POINT', 3857)
+  geom                         geometry('POINT', 3857),
+  -- external app
+  wko_ext_ref                  text,
+  wko_ext_date_sync            timestamp without time zone default null,
+  wko_ext_to_sync              boolean default False,
+  wko_ext_error                text
 );
 create index on workorder using gist(geom);
 /* Comments on table */
@@ -765,6 +772,7 @@ comment on column workorder.wtr_id is 'Workorder reason';
 comment on column workorder.str_id is 'Street';
 comment on column workorder.str_llabel is 'Long label of the street';
 comment on column workorder.ctr_id is 'Contract';
+COMMENT ON COLUMN workorder.wko_agent_nb IS 'Number of agent';
 comment on column workorder.wko_ucre_id is 'creator Id';
 comment on column workorder.wko_umod_id is 'Last modificator Id';
 comment on column workorder.wko_dmod is 'Last modification date';
@@ -773,6 +781,10 @@ comment on column workorder.wko_ddel is 'Deletion date';
 comment on column workorder.longitude is 'longitude';
 comment on column workorder.latitude is 'latitude';
 comment on column workorder.geom is 'Geometry of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_ref IS 'External reference of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_date_sync IS 'Last date of synchronization with an external application';
+COMMENT ON COLUMN workorder.wko_ext_to_sync IS 'True if there is a need to synchronize the workorder with the external app';
+COMMENT ON COLUMN workorder.wko_ext_error IS 'Error message during synchronisation';
 
 -- Table task
 -- Contains the tasks
@@ -893,3 +905,85 @@ create table if not exists frm_rpf(
   primary key (frm_id, rpf_id)
 );
 */
+
+-- Table form_definition
+-- Contains the forms content
+create table if not exists form_definition(
+  id                           bigserial primary key,
+  fdn_code                     text not null,
+  fdn_definition               text not null,
+  -- Technical metadata
+  fdn_ucre_id                  bigint references users(id) default 0,
+  fdn_umod_id                  bigint references users(id) default 0,
+  fdn_dcre                     timestamp without time zone  default current_timestamp,
+  fdn_dmod                     timestamp without time zone  default current_timestamp,
+  fdn_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_definition is 'This table contains the form definition';
+/* Comments on fields */
+comment on column form_definition.id is 'Table unique ID';
+comment on column form_definition.fdn_code is 'The definition code';
+comment on column form_definition.fdn_definition is 'The json definition';
+comment on column form_definition.fdn_ucre_id is 'creator Id';
+comment on column form_definition.fdn_umod_id is 'Last modificator Id';
+comment on column form_definition.fdn_dcre is 'Creation date';
+comment on column form_definition.fdn_dmod is 'Last modification date';
+comment on column form_definition.fdn_ddel is 'Deletion date';
+
+
+-- Table form_template
+-- Contains the form template
+create table if not exists form_template(
+  id                           bigserial primary key,
+  fte_code                     text not null,
+  fdn_id                       bigint references form_definition(id) not null,
+  -- Technical metadata
+  fte_ucre_id                  bigint references users(id) default 0,
+  fte_umod_id                  bigint references users(id) default 0,
+  fte_dcre                     timestamp without time zone  default current_timestamp,
+  fte_dmod                     timestamp without time zone  default current_timestamp,
+  fte_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_template is 'This table contains the form template';
+/* Comments on fields */
+comment on column form_template.id is 'Table unique ID';
+comment on column form_template.fte_code is 'Code template';
+comment on column form_template.fdn_id is 'The form definition';
+comment on column form_template.fte_ucre_id is 'creator Id';
+comment on column form_template.fte_umod_id is 'Last modificator Id';
+comment on column form_template.fte_dcre is 'Creation date';
+comment on column form_template.fte_dmod is 'Last modification date';
+comment on column form_template.fte_ddel is 'Deletion date';
+
+-- Table form_template_custom
+-- Contains the form template custom
+create table if not exists form_template_custom(
+  id                           bigserial primary key,
+  fte_id                       bigint references form_template(id) not null,
+  usr_id                       bigint references users(id) not null,
+  fdn_id                       bigint references form_definition(id) not null,
+  -- Technical metadata
+  ftc_ucre_id                  bigint references users(id) default 0,
+  ftc_umod_id                  bigint references users(id) default 0,
+  ftc_dcre                     timestamp without time zone  default current_timestamp,
+  ftc_dmod                     timestamp without time zone  default current_timestamp,
+  ftc_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_template_custom is 'This table contains the form template custom';
+/* Comments on fields */
+comment on column form_template_custom.id is 'Table unique ID';
+comment on column form_template_custom.fte_id is 'Form template ID';
+comment on column form_template_custom.usr_id is 'User ID';
+comment on column form_template_custom.fdn_id is 'The form definition';
+comment on column form_template_custom.ftc_ucre_id is 'creator Id';
+comment on column form_template_custom.ftc_umod_id is 'Last modificator Id';
+comment on column form_template_custom.ftc_dcre is 'Creation date';
+comment on column form_template_custom.ftc_dmod is 'Last modification date';
+comment on column form_template_custom.ftc_ddel is 'Deletion date';
+

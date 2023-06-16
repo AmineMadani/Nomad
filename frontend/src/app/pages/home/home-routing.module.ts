@@ -10,6 +10,7 @@ import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawe
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
+import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
 
 const routes: Routes = [
   {
@@ -66,6 +67,13 @@ const routes: Routes = [
         component: WorkOrderDrawer,
         data: {
           name: DrawerRouteEnum.WORKORDER,
+        },
+      },
+      {
+        path: 'selection',
+        component: MultipleSelectionDrawer,
+        data: {
+          name: DrawerRouteEnum.SELECTION,
         },
       },
       {
