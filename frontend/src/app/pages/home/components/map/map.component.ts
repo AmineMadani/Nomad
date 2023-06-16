@@ -7,7 +7,6 @@ import {
   ViewChild,
 } from '@angular/core';
 import { LoadingController } from '@ionic/angular';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -23,6 +22,7 @@ import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import * as turf from '@turf/turf';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-map',

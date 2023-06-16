@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { ConfigurationService } from '../services/configuration.service';
 import { KeycloakService } from '../services/keycloak.service';
-import { UserService } from '../services/user.service';
 import { InitService } from '../services/init.service';
+import { UserService } from '../services/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +13,7 @@ export class AuthGuardService implements CanActivate {
     private router: Router,
     private keycloakService: KeycloakService,
     private userService: UserService,
-    private configurationService: ConfigurationService,
-    private initService: InitService
-  ) { }
+    private initService: InitService  ) { }
 
   /**
  * Determines whether the user can activate a particular route.

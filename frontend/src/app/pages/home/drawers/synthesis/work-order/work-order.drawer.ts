@@ -4,7 +4,6 @@ import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { SynthesisButton } from '../synthesis.drawer';
 import { ActivatedRoute } from '@angular/router';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { HttpClient } from '@angular/common/http';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
@@ -16,6 +15,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
+import { filter, take } from 'rxjs';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 
 @Component({
@@ -72,8 +72,11 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       if (this.mapService.getMap()) {
         this.generateMarker();
       } else {
-        this.mapService.onMapLoaded().subscribe(() => {
-          this.generateMarker();
+        this.mapService.onMapLoaded().pipe(
+          filter((isMapLoaded) => isMapLoaded)
+          ,take(1))
+        .subscribe(() => {
+            this.generateMarker();
         });
       }
     } else {

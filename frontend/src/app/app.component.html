@@ -13,7 +13,7 @@
       </div>
       <ion-list id="inbox-list" class="main-content-side-list-menu">
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active">
+          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active" (click)="onClick(p.url)">
             <ion-icon [ios]="p.icon" [md]="p.icon" class="main-content-side-list-menu-icon"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>

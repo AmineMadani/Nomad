@@ -1,15 +1,17 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, Subject, from } from 'rxjs';
+import { Observable, ReplaySubject, from } from 'rxjs';
 import { LayerDataService } from '../dataservices/layer.dataservice';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
+import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
-import { Basemap } from '../../models/basemap.model';
+import { LngLatLike } from 'maplibre-gl';
 import { Layer } from '../../models/layer.model';
 import { ConfigurationService } from '../configuration.service';
-import * as Maplibregl from 'maplibre-gl';
+import { Basemap } from '../../models/basemap.model';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { MapEventService } from './map-event.service';
 
 export interface Box {
   x1: number;
@@ -26,7 +28,8 @@ export class MapService {
     private layerDataService: LayerDataService,
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private mapEventService: MapEventService
   ) {
     from(this.layerDataService.getLayers()).subscribe((layers: Layer[]) => {
       this.layersConfiguration = layers;
@@ -43,7 +46,10 @@ export class MapService {
   private loadedGeoJson: Map<string, string[]> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
-  private onMapLoaded$: ReplaySubject<void> = new ReplaySubject();
+  private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
+
+  private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
+  private loadedLayer: Array<string> = new Array<string>();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -51,6 +57,7 @@ export class MapService {
    * @returns The function `createMap()` returns an instance of the `Maplibregl.Map` class.
    */
   public createMap(): Maplibregl.Map {
+    this.mapLibreSpec.sprite = this.configurationService.host + 'assets/sprites/@2x';
     this.map = new Maplibregl.Map({
       container: 'map',
       style: this.mapLibreSpec,
@@ -81,14 +88,21 @@ export class MapService {
    * This function sets the "onMapLoaded$" observable to emit a value.
    */
   public setMapLoaded(): void {
-    this.onMapLoaded$.next();
+    this.onMapLoaded$.next(true);
+  }
+
+  /**
+  * This function sets the "onMapLoaded$" observable to emit a value.
+  */
+  public setMapUnloaded(): void {
+    this.onMapLoaded$.next(false);
   }
 
   /**
    * Observable that emits when the map is loaded.
    * @returns An Observable of type `void` is being returned.
    */
-  public onMapLoaded(): Observable<void> {
+  public onMapLoaded(): Observable<boolean> {
     return this.onMapLoaded$.asObservable();
   }
 
@@ -139,6 +153,7 @@ export class MapService {
       this.removeEventLayer(layerKey);
     });
     this.layers.clear();
+    this.mapEventService.setSelectedFeature(undefined);
   }
 
   /**
@@ -155,7 +170,21 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
-    if (layerKey && layerKey.length > 0 && !this.hasEventLayer(layerKey)) {
+
+    if (!layerKey) {
+      return;
+    }
+
+    //If layer is loaded
+    if (this.loadedLayer.indexOf(layerKey) >= 0) {
+      return new Promise<void>((resolve) => resolve());
+    }
+    else {
+      //If layer is on loading (has event)
+      if (this.loadingLayer.has(layerKey)) {
+        return this.loadingLayer.get(layerKey);
+      }
+      //else create the layer
       const layer: MaplibreLayer = new MaplibreLayer(
         this.layersConfiguration.find(
           (element) => element.lyrTableName == 'asset.' + layerKey
@@ -169,24 +198,26 @@ export class MapService {
         setTimeout(() => this.map.addLayer(oneStyle));
       }
 
-      return new Promise<void>((resolve) => {
+      const layerPromise = new Promise<void>((resolve) => {
         this.map.once('idle', (e) => {
           this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
             layer.style.every((style) => this.map.getLayer(style.id));
           if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
+            this.loadedLayer.push(layerKey);
+            this.loadingLayer.delete(layerKey);
             resolve();
           } else {
             setTimeout(() => {
+              this.loadedLayer.push(layerKey);
+              this.loadingLayer.delete(layerKey);
               resolve();
             }, 3000);
           }
         });
       });
-    } else {
-      new Promise<void>((resolve) => {
-        resolve();
-      });
+      this.loadingLayer.set(layerKey, layerPromise);
+      return layerPromise;
     }
   }
 
@@ -216,12 +247,21 @@ export class MapService {
       this.map.setFilter(style.id, filter as any);
     }
   }
+
+  private removeLoadedLayer(layerKey: string): void {
+    const index = this.loadedLayer.indexOf(layerKey);
+    if (index >= 0) {
+      this.loadedLayer.splice(index, 1);
+    }
+  }
+
   /**
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.
    */
   public removeEventLayer(layerKey: string): void {
     if (this.hasEventLayer(layerKey)) {
+      this.removeLoadedLayer(layerKey);
       const mLayer = this.layers.get(layerKey)!;
 
       // Removing registered events
@@ -377,6 +417,14 @@ export class MapService {
     return xOverlap && yOverlap;
   }
 
+  public setZoom(zoom: number): void {
+    this.getMap().setZoom(zoom);
+  }
+
+  public setCenter(location: LngLatLike) {
+    this.getMap().setCenter(location);
+  }
+
   private mapLibreSpec: Maplibregl.StyleSpecification = {
     version: 8,
     name: 'Réseau AEP',
@@ -398,6 +446,6 @@ export class MapService {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: this.configurationService.host+'assets/sprites/@2x',
+    sprite: this.configurationService.host + 'assets/sprites/@2x',
   };
 }
