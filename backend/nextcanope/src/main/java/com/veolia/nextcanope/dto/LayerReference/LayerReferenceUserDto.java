@@ -1,29 +1,34 @@
 package com.veolia.nextcanope.dto.LayerReference;
 
-public class UserReferenceDto implements UserReferenceBaseDto {
-    public UserReferenceDto(Integer referenceId, String referenceKey, String alias, String displayType, Integer position, Boolean isVisible, String section) {
-        this.referenceId = referenceId;
-        this.referenceKey = referenceKey;
-        this.alias = alias;
-        this.displayType = displayType;
-        this.position = position;
-        this.isVisible = isVisible;
-        this.section = section;
+public class LayerReferenceUserDto {
+    public LayerReferenceUserDto() {
     }
 
-    private Integer referenceId;
+    public LayerReferenceUserDto(LayerReferencesFlatDto item) {
+        this.referenceId = item.getReferenceId();
+        this.referenceKey = item.getReferenceKey();
+        this.alias = item.getAlias();
+        this.displayType = item.getDisplayType();
+        this.position = item.getPosition();
+        this.isVisible = item.getIsVisible();
+        this.section = item.getSection();
+        this.valid = item.getValid();
+    }
+
+    private Long referenceId;
     private String referenceKey;
     private String alias;
     private String displayType;
     private Integer position;
     private Boolean isVisible;
     private String section;
+    private Boolean valid;
 
-    public Integer getReferenceId() {
+    public Long getReferenceId() {
         return referenceId;
     }
 
-    public void setReferenceId(Integer referenceId) {
+    public void setReferenceId(Long referenceId) {
         this.referenceId = referenceId;
     }
 
@@ -73,5 +78,13 @@ public class UserReferenceDto implements UserReferenceBaseDto {
 
     public void setSection(String section) {
         this.section = section;
+    }
+
+    public Boolean getValid() {
+        return valid;
+    }
+
+    public void setValid(Boolean valid) {
+        this.valid = valid;
     }
 }

@@ -33,7 +33,7 @@
           <ion-list class="search-multi-select-list">
             <ion-checkbox *ngFor="let element of displayedList;" (ionChange)="onCheckboxChange($event, element)"
               labelPlacement="end" justify="start" aria-label="checkbox" [checked]="isElementSelected(element)">
-              {{ element[key] }}
+              {{ element[keyLabel] }}
             </ion-checkbox>
           </ion-list>
           <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">

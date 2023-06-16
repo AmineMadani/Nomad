@@ -11,7 +11,8 @@ export class SearchMultiSelectComponent implements OnInit {
 
   constructor() { }
 
-  @Input() key: string;
+  @Input() keyLabel: string;
+  @Input() keyValue: string = 'id';
   @Input() label: string;
   @Input() title: string;
   @Input() control: any;
@@ -30,9 +31,9 @@ export class SearchMultiSelectComponent implements OnInit {
    * @returns the label
    */
   getValueLabel(): string {
-    return this.control.value.map((id) => {
-      const element = this.originalList.find((el) => el.id === id);
-      return element ? element[this.key] : null;
+    return this.control.value.map((value: any) => {
+      const element = this.originalList.find((el) => el[this.keyValue] === value);
+      return element ? element[this.keyLabel] : null;
     }).join(', ');
   }
 
@@ -42,7 +43,7 @@ export class SearchMultiSelectComponent implements OnInit {
    * @returns the list of options
    */
   getFilterOptions(query): any[] {
-    return this.originalList.filter((element) => element[this.key].includes(query));
+    return this.originalList.filter((element) => element[this.keyLabel].includes(query));
   }
 
   /**
@@ -69,9 +70,9 @@ export class SearchMultiSelectComponent implements OnInit {
    */
   onCheckboxChange(event, element: any) {
     if (event.detail.checked) {
-      this.control.setValue([...this.control.value, element.id]);
+      this.control.setValue([...this.control.value, element[this.keyValue]]);
     } else {
-      const indexToRemove = this.control.value.indexOf(element.id);
+      const indexToRemove = this.control.value.indexOf(element[this.keyValue]);
       if (indexToRemove > -1) {
         const newList = [...this.control.value];
         newList.splice(indexToRemove, 1);
@@ -82,7 +83,7 @@ export class SearchMultiSelectComponent implements OnInit {
   }
 
   isElementSelected(element: any) {
-    return this.control.value.some((id) => id === element.id);
+    return this.control.value.some((value) => value === element[this.keyValue]);
   }
 
   /**

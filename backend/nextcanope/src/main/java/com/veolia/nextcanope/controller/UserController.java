@@ -7,8 +7,11 @@ import com.veolia.nextcanope.dto.AccountDto;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.UserRepository;
+
+import java.util.List;
 import java.util.Optional;
 
+import com.veolia.nextcanope.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -26,6 +29,9 @@ public class UserController {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Autowired
+	UserService userService;
 
 	@GetMapping(path = "/information")
 	@Operation(summary = "Get the user information")
@@ -57,4 +63,12 @@ public class UserController {
 		return user.get().getUsrCtxt();
 	}
 
+	@GetMapping(path = "/all-account")
+	@Operation(summary = "Get all user account")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "Find all user account")
+	})
+	public List<AccountDto> getAllUserAccount() {
+		return this.userService.getAllUserAccount();
+	}
 }

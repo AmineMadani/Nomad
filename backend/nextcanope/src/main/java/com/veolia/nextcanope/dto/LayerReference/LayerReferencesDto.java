@@ -4,7 +4,7 @@ import java.util.List;
 
 public class LayerReferencesDto {
     private String layerKey;
-    private List<UserReferenceDto> references;
+    private List<LayerReferenceUserDto> references;
 
     public String getLayerKey() {
         return layerKey;
@@ -14,11 +14,11 @@ public class LayerReferencesDto {
         this.layerKey = layerKey;
     }
 
-    public List<UserReferenceDto> getReferences() {
+    public List<LayerReferenceUserDto> getReferences() {
         return references;
     }
 
-    public void setReferences(List<UserReferenceDto> references) {
+    public void setReferences(List<LayerReferenceUserDto> references) {
         this.references = references;
     }
 }

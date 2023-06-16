@@ -57,4 +57,8 @@ export class LayerReferencesDataService {
   public getUserLayerReferencesByLyrTableName(lyrTableName: string): Observable<UserReference[]> {
     return this.http.get<UserReference[]>(`${this.configurationService.apiUrl}layer/references/user/layer/${lyrTableName}`);
   }
+
+  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: any }) {
+    return this.http.post<number>(`${this.configurationService.apiUrl}layer/references/user`, payload);
+  }
 }

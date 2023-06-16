@@ -11,7 +11,11 @@
   height: 85%;
 
   .settings-content-header-height {
-    height: 180px;
+    height: 70px;
+
+    &.users-settings {
+      height: 180px;
+    }
   }
 
   .settings-layer-references {
@@ -19,7 +23,15 @@
     flex-direction: row;
     justify-content: space-evenly;
     padding-top: 15px;
-    height: calc(100% - 180px);
+    height: calc(100% - 70px);
+
+    ion-select {
+      height: 56px;
+    }
+
+    &.users-settings {
+      height: calc(100% - 180px);
+    }
 
     .layer-select {
       width: 300px;

@@ -1,10 +1,10 @@
 <ion-content class="settings-flex">
 
-  <app-settings-segment class="settings-segment-flex"></app-settings-segment>
+  <app-settings-segment class="settings-segment-flex" (settingsTypeChange)="onSettingsTypeChange($event)"></app-settings-segment>
 
   <form [formGroup]="form" (ngSubmit)="save()" class="settings-content-template">
 
-    <div class="settings-content-header-height">
+    <div class="settings-content-header-height" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
       <div class="settings-content-template-header">
         <ion-label class="label">
           <h2>Affichage des données attributaires</h2>
@@ -17,18 +17,26 @@
 
       <div class="separation-line"></div>
 
-      <app-search-multi-select key="name" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
+      <app-search-multi-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" keyValue="id" keyLabel="email" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
         [originalList]="allUsers" [control]="form.controls['listUserId']">
       </app-search-multi-select>
     </div>
 
-    <div class="settings-layer-references">
-      <ion-select aria-label="search-select" label="Couche à paramétrer" label-placement="floating" class="layer-select"
-        (ionChange)="handleLayerChange($event)">
-        <ion-select-option *ngFor="let layer of layers" [value]="layer">
-          {{ layer.lyrSlabel }}
-        </ion-select-option>
-      </ion-select>
+    <div class="settings-layer-references" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+      <div>
+        <ion-select aria-label="search-select" label="Couche à paramétrer" label-placement="floating" class="layer-select"
+          formControlName="lyrTableName">
+          <ion-select-option *ngFor="let layer of layers" [value]="layer.lyrTableName">
+            {{ layer.lyrSlabel }}
+          </ion-select-option>
+        </ion-select>
+        <ng-container *ngIf="form.controls['lyrTableName'].hasError('required') && form.controls['lyrTableName'].touched">
+          <ion-label color="danger" lines="none">
+            Le champ est requis.
+          </ion-label>
+        </ng-container>
+      </div>
+
 
       <div class="separation-line"></div>
 
@@ -41,7 +49,7 @@
 
         <div class="synthetic-references-selection-content">
           <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
-            <ion-toggle aria-label="ion-toggle" [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC"></ion-toggle>
+            <ion-toggle aria-label="ion-toggle" [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC" (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
             <ion-label>{{ ref.alias }}</ion-label>
           </div>
         </div>

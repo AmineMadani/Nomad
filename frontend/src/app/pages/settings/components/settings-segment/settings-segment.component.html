@@ -1,8 +1,8 @@
-<ion-segment class="ion-text-center" style="width: 40%; margin: auto;" mode="ios" value="preferences">
-  <ion-segment-button value="preferences">
+<ion-segment class="ion-text-center" style="width: 40%; margin: auto;" mode="ios" [(ngModel)]="settingsType" (ionChange)="onSegmentChange($event)">
+  <ion-segment-button [value]="SettingsSegmentEnum.PERSONNAL_SETTINGS">
     <ion-label>Mes préférences</ion-label>
   </ion-segment-button>
-  <ion-segment-button value="users">
+  <ion-segment-button [value]="SettingsSegmentEnum.USERS_SETTINGS">
     <ion-label>Paramétrage d'autres utilisateurs</ion-label>
   </ion-segment-button>
 </ion-segment>

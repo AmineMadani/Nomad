@@ -1,7 +1,6 @@
 package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
-import com.veolia.nextcanope.dto.LayerReference.UserReferenceBaseDto;
 import com.veolia.nextcanope.model.LayerReferences;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 /**
- * LayerReferentialRepository is an interface for managing LayerReferences entities in the persistence layer.
+ * LayerReferencesRepository is an interface for managing LayerReferences entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
 public interface LayerReferencesRepository extends JpaRepository<LayerReferences, Long> {
@@ -51,7 +50,7 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
                     "where layer = :lyrTableName and \"isVisible\" = true",
             nativeQuery = true
     )
-    List<UserReferenceBaseDto> getLayerReferencesWithUserIdAndLyrTableName(
+    List<LayerReferencesFlatDto> getLayerReferencesWithUserIdAndLyrTableName(
             @Param("userId") Long userId,
             @Param("lyrTableName") String lyrTableName
     );

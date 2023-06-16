@@ -1,12 +1,12 @@
 package com.veolia.nextcanope.dto.LayerTree;
 
-import com.veolia.nextcanope.dto.LayerReference.UserReferenceDto;
+import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
 
 import java.util.List;
 
 public class LayerTreeDto {
     private String layerKey;
-    private List<UserReferenceDto> references;
+    private List<LayerReferenceUserDto> references;
 
     public String getLayerKey() {
         return layerKey;
@@ -16,11 +16,11 @@ public class LayerTreeDto {
         this.layerKey = layerKey;
     }
 
-    public List<UserReferenceDto> getReferences() {
+    public List<LayerReferenceUserDto> getReferences() {
         return references;
     }
 
-    public void setReferences(List<UserReferenceDto> references) {
+    public void setReferences(List<LayerReferenceUserDto> references) {
         this.references = references;
     }
 }

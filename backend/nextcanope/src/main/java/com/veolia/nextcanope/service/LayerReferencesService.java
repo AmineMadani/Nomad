@@ -2,14 +2,17 @@ package com.veolia.nextcanope.service;
 
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
-import com.veolia.nextcanope.dto.LayerReference.UserReferenceBaseDto;
-import com.veolia.nextcanope.dto.LayerReference.UserReferenceDto;
+import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
+import com.veolia.nextcanope.enums.LayerReferencesDisplayType;
+import com.veolia.nextcanope.model.LayerReferencesUser;
 import com.veolia.nextcanope.repository.LayerReferencesRepository;
+import com.veolia.nextcanope.repository.LayerReferencesUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -20,6 +23,9 @@ import java.util.stream.Collectors;
 public class LayerReferencesService {
     @Autowired
     private LayerReferencesRepository layerReferencesRepository;
+
+    @Autowired
+    private LayerReferencesUserRepository layerReferencesUserRepository;
 
     /**
      * Retrieves the user list of layer references.
@@ -60,15 +66,7 @@ public class LayerReferencesService {
                     LayerReferencesDto resultLayer = new LayerReferencesDto();
                     resultLayer.setLayerKey(layerKey.split("\\.")[1]);
 
-                    List<UserReferenceDto> references = group.stream().map(item -> new UserReferenceDto(
-                            item.getReferenceId(),
-                            item.getReferenceKey(),
-                            item.getAlias(),
-                            item.getDisplayType(),
-                            item.getPosition(),
-                            item.getIsVisible(),
-                            item.getSection()
-                    )).collect(Collectors.toList());
+                    List<LayerReferenceUserDto> references = group.stream().map(LayerReferenceUserDto::new).collect(Collectors.toList());
 
                     resultLayer.setReferences(references);
                     layerReferences.add(resultLayer);
@@ -80,7 +78,40 @@ public class LayerReferencesService {
      * Retrieves the user list of layer references of a specific layer.
      * @return the list of layer references.
      */
-    public List<UserReferenceBaseDto> getUserLayerReferencesWithLyrTableName(Long userId, String lyrTableName) {
+    public List<LayerReferencesFlatDto> getUserLayerReferencesWithLyrTableName(Long userId, String lyrTableName) {
         return layerReferencesRepository.getLayerReferencesWithUserIdAndLyrTableName(userId, lyrTableName);
+    }
+
+    /**
+     *
+     *
+     */
+    public void saveUserLayerReferences(List<LayerReferenceUserDto> userReferences, List<Long> userIds, Long currentUserId) {
+        List<LayerReferencesUser> layerReferencesUsers = new ArrayList<>();
+
+        for (Long userId : userIds) {
+            for (LayerReferenceUserDto ref : userReferences) {
+                LayerReferencesUser layerReferencesUser = new LayerReferencesUser();
+
+                // On vérifie si une référence n'existe pas déjà pour l'utilisateur
+                Optional<LayerReferencesUser> optLayerReferencesUser = this.layerReferencesUserRepository.findByLrfIdAndLruUserId(ref.getReferenceId(), userId);
+                if (optLayerReferencesUser.isPresent()) {
+                    layerReferencesUser = optLayerReferencesUser.get();
+                }
+
+                layerReferencesUser.setLruUserId(userId);
+                layerReferencesUser.setLrfId(ref.getReferenceId());
+                layerReferencesUser.setLruIsvisible(ref.getIsVisible());
+                layerReferencesUser.setLruPosition(ref.getPosition());
+                layerReferencesUser.setLruDisplayType(LayerReferencesDisplayType.valueOf(ref.getDisplayType()));
+                layerReferencesUser.setLruValid(ref.getValid());
+                layerReferencesUser.setLruSection(ref.getSection());
+                layerReferencesUser.setLruUcreId(currentUserId);
+
+                layerReferencesUsers.add(layerReferencesUser);
+            }
+        }
+
+        this.layerReferencesUserRepository.saveAll(layerReferencesUsers);
     }
 }

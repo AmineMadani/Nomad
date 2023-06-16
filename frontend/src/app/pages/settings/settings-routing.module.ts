@@ -11,6 +11,11 @@ const routes: Routes = [
     component: SettingsPage,
     children: [
       {
+        path: '',
+        redirectTo: 'layer-references',
+        pathMatch: 'full'
+      },
+      {
         path: 'patrimony',
         component: PatrimonySettingsComponent,
       },
