@@ -89,7 +89,9 @@ export class LayerService {
         this.mapService
           .getMap()
           .easeTo({ center: [x, y], zoom: 16 })
+          .once('moveend', () => {
             resolve('done');
+          });
       } else {
         resolve('done');
       }
@@ -106,7 +108,7 @@ export class LayerService {
     layerKey: string,
     id: string
   ): Promise<void> {
-    await this.mapService.addEventLayer(layerKey).then( () => {
+    await this.mapService.addEventLayer(layerKey);
     const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
     if (!r || r?.id === undefined) {
       return;
@@ -130,8 +132,7 @@ export class LayerService {
       this.mapService.getMap(),
       layerKey,
       r.id.toString()
-    );      
-  });
+    );
   }
 
   /**

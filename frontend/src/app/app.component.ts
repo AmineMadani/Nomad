@@ -33,9 +33,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private platform: Platform,
     private utils: UtilsService,
-    private localStorageService : LocalStorageService,
-    private router: Router,
-    private userService : UserService
+    private userService : UserService,
+    private router: Router
   ) {
     this.keycloakService.configure()
   }
@@ -77,7 +76,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //save user context when we quit the Home Page
     if (navigatePageFrom == DrawerRouteEnum.HOME){
       let userContext = await this.userService.getCurrentUserContext();
-      this.localStorageService.setUserContext(userContext);
+      this.userService.setUserContext(userContext);
     }
   } 
 }

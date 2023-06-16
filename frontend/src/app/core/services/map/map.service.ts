@@ -29,7 +29,7 @@ export class MapService {
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService,
     private configurationService: ConfigurationService,
-    private mapEventService : MapEventService
+    private mapEventService: MapEventService
   ) {
     from(this.layerDataService.getLayers()).subscribe((layers: Layer[]) => {
       this.layersConfiguration = layers;
@@ -57,6 +57,7 @@ export class MapService {
    * @returns The function `createMap()` returns an instance of the `Maplibregl.Map` class.
    */
   public createMap(): Maplibregl.Map {
+    this.mapLibreSpec.sprite = this.configurationService.host + 'assets/sprites/@2x';
     this.map = new Maplibregl.Map({
       container: 'map',
       style: this.mapLibreSpec,
@@ -90,12 +91,12 @@ export class MapService {
     this.onMapLoaded$.next(true);
   }
 
-   /**
-   * This function sets the "onMapLoaded$" observable to emit a value.
-   */
-    public setMapUnloaded(): void {
-      this.onMapLoaded$.next(false);
-    }
+  /**
+  * This function sets the "onMapLoaded$" observable to emit a value.
+  */
+  public setMapUnloaded(): void {
+    this.onMapLoaded$.next(false);
+  }
 
   /**
    * Observable that emits when the map is loaded.
@@ -170,15 +171,17 @@ export class MapService {
    */
   public async addEventLayer(layerKey: string): Promise<void> {
 
-    if(!layerKey)
+    if (!layerKey) {
       return;
-    //If layer is loaded
-    if (this.loadedLayer.indexOf(layerKey) >= 0){
-      return new  Promise<void>((resolve) =>  resolve() );
     }
-    else{
+
+    //If layer is loaded
+    if (this.loadedLayer.indexOf(layerKey) >= 0) {
+      return new Promise<void>((resolve) => resolve());
+    }
+    else {
       //If layer is on loading (has event)
-      if (this.loadingLayer.has(layerKey)){
+      if (this.loadingLayer.has(layerKey)) {
         return this.loadingLayer.get(layerKey);
       }
       //else create the layer
@@ -195,27 +198,27 @@ export class MapService {
         setTimeout(() => this.map.addLayer(oneStyle));
       }
 
-      const layerPromise =  new Promise<void>((resolve) => {
+      const layerPromise = new Promise<void>((resolve) => {
         this.map.once('idle', (e) => {
           this.applyFilterOnMap(layerKey);
           const isValid = (): boolean =>
             layer.style.every((style) => this.map.getLayer(style.id));
           if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
-              this.loadedLayer.push(layerKey);
-              this.loadingLayer.delete(layerKey);
-      resolve();
+            this.loadedLayer.push(layerKey);
+            this.loadingLayer.delete(layerKey);
+            resolve();
           } else {
             setTimeout(() => {
               this.loadedLayer.push(layerKey);
               this.loadingLayer.delete(layerKey);
-      resolve();
+              resolve();
             }, 3000);
           }
         });
       });
-      this.loadingLayer.set(layerKey,layerPromise);
+      this.loadingLayer.set(layerKey, layerPromise);
       return layerPromise;
-    }   
+    }
   }
 
   /**
@@ -245,10 +248,10 @@ export class MapService {
     }
   }
 
-  private removeLoadedLayer(layerKey : string) : void {
+  private removeLoadedLayer(layerKey: string): void {
     const index = this.loadedLayer.indexOf(layerKey);
-    if (index >= 0){
-      this.loadedLayer.splice(index,1);
+    if (index >= 0) {
+      this.loadedLayer.splice(index, 1);
     }
   }
 
@@ -414,15 +417,14 @@ export class MapService {
     return xOverlap && yOverlap;
   }
 
-  public setZoom( zoom : number) : void
-  {
+  public setZoom(zoom: number): void {
     this.getMap().setZoom(zoom);
   }
 
-  public setCenter( location : LngLatLike){
+  public setCenter(location: LngLatLike) {
     this.getMap().setCenter(location);
   }
-  
+
   private mapLibreSpec: Maplibregl.StyleSpecification = {
     version: 8,
     name: 'Réseau AEP',
@@ -444,6 +446,6 @@ export class MapService {
     sources: {},
     layers: [],
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
-    sprite: this.configurationService.host+'assets/sprites/@2x',
+    sprite: this.configurationService.host + 'assets/sprites/@2x',
   };
 }

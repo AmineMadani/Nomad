@@ -6,7 +6,6 @@ import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
-import { LocalStorageService } from 'src/app/core/services/local-storage.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -23,8 +22,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private userService: UserService,
     private configurationService: ConfigurationService,
-    private userDataService : UserDataService,
-    private localStorageService : LocalStorageService ) {}
+    private userDataService : UserDataService ) {}
 
   @Input('title') title: string;
 
@@ -49,7 +47,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
 
     if(!this.minimalist) {
-      this.localStorageService.getUser().then(usr => {
+      this.userService.getUser().then(usr => {
         this.imgUrl = usr?.imgUrl;
       });
     }
