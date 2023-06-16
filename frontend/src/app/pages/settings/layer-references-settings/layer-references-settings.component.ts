@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer-references.model';
+import { LayerReferences, ReferenceDisplayType, UserReference } from 'src/app/core/models/layer-references.model';
 import { Layer } from 'src/app/core/models/layer.model';
 import { SettingsTypeEnum } from 'src/app/core/models/settings.model';
 import { User } from 'src/app/core/models/user.model';
@@ -23,29 +23,39 @@ export class LayerReferencesSettingsComponent implements OnInit {
     private userService: UserService,
   ) { }
 
-  public allUsers: User[];
+  public users: User[];
   public layers: Layer[];
   public userReferences: UserReference[];
+  public layerReferences: LayerReferences[];
+
   public settingsType: SettingsTypeEnum = SettingsTypeEnum.PERSONNAL_SETTINGS;
   public ReferenceDisplayType = ReferenceDisplayType;
   public SettingsTypeEnum = SettingsTypeEnum;
 
   public form: FormGroup;
 
-  async ngOnInit() {
+  ngOnInit() {
     this.form = new FormGroup({
       listUserId: new FormControl([]),
       lyrTableName: new FormControl(null, Validators.required),
     });
 
-    this.userDataService.getAllUserAccount().subscribe((users: User[]) => this.allUsers = users);
+    // Get the list of users
+    this.userDataService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
+    // Get the list of layers
     this.layerService.getLayers().then((layers: Layer[]) => this.layers = layers);
+    // Get all layer references of the user
+    // TODO: It will be certainly change because a user can set the layer references of other users.
+    // So in this case we should set the layerReferences list in adequacy with the users selected.
+    // But how to manage the case where two selected users have different layer references ?
+    this.layerReferencesDataService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
 
-    // Écoute des modifications de la valeur de lyrTableName
-    this.form.get('lyrTableName').valueChanges.subscribe((value) => {
-      this.layerReferencesDataService.getUserLayerReferencesByLyrTableName(value).subscribe((userReferences) => {
-        this.userReferences = userReferences;
-      });
+    // Listen form value changes on lyrTableName
+    this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
+      // Get layer key from lyrTableName
+      const layerKey = lyrTableName.split('.')[1];
+      // Get the user references for the selected layer
+      this.userReferences = this.layerReferences.find((layerReferences) => layerReferences.layerKey === layerKey).references;
     });
   }
 
@@ -55,14 +65,14 @@ export class LayerReferencesSettingsComponent implements OnInit {
 
   onSettingsTypeChange(newSettingsType: SettingsTypeEnum) {
     this.settingsType = newSettingsType;
-    const listUserIdControl = this.form.get('listUserId');
 
+    // We set validators in adequacy with input which are in the page
+    const listUserIdControl = this.form.get('listUserId');
     if (this.settingsType === SettingsTypeEnum.USERS_SETTINGS) {
       listUserIdControl.setValidators(Validators.required);
     } else {
       listUserIdControl.clearValidators();
     }
-
     listUserIdControl.updateValueAndValidity();
   }
 
@@ -71,16 +81,21 @@ export class LayerReferencesSettingsComponent implements OnInit {
   }
 
   async save() {
-    const formValues = this.form.value;
     if (this.form.valid) {
+      const formValues = this.form.value;
+
+      // Get the list of user who will be update in adequacy with the current SettingsType
       let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
         const currentUser = await this.userService.getUser();
         listUserId = [currentUser.id];
       }
 
-      this.layerReferencesDataService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe((result) => console.log(result));
+      // Save in the database
+      // A toast is automatically showed to the user when the api call is done.
+      this.layerReferencesDataService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe();
     } else {
+      // Permit to show the current form errors to the user
       this.form.markAllAsTouched();
     }
   }

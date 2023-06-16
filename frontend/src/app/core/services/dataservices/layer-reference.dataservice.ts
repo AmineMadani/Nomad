@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
 import { AppDB, layerReferencesKey } from '../../models/app-db.model';
 import { LayerReferences, UserReference } from '../../models/layer-references.model';
-import { Observable, catchError, tap, throwError, timeout } from 'rxjs';
+import { catchError, tap, throwError, timeout } from 'rxjs';
 import { ToastController } from '@ionic/angular';
 
 @Injectable({
@@ -55,21 +55,17 @@ export class LayerReferencesDataService {
   }
 
   /**
- * Gets the user references for a user by a lyrTableName.
- * @param userId The ID of the user to get the user references for.
- * @param lyrTableName The layer name to get the user references.
- * @returns A promise that resolves to the user references.
- */
-  public getUserLayerReferencesByLyrTableName(lyrTableName: string): Observable<UserReference[]> {
-    return this.http.get<UserReference[]>(`${this.configurationService.apiUrl}layer/references/user/layer/${lyrTableName}`);
-  }
-
-  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: any }) {
-    return this.http.post<number>(`${this.configurationService.apiUrl}layer/references/user`, payload)
+   * Save the new layer references configuration of a list of user.
+   * A toast is automatically showed to the user when the api call is done.
+   * @param payload: layerReferences to apply and userIds concerned.
+   * @returns A string which contains "CREATED" if successfull, else return an error.
+   */
+  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }) {
+    return this.http.post<string>(`${this.configurationService.apiUrl}layer/references/user`, payload)
       .pipe(
         tap(async () => {
           const toast = await this.toastController.create({
-            message: 'Les références utilisateur de la couche ont été enregistrées avec succès.',
+            message: 'Les données attributaires ont été enregistrées avec succès.',
             duration: 2000,
             color: 'success'
           });
@@ -77,12 +73,12 @@ export class LayerReferencesDataService {
         }),
         catchError(async error => {
           const toast = await this.toastController.create({
-            message: 'Une erreur est survenue lors de l\'enregistrement des références utilisateur de la couche.',
+            message: 'Une erreur est survenue lors de l\'enregistrement des données attributaires.',
             duration: 2000,
             color: 'danger'
           });
           await toast.present();
-          return throwError(error);
+          return throwError(() => new Error(error));
         })
       );
   }

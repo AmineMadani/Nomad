@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { IonModal, InfiniteScrollCustomEvent } from '@ionic/angular';
 
 @Component({
@@ -11,13 +10,15 @@ export class SearchMultiSelectComponent implements OnInit {
 
   constructor() { }
 
-  @Input() keyLabel: string;
-  @Input() keyValue: string = 'id';
+  // The attribute of the object contains in the original list which will be used for value and label in the form
+  @Input() key: string;
   @Input() label: string;
   @Input() title: string;
+  // The form control to use in the input. Permit to manage errors and get updated values.
   @Input() control: any;
-
+  // List of object used for all possible elements to select
   @Input() originalList: any[] = [];
+
   public displayedList: any[] = [];
   public querySearch: string = "";
 
@@ -32,18 +33,18 @@ export class SearchMultiSelectComponent implements OnInit {
    */
   getValueLabel(): string {
     return this.control.value.map((value: any) => {
-      const element = this.originalList.find((el) => el[this.keyValue] === value);
-      return element ? element[this.keyLabel] : null;
+      const element = this.originalList.find((el) => el[this.key] === value);
+      return element ? element[this.key] : null;
     }).join(', ');
   }
 
   /**
-   * Return the list of options filter on the paramMap data and the filter keys
+   * Return the list of options filter on the originalList data and the filter keys
    * @param query the filter use for the infinity scroll
    * @returns the list of options
    */
   getFilterOptions(query): any[] {
-    return this.originalList.filter((element) => element[this.keyLabel].includes(query));
+    return this.originalList.filter((element) => element[this.key].includes(query));
   }
 
   /**
@@ -70,9 +71,9 @@ export class SearchMultiSelectComponent implements OnInit {
    */
   onCheckboxChange(event, element: any) {
     if (event.detail.checked) {
-      this.control.setValue([...this.control.value, element[this.keyValue]]);
+      this.control.setValue([...this.control.value, element[this.key]]);
     } else {
-      const indexToRemove = this.control.value.indexOf(element[this.keyValue]);
+      const indexToRemove = this.control.value.indexOf(element[this.key]);
       if (indexToRemove > -1) {
         const newList = [...this.control.value];
         newList.splice(indexToRemove, 1);
@@ -82,8 +83,13 @@ export class SearchMultiSelectComponent implements OnInit {
     }
   }
 
+  /**
+   * Permit to check if an element is selected or not.
+   * @param element
+   * @returns boolean: true if selected else false
+   */
   isElementSelected(element: any) {
-    return this.control.value.some((value) => value === element[this.keyValue]);
+    return this.control.value.some((value) => value === element[this.key]);
   }
 
   /**

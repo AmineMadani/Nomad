@@ -17,8 +17,8 @@
 
       <div class="separation-line"></div>
 
-      <app-search-multi-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" keyValue="id" keyLabel="email" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
-        [originalList]="allUsers" [control]="form.controls['listUserId']">
+      <app-search-multi-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" key="email" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
+        [originalList]="users" [control]="form.controls['listUserId']">
       </app-search-multi-select>
     </div>
 

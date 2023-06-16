@@ -75,16 +75,11 @@ public class LayerReferencesService {
     }
 
     /**
-     * Retrieves the user list of layer references of a specific layer.
-     * @return the list of layer references.
-     */
-    public List<LayerReferencesFlatDto> getUserLayerReferencesWithLyrTableName(Long userId, String lyrTableName) {
-        return layerReferencesRepository.getLayerReferencesWithUserIdAndLyrTableName(userId, lyrTableName);
-    }
-
-    /**
-     *
-     *
+     * Save the new layer references configuration of a list of user.
+     * It read all userIds and userReferences to create or update a LayerReferencesUser object.
+     * @param userReferences to apply
+     * @param userIds concerned
+     * @param currentUserId for log
      */
     public void saveUserLayerReferences(List<LayerReferenceUserDto> userReferences, List<Long> userIds, Long currentUserId) {
         List<LayerReferencesUser> layerReferencesUsers = new ArrayList<>();
@@ -93,7 +88,7 @@ public class LayerReferencesService {
             for (LayerReferenceUserDto ref : userReferences) {
                 LayerReferencesUser layerReferencesUser = new LayerReferencesUser();
 
-                // On vérifie si une référence n'existe pas déjà pour l'utilisateur
+                // It checks if a reference already exist with the same lrfId and lruUserId
                 Optional<LayerReferencesUser> optLayerReferencesUser = this.layerReferencesUserRepository.findByLrfIdAndLruUserId(ref.getReferenceId(), userId);
                 if (optLayerReferencesUser.isPresent()) {
                     layerReferencesUser = optLayerReferencesUser.get();
@@ -112,6 +107,7 @@ public class LayerReferencesService {
             }
         }
 
+        // It saves layer references user in the db
         this.layerReferencesUserRepository.saveAll(layerReferencesUsers);
     }
 }
