@@ -7,6 +7,9 @@ import com.veolia.nextcanope.model.Tree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Dto for tree Entity
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NodeDto {
     private Long id;
