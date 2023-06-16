@@ -4,7 +4,6 @@ import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { SynthesisButton } from '../synthesis.drawer';
 import { ActivatedRoute } from '@angular/router';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { HttpClient } from '@angular/common/http';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
@@ -17,6 +16,7 @@ import { ReferentialDataService } from 'src/app/core/services/dataservices/refer
 import { MapService } from 'src/app/core/services/map/map.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { filter, take } from 'rxjs';
+import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 
 @Component({
   selector: 'app-work-order',
@@ -27,14 +27,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
   constructor(
     private router: ActivatedRoute,
-    private http: HttpClient,
     private alertCtrl: AlertController,
     private location: Location,
     private exploitationDateService: ExploitationDataService,
     private drawer: DrawerService,
     private layerService: LayerService,
     private referentialService: ReferentialDataService,
-    private mapService: MapService
+    private mapService: MapService,
+    private templateDataService: TemplateDataService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -45,6 +45,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         this.asset.set('ass_obj_table', params['lyr_table_name']?.toString());
         if (!this.workOrder?.id) {
           this.buttons = [];
+          this.editMode = true;
         }
         this.createForm();
       });
@@ -79,9 +80,11 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         });
       }
     } else {
-      this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
-        this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
-      });
+      if(this.workOrder['wts_id']) {
+        this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
+          this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
+        });
+      }
     }
   }
 
@@ -89,16 +92,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * Select the target form
    */
   public createForm(): void {
-    let form = 'work-order.mock.json';
-    if (!this.workOrder.id) {
-      form = 'work-order-create.mock.json';
-      this.editMode = true;
-    }
-    this.http
-      .get<Form>('./assets/mocks/' + form)
-      .subscribe((woForm: Form) => {
-        this.workOrderForm = woForm;
-      });
+    this.templateDataService.getformsTemplate().then(forms => {
+      if (!this.workOrder.id) {
+        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_CREATION').definition);
+        this.editMode = true;
+      } else {
+        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
+      }
+    });
   }
 
   /**
