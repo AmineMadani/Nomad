@@ -1,0 +1,68 @@
+.settings-flex {
+  height: 100%; // Assurez-vous que le parent prend toute la hauteur disponible
+}
+
+.settings-segment-flex {
+  height: 15%;
+}
+
+.settings-content-template {
+  overflow-y: auto;
+  height: 85%;
+
+  .settings-content-header-height {
+    height: 70px;
+
+    &.users-settings {
+      height: 180px;
+    }
+  }
+
+  .settings-layer-references {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-top: 15px;
+    height: calc(100% - 70px);
+
+    ion-select {
+      height: 56px;
+    }
+
+    &.users-settings {
+      height: calc(100% - 180px);
+    }
+
+    .layer-select {
+      width: 300px;
+    }
+
+    .synthetic-references-selection {
+      display: flex;
+      flex-direction: column;
+
+      ion-segment-button {
+        text-transform: none;
+        max-width: 500px;
+      }
+
+      .synthetic-references-selection-content {
+        overflow-y: auto;
+        margin-top: 15px;
+
+        .synthetic-references-selection-toggle {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          margin-bottom: 20px;
+          margin-right: 20px;
+          margin-left: 20px;
+
+          ion-toggle {
+            margin-right: 10px
+          }
+        }
+      }
+    }
+  }
+}

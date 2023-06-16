@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 /**
- * LayerReferentialRepository is an interface for managing LayerReferences entities in the persistence layer.
+ * LayerReferencesRepository is an interface for managing LayerReferences entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
 public interface LayerReferencesRepository extends JpaRepository<LayerReferences, Long> {
@@ -20,7 +20,8 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      * @return the list of layer references.
      */
     @Query(
-            value = "SELECT * FROM nomad.f_get_layer_references_user(:userId)",
+            value = "SELECT * FROM nomad.f_get_layer_references_user(:userId) " +
+                    "where \"isVisible\" = true",
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getLayerReferencesWithUserId(
@@ -32,8 +33,27 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      * @return the default list of layer references.
      */
     @Query(
-            value = "SELECT * FROM nomad.f_get_layer_references_user()",
+            value = "SELECT * FROM nomad.f_get_layer_references_user() " +
+                    "where \"isVisible\" = true",
             nativeQuery = true
     )
     List<LayerReferencesFlatDto> getDefaultLayerReferences();
+
+    /**
+     * Get the list of user references for a specific user and a specific layer.
+     * It merges the default one with the user one.
+     * @param userId the user id.
+     * @param lyrTableName the layer table name.
+     * @return the list of user references.
+     */
+    @Query(
+            value = "SELECT * " +
+                    "FROM nomad.f_get_layer_references_user(:userId)" +
+                    "where layer = :lyrTableName and \"isVisible\" = true",
+            nativeQuery = true
+    )
+    List<LayerReferencesFlatDto> getLayerReferencesWithUserIdAndLyrTableName(
+            @Param("userId") Long userId,
+            @Param("lyrTableName") String lyrTableName
+    );
 }

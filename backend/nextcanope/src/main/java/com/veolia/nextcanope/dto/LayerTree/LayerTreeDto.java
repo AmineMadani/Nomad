@@ -1,8 +1,10 @@
-package com.veolia.nextcanope.dto.LayerReference;
+package com.veolia.nextcanope.dto.LayerTree;
+
+import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
 
 import java.util.List;
 
-public class LayerReferencesDto {
+public class LayerTreeDto {
     private String layerKey;
     private List<LayerReferenceUserDto> references;
 

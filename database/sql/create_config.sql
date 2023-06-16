@@ -367,6 +367,8 @@ comment on column layer_references.lrf_dcre is 'Creation date';
 comment on column layer_references.lrf_dmod is 'Last modification date';
 
 CREATE TYPE layer_references_display_type AS ENUM ('SYNTHETIC','DETAILED');
+CREATE CAST (character varying AS nomad.layer_references_display_type)
+WITH INOUT AS IMPLICIT;
 
 -- Create table layer_references_default to store the default display_type and position for each layer_references
 CREATE TABLE layer_references_default(

@@ -2,7 +2,28 @@
   <app-main-toolbar [title]="'Paramètres'"></app-main-toolbar>
 </ion-header>
 
-<ion-content>
-  settings it's works
+<ion-content class="settings-content">
+  <ion-grid class="settings-grid">
+    <ion-row class="settings-row">
+      <ion-col size="3" class="settings-menu">
+        <div *ngFor="let menu of menuItems; let i = index">
+          <ion-label class="label">
+            <h3>{{ menu.title }}</h3>
+          </ion-label>
+          <ion-list id="inbox-list">
+            <ion-item  *ngFor="let item of menu.items;" [routerLink]="item.url"
+              routerLinkActive="ion-activated-background" routerDirection="root"  lines="none" detail="false">
+              <ion-label>
+                <p>{{ item.title }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+          <div *ngIf="i < (menuItems.length - 1)" class="line-delimiter"></div>
+        </div>
+      </ion-col>
+      <ion-col size="9">
+        <router-outlet id="settings-content"></router-outlet>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
-
