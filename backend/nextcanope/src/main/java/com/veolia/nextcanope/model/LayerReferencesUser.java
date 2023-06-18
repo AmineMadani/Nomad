@@ -5,6 +5,8 @@ package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.veolia.nextcanope.enums.LayerReferencesDisplayType;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -47,7 +49,8 @@ public class LayerReferencesUser implements Serializable {
 
     @Column(name="lru_display_type", nullable=false, length=2147483647)
 	@JsonProperty("lru_display_type")
-    private String lruDisplayType ;
+    @Enumerated(EnumType.STRING)
+    private LayerReferencesDisplayType lruDisplayType ;
 
     @Column(name="lru_section", length=2147483647)
 	@JsonProperty("lru_section")
@@ -143,11 +146,11 @@ public class LayerReferencesUser implements Serializable {
         return this.lruPosition;
     }
 
-	public void setLruDisplayType( String lruDisplayType ) {
+	public void setLruDisplayType( LayerReferencesDisplayType lruDisplayType ) {
         this.lruDisplayType = lruDisplayType ;
     }
 
-    public String getLruDisplayType() {
+    public LayerReferencesDisplayType getLruDisplayType() {
         return this.lruDisplayType;
     }
 

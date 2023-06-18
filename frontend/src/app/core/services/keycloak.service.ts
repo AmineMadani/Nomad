@@ -4,6 +4,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { ConfigurationService } from './configuration.service';
+import { LocalStorageService } from './local-storage.service';
 import { UserService } from './user.service';
 
 @Injectable({

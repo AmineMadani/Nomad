@@ -1,0 +1,59 @@
+<ion-content class="settings-flex">
+
+  <app-settings-segment class="settings-segment-flex" (settingsTypeChange)="onSettingsTypeChange($event)"></app-settings-segment>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="settings-content-template">
+
+    <div class="settings-content-header-height" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+      <div class="settings-content-template-header">
+        <ion-label class="label">
+          <h2>Affichage des données attributaires</h2>
+        </ion-label>
+
+        <ion-button [disabled]="form.pristine" class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
+          Enregistrer
+        </ion-button>
+      </div>
+
+      <div class="separation-line"></div>
+
+      <app-search-multi-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" key="email" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
+        [originalList]="users" [control]="form.controls['listUserId']">
+      </app-search-multi-select>
+    </div>
+
+    <div class="settings-layer-references" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+      <div>
+        <ion-select aria-label="search-select" label="Couche à paramétrer" label-placement="floating" class="layer-select"
+          formControlName="lyrTableName">
+          <ion-select-option *ngFor="let layer of layers" [value]="layer.lyrTableName">
+            {{ layer.lyrSlabel }}
+          </ion-select-option>
+        </ion-select>
+        <ng-container *ngIf="form.controls['lyrTableName'].hasError('required') && form.controls['lyrTableName'].touched">
+          <ion-label color="danger" lines="none">
+            Le champ est requis.
+          </ion-label>
+        </ng-container>
+      </div>
+
+
+      <div class="separation-line"></div>
+
+      <div class="synthetic-references-selection">
+        <ion-segment value="default">
+          <ion-segment-button value="default">
+            <ion-label>Données attributaires à afficher en vue synthétique</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <div class="synthetic-references-selection-content">
+          <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
+            <ion-toggle [disabled]="isToggleDisabled(ref)" aria-label="ion-toggle" [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC" (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
+            <ion-label>{{ ref.alias }}</ion-label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</ion-content>

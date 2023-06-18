@@ -9,7 +9,6 @@ import { UserContext } from '../../models/user-context.model';
   providedIn: 'root',
 })
 export class UserDataService {
-
   constructor(
     private http: HttpClient,
     private configurationService: ConfigurationService,
@@ -31,6 +30,13 @@ export class UserDataService {
     //next : () => ,
     error : (err) => console.error(err)
     })
+  }
+  /**
+   * Method to get all the users from server
+   * @returns Users
+   */
+  getAllUserAccount(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.configurationService.apiUrl}user/all-account`);
   }
 }
 

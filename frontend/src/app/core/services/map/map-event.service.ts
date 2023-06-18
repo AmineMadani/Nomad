@@ -30,6 +30,14 @@ export class MapEventService {
     return this.onFeatureSelected$.asObservable();
   }
 
+  public getSelectedFeature() : string {
+    return this.selectedFeatureId;
+  }
+
+  public setSelectedFeature(idFeature : string){
+    this.selectedFeatureId = idFeature;
+  } 
+
   /**
    * The function highlights a selected feature on the Maplibre map.
    * @param mapLibre - a Maplibre GL map object that represents the map being used
