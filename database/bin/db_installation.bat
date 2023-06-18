@@ -1,6 +1,5 @@
-cls
-INSTALL DB
-set PATH=%PATH%;C:\Program Files\pgAdmin 4\v5\runtime
+REM INSTALL DB
+set PATH=%PATH%;C:\Soft\PostgreSQL\15\bin
 Including .ini file
 for /f "delims=" %%x in (.\database.ini) do (set "%%x")
 setx PGPASSWORD=%password%
