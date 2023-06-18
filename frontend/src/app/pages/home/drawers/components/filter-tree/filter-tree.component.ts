@@ -1,4 +1,3 @@
-import { SelectionModel } from '@angular/cdk/collections';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
@@ -25,7 +24,6 @@ export class FilterTreeComponent implements OnInit {
   dataSource: MatTreeNestedDataSource<TreeData>;
   treeControl: NestedTreeControl<TreeData>;
   selectedNodes: Set<TreeData>;
-  checklistSelection = new SelectionModel(true /* multiple */);
 
   ngOnInit() {
     this.dataSource.data = this.data;
