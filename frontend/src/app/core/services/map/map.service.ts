@@ -66,6 +66,8 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
+    //this.map.getStyle().sprite=[{id:'1x',url:this.configurationService.host+'assets/sprites/@1x'},{id:'2x',url:this.configurationService.host+'assets/sprites/@2x'}];
+    //this.map.setSprite(this.configurationService.host+'assets/sprites/@1x');//Sprite('sprite-tow',this.configurationService.host+'assets/sprites/@1x');
     this.AddExtraImages();
     this.map.dragRotate.disable();
     this.draw = new MapboxDraw({
