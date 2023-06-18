@@ -28,7 +28,6 @@ export class FilterTreeComponent implements OnInit {
   checklistSelection = new SelectionModel(true /* multiple */);
 
   ngOnInit() {
-    console.log('ngOnInit dataSource', this.dataSource.data );
     this.dataSource.data = this.data;
   }
  
@@ -91,12 +90,10 @@ export class FilterTreeComponent implements OnInit {
       this.selectedNodes.delete(node);
     }
     node.value=checked;
-    console.log('layerName',node.layerName);
     if (!node.layerName){
       return;
     }
     const layerName=node.layerName.replace('asset.','');
-    console.log('layerName',layerName);
     if (!node.children && !node.styleId){
       if (node.value){
         this.mapService.addEventLayer(layerName);

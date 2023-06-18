@@ -68,28 +68,6 @@ insert into domains
 ( 'dw'  , (select id from domains where dom_type = 'asset')    , 'Eau Potable'       , 'AEP'   ),
 ( 'ww'  , (select id from domains where dom_type = 'asset')    , 'Assainissement'    , 'ASS'   );
 
--- insert into tree
-insert into tree
-  ( id, dom_id    , tre_parent_id , tre_slabel)
-  values
-  (   1   , (select id from domains where dom_type = 'geo')    , NULL  , 'Admin/Orga'),
-  ---
-  ( 100   , (select id from domains where dom_type = 'dw')    , NULL    , 'Réseau Eau Potable'),
-    ( 101 , (select id from domains where dom_type = 'dw')    , 100     , 'Unités Fonctionnelles'),
-    ( 102 , (select id from domains where dom_type = 'dw')    , 100     , 'Ouvrages'),
-    ( 103 , (select id from domains where dom_type = 'dw')    , 100     , 'Equipements'),
-    ( 106 , (select id from domains where dom_type = 'ww')    , 100     , 'Vannes'),
-    ( 104 , (select id from domains where dom_type = 'dw')    , 100     , 'Branchements'),
-    ( 105 , (select id from domains where dom_type = 'dw')    , 100     , 'Canalisations'),
-  ---
-  ( 200   , (select id from domains where dom_type = 'ww')    , NULL    , 'Réseau Assainissement'),
-    ( 201 , (select id from domains where dom_type = 'ww')    , 200     , 'Unités Fonctionnelles'),
-    ( 202 , (select id from domains where dom_type = 'ww')    , 200     , 'Ouvrages'),
-    ( 203 , (select id from domains where dom_type = 'ww')    , 200     , 'Equipements'),
-    ( 204 , (select id from domains where dom_type = 'ww')    , 200     , 'Branchements'),
-    ( 205 , (select id from domains where dom_type = 'ww')    , 200     , 'Collecteurs')
-  ---
-;
 
 
 
@@ -118,8 +96,6 @@ insert into asset_type(dom_id, ast_code, ast_slabel ) values
 insert into layer
 (
     dom_id
-  , tre_group_id
-  , tre_simplified_group_id
   , lyr_table_name
   , lyr_geom_column_name
   , lyr_uuid_column_name
@@ -129,31 +105,31 @@ insert into layer
 )
 values
 
-  ((select id from domains where dom_type = 'dw') ,  102, 102, 'asset.aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '22'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') ,  106, 104, 'asset.aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') ,  106, 103, 'asset.aep_vanne', 'geom', 'uuid', '3857', 'Vanne', (select id from asset_type where ast_code = '23'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_compteur', 'geom', 'uuid', '3857', 'Compteur', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_regulation', 'geom', 'uuid', '3857', 'Regulateur', (select id from asset_type where ast_code = '27'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie', (select id from asset_type where ast_code = '24'))
-, ((select id from domains where dom_type = 'dw') ,  103, 103, 'asset.aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte', (select id from asset_type where ast_code = '21'))
-, ((select id from domains where dom_type = 'dw') ,  104, 104, 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') ,  100, 105, 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
-, ((select id from domains where dom_type = 'dw') ,  100, 105, 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
+  ((select id from domains where dom_type = 'dw') , 'asset.aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '22'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_vanne', 'geom', 'uuid', '3857', 'Vanne', (select id from asset_type where ast_code = '23'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_compteur', 'geom', 'uuid', '3857', 'Compteur', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_regulation', 'geom', 'uuid', '3857', 'Regulateur', (select id from asset_type where ast_code = '27'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie', (select id from asset_type where ast_code = '24'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte', (select id from asset_type where ast_code = '21'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
 ----
-, ((select id from domains where dom_type = 'ww'),  202, 202, 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
-, ((select id from domains where dom_type = 'ww'),  203, 203, 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww'),  203, 203, 'asset.ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww'),  203, 203, 'asset.ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
-, ((select id from domains where dom_type = 'ww'),  200, 203, 'asset.ass_regard', 'geom', 'uuid', '3857', 'Regard', (select id from asset_type where ast_code = '34'))
-, ((select id from domains where dom_type = 'ww'),  204, 204, 'asset.ass_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww'),  200, 205, 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_regard', 'geom', 'uuid', '3857', 'Regard', (select id from asset_type where ast_code = '34'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
 , ((select id from domains where dom_type = 'asset'),  null, null, 'asset.xy', 'geom', 'uuid', '3857', 'XY', null)
 , ((select id from domains where dom_type = 'asset'),  null, null, 'asset.workorder', 'geom', 'uuid', '3857', 'Workorder', null)
 ---
@@ -170,7 +146,40 @@ insert into workorder_task_status( wts_code, wts_slabel, wts_llabel)
 ('TERMINE','terminé','terminé'),
 ('ANNULE','annulé','annulé');
 
-
+-- insert into tree
+insert into tree
+  ( id, dom_id    , tre_parent_id , tre_slabel , lyr_id ,style_id,tre_img)
+  values
+  ---
+  ( 100   , (select id from domains where dom_type = 'dw')    , NULL    , 'Réseau Eau Potable',NULL,NULL,NULL),
+    ( 101 , (select id from domains where dom_type = 'dw')    , 100     , 'Branchements', (select id from layer where lyr_table_name = 'asset.aep_branche'),NULL,NULL ),
+    ( 102 , (select id from domains where dom_type = 'dw')    , 100     , 'Canalisations', (select id from layer where lyr_table_name = 'asset.aep_canalisation'),NULL,NULL ),
+    ( 103 , (select id from domains where dom_type = 'dw')    , 100     , 'Ouvrages', (select id from layer where lyr_table_name = 'asset.aep_canalisation'),NULL,NULL ),
+    ( 104 , (select id from domains where dom_type = 'dw')    , 100     , 'Equipements', NULL,NULL,NULL ),
+    ( 105 , (select id from domains where dom_type = 'dw')    , 104     , 'Vannes', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne.png' ),
+        ( 106 , (select id from domains where dom_type = 'dw')    , 105     , 'Fermée', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne_fermee.png' ),
+            ( 108 , (select id from domains where dom_type = 'dw')    , 106     , 'Electrovanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_electro_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ELECTRO.png' ),
+            ( 109 , (select id from domains where dom_type = 'dw')    , 106     , 'Robinet Vanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_robinet_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ROBINET.png' ),
+            ( 110 , (select id from domains where dom_type = 'dw')    , 106     , '1/4 de tour', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_tour_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_TOUR.png' ),
+        ( 111 , (select id from domains where dom_type = 'dw')    , 105     , 'Ouvert', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne_ouvert.png' ),
+            ( 112 , (select id from domains where dom_type = 'dw')    , 111     , 'Electrovanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_electro_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ELECTRO.png' ),
+            ( 113 , (select id from domains where dom_type = 'dw')    , 111     , 'Robinet Vanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_robinet_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ROBINET.png' ),
+            ( 114 , (select id from domains where dom_type = 'dw')    , 111     , '1/4 de tour', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_tour_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_TOUR.png' ),
+    ( 115 , (select id from domains where dom_type = 'dw')    , 104     , 'Equipement incendie', (select id from layer where lyr_table_name = 'asset.aep_defense_incendie'),NULL,'assets/img/patrimony/incendie.png' ),
+    ( 116 , (select id from domains where dom_type = 'dw')    , 104     , 'Equipements comptage', NULL,NULL,'assets/img/patrimony/comptage_reseau.png' ),
+    ( 117 , (select id from domains where dom_type = 'dw')    , 104     , 'Autres équipements', NULL,NULL,'assets/img/patrimony/autre_eq_reseau.png' ),
+  ---
+  ( 200   , (select id from domains where dom_type = 'ww')    , NULL    , 'Réseau Assainissement',NULL,NULL,NULL),
+    ( 201 , (select id from domains where dom_type = 'ww')    , 200     , 'Ouvrages', (select id from layer where lyr_table_name = 'asset.ass_ouvrage'),NULL,NULL ),
+    ( 202 , (select id from domains where dom_type = 'ww')    , 200     , 'Branchements', (select id from layer where lyr_table_name = 'asset.ass_branche'),NULL,NULL ),
+    ( 203 , (select id from domains where dom_type = 'ww')    , 200     , 'Collecteurs', (select id from layer where lyr_table_name = 'asset.ass_collecteur'),NULL,NULL ),
+    ( 204 , (select id from domains where dom_type = 'ww')    , 200     , 'Equipements', NULL,NULL,NULL ),
+        ( 205 , (select id from domains where dom_type = 'ww')    , 204     , 'Avaloir', (select id from layer where lyr_table_name = 'asset.ass_avaloir'),NULL,'assets/img/patrimony/avaloir.png' ),
+        ( 206 , (select id from domains where dom_type = 'ww')    , 204     , 'Regard', (select id from layer where lyr_table_name = 'asset.ass_avaloir'),NULL,'assets/img/patrimony/regard.png' ),
+        ( 207 , (select id from domains where dom_type = 'ww')    , 204     , 'Autre équipements', NULL,NULL,'assets/img/patrimony/autre_eq.png' )
+        
+  ---
+;
 
 -- creating grid
 with metro_grid as (

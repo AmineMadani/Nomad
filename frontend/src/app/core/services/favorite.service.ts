@@ -21,17 +21,16 @@ import { TreeData, TreeFilter } from '../models/filter/filter-component-models/T
 export class FavoriteService {
   constructor(private mapService: MapService,
     private treeService: TreeDataService) {
-    from(this.treeService.getDefaultTree()).subscribe((treeDefintion: TreeData[]) => {
-      const segDetail= <FilterSegment>{
-        id: 24,
-        name: 'Details',
-        position: 5,
-        selected: false,
-        components: [new TreeFilter(1, true, 1,treeDefintion)]
-      };
-      this.filter.segments.push(segDetail);
-      this.setfilterForm(this.filter);
-    });
+        from(this.treeService.getDefaultTree()).subscribe((treeDefintion: TreeData[]) => {
+          const segDetail= <FilterSegment>{
+            id: 24,
+            name: 'Details',
+            position: 5,
+            selected: false,
+            components: [new TreeFilter(1, true, 1,treeDefintion)]
+          };
+          this.filter.segments.push(segDetail);
+        });
   }
 
   private filter: Filter = patrimonyFilterMock;
