@@ -82,7 +82,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    if(this.footer.nativeElement.children) {
+    if(!this.isMobile && this.footer.nativeElement.children) {
       this.content.nativeElement.classList.add('content-without-footer');
     }
   }
