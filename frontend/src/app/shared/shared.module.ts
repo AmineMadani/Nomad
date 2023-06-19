@@ -31,6 +31,7 @@ import { FormSelectReferentialComponent } from './form-editor/properties/form-se
 import { FormWorkOrderComponent } from './form-editor/properties/form-work-order/form-work-order.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
+import { FormLayerReferenceComponent } from './form-editor/properties/form-layer-reference/form-layer-reference.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SearchMultiSelectComponent } from './components/search-multi-select/search-multi-select.component';
 
@@ -63,6 +64,7 @@ import { SearchMultiSelectComponent } from './components/search-multi-select/sea
     FormWorkOrderComponent,
     FormBottomAttachmentComponent,
     FormLifeCycleComponent,
+    FormLayerReferenceComponent,
     // DIRECTIVES
     ClearDataDirective,
   ],
