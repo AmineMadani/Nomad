@@ -108,7 +108,6 @@ comment on column domains.dom_umod_id is 'Last modificator Id';
 comment on column domains.dom_dcre is 'Creation date';
 comment on column domains.dom_dmod is 'Last Modification date';
 
-
 -- Value Lists
 -- List of topological famility
 -- gives topological behabiour for business object
@@ -206,7 +205,6 @@ comment on table layer is 'This table defines all the layers available in the ap
 comment on column layer.id is 'Table unique ID';
 comment on column layer.lyr_num_order is 'lyr_num_order';
 comment on column layer.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column layer.tre_simplified_group_id is  'Simplified group ID';
 comment on column layer.lyr_table_name is 'Table that contains the layer features (regclass format)';
 comment on column layer.lyr_geom_column_name is  'Column name that contains features geometry';
 comment on column layer.lyr_uuid_column_name is 'Column name that contains unique ID';
@@ -261,6 +259,8 @@ comment on column tree.tre_ucre_id is 'creator Id';
 comment on column tree.tre_umod_id is 'Last modificator Id';
 comment on column tree.tre_dcre is 'Creation date';
 comment on column tree.tre_dmod is 'Last modification date';
+
+
 -- Basemaps
 -- This table defines all the basemaps available in the app.
 
@@ -315,7 +315,6 @@ comment on column basemaps.map_dmod is 'Last modification date';
 
 -- Create table to store a grid that covers all asset
 -- Used to export GeoJson
-drop table if exists app_grid;
 create table app_grid
 (
     id                bigserial primary key,

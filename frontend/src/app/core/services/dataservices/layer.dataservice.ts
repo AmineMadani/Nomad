@@ -70,7 +70,7 @@ export class LayerDataService {
       this.http.get<NomadGeoJson>(
         `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
       ).pipe(
-        timeout(2000),
+        timeout(5000),
         catchError(async () => {
           const tile = await this.db.tiles.get(file);
           if (tile) {
@@ -81,6 +81,7 @@ export class LayerDataService {
       )
     );
     if (!req) {
+      this.listTileOnLoad.delete(layerKey);
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
 
