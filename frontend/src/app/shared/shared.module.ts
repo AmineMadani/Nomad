@@ -32,6 +32,7 @@ import { FormWorkOrderComponent } from './form-editor/properties/form-work-order
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { SearchMultiSelectComponent } from './components/search-multi-select/search-multi-select.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     DatepickerComponent,
     ImageReaderComponent,
     PageHeaderComponent,
+    SearchMultiSelectComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -80,6 +82,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     PageHeaderComponent,
     FormEditorComponent,
     ClearDataDirective,
+    SearchMultiSelectComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

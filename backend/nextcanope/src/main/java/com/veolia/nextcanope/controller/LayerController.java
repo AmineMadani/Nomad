@@ -3,12 +3,10 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.veolia.nextcanope.dto.LayerReference.SaveLayerReferenceUserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.constants.LayerConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
@@ -106,4 +104,19 @@ public class LayerController {
         return this.layerService.getEquipmentByLayerAndId(key, id);
     }
 
+    @PostMapping(path = "/references/user")
+    @Operation(summary = "Save the user custom layer references")
+    @ApiResponses(value = {
+            @ApiResponse(description= "All layer references with customization", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public HttpStatus saveUserLayerReferences(@RequestBody SaveLayerReferenceUserDto saveDto, AccountTokenDto account) throws Exception {
+        try {
+            this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
+            return HttpStatus.CREATED;
+        } catch (Exception e) {
+            throw new Exception("Error during the layer references saving");
+        }
+    }
 }

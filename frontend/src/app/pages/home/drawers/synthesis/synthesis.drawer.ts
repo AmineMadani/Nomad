@@ -18,6 +18,7 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
+import { filter } from 'rxjs';
 
 export interface SynthesisButton {
   key: string;
@@ -71,9 +72,11 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.mapService
         .onMapLoaded()
-        .pipe(takeUntil(this.ngUnsubscribe$))
+        .pipe(
+          filter((isMapLoaded) => isMapLoaded)
+          ,takeUntil(this.ngUnsubscribe$))
         .subscribe(() => {
-          this.zoomToFeature(paramMap);
+            this.zoomToFeature(paramMap);
         });
     }
   }

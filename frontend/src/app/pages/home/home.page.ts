@@ -1,12 +1,15 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { Subject,takeUntil } from 'rxjs';
+import { Subject,filter,take,takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
+import { UserService } from 'src/app/core/services/user.service';
+import { MapService } from 'src/app/core/services/map/map.service';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +22,9 @@ export class HomePage implements OnInit, OnDestroy {
     public drawerService: DrawerService,
     private layerDataServie: LayerDataService,
     private modalCtrl: ModalController,
+    private userService : UserService,
+    private router : Router,
+    private mapService : MapService
   ) {
     this.drawerService.initDrawerListener();
   }
@@ -58,10 +64,12 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.initDrawer();
+    this.initRestoreUserContext();
   }
 
   ngOnDestroy(): void {
     this.destroyDrawer();
+    this.mapService.setMapUnloaded();
   }
 
   private initDrawer() {
@@ -135,4 +143,17 @@ export class HomePage implements OnInit, OnDestroy {
     });
     modal.present();
   }
+
+  private initRestoreUserContext() : void {
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd && event.url === this.utilsService.getPagePath(DrawerRouteEnum.HOME))
+      ,take(1))
+    .subscribe( () => {
+        this.mapService.onMapLoaded().pipe(
+          filter((isMapLoaded) => isMapLoaded)
+          ,take(1))
+        .subscribe(() => { this.userService.restoreUserContextFromLocalStorage() })
+    });
 }
+}
+

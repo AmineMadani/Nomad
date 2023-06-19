@@ -1,9 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
-import { AccordeonData, AccordeonFilter } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
+import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData, FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { ToggleFilter } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
 import {
   FilterSegment,
   FilterType,
@@ -53,40 +52,7 @@ export class AssetDrawer implements OnInit,OnDestroy {
     .subscribe((res: Filter) => {
     if (res) {
         this.filter=res;
-        this.filter.segments.forEach(segment => {
-          segment.components.forEach( basefilter =>{
-            if (basefilter instanceof AccordeonFilter){
-              (basefilter as AccordeonFilter).data.forEach(oneData => {
-                if (oneData.value ){
-                  this.mapService.addEventLayer( oneData.key);
-                }
-                else if (oneData.children?.some(child => child.value)){
-                  oneData.children.filter(child => child.value)
-                                  .forEach( item => this.mapService.addEventLayer( item.key) )
-                }
-                else {
-                  this.mapService.removeEventLayer(oneData.key);
-                }
-              });
-            }
-              if (basefilter instanceof ToggleFilter){
-                const toggleFilter : ToggleFilter = basefilter as ToggleFilter;
-                if(!toggleFilter.tableKey){
-                  toggleFilter.data.forEach(toggleData =>
-                    this.filterService.setToggleLayer(toggleData.key, toggleData.checked)
-                    );
-                }
-                else {
-                  toggleFilter.data.forEach(toggleData =>
-                    this.filterService.setToggleFilter(toggleFilter.tableKey, toggleData.key,toggleData.value,  toggleData.checked)
-                    );
-                  }
-              }
-
-          })
-
-
-        });
+        this.filterService.applyFilter(this.filter);  
       }
 });
   }

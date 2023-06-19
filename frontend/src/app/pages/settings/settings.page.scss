@@ -1,0 +1,25 @@
+.settings-content {
+
+  .settings-grid {
+    height: 100%;
+
+    .settings-row {
+      padding-top: 30px;
+      height: 100%;
+
+      .settings-menu {
+        padding-left: 30px;
+
+        .ion-activated-background {
+          --ion-item-background: var(--ion-color-activated-menu-item);
+        }
+
+        .line-delimiter {
+          border: 1px solid var(--ion-color-neutral-variant-80);
+          margin-bottom: 30px;
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+}

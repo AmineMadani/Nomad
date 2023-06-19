@@ -86,29 +86,27 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
           this.equipment = paramMap;
           return this.activatedRoute.params;
         }),
-        switchMap((localParams: Params) => {
-          if (localParams['id'] && paramMap.get('lyr_table_name')) {
-            this.equipment = this.layerService.getFeatureById(
-              paramMap.get('lyr_table_name'),
-              localParams['id']
-            ).properties;
-            this.equipment = Object.assign(
-              this.equipment,
-              Object.fromEntries(paramMap)
-            );
-            return this.layerDataService.getEquipmentByLayerAndId(
-              this.equipment.lyr_table_name,
-              this.equipment.id
-            );
-          }
-          return of(undefined);
-        }),
         filter((res: any | undefined) => res !== undefined),
         takeUntil(this.ngUnsubscribe$)
       )
-      .subscribe((res: any) => {
-        this.equipment = Object.assign(this.equipment, res[0]);
-        this.isDetailAvailabled = true;
+      .subscribe((localParams: Params) => {
+        if (localParams['id'] && paramMap.get('lyr_table_name')) {
+          this.equipment = this.layerService.getFeatureById(
+            paramMap.get('lyr_table_name'),
+            localParams['id']
+          ).properties;
+          this.equipment = Object.assign(
+            this.equipment,
+            Object.fromEntries(paramMap)
+          );
+          this.layerDataService.getEquipmentByLayerAndId(
+            this.equipment.lyr_table_name,
+            this.equipment.id
+          ).then((res) => {
+            this.equipment = Object.assign(this.equipment, res[0]);
+            this.isDetailAvailabled = true;
+          });
+        }
       });
   }
 }
