@@ -119,6 +119,9 @@
     <ng-container *ngSwitchCase="'life-cycle'">
       <app-form-life-cycle></app-form-life-cycle>
     </ng-container>
+    <ng-container *ngSwitchCase="'layer-reference'">
+      <app-form-layer-reference [definition]="definition" [control]="form.controls[definition.key]" [paramMap]="paramMap"></app-form-layer-reference>
+    </ng-container>
     <ng-container *ngSwitchCase="'bottom-attachment'">
       <app-form-bottom-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-bottom-attachment>
     </ng-container>

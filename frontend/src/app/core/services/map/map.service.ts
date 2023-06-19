@@ -12,6 +12,7 @@ import { ConfigurationService } from '../configuration.service';
 import { Basemap } from '../../models/basemap.model';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapEventService } from './map-event.service';
+import { aep_vanne_images } from '../../mocks/Styles.moc';
 
 export interface Box {
   x1: number;
@@ -65,6 +66,7 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
+    this.AddExtraImages();
     this.map.dragRotate.disable();
     this.draw = new MapboxDraw({
       displayControlsDefault: false,
@@ -74,6 +76,16 @@ export class MapService {
       },
     });
     return this.map;
+  }
+
+  private AddExtraImages() {
+    aep_vanne_images.forEach((idImage: string) => {
+      this.map.loadImage(this.configurationService.host + 'assets/img/patrimony/aep_vanne/'+idImage+'.png', (error, image) => {
+        if (error) throw error;
+        this.map.addImage(idImage, image);
+      });
+    });
+    
   }
 
   /**

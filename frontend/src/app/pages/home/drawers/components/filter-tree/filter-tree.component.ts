@@ -28,15 +28,17 @@ export class FilterTreeComponent implements OnInit {
   ngOnInit() {
     this.dataSource.data = this.data;
   }
-
+ 
   hasChild = (_: number, node: TreeData): boolean =>
     !!node.children && node.children.length > 0;
 
   descendantsAllSelected(node: TreeData): boolean {
     const descendants = this.treeControl.getDescendants(node);
-    return descendants.every((child: TreeData) =>
-      this.selectedNodes.has(child)
-    );
+    node.value=descendants.every((child: TreeData) =>
+    this.selectedNodes.has(child)
+  );
+    return node.value;
+
   }
 
   descendantsPartiallySelected(node: TreeData): boolean {
@@ -44,7 +46,8 @@ export class FilterTreeComponent implements OnInit {
     const result = descendants.some((child: TreeData) =>
       this.selectedNodes.has(child)
     );
-    return result && !this.descendantsAllSelected(node);
+    node.isIndeterminate=result && !this.descendantsAllSelected(node);
+    return node.isIndeterminate;
   }
 
   /**
@@ -85,16 +88,20 @@ export class FilterTreeComponent implements OnInit {
       this.selectedNodes.delete(node);
     }
     node.value=checked;
-    if (node.layerName && !node.children && !node.styleId){
+    if (!node.layerName){
+      return;
+    }
+    const layerName=node.layerName.replace('asset.','');
+    if (!node.children && !node.styleId){
       if (node.value){
-        this.mapService.addEventLayer(node.layerName);
+        this.mapService.addEventLayer(layerName);
       }
       else{
-        this.mapService.removeEventLayer(node.layerName);
+        this.mapService.removeEventLayer(layerName);
       }
     }
-    if (node.layerName && node.styleId){
-      this.applyStyleOnMap(node.layerName,node.styleId,node.value);
+    if (node.styleId){
+      this.applyStyleOnMap(layerName,node.styleId,node.value);
     }
   }
 

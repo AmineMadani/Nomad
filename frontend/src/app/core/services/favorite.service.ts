@@ -11,13 +11,27 @@ import {
 } from '../models/filter/filter-segment.model';
 import { Filter } from '../models/filter/filter.model';
 import { MapService } from './map/map.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { TreeDataService } from './dataservices/tree.dataservice';
+import { TreeData, TreeFilter } from '../models/filter/filter-component-models/TreeFilter.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FavoriteService {
-  constructor(private mapService: MapService) { }
+  constructor(private mapService: MapService,
+    private treeService: TreeDataService) {
+        from(this.treeService.getDefaultTree()).subscribe((treeDefintion: TreeData[]) => {
+          const segDetail= <FilterSegment>{
+            id: 24,
+            name: 'Details',
+            position: 5,
+            selected: false,
+            components: [new TreeFilter(1, true, 1,treeDefintion)]
+          };
+          this.filter.segments.push(segDetail);
+        });
+  }
 
   private filter: Filter = patrimonyFilterMock;
   private filterForm$ = new BehaviorSubject<Filter>(this.filter);

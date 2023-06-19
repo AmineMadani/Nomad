@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -46,14 +45,6 @@ public class Layer implements Serializable {
 	@JsonProperty("ast_id")
     private Long astId ;
 
-    @Column(name="tre_group_id")
-	@JsonProperty("tre_group_id")
-    private Long treGroupId ;
-
-    @Column(name="tre_simplified_group_id")
-	@JsonProperty("tre_simplified_group_id")
-    private Long treSimplifiedGroupId ;
-
     @Column(name="lyr_table_name", nullable=false, length=2147483647)
 	@JsonProperty("lyr_table_name")
     private String lyrTableName ;
@@ -82,13 +73,13 @@ public class Layer implements Serializable {
 	@JsonProperty("lyr_llabel")
     private String lyrLlabel ;
 
-    @Column(name="lyr_valid")
-	@JsonProperty("lyr_valid")
-    private Boolean lyrValid ;
-
     @Column(name="lyr_display")
 	@JsonProperty("lyr_display")
     private Boolean lyrDisplay ;
+
+    @Column(name="lyr_valid")
+	@JsonProperty("lyr_valid")
+    private Boolean lyrValid ;
 
     @Column(name="lyr_ucre_id")
 	@JsonProperty("lyr_ucre_id")
@@ -111,44 +102,36 @@ public class Layer implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tre_group_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree tree ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="dom_id", referencedColumnName="id", insertable=false, updatable=false)
     private Domains domains ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="lyr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
+    private Users modifiedBy;
 
 
-    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
-    private List<Asset> listOfAsset ; 
+    @ManyToOne
+    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Users createdBy;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
     private AssetType assetType ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
+    @OneToMany(mappedBy="layer")
+    private List<Asset> listOfAsset ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tre_simplified_group_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree simplifiedTree ; 
+    @OneToMany(mappedBy="layer")
+    private List<Tree> listOfTree ; 
 
 
-    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
-    private List<LayerReferences> listOfLayerReferences ;
+    @OneToMany(mappedBy="layer")
+    private List<LayerReferences> listOfLayerReferences ; 
 
 
     /**
@@ -188,22 +171,6 @@ public class Layer implements Serializable {
 
     public Long getAstId() {
         return this.astId;
-    }
-
-	public void setTreGroupId( Long treGroupId ) {
-        this.treGroupId = treGroupId ;
-    }
-
-    public Long getTreGroupId() {
-        return this.treGroupId;
-    }
-
-	public void setTreSimplifiedGroupId( Long treSimplifiedGroupId ) {
-        this.treSimplifiedGroupId = treSimplifiedGroupId ;
-    }
-
-    public Long getTreSimplifiedGroupId() {
-        return this.treSimplifiedGroupId;
     }
 
 	public void setLyrTableName( String lyrTableName ) {
@@ -262,20 +229,20 @@ public class Layer implements Serializable {
         return this.lyrLlabel;
     }
 
-	public void setLyrValid( Boolean lyrValid ) {
-        this.lyrValid = lyrValid ;
-    }
-
-    public Boolean getLyrValid() {
-        return this.lyrValid;
-    }
-
 	public void setLyrDisplay( Boolean lyrDisplay ) {
         this.lyrDisplay = lyrDisplay ;
     }
 
     public Boolean getLyrDisplay() {
         return this.lyrDisplay;
+    }
+
+	public void setLyrValid( Boolean lyrValid ) {
+        this.lyrValid = lyrValid ;
+    }
+
+    public Boolean getLyrValid() {
+        return this.lyrValid;
     }
 
 	public void setLyrUcreId( Long lyrUcreId ) {
@@ -311,10 +278,6 @@ public class Layer implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public Tree getTree() {
-        return this.tree;
-    } 
-
     public Domains getDomains() {
         return this.domains;
     } 
@@ -323,25 +286,25 @@ public class Layer implements Serializable {
         return this.modifiedBy;
     } 
 
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
+    public Users getCreatedBy() {
+        return this.createdBy;
     } 
 
     public AssetType getAssetType() {
         return this.assetType;
     } 
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
     } 
 
-    public Tree getSimplifiedTree() {
-        return this.simplifiedTree;
+    public List<Tree> getListOfTree() {
+        return this.listOfTree;
     } 
 
     public List<LayerReferences> getListOfLayerReferences() {
-      return this.listOfLayerReferences;
-    }
+        return this.listOfLayerReferences;
+    } 
 
 
 }

@@ -7,8 +7,11 @@ import com.veolia.nextcanope.model.Tree;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Dto for tree Entity
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class NodeDto {
+public class TreeDto {
     private Long id;
     @JsonIgnore
     private Long parentId;
@@ -20,10 +23,10 @@ public class NodeDto {
 
 
     private String imgSrc;
-    private List<NodeDto> children;
+    private List<TreeDto> children;
 
 
-    public NodeDto(Tree tree) {
+    public TreeDto(Tree tree) {
         super();
         this.id = tree.getId();
         this.name = tree.getTreSlabel();
@@ -83,15 +86,15 @@ public class NodeDto {
         this.imgSrc = imgSrc;
     }
 
-    public List<NodeDto> getChildren() {
+    public List<TreeDto> getChildren() {
         return children;
     }
 
-    public void setChildren(List<NodeDto> children) {
+    public void setChildren(List<TreeDto> children) {
         this.children = children;
     }
 
-    public void addChild(NodeDto child) {
+    public void addChild(TreeDto child) {
         if (this.children == null) {
             this.children = new ArrayList<>();
         }

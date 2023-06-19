@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.service;
 
-import com.veolia.nextcanope.dto.NodeDto;
+import com.veolia.nextcanope.dto.TreeDto;
 import com.veolia.nextcanope.model.Tree;
 import com.veolia.nextcanope.repository.TreeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,29 +16,29 @@ public class TreeService {
     @Autowired
     TreeRepository treeRepository;
 
-    public List<NodeDto> getTree(){
+    public List<TreeDto> getTree(){
         List<Tree> trees = treeRepository.findAll();
-        List<NodeDto> nodeDtos =new ArrayList<NodeDto>();
+        List<TreeDto> treeDtos =new ArrayList<TreeDto>();
         for(Tree tree :trees){
-            nodeDtos.add(new NodeDto(tree));
+            treeDtos.add(new TreeDto(tree));
         }
-        return  createTree(nodeDtos);
+        return  createTree(treeDtos);
     }
 
-    private static List<NodeDto> createTree(List<NodeDto> nodeDtos) {
+    private static List<TreeDto> createTree(List<TreeDto> treeDtos) {
 
-        Map<Long, NodeDto> mapTmp = new HashMap<>();
+        Map<Long, TreeDto> mapTmp = new HashMap<>();
 
         //Save all nodes to a map
-        for (NodeDto current : nodeDtos) {
+        for (TreeDto current : treeDtos) {
             mapTmp.put(current.getId(), current);
         }
 
         //loop and assign parent/child relationships
-        for (NodeDto current : nodeDtos) {
+        for (TreeDto current : treeDtos) {
             Long parentId = current.getParentId();
             if (parentId != null) {
-                NodeDto parent = mapTmp.get(parentId);
+                TreeDto parent = mapTmp.get(parentId);
                 if (parent != null) {
                     //current.setParent(parent);
                     parent.addChild(current);
@@ -50,10 +50,10 @@ public class TreeService {
 
 
         //get the roots
-        List<NodeDto> roots = new ArrayList<NodeDto>();
-        for (NodeDto nodeDto : mapTmp.values()) {
-            if(nodeDto.getParentId() == null) {
-                roots.add(nodeDto);
+        List<TreeDto> roots = new ArrayList<TreeDto>();
+        for (TreeDto treeDto : mapTmp.values()) {
+            if(treeDto.getParentId() == null) {
+                roots.add(treeDto);
             }
         }
         return roots;

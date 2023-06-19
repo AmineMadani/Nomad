@@ -21,10 +21,6 @@ public class LayerDto {
 
     private Long astId ;
 
-    private Long treGroupId ;
-
-    private Long treSimplifiedGroupId ;
-
     private String lyrTableName ;
 
     private String lyrGeomColumnName ;
@@ -99,22 +95,6 @@ public class LayerDto {
 
     public Long getAstId() {
         return this.astId;
-    }
-
-    public void setTreGroupId( Long treGroupId ) {
-        this.treGroupId = treGroupId ;
-    }
-
-    public Long getTreGroupId() {
-        return this.treGroupId;
-    }
-
-    public void setTreSimplifiedGroupId( Long treSimplifiedGroupId ) {
-        this.treSimplifiedGroupId = treSimplifiedGroupId ;
-    }
-
-    public Long getTreSimplifiedGroupId() {
-        return this.treSimplifiedGroupId;
     }
 
     public void setLyrTableName( String lyrTableName ) {
@@ -229,8 +209,6 @@ public class LayerDto {
         this.domLLabel = layer.getDomains().getDomLlabel();
         this.domCode = layer.getDomains().getDomType();
 		this.astId = layer.getAstId();
-		this.treGroupId = layer.getTreGroupId();
-		this.treSimplifiedGroupId = layer.getTreSimplifiedGroupId();
 		this.lyrTableName = layer.getLyrTableName();
 		this.lyrGeomColumnName = layer.getLyrGeomColumnName();
 		this.lyrUuidColumnName = layer.getLyrUuidColumnName();

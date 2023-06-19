@@ -5,8 +5,6 @@ export interface Layer {
   domLLabel: string;
   domCode: string;
   astId: number;
-  treGroupId: number;
-  treSimplifiedGroupId: number;
   lyrTableName: string;
   lyrGeomColumnName: string;
   lyrUuidColumnName: string;

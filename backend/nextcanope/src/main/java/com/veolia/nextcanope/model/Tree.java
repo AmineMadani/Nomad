@@ -41,6 +41,18 @@ public class Tree implements Serializable {
 	@JsonProperty("tre_parent_id")
     private Long treParentId ;
 
+    @Column(name="lyr_id")
+	@JsonProperty("lyr_id")
+    private Long lyrId ;
+
+    @Column(name="style_id", length=2147483647)
+	@JsonProperty("style_id")
+    private String styleId ;
+
+    @Column(name="tre_img", length=2147483647)
+	@JsonProperty("tre_img")
+    private String treImg ;
+
     @Column(name="tre_num_order")
 	@JsonProperty("tre_num_order")
     private Integer treNumOrder ;
@@ -53,13 +65,13 @@ public class Tree implements Serializable {
 	@JsonProperty("tre_slabel")
     private String treSlabel ;
 
-    @Column(name="tre_ucre_id")
-	@JsonProperty("tre_ucre_id")
-    private Long treUcreId ;
-
     @Column(name="tre_valid")
 	@JsonProperty("tre_valid")
     private Boolean treValid ;
+
+    @Column(name="tre_ucre_id")
+	@JsonProperty("tre_ucre_id")
+    private Long treUcreId ;
 
     @Column(name="tre_umod_id")
 	@JsonProperty("tre_umod_id")
@@ -75,19 +87,6 @@ public class Tree implements Serializable {
 	@JsonProperty("tre_dmod")
     private Date treDmod ;
 
-    @Column(name="lyr_id")
-    @JsonProperty("lyr_id")
-    private Long lyrId ;
-
-    @Column(name="style_id")
-    @JsonProperty("style_id")
-    private String styleId ;
-
-
-
-    @Column(name="tre_img")
-    @JsonProperty("tre_img")
-    private String treImg ;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -96,35 +95,29 @@ public class Tree implements Serializable {
     private Domains domains ; 
 
 
+    @ManyToOne
+    @JoinColumn(name="tre_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Users modifiedUser;
+
+
     @OneToMany(mappedBy="tree")
     private List<Tree> listOfTree ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tre_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users modifiedUser ; 
+    @ManyToOne
+    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Layer layer ; 
 
 
-    @OneToMany(mappedBy="simplifiedTree")
-    private List<Layer> listOfSimplifiedLayer ; 
-
-
-    @OneToMany(mappedBy="tree")
-    private List<Layer> listOfLayer ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="tre_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users createdUser ; 
+    private Users createdUser;
 
 
     @ManyToOne
     @JoinColumn(name="tre_parent_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree tree ;
+    private Tree tree ; 
 
-    @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Layer layer ;
 
     /**
      * Constructor
@@ -157,6 +150,30 @@ public class Tree implements Serializable {
         return this.treParentId;
     }
 
+	public void setLyrId( Long lyrId ) {
+        this.lyrId = lyrId ;
+    }
+
+    public Long getLyrId() {
+        return this.lyrId;
+    }
+
+	public void setStyleId( String styleId ) {
+        this.styleId = styleId ;
+    }
+
+    public String getStyleId() {
+        return this.styleId;
+    }
+
+	public void setTreImg( String treImg ) {
+        this.treImg = treImg ;
+    }
+
+    public String getTreImg() {
+        return this.treImg;
+    }
+
 	public void setTreNumOrder( Integer treNumOrder ) {
         this.treNumOrder = treNumOrder ;
     }
@@ -181,20 +198,20 @@ public class Tree implements Serializable {
         return this.treSlabel;
     }
 
-	public void setTreUcreId( Long treUcreId ) {
-        this.treUcreId = treUcreId ;
-    }
-
-    public Long getTreUcreId() {
-        return this.treUcreId;
-    }
-
 	public void setTreValid( Boolean treValid ) {
         this.treValid = treValid ;
     }
 
     public Boolean getTreValid() {
         return this.treValid;
+    }
+
+	public void setTreUcreId( Long treUcreId ) {
+        this.treUcreId = treUcreId ;
+    }
+
+    public Long getTreUcreId() {
+        return this.treUcreId;
     }
 
 	public void setTreUmodId( Long treUmodId ) {
@@ -221,47 +238,21 @@ public class Tree implements Serializable {
         return this.treDmod;
     }
 
-    public void setLyrId(Long lyrId) {
-        this.lyrId = lyrId;
-    }
-
-    public Long getLyrId() {
-        return lyrId;
-    }
-    public void setStyleId(String styleId) {
-        this.styleId = styleId;
-    }
-
-    public String getStyleId() {
-        return styleId;
-    }
-
-    public String getTreImg() {
-        return treImg;
-    }
-
-    public void setTreImg(String treImg) {
-        this.treImg = treImg;
-    }
     //--- GETTERS FOR LINKS
     public Domains getDomains() {
         return this.domains;
-    } 
-
-    public List<Tree> getListOfTree() {
-        return this.listOfTree;
     } 
 
     public Users getModifiedUser() {
         return this.modifiedUser;
     } 
 
-    public List<Layer> getListOfSimplifiedLayer() {
-        return this.listOfSimplifiedLayer;
+    public List<Tree> getListOfTree() {
+        return this.listOfTree;
     } 
 
-    public List<Layer> getListOfLayer() {
-        return this.listOfLayer;
+    public Layer getLayer() {
+        return this.layer;
     } 
 
     public Users getCreatedUser() {
@@ -270,11 +261,7 @@ public class Tree implements Serializable {
 
     public Tree getTree() {
         return this.tree;
-    }
-
-    public Layer getLayer() {
-        return layer;
-    }
+    } 
 
 
 }

@@ -108,46 +108,6 @@ comment on column domains.dom_umod_id is 'Last modificator Id';
 comment on column domains.dom_dcre is 'Creation date';
 comment on column domains.dom_dmod is 'Last Modification date';
 
--- Layer tree
--- This table defines the layer tree exposed in the application.
--- Each layer belongs to a group
-
-create table tree
-(
-  id                bigserial primary key,
-  dom_id            bigint references domains(id),
-  tre_parent_id     bigint references tree(id),
-  lyr_id            bigint references layer(id),
-  style_id          text,
-  tre_img           text,
-  tre_num_order     integer,
-  tre_llabel        text,
-  tre_slabel        text,
-  -- Technical metadata
-  tre_valid         boolean default True,
-	tre_ucre_id       bigint references users(id) default 0,
-  tre_umod_id       bigint references users(id) default 0,
-  tre_dcre          timestamp without time zone  default current_timestamp,
-  tre_dmod          timestamp without time zone  default current_timestamp
-);
-
-/* Comments on table */
-comment on table tree is 'This table defines all groups and sub-groups to generate the app layer tree';
-/* Comments on fields */
-comment on column tree.id is 'Table unique ID';
-comment on column tree.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column tree.tre_parent_id is 'Parent id';
-comment on column tree.lyr_id is 'Layer Id';
-comment on column tree.style_id is 'Style Id';
-comment on column tree.tre_img is 'Url Image';
-comment on column tree.tre_num_order is 'Num order of the tree group';
-comment on column tree.tre_llabel is 'Long label of the tree group';
-comment on column tree.tre_slabel is 'Short label of the tree group';
-comment on column tree.tre_valid is 'If valid, true else false';
-comment on column tree.tre_ucre_id is 'creator Id';
-comment on column tree.tre_umod_id is 'Last modificator Id';
-comment on column tree.tre_dcre is 'Creation date';
-comment on column tree.tre_dmod is 'Last modification date';
 
 -- Value Lists
 -- List of topological famility
@@ -224,8 +184,6 @@ create table layer
     lyr_num_order            integer,
     dom_id                   bigint references domains(id),
     ast_id                   bigint references asset_type(id) ,-- code hérité de CANOPE / PICRU (20, 21...)
-    tre_group_id             bigint references tree(id),
-    tre_simplified_group_id  bigint references tree(id),
     lyr_table_name           text unique not null,
     lyr_geom_column_name     text not null,
     lyr_uuid_column_name     text not null,
@@ -248,8 +206,6 @@ comment on table layer is 'This table defines all the layers available in the ap
 comment on column layer.id is 'Table unique ID';
 comment on column layer.lyr_num_order is 'lyr_num_order';
 comment on column layer.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column layer.ast_id is 'Asset Type Id';
-comment on column layer.tre_group_id is 'Tree group Id';
 comment on column layer.tre_simplified_group_id is  'Simplified group ID';
 comment on column layer.lyr_table_name is 'Table that contains the layer features (regclass format)';
 comment on column layer.lyr_geom_column_name is  'Column name that contains features geometry';
@@ -265,6 +221,46 @@ comment on column layer.lyr_umod_id is 'Last modificator Id';
 comment on column layer.lyr_dcre is 'Creation date';
 comment on column layer.lyr_dmod is 'Last modification date';
 
+-- Layer tree
+-- This table defines the layer tree exposed in the application.
+-- Each layer belongs to a group
+
+create table tree
+(
+  id                bigserial primary key,
+  dom_id            bigint references domains(id),
+  tre_parent_id     bigint references tree(id),
+  lyr_id            bigint references layer(id),
+  style_id          text,
+  tre_img           text,
+  tre_num_order     integer,
+  tre_llabel        text,
+  tre_slabel        text,
+  -- Technical metadata
+  tre_valid         boolean default True,
+	tre_ucre_id       bigint references users(id) default 0,
+  tre_umod_id       bigint references users(id) default 0,
+  tre_dcre          timestamp without time zone  default current_timestamp,
+  tre_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table tree is 'This table defines all groups and sub-groups to generate the app layer tree';
+/* Comments on fields */
+comment on column tree.id is 'Table unique ID';
+comment on column tree.dom_id is 'Application domain (ie: drinking water, ...) Id';
+comment on column tree.tre_parent_id is 'Parent id';
+comment on column tree.lyr_id is 'Layer Id';
+comment on column tree.style_id is 'Style Id';
+comment on column tree.tre_img is 'Url Image';
+comment on column tree.tre_num_order is 'Num order of the tree group';
+comment on column tree.tre_llabel is 'Long label of the tree group';
+comment on column tree.tre_slabel is 'Short label of the tree group';
+comment on column tree.tre_valid is 'If valid, true else false';
+comment on column tree.tre_ucre_id is 'creator Id';
+comment on column tree.tre_umod_id is 'Last modificator Id';
+comment on column tree.tre_dcre is 'Creation date';
+comment on column tree.tre_dmod is 'Last modification date';
 -- Basemaps
 -- This table defines all the basemaps available in the app.
 

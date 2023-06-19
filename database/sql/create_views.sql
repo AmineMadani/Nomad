@@ -20,7 +20,7 @@ with recursive doms as
    select d.parent_domain_alias, d.tab, t.tre_slabel as tree_group,l.*
      from layer l
 left join doms d on d.id = l.dom_id
-left join tree t on t.id = l.tre_simplified_group_id
+left join tree t on t.lyr_id = l.id
  order by l.lyr_num_order;
 
 -- Create view to generate detailed layer tree
@@ -32,11 +32,11 @@ toc as
 (
 with recursive tree_orga as
   (
-  SELECT id,  id  as parent, dom_id, tre_num_order as num_order , tre_slabel as parent_tree_group , tre_slabel as tree_group
+  SELECT id,  id  as parent, dom_id,lyr_id, tre_num_order as num_order , tre_slabel as parent_tree_group , tre_slabel as tree_group
    FROM tree
   where tre_parent_id is null
   union all
-  select lg.id, parent, lg.dom_id, lg.tre_num_order, parent_tree_group, lg.tre_slabel as tree_group
+  select lg.id, parent, lg.dom_id,lg.lyr_id, lg.tre_num_order, parent_tree_group, lg.tre_slabel as tree_group
    from tree_orga g
    join tree lg
      on lg.tre_parent_id = g.id
@@ -61,7 +61,7 @@ doms as
     select d.parent_domain_alias,  t.parent_tree_group, t.tree_group, l.*
       from layer l
  left join doms d on d.id = l.dom_id
- left join toc t on t.id = l.tre_group_id
+ left join toc t on  t.lyr_id = l.id
   order by l.id;
 
 -- Create view to generate for each layer
