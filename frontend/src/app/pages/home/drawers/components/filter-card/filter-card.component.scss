@@ -1,14 +1,16 @@
 ion-item-group {
   border-bottom: 1px solid var(--ion-color-neutral-variant-80);
+
+  &:hover {
+    cursor: pointer;
+    background: var(--ion-color-secondary-variant-90);
+  }
+
+  &.feature-hovered {
+    background: var(--ion-color-secondary-variant-90);
+  }
 }
 
-ion-item-group:hover {
-  background: var(--ion-color-secondary-variant-90);
-}
-
-.feature-hovered {
-  background: var(--ion-color-secondary-variant-90);
-}
 
 ion-item {
   ion-icon[slot=start] {
