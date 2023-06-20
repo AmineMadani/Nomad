@@ -14,6 +14,7 @@ import { TokenInterceptor } from './core/interceptors/token.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigurationService } from './core/services/configuration.service';
 import { DatePipe } from '@angular/common';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @NgModule({
   declarations: [
@@ -22,10 +23,11 @@ import { DatePipe } from '@angular/common';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    IonicModule.forRoot(), 
+    IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    OAuthModule.forRoot()
+    OAuthModule.forRoot(),
+    ClipboardModule
   ],
   providers: [
     DatePipe,

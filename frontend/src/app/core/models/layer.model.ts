@@ -21,3 +21,8 @@ export interface Layer {
   lyrDcre: Date;
   lyrDmod: Date;
 }
+
+export enum  localisationExportMode  {
+  nomadLink = 'NOMADLINK',
+  gpsCoordinates = 'GPS',
+}

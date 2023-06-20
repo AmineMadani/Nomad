@@ -6,11 +6,12 @@ import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
-import { LngLatLike } from 'maplibre-gl';
-import { Layer } from '../../models/layer.model';
-import { ConfigurationService } from '../configuration.service';
 import { Basemap } from '../../models/basemap.model';
+import { Layer } from '../../models/layer.model';
+import { LngLatLike } from 'maplibre-gl';
+import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { MapEventService } from './map-event.service';
 
 export interface Box {
@@ -48,7 +49,10 @@ export class MapService {
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
 
-  private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
+  private loadingLayer: Map<string, Promise<void>> = new Map<
+    string,
+    Promise<void>
+  >();
   private loadedLayer: Array<string> = new Array<string>();
 
   /**
@@ -56,13 +60,14 @@ export class MapService {
    * zoom level and overlapping tiles.
    * @returns The function `createMap()` returns an instance of the `Maplibregl.Map` class.
    */
-  public createMap(): Maplibregl.Map {
-    this.mapLibreSpec.sprite = this.configurationService.host + 'assets/sprites/@2x';
+  public createMap(lat?: number, lng?: number, zoom?: number): Maplibregl.Map {
+    this.mapLibreSpec.sprite =
+      this.configurationService.host + 'assets/sprites/@2x';
     this.map = new Maplibregl.Map({
       container: 'map',
       style: this.mapLibreSpec,
-      center: [2.699596882916402, 48.407854932986936],
-      zoom: 14,
+      center: [lng ?? 2.699596882916402, lat?? 48.407854932986936],
+      zoom: zoom ?? 14,
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
@@ -92,8 +97,8 @@ export class MapService {
   }
 
   /**
-  * This function sets the "onMapLoaded$" observable to emit a value.
-  */
+   * This function sets the "onMapLoaded$" observable to emit a value.
+   */
   public setMapUnloaded(): void {
     this.onMapLoaded$.next(false);
   }
@@ -170,7 +175,6 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string): Promise<void> {
-
     if (!layerKey) {
       return;
     }
@@ -178,8 +182,7 @@ export class MapService {
     //If layer is loaded
     if (this.loadedLayer.indexOf(layerKey) >= 0) {
       return new Promise<void>((resolve) => resolve());
-    }
-    else {
+    } else {
       //If layer is on loading (has event)
       if (this.loadingLayer.has(layerKey)) {
         return this.loadingLayer.get(layerKey);
@@ -329,7 +332,9 @@ export class MapService {
     } else {
       this.map.removeControl(this.draw as any);
       this.drawActive = false;
-      document.getElementById('map-container').classList.remove('cursor-pointer');
+      document
+        .getElementById('map-container')
+        .classList.remove('cursor-pointer');
     }
   }
 
