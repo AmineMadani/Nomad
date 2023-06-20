@@ -113,8 +113,8 @@
       <app-form-slider [definition]="definition" [control]="form.controls[definition.key]"
         [edit]="editMode"></app-form-slider>
     </ng-container>
-    <ng-container *ngSwitchCase="'work-order'">
-      <app-form-work-order></app-form-work-order>
+    <ng-container *ngSwitchCase="'history'">
+      <app-form-history [definition]="definition" [paramMap]="paramMap"></app-form-history>
     </ng-container>
     <ng-container *ngSwitchCase="'life-cycle'">
       <app-form-life-cycle></app-form-life-cycle>

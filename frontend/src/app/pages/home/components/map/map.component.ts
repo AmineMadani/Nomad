@@ -440,7 +440,7 @@ export class MapComponent implements OnInit, OnDestroy {
       });
 
     // Ending zoom event
-    fromEvent(this.map, 'zoomend')
+    fromEvent(this.map, 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         this.scale = this.calculateScale();

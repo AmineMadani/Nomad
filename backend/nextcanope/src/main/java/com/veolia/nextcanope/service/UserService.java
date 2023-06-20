@@ -1,17 +1,14 @@
 package com.veolia.nextcanope.service;
 
-import com.veolia.nextcanope.dto.AccountDto;
-import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.model.Asset;
-import com.veolia.nextcanope.model.Users;
-import com.veolia.nextcanope.repository.AssetRepository;
-import com.veolia.nextcanope.repository.UserRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.veolia.nextcanope.dto.AccountDto;
+import com.veolia.nextcanope.model.Users;
+import com.veolia.nextcanope.repository.UserRepository;
 
 /**
  * AssetService is a service class for managing asset-related data.

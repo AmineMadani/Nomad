@@ -11,7 +11,7 @@
 </ng-template>
 
 <ng-template #chipTemplateRef let-feature>
-  <ion-chip class="status" *ngIf="feature?.status" [ngClass]="'status-nf'" [outline]="false">
+  <ion-chip class="status" *ngIf="feature?.status" [ngClass]="'status-PLANIFIE'" [outline]="false">
     <ion-icon [name]="'close-outline'"></ion-icon>
     <ion-label>{{ getStatus(feature?.status)?.wts_slabel }}</ion-label>
   </ion-chip>

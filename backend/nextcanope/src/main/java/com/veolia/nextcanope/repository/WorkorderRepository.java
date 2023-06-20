@@ -22,4 +22,13 @@ public interface WorkorderRepository extends JpaRepository<Workorder, Long> {
 	 */
 	@Query("select i from Workorder i order by i.wkoPlanningStartDate desc limit :limitNb offset :offset")
 	List<Workorder> getInterventionsWithOffsetOrderByMostRecentDateBegin(@Param("limitNb") Long limitNb, @Param("offset") Long offset);
+	
+	/**
+	 * Get the list of workorder link to an asset by his ID and Layer
+	 * @param layer The target layer
+	 * @param ref The asset ref
+	 * @return workorders history of an asset
+	 */
+	@Query("select i from Workorder i where i.asset.assObjRef=:ref and i.asset.assObjTable=:layer order by i.wkoPlanningStartDate desc")
+	List<Workorder> getWorkordersLinkToEquipment(@Param("layer") String layer, @Param("ref") String ref);
 }

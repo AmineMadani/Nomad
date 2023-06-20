@@ -7,7 +7,7 @@
     </ion-item>
     <ion-item lines="none" class="ion-text-center">
       <ion-label>
-        <ion-chip *ngIf="workOrder.wts_id" [ngClass]="'status-nf'" [outline]="false">
+        <ion-chip *ngIf="workOrder.wts_id" [ngClass]="'status-PLANIFIE'" [outline]="false">
           <ion-label>{{ workOrder.labelStatus }}</ion-label>
         </ion-chip>
         <ion-chip *ngIf="workOrder.wko_emergency === 'true'" class="status" [outline]="true">

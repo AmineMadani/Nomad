@@ -34,16 +34,17 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   @Input() nomadForm: Form;
+  @Input() tableName: string;
   @Input() editMode: boolean;
   @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
 
   public form: FormGroup;
   public sections: FormNode[] = [];
   public paramMap: Map<string, string>;
+  public isMobile: boolean;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  public isMobile: boolean;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
@@ -86,7 +87,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @param {string} [section] - Optional string parameter that specifies the section FormNode belongs to.
    * @returns An array of FormNode objects is being returned.
    */
-  buildTree(definitions: FormDefinition[], section?: string): FormNode[] {
+  public buildTree(definitions: FormDefinition[], section?: string): FormNode[] {
     const nodes: FormNode[] = [];
     for (const definition of definitions) {
       if (definition.section === section) {
@@ -125,7 +126,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     return this.fb.group(controls);
   }
 
-  onSubmit() {
+  public onSubmit(): void {
     this.submitAction.emit(this.form);
   }
 }

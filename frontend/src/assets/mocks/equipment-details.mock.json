@@ -1,0 +1,277 @@
+{
+  "key": "equipment-details",
+  "editable": false,
+  "definitions": [
+    {
+      "key": "details",
+      "type": "section",
+      "component": "grid",
+      "editable": false,
+      "label": "",
+      "attributes": {
+      }
+    },
+    {
+      "key": "features-col-1",
+      "type": "section",
+      "component": "col",
+      "editable": false,
+      "label": "",
+      "attributes": {},
+      "section": "details"
+    },
+    {
+      "key": "features-col-2",
+      "type": "section",
+      "component": "col",
+      "editable": false,
+      "label": "",
+      "attributes": {},
+      "section": "details"
+    },
+    {
+      "key": "features-col-3",
+      "type": "section",
+      "component": "col",
+      "editable": false,
+      "label": "",
+      "attributes": {},
+      "section": "details"
+    },
+    {
+      "key": "features",
+      "type": "section",
+      "component": "list",
+      "editable": false,
+      "label": "Caractéristiques",
+      "attributes": {},
+      "section": "features-col-1"
+    },
+    {
+      "key": "environment",
+      "type": "section",
+      "component": "list",
+      "editable": false,
+      "label": "Localisation & Environnement",
+      "attributes": {},
+      "section": "features-col-2"
+    },
+    {
+      "key": "segment-container",
+      "type": "section",
+      "component": "container",
+      "editable": false,
+      "label": "",
+      "attributes": {},
+      "section": "features-col-3"
+    },
+    {
+      "key": "segments",
+      "type": "section",
+      "component": "tabs",
+      "editable": false,
+      "label": "Caractéristiques",
+      "attributes": {},
+      "section": "segment-container"
+    },
+    {
+      "key": "tab1",
+      "type": "section",
+      "component": "tab",
+      "editable": false,
+      "label": "Historique des interventions",
+      "attributes": {},
+      "section": "segments"
+    },
+    {
+      "key": "tab2",
+      "type": "section",
+      "component": "tab",
+      "editable": false,
+      "label": "Cycle de vie",
+      "attributes": {},
+      "section": "segments"
+    },
+    {
+      "key": "id",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "ID",
+      "attributes": {
+        "value": ""
+      },
+      "section": ""
+    },
+    {
+      "key": "diametre",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Diametre",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "exploitant",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Exploitant",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "exploitant",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Exploitant",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "position",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Position",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "fermeture",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Fermeture",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "insee_code",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Code Insee",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "prec_clas",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Prec Clas",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "type",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Type",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    
+    {
+      "key": "date_serv",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Date Service",
+      "attributes": {
+        "value": ""
+      },
+      "section": "features"
+    },
+    {
+      "key": "comment",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Commentaire",
+      "attributes": {
+        "value": "Inconnu"
+      },
+      "section": "features"
+    },
+    {
+      "key": "commune",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Commune",
+      "attributes": {
+        "value": ""
+      },
+      "section": "environment"
+    },
+    {
+      "key": "territoire",
+      "type": "property",
+      "component": "label",
+      "editable": false,
+      "label": "Territoire",
+      "attributes": {
+        "value": ""
+      },
+      "section": "environment"
+    },
+    {
+      "key": "work-order",
+      "type": "property",
+      "component": "work-order",
+      "editable": false,
+      "label": "Interventions",
+      "attributes": {
+        "value": "",
+        "default": ""
+      },
+      "section": "tab1"
+    },
+    {
+      "key": "work-order-cycle",
+      "type": "property",
+      "component": "life-cycle",
+      "editable": false,
+      "label": "",
+      "attributes": {
+        "value": ""
+      },
+      "section": "tab2"
+    },
+    {
+      "key": "attachments",
+      "type": "property",
+      "component": "bottom-attachment",
+      "editable": false,
+      "label": "Pièces jointes",
+      "attributes": {
+        "value": [
+          { "filename": "demo1.jpg", "size": "128ko" },
+          { "filename": "demo2.jpg", "size": "254ko" },
+          { "filename": "demo3.jpg", "size": "89ko" }
+        ]
+      }
+    }
+  ]
+}

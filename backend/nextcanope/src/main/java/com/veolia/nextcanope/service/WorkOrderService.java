@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
 import com.veolia.nextcanope.model.Workorder;
@@ -100,4 +102,19 @@ public class WorkOrderService {
 		}
     	return workorder;
     }
+
+	/**
+	 * Retrieve the workorders associated with an asset given by his id and his table
+	 * @param assetObjRef Id of the asset
+	 * @param assetObjTable Name of the table asset
+	 * @return list of workorders DTO
+	 */
+	public List<WorkorderDto> getEquipmentWorkorderHistory(String assetObjTable, String assetObjRef) {
+		List<WorkorderDto> workordersDto = new ArrayList<WorkorderDto>();
+		List<Workorder> workorders = workOrderRepository.getWorkordersLinkToEquipment(assetObjTable, assetObjRef);
+		for(Workorder workorder:workorders) {
+			workordersDto.add(new WorkorderDto(workorder));
+		}
+		return workordersDto;
+	}
 }

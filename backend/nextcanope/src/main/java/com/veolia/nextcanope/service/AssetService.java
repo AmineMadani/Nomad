@@ -42,4 +42,14 @@ public class AssetService {
 		
         return asset;
     }
+
+	/**
+	 * Finds an Asset entity based on the provided ass_obj_ref and ass_obj_table
+	 * @param assetObjRef Id of the asset
+	 * @param assetObjTable Name of the table asset
+	 * @return the asset
+	 */
+	public Asset getAssetByIdAndTable(String assetObjRef, String assetObjTable) {
+		return assetRepository.findByAssObjRefAndAssObjTable(assetObjRef, assetObjTable);
+	}
 }

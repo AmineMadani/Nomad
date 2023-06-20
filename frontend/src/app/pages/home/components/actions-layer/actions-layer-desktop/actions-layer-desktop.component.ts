@@ -45,4 +45,9 @@ export class ActionsLayerDesktopComponent implements OnInit {
     }
     this.toolboxPopover.dismiss();
   }
+
+  public displayToolbox(e: Event): void {
+    this.toolboxPopover.event = e;
+    this.isToolboxOpen = true;
+  }
 }
