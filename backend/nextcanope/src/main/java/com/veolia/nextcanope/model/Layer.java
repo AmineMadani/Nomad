@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -73,13 +74,13 @@ public class Layer implements Serializable {
 	@JsonProperty("lyr_llabel")
     private String lyrLlabel ;
 
-    @Column(name="lyr_display")
-	@JsonProperty("lyr_display")
-    private Boolean lyrDisplay ;
-
     @Column(name="lyr_valid")
 	@JsonProperty("lyr_valid")
     private Boolean lyrValid ;
+
+    @Column(name="lyr_display")
+	@JsonProperty("lyr_display")
+    private Boolean lyrDisplay ;
 
     @Column(name="lyr_ucre_id")
 	@JsonProperty("lyr_ucre_id")
@@ -107,14 +108,20 @@ public class Layer implements Serializable {
     private Domains domains ; 
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lyr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users modifiedBy;
+	@JsonIgnore
+    private Users modifiedBy ; 
 
 
-    @ManyToOne
+    @OneToMany(mappedBy="layer")
+    private List<LayerStyle> listOfLayerStyle ; 
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users createdBy;
+	@JsonIgnore
+    private Users createdBy ; 
 
 
     @ManyToOne
@@ -127,11 +134,11 @@ public class Layer implements Serializable {
 
 
     @OneToMany(mappedBy="layer")
-    private List<Tree> listOfTree ; 
+    private List<LayerReferences> listOfLayerReferences ; 
 
 
     @OneToMany(mappedBy="layer")
-    private List<LayerReferences> listOfLayerReferences ; 
+    private List<Tree> listOfTree ; 
 
 
     /**
@@ -229,20 +236,20 @@ public class Layer implements Serializable {
         return this.lyrLlabel;
     }
 
-	public void setLyrDisplay( Boolean lyrDisplay ) {
-        this.lyrDisplay = lyrDisplay ;
-    }
-
-    public Boolean getLyrDisplay() {
-        return this.lyrDisplay;
-    }
-
 	public void setLyrValid( Boolean lyrValid ) {
         this.lyrValid = lyrValid ;
     }
 
     public Boolean getLyrValid() {
         return this.lyrValid;
+    }
+
+	public void setLyrDisplay( Boolean lyrDisplay ) {
+        this.lyrDisplay = lyrDisplay ;
+    }
+
+    public Boolean getLyrDisplay() {
+        return this.lyrDisplay;
     }
 
 	public void setLyrUcreId( Long lyrUcreId ) {
@@ -286,6 +293,10 @@ public class Layer implements Serializable {
         return this.modifiedBy;
     } 
 
+    public List<LayerStyle> getListOfLayerStyle() {
+        return this.listOfLayerStyle;
+    } 
+
     public Users getCreatedBy() {
         return this.createdBy;
     } 
@@ -298,12 +309,12 @@ public class Layer implements Serializable {
         return this.listOfAsset;
     } 
 
-    public List<Tree> getListOfTree() {
-        return this.listOfTree;
-    } 
-
     public List<LayerReferences> getListOfLayerReferences() {
         return this.listOfLayerReferences;
+    } 
+
+    public List<Tree> getListOfTree() {
+        return this.listOfTree;
     } 
 
 

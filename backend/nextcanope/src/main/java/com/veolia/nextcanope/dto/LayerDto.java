@@ -1,13 +1,15 @@
 package com.veolia.nextcanope.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.veolia.nextcanope.model.Layer;
-
-import java.util.Date;
 /**
  * Dto for Layer Entity
  */
 public class LayerDto {
+	
     private Long id ;
 
     @JsonRawValue
@@ -29,8 +31,6 @@ public class LayerDto {
 
     private String lyrGeomSrid ;
 
-    private String lyrStyle ;
-
     private String lyrSlabel ;
 
     private String lyrLlabel ;
@@ -38,16 +38,8 @@ public class LayerDto {
     private Boolean lyrValid ;
 
     private Boolean lyrDisplay ;
-
-    private Long lyrUcreId ;
-
-    private Long lyrUmodId ;
-
-    private Date lyrDcre ;
-
-    private Date lyrDmod ;
-
-
+    
+    private List<StyleDto> listStyle = new ArrayList<StyleDto>();
 
     //--- GETTERS & SETTERS FOR FIELDS
     public void setId( Long id ) {
@@ -129,14 +121,6 @@ public class LayerDto {
         return this.lyrGeomSrid;
     }
 
-    public void setLyrStyle( String lyrStyle ) {
-        this.lyrStyle = lyrStyle ;
-    }
-
-    public String getLyrStyle() {
-        return this.lyrStyle;
-    }
-
     public void setLyrSlabel( String lyrSlabel ) {
         this.lyrSlabel = lyrSlabel ;
     }
@@ -168,39 +152,15 @@ public class LayerDto {
     public Boolean getLyrDisplay() {
         return this.lyrDisplay;
     }
-
-    public void setLyrUcreId( Long lyrUcreId ) {
-        this.lyrUcreId = lyrUcreId ;
-    }
-
-    public Long getLyrUcreId() {
-        return this.lyrUcreId;
-    }
-
-    public void setLyrUmodId( Long lyrUmodId ) {
-        this.lyrUmodId = lyrUmodId ;
-    }
-
-    public Long getLyrUmodId() {
-        return this.lyrUmodId;
-    }
-
-    public void setLyrDcre( Date lyrDcre ) {
-        this.lyrDcre = lyrDcre ;
-    }
-
-    public Date getLyrDcre() {
-        return this.lyrDcre;
-    }
-
-    public void setLyrDmod( Date lyrDmod ) {
-        this.lyrDmod = lyrDmod ;
-    }
-
-    public Date getLyrDmod() {
-        return this.lyrDmod;
-    }
     
+	public List<StyleDto> getListStyle() {
+		return listStyle;
+	}
+	
+	public void setListStyle(List<StyleDto> listStyle) {
+		this.listStyle = listStyle;
+	}
+	
 	public LayerDto(Layer layer) {
 		super();
 		this.id = layer.getId();
@@ -213,15 +173,10 @@ public class LayerDto {
 		this.lyrGeomColumnName = layer.getLyrGeomColumnName();
 		this.lyrUuidColumnName = layer.getLyrUuidColumnName();
 		this.lyrGeomSrid = layer.getLyrGeomSrid();
-		this.lyrStyle = layer.getLyrStyle();
 		this.lyrSlabel = layer.getLyrSlabel();
 		this.lyrLlabel = layer.getLyrLlabel();
 		this.lyrValid = layer.getLyrValid();
 		this.lyrDisplay = layer.getLyrDisplay();
-		this.lyrUcreId = layer.getLyrUcreId();
-		this.lyrUmodId = layer.getLyrUmodId();
-		this.lyrDcre = layer.getLyrDcre();
-		this.lyrDmod = layer.getLyrDmod();
 	}
 
 }

@@ -988,3 +988,100 @@ comment on column form_template_custom.ftc_dcre is 'Creation date';
 comment on column form_template_custom.ftc_dmod is 'Last modification date';
 comment on column form_template_custom.ftc_ddel is 'Deletion date';
 
+-- Table style definition
+-- Contains the style definition
+create table if not exists style_definition (
+  id                           bigserial primary key,
+  syd_code                     text not null,
+  syd_definition               text not null,
+  -- Technical metadata
+  syd_ucre_id                  bigint references users(id) default 0,
+  syd_umod_id                  bigint references users(id) default 0,
+  syd_dcre                     timestamp without time zone  default current_timestamp,
+  syd_dmod                     timestamp without time zone  default current_timestamp,
+  syd_ddel                     timestamp without time zone default null
+);
+
+-- Table style image
+-- Contains the style image
+create table if not exists style_image (
+  id                           bigserial primary key,
+  syd_id                       bigint references style_definition(id) not null,
+  syi_code                     text not null,
+  syi_source                   text not null,
+  -- Technical metadata
+  syi_ucre_id                  bigint references users(id) default 0,
+  syi_umod_id                  bigint references users(id) default 0,
+  syi_dcre                     timestamp without time zone  default current_timestamp,
+  syi_dmod                     timestamp without time zone  default current_timestamp,
+  syi_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table style_image is 'This table contains the style image';
+/* Comments on fields */
+comment on column style_image.id is 'Table unique ID';
+comment on column style_image.syd_id is 'The style definition';
+comment on column style_image.syi_code is 'The image code';
+comment on column style_image.syi_source is 'The source';
+comment on column style_image.syi_ucre_id is 'creator Id';
+comment on column style_image.syi_umod_id is 'Last modificator Id';
+comment on column style_image.syi_dcre is 'Creation date';
+comment on column style_image.syi_dmod is 'Last modification date';
+comment on column style_image.syi_ddel is 'Deletion date';
+
+-- Table layer_style
+-- Contains the styles for layers
+create table if not exists layer_style (
+  id                           bigserial primary key,
+  lse_code                     text not null,
+  syd_id                       bigint references style_definition(id) not null,
+  lyr_id                       bigint references layer(id) not null,
+  -- Technical metadata
+  lse_ucre_id                  bigint references users(id) default 0,
+  lse_umod_id                  bigint references users(id) default 0,
+  lse_dcre                     timestamp without time zone  default current_timestamp,
+  lse_dmod                     timestamp without time zone  default current_timestamp,
+  lse_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style is 'This table contains the form template';
+/* Comments on fields */
+comment on column layer_style.id is 'Table unique ID';
+comment on column layer_style.lse_code is 'Code layer';
+comment on column layer_style.syd_id is 'The style definition';
+comment on column layer_style.lyr_id is 'The layer id';
+comment on column layer_style.lse_ucre_id is 'creator Id';
+comment on column layer_style.lse_umod_id is 'Last modificator Id';
+comment on column layer_style.lse_dcre is 'Creation date';
+comment on column layer_style.lse_dmod is 'Last modification date';
+comment on column layer_style.lse_ddel is 'Deletion date';
+
+-- Table layer_style_custom
+-- Contains the layer style custom
+create table if not exists layer_style_custom (
+  id                           bigserial primary key,
+  lse_id                       bigint references layer_style(id) not null,
+  usr_id                       bigint references users(id) not null,
+  syd_id                       bigint references style_definition(id) not null,
+  -- Technical metadata
+  lsc_ucre_id                  bigint references users(id) default 0,
+  lsc_umod_id                  bigint references users(id) default 0,
+  lsc_dcre                     timestamp without time zone  default current_timestamp,
+  lsc_dmod                     timestamp without time zone  default current_timestamp,
+  lsc_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style_custom is 'This table contains the layer style custom';
+/* Comments on fields */
+comment on column layer_style_custom.id is 'Table unique ID';
+comment on column layer_style_custom.lse_id is 'Layer style id';
+comment on column layer_style_custom.usr_id is 'User ID';
+comment on column layer_style_custom.syd_id is 'The style definition';
+comment on column layer_style_custom.lsc_ucre_id is 'creator Id';
+comment on column layer_style_custom.lsc_umod_id is 'Last modificator Id';
+comment on column layer_style_custom.lsc_dcre is 'Creation date';
+comment on column layer_style_custom.lsc_dmod is 'Last modification date';
+comment on column layer_style_custom.lsc_ddel is 'Deletion date';

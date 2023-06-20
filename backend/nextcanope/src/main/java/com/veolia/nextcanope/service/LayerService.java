@@ -8,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.LayerDto;
+import com.veolia.nextcanope.dto.LayerStyleDto;
+import com.veolia.nextcanope.dto.StyleDto;
 import com.veolia.nextcanope.model.Layer;
+import com.veolia.nextcanope.model.StyleDefinition;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.repository.LayerRepositoryImpl;
+import com.veolia.nextcanope.repository.LayerStyleRepository;
+import com.veolia.nextcanope.repository.StyleDefinitionRepository;
 
 /**
  * PatrimonyService is a service class for managing patrimony-related data.
@@ -24,6 +29,12 @@ public class LayerService {
     
     @Autowired
     private LayerRepository layerRepository;
+    
+    @Autowired
+    private LayerStyleRepository layerStyleRepository;
+    
+    @Autowired
+    private StyleDefinitionRepository styleDefinitionRepository;
 
     /**
      * Retrieves the index associated with a specific key.
@@ -49,11 +60,17 @@ public class LayerService {
     /**
      * Get all Layers.
      */
-    public List<LayerDto> getLayers() {
+    public List<LayerDto> getLayers(Long userId) {
     	List<LayerDto> layersDto = new ArrayList<LayerDto>();
     	List<Layer> layers = layerRepository.findAll();
     	for(Layer layer:layers) {
-    		layersDto.add(new LayerDto(layer));
+    		LayerDto layerDto = new LayerDto(layer);
+    		List<LayerStyleDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
+    		for(LayerStyleDto layerStyle: lLayerStyle) {
+    			StyleDefinition styleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId()).get();
+    			layerDto.getListStyle().add(new StyleDto(styleDefinition));
+    		}
+    		layersDto.add(layerDto);
     	}
         return layersDto;
     }
