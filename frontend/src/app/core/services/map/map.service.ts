@@ -71,13 +71,6 @@ export class MapService {
       maxZoom: 22,
     });
     this.map.dragRotate.disable();
-    this.draw = new MapboxDraw({
-      displayControlsDefault: false,
-      controls: {
-        polygon: true,
-        trash: true,
-      },
-    });
     return this.map;
   }
 
@@ -322,19 +315,6 @@ export class MapService {
           }
         });
       }
-    }
-  }
-
-  public setDrawingControl(status: boolean): void {
-    if (status) {
-      this.map.addControl(this.draw as any, 'top-left');
-      this.drawActive = true;
-    } else {
-      this.map.removeControl(this.draw as any);
-      this.drawActive = false;
-      document
-        .getElementById('map-container')
-        .classList.remove('cursor-pointer');
     }
   }
 

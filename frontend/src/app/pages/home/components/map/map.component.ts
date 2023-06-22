@@ -25,6 +25,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import * as turf from '@turf/turf';
 import * as Maplibregl from 'maplibre-gl';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 @Component({
   selector: 'app-map',
@@ -71,13 +72,14 @@ export class MapComponent implements OnInit, OnDestroy {
   public basemaps: Basemap[];
   public displayMap: boolean;
   public mapBasemaps: Map<string, any> = new Map();
-
+  
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
-
+  
   public zoom: number;
   public scale: string;
+  public draw: MapboxDraw;
   public isMobile: boolean;
-
+  
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
 
@@ -278,8 +280,7 @@ export class MapComponent implements OnInit, OnDestroy {
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
     if (this.mapService.getDrawActive()) {
-      this.mapService.deleteDrawing();
-      this.mapService.setDrawingControl(false);
+      this.draw.deleteAll();
     }
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
@@ -356,21 +357,11 @@ export class MapComponent implements OnInit, OnDestroy {
    * Use the polygon drawing tool of MapboxDraw, with their input hidden
    */
   public onPolygonalSelection(): void {
-    if (this.mapService.getDrawActive()) {
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-      this.mapService.setDrawingControl(false);
-    } else {
-      this.mapService.setDrawingControl(true);
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-    }
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
 
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
@@ -402,6 +393,14 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.isMobile) {
       this.map.addControl(new CustomZoomControl(), 'bottom-right');
     }
+    this.draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+    });
+    this.map.addControl(this.draw as any, 'top-left');
   }
 
   /**
@@ -486,6 +485,13 @@ export class MapComponent implements OnInit, OnDestroy {
         this.onFeatureSelected(nearestFeature);
       });
 
+    fromEvent(this.map, 'touchend')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.queryNearestFeature(e);
+        this.onFeatureSelected(nearestFeature);
+      });
+
     // Right click, as context menu, event
     fromEvent(this.map, 'contextmenu')
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -505,7 +511,7 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
-        this.mapService.deleteDrawing();
+        this.draw.deleteAll();
 
         const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 

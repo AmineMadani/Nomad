@@ -19,7 +19,7 @@
   </ion-buttons>
 </ion-toolbar>
 
-<ion-popover #popover [isOpen]="isPopoverOpen" [dismissOnSelect]="true" (didDismiss)="isPopoverOpen = false" *ngIf="!minimalist">
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
   <ng-template>
     <ion-content>
       <ion-list>

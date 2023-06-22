@@ -61,8 +61,10 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
 
   public openPopover(e: Event): void {
-    this.popover.event = e;
-    this.isPopoverOpen = true;
+    if (!this.minimalist) {
+      this.popover.event = e;
+      this.isPopoverOpen = true;
+    }
   }
 
   public logout(): void {
