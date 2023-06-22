@@ -68,9 +68,8 @@ export class FormHistoryComponent implements OnInit {
    * @param workorder workorder clicked
    */
   public onWKOClick(workorder: Workorder) {
-    // const feature = MapFeature.from(workorder);
-    // this.openIntervention(feature);
-    console.log(workorder);
+    const feature = MapFeature.from(workorder);
+    this.openIntervention(feature);
   }
 
   /**
@@ -86,9 +85,5 @@ export class FormHistoryComponent implements OnInit {
 
   public openReport(w: Workorder): void {
     // To do in a following US
-  }
-
-  public log(): void {
-    console.log('hello world');
   }
 }

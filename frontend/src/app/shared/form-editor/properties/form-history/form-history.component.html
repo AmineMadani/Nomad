@@ -1,5 +1,5 @@
 <ng-container *ngIf="!isLoading">
-  <ion-item-group *ngFor="let w of this.workorders" (click)="onWKOClick(w)" (mouseenter)="log()">
+  <ion-item-group *ngFor="let w of this.workorders" (click)="onWKOClick(w)">
     <ion-item lines="none">
       <ion-label>{{ w.wtrLabel }}</ion-label>
       <ion-note slot="end">
