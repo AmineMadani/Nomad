@@ -388,7 +388,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.addControl(
       new Maplibregl.ScaleControl({
         unit: 'metric',
-      })
+      }),
+      "bottom-right"
     );
     if (this.isMobile) {
       this.map.addControl(new CustomZoomControl(), 'bottom-right');

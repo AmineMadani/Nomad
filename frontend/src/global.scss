@@ -290,20 +290,22 @@ mat-tab-group.mobile-tabs {
   bottom: 6px;
   left: 50%;
   transform: translate(-50%, -50%);
-
-  .maplibregl-ctrl-scale {
-    margin: 0 !important;
-    background-color: transparent;
-  }
 }
 
 .maplibregl-ctrl-bottom-right {
-  bottom: 16px;
-  // right 0 minus 164px (width of zoom range) + 16px of margin + 4px of height rotated
-  right: -144px;
-  bottom: 16px;
-  transform-origin: bottom left;
-  transform: rotate(-90deg) translateY(100%);
+  .maplibregl-ctrl-scale {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    margin: 0 !important;
+  }
+  .maplibregl-zoom {
+    position: absolute;
+    right: -144px;
+    bottom: 60px;
+    transform-origin: bottom left;
+    transform: rotate(-90deg) translateY(100%);
+  }
 }
 
 .zoom-range {
