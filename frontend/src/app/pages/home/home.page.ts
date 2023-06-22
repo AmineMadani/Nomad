@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { Subject, filter, take, takeUntil } from 'rxjs';
+import { Subject, filter, first, pairwise, switchMap, take, takeUntil, tap } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
@@ -12,7 +12,7 @@ import { LayerDataService } from 'src/app/core/services/dataservices/layer.datas
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { UserService } from 'src/app/core/services/user.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RoutesRecognized } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -150,23 +150,21 @@ export class HomePage implements OnInit, OnDestroy {
   private initRestoreUserContext(): void {
     this.router.events
       .pipe(
-        filter(
-          (event) =>
-            event instanceof NavigationEnd &&
-            event.url === this.utilsService.getPagePath(DrawerRouteEnum.HOME)
-        ),
-        take(1)
+        filter((e): e is RoutesRecognized => e instanceof RoutesRecognized),
+        pairwise(),
+        filter((events: RoutesRecognized[]) => {
+          return (
+            !events[0].url.includes('/home/') &&
+            events[1].url ===
+              this.utilsService.getPagePath(DrawerRouteEnum.HOME)
+          );
+        }),
+        switchMap(() => this.mapService.onMapLoaded()),
+        filter((mapLoaded: boolean) => mapLoaded),
+        first()
       )
       .subscribe(() => {
-        this.mapService
-          .onMapLoaded()
-          .pipe(
-            filter((isMapLoaded) => isMapLoaded),
-            take(1)
-          )
-          .subscribe(() => {
-            this.userService.restoreUserContextFromLocalStorage();
-          });
+        this.userService.restoreUserContextFromLocalStorage();
       });
   }
 }

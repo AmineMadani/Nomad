@@ -166,6 +166,7 @@ export class UserService {
    */
   public async restoreUserContextFromLocalStorage(): Promise<void> {
     const userContextHome = await this.getUserContext();
+    console.log(userContextHome);
     await this.restoreUserContextNavigation(userContextHome);
   }
 
