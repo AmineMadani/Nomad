@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
-import { FavoriteService } from './favorite.service';
 import { UserContext } from '../models/user-context.model';
 import { Router } from '@angular/router';
 import { UtilsService } from './utils.service';
@@ -14,7 +13,6 @@ import { TreeFilter } from '../models/filter/filter-component-models/TreeFilter.
 import { WorkOrderFilter } from '../models/filter/filter-component-models/WorkOrderFilter.model';
 import { FilterService } from './filter.service';
 import { PreferenceService } from './preference.service';
-import { firstValueFrom } from 'rxjs';
 
 /**
  * Enum of cache items in local storage
@@ -32,7 +30,6 @@ export class UserService {
   constructor(
     private userDataService: UserDataService,
     private mapService: MapService,
-    private favoriteService: FavoriteService,
     private router: Router,
     private utilsService: UtilsService,
     private filterService: FilterService,
@@ -47,23 +44,16 @@ export class UserService {
   public async getCurrentUserContext(): Promise<UserContext> {
     const mapLibre: maplibregl.Map = this.mapService.getMap();
     const userId: User = await this.getUser();
-    const filterStored = this.favoriteService.getFilter();
     if (!userId) {
       throw new Error('failed to load user informations');
     }
-    let filterJson = JSON.stringify(filterStored, (key, value) => {
-      if (typeof value?.getType !== "undefined") {
-        value.type = value.getType();
-      }
-      return value;
-    });
 
     const userContext = <UserContext>{
       zoom: mapLibre.getZoom(),
       lng: mapLibre.getCenter().lng,
       lat: mapLibre.getCenter().lat,
       userId: userId.id,
-      userPreferences: filterJson,
+      userPreferences: "",
       url: this.router.url,
     }
     return userContext;
@@ -75,13 +65,18 @@ export class UserService {
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
   async getUser(): Promise<User | undefined> {
-    const user: User | undefined = await this.preferenceService.getPreference(LocalStorageUserKey.USER);
-    if (!user) {
-      const refreshUser: User = await firstValueFrom(this.userDataService.getUserInformation());
-      this.setUser(refreshUser);
-      return refreshUser;
+    const usr: any = await this.userDataService.getUserInformation();
+    if(usr.usrConfiguration){
+      usr.usrConfiguration = JSON.parse(usr.usrConfiguration);
+      if(!usr.usrConfiguration.favorites){
+        usr.usrConfiguration.favorites = []
+      }
+    } else {
+      usr.usrConfiguration = {
+        favorites : []
+      }
     }
-    return user;
+    return usr;
   }
 
   /**
@@ -90,6 +85,7 @@ export class UserService {
    */
   setUser(user: User) {
     this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
+    this.updateUser(user);
   }
 
   /**
@@ -97,6 +93,14 @@ export class UserService {
    */
   resetUser() {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER);
+  }
+
+  /**
+   * Update the user data
+   * @param user  the user
+   */
+  updateUser(user: User){
+    this.userDataService.updateUser(user);
   }
 
   /**
@@ -147,7 +151,6 @@ export class UserService {
           return value;
       }
     });
-    this.favoriteService.setFilter(userPrefJson);
     this.filterService.applyFilter(userPrefJson);
   }
 
@@ -155,9 +158,8 @@ export class UserService {
    * Restore te user context from base
    */
   public async restoreUserContextFromBase(): Promise<void> {
-    this.userDataService.getUserInformation().subscribe((userInfo: User) => {
-      this.restoreFilter(userInfo.userContext);
-    });
+    const usr: any = await this.userDataService.getUserInformation();
+    this.restoreFilter(usr.userContext);
   }
 
   /**

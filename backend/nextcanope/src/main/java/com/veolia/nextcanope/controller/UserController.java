@@ -41,8 +41,15 @@ public class UserController {
 	public AccountDto getUserInformation(AccountTokenDto account) {
 		return new AccountDto(account);
 	};
-
-
+	
+	@PutMapping(path ="/update")
+	@Operation(summary = "Update the user data")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "User data is updated")
+	})
+	public AccountDto updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) throws Exception {
+		return userService.updateUser(account.getId(), savingAccount);
+	}
 
 	@PutMapping(path ="/user-context")
 	@Operation(summary = "Set the user context")

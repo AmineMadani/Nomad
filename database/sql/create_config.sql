@@ -43,7 +43,8 @@ create table users
   usr_umod_id       bigint default 0,
   usr_dcre          timestamp without time zone  default current_timestamp,
   usr_dmod          timestamp without time zone  default current_timestamp,
-  usr_ctxt      text
+  usr_ctxt          text,
+  usr_configuration text
 );
 /* Comments on table */
 comment on table users is 'This table defines the application users.';
@@ -58,6 +59,7 @@ comment on column users.usr_umod_id is 'Last Modificator Id';
 comment on column users.usr_dcre is 'Creation date';
 comment on column users.usr_dmod is 'Last modification date';
 comment on column users.usr_ctxt is 'User context';
+comment on column users.usr_configuration is 'User configuration';
 
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'administrator', 'administrator', 'administrator@veolia.com');
 

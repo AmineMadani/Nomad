@@ -12,7 +12,6 @@ import { ConfigurationService } from '../configuration.service';
 import { Basemap } from '../../models/basemap.model';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapEventService } from './map-event.service';
-import { aep_vanne_images } from '../../mocks/Styles.moc';
 
 export interface Box {
   x1: number;
@@ -50,6 +49,7 @@ export class MapService {
   private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
+  private loadingStyle: Map<string, string[]> = new Map<string, string[]>();
   private loadedLayer: Array<string> = new Array<string>();
 
   /**
@@ -66,7 +66,6 @@ export class MapService {
       zoom: 14,
       maxZoom: 22,
     });
-    this.AddExtraImages();
     this.map.dragRotate.disable();
     this.draw = new MapboxDraw({
       displayControlsDefault: false,
@@ -76,16 +75,6 @@ export class MapService {
       },
     });
     return this.map;
-  }
-
-  private AddExtraImages() {
-    aep_vanne_images.forEach((idImage: string) => {
-      this.map.loadImage(this.configurationService.host + 'assets/img/patrimony/aep_vanne/'+idImage+'.png', (error, image) => {
-        if (error) throw error;
-        this.map.addImage(idImage, image);
-      });
-    });
-    
   }
 
   /**
@@ -181,14 +170,24 @@ export class MapService {
    * Bind different events to a layer like click or hovered
    * @param {string} layerKey - string - The key of the layer to bind events
    */
-  public async addEventLayer(layerKey: string, invisible?: boolean): Promise<void> {
-
+  public async addEventLayer(layerKey: string, styleKey?: string): Promise<void> {
+    
     if (!layerKey) {
       return;
     }
 
+    //If style loading in queue
+    if (this.loadingStyle.get(layerKey)) {
+      if (!this.loadingStyle.get(layerKey)[styleKey]) {
+        this.loadingStyle.get(layerKey).push(styleKey);
+      }
+    } else {
+      this.loadingStyle.set(layerKey, [styleKey]);
+    }
+
     //If layer is loaded
     if (this.loadedLayer.indexOf(layerKey) >= 0) {
+      this.displayLayer(layerKey);
       return new Promise<void>((resolve) => resolve());
     }
     else {
@@ -200,41 +199,62 @@ export class MapService {
       const layer: MaplibreLayer = new MaplibreLayer(
         this.layersConfiguration.find(
           (element) => element.lyrTableName == 'asset.' + layerKey
-        )
+        ),
+        this.map
       );
       this.layers.set(layerKey, layer);
       this.map.zoomTo(this.map.getZoom() + 0.0001);
       this.map.addSource(layerKey, layer.source);
 
-      for (let oneStyle of layer.style) {
+      for (let style of layer.style) {
         setTimeout(() => {
-          if (invisible) oneStyle['layout']['visibility'] = 'none';
-          else oneStyle['layout']['visibility'] = 'visible';
-          this.map.addLayer(oneStyle);
+          this.map.addLayer(style);
         });
       }
 
       const layerPromise = new Promise<void>((resolve) => {
-        this.map.once('idle', (e) => {
+        this.map.once('idle', async (e) => {
           this.applyFilterOnMap(layerKey);
-          const isValid = (): boolean =>
-            layer.style.every((style) => this.map.getLayer(style.id));
-          if (isValid() && this.map.querySourceFeatures(layerKey).length > 0) {
-            this.loadedLayer.push(layerKey);
-            this.loadingLayer.delete(layerKey);
-            resolve();
-          } else {
-            setTimeout(() => {
-              this.loadedLayer.push(layerKey);
-              this.loadingLayer.delete(layerKey);
-              resolve();
-            }, 3000);
+          const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+          for(let i=0; i < 6; i++){
+            if(this.map.querySourceFeatures(layerKey).length > 0){
+              break;
+            }
+            await sleep(500);
           }
+          this.displayLayer(layerKey);
+          this.loadedLayer.push(layerKey);
+          this.loadingLayer.delete(layerKey);
+          resolve();
         });
       });
       this.loadingLayer.set(layerKey, layerPromise);
       return layerPromise;
     }
+  }
+
+  /**
+   * Method to display all or specific style of a layer
+   * @param layerKey The layer key
+   * @param styleLayer The style id
+   */
+  private displayLayer(layerKey: string) {
+    for (let styleLayer of this.loadingStyle.get(layerKey)) {
+      for (let style of this.map.getStyle().layers) {
+        if (!styleLayer) {
+          if (style.layout?.visibility === 'none' && (style as any).source == layerKey) {
+            this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+          }
+        } else {
+          if (style.id.includes(styleLayer)
+            && (style as any).source == layerKey
+            && style.layout?.visibility === 'none') {
+            this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+          }
+        }
+      }
+    }
+    this.loadingStyle.set(layerKey,[]);
   }
 
   /**
@@ -275,25 +295,54 @@ export class MapService {
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.
    */
-  public removeEventLayer(layerKey: string): void {
+  public removeEventLayer(layerKey: string, styleLayer?: string): void {
     if (this.hasEventLayer(layerKey)) {
-      this.removeLoadedLayer(layerKey);
-      const mLayer = this.layers.get(layerKey)!;
+      if (styleLayer) {
+        this.hideLayer(layerKey, styleLayer);
+      } else {
+        this.removeLoadedLayer(layerKey);
+        const mLayer = this.layers.get(layerKey)!;
 
-      // Removing registered events
-      mLayer.style.forEach((style) => {
-        this.map.removeLayer(style.id);
-      });
+        // Removing registered events
+        mLayer.style.forEach((style) => {
+          this.map.removeLayer(style.id);
+        });
 
-      // Removing data from Maps
-      this.loadedGeoJson.delete(layerKey);
-      this.layers.delete(layerKey);
+        // Removing data from Maps
+        this.loadedGeoJson.delete(layerKey);
+        this.layers.delete(layerKey);
 
-      // Deletion of layers & source, putting an empty array to avoid cloning data later
-      (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
-        removeAll: true,
-      });
-      this.map.removeSource(layerKey);
+        // Deletion of layers & source, putting an empty array to avoid cloning data later
+        (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
+          removeAll: true,
+        });
+        this.map.removeSource(layerKey);
+      }
+    }
+  }
+
+  /**
+   * Method to hide a specific style of a layer
+   * @param layerKey The layer key
+   * @param styleLayer The style id
+   */
+  private hideLayer(layerKey: string, styleLayer: string) {
+    for (let style of this.map.getStyle().layers) {
+      if (style.id.includes(styleLayer)
+        && (style as any).source == layerKey
+        && style.layout?.visibility === 'visible') {
+        this.map.setLayoutProperty(style.id, 'visibility', 'none');
+      }
+    }
+    let removeLayer = true;
+    for (let style of this.map.getStyle().layers) {
+      if ((style as any).source == layerKey
+        && style.layout?.visibility === 'visible') {
+        removeLayer = false;
+      }
+    }
+    if (removeLayer) {
+      this.removeEventLayer(layerKey);
     }
   }
 

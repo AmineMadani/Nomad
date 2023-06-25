@@ -23,10 +23,10 @@ public interface LayerStyleRepository extends JpaRepository<LayerStyle, Long> {
      * @return the list of layer references.
      */
     @Query(
-            value = "select lse_code as code, coalesce(sd2.id,sd.id) as definitionId from layer_style ls  "
-            		+ "inner join style_definition sd on ls.syd_id=sd.id "
-            		+ "left join layer_style_custom lsc on lsc.lse_id=ls.id and lsc.usr_id = :userId "
-            		+ "left join style_definition sd2 on sd2.id=lsc.syd_id "
+            value = "select lse_code as code, coalesce(sd2.id,sd.id) as definitionId from nomad.layer_style ls  "
+            		+ "inner join nomad.style_definition sd on ls.syd_id=sd.id "
+            		+ "left join nomad.layer_style_custom lsc on lsc.lse_id=ls.id and lsc.usr_id = :userId "
+            		+ "left join nomad.style_definition sd2 on sd2.id=lsc.syd_id "
             		+ "where ls.lyr_id = :layerId ",
             nativeQuery = true
     )

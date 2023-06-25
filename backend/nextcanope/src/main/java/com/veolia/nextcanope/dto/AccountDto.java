@@ -17,6 +17,8 @@ public class AccountDto {
 	
 	private Boolean isValid = false;
 	
+	private String usrConfiguration;
+	
 	@JsonRawValue
 	private String userContext;
 
@@ -75,6 +77,18 @@ public class AccountDto {
 	public void setUserContext(String userContext) {
 		this.userContext = userContext;
 	}
+	
+	public String getUsrConfiguration() {
+		return usrConfiguration;
+	}
+
+	public void setUsrConfiguration(String usrConfiguration) {
+		this.usrConfiguration = usrConfiguration;
+	}
+	
+	public AccountDto() {
+		super();
+	}
 
 	public AccountDto(AccountTokenDto accountTokenDto) {
 		super();
@@ -85,6 +99,7 @@ public class AccountDto {
 		this.isValid=accountTokenDto.getIsValid();
 		this.lastName=accountTokenDto.getLastName();
 		this.userContext = accountTokenDto.getUserContext();
+		this.usrConfiguration = accountTokenDto.getUsrConfiguration();
 	}
 
 	public AccountDto(Users user) {

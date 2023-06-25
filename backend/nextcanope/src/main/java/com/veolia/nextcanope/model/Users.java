@@ -72,6 +72,10 @@ public class Users implements Serializable {
 	@JsonProperty("usr_ctxt")
     private String usrCtxt ;
 
+    @Column(name="usr_configuration", length=2147483647)
+	@JsonProperty("usr_configuration")
+    private String usrConfiguration ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -416,6 +420,14 @@ public class Users implements Serializable {
 
     public String getUsrCtxt() {
         return this.usrCtxt;
+    }
+
+	public void setUsrConfiguration( String usrConfiguration ) {
+        this.usrConfiguration = usrConfiguration ;
+    }
+
+    public String getUsrConfiguration() {
+        return this.usrConfiguration;
     }
 
     //--- GETTERS FOR LINKS

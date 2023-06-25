@@ -32,6 +32,8 @@ public class LayerDto {
     private String lyrGeomSrid ;
 
     private String lyrSlabel ;
+    
+    private String lyrStyle;
 
     private String lyrLlabel ;
 
@@ -161,6 +163,12 @@ public class LayerDto {
 		this.listStyle = listStyle;
 	}
 	
+	public String getLyrStyle() {
+		return lyrStyle;
+	}
+	public void setLyrStyle(String lyrStyle) {
+		this.lyrStyle = lyrStyle;
+	}
 	public LayerDto(Layer layer) {
 		super();
 		this.id = layer.getId();
@@ -177,6 +185,7 @@ public class LayerDto {
 		this.lyrLlabel = layer.getLyrLlabel();
 		this.lyrValid = layer.getLyrValid();
 		this.lyrDisplay = layer.getLyrDisplay();
+		this.lyrStyle = layer.getLyrStyle();
 	}
 
 }

@@ -1,8 +1,8 @@
 <ion-accordion-group>
-  <ion-radio-group [allowEmptySelection]="true" [value]="getCurrentFavorite()" (ionChange)="onFavoriteSelected($event)">
-    <ion-accordion *ngFor="let fd of data" [toggleIcon]="''">
+  <ion-radio-group [allowEmptySelection]="true" [value]="assetFilterService.selectedFavorite ? assetFilterService.selectedFavorite.name : ''">
+    <ion-accordion *ngFor="let fd of user?.usrConfiguration?.favorites" [toggleIcon]="''">
       <ion-item slot="header" (click)="onOpenAccordion(fd)">
-        <ion-radio aria-label="radio" slot="start" mode="md" [value]="fd"></ion-radio>
+        <ion-radio aria-label="radio" slot="start" mode="md" [value]="fd.name" (click)="onApplyFavorite(fd)"></ion-radio>
         <ion-label>{{ fd.name }}</ion-label>
         <ion-icon slot="end" color="primary"
           [name]="currentFavOpen === fd ? 'remove-outline' : 'add-outline'"></ion-icon>
