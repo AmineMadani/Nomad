@@ -30,9 +30,19 @@ export class MaplibreLayer {
   }
 
   private buildStyle(map : Maplibregl.Map, lLayerStyle: LayerStyle[]): any[] {
-    let style:any[] = [];
+    let styles:any[] = [];
     for(let layerStyle of lLayerStyle){
-      style = style.concat(JSON.parse(layerStyle.definition));
+      let transformStyle = JSON.parse(layerStyle.definition);
+      let nb = 0;
+      for(let style of transformStyle) {
+        if(nb == 0){
+          style.id = layerStyle.code;
+        } else {
+          style.id = layerStyle.code+'_'+nb;
+        }
+        nb++;
+      }
+      styles = styles.concat(transformStyle);
       for(let img of layerStyle.listImage){
         if(!map.hasImage(img.code)) {
           map.loadImage(img.source, (error, image) => {
@@ -44,7 +54,7 @@ export class MaplibreLayer {
       }
     }
 
-    return style;
+    return styles;
   }
 
 }

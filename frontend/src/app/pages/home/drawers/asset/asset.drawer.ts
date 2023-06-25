@@ -1,13 +1,13 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AlertController, IonAccordionGroup } from '@ionic/angular';
-import { Subject, takeUntil } from 'rxjs';
+import { AlertController } from '@ionic/angular';
+import { Subject } from 'rxjs';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
-import { EqData, FavData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
 import {
   FilterSegment,
   FilterType,
 } from 'src/app/core/models/filter/filter-segment.model';
-import { Filter, FilterAsset } from 'src/app/core/models/filter/filter.model';
+import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
@@ -26,7 +26,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private alertController: AlertController,
-    private filterService: FilterService,
     private templateDataService: TemplateDataService,
     private assetFilterService: AssetFilterService,
     private userService: UserService,
@@ -53,14 +52,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
   isMobile: boolean = false;
 
-  title(): string {
-    let val = 'Patrimoine';
-    if (this.assetFilterService.selectedFavorite) {
-      val += ' (' + this.assetFilterService.selectedFavorite.name + ')';
-    }
-    return val;
-  }
-
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
   }
@@ -74,14 +65,22 @@ export class AssetDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  isModifyFavorite = () => {
+  public isModifyFavorite = () => {
     if (this.assetFilterService.selectedFavorite) {
       return this.selectedSegment === this.assetFilterService.selectedFavorite.segment;
     }
     return false;
   };
 
-  isFavoriteDataChange = () => {
+  public getTitle(): string {
+    let val = 'Patrimoine';
+    if (this.assetFilterService.selectedFavorite) {
+      val += ' (' + this.assetFilterService.selectedFavorite.name + ')';
+    }
+    return val;
+  }
+
+  public isFavoriteDataChange = () => {
     if (this.isModifyFavorite()) {
       const selectedLayers = this.assetFilterService.getselectedLayer(this.assetFilterSegment.find(asset => asset.name == this.selectedSegment));
       if (selectedLayers.length != this.assetFilterService.selectedFavorite.layers.length) {
@@ -100,7 +99,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
    * This is an async function that displays an alert asking the user if they want to modify a selected
    * favorite, and if confirmed, updates the selected favorite with new equipment data.
    */
-  async modifyFavorite(): Promise<void> {
+  public async onModifyFavorite(): Promise<void> {
     const alert = await this.alertController.create({
       header:
         'Voulez-vous modifier le favori ' +
@@ -165,7 +164,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
    * Adds a new favorite to a list of favorites, with the option to modify an existing
    * favorite if a duplicate name is found.
    */
-  async addFavorite() {
+  public async onAddFavorite() {
 
     let newfavorite: Favorite = {
       name: "",
@@ -247,7 +246,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
         }
         this.userService.setUser(this.user);
       } else if (finalCreateConfirmation === false) {
-        this.addFavorite();
+        this.onAddFavorite();
       } else {
         this.user.usrConfiguration.favorites.push(newfavorite);
         this.userService.setUser(this.user);
@@ -255,9 +254,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
       }
     }
   }
-
-
-  //**************** New *****************/
 
   /**
    * Updates the selected segment

@@ -1,6 +1,6 @@
 <div class="asset-drawer">
   <ion-item lines="none">
-    <ion-label class="header-label">{{ title() }}</ion-label>
+    <ion-label class="header-label">{{ getTitle() }}</ion-label>
     <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
   </ion-item>
 
@@ -39,9 +39,9 @@
   <ng-container *ngIf="!isMobile">
     <div class="patrimony-footer-actions" lines="none">
       <ion-button fill="clear" (click)="onReset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
-      <ion-button fill="clear" (click)="modifyFavorite()" *ngIf="isModifyFavorite()"
+      <ion-button fill="clear" (click)="onModifyFavorite()" *ngIf="isModifyFavorite()"
         [disabled]="!isFavoriteDataChange()">Modifier le favori</ion-button>
-      <ion-button fill="clear" (click)="addFavorite()" *ngIf="!isFavoriteSegment()"
+      <ion-button fill="clear" (click)="onAddFavorite()" *ngIf="!isFavoriteSegment()"
         [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer un
         favori</ion-button>
     </div>
@@ -52,11 +52,11 @@
         <ion-icon name="refresh-outline"></ion-icon>
         Réinitialiser
       </ion-tab-button>
-      <ion-tab-button *ngIf="isModifyFavorite()" (click)="modifyFavorite()" [disabled]="!isFavoriteDataChange()">
+      <ion-tab-button *ngIf="isModifyFavorite()" (click)="onModifyFavorite()" [disabled]="!isFavoriteDataChange()">
         <ion-icon name="pencil-outline"></ion-icon>
         Modifier le favori
       </ion-tab-button>
-      <ion-tab-button *ngIf="!isFavoriteSegment()" (click)="addFavorite()" [disabled]="!isSelectedDataOnSegment()">
+      <ion-tab-button *ngIf="!isFavoriteSegment()" (click)="onAddFavorite()" [disabled]="!isSelectedDataOnSegment()">
         <ion-icon name="create-outline"></ion-icon>
         Créer un favori
       </ion-tab-button>

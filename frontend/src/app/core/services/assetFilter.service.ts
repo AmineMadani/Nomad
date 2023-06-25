@@ -23,18 +23,34 @@ export class AssetFilterService {
   public treeControl: NestedTreeControl<FilterAsset>;
   public selectedFavorite: Favorite;
 
+  /**
+   * Return the asset filter
+   * @returns asset filter
+   */
   public getAssetFilter(): FilterAsset[] {
     return this.assetFilter;
   }
 
+  /**
+   * Retur the asset filter datasource
+   * @returns asset filter datasource
+   */
   public getAssetFilterDataSource(): MatTreeNestedDataSource<FilterAsset> {
     return this.dataSource;
   }
 
+  /**
+   * Get the asset filter tree control
+   * @returns asset filter tree control
+   */
   public getAssetFilterTreeControl(): NestedTreeControl<FilterAsset> {
     return this.treeControl;
   }
 
+  /**
+   * Set the asset filter
+   * @param assetFilter the asset filter
+   */
   public setAssetFilter(assetFilter: FilterAsset[]) {
     this.assetFilter = assetFilter;
     this.dataSource = new MatTreeNestedDataSource<FilterAsset>();
@@ -42,8 +58,36 @@ export class AssetFilterService {
       (node: FilterAsset) => node.child
     );
     this.dataSource.data = this.assetFilter;
+    this.mapService.onMapLoaded().subscribe(() => {
+      const mapLayerLoaded: string[] = Object.keys(this.mapService.getMap().style._layers).map((key) => key);
+      if(mapLayerLoaded && mapLayerLoaded.length > 0) {
+        let descendants: FilterAsset[] = [];
+        for (let assetFilter of this.assetFilter) {
+          descendants = descendants.concat(this.treeControl.getDescendants(assetFilter));
+        }
+        for (let descendant of descendants) {
+          if(descendant.styleKey) {
+            if(mapLayerLoaded.includes(descendant.styleKey?.toUpperCase())) {
+              this.selectAssetFilter(descendant, true);
+            }
+          } else {
+            if(mapLayerLoaded.includes(descendant.layerKey?.toUpperCase())) {
+              this.selectAssetFilter(descendant, true);
+            }
+          }
+        }
+        setTimeout(() => {
+          this.refreshAssetFilter(this.assetFilter);
+        });
+      }
+    });
   }
 
+  /**
+   * Select the asset filter
+   * @param node the filter asset to select
+   * @param value true or false
+   */
   public selectAssetFilter(node: FilterAsset, value: boolean) {
     node.selected = value;
     this.displayNode(node);
@@ -55,6 +99,11 @@ export class AssetFilterService {
     this.refreshAssetFilter(this.assetFilter);
   }
 
+  /**
+   * Get filter asset with the segment type
+   * @param treeFilter the tree filter
+   * @returns segments filters asset
+   */
   public getFilterSegment(treeFilter: FilterAsset[]): FilterAsset[] {
     let filters: FilterAsset[] = [];
     for (let filter of treeFilter) {
@@ -67,13 +116,18 @@ export class AssetFilterService {
     return filters;
   }
 
+  /**
+   * Get the list of selected asset with a layer
+   * @param selectedSegment the selected segment target. If undefined search in all tree
+   * @returns the selected layers
+   */
   public getselectedLayer(selectedSegment: FilterAsset | undefined): FilterAsset[] {
     let descendants: FilterAsset[] = [];
 
-    if(selectedSegment) {
+    if (selectedSegment) {
       descendants = this.treeControl.getDescendants(selectedSegment);
     } else {
-      for(let assetFilter of this.assetFilter) {
+      for (let assetFilter of this.assetFilter) {
         descendants = descendants.concat(this.treeControl.getDescendants(assetFilter))
       }
     }
@@ -81,6 +135,10 @@ export class AssetFilterService {
     return descendants.filter(descendant => descendant.selected && descendant.layerKey)
   }
 
+  /**
+   * Method to display the filter asset on the map
+   * @param node the filter asset to displau
+   */
   private displayNode(node: FilterAsset) {
     if (node.layerKey) {
       if (node.selected) {
@@ -91,21 +149,25 @@ export class AssetFilterService {
     }
   }
 
+  /**
+   * Method to apply de favorite
+   * @param favorite favorite to apply
+   */
   public applyFavorite(favorite: Favorite) {
     this.reset();
     let descendants: FilterAsset[] = [];
-    for(let assetFilter of this.assetFilter) {
+    for (let assetFilter of this.assetFilter) {
       descendants = descendants.concat(this.treeControl.getDescendants(assetFilter))
     }
 
-    for(let layer of favorite.layers) {
-      for(let descendant of descendants){
-        if(layer.styleKey) {
-          if(layer.styleKey == descendant.styleKey && layer.layerKey == descendant.layerKey) {
+    for (let layer of favorite.layers) {
+      for (let descendant of descendants) {
+        if (layer.styleKey) {
+          if (layer.styleKey == descendant.styleKey && layer.layerKey == descendant.layerKey) {
             this.selectAssetFilter(descendant, true);
-          } 
+          }
         } else {
-          if(!descendant.styleKey && layer.layerKey == descendant.layerKey) {
+          if (!descendant.styleKey && layer.layerKey == descendant.layerKey) {
             this.selectAssetFilter(descendant, true);
           }
         }
@@ -118,6 +180,9 @@ export class AssetFilterService {
     });
   }
 
+  /**
+   * Reset all the tree filter
+   */
   public reset() {
     for (let filter of this.assetFilter) {
       this.selectAssetFilter(filter, false);
@@ -125,6 +190,10 @@ export class AssetFilterService {
     this.selectedFavorite = undefined;
   }
 
+  /**
+   * Method to know if there is a selected filter asset in the tree
+   * @returns true or false
+   */
   public hasSelectedItem(): boolean {
     for (let filter of this.assetFilter) {
       if (filter.selected) {
@@ -140,6 +209,10 @@ export class AssetFilterService {
     return false;
   }
 
+  /**
+   * Method to know if there is a selected filter asset in a specific segment
+   * @returns true or false
+   */
   public hasSelectedItemOnSegment(filterAsset: FilterAsset): boolean {
     if (filterAsset.selected) {
       return true;
@@ -153,6 +226,10 @@ export class AssetFilterService {
     return false;
   }
 
+  /**
+   * Method to refresh all the filter asset tree
+   * @param filters the filter asset tree
+   */
   private refreshAssetFilter(filters: FilterAsset[]) {
     for (let filter of filters) {
       let descendants = this.treeControl.getDescendants(filter);

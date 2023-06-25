@@ -68,6 +68,7 @@ public class LayerService {
     		List<LayerStyleDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
     		for(LayerStyleDto layerStyle: lLayerStyle) {
     			StyleDefinition styleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId()).get();
+    			styleDefinition.setSydCode(layerStyle.getCode());
     			layerDto.getListStyle().add(new StyleDto(styleDefinition));
     		}
     		layersDto.add(layerDto);
