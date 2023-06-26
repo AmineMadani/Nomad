@@ -1,13 +1,6 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
-import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
-import { ToggleData } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
-import {
-  FilterSegment,
-  FilterType,
-} from 'src/app/core/models/filter/filter-segment.model';
 import { CustomFilter, FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
@@ -23,6 +16,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
   styleUrls: ['./asset.drawer.scss'],
 })
 export class AssetDrawer implements OnInit, OnDestroy {
+
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
@@ -44,15 +38,14 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
-  public assetFilterTree: FilterAsset[];
+  
   public assetFilterSegment: FilterAsset[];
   public selectedSegment?: string;
+  public assetFilterTree: FilterAsset[];
+  public isMobile: boolean = false;
   public user: User;
 
-  public currentSegment: FilterSegment | undefined;
   private ngUnsubscribe: Subject<void> = new Subject();
-
-  isMobile: boolean = false;
 
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -67,6 +60,10 @@ export class AssetDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
+  /**
+   * Check if the favorite is on the right segment
+   * @returns True if the favorite is on the current segment
+   */
   public isModifyFavorite = () => {
     if (this.assetFilterService.selectedFavorite) {
       return this.selectedSegment === this.assetFilterService.selectedFavorite.segment;
@@ -74,6 +71,10 @@ export class AssetDrawer implements OnInit, OnDestroy {
     return false;
   };
 
+  /**
+   * Get the title
+   * @returns Formatted title
+   */
   public getTitle(): string {
     let val = 'Patrimoine';
     if (this.assetFilterService.selectedFavorite) {
@@ -82,6 +83,10 @@ export class AssetDrawer implements OnInit, OnDestroy {
     return val;
   }
 
+  /**
+   * Check if favorite data change
+   * @returns true if favorite data change
+   */
   public isFavoriteDataChange = () => {
     if (this.isModifyFavorite()) {
       const selectedLayers = this.assetFilterService.getselectedLayer(this.assetFilterSegment.find(asset => asset.name == this.selectedSegment));
@@ -91,6 +96,74 @@ export class AssetDrawer implements OnInit, OnDestroy {
         if (selectedLayers.map(res => res.styleKey ? res.layerKey + res.styleKey : res.layerKey).sort().join("") !=
           this.assetFilterService.selectedFavorite.layers.map(res => res.styleKey ? res.layerKey + res.styleKey : res.layerKey).sort().join("")) {
           return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  /**
+   * Toggle custom filter on a specific segment
+   * @param segment the segment to filter
+   * @param customFilter  the custom filter
+   * @param e the event
+   */
+  public onToggleChange(segment: FilterAsset, customFilter: CustomFilter , e: Event) {
+    customFilter.checked = (e as CustomEvent).detail.checked;
+    let selectedLayers:FilterAsset[] = this.assetFilterService.getselectedLayer(segment);
+    let layers:string[] = selectedLayers.filter(filter => !filter.styleKey).map(filter => filter.layerKey);
+    layers = layers.filter((item, index) => layers.indexOf(item) === index);
+    this.filterService.setToggleFilter(layers, customFilter.key, customFilter.value, !customFilter.checked);
+  }
+
+  /**
+   * Updates the selected segment
+   * @param {any} event - The event of the segment button
+   */
+  public onSegmentChange(event: any) {
+    this.selectedSegment = event.detail.value;
+  }
+
+  /**
+   * Reset all the layers
+   */
+  public onReset() {
+    this.assetFilterService.reset();
+  }
+
+  /**
+   * Check if is the favorite segment
+   * @returns True if favorite segment
+   */
+  public isFavoriteSegment(): boolean {
+    return this.selectedSegment == 'favorite'
+  };
+
+  /**
+   * Check if data selected
+   */
+  public isSelectedData(): boolean {
+    if (this.assetFilterSegment) {
+      return this.assetFilterService.hasSelectedItem();
+    }
+    return false;
+  }
+
+  /**
+   * Check if data selected on a segment
+   * @returns 
+   */
+  public isSelectedDataOnSegment(): boolean {
+    if (this.selectedSegment == "details") {
+      return this.assetFilterService.hasSelectedItem();
+    }
+    if (this.selectedSegment == "favorite") {
+      return false;
+    }
+    if (this.assetFilterSegment) {
+      for (let segment of this.assetFilterSegment) {
+        if (segment.name == this.selectedSegment) {
+          return this.assetFilterService.hasSelectedItemOnSegment(segment);
         }
       }
     }
@@ -142,31 +215,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
       }
       this.userService.setUser(this.user);
     }
-  }
-
-  onToggleChange(segment: FilterAsset, customFilter: CustomFilter , e: Event) {
-    customFilter.checked = (e as CustomEvent).detail.checked;
-    let selectedLayers:FilterAsset[] = this.assetFilterService.getselectedLayer(segment);
-    let layers:string[] = selectedLayers.filter(filter => !filter.styleKey).map(filter => filter.layerKey);
-    layers = layers.filter((item, index) => layers.indexOf(item) === index);
-    this.filterService.setToggleFilter(layers, customFilter.key, customFilter.value, !customFilter.checked);
-  }
-
-  getFavoriteData(): EqData[] {
-    const eq: EqData[] = [];
-    this.currentSegment?.components.forEach((c: FilterType) => {
-      if (c.getType() === 'accordeonFilter') {
-        c.data.forEach((acc: AccordeonData) => {
-          if (acc.value) eq.push({ id: acc.id!, key: acc.key! });
-          if (acc.children) {
-            acc.children.forEach((child) => {
-              if (child.value) eq.push({ id: child.id!, key: child.key! });
-            });
-          }
-        });
-      }
-    });
-    return eq;
   }
 
   /**
@@ -263,46 +311,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
       }
     }
   }
-
-  /**
-   * Updates the selected segment
-   * @param {any} event - The event of the segment button
-   */
-  public onSegmentChange(event: any) {
-    this.selectedSegment = event.detail.value;
-  }
-
-  public onReset() {
-    this.assetFilterService.reset();
-  }
-
-  public isFavoriteSegment(): boolean {
-    return this.selectedSegment == 'favorite'
-  };
-
-  public isSelectedData(): boolean {
-    if (this.assetFilterSegment) {
-      return this.assetFilterService.hasSelectedItem();
-    }
-    return false;
-  }
-
-  public isSelectedDataOnSegment(): boolean {
-    if (this.selectedSegment == "details") {
-      return this.assetFilterService.hasSelectedItem();
-    }
-    if (this.selectedSegment == "favorite") {
-      return false;
-    }
-    if (this.assetFilterSegment) {
-      for (let segment of this.assetFilterSegment) {
-        if (segment.name == this.selectedSegment) {
-          return this.assetFilterService.hasSelectedItemOnSegment(segment);
-        }
-      }
-    }
-    return false;
-  };
 
   onCustomScrollBarStyle(): string {
     return `
