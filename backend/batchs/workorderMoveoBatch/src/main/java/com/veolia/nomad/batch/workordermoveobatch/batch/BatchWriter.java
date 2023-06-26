@@ -67,16 +67,18 @@ public class BatchWriter implements ItemWriter<MoveoOrdreIntervention> {
 			error = e.getMessage();
 			log.error(error);
 		}
-
+        log.error("===================================================================================================");
 		String intNumero = null;
 		if (response != null && response.getHttpResponse().getStatusCode() == 200) {
 			intNumero = StringUtils.substringBetween(response.getBody(), "b'", "'");
+			log.error(response.getBody());
 		} else {
 			if (response != null) {
+			    log.error(response.getBody());
 				error = response.getBody();
 			}
 		}
-
+        log.error("===================================================================================================");
 		boolean toSync = intNumero != null ? false : true;
 		
 		String statusUpdate = "";
