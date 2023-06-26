@@ -23,8 +23,6 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 	private String imgUrl;
 	
 	private Boolean isValid = false;
-
-	private String userContext;
 	
 	private String usrConfiguration;
 
@@ -75,14 +73,6 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 	public void setImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;
 	}
-
-	public String getUserContext() {
-		return userContext;
-	}
-
-	public void setUserContext(String userContext) {
-		this.userContext = userContext;
-	}
 	
 	public String getUsrConfiguration() {
 		return usrConfiguration;
@@ -101,7 +91,6 @@ public class AccountTokenDto extends JwtAuthenticationToken  {
 		if(user != null) {
 			this.id = user.getId();
 			this.isValid = user.getUsrValid();
-			this.userContext = user.getUsrCtxt();
 			this.usrConfiguration = user.getUsrConfiguration();
 		}
 	}

@@ -68,10 +68,6 @@ public class Users implements Serializable {
 	@JsonProperty("usr_dmod")
     private Date usrDmod ;
 
-    @Column(name="usr_ctxt", length=2147483647)
-	@JsonProperty("usr_ctxt")
-    private String usrCtxt ;
-
     @Column(name="usr_configuration", length=2147483647)
 	@JsonProperty("usr_configuration")
     private String usrConfiguration ;
@@ -412,14 +408,6 @@ public class Users implements Serializable {
 
     public Date getUsrDmod() {
         return this.usrDmod;
-    }
-
-	public void setUsrCtxt( String usrCtxt ) {
-        this.usrCtxt = usrCtxt ;
-    }
-
-    public String getUsrCtxt() {
-        return this.usrCtxt;
     }
 
 	public void setUsrConfiguration( String usrConfiguration ) {

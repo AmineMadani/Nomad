@@ -50,6 +50,7 @@ export class UserDataService {
   public updateUser(user : User) : void {
     const usr: any = JSON.parse(JSON.stringify(user));
     usr.usrConfiguration = JSON.stringify(user.usrConfiguration);
+    this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
     this.http.put(`${this.configurationService.apiUrl}user/update`, usr).subscribe({
       error : (err) => console.error(err)
     })

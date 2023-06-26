@@ -11,7 +11,17 @@ export interface User {
 }
 
 export interface UserConfiguration {
-    favorites: Favorite[];
+    favorites?: Favorite[];
+    context?: Context;
+}
+
+export interface Context {
+    userId?: number;
+    zoom?: number;
+    layers?: string[][];
+    lng?: number;
+    lat?: number;
+    url?: string;
 }
 
 export interface Favorite {
