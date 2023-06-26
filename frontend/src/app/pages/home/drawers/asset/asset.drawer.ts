@@ -3,11 +3,12 @@ import { AlertController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { AccordeonData } from 'src/app/core/models/filter/filter-component-models/AccordeonFilter.model';
 import { EqData } from 'src/app/core/models/filter/filter-component-models/FavoriteFilter.model';
+import { ToggleData } from 'src/app/core/models/filter/filter-component-models/ToggleFilter.model';
 import {
   FilterSegment,
   FilterType,
 } from 'src/app/core/models/filter/filter-segment.model';
-import { FilterAsset } from 'src/app/core/models/filter/filter.model';
+import { CustomFilter, FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
@@ -29,6 +30,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
     private templateDataService: TemplateDataService,
     private assetFilterService: AssetFilterService,
     private userService: UserService,
+    private filterService: FilterService
   ) {
     this.templateDataService.getformsTemplate().then(forms => {
       this.assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
@@ -142,6 +144,13 @@ export class AssetDrawer implements OnInit, OnDestroy {
     }
   }
 
+  onToggleChange(segment: FilterAsset, customFilter: CustomFilter , e: Event) {
+    customFilter.checked = (e as CustomEvent).detail.checked;
+    let selectedLayers:FilterAsset[] = this.assetFilterService.getselectedLayer(segment);
+    let layers:string[] = selectedLayers.filter(filter => !filter.styleKey).map(filter => filter.layerKey);
+    layers = layers.filter((item, index) => layers.indexOf(item) === index);
+    this.filterService.setToggleFilter(layers, customFilter.key, customFilter.value, !customFilter.checked);
+  }
 
   getFavoriteData(): EqData[] {
     const eq: EqData[] = [];

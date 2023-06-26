@@ -5,7 +5,8 @@
   </ion-item>
 
   <div class="filter-content">
-    <ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment" (ionChange)="onSegmentChange($event)">
+    <ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment"
+      (ionChange)="onSegmentChange($event)">
       <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile">
         <ion-segment-button *ngFor="let filterSegment of assetFilterSegment" [value]="filterSegment.name">
           <ion-label>{{filterSegment.segmentName ? filterSegment.segmentName:filterSegment.name}}</ion-label>
@@ -20,17 +21,28 @@
     </ion-segment>
 
     <div class="filter-segment-content">
-      <ion-content id="filter-content-scrollable" scrollbar [scrollbar]="onCustomScrollBarStyle()" allowAllScreens='true'>
+      <ion-content id="filter-content-scrollable" scrollbar [scrollbar]="onCustomScrollBarStyle()"
+        allowAllScreens='true'>
         <ng-container *ngFor="let filterSegment of assetFilterSegment">
           <ng-container *ngIf="selectedSegment === filterSegment.name">
-            <app-asset-accordion [filterSegment]="filterSegment"/>
+            <ng-container *ngIf="filterSegment.customFilter">
+              <ion-list>
+                <ng-container *ngFor="let customFilter of filterSegment.customFilter">
+                  <ion-item>
+                    <ion-label>{{ customFilter.name }}</ion-label>
+                    <ion-toggle aria-label="toggle" slot="end" [checked]="customFilter.checked" (ionChange)="onToggleChange(filterSegment, customFilter, $event)"></ion-toggle>
+                  </ion-item>
+                </ng-container>
+              </ion-list>
+            </ng-container>
+            <app-asset-accordion [filterSegment]="filterSegment" />
           </ng-container>
         </ng-container>
         <ng-container *ngIf="selectedSegment === 'details'">
-          <app-asset-detail [filterTree]="assetFilterTree"/>
+          <app-asset-detail [filterTree]="assetFilterTree" />
         </ng-container>
         <ng-container *ngIf="selectedSegment === 'favorite'">
-          <app-asset-favorite/>
+          <app-asset-favorite />
         </ng-container>
       </ion-content>
     </div>

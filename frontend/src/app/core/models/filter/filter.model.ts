@@ -22,5 +22,6 @@ export interface CustomFilter {
     type: string,
     name: string,
     key: string,
-    value: string
+    value: string,
+    checked?: boolean
 }

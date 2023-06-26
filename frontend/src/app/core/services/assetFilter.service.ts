@@ -113,6 +113,13 @@ export class AssetFilterService {
         filters.concat(this.getFilterSegment(filter.child));
       }
     }
+    for(let filter of filters){
+      if(filter.customFilter) {
+        for(let custom of filter.customFilter) {
+          custom.checked = true;
+        }
+      }
+    }
     return filters;
   }
 
