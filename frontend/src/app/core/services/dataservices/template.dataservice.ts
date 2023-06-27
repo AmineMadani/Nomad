@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, lastValueFrom, of, timeout } from 'rxjs';
+import { catchError, lastValueFrom, of, timeout } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { TemplateForm } from '../../models/template.model';
 import { AppDB } from '../../models/app-db.model';
-import { TIMEOUT } from 'dns';
 
 @Injectable({
   providedIn: 'root',

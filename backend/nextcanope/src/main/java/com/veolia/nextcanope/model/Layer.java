@@ -62,10 +62,6 @@ public class Layer implements Serializable {
 	@JsonProperty("lyr_geom_srid")
     private String lyrGeomSrid ;
 
-    @Column(name="lyr_style", length=2147483647)
-	@JsonProperty("lyr_style")
-    private String lyrStyle ;
-
     @Column(name="lyr_slabel", length=2147483647)
 	@JsonProperty("lyr_slabel")
     private String lyrSlabel ;
@@ -210,14 +206,6 @@ public class Layer implements Serializable {
 
     public String getLyrGeomSrid() {
         return this.lyrGeomSrid;
-    }
-
-	public void setLyrStyle( String lyrStyle ) {
-        this.lyrStyle = lyrStyle ;
-    }
-
-    public String getLyrStyle() {
-        return this.lyrStyle;
     }
 
 	public void setLyrSlabel( String lyrSlabel ) {

@@ -187,7 +187,6 @@ create table layer
     lyr_geom_column_name     text not null,
     lyr_uuid_column_name     text not null,
     lyr_geom_srid            text not null,
-    lyr_style                text,
     lyr_slabel               text,
 	  lyr_llabel               text,
 	  lyr_display              boolean default True,
@@ -209,7 +208,6 @@ comment on column layer.lyr_table_name is 'Table that contains the layer feature
 comment on column layer.lyr_geom_column_name is  'Column name that contains features geometry';
 comment on column layer.lyr_uuid_column_name is 'Column name that contains unique ID';
 comment on column layer.lyr_geom_srid is  'SRID of the features geometry';
-comment on column layer.lyr_style is  'Mapbox json style';
 comment on column layer.lyr_slabel is 'Short Label of the layer';
 comment on column layer.lyr_llabel is 'Long Label of the layer';
 comment on column layer.lyr_display is 'lyr_display';
