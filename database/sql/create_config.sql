@@ -326,6 +326,8 @@ create table app_grid
     geom              geometry('Polygon', 3857)
 );
 
+create index on app_grid using gist(geom);
+
 /* Comments on table */
 comment on table app_grid is 'This table defines the grid to export geojson';
 /* Comments on fields */

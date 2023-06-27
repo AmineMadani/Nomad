@@ -4,7 +4,7 @@
     <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
   </ion-select>
   <ng-container *ngIf="filteredFeatures.length > 0 && !isLoading">
-    <ng-container *ngFor="let feature of filteredFeatures">
+    <ng-container *ngFor="let feature of filteredFeatures; trackBy: trackByFn">
       <ion-item-group class="equipment-item" (click)="openFeature(feature)">
         <ion-item lines="none" color="none">
           <ion-icon slot="start" name="attach-outline"></ion-icon>

@@ -1,0 +1,46 @@
+<ng-container *ngIf="!isLoading">
+  <ion-item-group *ngFor="let w of this.workorders" (click)="onWKOClick(w)">
+    <ion-item lines="none">
+      <ion-label>{{ w.wtrLabel }}</ion-label>
+      <ion-note slot="end">
+        <ng-container *ngIf="w.wkoCompletionDate !== null; else noDate">
+          {{ w.wkoCompletionDate | date:
+          'dd/MM/yyyy'
+          }}
+        </ng-container>
+        <ng-template #noDate>Non réalisé</ng-template>
+      </ion-note>
+    </ion-item>
+    <ion-item lines="none">
+      <ion-chip *ngIf="w.wtsId" [ngClass]="'status-' + w.status.wts_code" [outline]="false">
+        <span class="status">{{ w.status.wts_llabel }}</span>
+      </ion-chip>
+    </ion-item>
+    <ion-item lines="none">
+      I - {{ w.id }}
+      <ion-button *ngIf="w.status.wts_code === 'TERMINE'" slot="end" fill="clear" (click)="openReport(w)">Consulter le
+        compte rendu</ion-button>
+    </ion-item>
+  </ion-item-group>
+</ng-container>
+<ng-container *ngIf="isLoading">
+  <ion-item-group *ngFor="let feature of [1,2,3,4,5,6]">
+    <ion-item lines="none" color="none">
+      <ion-label>
+        <ion-label class="ion-no-margin">
+          <ion-skeleton-text [animated]="true" style="width: 80%;"></ion-skeleton-text>
+        </ion-label>
+      </ion-label>
+    </ion-item>
+    <ion-item lines="none" color="none">
+      <ion-label class="ion-no-margin">
+        <ion-skeleton-text [animated]="true" style="width: 20%;"></ion-skeleton-text>
+      </ion-label>
+    </ion-item>
+    <ion-item lines="none" color="none">
+      <ion-thumbnail slot="start" style="width:40%;height:20px">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-thumbnail>
+    </ion-item>
+  </ion-item-group>
+</ng-container>

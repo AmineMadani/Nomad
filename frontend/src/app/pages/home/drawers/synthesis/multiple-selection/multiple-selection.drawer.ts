@@ -66,6 +66,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
+  public trackByFn(index: number, feature: any): number {
+    return feature.id;
+  }
+
   public onInitSelection(paramsMap: Map<string, string>): void {
     this.isLoading = true;
     const abstractFeatures = this.convertToObjectArray(paramsMap);

@@ -15,7 +15,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
-import { filter, take } from 'rxjs';
+import { filter, first, take } from 'rxjs';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 
 @Component({
@@ -72,12 +72,15 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       if (this.mapService.getMap()) {
         this.generateMarker();
       } else {
-        this.mapService.onMapLoaded().pipe(
-          filter((isMapLoaded) => isMapLoaded)
-          ,take(1))
-        .subscribe(() => {
+        this.mapService
+          .onMapLoaded()
+          .pipe(
+            filter((isMapLoaded) => isMapLoaded),
+            first()
+          )
+          .subscribe(() => {
             this.generateMarker();
-        });
+          });
       }
     } else {
       if(this.workOrder['wts_id']) {

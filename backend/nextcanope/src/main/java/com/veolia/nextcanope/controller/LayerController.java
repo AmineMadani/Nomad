@@ -12,11 +12,13 @@ import com.veolia.nextcanope.constants.LayerConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.LayerDto;
 import com.veolia.nextcanope.dto.TreeDto;
+import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
 import com.veolia.nextcanope.service.LayerService;
 import com.veolia.nextcanope.service.TreeService;
+import com.veolia.nextcanope.service.WorkOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +41,10 @@ public class LayerController {
 
     @Autowired
     public LayerRepository layerRepository;
+    
+    @Autowired
+    public WorkOrderService workOrderService;
+    
     @Autowired
     public LayerReferencesService layerReferencesService;
 
@@ -107,6 +113,21 @@ public class LayerController {
             AccountTokenDto account
     ) {
         return this.layerService.getEquipmentByLayerAndId(key, id);
+    }
+    
+    @GetMapping(path = "/{key}/equipment/{id}/history")
+    @Operation(summary = "Get the equipment by layer and id")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "The equipment", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public List<WorkorderDto> getEquipmentWorkOrderHistoryByLayerAndId(
+            @PathVariable String key,
+            @PathVariable String id,
+            AccountTokenDto account
+    ) {
+        return this.workOrderService.getEquipmentWorkorderHistory(key, id);
     }
 
     @PostMapping(path = "/references/user")

@@ -9,12 +9,11 @@ import { AppDB } from '../../models/app-db.model';
   providedIn: 'root',
 })
 export class TemplateDataService {
-
   private db: AppDB;
 
   constructor(
     private http: HttpClient,
-    private configurationService: ConfigurationService,
+    private configurationService: ConfigurationService
   ) {
     this.db = new AppDB();
   }
@@ -24,24 +23,30 @@ export class TemplateDataService {
    * @returns list of Forms
    */
   async getformsTemplate(): Promise<TemplateForm[]> {
-
     const res = await lastValueFrom(
-      this.http.get<TemplateForm[]>(`${this.configurationService.apiUrl}template/forms`).pipe(
-        timeout(2000),
-        catchError(async () => {
-          const forms = await this.db.referentials.get('templateForms');
-          if (forms) {
-            return forms.data;
-          }
-          return of(null);
-        })
-      )
+      this.http
+        .get<TemplateForm[]>(
+          `${this.configurationService.apiUrl}template/forms`
+        )
+        .pipe(
+          timeout(2000),
+          catchError(async () => {
+            const forms = await this.db.referentials.get('templateForms');
+            if (forms) {
+              return forms.data;
+            }
+            return of(null);
+          })
+        )
     );
     if (!res) {
       throw new Error(`Failed to fetch templateForms`);
     }
 
-    await this.db.referentials.put({ data: res, key: 'templateForms' }, 'templateForms');
+    await this.db.referentials.put(
+      { data: res, key: 'templateForms' },
+      'templateForms'
+    );
 
     return res;
   }

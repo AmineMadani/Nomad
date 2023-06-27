@@ -30,7 +30,7 @@
     </ion-label>
   </ion-item>
   <div class="detail-form" [class.mobile-form]="isMobile">
-    <app-form-editor *ngIf="form" [nomadForm]="form"></app-form-editor>
+    <app-form-editor *ngIf="form" [nomadForm]="form" [tableName]="tableName"></app-form-editor>
   </div>
 </ion-content>
 

@@ -37,7 +37,19 @@
               "rbush",
               "xml-utils",
               "web-worker",
-              "jszip"
+              "jszip",
+              "turf-jsts",
+              "geojson-equality",
+              "density-clustering",
+              "skmeans",
+              "concaveman",
+              "polygon-clipping",
+              "object-assign",
+              "geojson-rbush",
+              "deep-equal",
+              "earcut",
+              "maplibre-gl",
+              "@mapbox/mapbox-gl-draw"
             ]
           },
           "configurations": {

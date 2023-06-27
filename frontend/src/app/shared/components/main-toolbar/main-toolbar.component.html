@@ -13,13 +13,13 @@
     <ion-fab-button class="main-toolbar-avatar" (click)="logout()">
       <ion-img [src]="imgUrl"></ion-img>
     </ion-fab-button>
-    <ion-button id="popover-button">
+    <ion-button (click)="openPopover($event)">
       <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
     </ion-button>
   </ion-buttons>
 </ion-toolbar>
 
-<ion-popover trigger="popover-button" [dismissOnSelect]="true" *ngIf="!minimalist">
+<ion-popover #popover [isOpen]="isPopoverOpen" (didDismiss)="isPopoverOpen = false">
   <ng-template>
     <ion-content>
       <ion-list>

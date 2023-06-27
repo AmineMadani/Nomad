@@ -62,20 +62,10 @@ export class MobileHomeActionsComponent implements OnInit {
   }
 
   public onPolygonTool(): void {
-    if (this.mapService.getDrawActive()) {
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-      this.mapService.setDrawingControl(false);
-    } else {
-      this.mapService.setDrawingControl(true);
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-    }
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
   }
 }

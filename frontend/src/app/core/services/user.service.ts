@@ -149,4 +149,30 @@ export class UserService {
       await this.restoreUserContextNavigation(user.usrConfiguration.context);
     }
   }
+
+  /**
+   * Get the user context in local storage
+   * @returns UserContext
+   */
+  public async getUserContext() : Promise<UserContext>
+  {
+    return await this.preferenceService.getPreference(LocalStorageUserKey.USER_CONTEXT);
+  }
+
+  /**
+   * Set the user context in local storage
+   * @param value 
+   */
+  public setUserContext(value : UserContext)
+  {
+    this.preferenceService.setPreference(LocalStorageUserKey.USER_CONTEXT, value);
+  }
+
+  /**
+   * Delete the user context in local storage
+   */
+  public resetUserContext()
+  {
+    this.preferenceService.deletePreference(LocalStorageUserKey.USER_CONTEXT);
+  }
 }

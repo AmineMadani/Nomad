@@ -1,4 +1,5 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { IonPopover } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
 import { UserContext } from 'src/app/core/models/user-context.model';
@@ -16,7 +17,6 @@ import { UtilsService } from 'src/app/core/services/utils.service';
   styleUrls: ['./main-toolbar.component.scss'],
 })
 export class MainToolbarComponent implements OnInit, OnDestroy {
-
   constructor(
     private keycloakService: KeycloakService,
     private cacheService: CacheService,
@@ -25,11 +25,13 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private configurationService: ConfigurationService,
     private userDataService : UserDataService ) {}
 
-  @Input('title') title: string;
+  @ViewChild('popover', { static: true }) popover: IonPopover;
 
+  @Input('title') title: string;
   @Input('minimalist') minimalist: boolean = false;
 
   public cacheLoaded: boolean = false;
+  public isPopoverOpen: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -59,7 +61,14 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
-  logout() {
+  public openPopover(e: Event): void {
+    if (!this.minimalist) {
+      this.popover.event = e;
+      this.isPopoverOpen = true;
+    }
+  }
+
+  public logout(): void {
     if (this.configurationService.keycloak.active) {
       this.keycloakService.logout().then(() => {
         window.location.reload();

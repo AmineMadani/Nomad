@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.veolia.nomad.batch</groupId>
-	<artifactId>workorderMoveoBatch</artifactId>
+	<artifactId>workorder-moveo-batch</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>workorderMoveoBatch</name>
-	<description>workorderMoveoBatch</description>
+	<name>workorder-moveo-batch</name>
+	<description>workorder-moveo-batch</description>
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.source>17</maven.compiler.source>

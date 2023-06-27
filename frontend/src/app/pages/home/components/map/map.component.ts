@@ -6,7 +6,8 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -14,15 +15,17 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, firstValueFrom } from 'rxjs';
-import { Router } from '@angular/router';
+import { debounceTime, first, firstValueFrom, switchMap } from 'rxjs';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
-import * as Maplibregl from 'maplibre-gl';
+import { localisationExportMode } from 'src/app/core/models/layer.model';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Clipboard } from '@angular/cdk/clipboard';
 import * as turf from '@turf/turf';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import * as Maplibregl from 'maplibre-gl';
+import { ConfigurationService } from 'src/app/core/services/configuration.service';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 @Component({
   selector: 'app-map',
@@ -38,7 +41,12 @@ export class MapComponent implements OnInit, OnDestroy {
     private router: Router,
     private elem: ElementRef,
     private referentialService: ReferentialService,
-    private mapEvent: MapEventService
+    private mapEvent: MapEventService,
+    private alertCtrl: AlertController,
+    private activatedRoute: ActivatedRoute,
+    private clipboard: Clipboard,
+    private configurationService: ConfigurationService,
+    private toastCtrl: ToastController
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -60,21 +68,20 @@ export class MapComponent implements OnInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
 
-  public map!: Maplibregl.Map;
+  public map: Maplibregl.Map;
   public basemaps: Basemap[];
   public displayMap: boolean;
   public mapBasemaps: Map<string, any> = new Map();
-
+  
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
-
+  
   public zoom: number;
   public scale: string;
+  public draw: MapboxDraw;
   public isMobile: boolean;
-
-  private draw: MapboxDraw;
+  
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
-  private isOnSelection: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -86,11 +93,15 @@ export class MapComponent implements OnInit, OnDestroy {
     });
     loading.present();
 
-    this.map = this.mapService.createMap();
-
-    // Load event
-    fromEvent(this.map, 'load')
-      .pipe(first())
+    this.activatedRoute.queryParams
+      .pipe(
+        switchMap((p: Params) => {
+          const { lat, lng, zoom } = p;
+          this.map = this.mapService.createMap(lat, lng, zoom);
+          return fromEvent(this.map, 'load');
+        }),
+        first()
+      )
       .subscribe(() => {
         loading.dismiss();
         this.generateMap();
@@ -180,6 +191,7 @@ export class MapComponent implements OnInit, OnDestroy {
           type: 'raster',
           tileSize: 128,
           attribution: layer?.map_attributions?.[0] ?? '',
+          maxzoom: 19,
         };
         break;
       case 'OSM':
@@ -187,6 +199,7 @@ export class MapComponent implements OnInit, OnDestroy {
           tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
           type: 'raster',
           tileSize: 128,
+          maxzoom: 19,
         };
         break;
       default:
@@ -267,8 +280,7 @@ export class MapComponent implements OnInit, OnDestroy {
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
     if (this.mapService.getDrawActive()) {
-      this.mapService.deleteDrawing();
-      this.mapService.setDrawingControl(false);
+      this.draw.deleteAll();
     }
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
@@ -320,7 +332,7 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The function navigates to a work order page with selected feature properties as query parameters.
+   * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
     if (!this.selectedFeature['properties']['lyr_table_name']) {
@@ -345,21 +357,11 @@ export class MapComponent implements OnInit, OnDestroy {
    * Use the polygon drawing tool of MapboxDraw, with their input hidden
    */
   public onPolygonalSelection(): void {
-    if (this.mapService.getDrawActive()) {
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-      this.mapService.setDrawingControl(false);
-    } else {
-      this.mapService.setDrawingControl(true);
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-    }
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
 
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
@@ -386,11 +388,64 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.addControl(
       new Maplibregl.ScaleControl({
         unit: 'metric',
-      })
+      }),
+      "bottom-right"
     );
     if (this.isMobile) {
       this.map.addControl(new CustomZoomControl(), 'bottom-right');
     }
+    this.draw = new MapboxDraw({
+      displayControlsDefault: false,
+      controls: {
+        polygon: true,
+        trash: true,
+      },
+    });
+    this.map.addControl(this.draw as any, 'top-left');
+  }
+
+  /**
+   * Asks the user how they want to share their location then
+   * copies the appropriate information to the clipboard.
+   */
+  public async onShareLocalisation(): Promise<void> {
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+
+    const alert = await this.alertCtrl.create({
+      header: 'Sous quelle forme voulez-vous partager votre position ?',
+      buttons: [
+        {
+          text: 'Lien Nomad',
+          role: localisationExportMode.nomadLink,
+        },
+        {
+          text: 'Coordonnées GPS',
+          role: localisationExportMode.gpsCoordinates,
+        },
+      ],
+    });
+
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+
+    const center = this.map.getCenter();
+    const clipboardText =
+      role === localisationExportMode.gpsCoordinates
+        ? `latitude: ${center.lat}, longitude: ${center.lng}`
+        : `${
+            this.configurationService.host
+          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${center.lat}&lng=${
+            center.lng
+          }&zoom=${this.map.getZoom()}`;
+
+    this.clipboard.copy(clipboardText);
+
+    const toast = await this.toastCtrl.create({
+      message: 'Localisation copiée dans le presse-papier',
+      duration: 1500,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 
   private addEvents(): void {
@@ -431,6 +486,13 @@ export class MapComponent implements OnInit, OnDestroy {
         this.onFeatureSelected(nearestFeature);
       });
 
+    fromEvent(this.map, 'touchend')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.queryNearestFeature(e);
+        this.onFeatureSelected(nearestFeature);
+      });
+
     // Right click, as context menu, event
     fromEvent(this.map, 'contextmenu')
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -440,7 +502,7 @@ export class MapComponent implements OnInit, OnDestroy {
       });
 
     // Ending zoom event
-    fromEvent(this.map, 'zoomend')
+    fromEvent(this.map, 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         this.scale = this.calculateScale();
@@ -450,8 +512,8 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
-        this.mapService.deleteDrawing();
-        
+        this.draw.deleteAll();
+
         const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
         const features = this.map.queryRenderedFeatures(

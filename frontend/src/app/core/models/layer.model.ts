@@ -27,3 +27,8 @@ export interface StyleImage {
   code: string;
   source: string;
 }
+
+export enum  localisationExportMode  {
+  nomadLink = 'NOMADLINK',
+  gpsCoordinates = 'GPS',
+}

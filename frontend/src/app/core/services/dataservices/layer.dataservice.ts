@@ -7,6 +7,7 @@ import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { Layer } from '../../models/layer.model';
 import { TreeData } from '../../models/filter/filter-component-models/TreeFilter.model';
+import { Workorder } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -163,5 +164,12 @@ export class LayerDataService {
 
     await this.db.referentials.put({ data: res, key: 'tree' }, 'tree');
     return res;
+  }
+
+  /* Get list of workorders for a given asset
+   * @returns an observable of the list of workorders
+   */
+  getEquipmentWorkOrderHistory(assetTable: string, assetId: string): Observable<Workorder[]> {
+    return this.http.get<Workorder[]>(`${this.configurationService.apiUrl}layer/${assetTable}/equipment/${assetId}/history`);
   }
 }

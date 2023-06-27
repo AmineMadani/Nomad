@@ -198,7 +198,7 @@ ion-chip.status {
   }
 }
 
-.status-T {
+.status-TERMINE {
   background-color: var(--ion-color-success) !important;
   --color: var(--ion-color-success-contrast);
 
@@ -207,17 +207,8 @@ ion-chip.status {
   }
 }
 
-.status-I {
-  background-color: var(--ion-color-medium) !important;
-  --color: var(--ion-color-medium-contrast);
-
-  ion-icon {
-    color: var(--ion-color-medium-contrast);
-  }
-}
-
-.status-NP,
-.status-P {
+.status-ENVOYEPLANIF,
+.status-PLANIFIE {
   background-color: var(--ion-color-secondary) !important;
   --color: var(--ion-color-secondary-contrast);
 
@@ -226,12 +217,21 @@ ion-chip.status {
   }
 }
 
-.status-NF {
+.status-CREE {
   background-color: var(--ion-color-tertiary) !important;
   --color: var(--ion-color-tertiary-contrast);
 
   ion-icon {
     color: var(--ion-color-tertiary-contrast);
+  }
+}
+
+.status-ANNULE {
+  background-color: var(--ion-color-medium) !important;
+  --color: var(--ion-color-medium-contrast);
+
+  ion-icon {
+    color: var(--ion-color-medium-contrast);
   }
 }
 
@@ -290,18 +290,28 @@ mat-tab-group.mobile-tabs {
   bottom: 6px;
   left: 50%;
   transform: translate(-50%, -50%);
+}
 
+.maplibregl-ctrl-bottom-right {
   .maplibregl-ctrl-scale {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
     margin: 0 !important;
-    background-color: transparent;
+  }
+  .maplibregl-zoom {
+    position: absolute;
+    right: -144px;
+    bottom: 60px;
+    transform-origin: bottom left;
+    transform: rotate(-90deg) translateY(100%);
   }
 }
 
-
 .zoom-range {
   margin: 0 16px 16px 0 !important;
-  width: 36px;
-  height: 180px;
+  width: 180px;
+  height: 36px;
   display: flex;
   flex-direction: column;
 
@@ -311,14 +321,10 @@ mat-tab-group.mobile-tabs {
   border-radius: 4px;
 
   input[type=range] {
-      writing-mode: bt-lr;
-      /* IE */
-      appearance: slider-vertical;
-      -webkit-appearance: slider-vertical;
-      /* Chromium */
-      width: 4px;
-      height: 164px;
+      width: 164px;
+      height: 4px;
       margin: auto;
+      transform: rotate(360deg);
   }
 }
 
@@ -351,7 +357,6 @@ ion-segment-button {
   text-transform: capitalize;
   --color: var(--ion-color-neutral-variant-30);
 }
-
 
 .cursor-pointer {
   cursor: crosshair;

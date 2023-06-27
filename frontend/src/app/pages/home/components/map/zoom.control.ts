@@ -24,6 +24,9 @@ export class CustomZoomControl {
       const zoomLevel = parseInt(this.slider.value);
       this.map.setZoom(zoomLevel / 10);
     });
+    this.map.on('zoom', () => {
+      this.slider.value = (this.map.getZoom() * 10).toString();
+    })
 
     this.container.appendChild(this.slider);
     return this.container;

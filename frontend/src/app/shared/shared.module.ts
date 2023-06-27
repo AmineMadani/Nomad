@@ -28,12 +28,12 @@ import { ImageReaderComponent } from './components/image-reader/image-reader.com
 import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
 import { FormSelectReferentialComponent } from './form-editor/properties/form-select-referential/form-select-referential.component';
-import { FormWorkOrderComponent } from './form-editor/properties/form-work-order/form-work-order.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 import { FormLayerReferenceComponent } from './form-editor/properties/form-layer-reference/form-layer-reference.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SearchMultiSelectComponent } from './components/search-multi-select/search-multi-select.component';
+import { FormHistoryComponent } from './form-editor/properties/form-history/form-history.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +61,7 @@ import { SearchMultiSelectComponent } from './components/search-multi-select/sea
     FormAttachmentComponent,
     FormSliderComponent,
     FormRadioComponent,
-    FormWorkOrderComponent,
+    FormHistoryComponent,
     FormBottomAttachmentComponent,
     FormLifeCycleComponent,
     FormLayerReferenceComponent,

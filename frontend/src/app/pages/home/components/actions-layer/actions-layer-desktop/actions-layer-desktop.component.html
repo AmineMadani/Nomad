@@ -7,10 +7,10 @@
     [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
   <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.PERIMETER)"
     [ngClass]="currentRoute === drawerRouteEnum.PERIMETER ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
-  <ion-button id="click-trigger" class="actions-layer-content-button-action">Outils</ion-button>
+  <ion-button (click)="displayToolbox($event)" class="actions-layer-content-button-action">Outils</ion-button>
 </div>
 
-<ion-popover #toolbox showBackdrop="false" trigger="click-trigger" triggerAction="click">
+<ion-popover #toolbox showBackdrop="false" [isOpen]="isToolboxOpen" (didDismiss)="isToolboxOpen = false">
   <ng-template>
     <ion-content class="ion-no-padding">
       <ion-item lines="none" button (click)="openDrawingMode()">
