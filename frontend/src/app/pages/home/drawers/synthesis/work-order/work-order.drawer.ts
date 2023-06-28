@@ -128,11 +128,11 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   /**
-   * Save the new workorder : 
+   * Save the new workorder :
    * 1 - Check the control
    * 2 - Save in database
    * 3 - add the geojson to the layer
-   * 4 - redirect to the newly workorder 
+   * 4 - redirect to the newly workorder
    * @param form form to save
    */
   public onSubmit(form: FormGroup) {
@@ -189,11 +189,13 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
       if (this.workOrder.equipmentId && this.workOrder.lyr_table_name) {
         this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
-          this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId));
+          this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then( result => {
+            this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, result);
+          })
         });
       } else {
         this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, [this.workOrder.x, this.workOrder.y], true);
-        
+
         this.markerCreation.on('dragend', (e) => {
           this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_ctr_id => {
             this.formEditor.paramMap.set('ctr_id',l_ctr_id.join(','));

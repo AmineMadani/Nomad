@@ -54,11 +54,47 @@ export class CacheService {
         switchMap((zipBlob: Blob) => from(zip.loadAsync(zipBlob))),
         switchMap(async (zBlob: JSZip) => {
           const files = zBlob.folder(folderName)?.filter((path: string, file: JSZipObject) => !file.dir)!;
-          return await Promise.all(files.map(async (f: JSZipObject) => { 
+          return await Promise.all(files.map(async (f: JSZipObject) => {
             return { key: f.name, data: await f.async('text') as any} as ITiles
           }));
         }),
         finalize(() => console.log('finalize : ' + folderName))
       )
   }
+
+/**
+ * Returne all the data for a feature in a layer
+ * @param featureId featureId the id aog the future, ex: IDF-000070151
+ * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
+ * @returns
+ */
+  private async getFeatureLayerAndId(
+    featureId: string,
+    layerKey: string): Promise<any>{
+    return  await this.db.tiles
+    .where('key')
+    .startsWith(layerKey)
+    .filter((tile) => {
+      return (
+        tile.data.features?.some((feature) => feature.id === featureId)
+      );
+    })
+    .first((tile) =>
+      tile.data.features.find((feature) => feature.id === featureId)
+    );
+  }
+
+  /**
+   * Returne all the geometry for a feature in a layer
+   * @param featureId featureId featureId the id aog the future, ex: IDF-000070151
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
+   * @returns the geometry, Array<number>
+   */
+  public async getGeometryByLayerAndId(
+    featureId: string,
+    layerKey: string): Promise<any>{
+      let geom;
+      await this.getFeatureLayerAndId(featureId, layerKey).then(result => geom =  result.geometry.coordinates);
+      return geom;
+    }
 }
