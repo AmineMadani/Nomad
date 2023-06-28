@@ -217,48 +217,6 @@ comment on column layer.lyr_umod_id is 'Last modificator Id';
 comment on column layer.lyr_dcre is 'Creation date';
 comment on column layer.lyr_dmod is 'Last modification date';
 
--- Layer tree
--- This table defines the layer tree exposed in the application.
--- Each layer belongs to a group
-
-create table tree
-(
-  id                bigserial primary key,
-  dom_id            bigint references domains(id),
-  tre_parent_id     bigint references tree(id),
-  lyr_id            bigint references layer(id),
-  style_id          text,
-  tre_img           text,
-  tre_num_order     integer,
-  tre_llabel        text,
-  tre_slabel        text,
-  -- Technical metadata
-  tre_valid         boolean default True,
-	tre_ucre_id       bigint references users(id) default 0,
-  tre_umod_id       bigint references users(id) default 0,
-  tre_dcre          timestamp without time zone  default current_timestamp,
-  tre_dmod          timestamp without time zone  default current_timestamp
-);
-
-/* Comments on table */
-comment on table tree is 'This table defines all groups and sub-groups to generate the app layer tree';
-/* Comments on fields */
-comment on column tree.id is 'Table unique ID';
-comment on column tree.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column tree.tre_parent_id is 'Parent id';
-comment on column tree.lyr_id is 'Layer Id';
-comment on column tree.style_id is 'Style Id';
-comment on column tree.tre_img is 'Url Image';
-comment on column tree.tre_num_order is 'Num order of the tree group';
-comment on column tree.tre_llabel is 'Long label of the tree group';
-comment on column tree.tre_slabel is 'Short label of the tree group';
-comment on column tree.tre_valid is 'If valid, true else false';
-comment on column tree.tre_ucre_id is 'creator Id';
-comment on column tree.tre_umod_id is 'Last modificator Id';
-comment on column tree.tre_dcre is 'Creation date';
-comment on column tree.tre_dmod is 'Last modification date';
-
-
 -- Basemaps
 -- This table defines all the basemaps available in the app.
 

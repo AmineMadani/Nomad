@@ -146,41 +146,6 @@ insert into workorder_task_status( wts_code, wts_slabel, wts_llabel)
 ('TERMINE','terminé','terminé'),
 ('ANNULE','annulé','annulé');
 
--- insert into tree
-insert into tree
-  ( id, dom_id    , tre_parent_id , tre_slabel , lyr_id ,style_id,tre_img)
-  values
-  ---
-  ( 100   , (select id from domains where dom_type = 'dw')    , NULL    , 'Réseau Eau Potable',NULL,NULL,NULL),
-    ( 101 , (select id from domains where dom_type = 'dw')    , 100     , 'Branchements', (select id from layer where lyr_table_name = 'asset.aep_branche'),NULL,NULL ),
-    ( 102 , (select id from domains where dom_type = 'dw')    , 100     , 'Canalisations', (select id from layer where lyr_table_name = 'asset.aep_canalisation'),NULL,NULL ),
-    ( 103 , (select id from domains where dom_type = 'dw')    , 100     , 'Ouvrages', (select id from layer where lyr_table_name = 'asset.aep_canalisation'),NULL,NULL ),
-    ( 104 , (select id from domains where dom_type = 'dw')    , 100     , 'Equipements', NULL,NULL,NULL ),
-    ( 105 , (select id from domains where dom_type = 'dw')    , 104     , 'Vannes', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne.png' ),
-        ( 106 , (select id from domains where dom_type = 'dw')    , 105     , 'Fermée', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne_fermee.png' ),
-            ( 108 , (select id from domains where dom_type = 'dw')    , 106     , 'Electrovanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_electro_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ELECTRO.png' ),
-            ( 109 , (select id from domains where dom_type = 'dw')    , 106     , 'Robinet Vanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_robinet_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_ROBINET.png' ),
-            ( 110 , (select id from domains where dom_type = 'dw')    , 106     , '1/4 de tour', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_fermee_tour_style','assets/img/patrimony/aep_vanne/AEP_VANNE_FERMEE_TOUR.png' ),
-        ( 111 , (select id from domains where dom_type = 'dw')    , 105     , 'Ouvert', (select id from layer where lyr_table_name = 'asset.aep_vanne'),NULL,'assets/img/patrimony/aep_vanne/vanne_ouvert.png' ),
-            ( 112 , (select id from domains where dom_type = 'dw')    , 111     , 'Electrovanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_electro_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ELECTRO.png' ),
-            ( 113 , (select id from domains where dom_type = 'dw')    , 111     , 'Robinet Vanne', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_robinet_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_ROBINET.png' ),
-            ( 114 , (select id from domains where dom_type = 'dw')    , 111     , '1/4 de tour', (select id from layer where lyr_table_name = 'asset.aep_vanne'),'aep_vanne_ouvert_tour_style','assets/img/patrimony/aep_vanne/AEP_VANNE_OUVERT_TOUR.png' ),
-    ( 115 , (select id from domains where dom_type = 'dw')    , 104     , 'Equipement incendie', (select id from layer where lyr_table_name = 'asset.aep_defense_incendie'),NULL,'assets/img/patrimony/incendie.png' ),
-    ( 116 , (select id from domains where dom_type = 'dw')    , 104     , 'Equipements comptage', NULL,NULL,'assets/img/patrimony/comptage_reseau.png' ),
-    ( 117 , (select id from domains where dom_type = 'dw')    , 104     , 'Autres équipements', NULL,NULL,'assets/img/patrimony/autre_eq_reseau.png' ),
-  ---
-  ( 200   , (select id from domains where dom_type = 'ww')    , NULL    , 'Réseau Assainissement',NULL,NULL,NULL),
-    ( 201 , (select id from domains where dom_type = 'ww')    , 200     , 'Ouvrages', (select id from layer where lyr_table_name = 'asset.ass_ouvrage'),NULL,NULL ),
-    ( 202 , (select id from domains where dom_type = 'ww')    , 200     , 'Branchements', (select id from layer where lyr_table_name = 'asset.ass_branche'),NULL,NULL ),
-    ( 203 , (select id from domains where dom_type = 'ww')    , 200     , 'Collecteurs', (select id from layer where lyr_table_name = 'asset.ass_collecteur'),NULL,NULL ),
-    ( 204 , (select id from domains where dom_type = 'ww')    , 200     , 'Equipements', NULL,NULL,NULL ),
-        ( 205 , (select id from domains where dom_type = 'ww')    , 204     , 'Avaloir', (select id from layer where lyr_table_name = 'asset.ass_avaloir'),NULL,'assets/img/patrimony/avaloir.png' ),
-        ( 206 , (select id from domains where dom_type = 'ww')    , 204     , 'Regard', (select id from layer where lyr_table_name = 'asset.ass_avaloir'),NULL,'assets/img/patrimony/regard.png' ),
-        ( 207 , (select id from domains where dom_type = 'ww')    , 204     , 'Autre équipements', NULL,NULL,'assets/img/patrimony/autre_eq.png' )
-        
-  ---
-;
-
 -- creating grid
 with metro_grid as (
 select ST_CreateFishnet(100, 100, 10000, 10000, 99040, 6125317) as res
@@ -488,7 +453,7 @@ INSERT INTO nomad.layer_style (lse_code,syd_id,lyr_id) VALUES
 	 ('AEP_VANNE_OUVERT_ELECTRO',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_ELECTRO_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
 	 ('AEP_CANALISATION',(select id from nomad.style_definition where syd_code='AEP_CANALISATION_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_canalisation')),
 	 ('AEP_OUVRAGE',(select id from nomad.style_definition where syd_code='AEP_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_ouvrage')),
-	 ('ASS_COLLECTEUR',(select id from nomad.style_definition where syd_code='ASS_COLLECTEUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_ouvrage'),(select id from nomad.layer where lyr_table_name='asset.ass_collecteur'));
+	 ('ASS_COLLECTEUR',(select id from nomad.style_definition where syd_code='ASS_COLLECTEUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_collecteur'));
 INSERT INTO nomad.layer_style (lse_code,syd_id,lyr_id) VALUES
 	 ('ASS_OUVRAGE',(select id from nomad.style_definition where syd_code='ASS_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_ouvrage')),
 	 ('ASS_AVALOIR',(select id from nomad.style_definition where syd_code='ASS_AVALOIR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_avaloir')),

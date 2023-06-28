@@ -5,6 +5,7 @@ import { LocalStorageUserKey, User } from '../../models/user.model';
 import { ConfigurationService } from '../configuration.service';
 import { UserContext } from '../../models/user-context.model';
 import { PreferenceService } from '../preference.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,8 @@ export class UserDataService {
   constructor(
     private http: HttpClient,
     private configurationService: ConfigurationService,
-    private preferenceService: PreferenceService
+    private preferenceService: PreferenceService,
+    private router: Router
   ) {}
 
   /**
@@ -35,7 +37,7 @@ export class UserDataService {
     );
 
     if (!res) {
-      throw new Error(`Failed to fetch user information`);
+      this.router.navigate(['/error']);
     }
 
     this.preferenceService.setPreference(LocalStorageUserKey.USER, res);
