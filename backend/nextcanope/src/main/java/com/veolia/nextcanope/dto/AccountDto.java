@@ -1,6 +1,5 @@
 package com.veolia.nextcanope.dto;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.veolia.nextcanope.model.Users;
 
 public class AccountDto {
@@ -17,8 +16,7 @@ public class AccountDto {
 	
 	private Boolean isValid = false;
 	
-	@JsonRawValue
-	private String userContext;
+	private String usrConfiguration;
 
 	public Long getId() {
 		return id;
@@ -67,13 +65,17 @@ public class AccountDto {
 	public void setIsValid(Boolean isValid) {
 		this.isValid = isValid;
 	}
-
-	public String getUserContext() {
-		return userContext;
+	
+	public String getUsrConfiguration() {
+		return usrConfiguration;
 	}
 
-	public void setUserContext(String userContext) {
-		this.userContext = userContext;
+	public void setUsrConfiguration(String usrConfiguration) {
+		this.usrConfiguration = usrConfiguration;
+	}
+	
+	public AccountDto() {
+		super();
 	}
 
 	public AccountDto(AccountTokenDto accountTokenDto) {
@@ -84,7 +86,7 @@ public class AccountDto {
 		this.imgUrl=accountTokenDto.getImgUrl();
 		this.isValid=accountTokenDto.getIsValid();
 		this.lastName=accountTokenDto.getLastName();
-		this.userContext = accountTokenDto.getUserContext();
+		this.usrConfiguration = accountTokenDto.getUsrConfiguration();
 	}
 
 	public AccountDto(Users user) {

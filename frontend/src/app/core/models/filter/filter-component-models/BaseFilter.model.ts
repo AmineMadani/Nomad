@@ -10,6 +10,6 @@ export interface BaseFilter{
 export interface BaseFilterData{
     name: string,
     value?: boolean | string,
-    position: number,
+    position?: number,
     id: number
 }

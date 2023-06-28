@@ -43,7 +43,7 @@ create table users
   usr_umod_id       bigint default 0,
   usr_dcre          timestamp without time zone  default current_timestamp,
   usr_dmod          timestamp without time zone  default current_timestamp,
-  usr_ctxt      text
+  usr_configuration text
 );
 /* Comments on table */
 comment on table users is 'This table defines the application users.';
@@ -57,7 +57,7 @@ comment on column users.usr_ucre_id is 'Creator Id';
 comment on column users.usr_umod_id is 'Last Modificator Id';
 comment on column users.usr_dcre is 'Creation date';
 comment on column users.usr_dmod is 'Last modification date';
-comment on column users.usr_ctxt is 'User context';
+comment on column users.usr_configuration is 'User configuration';
 
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'administrator', 'administrator', 'administrator@veolia.com');
 
@@ -107,41 +107,6 @@ comment on column domains.dom_ucre_id is 'creator Id';
 comment on column domains.dom_umod_id is 'Last modificator Id';
 comment on column domains.dom_dcre is 'Creation date';
 comment on column domains.dom_dmod is 'Last Modification date';
-
--- Layer tree
--- This table defines the layer tree exposed in the application.
--- Each layer belongs to a group
-
-create table tree
-(
-  id                bigserial primary key,
-  dom_id            bigint references domains(id),
-  tre_parent_id     bigint references tree(id),
-  tre_num_order     integer,
-  tre_llabel        text,
-  tre_slabel        text,
-  -- Technical metadata
-  tre_valid         boolean default True,
-	tre_ucre_id       bigint references users(id) default 0,
-  tre_umod_id       bigint references users(id) default 0,
-  tre_dcre          timestamp without time zone  default current_timestamp,
-  tre_dmod          timestamp without time zone  default current_timestamp
-);
-
-/* Comments on table */
-comment on table tree is 'This table defines all groups and sub-groups to generate the app layer tree';
-/* Comments on fields */
-comment on column tree.id is 'Table unique ID';
-comment on column tree.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column tree.tre_parent_id is 'Parent id';
-comment on column tree.tre_num_order is 'Num order of the tree group';
-comment on column tree.tre_llabel is 'Long label of the tree group';
-comment on column tree.tre_slabel is 'Short label of the tree group';
-comment on column tree.tre_valid is 'If valid, true else false';
-comment on column tree.tre_ucre_id is 'creator Id';
-comment on column tree.tre_umod_id is 'Last modificator Id';
-comment on column tree.tre_dcre is 'Creation date';
-comment on column tree.tre_dmod is 'Last modification date';
 
 -- Value Lists
 -- List of topological famility
@@ -218,13 +183,10 @@ create table layer
     lyr_num_order            integer,
     dom_id                   bigint references domains(id),
     ast_id                   bigint references asset_type(id) ,-- code hérité de CANOPE / PICRU (20, 21...)
-    tre_group_id             bigint references tree(id),
-    tre_simplified_group_id  bigint references tree(id),
     lyr_table_name           text unique not null,
     lyr_geom_column_name     text not null,
     lyr_uuid_column_name     text not null,
     lyr_geom_srid            text not null,
-    lyr_style                text,
     lyr_slabel               text,
 	  lyr_llabel               text,
 	  lyr_display              boolean default True,
@@ -242,14 +204,10 @@ comment on table layer is 'This table defines all the layers available in the ap
 comment on column layer.id is 'Table unique ID';
 comment on column layer.lyr_num_order is 'lyr_num_order';
 comment on column layer.dom_id is 'Application domain (ie: drinking water, ...) Id';
-comment on column layer.ast_id is 'Asset Type Id';
-comment on column layer.tre_group_id is 'Tree group Id';
-comment on column layer.tre_simplified_group_id is  'Simplified group ID';
 comment on column layer.lyr_table_name is 'Table that contains the layer features (regclass format)';
 comment on column layer.lyr_geom_column_name is  'Column name that contains features geometry';
 comment on column layer.lyr_uuid_column_name is 'Column name that contains unique ID';
 comment on column layer.lyr_geom_srid is  'SRID of the features geometry';
-comment on column layer.lyr_style is  'Mapbox json style';
 comment on column layer.lyr_slabel is 'Short Label of the layer';
 comment on column layer.lyr_llabel is 'Long Label of the layer';
 comment on column layer.lyr_display is 'lyr_display';
@@ -313,7 +271,6 @@ comment on column basemaps.map_dmod is 'Last modification date';
 
 -- Create table to store a grid that covers all asset
 -- Used to export GeoJson
-drop table if exists app_grid;
 create table app_grid
 (
     id                bigserial primary key,
@@ -989,3 +946,100 @@ comment on column form_template_custom.ftc_dcre is 'Creation date';
 comment on column form_template_custom.ftc_dmod is 'Last modification date';
 comment on column form_template_custom.ftc_ddel is 'Deletion date';
 
+-- Table style definition
+-- Contains the style definition
+create table if not exists style_definition (
+  id                           bigserial primary key,
+  syd_code                     text not null,
+  syd_definition               text not null,
+  -- Technical metadata
+  syd_ucre_id                  bigint references users(id) default 0,
+  syd_umod_id                  bigint references users(id) default 0,
+  syd_dcre                     timestamp without time zone  default current_timestamp,
+  syd_dmod                     timestamp without time zone  default current_timestamp,
+  syd_ddel                     timestamp without time zone default null
+);
+
+-- Table style image
+-- Contains the style image
+create table if not exists style_image (
+  id                           bigserial primary key,
+  syd_id                       bigint references style_definition(id) not null,
+  syi_code                     text not null,
+  syi_source                   text not null,
+  -- Technical metadata
+  syi_ucre_id                  bigint references users(id) default 0,
+  syi_umod_id                  bigint references users(id) default 0,
+  syi_dcre                     timestamp without time zone  default current_timestamp,
+  syi_dmod                     timestamp without time zone  default current_timestamp,
+  syi_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table style_image is 'This table contains the style image';
+/* Comments on fields */
+comment on column style_image.id is 'Table unique ID';
+comment on column style_image.syd_id is 'The style definition';
+comment on column style_image.syi_code is 'The image code';
+comment on column style_image.syi_source is 'The source';
+comment on column style_image.syi_ucre_id is 'creator Id';
+comment on column style_image.syi_umod_id is 'Last modificator Id';
+comment on column style_image.syi_dcre is 'Creation date';
+comment on column style_image.syi_dmod is 'Last modification date';
+comment on column style_image.syi_ddel is 'Deletion date';
+
+-- Table layer_style
+-- Contains the styles for layers
+create table if not exists layer_style (
+  id                           bigserial primary key,
+  lse_code                     text not null,
+  syd_id                       bigint references style_definition(id) not null,
+  lyr_id                       bigint references layer(id) not null,
+  -- Technical metadata
+  lse_ucre_id                  bigint references users(id) default 0,
+  lse_umod_id                  bigint references users(id) default 0,
+  lse_dcre                     timestamp without time zone  default current_timestamp,
+  lse_dmod                     timestamp without time zone  default current_timestamp,
+  lse_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style is 'This table contains the form template';
+/* Comments on fields */
+comment on column layer_style.id is 'Table unique ID';
+comment on column layer_style.lse_code is 'Code layer';
+comment on column layer_style.syd_id is 'The style definition';
+comment on column layer_style.lyr_id is 'The layer id';
+comment on column layer_style.lse_ucre_id is 'creator Id';
+comment on column layer_style.lse_umod_id is 'Last modificator Id';
+comment on column layer_style.lse_dcre is 'Creation date';
+comment on column layer_style.lse_dmod is 'Last modification date';
+comment on column layer_style.lse_ddel is 'Deletion date';
+
+-- Table layer_style_custom
+-- Contains the layer style custom
+create table if not exists layer_style_custom (
+  id                           bigserial primary key,
+  lse_id                       bigint references layer_style(id) not null,
+  usr_id                       bigint references users(id) not null,
+  syd_id                       bigint references style_definition(id) not null,
+  -- Technical metadata
+  lsc_ucre_id                  bigint references users(id) default 0,
+  lsc_umod_id                  bigint references users(id) default 0,
+  lsc_dcre                     timestamp without time zone  default current_timestamp,
+  lsc_dmod                     timestamp without time zone  default current_timestamp,
+  lsc_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style_custom is 'This table contains the layer style custom';
+/* Comments on fields */
+comment on column layer_style_custom.id is 'Table unique ID';
+comment on column layer_style_custom.lse_id is 'Layer style id';
+comment on column layer_style_custom.usr_id is 'User ID';
+comment on column layer_style_custom.syd_id is 'The style definition';
+comment on column layer_style_custom.lsc_ucre_id is 'creator Id';
+comment on column layer_style_custom.lsc_umod_id is 'Last modificator Id';
+comment on column layer_style_custom.lsc_dcre is 'Creation date';
+comment on column layer_style_custom.lsc_dmod is 'Last modification date';
+comment on column layer_style_custom.lsc_ddel is 'Deletion date';

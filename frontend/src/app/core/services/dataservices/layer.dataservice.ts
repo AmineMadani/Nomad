@@ -6,6 +6,7 @@ import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { Layer } from '../../models/layer.model';
+import { TreeData } from '../../models/filter/filter-component-models/TreeFilter.model';
 import { Workorder } from '../../models/workorder.model';
 
 @Injectable({
@@ -71,7 +72,7 @@ export class LayerDataService {
       this.http.get<NomadGeoJson>(
         `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
       ).pipe(
-        timeout(2000),
+        timeout(5000),
         catchError(async () => {
           const tile = await this.db.tiles.get(file);
           if (tile) {
@@ -82,6 +83,7 @@ export class LayerDataService {
       )
     );
     if (!req) {
+      this.listTileOnLoad.delete(layerKey);
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
 
@@ -146,7 +148,25 @@ export class LayerDataService {
   }
 
   /**
-   * Get list of workorders for a given asset
+   * Method to get all the user informations from server
+   * @returns User information
+   */
+  public async getDefaultTree(): Promise<TreeData[]> {
+    const Tree = await this.db.referentials.get('tree');
+    if (Tree) {
+      return Tree.data;
+    };
+
+    const res = await lastValueFrom(this.http.get<TreeData[]>(`${this.configurationService.apiUrl}layer/tree`));
+    if (!res) {
+      throw new Error(`Failed to fetch layers`);
+    }
+
+    await this.db.referentials.put({ data: res, key: 'tree' }, 'tree');
+    return res;
+  }
+
+  /* Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
   getEquipmentWorkOrderHistory(assetTable: string, assetId: string): Observable<Workorder[]> {

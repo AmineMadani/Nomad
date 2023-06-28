@@ -46,14 +46,6 @@ public class Layer implements Serializable {
 	@JsonProperty("ast_id")
     private Long astId ;
 
-    @Column(name="tre_group_id")
-	@JsonProperty("tre_group_id")
-    private Long treGroupId ;
-
-    @Column(name="tre_simplified_group_id")
-	@JsonProperty("tre_simplified_group_id")
-    private Long treSimplifiedGroupId ;
-
     @Column(name="lyr_table_name", nullable=false, length=2147483647)
 	@JsonProperty("lyr_table_name")
     private String lyrTableName ;
@@ -69,10 +61,6 @@ public class Layer implements Serializable {
     @Column(name="lyr_geom_srid", nullable=false, length=2147483647)
 	@JsonProperty("lyr_geom_srid")
     private String lyrGeomSrid ;
-
-    @Column(name="lyr_style", length=2147483647)
-	@JsonProperty("lyr_style")
-    private String lyrStyle ;
 
     @Column(name="lyr_slabel", length=2147483647)
 	@JsonProperty("lyr_slabel")
@@ -111,12 +99,7 @@ public class Layer implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tre_group_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree tree ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="dom_id", referencedColumnName="id", insertable=false, updatable=false)
     private Domains domains ; 
 
@@ -127,13 +110,8 @@ public class Layer implements Serializable {
     private Users modifiedBy ; 
 
 
-    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
-    private List<Asset> listOfAsset ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
-    private AssetType assetType ; 
+    @OneToMany(mappedBy="layer")
+    private List<LayerStyle> listOfLayerStyle ; 
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -142,13 +120,21 @@ public class Layer implements Serializable {
     private Users createdBy ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tre_simplified_group_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Tree simplifiedTree ; 
+    @ManyToOne
+    @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
+    private AssetType assetType ; 
 
 
-    @OneToMany(mappedBy="layer",fetch = FetchType.LAZY)
-    private List<LayerReferences> listOfLayerReferences ;
+    @OneToMany(mappedBy="layer")
+    private List<Asset> listOfAsset ; 
+
+
+    @OneToMany(mappedBy="layer")
+    private List<LayerReferences> listOfLayerReferences ; 
+
+
+    @OneToMany(mappedBy="layer")
+    private List<Tree> listOfTree ; 
 
 
     /**
@@ -190,22 +176,6 @@ public class Layer implements Serializable {
         return this.astId;
     }
 
-	public void setTreGroupId( Long treGroupId ) {
-        this.treGroupId = treGroupId ;
-    }
-
-    public Long getTreGroupId() {
-        return this.treGroupId;
-    }
-
-	public void setTreSimplifiedGroupId( Long treSimplifiedGroupId ) {
-        this.treSimplifiedGroupId = treSimplifiedGroupId ;
-    }
-
-    public Long getTreSimplifiedGroupId() {
-        return this.treSimplifiedGroupId;
-    }
-
 	public void setLyrTableName( String lyrTableName ) {
         this.lyrTableName = lyrTableName ;
     }
@@ -236,14 +206,6 @@ public class Layer implements Serializable {
 
     public String getLyrGeomSrid() {
         return this.lyrGeomSrid;
-    }
-
-	public void setLyrStyle( String lyrStyle ) {
-        this.lyrStyle = lyrStyle ;
-    }
-
-    public String getLyrStyle() {
-        return this.lyrStyle;
     }
 
 	public void setLyrSlabel( String lyrSlabel ) {
@@ -311,10 +273,6 @@ public class Layer implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public Tree getTree() {
-        return this.tree;
-    } 
-
     public Domains getDomains() {
         return this.domains;
     } 
@@ -323,25 +281,29 @@ public class Layer implements Serializable {
         return this.modifiedBy;
     } 
 
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
-    } 
-
-    public AssetType getAssetType() {
-        return this.assetType;
+    public List<LayerStyle> getListOfLayerStyle() {
+        return this.listOfLayerStyle;
     } 
 
     public Users getCreatedBy() {
         return this.createdBy;
     } 
 
-    public Tree getSimplifiedTree() {
-        return this.simplifiedTree;
+    public AssetType getAssetType() {
+        return this.assetType;
+    } 
+
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
     } 
 
     public List<LayerReferences> getListOfLayerReferences() {
-      return this.listOfLayerReferences;
-    }
+        return this.listOfLayerReferences;
+    } 
+
+    public List<Tree> getListOfTree() {
+        return this.listOfTree;
+    } 
 
 
 }

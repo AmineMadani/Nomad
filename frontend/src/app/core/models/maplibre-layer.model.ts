@@ -1,13 +1,15 @@
 import { Subscription } from 'rxjs';
-import { Layer } from './layer.model';
+import { Layer, LayerStyle } from './layer.model';
+import * as Maplibregl from 'maplibre-gl';
 
 export class MaplibreLayer {
-  constructor(layerConfiguration : Layer
-    ) {
+  constructor(
+    layerConfiguration : Layer,
+    map : Maplibregl.Map
+  ) {
     this.configurations = layerConfiguration ;
     this.source = this.buildSource();
-    this.style = JSON.parse(layerConfiguration.lyrStyle);
-
+    this.style = this.buildStyle(map, layerConfiguration.listStyle);
     this.subscriptions = new Subscription();
   }
 
@@ -25,6 +27,34 @@ export class MaplibreLayer {
         features: [],
       },
     };
+  }
+
+  private buildStyle(map : Maplibregl.Map, lLayerStyle: LayerStyle[]): any[] {
+    let styles:any[] = [];
+    for(let layerStyle of lLayerStyle){
+      let transformStyle = JSON.parse(layerStyle.definition);
+      let nb = 0;
+      for(let style of transformStyle) {
+        if(nb == 0){
+          style.id = layerStyle.code;
+        } else {
+          style.id = layerStyle.code+'_'+nb;
+        }
+        nb++;
+      }
+      styles = styles.concat(transformStyle);
+      for(let img of layerStyle.listImage){
+        if(!map.hasImage(img.code)) {
+          map.loadImage(img.source, (error, image) => {
+            if (!error) {
+              map.addImage(img.code, image);
+            }
+          });
+        }
+      }
+    }
+
+    return styles;
   }
 
 }

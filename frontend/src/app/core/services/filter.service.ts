@@ -203,9 +203,6 @@ export class FilterService {
             else if (oneData.value){
               await this.mapService.addEventLayer( oneData.key);
             }
-            else{
-              this.mapService.removeEventLayer(oneData.key);
-            }
           });
         }
           if (basefilter instanceof ToggleFilter){

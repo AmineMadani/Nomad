@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,5 +29,20 @@ public class UserService {
 	public List<AccountDto> getAllUserAccount() {
 		List<Users> users = this.userRepository.findAll();
 		return users.stream().map(AccountDto::new).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Update the user data
+	 * @param userId the user id to update
+	 * @param updateUser the update data
+	 * @return the account dto
+	 */
+	public AccountDto updateUser(Long userId, AccountDto updateUser) {
+		Users user = userRepository.findById(userId).get();
+		user.setUsrConfiguration(updateUser.getUsrConfiguration());
+		user.setUsrDmod(new Date());
+		user.setUsrUmodId(userId);
+		userRepository.save(user);
+		return updateUser;
 	}
 }

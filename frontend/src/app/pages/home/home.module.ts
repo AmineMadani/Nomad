@@ -17,14 +17,11 @@ import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
-import { FilterAccordeonComponent } from './drawers/components/filter-accordeon/filter-accordeon.component';
-import { FilterTreeComponent } from './drawers/components/filter-tree/filter-tree.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
 import { FilterCardComponent } from './drawers/components/filter-card/filter-card.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
-import { FilterFavoriteComponent } from './drawers/components/filter-favorite/filter-favorite.component';
 import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
 import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
@@ -34,6 +31,9 @@ import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer'
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
+import { AssetAccordionComponent } from './drawers/asset/components/asset-accordion/asset-accordion.component';
+import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
+import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
 
 @NgModule({
   imports: [
@@ -57,12 +57,9 @@ import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/
     ExploitationDrawer,
     PerimeterDrawer,
     FilterContentComponent,
-    FilterAccordeonComponent,
-    FilterTreeComponent,
     FilterToggleComponent,
     FilterCardComponent,
     FilterSearchComponent,
-    FilterFavoriteComponent,
     FilterWorkOrderComponent,
     SynthesisDrawer,
     WorkOrderDrawer,
@@ -70,7 +67,10 @@ import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/
     EquipmentDrawer,
     MultipleSelectionDrawer,
     EquipmentDetailsComponent,
-    MobileHomeActionsComponent
+    MobileHomeActionsComponent,
+    AssetAccordionComponent,
+    AssetDetailComponent,
+    AssetFavoriteComponent
   ]
 })
 export class HomePageModule {}
