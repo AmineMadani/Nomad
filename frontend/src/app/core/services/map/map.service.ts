@@ -32,9 +32,6 @@ export class MapService {
     private configurationService: ConfigurationService,
     private mapEventService: MapEventService
   ) {
-    from(this.layerDataService.getLayers()).subscribe((layers: Layer[]) => {
-      this.layersConfiguration = layers;
-    });
   }
 
   private map: Maplibregl.Map;
@@ -170,6 +167,8 @@ export class MapService {
     if (!layerKey) {
       return;
     }
+
+    this.layersConfiguration = await this.layerDataService.getLayers();
 
     //If style loading in queue
     if (this.loadingStyle.get(layerKey)) {
