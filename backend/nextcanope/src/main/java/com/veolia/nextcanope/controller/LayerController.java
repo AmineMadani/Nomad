@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.veolia.nextcanope.dto.LayerReference.SaveLayerReferenceUserDto;
+import com.veolia.nextcanope.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.constants.LayerConstants;
@@ -126,18 +126,14 @@ public class LayerController {
     }
 
     @PostMapping(path = "/references/user")
-    @Operation(summary = "Save the user custom layer references")
+    @Operation(summary = "Save the user custom layer references. Return a response message.")
     @ApiResponses(value = {
             @ApiResponse(description= "All layer references with customization", content =  {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public HttpStatus saveUserLayerReferences(@RequestBody SaveLayerReferenceUserDto saveDto, AccountTokenDto account) throws Exception {
-        try {
-            this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
-            return HttpStatus.CREATED;
-        } catch (Exception e) {
-            throw new Exception("Error during the layer references saving");
-        }
+    public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserDto saveDto, AccountTokenDto account) {
+        this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
+        return new ResponseMessage("Les données attributaires ont été enregistrées avec succès.");
     }
 }

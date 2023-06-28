@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 import { ConfigurationService } from '../configuration.service';
@@ -6,6 +6,7 @@ import { AppDB, layerReferencesKey } from '../../models/app-db.model';
 import { LayerReferences, UserReference } from '../../models/layer-references.model';
 import { catchError, tap, throwError, timeout } from 'rxjs';
 import { ToastController } from '@ionic/angular';
+import { ApiErrorResponse, ApiSuccessResponse } from '../../models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -61,24 +62,26 @@ export class LayerReferencesDataService {
    * @returns A string which contains "CREATED" if successfull, else return an error.
    */
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }) {
-    return this.http.post<string>(`${this.configurationService.apiUrl}layer/references/user`, payload)
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/references/user`, payload)
       .pipe(
-        tap(async () => {
+        tap(async (successResponse: ApiSuccessResponse) => {
           const toast = await this.toastController.create({
-            message: 'Les données attributaires ont été enregistrées avec succès.',
+            message: successResponse.message,
             duration: 2000,
             color: 'success'
           });
           await toast.present();
         }),
-        catchError(async error => {
+        catchError(async (httpErrorResponse: HttpErrorResponse) => {
+          const apiError: ApiErrorResponse = httpErrorResponse.error;
+
           const toast = await this.toastController.create({
-            message: 'Une erreur est survenue lors de l\'enregistrement des données attributaires.',
+            message: apiError.message,
             duration: 2000,
             color: 'danger'
           });
           await toast.present();
-          return throwError(() => new Error(error));
+          return throwError(() => new Error(apiError.message));
         })
       );
   }

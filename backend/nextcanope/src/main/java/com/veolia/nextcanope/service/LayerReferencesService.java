@@ -4,6 +4,7 @@ import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
 import com.veolia.nextcanope.enums.LayerReferencesDisplayType;
+import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.LayerReferencesUser;
 import com.veolia.nextcanope.repository.LayerReferencesRepository;
 import com.veolia.nextcanope.repository.LayerReferencesUserRepository;
@@ -108,6 +109,10 @@ public class LayerReferencesService {
         }
 
         // It saves layer references user in the db
-        this.layerReferencesUserRepository.saveAll(layerReferencesUsers);
+        try {
+            this.layerReferencesUserRepository.saveAll(layerReferencesUsers);
+        } catch (Exception e) {
+            throw new TechnicalException("Erreur lors de la sauvegarde de vos données attributaires.", e.getMessage());
+        }
     }
 }
