@@ -38,14 +38,6 @@
         <data android:scheme="https" />
         <data android:host="nomad-dev.hp.m-ve.com" />
       </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-
-        <data android:scheme="testo" />
-      </intent-filter>
 
       <intent-filter>
         <action android:name="com.veolia.nomad.action" />
