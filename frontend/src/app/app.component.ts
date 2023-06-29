@@ -11,6 +11,7 @@ import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserContext } from './core/models/user-context.model';
 import { LocalStorageService } from './core/services/local-storage.service';
 import { UserService } from './core/services/user.service';
+import { IntentAction } from 'plugins/intent-action/src';
 
 register();
 
@@ -48,6 +49,14 @@ export class AppComponent implements OnInit, OnDestroy {
   private sub: Subscription = new Subscription();
 
   ngOnInit(): void {
+
+    IntentAction.echo({value:"test praxedo plugin"});
+
+    IntentAction.addListener('appActionIntent', res => {
+      console.log("event praxedo");
+      console.log(res);
+    })
+
     this.isMobile = this.utils.isMobilePlateform();
     this.keycloakService.initialisation();
 

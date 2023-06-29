@@ -11,6 +11,7 @@ import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
+import { ReportDrawer } from './drawers/report/report.drawer';
 
 const routes: Routes = [
   {
@@ -60,6 +61,13 @@ const routes: Routes = [
         component: WorkOrderDrawer,
         data: {
           name: DrawerRouteEnum.WORKORDER,
+        },
+      },
+      {
+        path: 'work-order/:id/cr',
+        component: ReportDrawer,
+        data: {
+          name: DrawerRouteEnum.REPORT,
         },
       },
       {

@@ -34,6 +34,7 @@ import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/
 import { AssetAccordionComponent } from './drawers/asset/components/asset-accordion/asset-accordion.component';
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
+import { ReportDrawer } from './drawers/report/report.drawer';
 
 @NgModule({
   imports: [
@@ -65,6 +66,7 @@ import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorit
     WorkOrderDrawer,
     DemandeDrawer,
     EquipmentDrawer,
+    ReportDrawer,
     MultipleSelectionDrawer,
     EquipmentDetailsComponent,
     MobileHomeActionsComponent,

@@ -60,11 +60,11 @@ public  async getCoordinateFeaturesById(
     let f: Maplibregl.MapGeoJSONFeature[] = [];
     if (
       this.mapService.getMap() &&
-      this.mapService.getMap().getLayer('layer-' + layerKey)
+      this.mapService.getMap().getLayer(layerKey.toUpperCase())
     ) {
       f = this.mapService
         .getMap()
-        .queryRenderedFeatures(null, { layers: ['layer-' + layerKey] });
+        .queryRenderedFeatures(null, { layers: [layerKey.toUpperCase()] });
     }
     return f;
   }
