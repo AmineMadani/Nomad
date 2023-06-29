@@ -3,6 +3,7 @@ import { IonPopover } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
 import { UserContext } from 'src/app/core/models/user-context.model';
+import { User } from 'src/app/core/models/user.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
@@ -96,8 +97,8 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    * Sauvegarde des préférences d'affichages
    */
   public async saveContext (): Promise<void>  {
-    const userContext : UserContext = await this.userService.getCurrentUserContext();
-    this.userDataService.saveUsercontext(userContext);
+    const user : User = await this.userService.getCurrentUserContext();
+    this.userDataService.updateUser(user);
   }
 
   /**

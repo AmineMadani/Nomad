@@ -1,4 +1,4 @@
-.patrimony-drawer {
+.asset-drawer {
   display: block;
   height: 100%;
 
@@ -30,5 +30,21 @@
     flex-direction: row;
     justify-content: space-between;
     padding: 27px 0px;
+  }
+
+  .filter-segment {
+    border-bottom: solid 1px var(--ion-color-neutral-variant-80);
+
+    .scrolling-wrapper-mobile {
+      ion-segment-button {
+        flex: 0 0 auto;
+      }
+    }
+  }
+
+  .filter-segment-content {
+    overflow-y: auto;
+    display: block;
+    height: calc(100% - 49px);
   }
 }

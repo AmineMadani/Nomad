@@ -5,8 +5,6 @@ export interface Layer {
   domLLabel: string;
   domCode: string;
   astId: number;
-  treGroupId: number;
-  treSimplifiedGroupId: number;
   lyrTableName: string;
   lyrGeomColumnName: string;
   lyrUuidColumnName: string;
@@ -16,10 +14,18 @@ export interface Layer {
   lyrLlabel: string;
   lyrValid: Boolean;
   lyrDisplay: Boolean;
-  lyrUcreId: number;
-  lyrUmodId: number;
-  lyrDcre: Date;
-  lyrDmod: Date;
+  listStyle: LayerStyle[];
+}
+
+export interface LayerStyle {
+  code: string;
+  definition: string;
+  listImage: StyleImage[];
+}
+
+export interface StyleImage {
+  code: string;
+  source: string;
 }
 
 export enum  localisationExportMode  {

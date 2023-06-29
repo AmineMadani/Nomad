@@ -68,15 +68,19 @@ public class Users implements Serializable {
 	@JsonProperty("usr_dmod")
     private Date usrDmod ;
 
-    @Column(name="usr_ctxt", length=2147483647)
-	@JsonProperty("usr_ctxt")
-    private String usrCtxt ;
+    @Column(name="usr_configuration", length=2147483647)
+	@JsonProperty("usr_configuration")
+    private String usrConfiguration ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<AstWtr> listOfModifiedAstWtr ; 
+
+
+    @OneToMany(mappedBy="modifiedBy")
+    private List<StyleImage> listOfModifiedStyleImage ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -89,6 +93,10 @@ public class Users implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Users> listOfModifiedUsers ; 
+
+
+    @OneToMany(mappedBy="createdBy")
+    private List<StyleImage> listOfCreatedStyleImage ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -115,6 +123,14 @@ public class Users implements Serializable {
     private List<FormTemplateCustom> listOfFormTemplateCustom ; 
 
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<LayerStyle> listOfModifiedLayerStyle ; 
+
+
+    @OneToMany(mappedBy="createdBy")
+    private List<LayerStyle> listOfCreatedLayerStyle ; 
+
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<ContractActivity> listOfModifiedContractActivity ; 
 
@@ -135,6 +151,10 @@ public class Users implements Serializable {
     private List<FormDefinition> listOfModifiedForm ; 
 
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<StyleDefinition> listOfModifiedStyleDefinition ; 
+
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Contract> listOfModifiedContract ; 
 
@@ -145,6 +165,10 @@ public class Users implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<City> listOfCreatedCity ; 
+
+
+    @OneToMany(mappedBy="createdBy")
+    private List<StyleDefinition> listOfCreatedStyleDefinition ; 
 
 
     @OneToMany(mappedBy="createdBy")
@@ -159,8 +183,16 @@ public class Users implements Serializable {
     private List<LayerReferences> listOfLayerModifiedReferences ; 
 
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<LayerStyleCustom> listOfModifiedLayerStyleCustom ; 
+
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferences> listOfLayerCreatedReferences ; 
+
+
+    @OneToMany(mappedBy="createdBy")
+    private List<LayerStyleCustom> listOfCreatedLayerStyleCustom ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -180,23 +212,27 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus ; 
+    private List<Basemaps> listOfCreatedBasemaps ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Basemaps> listOfCreatedBasemaps ; 
+    private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedUser")
     private List<Tree> listOfModifiedTree ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason ; 
+    @OneToMany(mappedBy="users")
+    private List<LayerStyleCustom> listOfLayerStyleCustom ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdUser")
     private List<Tree> listOfCreatedTree ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -217,16 +253,16 @@ public class Users implements Serializable {
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Users> listOfCreatedUsers ; 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<VlTopologyType> listOfModifiedVlTopologyType ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Street> listOfModifiedStreet ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<VlTopologyType> listOfModifiedVlTopologyType ; 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Users> listOfCreatedUsers ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -242,11 +278,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Street> listOfCreatedStreet ; 
+    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
+    private List<Street> listOfCreatedStreet ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -258,11 +294,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
+    private List<Workorder> listOfModifiedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Workorder> listOfModifiedWorkorder ; 
+    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
 
 
     @OneToMany(mappedBy="modifiedBy")
@@ -274,25 +310,25 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
+    private List<Workorder> listOfCreatedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Workorder> listOfCreatedWorkorder ; 
+    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
 
 
     @OneToMany(mappedBy="createdBy")
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Layer> listOfCreatedLayer ; 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Layer> listOfCreatedLayer ; 
 
 
     /**
@@ -374,17 +410,21 @@ public class Users implements Serializable {
         return this.usrDmod;
     }
 
-	public void setUsrCtxt( String usrCtxt ) {
-        this.usrCtxt = usrCtxt ;
+	public void setUsrConfiguration( String usrConfiguration ) {
+        this.usrConfiguration = usrConfiguration ;
     }
 
-    public String getUsrCtxt() {
-        return this.usrCtxt;
+    public String getUsrConfiguration() {
+        return this.usrConfiguration;
     }
 
     //--- GETTERS FOR LINKS
     public List<AstWtr> getListOfModifiedAstWtr() {
         return this.listOfModifiedAstWtr;
+    } 
+
+    public List<StyleImage> getListOfModifiedStyleImage() {
+        return this.listOfModifiedStyleImage;
     } 
 
     public List<AstWtr> getListOfCreatedAstWtr() {
@@ -397,6 +437,10 @@ public class Users implements Serializable {
 
     public List<Users> getListOfModifiedUsers() {
         return this.listOfModifiedUsers;
+    } 
+
+    public List<StyleImage> getListOfCreatedStyleImage() {
+        return this.listOfCreatedStyleImage;
     } 
 
     public List<AssetType> getListOfModifiedAssetType() {
@@ -423,6 +467,14 @@ public class Users implements Serializable {
         return this.listOfFormTemplateCustom;
     } 
 
+    public List<LayerStyle> getListOfModifiedLayerStyle() {
+        return this.listOfModifiedLayerStyle;
+    } 
+
+    public List<LayerStyle> getListOfCreatedLayerStyle() {
+        return this.listOfCreatedLayerStyle;
+    } 
+
     public List<ContractActivity> getListOfModifiedContractActivity() {
         return this.listOfModifiedContractActivity;
     } 
@@ -443,6 +495,10 @@ public class Users implements Serializable {
         return this.listOfModifiedForm;
     } 
 
+    public List<StyleDefinition> getListOfModifiedStyleDefinition() {
+        return this.listOfModifiedStyleDefinition;
+    } 
+
     public List<Contract> getListOfModifiedContract() {
         return this.listOfModifiedContract;
     } 
@@ -453,6 +509,10 @@ public class Users implements Serializable {
 
     public List<City> getListOfCreatedCity() {
         return this.listOfCreatedCity;
+    } 
+
+    public List<StyleDefinition> getListOfCreatedStyleDefinition() {
+        return this.listOfCreatedStyleDefinition;
     } 
 
     public List<FormDefinition> getListOfCreatedFormDefinition() {
@@ -467,8 +527,16 @@ public class Users implements Serializable {
         return this.listOfLayerModifiedReferences;
     } 
 
+    public List<LayerStyleCustom> getListOfModifiedLayerStyleCustom() {
+        return this.listOfModifiedLayerStyleCustom;
+    } 
+
     public List<LayerReferences> getListOfLayerCreatedReferences() {
         return this.listOfLayerCreatedReferences;
+    } 
+
+    public List<LayerStyleCustom> getListOfCreatedLayerStyleCustom() {
+        return this.listOfCreatedLayerStyleCustom;
     } 
 
     public List<AppGrid> getListOfModifiedAppGrid() {
@@ -487,24 +555,28 @@ public class Users implements Serializable {
         return this.listOfModifiedWorkorderTaskStatus;
     } 
 
-    public List<WorkorderTaskStatus> getListOfCreatedWorkorderTaskStatus() {
-        return this.listOfCreatedWorkorderTaskStatus;
-    } 
-
     public List<Basemaps> getListOfCreatedBasemaps() {
         return this.listOfCreatedBasemaps;
+    } 
+
+    public List<WorkorderTaskStatus> getListOfCreatedWorkorderTaskStatus() {
+        return this.listOfCreatedWorkorderTaskStatus;
     } 
 
     public List<Tree> getListOfModifiedTree() {
         return this.listOfModifiedTree;
     } 
 
-    public List<WorkorderTaskReason> getListOfModifiedWorkorderTaskReason() {
-        return this.listOfModifiedWorkorderTaskReason;
+    public List<LayerStyleCustom> getListOfLayerStyleCustom() {
+        return this.listOfLayerStyleCustom;
     } 
 
     public List<Tree> getListOfCreatedTree() {
         return this.listOfCreatedTree;
+    } 
+
+    public List<WorkorderTaskReason> getListOfModifiedWorkorderTaskReason() {
+        return this.listOfModifiedWorkorderTaskReason;
     } 
 
     public List<WorkorderTaskReason> getListOfCreatedWorkorderTaskReason() {
@@ -523,16 +595,16 @@ public class Users implements Serializable {
         return this.listOfCreatedLayerReferencesDefault;
     } 
 
-    public List<Users> getListOfCreatedUsers() {
-        return this.listOfCreatedUsers;
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
     } 
 
     public List<Street> getListOfModifiedStreet() {
         return this.listOfModifiedStreet;
     } 
 
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
+    public List<Users> getListOfCreatedUsers() {
+        return this.listOfCreatedUsers;
     } 
 
     public List<Report> getListOfModifiedReport() {
@@ -547,12 +619,12 @@ public class Users implements Serializable {
         return this.listOfLayerReferences;
     } 
 
-    public List<Street> getListOfCreatedStreet() {
-        return this.listOfCreatedStreet;
-    } 
-
     public List<VlTopologyType> getListOfCreatedVlTopologyType() {
         return this.listOfCreatedVlTopologyType;
+    } 
+
+    public List<Street> getListOfCreatedStreet() {
+        return this.listOfCreatedStreet;
     } 
 
     public List<Report> getListOfCreatedReport() {
@@ -563,12 +635,12 @@ public class Users implements Serializable {
         return this.listOfCreatedDomains;
     } 
 
-    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
-        return this.listOfModifiedLayerReferences;
-    } 
-
     public List<Workorder> getListOfModifiedWorkorder() {
         return this.listOfModifiedWorkorder;
+    } 
+
+    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
+        return this.listOfModifiedLayerReferences;
     } 
 
     public List<FormTemplateCustom> getListOfModifiedFormTemplateCustom() {
@@ -579,24 +651,24 @@ public class Users implements Serializable {
         return this.listOfModifiedLayer;
     } 
 
-    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
-        return this.listOfCreatedLayerReferences;
-    } 
-
     public List<Workorder> getListOfCreatedWorkorder() {
         return this.listOfCreatedWorkorder;
+    } 
+
+    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
+        return this.listOfCreatedLayerReferences;
     } 
 
     public List<FormTemplateCustom> getListOfCreatedFormTemplateCustom() {
         return this.listOfCreatedFormTemplateCustom;
     } 
 
-    public List<Layer> getListOfCreatedLayer() {
-        return this.listOfCreatedLayer;
-    } 
-
     public Users getModifiedBy() {
         return this.modifiedBy;
+    } 
+
+    public List<Layer> getListOfCreatedLayer() {
+        return this.listOfCreatedLayer;
     } 
 
 

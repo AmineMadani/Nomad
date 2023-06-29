@@ -1,16 +1,20 @@
 import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
-import * as Maplibregl from 'maplibre-gl';
+import maplibregl, * as Maplibregl from 'maplibre-gl';
+import { CacheService } from '../cache.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayerService {
+
   constructor(
     private mapService: MapService,
-    private mapEvent: MapEventService
-  ) {}
+    private mapEvent: MapEventService,
+    private cacheService: CacheService
+  ) {
+  }
 
   /**
    * Get a feature by its ID on a given layer
@@ -31,32 +35,19 @@ export class LayerService {
     return r[0] ?? null;
   }
 
-  /**
+/**
    * Get feature coordinates by its ID on a given layer
    * @param layerKey The key of the layer to get the feature from
    * @param featureId The ID of the feature to get
    * @returns The feature with the given ID, or null if there is no such feature
    */
-  public getCoordinateFeaturesById(
-    layerKey: string,
-    featureId: string
-  ): any | null {
-    const r = this.mapService.getMap().querySourceFeatures(layerKey, {
-      sourceLayer: '',
-      filter: ['==', 'id', featureId],
-    });
-    let val: Array<number[]> = [];
-    for (let feature of r) {
-      if ((feature as any).geometry.coordinates.some((ele) => ele.length > 2)) {
-        //val = [...val, ...((feature as any).geometry.coordinates).flat()];
-      } else {
-        val = [...val, ...(feature as any).geometry.coordinates];
-      }
-    }
-    const setArray = new Set(val.map((x) => JSON.stringify(x)));
-    const uniqArray = [...setArray].map((x) => JSON.parse(x));
-
-    return uniqArray;
+public  async getCoordinateFeaturesById(
+  layerKey: string,
+  featureId: string
+): Promise<any | null> {
+  let geom;
+  await this.cacheService.getGeometryByLayerAndId(featureId,layerKey).then(r=> geom=r);
+  return geom;
   }
 
   /**
@@ -204,7 +195,6 @@ export class LayerService {
     const res = this.findNearestPoint(geometry, [lngLat.lng, lngLat.lat]);
     marker.setLngLat([res[0], res[1]]);
   }
-
   /**
    * Calcul the nearest position of a point to a polygon line
    * @param geometry the asset geometry
