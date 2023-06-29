@@ -47,7 +47,7 @@ public class UserController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "User data is updated")
 	})
-	public AccountDto updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) throws Exception {
+	public AccountDto updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) {
 		return userService.updateUser(account.getId(), savingAccount);
 	}
 

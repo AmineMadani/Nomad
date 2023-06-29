@@ -1,9 +1,11 @@
-package com.veolia.nextcanope.dto.LayerReference;
+package com.veolia.nextcanope.dto.payload;
+
+import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
 
 import java.util.List;
 
-public class SaveLayerReferenceUserDto {
-    public SaveLayerReferenceUserDto() {
+public class SaveLayerReferenceUserPayload {
+    public SaveLayerReferenceUserPayload() {
     }
 
     private List<Long> userIds;

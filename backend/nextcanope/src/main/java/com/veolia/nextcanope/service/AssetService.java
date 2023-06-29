@@ -2,6 +2,7 @@ package com.veolia.nextcanope.service;
 
 import java.util.Date;
 
+import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,11 @@ public class AssetService {
 		if(assetDb != null) {
 			asset = assetDb;
 		} else {
-			asset = assetRepository.save(asset);
+			try {
+				asset = assetRepository.save(asset);
+			} catch (Exception e) {
+				throw new TechnicalException("Erreur lors de la sauvegarde de l'asset pour l'utilisateur avec l'id  " + account.getId() + ".");
+			}
 		}
 		
         return asset;

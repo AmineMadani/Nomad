@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veolia.nextcanope.model.WorkorderTaskStatus;
 
+import java.util.Optional;
+
 /**
  * StatusRepository is an interface for managing Status entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
@@ -16,5 +18,5 @@ public interface StatusRepository extends JpaRepository<WorkorderTaskStatus, Lon
      * @param wtsCode The status code.
      * @return The status
      */
-	WorkorderTaskStatus findByWtsCode(String wtsCode);
+	Optional<WorkorderTaskStatus> findOneByWtsCode(String wtsCode);
 }

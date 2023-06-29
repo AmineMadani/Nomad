@@ -1,12 +1,9 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +25,6 @@ import com.veolia.nextcanope.repository.WorkorderRepository;
  */
 @Service
 public class WorkOrderService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(WorkOrderService.class);
 
     @Autowired
     private WorkOrderRepositoryImpl workOrderRepositoryImpl;
@@ -66,6 +61,7 @@ public class WorkOrderService {
     	ObjectMapper mapper = new ObjectMapper();
     	Workorder workorder = null;
     	Asset asset = new Asset();
+
 		try {
 			workorder = mapper.readValue(workOrderRaw, Workorder.class);
 			workorder.setWkoUcreId(account.getId());
@@ -76,31 +72,43 @@ public class WorkOrderService {
 			
 			WorkorderTaskStatus status = statusService.getStatus("CREE");
 			workorder.setWtsId(status.getId());
-			
+
+			// Get the work order asset
 			asset = mapper.readValue(assetRaw, Asset.class);
 			if(asset.getAssObjTable().equals("xy")) {
 				asset.setAssObjRef("none");
 			}
 			asset = assetService.getAsset(mapper.readValue(assetRaw, Asset.class), account);
 			workorder.setAssId(asset.getId());
-			
-			City city = cityRepository.findById(workorder.getCtyId()).get();
-			workorder.setCtyLlabel(city.getCtyLlabel());
-			
-			workorder = workOrderRepository.save(workorder);
-			
-			if(workorder.getLongitude() != null && workorder.getLatitude() != null) {
-				workOrderRepositoryImpl.updateGeom(workorder.getId());
+
+			// Get the work order city
+			Optional<City> optCity = cityRepository.findById(workorder.getCtyId());
+			if (optCity.isEmpty()) {
+				throw new FunctionalException("La ville avec l'id " + workorder.getCtyId() + " n'existe pas.");
 			}
-			
+			City city = optCity.get();
+			workorder.setCtyLlabel(city.getCtyLlabel());
+
+			// Save the work order in the database
+			try {
+				workorder = workOrderRepository.save(workorder);
+			} catch(Exception e) {
+				throw new TechnicalException("Erreur lors de la sauvegarde de l'intervention.", e.getMessage());
+			}
+
+			// Update the geom if there are some longitude and latitude
+			if (workorder.getLongitude() != null && workorder.getLatitude() != null) {
+				try {
+					workOrderRepositoryImpl.updateGeom(workorder.getId());
+				} catch (Exception e) {
+					throw new TechnicalException("Erreur lors de la sauvegarde du geom de l'intervention avec l'id " + workorder.getId() + ".", e.getMessage());
+				}
+			}
 		} catch (JsonProcessingException e) {
-			logger.error("Error in the workorder creation for the user "+account.getId(), workOrderRaw, assetRaw);
-			logger.error("Exception",e);
+			throw new FunctionalException("Erreur lors de la lecture du json.", e.getMessage());
 		}
-		if(workorder == null) {
-			return null;
-		}
-    	return workorder;
+
+		return workorder;
     }
 
 	/**

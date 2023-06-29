@@ -59,7 +59,7 @@ export class LayerReferencesDataService {
    * Save the new layer references configuration of a list of user.
    * A toast is automatically showed to the user when the api call is done.
    * @param payload: layerReferences to apply and userIds concerned.
-   * @returns A string which contains "CREATED" if successfull, else return an error.
+   * @returns A response message if successfull, else return an error.
    */
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }) {
     return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/references/user`, payload)
@@ -71,17 +71,6 @@ export class LayerReferencesDataService {
             color: 'success'
           });
           await toast.present();
-        }),
-        catchError(async (httpErrorResponse: HttpErrorResponse) => {
-          const apiError: ApiErrorResponse = httpErrorResponse.error;
-
-          const toast = await this.toastController.create({
-            message: apiError.message,
-            duration: 2000,
-            color: 'danger'
-          });
-          await toast.present();
-          return throwError(() => new Error(apiError.message));
         })
       );
   }

@@ -3,7 +3,7 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 import java.util.Map;
 
-import com.veolia.nextcanope.dto.LayerReference.SaveLayerReferenceUserDto;
+import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -137,7 +137,7 @@ public class LayerController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserDto saveDto, AccountTokenDto account) {
+    public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserPayload saveDto, AccountTokenDto account) {
         this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
         return new ResponseMessage("Les données attributaires ont été enregistrées avec succès.");
     }

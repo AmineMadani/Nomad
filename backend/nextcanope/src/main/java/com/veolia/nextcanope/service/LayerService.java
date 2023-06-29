@@ -3,7 +3,9 @@ package com.veolia.nextcanope.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,9 +69,15 @@ public class LayerService {
     		LayerDto layerDto = new LayerDto(layer);
     		List<LayerStyleDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
     		for(LayerStyleDto layerStyle: lLayerStyle) {
-    			StyleDefinition styleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId()).get();
-    			styleDefinition.setSydCode(layerStyle.getCode());
-    			layerDto.getListStyle().add(new StyleDto(styleDefinition));
+    			Optional<StyleDefinition> optStyleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId());
+                if (optStyleDefinition.isPresent()) {
+                    StyleDefinition styleDefinition = optStyleDefinition.get();
+                    styleDefinition.setSydCode(layerStyle.getCode());
+                    layerDto.getListStyle().add(new StyleDto(styleDefinition));
+                } else {
+                    // We throw a technical exception if a definition is not found because it's an internal data error.
+                    throw new TechnicalException("La définition " + layerStyle.getDefinitionId() + " n'existe pas.");
+                }
     		}
     		layersDto.add(layerDto);
     	}

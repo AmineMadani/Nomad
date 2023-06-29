@@ -1,10 +1,13 @@
 package com.veolia.nextcanope.service;
 
+import com.veolia.nextcanope.exception.FunctionalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.model.WorkorderTaskStatus;
 import com.veolia.nextcanope.repository.StatusRepository;
+
+import java.util.Optional;
 
 /**
  * StatusService is a service class for managing status-related data.
@@ -22,6 +25,11 @@ public class StatusService {
      * @return The status.
      */
     public WorkorderTaskStatus getStatus(String statusCode) {
-        return statusRepository.findByWtsCode(statusCode);
+        Optional<WorkorderTaskStatus> optWorkorderTaskStatus = statusRepository.findOneByWtsCode(statusCode);
+        if (optWorkorderTaskStatus.isEmpty()) {
+            throw new FunctionalException("Le statut " + statusCode + " n'existe pas.");
+        }
+
+        return optWorkorderTaskStatus.get();
     }
 }

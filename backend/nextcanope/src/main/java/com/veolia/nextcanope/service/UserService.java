@@ -2,8 +2,11 @@ package com.veolia.nextcanope.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +41,22 @@ public class UserService {
 	 * @return the account dto
 	 */
 	public AccountDto updateUser(Long userId, AccountDto updateUser) {
-		Users user = userRepository.findById(userId).get();
+		Optional<Users> optUser = userRepository.findById(userId);
+		if (optUser.isEmpty()) {
+			throw new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas.");
+		}
+
+		Users user = optUser.get();
 		user.setUsrConfiguration(updateUser.getUsrConfiguration());
 		user.setUsrDmod(new Date());
 		user.setUsrUmodId(userId);
-		userRepository.save(user);
+
+		try {
+			userRepository.save(user);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde de l'utilisateur avec l'id " + userId + ".");
+		}
+
 		return updateUser;
 	}
 }
