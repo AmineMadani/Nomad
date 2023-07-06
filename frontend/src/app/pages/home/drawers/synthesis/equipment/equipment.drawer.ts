@@ -82,7 +82,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     )
       .pipe(
         switchMap((ref: UserReference[]) => {
-          this.userReferences = ref;
+          this.userReferences = ref.filter(x => x.displayType == 'SYNTHETIC');
           this.equipment = paramMap;
           return this.activatedRoute.params;
         }),
