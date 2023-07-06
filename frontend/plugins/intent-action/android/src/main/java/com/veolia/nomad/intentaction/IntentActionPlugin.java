@@ -22,6 +22,12 @@ public class IntentActionPlugin extends Plugin {
 
         JSObject ret = new JSObject();
         ret.put("value", implementation.echo(value));
+
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("result","Oui");
+        getActivity().setResult(getActivity().RESULT_OK, returnIntent);
+        getActivity().finish();
+
         call.resolve(ret);
     }
 

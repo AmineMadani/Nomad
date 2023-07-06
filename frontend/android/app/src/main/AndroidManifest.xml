@@ -22,7 +22,7 @@
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
       android:exported="true"
       android:label="@string/title_activity_main"
-      android:launchMode="singleTask"
+      android:launchMode="singleInstance"
       android:theme="@style/AppTheme.NoActionBarLaunch">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -37,6 +37,13 @@
 
         <data android:scheme="https" />
         <data android:host="nomad-dev.hp.m-ve.com" />
+      </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="myschema" android:host="login"/>
       </intent-filter>
 
       <intent-filter>
