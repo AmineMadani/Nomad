@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
-import maplibregl, * as Maplibregl from 'maplibre-gl';
+import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
 
 @Injectable({

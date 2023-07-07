@@ -114,10 +114,8 @@ public class Layer implements Serializable {
     private List<LayerStyle> listOfLayerStyle ; 
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
+    @OneToMany(mappedBy="layer")
+    private List<Asset> listOfAsset ; 
 
 
     @ManyToOne
@@ -125,16 +123,14 @@ public class Layer implements Serializable {
     private AssetType assetType ; 
 
 
-    @OneToMany(mappedBy="layer")
-    private List<Asset> listOfAsset ; 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users createdBy ; 
 
 
     @OneToMany(mappedBy="layer")
     private List<LayerReferences> listOfLayerReferences ; 
-
-
-    @OneToMany(mappedBy="layer")
-    private List<Tree> listOfTree ; 
 
 
     /**
@@ -285,24 +281,20 @@ public class Layer implements Serializable {
         return this.listOfLayerStyle;
     } 
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
     } 
 
     public AssetType getAssetType() {
         return this.assetType;
     } 
 
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
+    public Users getCreatedBy() {
+        return this.createdBy;
     } 
 
     public List<LayerReferences> getListOfLayerReferences() {
         return this.listOfLayerReferences;
-    } 
-
-    public List<Tree> getListOfTree() {
-        return this.listOfTree;
     } 
 
 

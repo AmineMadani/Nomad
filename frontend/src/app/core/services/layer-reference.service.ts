@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LayerReferencesDataService } from './dataservices/layer-reference.dataservice';
 import { UserReference, ReferenceDisplayType } from '../models/layer-references.model';
-import { LocalStorageService } from './local-storage.service';
 import { UserService } from './user.service';
 
 @Injectable({

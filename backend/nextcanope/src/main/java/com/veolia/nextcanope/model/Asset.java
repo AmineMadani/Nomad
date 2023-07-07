@@ -77,10 +77,6 @@ public class Asset implements Serializable {
     private List<Task> listOfTask ; 
 
 
-    @OneToMany(mappedBy="asset")
-    private List<Workorder> listOfWorkorder ; 
-
-
     @ManyToOne
     @JoinColumn(name="ass_obj_table", referencedColumnName="lyr_table_name", insertable=false, updatable=false)
     private Layer layer ; 
@@ -170,10 +166,6 @@ public class Asset implements Serializable {
 
     public List<Task> getListOfTask() {
         return this.listOfTask;
-    } 
-
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
     } 
 
     public Layer getLayer() {

@@ -61,7 +61,7 @@ public class FormDefinition implements Serializable {
 	@JsonProperty("fdn_ddel")
     private Date fdnDdel ;
 
-    @Column(name="fdn_code", length=2147483647)
+    @Column(name="fdn_code", nullable=false, length=2147483647)
 	@JsonProperty("fdn_code")
     private String fdnCode ;
 

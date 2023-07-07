@@ -104,10 +104,6 @@ public class WorkorderTaskReason implements Serializable {
 
 
     @OneToMany(mappedBy="workorderTaskReason")
-    private List<Workorder> listOfWorkorder ; 
-
-
-    @OneToMany(mappedBy="workorderTaskReason")
     private List<AstWtr> listOfAstWtr ; 
 
 
@@ -233,10 +229,6 @@ public class WorkorderTaskReason implements Serializable {
 
     public List<Task> getListOfTask() {
         return this.listOfTask;
-    } 
-
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
     } 
 
     public List<AstWtr> getListOfAstWtr() {

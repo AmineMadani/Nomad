@@ -40,6 +40,14 @@ public class Workorder implements Serializable {
 	@JsonProperty("wko_name")
     private String wkoName ;
 
+    @Column(name="wko_external_app", length=2147483647)
+	@JsonProperty("wko_external_app")
+    private String wkoExternalApp ;
+
+    @Column(name="wko_external_id", length=2147483647)
+	@JsonProperty("wko_external_id")
+    private String wkoExternalId ;
+
     @Column(name="wko_creation_cell", length=2147483647)
 	@JsonProperty("wko_creation_cell")
     private String wkoCreationCell ;
@@ -117,17 +125,9 @@ public class Workorder implements Serializable {
 	@JsonProperty("cty_llabel")
     private String ctyLlabel ;
 
-    @Column(name="ass_id", nullable=false)
-	@JsonProperty("ass_id")
-    private Long assId ;
-
     @Column(name="wts_id")
 	@JsonProperty("wts_id")
     private Long wtsId ;
-
-    @Column(name="wtr_id")
-	@JsonProperty("wtr_id")
-    private Long wtrId ;
 
     @Column(name="str_id")
 	@JsonProperty("str_id")
@@ -136,10 +136,6 @@ public class Workorder implements Serializable {
     @Column(name="str_llabel", length=2147483647)
 	@JsonProperty("str_llabel")
     private String strLlabel ;
-
-    @Column(name="ctr_id")
-	@JsonProperty("ctr_id")
-    private Long ctrId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_ddel")
@@ -182,25 +178,6 @@ public class Workorder implements Serializable {
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
-    @OneToMany(mappedBy="workorder")
-    private List<Task> listOfTask ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="wts_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskStatus workorderTaskStatus ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="wtr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskReason workorderTaskReason ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="ass_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Asset asset ; 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wko_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
@@ -208,8 +185,12 @@ public class Workorder implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name="ctr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Contract contract ; 
+    @JoinColumn(name="wts_id", referencedColumnName="id", insertable=false, updatable=false)
+    private WorkorderTaskStatus workorderTaskStatus ; 
+
+
+    @OneToMany(mappedBy="workorder")
+    private List<Task> listOfTask ; 
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -249,6 +230,22 @@ public class Workorder implements Serializable {
 
     public String getWkoName() {
         return this.wkoName;
+    }
+
+	public void setWkoExternalApp( String wkoExternalApp ) {
+        this.wkoExternalApp = wkoExternalApp ;
+    }
+
+    public String getWkoExternalApp() {
+        return this.wkoExternalApp;
+    }
+
+	public void setWkoExternalId( String wkoExternalId ) {
+        this.wkoExternalId = wkoExternalId ;
+    }
+
+    public String getWkoExternalId() {
+        return this.wkoExternalId;
     }
 
 	public void setWkoCreationCell( String wkoCreationCell ) {
@@ -395,28 +392,12 @@ public class Workorder implements Serializable {
         return this.ctyLlabel;
     }
 
-	public void setAssId( Long assId ) {
-        this.assId = assId ;
-    }
-
-    public Long getAssId() {
-        return this.assId;
-    }
-
 	public void setWtsId( Long wtsId ) {
         this.wtsId = wtsId ;
     }
 
     public Long getWtsId() {
         return this.wtsId;
-    }
-
-	public void setWtrId( Long wtrId ) {
-        this.wtrId = wtrId ;
-    }
-
-    public Long getWtrId() {
-        return this.wtrId;
     }
 
 	public void setStrId( Long strId ) {
@@ -433,14 +414,6 @@ public class Workorder implements Serializable {
 
     public String getStrLlabel() {
         return this.strLlabel;
-    }
-
-	public void setCtrId( Long ctrId ) {
-        this.ctrId = ctrId ;
-    }
-
-    public Long getCtrId() {
-        return this.ctrId;
     }
 
 	public void setWkoDdel( Date wkoDdel ) {
@@ -516,28 +489,16 @@ public class Workorder implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public List<Task> getListOfTask() {
-        return this.listOfTask;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
     public WorkorderTaskStatus getWorkorderTaskStatus() {
         return this.workorderTaskStatus;
     } 
 
-    public WorkorderTaskReason getWorkorderTaskReason() {
-        return this.workorderTaskReason;
-    } 
-
-    public Asset getAsset() {
-        return this.asset;
-    } 
-
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    } 
-
-    public Contract getContract() {
-        return this.contract;
+    public List<Task> getListOfTask() {
+        return this.listOfTask;
     } 
 
     public Users getCreatedBy() {

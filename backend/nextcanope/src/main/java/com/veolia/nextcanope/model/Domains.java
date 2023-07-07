@@ -99,10 +99,6 @@ public class Domains implements Serializable {
     private List<Layer> listOfLayer ; 
 
 
-    @OneToMany(mappedBy="domains")
-    private List<Tree> listOfTree ; 
-
-
     @ManyToOne
     @JoinColumn(name="dom_parent_id", referencedColumnName="id", insertable=false, updatable=false)
     private Domains domains ; 
@@ -214,10 +210,6 @@ public class Domains implements Serializable {
 
     public List<Layer> getListOfLayer() {
         return this.listOfLayer;
-    } 
-
-    public List<Tree> getListOfTree() {
-        return this.listOfTree;
     } 
 
     public Domains getDomains() {

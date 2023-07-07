@@ -77,14 +77,14 @@ public class LayerStyleCustom implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name="lsc_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
+    @JoinColumn(name="syd_id", referencedColumnName="id", insertable=false, updatable=false)
+    private StyleDefinition styleDefinition ; 
 
 
     @ManyToOne
-    @JoinColumn(name="syd_id", referencedColumnName="id", insertable=false, updatable=false)
-    private StyleDefinition styleDefinition ; 
+    @JoinColumn(name="lsc_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users modifiedBy ; 
 
 
     @ManyToOne
@@ -182,12 +182,12 @@ public class LayerStyleCustom implements Serializable {
         return this.layerStyle;
     } 
 
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    } 
-
     public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
+    } 
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
     public Users getUsers() {

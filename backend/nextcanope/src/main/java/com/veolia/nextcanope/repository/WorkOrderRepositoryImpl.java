@@ -61,7 +61,7 @@ public class WorkOrderRepositoryImpl {
 		}
 
 		List<Workorder> lWorkOrders = this.jdbcTemplate.query(
-                "select id, wko_name, wko_creation_cell, wko_creation_comment, wko_emergency, wko_appointment, wko_address, wko_street_number, wko_planning_start_date, wko_planning_end_date, wko_completion_date, wko_realization_user, wko_realization_cell, wko_realization_comment, cty_id, cty_llabel, ass_id, wts_id, wtr_id, str_id, str_llabel, ctr_id, wko_ucre_id, wko_umod_id, wko_dmod, wko_dcre, wko_ddel, longitude, latitude, wko_agent_nb from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
+                "select id, wko_name, wko_creation_cell, wko_creation_comment, wko_emergency, wko_appointment, wko_address, wko_street_number, wko_planning_start_date, wko_planning_end_date, wko_completion_date, wko_realization_user, wko_realization_cell, wko_realization_comment, cty_id, cty_llabel, wts_id, str_id, str_llabel, wko_ucre_id, wko_umod_id, wko_dmod, wko_dcre, wko_ddel, longitude, latitude, wko_agent_nb from nomad.workorder "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
                 new BeanPropertyRowMapper<Workorder>(Workorder.class)
         );
 

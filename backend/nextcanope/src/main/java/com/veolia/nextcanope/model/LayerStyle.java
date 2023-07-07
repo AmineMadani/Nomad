@@ -73,14 +73,14 @@ public class LayerStyle implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP )
 
     @ManyToOne
-    @JoinColumn(name="lse_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
+    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
+    private Layer layer ; 
 
 
     @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Layer layer ; 
+    @JoinColumn(name="lse_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+	@JsonIgnore
+    private Users modifiedBy ; 
 
 
     @ManyToOne
@@ -178,12 +178,12 @@ public class LayerStyle implements Serializable {
     }
 
     //--- GETTERS FOR LINKS
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    } 
-
     public Layer getLayer() {
         return this.layer;
+    } 
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     } 
 
     public StyleDefinition getStyleDefinition() {
