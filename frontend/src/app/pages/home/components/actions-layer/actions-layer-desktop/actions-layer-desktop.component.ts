@@ -3,6 +3,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapComponent } from '../../map/map.component';
 import { IonPopover } from '@ionic/angular';
 import { MapService } from 'src/app/core/services/map/map.service';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -27,13 +28,23 @@ export class ActionsLayerDesktopComponent implements OnInit {
     this.selectedActionEvent.emit(route);
   }
 
-  public openDrawingMode(): void {
+  public onClickDrawingPolygone(): void {
     (
       document.getElementsByClassName(
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
     this.toolboxPopover.dismiss();
+  }
+
+  public onClickDrawingRectangle(): void {
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
+    this.toolboxPopover.dismiss();
+    this.mapService.setDrawMode('draw_rectangle');
   }
 
   public displayToolbox(e: Event): void {

@@ -26,6 +26,7 @@ import * as turf from '@turf/turf';
 import * as Maplibregl from 'maplibre-gl';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 
 @Component({
   selector: 'app-map',
@@ -362,9 +363,21 @@ export class MapComponent implements OnInit, OnDestroy {
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
-
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
+
+    /**
+   * Use the polygon drawing tool of MapboxDraw, with their input hidden
+   */
+    public onRectangleSelection(): void {
+      (
+        document.getElementsByClassName(
+          'mapbox-gl-draw_ctrl-draw-btn'
+        )[0] as HTMLButtonElement
+      ).click();
+      this.draw.changeMode('draw_rectangle');
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+    }
 
   /**
    * Use the geolocate feature of Maplibre, with their input hidden
@@ -400,8 +413,13 @@ export class MapComponent implements OnInit, OnDestroy {
         polygon: true,
         trash: true,
       },
+      modes:{
+        ...MapboxDraw.modes,
+        draw_rectangle : DrawRectangle
+      }
     });
     this.map.addControl(this.draw as any, 'top-left');
+    this.mapService.setDraw(this.draw);
   }
 
   /**
@@ -456,7 +474,7 @@ export class MapComponent implements OnInit, OnDestroy {
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
 
-        if (mapElement.classList.contains('mode-draw_polygon')) {
+        if (mapElement.classList.contains('mode-draw_polygon') || mapElement.classList.contains('mode-draw_rectangle')) {
           canvasElement.classList.add('cursor-pointer');
         } else if (canvasElement.classList.contains('cursor-pointer')) {
           canvasElement.classList.remove('cursor-pointer');
