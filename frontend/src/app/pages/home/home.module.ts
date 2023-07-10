@@ -35,6 +35,8 @@ import { AssetAccordionComponent } from './drawers/asset/components/asset-accord
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
 import { ReportDrawer } from './drawers/report/report.drawer';
+import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
+import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
 
 @NgModule({
   imports: [
@@ -72,7 +74,9 @@ import { ReportDrawer } from './drawers/report/report.drawer';
     MobileHomeActionsComponent,
     AssetAccordionComponent,
     AssetDetailComponent,
-    AssetFavoriteComponent
+    AssetFavoriteComponent,
+    ReportStepperComponent,
+    ReportCreateComponent
   ]
 })
 export class HomePageModule {}

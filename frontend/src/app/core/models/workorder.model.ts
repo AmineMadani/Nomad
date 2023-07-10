@@ -17,3 +17,28 @@ export interface Workorder {
     latitude: number;
     status?: any;
 }
+
+export interface CustomWorkOrder {
+    id: number;
+    wkoName: number;
+    wkoEmergency: boolean;
+    wkoAddress: string;
+    wkoPlanningStartDate: Date;
+    wkoPlanningEndDate: Date;
+    wtsId: number;
+    wkoCompletionDate: Date;
+    longitude: number;
+    latitude: number;
+    wkoAgentNb: number;
+    tasks: CustomTask[];
+}
+
+export interface CustomTask {
+    id:number;
+    assObjRef: string;
+    assObjTable: string;
+    wtsId: string;
+    longitude: number;
+    latitude: number;
+    tskCompletionDate: Date;
+}

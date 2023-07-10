@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
@@ -128,7 +129,6 @@ public class WorkOrderService {
 		    task.setLongitude(workorder.getLongitude());
 		    task.setLatitude(workorder.getLatitude());
 		    task.setGeom(workorder.getGeom());
-		    task.setTskAgentNb(workorder.getWkoAgentNb());
 		    
 		    taskRepository.save(task);
 			
@@ -154,5 +154,10 @@ public class WorkOrderService {
 			workordersDto.add(new WorkorderDto(workorder));
 		}
 		return workordersDto;
+	}
+	
+	public CustomWorkorderDto getWorkOrderDto(Long id) {
+		Workorder workOrder = workOrderRepository.findById(id).get();
+		return new CustomWorkorderDto(workOrder);
 	}
 }

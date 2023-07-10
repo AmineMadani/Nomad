@@ -78,6 +78,7 @@ export class DrawerService {
         if (
           [
             DrawerRouteEnum.EQUIPMENT,
+            DrawerRouteEnum.REPORT,
             DrawerRouteEnum.WORKORDER,
             DrawerRouteEnum.DEMANDE,
             DrawerRouteEnum.SELECTION,
