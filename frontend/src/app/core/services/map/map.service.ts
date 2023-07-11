@@ -380,6 +380,9 @@ export class MapService {
     }
   }
 
+  public setDraw(draw : any) : void {
+    this.draw = draw;
+  }
   public getDrawActive(): boolean {
     return this.drawActive;
   }
@@ -388,6 +391,9 @@ export class MapService {
     this.draw.deleteAll();
   }
 
+  public setDrawMode(mode : string) : void{
+    this.draw.changeMode(mode);
+  }
   /**
    * Retrieves a list of tiles that overlap with the current map view based on their
    * coordinates and a given layer index.
