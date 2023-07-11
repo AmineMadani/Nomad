@@ -46,8 +46,10 @@ export class UserService {
       lat: mapLibre.getCenter().lat,
       url: this.router.url,
     }
-
-    const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers).map((value) => [value['source'], value['id']]);
+    
+    const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
+                                        .filter((value) => !value['source'].startsWith('mapbox'))
+                                        .map((value) => [value['source'], value['id']]);
     mapLayerLoaded.shift();
     context.layers = mapLayerLoaded;
 
@@ -109,9 +111,7 @@ export class UserService {
     }
     if (context.url) {
       this.router.navigateByUrl(context.url).then(() => {
-        this.mapService.onMapLoaded().subscribe(() => {
           this.restoreFilter(context);
-        })
       });
     }
     else {
@@ -125,7 +125,7 @@ export class UserService {
       this.mapService.setCenter([context.lng, context.lat]);
       if (context.layers && context.layers.length > 0) {
         for (let layer of context.layers) {
-          this.mapService.addEventLayer(layer[0], layer[1]);
+            this.mapService.addEventLayer(layer[0], layer[1]);
         }
       }
     }
