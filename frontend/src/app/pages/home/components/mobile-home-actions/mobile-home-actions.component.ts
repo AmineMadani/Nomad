@@ -67,6 +67,7 @@ export class MobileHomeActionsComponent implements OnInit {
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
+    this.modalCtlr.dismiss();
   }
 
   public onRectangleTool(): void {
@@ -76,5 +77,6 @@ export class MobileHomeActionsComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.mapService.setDrawMode('draw_rectangle');
+    this.modalCtlr.dismiss();
   }
 }
