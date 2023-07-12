@@ -3,7 +3,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { AssetDrawer } from './drawers/asset/asset.drawer';
-import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 
 import { HomePage } from './home.page';
 import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
@@ -33,13 +32,6 @@ const routes: Routes = [
         component: ExploitationDrawer,
         data: {
           name: DrawerRouteEnum.EXPLOITATION,
-        },
-      },
-      {
-        path: 'perimeter',
-        component: PerimeterDrawer,
-        data: {
-          name: DrawerRouteEnum.PERIMETER,
         },
       },
       {
