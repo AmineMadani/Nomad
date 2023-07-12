@@ -352,6 +352,22 @@ export class MapService {
   }
 
   /**
+   * add a point data for a specific layerkey
+   * @param layerKey the layer key
+   */
+  public updateFeature(layerKey: string, feature: any) {
+    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    const featureDiff: Maplibregl.GeoJSONFeatureDiff = {
+      id: feature.id,
+      newGeometry: feature.geometry
+    }
+    const updateDate: Maplibregl.GeoJSONSourceDiff = {
+      update: [featureDiff],
+    };
+    source.updateData(updateDate);
+  }
+
+  /**
    * The function loads new tiles for layers based on their maximum zoom level and checks if they have
    * already been loaded.
    */

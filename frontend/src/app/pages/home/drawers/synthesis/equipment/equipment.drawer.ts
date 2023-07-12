@@ -31,15 +31,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   ) {}
 
   public buttons: SynthesisButton[] = [
-    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' },
-    { key: 'write', label: 'Saisir un compte-rendu', icon: 'pencil' },
-    { key: 'ask', label: 'Faire une demande', icon: 'alert-circle' },
-    { key: 'add', label: 'Ajouter à un programme', icon: 'add' },
-    {
-      key: 'update',
-      label: 'Faire une demande de mise à jour',
-      icon: 'reload',
-    },
+    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' }
   ];
 
   public userReferences: UserReference[] = [];

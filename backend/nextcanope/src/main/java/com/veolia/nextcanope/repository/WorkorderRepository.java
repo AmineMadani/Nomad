@@ -29,6 +29,11 @@ public interface WorkorderRepository extends JpaRepository<Workorder, Long> {
 	 * @param ref The asset ref
 	 * @return workorders history of an asset
 	 */
-	@Query("select i from Workorder i where i.asset.assObjRef=:ref and i.asset.assObjTable=:layer order by i.wkoPlanningStartDate desc")
+	@Query(value="select distinct w.* from nomad.workorder w  "
+			+ "inner join nomad.task t on t.wko_id=w.id "
+			+ "inner join nomad.asset a on t.ass_id=a.id "
+			+ "where a.ass_obj_ref=:ref and a.ass_obj_table=:layer "
+			+ "order by w.wko_planning_start_date DESC",
+			nativeQuery = true)
 	List<Workorder> getWorkordersLinkToEquipment(@Param("layer") String layer, @Param("ref") String ref);
 }

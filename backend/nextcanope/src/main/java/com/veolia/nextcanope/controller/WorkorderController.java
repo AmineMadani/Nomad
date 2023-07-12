@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.service.WorkOrderService;
 
@@ -52,5 +54,16 @@ public class WorkorderController {
     			})
     public Workorder createWorkOrder(AccountTokenDto account, @RequestBody(required = true) LinkedHashMap<String, String> workOrderObject) {
     	return this.workOrderService.createWorkOrder(workOrderObject.get("workOrderRaw"),workOrderObject.get("assetRaw"), account);
+    }
+    
+    @GetMapping(path = "/{id}")
+    @Operation(summary = "Get a workorder")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "The workorder", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public CustomWorkorderDto getWorkOrderById(@PathVariable Long id) {
+    	return this.workOrderService.getWorkOrderDto(id);
     }
 }

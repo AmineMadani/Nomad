@@ -22,11 +22,12 @@ export interface ILayerReferences {
 export class AppDB extends Dexie {
   constructor() {
     super('nomad');
-    this.version(1).stores({
+    this.version(2).stores({
         tiles: 'key',
         indexes: 'key',
         layerReferences: 'key',
-        referentials: 'key'
+        referentials: 'key',
+        workorders: 'key'
     });
   }
 
@@ -34,6 +35,7 @@ export class AppDB extends Dexie {
   indexes: Dexie.Table<IIndexes, string>;
   layerReferences: Dexie.Table<ILayerReferences, string>;
   referentials: Dexie.Table<any, string>;
+  workorders: Dexie.Table<any, string>;
 }
 
 export const db = new AppDB();

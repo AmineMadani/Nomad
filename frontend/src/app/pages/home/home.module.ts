@@ -13,7 +13,6 @@ import { MapComponent } from './components/map/map.component';
 import { MatTreeModule } from '@angular/material/tree';
 import { HttpClientModule } from '@angular/common/http';
 import { AssetDrawer } from './drawers/asset/asset.drawer';
-import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
@@ -34,6 +33,12 @@ import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/
 import { AssetAccordionComponent } from './drawers/asset/components/asset-accordion/asset-accordion.component';
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
+import { ReportDrawer } from './drawers/report/report.drawer';
+import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
+import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
+import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
+import { ReportContextComponent } from './drawers/report/components/report-context/report-context.component';
+import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
 
 @NgModule({
   imports: [
@@ -55,7 +60,6 @@ import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorit
     MapComponent,
     AssetDrawer,
     ExploitationDrawer,
-    PerimeterDrawer,
     FilterContentComponent,
     FilterToggleComponent,
     FilterCardComponent,
@@ -65,12 +69,18 @@ import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorit
     WorkOrderDrawer,
     DemandeDrawer,
     EquipmentDrawer,
+    ReportDrawer,
     MultipleSelectionDrawer,
     EquipmentDetailsComponent,
     MobileHomeActionsComponent,
     AssetAccordionComponent,
     AssetDetailComponent,
-    AssetFavoriteComponent
+    AssetFavoriteComponent,
+    ReportStepperComponent,
+    ReportCreateComponent,
+    ReportAssetComponent,
+    ReportContextComponent,
+    ReportFormComponent
   ]
 })
 export class HomePageModule {}

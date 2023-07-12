@@ -43,10 +43,6 @@ public class LayerRepositoryImpl {
     	String schema = ConfigConstants.SCHEMA;
 
 		String param = ",'" + userId.toString() + "'";
-    	if(key.equals("workorder")) {
-    		schema = "nomad";
-    		param = "";
-    	}
     	
         return this.jdbcTemplate.queryForObject(
                 "select nomad.f_get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",

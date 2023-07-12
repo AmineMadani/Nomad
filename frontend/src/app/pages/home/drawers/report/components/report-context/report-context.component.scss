@@ -1,0 +1,22 @@
+.report-context {
+    margin-top: 25px;
+}
+
+.report-context-modal {
+    --border-radius: 5px;
+
+    .report-context-modal-radio {
+        padding-left: 20px;
+        padding-bottom: 15px;
+    }
+
+    .report-context-modal-close {
+        margin-right: 15px;
+        cursor: pointer;
+    }
+}
+
+.alert-radio-group {
+    height: 50px;
+    width: 100%;
+}

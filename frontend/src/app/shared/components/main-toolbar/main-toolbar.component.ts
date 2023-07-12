@@ -2,7 +2,6 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonPopover } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
-import { UserContext } from 'src/app/core/models/user-context.model';
 import { User } from 'src/app/core/models/user.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
@@ -88,9 +87,6 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
   public reloadStorage(): void {
     this.cacheService.setCacheLoaded(false);
-    this.cacheService.loadZips().subscribe(() => {
-      this.cacheService.setCacheLoaded(true);
-    });
   }
 
   /**

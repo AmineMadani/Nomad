@@ -3,7 +3,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { AssetDrawer } from './drawers/asset/asset.drawer';
-import { PerimeterDrawer } from './drawers/perimeter/perimeter.drawer';
 
 import { HomePage } from './home.page';
 import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
@@ -11,6 +10,7 @@ import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
+import { ReportDrawer } from './drawers/report/report.drawer';
 
 const routes: Routes = [
   {
@@ -35,13 +35,6 @@ const routes: Routes = [
         },
       },
       {
-        path: 'perimeter',
-        component: PerimeterDrawer,
-        data: {
-          name: DrawerRouteEnum.PERIMETER,
-        },
-      },
-      {
         path: 'equipment/:id',
         component: EquipmentDrawer,
         data: {
@@ -60,6 +53,13 @@ const routes: Routes = [
         component: WorkOrderDrawer,
         data: {
           name: DrawerRouteEnum.WORKORDER,
+        },
+      },
+      {
+        path: 'work-order/:id/cr',
+        component: ReportDrawer,
+        data: {
+          name: DrawerRouteEnum.REPORT,
         },
       },
       {

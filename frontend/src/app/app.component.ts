@@ -8,8 +8,6 @@ import { register } from 'swiper/element/bundle';
 import { UtilsService } from './core/services/utils.service';
 import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
-import { UserContext } from './core/models/user-context.model';
-import { LocalStorageService } from './core/services/local-storage.service';
 import { UserService } from './core/services/user.service';
 
 register();
@@ -24,7 +22,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public appPages = [
     { title: 'Accueil', url: '/home', icon: 'home' },
-    { title: 'Analyse et reporting', url: '/report', icon: 'globe' },
     { title: 'Paramètres', url: '/settings', icon: 'settings' },
   ];
   constructor(
@@ -48,6 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private sub: Subscription = new Subscription();
 
   ngOnInit(): void {
+
     this.isMobile = this.utils.isMobilePlateform();
     this.keycloakService.initialisation();
 

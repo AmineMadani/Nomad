@@ -181,10 +181,8 @@ export class MapComponent implements OnInit, OnDestroy {
       case 'WMS':
         mapLayer = {
           tiles: [
-            `${layer.map_url}?layer=${
-              layer.map_layer
-            }&style=normal&tilematrixset=${
-              layer.map_matrixset
+            `${layer.map_url}?layer=${layer.map_layer
+            }&style=normal&tilematrixset=${layer.map_matrixset
             }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
               layer.map_format
             )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,
@@ -450,11 +448,9 @@ export class MapComponent implements OnInit, OnDestroy {
     const clipboardText =
       role === localisationExportMode.gpsCoordinates
         ? `latitude: ${center.lat}, longitude: ${center.lng}`
-        : `${
-            this.configurationService.host
-          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${center.lat}&lng=${
-            center.lng
-          }&zoom=${this.map.getZoom()}`;
+        : `${this.configurationService.host
+        }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${center.lat}&lng=${center.lng
+        }&zoom=${this.map.getZoom()}`;
 
     this.clipboard.copy(clipboardText);
 
@@ -501,14 +497,14 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature);
+        this.onFeatureSelected(nearestFeature,e);
       });
 
     fromEvent(this.map, 'touchend')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature);
+        this.onFeatureSelected(nearestFeature,e);
       });
 
     // Right click, as context menu, event
@@ -651,31 +647,41 @@ export class MapComponent implements OnInit, OnDestroy {
    * @returns It navigates to a specific route in the application's drawer with some additional
    * properties.
    */
-  private onFeatureSelected(feature: Maplibregl.MapGeoJSONFeature): void {
+  private onFeatureSelected(feature: Maplibregl.MapGeoJSONFeature, e: Maplibregl.MapMouseEvent): void {
     if (!feature) {
       return;
+    }
+
+    let firedEvent = false;
+    if (this.mapEvent.isFeatureFiredEvent) {
+      firedEvent = true;
     }
 
     this.mapEvent.highlightSelectedFeature(
       this.map,
       feature.source,
-      feature.id.toString()
+      feature.id.toString(),
+      firedEvent,
+      e
     );
 
-    const properties = feature.properties;
-    if (properties['geometry']) delete properties['geometry'];
-    // We pass the layerKey to the drawer to be able to select the equipment on the layer
-    properties['lyr_table_name'] = feature.source;
-    let route: DrawerRouteEnum;
-    switch (feature.source) {
-      case 'workorder':
-        route = DrawerRouteEnum.WORKORDER;
-        break;
-      default:
-        route = DrawerRouteEnum.EQUIPMENT;
-        break;
+    if (!this.mapEvent.isFeatureFiredEvent) {
+      const properties = feature.properties;
+      if (properties['geometry']) delete properties['geometry'];
+      // We pass the layerKey to the drawer to be able to select the equipment on the layer
+      properties['lyr_table_name'] = feature.source;
+      let route: DrawerRouteEnum;
+      switch (feature.source) {
+        case 'workorder':
+          route = DrawerRouteEnum.WORKORDER;
+          break;
+        default:
+          route = DrawerRouteEnum.EQUIPMENT;
+          break;
+      }
+      this.drawerService.navigateTo(route, [properties['id']], properties);
     }
-    this.drawerService.navigateTo(route, [properties['id']], properties);
+
   }
 
   /**

@@ -6,6 +6,7 @@ export enum DrawerRouteEnum {
   EQUIPMENT = 'EQUIPMENT',
   EQUIPMENT_DETAILS = 'EQUIPMENT_DETAILS',
   WORKORDER = 'WORKORDER',
+  REPORT = 'REPORT',
   DEMANDE = 'DEMANDE',
   SELECTION = 'SELECTION'
 }
@@ -45,6 +46,10 @@ export const drawerRoutes = [
   {
     path: '/home/work-order/:id',
     name: DrawerRouteEnum.WORKORDER,
+  },
+  {
+    path: '/home/work-order/:id/cr',
+    name: DrawerRouteEnum.REPORT,
   },
   {
     path: '/home/demande/:id',

@@ -3,36 +3,55 @@ package com.veolia.nextcanope.dto;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.veolia.nextcanope.model.Workorder;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkorderDto {
 
     private Long id;
 
+    @JsonProperty("wko_name")
     private String wkoName;
 
+    @JsonProperty("wko_emergency")
     private Boolean wkoEmergency;
 
+    @JsonProperty("wko_address")
     private String wkoAddress ;
 
+    @JsonProperty("wko_planning_start_date")
     private Date wkoPlanningStartDate ;
 
+    @JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate ;
 
+    @JsonProperty("wts_id")
     private Long wtsId ;
 
+    @JsonProperty("wtr_id")
     private Long wtrId ;
+    
+    @JsonProperty("ctr_id")
+    private Long ctrId ;
 
+    @JsonProperty("ass_id")
     private Long assId;
 
+    @JsonProperty("wko_completion_date")
     private Date wkoCompletionDate;
 
+    @JsonProperty("wko_realization_cell")
     private String wkoRealizationCell;
 
+    @JsonProperty("longitude")
     private BigDecimal longitude ;
 
+    @JsonProperty("latitude")
     private BigDecimal latitude ;
 
+    @JsonProperty("wko_agent_nb")
     private Integer wkoAgentNb ;
 
     public Long getId() {
@@ -145,12 +164,21 @@ public class WorkorderDto {
         this.wkoAgentNb = wkoAgentNb;
     }
 
-    public WorkorderDto(Workorder workorder) {
+    public Long getCtrId() {
+		return ctrId;
+	}
+
+	public void setCtrId(Long ctrId) {
+		this.ctrId = ctrId;
+	}
+
+	public WorkorderDto() {
+		super();
+	}
+
+	public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
-        this.assId = workorder.getAssId();
-        this.wtsId = workorder.getWtsId();
-        this.wtrId = workorder.getWtrId();
         this.wkoName = workorder.getWkoName();
         this.wkoEmergency = workorder.getWkoEmergency();
         this.wkoAddress = workorder.getWkoAddress();

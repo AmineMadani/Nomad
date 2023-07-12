@@ -44,13 +44,12 @@
             <fk name="asset_ass_umod_id_fkey">
                 <fkcol colname="ass_umod_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="asset" tableref="users" updaterule="3"/>
             </fk>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_ass_id_fkey" id="LINK_FK_task_ass_id_fkey_I" inverseSideOf="LINK_FK_task_ass_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="asset" optional="" owningSide="false" sourceTableName="asset" targetEntity="Task" targetTableName="task" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="asset_ass_umod_id_fkey" id="LINK_FK_asset_ass_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="asset" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="ass_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_ass_id_fkey" id="LINK_FK_task_ass_id_fkey_I" inverseSideOf="LINK_FK_task_ass_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="asset" optional="" owningSide="false" sourceTableName="asset" targetEntity="Task" targetTableName="task" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_ass_id_fkey" id="LINK_FK_workorder_ass_id_fkey_I" inverseSideOf="LINK_FK_workorder_ass_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="asset" optional="" owningSide="false" sourceTableName="asset" targetEntity="Workorder" targetTableName="workorder" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="asset_ass_obj_table_fkey" id="LINK_FK_asset_ass_obj_table_fkey_O" inverseSideOf="" javaName="layer" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="asset" targetEntity="Layer" targetTableName="layer" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="ass_obj_table" nullable="true" referencedColumnName="lyr_table_name" unique="false" updatable="false"/>
@@ -88,17 +87,17 @@
                     <joinColumn insertable="false" name="ast_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="asset_type_ast_ucre_id_fkey" id="LINK_FK_asset_type_ast_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="asset_type" targetEntity="Users" targetTableName="users" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="ast_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="ast_wtr_ast_id_fkey" id="LINK_FK_ast_wtr_ast_id_fkey_I" inverseSideOf="LINK_FK_ast_wtr_ast_id_fkey_O" javaName="listOfAstWtr" javaType="unused" joinTableName="" mappedBy="assetType" optional="" owningSide="false" sourceTableName="asset_type" targetEntity="AstWtr" targetTableName="ast_wtr" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="asset_type_dom_id_fkey" id="LINK_FK_asset_type_dom_id_fkey_O" inverseSideOf="" javaName="domains" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="asset_type" targetEntity="Domains" targetTableName="domains" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="dom_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="ast_wtr_ast_id_fkey" id="LINK_FK_ast_wtr_ast_id_fkey_I" inverseSideOf="LINK_FK_ast_wtr_ast_id_fkey_O" javaName="listOfAstWtr" javaType="unused" joinTableName="" mappedBy="assetType" optional="" owningSide="false" sourceTableName="asset_type" targetEntity="AstWtr" targetTableName="ast_wtr" used="true"/>
+            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="asset_type_ast_ucre_id_fkey" id="LINK_FK_asset_type_ast_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="asset_type" targetEntity="Users" targetTableName="users" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="ast_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
         </table>
         <table catalog="" databaseComment="This table contains the reason of the workorder and task" databaseType="TABLE" javaBean="AstWtr" name="ast_wtr" schema="nomad">
             <column dbComment="workerorder/Task Reason id" dbDefaultValue="" dbName="wtr_id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="int8" inputType="number" javaName="wtrId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Wtr id" notNull="true" selected="true"/>
@@ -125,14 +124,14 @@
                     <joinColumn insertable="false" name="ast_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="ast_wtr_asw_umod_id_fkey" id="LINK_FK_ast_wtr_asw_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="ast_wtr" targetEntity="Users" targetTableName="users" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="asw_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="ast_wtr_wtr_id_fkey" id="LINK_FK_ast_wtr_wtr_id_fkey_O" inverseSideOf="" javaName="workorderTaskReason" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="ast_wtr" targetEntity="WorkorderTaskReason" targetTableName="workorder_task_reason" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="wtr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
+            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="ast_wtr_asw_umod_id_fkey" id="LINK_FK_ast_wtr_asw_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="ast_wtr" targetEntity="Users" targetTableName="users" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="asw_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="ast_wtr_asw_ucre_id_fkey" id="LINK_FK_ast_wtr_asw_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="ast_wtr" targetEntity="Users" targetTableName="users" used="true">
@@ -243,7 +242,6 @@
                 </joinColumns>
             </link>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_ctr_id_fkey" id="LINK_FK_task_ctr_id_fkey_I" inverseSideOf="LINK_FK_task_ctr_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="contract" optional="" owningSide="false" sourceTableName="contract" targetEntity="Task" targetTableName="task" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_ctr_id_fkey" id="LINK_FK_workorder_ctr_id_fkey_I" inverseSideOf="LINK_FK_workorder_ctr_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="contract" optional="" owningSide="false" sourceTableName="contract" targetEntity="Workorder" targetTableName="workorder" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="contract_ctr_umod_id_fkey" id="LINK_FK_contract_ctr_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="contract" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="ctr_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
@@ -298,20 +296,19 @@
             <fk name="domains_dom_umod_id_fkey">
                 <fkcol colname="dom_umod_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="domains" tableref="users" updaterule="3"/>
             </fk>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="asset_type_dom_id_fkey" id="LINK_FK_asset_type_dom_id_fkey_I" inverseSideOf="LINK_FK_asset_type_dom_id_fkey_O" javaName="listOfAssetType" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="AssetType" targetTableName="asset_type" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="domains_dom_umod_id_fkey" id="LINK_FK_domains_dom_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="domains" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="dom_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="domains_dom_parent_id_fkey" id="LINK_FK_domains_dom_parent_id_fkey_I" inverseSideOf="LINK_FK_domains_dom_parent_id_fkey_O" javaName="listOfDomains" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="Domains" targetTableName="domains" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="asset_type_dom_id_fkey" id="LINK_FK_asset_type_dom_id_fkey_I" inverseSideOf="LINK_FK_asset_type_dom_id_fkey_O" javaName="listOfAssetType" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="AssetType" targetTableName="asset_type" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="domains_dom_ucre_id_fkey" id="LINK_FK_domains_dom_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="domains" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="dom_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="domains_dom_parent_id_fkey" id="LINK_FK_domains_dom_parent_id_fkey_I" inverseSideOf="LINK_FK_domains_dom_parent_id_fkey_O" javaName="listOfDomains" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="Domains" targetTableName="domains" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_dom_id_fkey" id="LINK_FK_layer_dom_id_fkey_I" inverseSideOf="LINK_FK_layer_dom_id_fkey_O" javaName="listOfLayer" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="Layer" targetTableName="layer" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="tree_dom_id_fkey" id="LINK_FK_tree_dom_id_fkey_I" inverseSideOf="LINK_FK_tree_dom_id_fkey_O" javaName="listOfTree" javaType="unused" joinTableName="" mappedBy="domains" optional="" owningSide="false" sourceTableName="domains" targetEntity="Tree" targetTableName="tree" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="domains_dom_parent_id_fkey" id="LINK_FK_domains_dom_parent_id_fkey_O" inverseSideOf="" javaName="domains" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="domains" targetEntity="Domains" targetTableName="domains" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="dom_parent_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
@@ -445,7 +442,6 @@
             <column dbComment="Column name that contains features geometry" dbDefaultValue="" dbName="lyr_geom_column_name" dbNotNull="true" dbPosition="8" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrGeomColumnName" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr geom column name" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
             <column dbComment="Column name that contains unique ID" dbDefaultValue="" dbName="lyr_uuid_column_name" dbNotNull="true" dbPosition="9" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrUuidColumnName" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr uuid column name" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
             <column dbComment="SRID of the features geometry" dbDefaultValue="" dbName="lyr_geom_srid" dbNotNull="true" dbPosition="10" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrGeomSrid" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr geom srid" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
-            <column dbComment="Mapbox json style" dbDefaultValue="" dbName="lyr_style" dbNotNull="false" dbPosition="11" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrStyle" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr style" maxLength="2147483647" notNull="false" selected="true"/>
             <column dbComment="Short Label of the layer" dbDefaultValue="" dbName="lyr_slabel" dbNotNull="false" dbPosition="12" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrSlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr slabel" maxLength="2147483647" notNull="false" selected="true"/>
             <column dbComment="Long Label of the layer" dbDefaultValue="" dbName="lyr_llabel" dbNotNull="false" dbPosition="13" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="lyrLlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Lyr llabel" maxLength="2147483647" notNull="false" selected="true"/>
             <column dbComment="If valid, true else false" dbDefaultValue="true" dbName="lyr_valid" dbNotNull="false" dbPosition="14" dbSize="1" dbTypeName="bool" inputType="checkbox" javaName="lyrValid" javaType="java.lang.Boolean" jdbcTypeCode="-7" label="Lyr valid" notNull="false" selected="true"/>
@@ -477,18 +473,17 @@
                 </joinColumns>
             </link>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_lyr_id_fkey" id="LINK_FK_layer_style_lyr_id_fkey_I" inverseSideOf="LINK_FK_layer_style_lyr_id_fkey_O" javaName="listOfLayerStyle" javaType="unused" joinTableName="" mappedBy="layer" optional="" owningSide="false" sourceTableName="layer" targetEntity="LayerStyle" targetTableName="layer_style" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="asset_ass_obj_table_fkey" id="LINK_FK_asset_ass_obj_table_fkey_I" inverseSideOf="LINK_FK_asset_ass_obj_table_fkey_O" javaName="listOfAsset" javaType="unused" joinTableName="" mappedBy="layer" optional="" owningSide="false" sourceTableName="layer" targetEntity="Asset" targetTableName="asset" used="true"/>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_ast_id_fkey" id="LINK_FK_layer_ast_id_fkey_O" inverseSideOf="" javaName="assetType" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer" targetEntity="AssetType" targetTableName="asset_type" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="ast_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="layer_lyr_ucre_id_fkey" id="LINK_FK_layer_lyr_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="lyr_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="tree_lyr_id_fkey" id="LINK_FK_tree_lyr_id_fkey_I" inverseSideOf="LINK_FK_tree_lyr_id_fkey_O" javaName="listOfTree" javaType="unused" joinTableName="" mappedBy="layer" optional="" owningSide="false" sourceTableName="layer" targetEntity="Tree" targetTableName="tree" used="true"/>
+            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_ast_id_fkey" id="LINK_FK_layer_ast_id_fkey_O" inverseSideOf="" javaName="assetType" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer" targetEntity="AssetType" targetTableName="asset_type" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="ast_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="asset_ass_obj_table_fkey" id="LINK_FK_asset_ass_obj_table_fkey_I" inverseSideOf="LINK_FK_asset_ass_obj_table_fkey_O" javaName="listOfAsset" javaType="unused" joinTableName="" mappedBy="layer" optional="" owningSide="false" sourceTableName="layer" targetEntity="Asset" targetTableName="asset" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_references_lyr_id_fkey" id="LINK_FK_layer_references_lyr_id_fkey_I" inverseSideOf="LINK_FK_layer_references_lyr_id_fkey_O" javaName="listOfLayerReferences" javaType="unused" joinTableName="" mappedBy="layer" optional="" owningSide="false" sourceTableName="layer" targetEntity="LayerReferences" targetTableName="layer_references" used="true"/>
         </table>
         <table catalog="" databaseComment="This table defines the corresponding columns (reference_key) for each layers" databaseType="TABLE" javaBean="LayerReferences" name="layer_references" schema="nomad">
@@ -516,12 +511,12 @@
                     <joinColumn insertable="false" name="lrf_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_references_default_lrd_id_fkey" id="LINK_FK_layer_references_default_lrd_id_fkey_I" inverseSideOf="LINK_FK_layer_references_default_lrd_id_fkey_O" javaName="listOfLayerReferencesDefault" javaType="unused" joinTableName="" mappedBy="layerReferences" optional="" owningSide="false" sourceTableName="layer_references" targetEntity="LayerReferencesDefault" targetTableName="layer_references_default" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_references_lyr_id_fkey" id="LINK_FK_layer_references_lyr_id_fkey_O" inverseSideOf="" javaName="layer" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_references" targetEntity="Layer" targetTableName="layer" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="lyr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_references_default_lrd_id_fkey" id="LINK_FK_layer_references_default_lrd_id_fkey_I" inverseSideOf="LINK_FK_layer_references_default_lrd_id_fkey_O" javaName="listOfLayerReferencesDefault" javaType="unused" joinTableName="" mappedBy="layerReferences" optional="" owningSide="false" sourceTableName="layer_references" targetEntity="LayerReferencesDefault" targetTableName="layer_references_default" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_references_user_lrf_id_fkey" id="LINK_FK_layer_references_user_lrf_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lrf_id_fkey_O" javaName="listOfLayerReferencesUser" javaType="unused" joinTableName="" mappedBy="layerReferences" optional="" owningSide="false" sourceTableName="layer_references" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="layer_references_lrf_ucre_id_fkey" id="LINK_FK_layer_references_lrf_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_references" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
@@ -634,14 +629,14 @@
             <fk name="layer_style_syd_id_fkey">
                 <fkcol colname="syd_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="layer_style" tableref="style_definition" updaterule="3"/>
             </fk>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_lyr_id_fkey" id="LINK_FK_layer_style_lyr_id_fkey_O" inverseSideOf="" javaName="layer" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="Layer" targetTableName="layer" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="lyr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_lse_umod_id_fkey" id="LINK_FK_layer_style_lse_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="lse_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
+            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_lyr_id_fkey" id="LINK_FK_layer_style_lyr_id_fkey_O" inverseSideOf="" javaName="layer" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="Layer" targetTableName="layer" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="lyr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_syd_id_fkey" id="LINK_FK_layer_style_syd_id_fkey_O" inverseSideOf="" javaName="styleDefinition" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="StyleDefinition" targetTableName="style_definition" used="true">
@@ -686,14 +681,14 @@
                     <joinColumn insertable="false" name="lse_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_custom_syd_id_fkey" id="LINK_FK_layer_style_custom_syd_id_fkey_O" inverseSideOf="" javaName="styleDefinition" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style_custom" targetEntity="StyleDefinition" targetTableName="style_definition" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="syd_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_custom_lsc_umod_id_fkey" id="LINK_FK_layer_style_custom_lsc_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style_custom" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="lsc_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
+            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_custom_syd_id_fkey" id="LINK_FK_layer_style_custom_syd_id_fkey_O" inverseSideOf="" javaName="styleDefinition" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style_custom" targetEntity="StyleDefinition" targetTableName="style_definition" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="syd_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_custom_usr_id_fkey" id="LINK_FK_layer_style_custom_usr_id_fkey_O" inverseSideOf="" javaName="users" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style_custom" targetEntity="Users" targetTableName="users" used="true">
@@ -769,27 +764,27 @@
                     <joinColumn insertable="false" name="cty_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_str_id_fkey" id="LINK_FK_workorder_str_id_fkey_I" inverseSideOf="LINK_FK_workorder_str_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="street" optional="" owningSide="false" sourceTableName="street" targetEntity="Workorder" targetTableName="workorder" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="street_str_ucre_id_fkey" id="LINK_FK_street_str_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="street" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="str_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_str_id_fkey" id="LINK_FK_workorder_str_id_fkey_I" inverseSideOf="LINK_FK_workorder_str_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="street" optional="" owningSide="false" sourceTableName="street" targetEntity="Workorder" targetTableName="workorder" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="street_str_umod_id_fkey" id="LINK_FK_street_str_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="street" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="str_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
         </table>
-        <table catalog="" databaseComment="This table contains the style definition" databaseType="TABLE" javaBean="StyleDefinition" name="style_definition" schema="nomad">
-            <column dbAutoIncremented="true" dbComment="Table unique ID" dbDefaultValue="nextval('nomad.style_definition_id_seq'::regclass)" dbName="id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="bigserial" inputType="number" javaName="id" javaType="java.lang.Long" jdbcTypeCode="-5" label="Id" notNull="true" selected="true"/>
-            <column dbComment="The definition code" dbDefaultValue="" dbName="syd_code" dbNotNull="true" dbPosition="2" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="sydCode" javaType="java.lang.String" jdbcTypeCode="12" label="Syd code" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
-            <column dbComment="The json definition" dbDefaultValue="" dbName="syd_definition" dbNotNull="true" dbPosition="3" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="sydDefinition" javaType="java.lang.String" jdbcTypeCode="12" label="Syd definition" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
-            <column dbComment="creator Id" dbDefaultValue="0" dbName="syd_ucre_id" dbNotNull="false" dbPosition="4" dbSize="19" dbTypeName="int8" inputType="number" javaName="sydUcreId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Syd ucre id" notNull="false" selected="true"/>
-            <column dbComment="Last modificator Id" dbDefaultValue="0" dbName="syd_umod_id" dbNotNull="false" dbPosition="5" dbSize="19" dbTypeName="int8" inputType="number" javaName="sydUmodId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Syd umod id" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="Creation date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="syd_dcre" dbNotNull="false" dbPosition="6" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Syd dcre" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="Last modification date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="syd_dmod" dbNotNull="false" dbPosition="7" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDmod" javaType="java.util.Date" jdbcTypeCode="93" label="Syd dmod" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="Deletion date" dbDefaultValue="" dbName="syd_ddel" dbNotNull="false" dbPosition="8" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDdel" javaType="java.util.Date" jdbcTypeCode="93" label="Syd ddel" notNull="false" selected="true"/>
+        <table catalog="" databaseComment="" databaseType="TABLE" javaBean="StyleDefinition" name="style_definition" schema="nomad">
+            <column dbAutoIncremented="true" dbComment="" dbDefaultValue="nextval('nomad.style_definition_id_seq'::regclass)" dbName="id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="bigserial" inputType="number" javaName="id" javaType="java.lang.Long" jdbcTypeCode="-5" label="Id" notNull="true" selected="true"/>
+            <column dbComment="" dbDefaultValue="" dbName="syd_code" dbNotNull="true" dbPosition="2" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="sydCode" javaType="java.lang.String" jdbcTypeCode="12" label="Syd code" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
+            <column dbComment="" dbDefaultValue="" dbName="syd_definition" dbNotNull="true" dbPosition="3" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="sydDefinition" javaType="java.lang.String" jdbcTypeCode="12" label="Syd definition" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
+            <column dbComment="" dbDefaultValue="0" dbName="syd_ucre_id" dbNotNull="false" dbPosition="4" dbSize="19" dbTypeName="int8" inputType="number" javaName="sydUcreId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Syd ucre id" notNull="false" selected="true"/>
+            <column dbComment="" dbDefaultValue="0" dbName="syd_umod_id" dbNotNull="false" dbPosition="5" dbSize="19" dbTypeName="int8" inputType="number" javaName="sydUmodId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Syd umod id" notNull="false" selected="true"/>
+            <column dateType="DT" dbComment="" dbDefaultValue="CURRENT_TIMESTAMP" dbName="syd_dcre" dbNotNull="false" dbPosition="6" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Syd dcre" notNull="false" selected="true"/>
+            <column dateType="DT" dbComment="" dbDefaultValue="CURRENT_TIMESTAMP" dbName="syd_dmod" dbNotNull="false" dbPosition="7" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDmod" javaType="java.util.Date" jdbcTypeCode="93" label="Syd dmod" notNull="false" selected="true"/>
+            <column dateType="DT" dbComment="" dbDefaultValue="" dbName="syd_ddel" dbNotNull="false" dbPosition="8" dbSize="29" dbTypeName="timestamp" inputType="" javaName="sydDdel" javaType="java.util.Date" jdbcTypeCode="93" label="Syd ddel" notNull="false" selected="true"/>
             <fk name="style_definition_syd_ucre_id_fkey">
                 <fkcol colname="syd_ucre_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="style_definition" tableref="users" updaterule="3"/>
             </fk>
@@ -929,63 +924,6 @@
             <column dbComment="Setting name" dbDefaultValue="" dbName="name" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="name" javaType="java.lang.String" jdbcTypeCode="12" label="Name" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
             <column dbComment="Setting value" dbDefaultValue="" dbName="value" dbNotNull="false" dbPosition="2" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="value" javaType="java.lang.String" jdbcTypeCode="12" label="Value" maxLength="2147483647" notNull="false" selected="true"/>
         </table>
-        <table catalog="" databaseComment="This table defines all groups and sub-groups to generate the app layer tree" databaseType="TABLE" javaBean="Tree" name="tree" schema="nomad">
-            <column dbAutoIncremented="true" dbComment="Table unique ID" dbDefaultValue="nextval('config.tree_id_seq'::regclass)" dbName="id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="bigserial" inputType="number" javaName="id" javaType="java.lang.Long" jdbcTypeCode="-5" label="Id" notNull="true" selected="true"/>
-            <column dbComment="Application domain (ie: drinking water, ...) Id" dbDefaultValue="" dbName="dom_id" dbNotNull="false" dbPosition="2" dbSize="19" dbTypeName="int8" inputType="number" javaName="domId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Dom id" notNull="false" selected="true"/>
-            <column dbComment="Parent id" dbDefaultValue="" dbName="tre_parent_id" dbNotNull="false" dbPosition="3" dbSize="19" dbTypeName="int8" inputType="number" javaName="treParentId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Tre parent id" notNull="false" selected="true"/>
-            <column dbComment="Layer Id" dbDefaultValue="" dbName="lyr_id" dbNotNull="false" dbPosition="4" dbSize="19" dbTypeName="int8" inputType="number" javaName="lyrId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Lyr id" notNull="false" selected="true"/>
-            <column dbComment="Num order of the tree group" dbDefaultValue="" dbName="tre_num_order" dbNotNull="false" dbPosition="4" dbSize="10" dbTypeName="int4" inputType="number" javaName="treNumOrder" javaType="java.lang.Integer" jdbcTypeCode="4" label="Tre num order" notNull="false" selected="true"/>
-            <column dbComment="Style Id" dbDefaultValue="" dbName="style_id" dbNotNull="false" dbPosition="5" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="styleId" javaType="java.lang.String" jdbcTypeCode="12" label="Style id" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="Long label of the tree group" dbDefaultValue="" dbName="tre_llabel" dbNotNull="false" dbPosition="5" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="treLlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Tre llabel" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="Short label of the tree group" dbDefaultValue="" dbName="tre_slabel" dbNotNull="false" dbPosition="6" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="treSlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Tre slabel" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="Url Image" dbDefaultValue="" dbName="tre_img" dbNotNull="false" dbPosition="6" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="treImg" javaType="java.lang.String" jdbcTypeCode="12" label="Tre img" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="creator Id" dbDefaultValue="0" dbName="tre_ucre_id" dbNotNull="false" dbPosition="7" dbSize="19" dbTypeName="int8" inputType="number" javaName="treUcreId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Tre ucre id" notNull="false" selected="true"/>
-            <column dbComment="If valid, true else false" dbDefaultValue="true" dbName="tre_valid" dbNotNull="false" dbPosition="7" dbSize="1" dbTypeName="bool" inputType="checkbox" javaName="treValid" javaType="java.lang.Boolean" jdbcTypeCode="-7" label="Tre valid" notNull="false" selected="true"/>
-            <column dbComment="Last modificator Id" dbDefaultValue="0" dbName="tre_umod_id" dbNotNull="false" dbPosition="8" dbSize="19" dbTypeName="int8" inputType="number" javaName="treUmodId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Tre umod id" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="Creation date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="tre_dcre" dbNotNull="false" dbPosition="9" dbSize="29" dbTypeName="timestamp" inputType="" javaName="treDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Tre dcre" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="Last modification date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="tre_dmod" dbNotNull="false" dbPosition="10" dbSize="29" dbTypeName="timestamp" inputType="" javaName="treDmod" javaType="java.util.Date" jdbcTypeCode="93" label="Tre dmod" notNull="false" selected="true"/>
-            <fk name="tree_dom_id_fkey">
-                <fkcol colname="dom_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="tree" tableref="domains" updaterule="3"/>
-            </fk>
-            <fk name="tree_lyr_id_fkey">
-                <fkcol colname="lyr_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="tree" tableref="layer" updaterule="3"/>
-            </fk>
-            <fk name="tree_tre_parent_id_fkey">
-                <fkcol colname="tre_parent_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="tree" tableref="tree" updaterule="3"/>
-            </fk>
-            <fk name="tree_tre_ucre_id_fkey">
-                <fkcol colname="tre_ucre_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="tree" tableref="users" updaterule="3"/>
-            </fk>
-            <fk name="tree_tre_umod_id_fkey">
-                <fkcol colname="tre_umod_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="tree" tableref="users" updaterule="3"/>
-            </fk>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="tree_dom_id_fkey" id="LINK_FK_tree_dom_id_fkey_O" inverseSideOf="" javaName="domains" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="tree" targetEntity="Domains" targetTableName="domains" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="dom_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="tree_tre_parent_id_fkey" id="LINK_FK_tree_tre_parent_id_fkey_I" inverseSideOf="LINK_FK_tree_tre_parent_id_fkey_O" javaName="listOfTree" javaType="unused" joinTableName="" mappedBy="tree" optional="" owningSide="false" sourceTableName="tree" targetEntity="Tree" targetTableName="tree" used="true"/>
-            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="tree_tre_umod_id_fkey" id="LINK_FK_tree_tre_umod_id_fkey_O" inverseSideOf="" javaName="modifiedUser" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="tree" targetEntity="Users" targetTableName="users" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="tre_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="tree_lyr_id_fkey" id="LINK_FK_tree_lyr_id_fkey_O" inverseSideOf="" javaName="layer" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="tree" targetEntity="Layer" targetTableName="layer" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="lyr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="tree_tre_ucre_id_fkey" id="LINK_FK_tree_tre_ucre_id_fkey_O" inverseSideOf="" javaName="createdUser" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="tree" targetEntity="Users" targetTableName="users" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="tre_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="tree_tre_parent_id_fkey" id="LINK_FK_tree_tre_parent_id_fkey_O" inverseSideOf="" javaName="tree" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="tree" targetEntity="Tree" targetTableName="tree" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="tre_parent_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-        </table>
         <table catalog="" databaseComment="This table defines the application users." databaseType="TABLE" javaBean="Users" name="users" schema="nomad">
             <column dbAutoIncremented="true" dbComment="Table unique ID" dbDefaultValue="nextval('nomad.users_id_seq'::regclass)" dbName="id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="bigserial" inputType="number" javaName="id" javaType="java.lang.Long" jdbcTypeCode="-5" label="Id" notNull="true" selected="true"/>
             <column dbComment="First name" dbDefaultValue="" dbName="usr_first_name" dbNotNull="true" dbPosition="2" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrFirstName" javaType="java.lang.String" jdbcTypeCode="12" label="Usr first name" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
@@ -996,8 +934,7 @@
             <column dbComment="Last Modificator Id" dbDefaultValue="0" dbName="usr_umod_id" dbNotNull="false" dbPosition="7" dbSize="19" dbTypeName="int8" inputType="number" javaName="usrUmodId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Usr umod id" notNull="false" selected="true"/>
             <column dateType="DT" dbComment="Creation date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="usr_dcre" dbNotNull="false" dbPosition="8" dbSize="29" dbTypeName="timestamp" inputType="" javaName="usrDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Usr dcre" notNull="false" selected="true"/>
             <column dateType="DT" dbComment="Last modification date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="usr_dmod" dbNotNull="false" dbPosition="9" dbSize="29" dbTypeName="timestamp" inputType="" javaName="usrDmod" javaType="java.util.Date" jdbcTypeCode="93" label="Usr dmod" notNull="false" selected="true"/>
-            <column dbComment="User context" dbDefaultValue="" dbName="usr_ctxt" dbNotNull="false" dbPosition="10" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrCtxt" javaType="java.lang.String" jdbcTypeCode="12" label="Usr ctxt" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="" dbDefaultValue="" dbName="usr_configuration" dbNotNull="false" dbPosition="11" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrConfiguration" javaType="java.lang.String" jdbcTypeCode="12" label="Usr configuration" maxLength="2147483647" notNull="false" selected="true"/>
+            <column dbComment="User configuration" dbDefaultValue="" dbName="usr_configuration" dbNotNull="false" dbPosition="11" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrConfiguration" javaType="java.lang.String" jdbcTypeCode="12" label="Usr configuration" maxLength="2147483647" notNull="false" selected="true"/>
             <fk name="fk_usr_ucre_id">
                 <fkcol colname="usr_ucre_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="users" tableref="users" updaterule="3"/>
             </fk>
@@ -1038,12 +975,10 @@
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="app_grid_agr_ucre_id_fkey" id="LINK_FK_app_grid_agr_ucre_id_fkey_I" inverseSideOf="LINK_FK_app_grid_agr_ucre_id_fkey_O" javaName="listOfCreatedAppGrid" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="AppGrid" targetTableName="app_grid" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="basemaps_map_umod_id_fkey" id="LINK_FK_basemaps_map_umod_id_fkey_I" inverseSideOf="LINK_FK_basemaps_map_umod_id_fkey_O" javaName="listOfModifiedBasemaps" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Basemaps" targetTableName="basemaps" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_task_status_wts_umod_id_fkey" id="LINK_FK_workorder_task_status_wts_umod_id_fkey_I" inverseSideOf="LINK_FK_workorder_task_status_wts_umod_id_fkey_O" javaName="listOfModifiedWorkorderTaskStatus" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="WorkorderTaskStatus" targetTableName="workorder_task_status" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_task_status_wts_ucre_id_fkey" id="LINK_FK_workorder_task_status_wts_ucre_id_fkey_I" inverseSideOf="LINK_FK_workorder_task_status_wts_ucre_id_fkey_O" javaName="listOfCreatedWorkorderTaskStatus" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="WorkorderTaskStatus" targetTableName="workorder_task_status" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="basemaps_map_ucre_id_fkey" id="LINK_FK_basemaps_map_ucre_id_fkey_I" inverseSideOf="LINK_FK_basemaps_map_ucre_id_fkey_O" javaName="listOfCreatedBasemaps" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Basemaps" targetTableName="basemaps" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="tree_tre_umod_id_fkey" id="LINK_FK_tree_tre_umod_id_fkey_I" inverseSideOf="LINK_FK_tree_tre_umod_id_fkey_O" javaName="listOfModifiedTree" javaType="unused" joinTableName="" mappedBy="modifiedUser" optional="" owningSide="false" sourceTableName="users" targetEntity="Tree" targetTableName="tree" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_task_status_wts_ucre_id_fkey" id="LINK_FK_workorder_task_status_wts_ucre_id_fkey_I" inverseSideOf="LINK_FK_workorder_task_status_wts_ucre_id_fkey_O" javaName="listOfCreatedWorkorderTaskStatus" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="WorkorderTaskStatus" targetTableName="workorder_task_status" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_custom_usr_id_fkey" id="LINK_FK_layer_style_custom_usr_id_fkey_I" inverseSideOf="LINK_FK_layer_style_custom_usr_id_fkey_O" javaName="listOfLayerStyleCustom" javaType="unused" joinTableName="" mappedBy="users" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerStyleCustom" targetTableName="layer_style_custom" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_task_reason_wtr_umod_id_fkey" id="LINK_FK_workorder_task_reason_wtr_umod_id_fkey_I" inverseSideOf="LINK_FK_workorder_task_reason_wtr_umod_id_fkey_O" javaName="listOfModifiedWorkorderTaskReason" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="WorkorderTaskReason" targetTableName="workorder_task_reason" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="tree_tre_ucre_id_fkey" id="LINK_FK_tree_tre_ucre_id_fkey_I" inverseSideOf="LINK_FK_tree_tre_ucre_id_fkey_O" javaName="listOfCreatedTree" javaType="unused" joinTableName="" mappedBy="createdUser" optional="" owningSide="false" sourceTableName="users" targetEntity="Tree" targetTableName="tree" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_task_reason_wtr_ucre_id_fkey" id="LINK_FK_workorder_task_reason_wtr_ucre_id_fkey_I" inverseSideOf="LINK_FK_workorder_task_reason_wtr_ucre_id_fkey_O" javaName="listOfCreatedWorkorderTaskReason" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="WorkorderTaskReason" targetTableName="workorder_task_reason" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="fk_usr_ucre_id" id="LINK_FK_fk_usr_ucre_id_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="users" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
@@ -1052,29 +987,29 @@
             </link>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_default_lrd_umod_id_fkey" id="LINK_FK_layer_references_default_lrd_umod_id_fkey_I" inverseSideOf="LINK_FK_layer_references_default_lrd_umod_id_fkey_O" javaName="listOfModifiedLayerReferencesDefault" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesDefault" targetTableName="layer_references_default" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_default_lrd_ucre_id_fkey" id="LINK_FK_layer_references_default_lrd_ucre_id_fkey_I" inverseSideOf="LINK_FK_layer_references_default_lrd_ucre_id_fkey_O" javaName="listOfCreatedLayerReferencesDefault" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesDefault" targetTableName="layer_references_default" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="fk_usr_ucre_id" id="LINK_FK_fk_usr_ucre_id_I" inverseSideOf="LINK_FK_fk_usr_ucre_id_O" javaName="listOfCreatedUsers" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Users" targetTableName="users" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="street_str_umod_id_fkey" id="LINK_FK_street_str_umod_id_fkey_I" inverseSideOf="LINK_FK_street_str_umod_id_fkey_O" javaName="listOfModifiedStreet" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Street" targetTableName="street" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="vl_topology_type_tpt_umod_id_fkey" id="LINK_FK_vl_topology_type_tpt_umod_id_fkey_I" inverseSideOf="LINK_FK_vl_topology_type_tpt_umod_id_fkey_O" javaName="listOfModifiedVlTopologyType" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="VlTopologyType" targetTableName="vl_topology_type" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="street_str_umod_id_fkey" id="LINK_FK_street_str_umod_id_fkey_I" inverseSideOf="LINK_FK_street_str_umod_id_fkey_O" javaName="listOfModifiedStreet" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Street" targetTableName="street" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="fk_usr_ucre_id" id="LINK_FK_fk_usr_ucre_id_I" inverseSideOf="LINK_FK_fk_usr_ucre_id_O" javaName="listOfCreatedUsers" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Users" targetTableName="users" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="report_rpt_umod_id_fkey" id="LINK_FK_report_rpt_umod_id_fkey_I" inverseSideOf="LINK_FK_report_rpt_umod_id_fkey_O" javaName="listOfModifiedReport" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Report" targetTableName="report" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="domains_dom_umod_id_fkey" id="LINK_FK_domains_dom_umod_id_fkey_I" inverseSideOf="LINK_FK_domains_dom_umod_id_fkey_O" javaName="listOfModifiedDomains" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Domains" targetTableName="domains" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_user_lru_user_id_fkey" id="LINK_FK_layer_references_user_lru_user_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lru_user_id_fkey_O" javaName="listOfLayerReferences" javaType="unused" joinTableName="" mappedBy="user" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="street_str_ucre_id_fkey" id="LINK_FK_street_str_ucre_id_fkey_I" inverseSideOf="LINK_FK_street_str_ucre_id_fkey_O" javaName="listOfCreatedStreet" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Street" targetTableName="street" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="vl_topology_type_tpt_ucre_id_fkey" id="LINK_FK_vl_topology_type_tpt_ucre_id_fkey_I" inverseSideOf="LINK_FK_vl_topology_type_tpt_ucre_id_fkey_O" javaName="listOfCreatedVlTopologyType" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="VlTopologyType" targetTableName="vl_topology_type" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="street_str_ucre_id_fkey" id="LINK_FK_street_str_ucre_id_fkey_I" inverseSideOf="LINK_FK_street_str_ucre_id_fkey_O" javaName="listOfCreatedStreet" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Street" targetTableName="street" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="report_rpt_ucre_id_fkey" id="LINK_FK_report_rpt_ucre_id_fkey_I" inverseSideOf="LINK_FK_report_rpt_ucre_id_fkey_O" javaName="listOfCreatedReport" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Report" targetTableName="report" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="domains_dom_ucre_id_fkey" id="LINK_FK_domains_dom_ucre_id_fkey_I" inverseSideOf="LINK_FK_domains_dom_ucre_id_fkey_O" javaName="listOfCreatedDomains" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Domains" targetTableName="domains" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_user_lru_umod_id_fkey" id="LINK_FK_layer_references_user_lru_umod_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lru_umod_id_fkey_O" javaName="listOfModifiedLayerReferences" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_wko_umod_id_fkey" id="LINK_FK_workorder_wko_umod_id_fkey_I" inverseSideOf="LINK_FK_workorder_wko_umod_id_fkey_O" javaName="listOfModifiedWorkorder" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Workorder" targetTableName="workorder" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_user_lru_umod_id_fkey" id="LINK_FK_layer_references_user_lru_umod_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lru_umod_id_fkey_O" javaName="listOfModifiedLayerReferences" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="form_template_custom_ftc_umod_id_fkey" id="LINK_FK_form_template_custom_ftc_umod_id_fkey_I" inverseSideOf="LINK_FK_form_template_custom_ftc_umod_id_fkey_O" javaName="listOfModifiedFormTemplateCustom" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="FormTemplateCustom" targetTableName="form_template_custom" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_lyr_umod_id_fkey" id="LINK_FK_layer_lyr_umod_id_fkey_I" inverseSideOf="LINK_FK_layer_lyr_umod_id_fkey_O" javaName="listOfModifiedLayer" javaType="unused" joinTableName="" mappedBy="modifiedBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Layer" targetTableName="layer" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_user_lru_ucre_id_fkey" id="LINK_FK_layer_references_user_lru_ucre_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lru_ucre_id_fkey_O" javaName="listOfCreatedLayerReferences" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="workorder_wko_ucre_id_fkey" id="LINK_FK_workorder_wko_ucre_id_fkey_I" inverseSideOf="LINK_FK_workorder_wko_ucre_id_fkey_O" javaName="listOfCreatedWorkorder" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Workorder" targetTableName="workorder" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_references_user_lru_ucre_id_fkey" id="LINK_FK_layer_references_user_lru_ucre_id_fkey_I" inverseSideOf="LINK_FK_layer_references_user_lru_ucre_id_fkey_O" javaName="listOfCreatedLayerReferences" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="LayerReferencesUser" targetTableName="layer_references_user" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="form_template_custom_ftc_ucre_id_fkey" id="LINK_FK_form_template_custom_ftc_ucre_id_fkey_I" inverseSideOf="LINK_FK_form_template_custom_ftc_ucre_id_fkey_O" javaName="listOfCreatedFormTemplateCustom" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="FormTemplateCustom" targetTableName="form_template_custom" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_lyr_ucre_id_fkey" id="LINK_FK_layer_lyr_ucre_id_fkey_I" inverseSideOf="LINK_FK_layer_lyr_ucre_id_fkey_O" javaName="listOfCreatedLayer" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Layer" targetTableName="layer" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="fk_usr_umod_id" id="LINK_FK_fk_usr_umod_id_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="users" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="usr_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
+            <link cardinality="OneToMany" cascade="" fetch="LAZY" foreignKeyName="layer_lyr_ucre_id_fkey" id="LINK_FK_layer_lyr_ucre_id_fkey_I" inverseSideOf="LINK_FK_layer_lyr_ucre_id_fkey_O" javaName="listOfCreatedLayer" javaType="unused" joinTableName="" mappedBy="createdBy" optional="" owningSide="false" sourceTableName="users" targetEntity="Layer" targetTableName="layer" used="true"/>
         </table>
         <table catalog="" databaseComment="This table defines List of topological familiy and gives topological behabiour for business object" databaseType="TABLE" javaBean="VlTopologyType" name="vl_topology_type" schema="nomad">
             <column dbAutoIncremented="true" dbComment="Table unique ID" dbDefaultValue="nextval('config.vl_topology_type_id_seq'::regclass)" dbName="id" dbNotNull="true" dbPosition="1" dbPrimaryKey="true" dbSize="19" dbTypeName="bigserial" inputType="number" javaName="id" javaType="java.lang.Long" jdbcTypeCode="-5" label="Id" notNull="true" selected="true"/>
@@ -1125,12 +1060,9 @@
             <column dateType="DT" dbComment="Creation date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="wko_dcre" dbNotNull="false" dbPosition="20" dbSize="29" dbTypeName="timestamp" inputType="" javaName="wkoDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Wko dcre" notNull="false" selected="true"/>
             <column dbComment="City" dbDefaultValue="" dbName="cty_id" dbNotNull="false" dbPosition="21" dbSize="19" dbTypeName="int8" inputType="number" javaName="ctyId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Cty id" notNull="false" selected="true"/>
             <column dbComment="Long label of the city" dbDefaultValue="" dbName="cty_llabel" dbNotNull="false" dbPosition="22" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="ctyLlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Cty llabel" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="Asset" dbDefaultValue="" dbName="ass_id" dbNotNull="true" dbPosition="23" dbSize="19" dbTypeName="int8" inputType="number" javaName="assId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Ass id" notNull="true" selected="true"/>
             <column dbComment="Workorder status " dbDefaultValue="" dbName="wts_id" dbNotNull="false" dbPosition="24" dbSize="19" dbTypeName="int8" inputType="number" javaName="wtsId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Wts id" notNull="false" selected="true"/>
-            <column dbComment="Workorder reason" dbDefaultValue="" dbName="wtr_id" dbNotNull="false" dbPosition="25" dbSize="19" dbTypeName="int8" inputType="number" javaName="wtrId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Wtr id" notNull="false" selected="true"/>
             <column dbComment="Street" dbDefaultValue="" dbName="str_id" dbNotNull="false" dbPosition="26" dbSize="19" dbTypeName="int8" inputType="number" javaName="strId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Str id" notNull="false" selected="true"/>
             <column dbComment="Long label of the street" dbDefaultValue="" dbName="str_llabel" dbNotNull="false" dbPosition="27" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="strLlabel" javaType="java.lang.String" jdbcTypeCode="12" label="Str llabel" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dbComment="Contract" dbDefaultValue="" dbName="ctr_id" dbNotNull="false" dbPosition="28" dbSize="19" dbTypeName="int8" inputType="number" javaName="ctrId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Ctr id" notNull="false" selected="true"/>
             <column dateType="DT" dbComment="Deletion date" dbDefaultValue="" dbName="wko_ddel" dbNotNull="false" dbPosition="29" dbSize="29" dbTypeName="timestamp" inputType="" javaName="wkoDdel" javaType="java.util.Date" jdbcTypeCode="93" label="Wko ddel" notNull="false" selected="true"/>
             <column dbComment="longitude" dbDefaultValue="" dbName="longitude" dbNotNull="false" dbPosition="30" dbSize="0" dbTypeName="numeric" inputType="number" javaName="longitude" javaType="java.math.BigDecimal" jdbcTypeCode="2" label="Longitude" notNull="false" selected="true"/>
             <column dbComment="latitude" dbDefaultValue="" dbName="latitude" dbNotNull="false" dbPosition="31" dbSize="0" dbTypeName="numeric" inputType="number" javaName="latitude" javaType="java.math.BigDecimal" jdbcTypeCode="2" label="Latitude" notNull="false" selected="true"/>
@@ -1140,12 +1072,6 @@
             <column dateType="D" dbComment="Last date of synchronization with an external application" dbDefaultValue="" dbName="wko_ext_date_sync" dbNotNull="false" dbPosition="35" dbSize="29" dbTypeName="timestamp" inputType="date" javaName="wkoExtDateSync" javaType="java.util.Date" jdbcTypeCode="93" label="Wko ext date sync" notNull="false" selected="true"/>
             <column dbComment="True if there is a need to synchronize the workorder with the external app" dbDefaultValue="false" dbName="wko_ext_to_sync" dbNotNull="false" dbPosition="36" dbSize="1" dbTypeName="bool" inputType="checkbox" javaName="wkoExtToSync" javaType="java.lang.Boolean" jdbcTypeCode="-7" label="Wko ext to sync" notNull="true" selected="true"/>
             <column dbComment="Error message during synchronisation" dbDefaultValue="" dbName="wko_ext_error" dbNotNull="false" dbPosition="37" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="wkoExtError" javaType="java.lang.String" jdbcTypeCode="12" label="Wko ext error" maxLength="2147483647" notNull="false" selected="true"/>
-            <fk name="workorder_ass_id_fkey">
-                <fkcol colname="ass_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="asset" updaterule="3"/>
-            </fk>
-            <fk name="workorder_ctr_id_fkey">
-                <fkcol colname="ctr_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="contract" updaterule="3"/>
-            </fk>
             <fk name="workorder_cty_id_fkey">
                 <fkcol colname="cty_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="city" updaterule="3"/>
             </fk>
@@ -1158,9 +1084,6 @@
             <fk name="workorder_wko_umod_id_fkey">
                 <fkcol colname="wko_umod_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="users" updaterule="3"/>
             </fk>
-            <fk name="workorder_wtr_id_fkey">
-                <fkcol colname="wtr_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="workorder_task_reason" updaterule="3"/>
-            </fk>
             <fk name="workorder_wts_id_fkey">
                 <fkcol colname="wts_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="workorder" tableref="workorder_task_status" updaterule="3"/>
             </fk>
@@ -1170,24 +1093,9 @@
                     <joinColumn insertable="false" name="wts_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_wtr_id_fkey" id="LINK_FK_workorder_wtr_id_fkey_O" inverseSideOf="" javaName="workorderTaskReason" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="WorkorderTaskReason" targetTableName="workorder_task_reason" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="wtr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_ass_id_fkey" id="LINK_FK_workorder_ass_id_fkey_O" inverseSideOf="" javaName="asset" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Asset" targetTableName="asset" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="ass_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="workorder_wko_umod_id_fkey" id="LINK_FK_workorder_wko_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="wko_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_ctr_id_fkey" id="LINK_FK_workorder_ctr_id_fkey_O" inverseSideOf="" javaName="contract" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Contract" targetTableName="contract" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="ctr_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="workorder_wko_ucre_id_fkey" id="LINK_FK_workorder_wko_ucre_id_fkey_O" inverseSideOf="" javaName="createdBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Users" targetTableName="users" used="true">
@@ -1195,14 +1103,14 @@
                     <joinColumn insertable="false" name="wko_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_str_id_fkey" id="LINK_FK_workorder_str_id_fkey_O" inverseSideOf="" javaName="street" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Street" targetTableName="street" used="true">
-                <joinColumns>
-                    <joinColumn insertable="false" name="str_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
-                </joinColumns>
-            </link>
             <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_cty_id_fkey" id="LINK_FK_workorder_cty_id_fkey_O" inverseSideOf="" javaName="city" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="City" targetTableName="city" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="cty_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
+                </joinColumns>
+            </link>
+            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="workorder_str_id_fkey" id="LINK_FK_workorder_str_id_fkey_O" inverseSideOf="" javaName="street" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder" targetEntity="Street" targetTableName="street" used="true">
+                <joinColumns>
+                    <joinColumn insertable="false" name="str_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
         </table>
@@ -1237,7 +1145,6 @@
                 </joinColumns>
             </link>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_wtr_id_fkey" id="LINK_FK_task_wtr_id_fkey_I" inverseSideOf="LINK_FK_task_wtr_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="workorderTaskReason" optional="" owningSide="false" sourceTableName="workorder_task_reason" targetEntity="Task" targetTableName="task" used="true"/>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_wtr_id_fkey" id="LINK_FK_workorder_wtr_id_fkey_I" inverseSideOf="LINK_FK_workorder_wtr_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="workorderTaskReason" optional="" owningSide="false" sourceTableName="workorder_task_reason" targetEntity="Workorder" targetTableName="workorder" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="ast_wtr_wtr_id_fkey" id="LINK_FK_ast_wtr_wtr_id_fkey_I" inverseSideOf="LINK_FK_ast_wtr_wtr_id_fkey_O" javaName="listOfAstWtr" javaType="unused" joinTableName="" mappedBy="workorderTaskReason" optional="" owningSide="false" sourceTableName="workorder_task_reason" targetEntity="AstWtr" targetTableName="ast_wtr" used="true"/>
         </table>
         <table catalog="" databaseComment="This table contains the status of the workorder and task" databaseType="TABLE" javaBean="WorkorderTaskStatus" name="workorder_task_status" schema="nomad">
@@ -1263,8 +1170,8 @@
                     <joinColumn insertable="false" name="wts_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_wts_id_fkey" id="LINK_FK_task_wts_id_fkey_I" inverseSideOf="LINK_FK_task_wts_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="workorderTaskStatus" optional="" owningSide="false" sourceTableName="workorder_task_status" targetEntity="Task" targetTableName="task" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="workorder_wts_id_fkey" id="LINK_FK_workorder_wts_id_fkey_I" inverseSideOf="LINK_FK_workorder_wts_id_fkey_O" javaName="listOfWorkorder" javaType="unused" joinTableName="" mappedBy="workorderTaskStatus" optional="" owningSide="false" sourceTableName="workorder_task_status" targetEntity="Workorder" targetTableName="workorder" used="true"/>
+            <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="task_wts_id_fkey" id="LINK_FK_task_wts_id_fkey_I" inverseSideOf="LINK_FK_task_wts_id_fkey_O" javaName="listOfTask" javaType="unused" joinTableName="" mappedBy="workorderTaskStatus" optional="" owningSide="false" sourceTableName="workorder_task_status" targetEntity="Task" targetTableName="task" used="true"/>
             <link cardinality="ManyToOne" cascade="" fetch="LAZY" foreignKeyName="workorder_task_status_wts_umod_id_fkey" id="LINK_FK_workorder_task_status_wts_umod_id_fkey_O" inverseSideOf="" javaName="modifiedBy" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="workorder_task_status" targetEntity="Users" targetTableName="users" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="wts_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>

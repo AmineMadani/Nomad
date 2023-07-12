@@ -4,8 +4,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { ConfigurationService } from './configuration.service';
-import { LocalStorageService } from './local-storage.service';
 import { UserService } from './user.service';
+import { IntentAction } from 'plugins/intent-action/src';
 
 @Injectable({
   providedIn: 'root'
@@ -29,9 +29,7 @@ export class KeycloakService {
 
   configure(){
     if(this.configurationService.keycloak.active) {
-      if (this.platform.IOS) {
-        this.configureIOS();
-      } else if (this.platform.ANDROID) {
+      if (this.platform.ANDROID) {
         this.configureAndroid();
       } else if (this.platform.isBrowser) {
         this.configureWeb();
@@ -141,54 +139,6 @@ export class KeycloakService {
     this.oauthService.setupAutomaticSilentRefresh();
   }
 
-  private configureIOS(): void {
-    let authConfig: AuthConfig = {
-      issuer: this.configurationService.keycloak.issuer,
-      redirectUri: this.configurationService.keycloak.redirectUriIos,
-      clientId: this.configurationService.keycloak.clientId,
-      responseType: 'code',
-      scope: 'openid profile email offline_access',
-      revocationEndpoint: this.configurationService.keycloak.revocationEndpoint,
-      showDebugInformation: true,
-      requireHttps: false
-    }
-    this.oauthService.configure(authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
-
-    App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
-      let url = new URL(event.url);
-
-      if (url.host != "login") {
-        return;
-      }
-
-      this.zone.run(() => {
-        const queryParams: Params = {};
-        for (const [key, value] of url.searchParams.entries()) {
-          queryParams[key] = value;
-        }
-
-        this.router.navigate(
-          [],
-          {
-            relativeTo: this.activatedRoute,
-            queryParams: queryParams,
-            queryParamsHandling: 'merge', 
-          })
-          .then(navigateResult => {
-            this.oauthService.tryLogin().then(tryLoginResult => {
-              if (this.oauthService.hasValidAccessToken()) {
-                this.loadUserProfile();
-                this.realmRoles = this.getRealmRoles();
-              }
-            })
-          })
-          .catch(error => console.error(error));
-
-      });
-    });
-  }
-
   private configureAndroid(): void {
     let authConfig: AuthConfig = {
       issuer: this.configurationService.keycloak.issuer,
@@ -202,6 +152,11 @@ export class KeycloakService {
     }
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
+
+    IntentAction.addListener('appActionIntent', res => {
+      console.log("event praxedo");
+      console.log(res);
+    });
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);

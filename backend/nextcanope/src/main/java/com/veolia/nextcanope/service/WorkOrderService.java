@@ -1,21 +1,26 @@
 package com.veolia.nextcanope.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
-import com.veolia.nextcanope.exception.FunctionalException;
-import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
+import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
+import com.veolia.nextcanope.model.Task;
 import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.model.WorkorderTaskStatus;
 import com.veolia.nextcanope.repository.CityRepository;
+import com.veolia.nextcanope.repository.TaskRepository;
 import com.veolia.nextcanope.repository.WorkOrderRepositoryImpl;
 import com.veolia.nextcanope.repository.WorkorderRepository;
 
@@ -31,6 +36,9 @@ public class WorkOrderService {
     
     @Autowired
     private WorkorderRepository workOrderRepository;
+    
+    @Autowired
+    private TaskRepository taskRepository;
     
     @Autowired 
     private AssetService assetService;
@@ -59,11 +67,24 @@ public class WorkOrderService {
      */
     public Workorder createWorkOrder(String workOrderRaw, String assetRaw, AccountTokenDto account) {
     	ObjectMapper mapper = new ObjectMapper();
-    	Workorder workorder = null;
+    	Workorder workorder = new Workorder();
     	Asset asset = new Asset();
 
 		try {
+			WorkorderDto workorderDto = mapper.readValue(workOrderRaw, WorkorderDto.class);
 			workorder = mapper.readValue(workOrderRaw, Workorder.class);
+			
+			workorder.setWkoName(workorderDto.getWkoName());
+	        workorder.setWkoEmergency(workorderDto.getWkoEmergency());
+	        workorder.setWkoAddress(workorderDto.getWkoAddress());
+	        workorder.setWkoPlanningStartDate(workorderDto.getWkoPlanningStartDate());
+	        workorder.setWkoPlanningEndDate(workorderDto.getWkoPlanningEndDate());
+	        workorder.setWkoCompletionDate(workorderDto.getWkoCompletionDate());
+	        workorder.setWkoRealizationCell(workorderDto.getWkoRealizationCell());
+	        workorder.setLongitude(workorderDto.getLongitude());
+	        workorder.setLatitude(workorderDto.getLatitude());
+	        workorder.setWkoAgentNb(workorderDto.getWkoAgentNb());
+			
 			workorder.setWkoUcreId(account.getId());
 			workorder.setWkoUmodId(account.getId());
 			workorder.setWkoDcre(new Date());
@@ -79,36 +100,42 @@ public class WorkOrderService {
 				asset.setAssObjRef("none");
 			}
 			asset = assetService.getAsset(mapper.readValue(assetRaw, Asset.class), account);
-			workorder.setAssId(asset.getId());
-
-			// Get the work order city
-			Optional<City> optCity = cityRepository.findById(workorder.getCtyId());
-			if (optCity.isEmpty()) {
-				throw new FunctionalException("La ville avec l'id " + workorder.getCtyId() + " n'existe pas.");
-			}
-			City city = optCity.get();
+			//workorder.setAssId(asset.getId());
+			
+			City city = cityRepository.findById(workorder.getCtyId()).get();
 			workorder.setCtyLlabel(city.getCtyLlabel());
-
-			// Save the work order in the database
-			try {
-				workorder = workOrderRepository.save(workorder);
-			} catch(Exception e) {
-				throw new TechnicalException("Erreur lors de la sauvegarde de l'intervention.", e.getMessage());
+			
+			workorder = workOrderRepository.save(workorder);
+			
+			if(workorder.getLongitude() != null && workorder.getLatitude() != null) {
+				workOrderRepositoryImpl.updateGeom(workorder.getId());
 			}
-
-			// Update the geom if there are some longitude and latitude
-			if (workorder.getLongitude() != null && workorder.getLatitude() != null) {
-				try {
-					workOrderRepositoryImpl.updateGeom(workorder.getId());
-				} catch (Exception e) {
-					throw new TechnicalException("Erreur lors de la sauvegarde du geom de l'intervention avec l'id " + workorder.getId() + ".", e.getMessage());
-				}
-			}
+			
+			Task task = new Task();
+		    task.setWkoId(workorder.getId());
+		    task.setTskName(workorder.getWkoName());
+		    task.setWtsId(workorder.getWtsId());
+		    task.setWtrId(workorderDto.getWtrId());
+		    task.setTskComment(workorder.getWkoCreationComment());
+		    task.setCtrId(workorderDto.getCtrId());
+		    task.setAssId(asset.getId());
+		    task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
+		    task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+		    task.setTskUcreId(account.getId());
+		    task.setTskUmodId(account.getId());
+		    task.setTskDcre(new Date());
+		    task.setTskDmod(new Date());
+		    task.setLongitude(workorder.getLongitude());
+		    task.setLatitude(workorder.getLatitude());
+		    task.setGeom(workorder.getGeom());
+		    
+		    taskRepository.save(task);
+			
 		} catch (JsonProcessingException e) {
 			throw new FunctionalException("Erreur lors de la lecture du json.", e.getMessage());
 		}
-
-		return workorder;
+		
+    	return workorder;
     }
 
 	/**
@@ -124,5 +151,10 @@ public class WorkOrderService {
 			workordersDto.add(new WorkorderDto(workorder));
 		}
 		return workordersDto;
+	}
+	
+	public CustomWorkorderDto getWorkOrderDto(Long id) {
+		Workorder workOrder = workOrderRepository.findById(id).get();
+		return new CustomWorkorderDto(workOrder);
 	}
 }

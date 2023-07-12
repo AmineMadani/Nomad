@@ -105,10 +105,6 @@ public class Contract implements Serializable {
     private List<Task> listOfTask ; 
 
 
-    @OneToMany(mappedBy="contract")
-    private List<Workorder> listOfWorkorder ; 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
@@ -237,10 +233,6 @@ public class Contract implements Serializable {
 
     public List<Task> getListOfTask() {
         return this.listOfTask;
-    } 
-
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
     } 
 
     public Users getModifiedBy() {

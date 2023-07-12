@@ -118,10 +118,6 @@ public class Task implements Serializable {
 	@JsonProperty("geom")
     private Geometry geom ;
 
-    @Column(name="tsk_agent_nb")
-	@JsonProperty("tsk_agent_nb")
-    private Integer tskAgentNb ;
-
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -331,14 +327,6 @@ public class Task implements Serializable {
 
     public Geometry getGeom() {
         return this.geom;
-    }
-
-	public void setTskAgentNb( Integer tskAgentNb ) {
-        this.tskAgentNb = tskAgentNb ;
-    }
-
-    public Integer getTskAgentNb() {
-        return this.tskAgentNb;
     }
 
     //--- GETTERS FOR LINKS

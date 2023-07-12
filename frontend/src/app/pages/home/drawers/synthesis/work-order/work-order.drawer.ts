@@ -114,6 +114,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       case 'update':
         this.editMode = !this.editMode;
         break;
+      case 'note':
+        this.drawer.navigateTo(DrawerRouteEnum.REPORT, [this.workOrder.id]);
+        break;
       default:
         break;
     }

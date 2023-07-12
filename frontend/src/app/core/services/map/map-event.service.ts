@@ -9,6 +9,9 @@ interface MultiSelection { source: string, id: string }
   providedIn: 'root',
 })
 export class MapEventService {
+
+  public isFeatureFiredEvent: boolean;
+
   private hoveredFeatureId: string | undefined;
   private selectedFeatureId: string | undefined;
 
@@ -18,7 +21,7 @@ export class MapEventService {
   private multiSelection: MultiSelection[] = [];
 
   private onFeatureHovered$: Subject<string | undefined> = new Subject();
-  private onFeatureSelected$: Subject<string | undefined> = new Subject();
+  private onFeatureSelected$: Subject<any | undefined> = new Subject();
 
   constructor() {}
 
@@ -26,7 +29,7 @@ export class MapEventService {
     return this.onFeatureHovered$.asObservable();
   }
 
-  public onFeatureSelected(): Observable<string | undefined> {
+  public onFeatureSelected(): Observable<any | undefined> {
     return this.onFeatureSelected$.asObservable();
   }
 
@@ -48,7 +51,8 @@ export class MapEventService {
     mapLibre: Maplibregl.Map,
     sourceKey: string,
     featureId: string | undefined,
-    fireEvent: boolean = true
+    fireEvent: boolean = true,
+    e?: Maplibregl.MapMouseEvent
   ): void {
     if (this.selectedFeatureId && this.selectedFeatureId !== featureId) {
       mapLibre.setFeatureState(
@@ -57,9 +61,6 @@ export class MapEventService {
       );
       this.selectedFeatureId = undefined;
       this.selectedLayer = undefined;
-      if (fireEvent) {
-        this.onFeatureSelected$.next(undefined);
-      }
     }
 
     if (featureId && this.selectedFeatureId !== featureId) {
@@ -73,7 +74,7 @@ export class MapEventService {
       this.selectedFeatureId = featureId;
       this.selectedLayer = sourceKey;
       if (fireEvent) {
-        this.onFeatureSelected$.next(featureId);
+        this.onFeatureSelected$.next({featureId: featureId, layerKey: sourceKey, x:e?.lngLat?.lng, y:e?.lngLat?.lat});
       }
 
     } else if (!featureId && this.selectedFeatureId) {

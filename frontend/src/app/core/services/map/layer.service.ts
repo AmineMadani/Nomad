@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
-import maplibregl, * as Maplibregl from 'maplibre-gl';
+import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
 
 @Injectable({
@@ -35,19 +35,47 @@ export class LayerService {
     return r[0] ?? null;
   }
 
-/**
-   * Get feature coordinates by its ID on a given layer
-   * @param layerKey The key of the layer to get the feature from
-   * @param featureId The ID of the feature to get
-   * @returns The feature with the given ID, or null if there is no such feature
-   */
-public  async getCoordinateFeaturesById(
-  layerKey: string,
-  featureId: string
-): Promise<any | null> {
-  let geom;
-  await this.cacheService.getGeometryByLayerAndId(featureId,layerKey).then(r=> geom=r);
-  return geom;
+  /**
+     * Get feature coordinates by its ID on a given layer
+     * @param layerKey The key of the layer to get the feature from
+     * @param featureId The ID of the feature to get
+     * @returns The feature with the given ID, or null if there is no such feature
+     */
+  public async getCoordinateFeaturesById(
+    layerKey: string,
+    featureId: string
+  ): Promise<any | null> {
+    let geom;
+    await this.cacheService.getGeometryByLayerAndId(featureId, layerKey).then(r => geom = r);
+    return geom;
+  }
+
+  /**
+     * Get feature by its ID on a given layer
+     * @param layerKey The key of the layer to get the feature from
+     * @param featureId The ID of the feature to get
+     * @returns The feature with the given ID, or null if there is no such feature
+     */
+  public async getLocalFeatureById(
+    layerKey: string,
+    featureId: string
+  ): Promise<any | null> {
+    let feature;
+    await this.cacheService.getFeatureLayerAndId(featureId, layerKey).then(r => feature = r);
+    return feature;
+  }
+
+  /**
+     * Update feature geometry by id and layer
+     * @param layerKey The key of the layer to get the feature from
+     * @param featureId The ID of the feature to get
+     */
+  public async updateLocalGeometryFeatureById(
+    layerKey: string,
+    featureId: string,
+    newGeometry: number[]
+  ) {
+    await this.cacheService.updateCacheFeatureGeometry(featureId, layerKey,newGeometry);
   }
 
   /**
@@ -60,11 +88,11 @@ public  async getCoordinateFeaturesById(
     let f: Maplibregl.MapGeoJSONFeature[] = [];
     if (
       this.mapService.getMap() &&
-      this.mapService.getMap().getLayer('layer-' + layerKey)
+      this.mapService.getMap().getLayer(layerKey.toUpperCase())
     ) {
       f = this.mapService
         .getMap()
-        .queryRenderedFeatures(null, { layers: ['layer-' + layerKey] });
+        .queryRenderedFeatures(null, { layers: [layerKey.toUpperCase()] });
     }
     return f;
   }

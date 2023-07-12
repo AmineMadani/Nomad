@@ -669,15 +669,10 @@ create table if not exists workorder
   cty_id                       bigint references city(id),
   cty_llabel                   text,
   ------
-  ass_id		               bigint not null references asset(id),
-  ------
   wts_id                       bigint references workorder_task_status(id), -- status
-  wtr_id                       bigint references workorder_task_reason(id), -- reason
   ------
   str_id                       bigint references street(id),
   str_llabel                   text,
-  ------
-  ctr_id                       bigint references contract(id),
   ------
   /*
   water_stop_id                bigint,
@@ -700,8 +695,8 @@ create table if not exists workorder
   -- external app
   wko_ext_ref                  text,
   wko_ext_date_sync            timestamp without time zone default null,
-  wko_ext_to_sync              boolean default False,
-  wko_ext_error                text
+  wko_ext_error                text,
+  wko_ext_to_sync              boolean default False
 );
 create index on workorder using gist(geom);
 /* Comments on table */
@@ -725,12 +720,9 @@ comment on column workorder.wko_realization_cell is 'Realization cell of the wor
 comment on column workorder.wko_realization_comment is 'Realization comment of the workorder';
 comment on column workorder.cty_id is 'City';
 comment on column workorder.cty_llabel is 'Long label of the city';
-comment on column workorder.ass_id is 'Asset';
 comment on column workorder.wts_id is 'Workorder status ';
-comment on column workorder.wtr_id is 'Workorder reason';
 comment on column workorder.str_id is 'Street';
 comment on column workorder.str_llabel is 'Long label of the street';
-comment on column workorder.ctr_id is 'Contract';
 COMMENT ON COLUMN workorder.wko_agent_nb IS 'Number of agent';
 comment on column workorder.wko_ucre_id is 'creator Id';
 comment on column workorder.wko_umod_id is 'Last modificator Id';
@@ -761,7 +753,6 @@ create table if not exists task
   tsk_planning_end_date	   timestamp without time zone,
   tsk_completion_date	     timestamp without time zone,
   tsk_realization_user     bigint,
-  tsk_agent_nb             INT,
   -- Technical metadata
   tsk_ucre_id              bigint references users(id) default 0,
   tsk_umod_id              bigint references users(id) default 0,

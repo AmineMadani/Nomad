@@ -20,11 +20,6 @@ const routes: Routes = [
     canActivate: [AuthGuardService]
   },
   {
-    path: 'report',
-    loadChildren: () => import('./pages/report/report.module').then( m => m.ReportPageModule),
-    canActivate: [AuthGuardService]
-  },
-  {
     path: 'error',
     loadChildren: () => import('./pages/error/error.module').then( m => m.ErrorPageModule),
   },
