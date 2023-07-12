@@ -88,6 +88,7 @@ export class ReportContextComponent implements OnInit {
     const obj = this.originalOptions.find(val => val['wtr_id'].toString() == event.detail.value);
     this.valueKey = obj['wtr_id'].toString();
     this.task.wtrId = obj['wtr_id'].toString();
+    this.task.wtrCode = obj['wtr_code'].toString();
     this.onSaveWorkOrderState.emit();
   }
 

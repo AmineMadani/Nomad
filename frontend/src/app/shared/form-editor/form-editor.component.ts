@@ -43,6 +43,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   public paramMap: Map<string, string>;
   public isMobile: boolean;
 
+  public indexChild = 0;
+
   private ngUnsubscribe$: Subject<void> = new Subject();
 
 
@@ -128,5 +130,31 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
   public onSubmit(): void {
     this.submitAction.emit(this.form);
+  }
+
+  /**
+   * Action on click for the next question
+   * @param child the child property
+   */
+  public nextQuestion(child: any): void {
+    let childrens = child.children ? child.children : [child];
+    let valid: boolean = true;
+    for(let children of childrens) {
+      this.form.get(children.definition.key).updateValueAndValidity();
+      this.form.get(children.definition.key).markAsTouched();
+      valid = valid && this.form.get(children.definition.key).valid;
+    }
+    if(valid){
+      this.indexChild++;
+    }
+  }
+
+  /**
+   * Action on click for the previous question
+   */
+  public previousQuestion(): void {
+    if(this.indexChild > 0){
+      this.indexChild--;
+    }
   }
 }
