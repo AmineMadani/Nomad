@@ -46,7 +46,7 @@ export class ReportContextComponent implements OnInit {
   /**
    * Method to open the modal and filter the options before
    */
-  onOpenModal() {
+  public onOpenModal() {
     this.querySearch = '';
     this.displayOptions = this.getFilterOptions(this.querySearch).slice(0, 50);
     this.modal.present();
@@ -56,7 +56,7 @@ export class ReportContextComponent implements OnInit {
    * Method to load the next options from the infinity scroll
    * @param e the ion infinity event
    */
-  onIonInfinite(e) {
+  public onIonInfinite(e) {
     this.displayOptions = [...this.displayOptions, ...this.getFilterOptions(this.querySearch).slice(this.displayOptions.length, this.displayOptions.length + 50)];
     (e as InfiniteScrollCustomEvent).target.complete();
   }
@@ -66,7 +66,7 @@ export class ReportContextComponent implements OnInit {
    * @param query the filter use for the infinity scroll
    * @returns the list of options
    */
-  getFilterOptions(querySearch: string): any[] {
+  public getFilterOptions(querySearch: string): any[] {
     let options = this.originalOptions?.filter(option => this.task.assObjTable.replace("asset.", "") == option['lyr_table_name'] && option["wtr_llabel"].toLowerCase().indexOf(querySearch) > -1);
     return options;
   }
@@ -75,7 +75,7 @@ export class ReportContextComponent implements OnInit {
    * Method to filter on the search input
    * @param e the ion input event
    */
-  onHandleInput(event) {
+  public onHandleInput(event) {
     this.querySearch = event.target.value.toLowerCase();
     this.displayOptions = this.getFilterOptions(this.querySearch).slice(0, 50);
   }
@@ -84,7 +84,7 @@ export class ReportContextComponent implements OnInit {
    * Action on the selected data
    * @param event the ion radio event
    */
-  onRadioChange(event) {
+  public onRadioChange(event) {
     const obj = this.originalOptions.find(val => val['wtr_id'].toString() == event.detail.value);
     this.valueKey = obj['wtr_id'].toString();
     this.task.wtrId = obj['wtr_id'].toString();
@@ -95,7 +95,7 @@ export class ReportContextComponent implements OnInit {
    * Get the label to display
    * @returns the label
    */
-  getValueLabel(): string {
+  public getValueLabel(): string {
     if (this.task.wtrId && this.originalOptions?.length > 0) {
       return this.originalOptions.find(opt => opt['wtr_id'] == this.task.wtrId)['wtr_llabel'];
     }

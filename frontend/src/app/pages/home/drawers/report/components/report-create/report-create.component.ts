@@ -28,40 +28,50 @@ export class ReportCreateComponent implements OnInit {
   }
 
   /**
-   * Get the title
-   * @returns Formatted title
+   * Drawback navigation
    */
-  public getTitle(): string {
-    let val = "Validation l'élément du patrimoine";
-    return val;
-  }
-
   public onDrawerBack(): void {
     this.drawerService.setLocationBack();
   }
 
-  onClose() {
+  /**
+   * Close drawer
+   */
+  public onClose() {
     this.drawerService.closeDrawer();
   }
 
-  onNext() {
+  /**
+   * Next step
+   */
+  public onNext() {
     if (this.step <= 3) {
       this.step++;
       this.onSaveWorkOrderState();
     }
   }
 
-  onBack() {
+  /**
+   * Previous step
+   */
+  public onBack() {
     if (this.step >= 2) {
       this.step--;
     }
   }
 
-  onSelectedTaskChange(task: CustomTask){
+  /**
+   * Selected task
+   * @param task selected task
+   */
+  public onSelectedTaskChange(task: CustomTask){
     this.selectedTask=task;
   }
 
-  onSaveWorkOrderState() {
+  /**
+   * save work order state
+   */
+  public onSaveWorkOrderState() {
     this.exploitationService.saveStateWorkorder(this.workorder);
   }
 }

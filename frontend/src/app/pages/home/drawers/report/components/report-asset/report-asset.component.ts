@@ -57,6 +57,11 @@ export class ReportAssetComponent implements OnInit {
     this.currentTaskSelected = this.selectedTask;
   }
 
+  /**
+   * Select task
+   * @param e event
+   * @param task selected task
+   */
   public onSelectTask(e: Event, task: CustomTask) {
     if (this.currentTaskSelected && this.currentTaskSelected.id == task.id) {
       this.currentTaskSelected = null;
@@ -66,6 +71,11 @@ export class ReportAssetComponent implements OnInit {
     this.onSelectedTaskChange.emit(this.currentTaskSelected);
   }
 
+  /**
+   * Get layer table name label
+   * @param layerKey the layer key
+   * @returns the label
+   */
   public getLyrLabel(layerKey: string): string {
     if (this.refLayers) {
       return this.refLayers.find(ref => ref.lyrTableName == layerKey).lyrSlabel;
@@ -74,6 +84,10 @@ export class ReportAssetComponent implements OnInit {
     }
   }
 
+  /**
+   * Edit equipment
+   * @param tsk  Task equipment to edit
+   */
   public onEditEquipment(tsk: CustomTask) {
     this.layerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
       this.draggableMarker = this.layerService.addMarker(tsk.longitude, tsk.latitude, result);
@@ -88,6 +102,10 @@ export class ReportAssetComponent implements OnInit {
     }
   }
 
+  /**
+   * Validate the equipment change
+   * @param tsk the task to update
+   */
   public onValidateChangeEquipment(tsk: CustomTask) {
     let feature: any = this.layerService.getFeatureById("workorder", tsk.id + '');
     feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
@@ -104,6 +122,10 @@ export class ReportAssetComponent implements OnInit {
     this.onSaveWorkOrderState.emit();
   }
 
+  /**
+   * Remove the equipment change
+   * @param tsk task change to remove
+   */
   public onRemoveChangeEquipment(tsk: CustomTask) {
     this.mapService.getMap().setFeatureState(
       { source: tsk.assObjTable.replace("asset.", ""), id: tsk.assObjRef },
