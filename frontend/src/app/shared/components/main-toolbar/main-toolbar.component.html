@@ -6,13 +6,6 @@
   <span slot="start" class="main-toolbar-separator"></span>
   <ion-title class="main-toolbar-title">{{title}}</ion-title>
   <ion-buttons slot="secondary" *ngIf="!minimalist">
-    <ion-button>
-      <ion-icon slot="icon-only" name="notifications"></ion-icon>
-      <ion-badge color="danger" style="position: absolute; right: -6px; top: -6px;">3</ion-badge>
-    </ion-button>
-    <ion-fab-button class="main-toolbar-avatar" (click)="logout()">
-      <ion-img [src]="imgUrl"></ion-img>
-    </ion-fab-button>
     <ion-button (click)="openPopover($event)">
       <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
     </ion-button>

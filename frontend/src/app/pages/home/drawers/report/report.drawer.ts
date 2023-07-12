@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 
@@ -18,7 +19,7 @@ export class ReportDrawer implements OnInit {
     private layerDataService: LayerDataService,
     private layerService: LayerService,
     private mapService: MapService,
-    private exploitationDataService: ExploitationDataService
+    private exploitationService: ExploitationService
   ) {
   }
 
@@ -32,18 +33,20 @@ export class ReportDrawer implements OnInit {
         this.layerService
           .moveToXY(wko[0].longitude, wko[0].latitude)
           .then(() => {
-            this.layerService.zoomOnXyToFeatureByIdAndLayerKey('workorder', id.toString());
+            this.layerService.zoomOnXyToFeatureByIdAndLayerKey('workorder', id.toString()).then(() => {
+              //display the equipment of all tasks
+              this.exploitationService.getWorkorderById(id).then(workorder => {
+                this.workorder = workorder;
+                for (let task of workorder.tasks) {
+                  this.mapService.addEventLayer(task.assObjTable.replace('asset.', ''));
+                  let feature: any = this.layerService.getFeatureById("workorder", task.id + '');
+                  feature.geometry.coordinates = [task.longitude, task.latitude];
+                  this.mapService.updateFeature("workorder", feature);
+                }
+              });
+            });
           });
       })
-    });
-    //display the equipment of all tasks
-    this.exploitationDataService.getWorkorderById(id).subscribe(workorder => {
-      this.workorder = workorder;
-      for(let task of workorder.tasks) {
-        this.mapService.onMapLoaded().subscribe(() => {
-          this.mapService.addEventLayer(task.assObjTable.replace('asset.',''));
-        });
-      }
     });
   }
 }

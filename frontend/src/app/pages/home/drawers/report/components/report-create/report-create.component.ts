@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
+import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
@@ -14,23 +14,17 @@ export class ReportCreateComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private utils: UtilsService,
-    private referentialService: ReferentialService
+    private exploitationService: ExploitationService 
   ) { }
 
-  @Input() workorder:CustomWorkOrder;
+  @Input() workorder: CustomWorkOrder;
 
   public isMobile: boolean;
   public step: number = 1;
-  public currentTaskOpen: CustomTask;
-  public currentTaskSelected: CustomTask;
-
-  private refLayers: any[];
+  public selectedTask: CustomTask;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
-    this.referentialService.getReferential('layers').then(layers => {
-      this.refLayers = layers;
-    })
   }
 
   /**
@@ -51,41 +45,23 @@ export class ReportCreateComponent implements OnInit {
   }
 
   onNext() {
-    if(this.step <= 3){
+    if (this.step <= 3) {
       this.step++;
+      this.onSaveWorkOrderState();
     }
   }
 
   onBack() {
-    if(this.step >= 2){
-      this.step--
+    if (this.step >= 2) {
+      this.step--;
     }
   }
 
-  public onOpenAccordion(data: CustomTask): void {
-    if (this.currentTaskOpen === data) {
-      this.currentTaskOpen = undefined;
-    } else {
-      this.currentTaskOpen = data;
-    }
-    console.log(this.currentTaskOpen)
+  onSelectedTaskChange(task: CustomTask){
+    this.selectedTask=task;
   }
 
-  public onSelectTask(e: Event, task: CustomTask) {
-    if(this.currentTaskSelected && this.currentTaskSelected.id == task.id) {
-      this.currentTaskSelected = null;
-    } else {
-      this.currentTaskSelected = task;
-    }
-    console.log(this.currentTaskSelected);
+  onSaveWorkOrderState() {
+    this.exploitationService.saveStateWorkorder(this.workorder);
   }
-
-  public getLyrLabel(layerKey: string): string {
-    if(this.refLayers) {
-      return this.refLayers.find(ref => ref.lyrTableName == layerKey).lyrSlabel;
-    } else {
-      return layerKey;
-    }
-  }
-
 }

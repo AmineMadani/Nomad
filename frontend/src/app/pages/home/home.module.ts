@@ -37,6 +37,9 @@ import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorit
 import { ReportDrawer } from './drawers/report/report.drawer';
 import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
 import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
+import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
+import { ReportContextComponent } from './drawers/report/components/report-context/report-context.component';
+import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
 
 @NgModule({
   imports: [
@@ -76,7 +79,10 @@ import { ReportCreateComponent } from './drawers/report/components/report-create
     AssetDetailComponent,
     AssetFavoriteComponent,
     ReportStepperComponent,
-    ReportCreateComponent
+    ReportCreateComponent,
+    ReportAssetComponent,
+    ReportContextComponent,
+    ReportFormComponent
   ]
 })
 export class HomePageModule {}

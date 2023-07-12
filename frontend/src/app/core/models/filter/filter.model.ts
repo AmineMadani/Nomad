@@ -1,4 +1,3 @@
-import { type } from "os";
 import { FilterSegment } from "./filter-segment.model";
 
 export interface Filter {

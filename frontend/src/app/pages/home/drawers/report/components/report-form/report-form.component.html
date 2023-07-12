@@ -1,0 +1,10 @@
+<ng-container *ngIf="form">
+  <app-form-editor [nomadForm]="form" [editMode]="true"
+    (submitAction)="onSubmit($event)"></app-form-editor>
+</ng-container>
+<ng-container *ngIf="!form">
+  Pas de formulaire disponible.
+  Veuillez contacter votre responsable.
+</ng-container>
+
+

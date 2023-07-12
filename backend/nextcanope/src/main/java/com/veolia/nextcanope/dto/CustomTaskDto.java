@@ -15,6 +15,8 @@ public class CustomTaskDto {
 
     private Long wtsId;
     
+    private Long wtrId;
+    
     private BigDecimal longitude;
     
     private BigDecimal latitude;
@@ -36,8 +38,16 @@ public class CustomTaskDto {
     public void setWtsId(Long wtsId) {
         this.wtsId = wtsId;
     }
+    
+    public Long getWtrId() {
+		return wtrId;
+	}
 
-    public BigDecimal getLongitude() {
+	public void setWtrId(Long wtrId) {
+		this.wtrId = wtrId;
+	}
+
+	public BigDecimal getLongitude() {
         return longitude;
     }
 
@@ -90,5 +100,6 @@ public class CustomTaskDto {
         this.assObjRef = task.getAsset().getAssObjRef();
         this.assObjTable = task.getAsset().getAssObjTable();
         this.tskCompletionDate = task.getTskCompletionDate();
+        this.wtrId = task.getWtrId();
     }
 }

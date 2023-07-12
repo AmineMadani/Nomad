@@ -22,7 +22,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public appPages = [
     { title: 'Accueil', url: '/home', icon: 'home' },
-    { title: 'Analyse et reporting', url: '/report', icon: 'globe' },
     { title: 'Paramètres', url: '/settings', icon: 'settings' },
   ];
   constructor(

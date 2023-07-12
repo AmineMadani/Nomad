@@ -87,9 +87,7 @@ export class LayerDataService {
       throw new Error(`Failed to fetch index for ${layerKey}`);
     }
 
-    if(layerKey != 'workorder') {
-      await this.db.tiles.put({ data: req, key: file }, file);
-    }
+    await this.db.tiles.put({ data: req, key: file }, file);
 
     this.listTileOnLoad.delete(layerKey);
     return req;
