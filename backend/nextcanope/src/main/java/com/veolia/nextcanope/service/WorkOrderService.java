@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.veolia.nextcanope.dto.CustomTaskDto;
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +54,7 @@ public class WorkOrderService {
 
     /**
 	 * Retrieve the list of workorders by most recent date planned limited in number with offset for pagination
-	 * @param limitNb The number of workorder to get
+	 * @param limit The number of workorder to get
 	 * @param offset The pagination offset to set
      * @param searchParameter 
 	 * @return the workorder list
@@ -62,28 +65,23 @@ public class WorkOrderService {
     
     /**
      * Method to create a workorder
-     * @param workOrderRaw
+     * @param customWorkorderDto
      * @return the workorder dto
      */
-    public Workorder createWorkOrder(String workOrderRaw, String assetRaw, AccountTokenDto account) {
-    	ObjectMapper mapper = new ObjectMapper();
+    public Workorder createWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
     	Workorder workorder = new Workorder();
-    	Asset asset = new Asset();
 
 		try {
-			WorkorderDto workorderDto = mapper.readValue(workOrderRaw, WorkorderDto.class);
-			workorder = mapper.readValue(workOrderRaw, Workorder.class);
-			
-			workorder.setWkoName(workorderDto.getWkoName());
-	        workorder.setWkoEmergency(workorderDto.getWkoEmergency());
-	        workorder.setWkoAddress(workorderDto.getWkoAddress());
-	        workorder.setWkoPlanningStartDate(workorderDto.getWkoPlanningStartDate());
-	        workorder.setWkoPlanningEndDate(workorderDto.getWkoPlanningEndDate());
-	        workorder.setWkoCompletionDate(workorderDto.getWkoCompletionDate());
-	        workorder.setWkoRealizationCell(workorderDto.getWkoRealizationCell());
-	        workorder.setLongitude(workorderDto.getLongitude());
-	        workorder.setLatitude(workorderDto.getLatitude());
-	        workorder.setWkoAgentNb(workorderDto.getWkoAgentNb());
+			workorder.setWkoName(customWorkorderDto.getWkoName());
+	        workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
+	        workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
+	        workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
+	        workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+	        workorder.setWkoCompletionDate(customWorkorderDto.getWkoCompletionDate());
+	        workorder.setLongitude(customWorkorderDto.getLongitude());
+	        workorder.setLatitude(customWorkorderDto.getLatitude());
+			workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
+	        workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 			
 			workorder.setWkoUcreId(account.getId());
 			workorder.setWkoUmodId(account.getId());
@@ -94,45 +92,49 @@ public class WorkOrderService {
 			WorkorderTaskStatus status = statusService.getStatus("CREE");
 			workorder.setWtsId(status.getId());
 
-			// Get the work order asset
-			asset = mapper.readValue(assetRaw, Asset.class);
-			if(asset.getAssObjTable().equals("xy")) {
-				asset.setAssObjRef("none");
-			}
-			asset = assetService.getAsset(mapper.readValue(assetRaw, Asset.class), account);
-			//workorder.setAssId(asset.getId());
-			
-			City city = cityRepository.findById(workorder.getCtyId()).get();
+			City city = cityRepository.findById(customWorkorderDto.getCtyId()).get();
+			workorder.setCtyId(city.getId());
 			workorder.setCtyLlabel(city.getCtyLlabel());
-			
+
 			workorder = workOrderRepository.save(workorder);
+
+			// Get the work order asset
+			for (CustomTaskDto taskDto : customWorkorderDto.getTasks()) {
+				Asset asset = assetService.getAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), account);
+
+				try {
+					Task task = new Task();
+					task.setWkoId(workorder.getId());
+					task.setTskName(workorder.getWkoName());
+					task.setWtsId(workorder.getWtsId());
+					task.setWtrId(workorderDto.getWtrId());
+					task.setTskComment(workorder.getWkoCreationComment());
+					task.setCtrId(workorderDto.getCtrId());
+					task.setAssId(asset.getId());
+					task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
+					task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+					task.setTskUcreId(account.getId());
+					task.setTskUmodId(account.getId());
+					task.setTskDcre(new Date());
+					task.setTskDmod(new Date());
+					task.setLongitude(workorder.getLongitude());
+					task.setLatitude(workorder.getLatitude());
+
+					task = taskRepository.save(task);
+
+					workOrderRepositoryImpl.updateGeomForTask(task.getId());
+
+				} catch (Exception e) {
+					throw new TechnicalException("Erreur lors de la sauvegarde de la tache pour l'utilisateur avec l'id  " + account.getId() + ".", e.getMessage());
+				}
+			}
 			
 			if(workorder.getLongitude() != null && workorder.getLatitude() != null) {
 				workOrderRepositoryImpl.updateGeom(workorder.getId());
 			}
 			
-			Task task = new Task();
-		    task.setWkoId(workorder.getId());
-		    task.setTskName(workorder.getWkoName());
-		    task.setWtsId(workorder.getWtsId());
-		    task.setWtrId(workorderDto.getWtrId());
-		    task.setTskComment(workorder.getWkoCreationComment());
-		    task.setCtrId(workorderDto.getCtrId());
-		    task.setAssId(asset.getId());
-		    task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
-		    task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
-		    task.setTskUcreId(account.getId());
-		    task.setTskUmodId(account.getId());
-		    task.setTskDcre(new Date());
-		    task.setTskDmod(new Date());
-		    task.setLongitude(workorder.getLongitude());
-		    task.setLatitude(workorder.getLatitude());
-		    task.setGeom(workorder.getGeom());
-		    
-		    taskRepository.save(task);
-			
-		} catch (JsonProcessingException e) {
-			throw new FunctionalException("Erreur lors de la lecture du json.", e.getMessage());
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde du workorder pour l'utilisateur avec l'id  " + account.getId() + ".", e.getMessage());
 		}
 		
     	return workorder;

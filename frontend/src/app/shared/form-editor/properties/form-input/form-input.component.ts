@@ -28,11 +28,42 @@ export class FormInputComponent implements OnInit {
       this.control.setValue(this.attributes.value);
     } else {
       let paramValue = this.paramMap.get(this.definition.key);
-      this.control.setValue(paramValue ? paramValue : this.attributes.default);
+      if (!paramValue && this.attributes.predefineValue !== undefined){
+        const match = this.getValueFromPredifineValue(this.attributes.predefineValue)
+        if(match.length > 0){
+            match.forEach(one => console.log('one : ', this.paramMap.get(one)));
+            const resultats: string[] = [];
+            this.paramMap.forEach((key,value) => {
+              if (match.includes(value)){
+                resultats.push(key);
+              }
+        })
+        if (resultats.length > 0 ){
+          this.control.setValue(resultats.join(', '));
+        }
+        else{
+          this.control.setValue(this.attributes.predefineValue);;
+        }
+      }
+      }
+      else{
+        this.control.setValue(paramValue ? paramValue : this.attributes.default);
+      }
     }
-
     if (!this.definition.editable) {
       this.control.disable();
     }
+  }
+
+  /**
+   * Parse a string of type with the pattern "{param1} {param2}" to an Array of ["param1","param2"]
+   * @param inputString
+   * @returns string[] with the founded values
+   */
+  private getValueFromPredifineValue(inputString : string): string[]{
+    const pattern = /{([^}]+)}/g;
+    const matches = inputString.match(pattern);
+    const parsedValues = matches.map(match => match.substring(1, match.length - 1));
+    return parsedValues;
   }
 }

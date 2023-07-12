@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -34,6 +34,9 @@ import { AssetAccordionComponent } from './drawers/asset/components/asset-accord
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
 import { ReportDrawer } from './drawers/report/report.drawer';
+import { WkoCreationComponent } from './drawers/components/wko-creation/wko-creation.component';
+import { WkoViewComponent } from './drawers/components/wko-view/wko-view.component';
+import { WkoReferentialComponent } from './drawers/components/wko-referential/wko-referential.component';
 import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
 import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
 import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
@@ -44,6 +47,7 @@ import { ReportFormComponent } from './drawers/report/components/report-form/rep
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     HomePageRoutingModule,
     SharedModule,
@@ -76,6 +80,9 @@ import { ReportFormComponent } from './drawers/report/components/report-form/rep
     AssetAccordionComponent,
     AssetDetailComponent,
     AssetFavoriteComponent,
+    WkoCreationComponent,
+    WkoViewComponent,
+    WkoReferentialComponent,
     ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,

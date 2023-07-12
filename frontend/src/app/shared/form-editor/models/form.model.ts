@@ -47,6 +47,7 @@ export interface FormInput {
   value: string;
   placeholder: string;
   default: string;
+  predefineValue: string;
   type: string;
   hiddenNull: boolean;
 }

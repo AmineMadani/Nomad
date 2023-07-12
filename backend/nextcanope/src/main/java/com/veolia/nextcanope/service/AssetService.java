@@ -25,9 +25,11 @@ public class AssetService {
      *
      * @return The asset.
      */
-    public Asset getAsset(Asset asset, AccountTokenDto account) {
-    	
-    	asset.setAssObjTable("asset."+asset.getAssObjTable());
+    public Asset getAsset(String assetRef, String tableRef, AccountTokenDto account) {
+		Asset asset = new Asset();
+
+		asset.setAssObjRef(assetRef);
+    	asset.setAssObjTable("asset."+tableRef);
 		asset.setAssUcreId(account.getId());
 		asset.setAssUmodId(account.getId());
 		asset.setAssDcre(new Date());
