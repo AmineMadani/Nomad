@@ -73,14 +73,14 @@ export class MapComponent implements OnInit, OnDestroy {
   public basemaps: Basemap[];
   public displayMap: boolean;
   public mapBasemaps: Map<string, any> = new Map();
-  
+
   public currentRoute: DrawerRouteEnum = DrawerRouteEnum.HOME;
-  
+
   public zoom: number;
   public scale: string;
   public draw: MapboxDraw;
   public isMobile: boolean;
-  
+
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
 
@@ -677,4 +677,34 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     this.drawerService.navigateTo(route, [properties['id']], properties);
   }
+
+  /**
+   * event on the change of the scale by the user
+   * @param event the value of the user input
+   */
+    public onScaleChange(event: string): void {
+    const newValue = event;
+    const pattern = /^1:\s?(\d+)$/; //1:232500
+    const matchResult = newValue.match(pattern);
+    matchResult?.[1]
+      ? this.calculateZoomByScale(matchResult[1])
+      : (this.scale = this.calculateScale());
+
+  }
+
+  /**
+   * Calculate and set the zoomlevel corresponding to a scale
+   * inverse of calculateScale
+   * @param scale right part of the scale with the format 1: xxxx with xxxx as number
+   */
+  public calculateZoomByScale(scale : string): void {
+    const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
+    const resolutionAtLatitudeAndZoom = (Number(scale)*0.0254) /90;
+    this.map.setZoom(Math.log(
+                            (resolutionAtZeroZoom * Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /resolutionAtLatitudeAndZoom
+                            )
+                            /Math.log (2)
+                    );
+  }
+
 }
