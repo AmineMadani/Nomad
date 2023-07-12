@@ -35,7 +35,9 @@ export class DatepickerComponent implements OnInit {
     this.year = DateTime.local().year;
     this.generateCalendar(this.year);
     setTimeout(() => {
-      document.getElementById(DateTime.local().toFormat('yyyyMMMM'))?.scrollIntoView({behavior: "smooth"});
+      document
+        .getElementById(DateTime.local().toFormat('yyyyMMMM'))
+        ?.scrollIntoView({ behavior: 'smooth' });
     }, 1000);
   }
 

@@ -76,6 +76,10 @@ public class WorkOrderRepositoryImpl {
 		this.jdbcTemplate.update("update nomad.workorder set geom=(select st_transform(st_setsrid(st_geomfromtext('POINT('||longitude|| ' '||latitude||')'),4326),3857) from nomad.workorder where id=?) where id=?",workOrderId,workOrderId);
 	}
 
+	public void updateGeomForTask(Long taskId) {
+		this.jdbcTemplate.update("update nomad.task set geom=(select st_transform(st_setsrid(st_geomfromtext('POINT('||longitude|| ' '||latitude||')'),4326),3857) from nomad.task where id=?) where id=?",taskId,taskId);
+	}
+
 	/**
 	 * Stringify an array
 	 * @param in the array

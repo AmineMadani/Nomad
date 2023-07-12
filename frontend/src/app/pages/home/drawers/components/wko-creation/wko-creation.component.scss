@@ -1,0 +1,31 @@
+ion-input {
+    height: 30px;
+    margin-bottom: 15px;
+}
+
+.select {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.wko-calendar {
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+
+    ion-button {
+        margin: 10px 0;
+    }
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+
+    ion-radio-group {
+        display: flex;
+        flex-direction: column;
+    }
+}

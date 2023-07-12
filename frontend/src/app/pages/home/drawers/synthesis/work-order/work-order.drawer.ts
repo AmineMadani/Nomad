@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { SynthesisButton } from '../synthesis.drawer';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { Location } from '@angular/common';
 import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
@@ -24,7 +24,6 @@ import { TemplateDataService } from 'src/app/core/services/dataservices/template
   styleUrls: ['./work-order.drawer.scss'],
 })
 export class WorkOrderDrawer implements OnInit, OnDestroy {
-
   constructor(
     private router: ActivatedRoute,
     private alertCtrl: AlertController,
@@ -41,13 +40,12 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       .subscribe((params) => {
         this.workOrder = MapFeature.from(params);
         this.workOrder.id = this.router.snapshot.paramMap.get('id');
-        this.asset.set('ass_obj_ref', params['id']?.toString());
-        this.asset.set('ass_obj_table', params['lyr_table_name']?.toString());
+        this.asset = params;
         if (!this.workOrder?.id) {
           this.buttons = [];
           this.editMode = true;
+          this.createForm();
         }
-        this.createForm();
       });
   }
 
@@ -58,10 +56,10 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   ];
   public editMode: boolean = false;
   public workOrder: any;
-  public workOrderForm: Form;
+  public workOrderForm: FormGroup;
   public creationDisabled: boolean;
 
-  private asset: Map<String, string> = new Map<string, string>;
+  private asset: Params;
   private markerCreation: any;
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -83,10 +81,14 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
           });
       }
     } else {
-      if(this.workOrder['wts_id']) {
-        this.referentialService.getReferential('workorder_task_status').subscribe(lstatus => {
-          this.workOrder.labelStatus = (lstatus.find(status => status.id.toString() === this.workOrder['wts_id']))['wts_llabel'];
-        });
+      if (this.workOrder['wts_id']) {
+        this.referentialService
+          .getReferential('workorder_task_status')
+          .subscribe((lstatus) => {
+            this.workOrder.labelStatus = lstatus.find(
+              (status) => status.id.toString() === this.workOrder['wts_id']
+            )['wts_llabel'];
+          });
       }
     }
   }
@@ -95,13 +97,18 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * Select the target form
    */
   public createForm(): void {
-    this.templateDataService.getformsTemplate().then(forms => {
-      if (!this.workOrder.id) {
-        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_CREATION').definition);
-        this.editMode = true;
-      } else {
-        this.workOrderForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
-      }
+    this.workOrderForm = new FormGroup({
+      ctrId: new FormControl(''),
+      ctyId: new FormControl(''),
+      wtrId: new FormControl(''),
+      wkoName: new FormControl(''),
+      wkoAddress: new FormControl(''),
+      wkoAgentNb: new FormControl('1'),
+      wkoPlanningStartDate: new FormControl(false),
+      wkoPlanningEndDate: new FormControl(false),
+      wkoEmergency: new FormControl(''),
+      wkoAppointment: new FormControl(''),
+      wkoCreationComment: new FormControl(''),
     });
   }
 
@@ -127,33 +134,35 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * @returns Title of the workorder drawer
    */
   public getTitle(): string {
-    return this.workOrder?.id ? 'I' + this.workOrder.id : 'Générer une intervention';
+    return this.workOrder?.id
+      ? 'I' + this.workOrder.id
+      : 'Générer une intervention';
   }
 
-  /**
-   * Save the new workorder :
-   * 1 - Check the control
-   * 2 - Save in database
-   * 3 - add the geojson to the layer
-   * 4 - redirect to the newly workorder
-   * @param form form to save
-   */
-  public onSubmit(form: FormGroup) {
-    const lyr_table_name = 'workorder';
-    form.markAllAsTouched();
+  public onSubmit(): void {
+    const { wtrId, ...form } = this.workOrderForm.value;
 
-    if (form.valid) {
-      this.creationDisabled = true;
-      let createdWorkOrder = form.value;
-      createdWorkOrder['longitude'] = this.markerCreation.getLngLat().lng;
-      createdWorkOrder['latitude'] = this.markerCreation.getLngLat().lat;
-      this.exploitationDateService.createWorkOrder(createdWorkOrder, this.asset).subscribe(res => {
-        let mapFeature = MapFeature.from(res);
-        this.markerCreation.remove();
-        this.layerService.addGeojsonToLayer(res, lyr_table_name);
-        this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], { lyr_table_name, ...res });
+    const asset = {
+      assObjRef: this.asset['id'],
+      assObjTable: this.asset['lyr_table_name'],
+      wtrId: wtrId,
+      latitude: this.asset['y'],
+      longitude: this.asset['x'],
+    };
+
+    form.tasks = [asset];
+    form.latitude = form.tasks[0].latitude;
+    form.longitude = form.tasks[0].longitude;
+
+    this.exploitationDateService.createWorkOrder(form).subscribe((res) => {
+      const mapFeature = MapFeature.from(res);
+      this.markerCreation.remove();
+      this.layerService.addGeojsonToLayer(res, 'workorder');
+      this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], {
+        lyr_table_name: this.asset['lyr_table_name'],
+        ...res,
       });
-    }
+    });
   }
 
   /**
@@ -171,7 +180,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
           text: 'Non',
           role: 'cancel',
         },
-      ]
+      ],
     });
 
     await alert.present();
@@ -191,21 +200,52 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   private generateMarker() {
     this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
       if (this.workOrder.equipmentId && this.workOrder.lyr_table_name) {
-        this.layerService.zoomOnXyToFeatureByIdAndLayerKey(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then(() => {
-          this.layerService.getCoordinateFeaturesById(this.workOrder.lyr_table_name, this.workOrder.equipmentId).then( result => {
-            this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, result);
-          })
-        });
+        this.layerService
+          .zoomOnXyToFeatureByIdAndLayerKey(
+            this.workOrder.lyr_table_name,
+            this.workOrder.equipmentId
+          )
+          .then(() => {
+            this.layerService
+              .getCoordinateFeaturesById(
+                this.workOrder.lyr_table_name,
+                this.workOrder.equipmentId
+              )
+              .then((result) => {
+                this.markerCreation = this.layerService.addMarker(
+                  this.workOrder.x,
+                  this.workOrder.y,
+                  result
+                );
+              });
+          });
       } else {
-        this.markerCreation = this.layerService.addMarker(this.workOrder.x, this.workOrder.y, [this.workOrder.x, this.workOrder.y], true);
+        this.markerCreation = this.layerService.addMarker(
+          this.workOrder.x,
+          this.workOrder.y,
+          [this.workOrder.x, this.workOrder.y],
+          true
+        );
 
         this.markerCreation.on('dragend', (e) => {
-          this.referentialService.getReferentialIdByLongitudeLatitude('contract', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_ctr_id => {
-            this.formEditor.paramMap.set('ctr_id',l_ctr_id.join(','));
-          });
-          this.referentialService.getReferentialIdByLongitudeLatitude('city', this.markerCreation.getLngLat().lng, this.markerCreation.getLngLat().lat).subscribe( l_cty_id => {
-            this.formEditor.paramMap.set('cty_id',l_cty_id.join(','));
-          });
+          this.referentialService
+            .getReferentialIdByLongitudeLatitude(
+              'contract',
+              this.markerCreation.getLngLat().lng,
+              this.markerCreation.getLngLat().lat
+            )
+            .subscribe((l_ctr_id) => {
+              this.formEditor.paramMap.set('ctr_id', l_ctr_id.join(','));
+            });
+          this.referentialService
+            .getReferentialIdByLongitudeLatitude(
+              'city',
+              this.markerCreation.getLngLat().lng,
+              this.markerCreation.getLngLat().lat
+            )
+            .subscribe((l_cty_id) => {
+              this.formEditor.paramMap.set('cty_id', l_cty_id.join(','));
+            });
         });
       }
     });

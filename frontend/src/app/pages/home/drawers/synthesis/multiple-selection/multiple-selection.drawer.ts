@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SynthesisButton } from '../synthesis.drawer';
 import {
-  ActivatedRoute,
   NavigationEnd,
-  ParamMap,
   Router,
 } from '@angular/router';
 import { LayerService } from 'src/app/core/services/map/layer.service';
@@ -12,7 +10,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter } from 'rxjs';
-import * as Maplibregl from 'maplibre-gl';
 import { Layer } from 'src/app/core/models/layer.model';
 
 @Component({

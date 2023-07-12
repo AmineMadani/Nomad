@@ -21,6 +21,10 @@ ion-grid {
   }
 }
 
+.hidden {
+  visibility: hidden; 
+}
+
 .months-mobile {
   height: calc(100% - 122px);
 }

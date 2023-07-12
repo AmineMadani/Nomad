@@ -14,7 +14,7 @@ public class CustomTaskDto {
     private String assObjTable;
 
     private Long wtsId;
-    
+
     private Long wtrId;
     
     private BigDecimal longitude;
@@ -43,11 +43,11 @@ public class CustomTaskDto {
 		return wtrId;
 	}
 
-	public void setWtrId(Long wtrId) {
-		this.wtrId = wtrId;
-	}
+    public void setWtrId(Long wtrId) {
+        this.wtrId = wtrId;
+    }
 
-	public BigDecimal getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 

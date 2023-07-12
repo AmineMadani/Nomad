@@ -18,6 +18,10 @@ public class CustomWorkorderDto {
     
     private Boolean wkoAppointment;
 
+    private Long ctyId;
+
+    private Long ctrId;
+
     private String wkoAddress;
 
     private Date wkoPlanningStartDate;
@@ -33,6 +37,8 @@ public class CustomWorkorderDto {
     private BigDecimal latitude;
     
     private Integer wkoAgentNb;
+
+    private String wkoCreationComment;
     
     private List<CustomTaskDto> tasks;
 
@@ -138,9 +144,33 @@ public class CustomWorkorderDto {
 		this.wkoAppointment = wkoAppointment;
 	}
 
+    public Long getCtrId() {
+        return ctrId;
+    }
+
+    public void setCtrId(Long ctrId) {
+        this.ctrId = ctrId;
+    }
+
+    public String getWkoCreationComment() {
+        return wkoCreationComment;
+    }
+
+    public void setWkoCreationComment(String wkoCreationComment) {
+        this.wkoCreationComment = wkoCreationComment;
+    }
+
 	public CustomWorkorderDto() {
 		super();
 	}
+
+    public Long getCtyId() {
+        return ctyId;
+    }
+
+    public void setCtyId(Long ctyId) {
+        this.ctyId = ctyId;
+    }
 
 	public CustomWorkorderDto(Workorder workorder) {
         super();

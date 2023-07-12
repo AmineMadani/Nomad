@@ -52,8 +52,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public Workorder createWorkOrder(AccountTokenDto account, @RequestBody(required = true) LinkedHashMap<String, String> workOrderObject) {
-    	return this.workOrderService.createWorkOrder(workOrderObject.get("workOrderRaw"),workOrderObject.get("assetRaw"), account);
+    public Workorder createWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
+    	return this.workOrderService.createWorkOrder(customWorkorderDto, account);
     }
     
     @GetMapping(path = "/{id}")
