@@ -104,7 +104,7 @@ export class LayerService {
    */
   public moveToXY(x: number, y: number): Promise<string> {
     return new Promise((resolve) => {
-      if (x && y) {
+      if (x && y && !this.isPointInsideCurrentBoundingBox(x,y)) {
         this.mapService
           .getMap()
           .easeTo({ center: [x, y], zoom: 16 })
@@ -115,6 +115,20 @@ export class LayerService {
         resolve('done');
       }
     });
+  }
+
+  /**
+   * Check if coordinate is in the current bounding box
+   * @param x longitutde
+   * @param y latitude
+   * @returns true if is in the current bounding box
+   */
+  private isPointInsideCurrentBoundingBox(x: number, y: number): boolean {
+    let boundingBox = this.mapService.getMap().getBounds();
+    return (
+      x >= boundingBox._sw.lng && x <= boundingBox._ne.lng &&
+      y >= boundingBox._sw.lat && y <= boundingBox._ne.lat
+    );
   }
 
   /**
@@ -143,9 +157,14 @@ export class LayerService {
       }, new Maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
     }
 
+    let currentZoom = this.mapService.getMap().getZoom();
+    if(currentZoom < 17) {
+      currentZoom = 17;
+    }
+
     this.mapService.getMap().fitBounds(bounds, {
       padding: 20,
-      maxZoom: 17,
+      maxZoom: currentZoom,
     });
     this.mapEvent.highlightSelectedFeature(
       this.mapService.getMap(),
