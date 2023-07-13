@@ -5,8 +5,13 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 
 public class NomadException extends RuntimeException {
-    private final LocalDateTime timestamp;
+
+	private static final long serialVersionUID = 1L;
+	
+	private final LocalDateTime timestamp;
+	
     protected HttpStatus status;
+    
     protected String responseMessage;
 
     public NomadException(String errorMessage) {

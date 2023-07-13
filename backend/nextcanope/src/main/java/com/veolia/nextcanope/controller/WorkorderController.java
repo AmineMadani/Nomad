@@ -1,7 +1,6 @@
 package com.veolia.nextcanope.controller;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;

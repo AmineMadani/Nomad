@@ -3,7 +3,10 @@ package com.veolia.nextcanope.exception;
 import org.springframework.http.HttpStatus;
 
 public class TechnicalException extends NomadException {
-    private final HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+
+	private static final long serialVersionUID = 1L;
+	
+	private final HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 
     public TechnicalException(String errorMessage) {
         super(errorMessage);

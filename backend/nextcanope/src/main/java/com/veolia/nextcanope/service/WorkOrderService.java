@@ -5,18 +5,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import com.veolia.nextcanope.dto.CustomTaskDto;
-import com.veolia.nextcanope.exception.FunctionalException;
-import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.CustomTaskDto;
 import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
 import com.veolia.nextcanope.model.Task;
@@ -107,9 +103,9 @@ public class WorkOrderService {
 					task.setWkoId(workorder.getId());
 					task.setTskName(workorder.getWkoName());
 					task.setWtsId(workorder.getWtsId());
-					task.setWtrId(workorderDto.getWtrId());
+					task.setWtrId(taskDto.getWtrId());
 					task.setTskComment(workorder.getWkoCreationComment());
-					task.setCtrId(workorderDto.getCtrId());
+					task.setCtrId(customWorkorderDto.getCtrId());
 					task.setAssId(asset.getId());
 					task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
 					task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
@@ -117,8 +113,8 @@ public class WorkOrderService {
 					task.setTskUmodId(account.getId());
 					task.setTskDcre(new Date());
 					task.setTskDmod(new Date());
-					task.setLongitude(workorder.getLongitude());
-					task.setLatitude(workorder.getLatitude());
+					task.setLongitude(taskDto.getLongitude());
+					task.setLatitude(taskDto.getLatitude());
 
 					task = taskRepository.save(task);
 
