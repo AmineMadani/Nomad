@@ -12,19 +12,6 @@
     <ng-container *ngFor="let filterSegment of filter.segments">
       <ng-container *ngIf="selectedSegment === filterSegment.id">
         <ng-container *ngFor="let component of filterSegment.components">
-          <ng-container *ngIf="component.getType() == 'accordeonFilter'">
-            <ion-accordion-group multiple="true">
-              <app-filter-accordeon [datas]="component.data" />
-            </ion-accordion-group>
-          </ng-container>
-          <ng-container *ngIf="component.getType() == 'favoriteFilter'">
-            <app-filter-favorite [data]="component.data" />
-          </ng-container>
-          <ng-container *ngIf="component.getType() == 'treeFilter'">
-            <ion-accordion-group>
-              <app-filter-tree [data]="component.data" />
-            </ion-accordion-group>
-          </ng-container>
           <ng-container *ngIf="component.getType() == 'toggleFilter'">
             <app-filter-toggle [data]="component.data" [tableKey]="component.tableKey" />
           </ng-container>

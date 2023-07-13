@@ -37,7 +37,6 @@
               "rbush",
               "xml-utils",
               "web-worker",
-              "jszip",
               "turf-jsts",
               "geojson-equality",
               "density-clustering",

@@ -11,13 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import com.veolia.nextcanope.constants.LayerConstants;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.LayerDto;
-import com.veolia.nextcanope.dto.TreeDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
 import com.veolia.nextcanope.service.LayerService;
-import com.veolia.nextcanope.service.TreeService;
 import com.veolia.nextcanope.service.WorkOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +33,6 @@ public class LayerController {
 
     @Autowired
     public LayerService layerService;
-    
-    @Autowired
-    TreeService treeService;
 
     @Autowired
     public LayerRepository layerRepository;
@@ -140,16 +135,5 @@ public class LayerController {
     public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserPayload saveDto, AccountTokenDto account) {
         this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
         return new ResponseMessage("Les données attributaires ont été enregistrées avec succès.");
-    }
-    
-    @GetMapping(path = "/tree")
-    @Operation(summary = "Get default tree layers")
-    @ApiResponses(value = {
-            @ApiResponse(description= "The default tree", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public List<TreeDto> getDefaultTree(){
-        return treeService.getTree();
     }
 }

@@ -25,7 +25,8 @@
     "lib": [
       "es2018",
       "es2019",
-      "dom"
+      "dom",
+      "dom.iterable"
     ],
     "useDefineForClassFields": false
   },

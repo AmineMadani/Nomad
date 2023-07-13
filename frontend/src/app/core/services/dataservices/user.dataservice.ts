@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, lastValueFrom, of, timeout } from 'rxjs';
 import { LocalStorageUserKey, User } from '../../models/user.model';
 import { ConfigurationService } from '../configuration.service';
-import { UserContext } from '../../models/user-context.model';
 import { PreferenceService } from '../preference.service';
 import { Router } from '@angular/router';
 
@@ -58,16 +57,6 @@ export class UserDataService {
     })
   }
 
-  /**
-   * Save in database the user's preferences
-   * @param userContext : user's preferences
-   */
-  public saveUsercontext(userContext : UserContext) : void {
-    this.http.put(`${this.configurationService.apiUrl}user/user-context`, userContext).subscribe({
-    //next : () => ,
-    error : (err) => console.error(err)
-    })
-  }
   /**
    * Method to get all the users from server
    * @returns Users

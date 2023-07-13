@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import { Context, User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
-import { UserContext } from '../models/user-context.model';
 import { Router } from '@angular/router';
-import { UtilsService } from './utils.service';
-import { FilterService } from './filter.service';
 import { PreferenceService } from './preference.service';
 
 /**
@@ -148,24 +145,6 @@ export class UserService {
     if (user.usrConfiguration.context) {
       await this.restoreUserContextNavigation(user.usrConfiguration.context);
     }
-  }
-
-  /**
-   * Get the user context in local storage
-   * @returns UserContext
-   */
-  public async getUserContext() : Promise<UserContext>
-  {
-    return await this.preferenceService.getPreference(LocalStorageUserKey.USER_CONTEXT);
-  }
-
-  /**
-   * Set the user context in local storage
-   * @param value 
-   */
-  public setUserContext(value : UserContext)
-  {
-    this.preferenceService.setPreference(LocalStorageUserKey.USER_CONTEXT, value);
   }
 
   /**

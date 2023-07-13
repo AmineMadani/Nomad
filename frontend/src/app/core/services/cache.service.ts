@@ -2,14 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { finalize } from 'rxjs/internal/operators/finalize';
-import { forkJoin } from 'rxjs/internal/observable/forkJoin';
 import { Observable } from 'rxjs/internal/Observable';
-import { from } from 'rxjs/internal/observable/from';
-import { map } from 'rxjs/internal/operators/map';
-import { of } from 'rxjs/internal/observable/of';
-import JSZip, { JSZipObject } from 'jszip';
 
 @Injectable({
   providedIn: 'root',
