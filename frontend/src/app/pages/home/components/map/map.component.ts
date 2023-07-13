@@ -84,6 +84,8 @@ export class MapComponent implements OnInit, OnDestroy {
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
 
+  private preventTouchMoveClicked: boolean = false;
+
   private ngUnsubscribe$: Subject<void> = new Subject();
 
   async ngOnInit() {
@@ -500,11 +502,22 @@ export class MapComponent implements OnInit, OnDestroy {
         this.onFeatureSelected(nearestFeature,e);
       });
 
+    
     fromEvent(this.map, 'touchend')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature,e);
+        if(!this.preventTouchMoveClicked) { 
+          const nearestFeature = this.queryNearestFeature(e);
+          this.onFeatureSelected(nearestFeature,e);
+        }
+        this.preventTouchMoveClicked=false;
+      });
+    
+
+    fromEvent(this.map, 'touchmove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        this.preventTouchMoveClicked=true;
       });
 
     // Right click, as context menu, event
