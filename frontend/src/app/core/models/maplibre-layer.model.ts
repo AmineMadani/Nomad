@@ -9,7 +9,9 @@ export class MaplibreLayer {
   ) {
     this.configurations = layerConfiguration ;
     this.source = this.buildSource();
-    this.style = this.buildStyle(map, layerConfiguration.listStyle);
+    if(layerConfiguration.listStyle) {
+      this.style = this.buildStyle(map, layerConfiguration.listStyle);
+    }
     this.subscriptions = new Subscription();
   }
 
