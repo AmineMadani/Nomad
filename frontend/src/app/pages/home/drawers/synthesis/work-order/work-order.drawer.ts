@@ -146,8 +146,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       assObjRef: this.asset['id'],
       assObjTable: this.asset['lyr_table_name'],
       wtrId: wtrId,
-      latitude: this.asset['y'],
-      longitude: this.asset['x'],
+      latitude: this.markerCreation.getLngLat().lat,
+      longitude: this.markerCreation.getLngLat().lng
     };
 
     form.tasks = [asset];
