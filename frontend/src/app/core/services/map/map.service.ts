@@ -49,6 +49,7 @@ export class MapService {
   private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
   private loadingStyle: Map<string, string[]> = new Map<string, string[]>();
   private loadedLayer: Array<string> = new Array<string>();
+  private removeLoadingLayer: Array<string> = new Array<string>();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -61,7 +62,7 @@ export class MapService {
     this.map = new Maplibregl.Map({
       container: 'map',
       style: this.mapLibreSpec,
-      center: [lng ?? 2.699596882916402, lat?? 48.407854932986936],
+      center: [lng ?? 2.699596882916402, lat ?? 48.407854932986936],
       zoom: zoom ?? 14,
       maxZoom: 22,
     });
@@ -163,9 +164,15 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(layerKey: string, styleKey?: string): Promise<void> {
-    
+
     if (!layerKey) {
       return;
+    }
+
+    //Case if the user add the layer after to have remove it before the first loading finished
+    const removeIndex = this.removeLoadingLayer.indexOf(layerKey+(styleKey?styleKey:''));
+    if (removeIndex >= 0) {
+      this.removeLoadingLayer.splice(removeIndex,1);
     }
 
     this.layersConfiguration = await this.layerDataService.getLayers();
@@ -209,8 +216,8 @@ export class MapService {
         this.map.once('idle', async (e) => {
           this.applyFilterOnMap(layerKey);
           const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-          for(let i=0; i < 6; i++){
-            if(this.map.querySourceFeatures(layerKey).length > 0){
+          for (let i = 0; i < 6; i++) {
+            if (this.map.querySourceFeatures(layerKey).length > 0) {
               break;
             }
             await sleep(500);
@@ -218,6 +225,11 @@ export class MapService {
           this.displayLayer(layerKey);
           this.loadedLayer.push(layerKey);
           this.loadingLayer.delete(layerKey);
+          //Case if user click on remove layer before loaded
+          const removeIndex = this.removeLoadingLayer.indexOf(layerKey+(styleKey?styleKey:''));
+          if (removeIndex >= 0) {
+            this.removeEventLayer(layerKey,styleKey);
+          }
           resolve();
         });
       });
@@ -247,7 +259,7 @@ export class MapService {
         }
       }
     }
-    this.loadingStyle.set(layerKey,[]);
+    this.loadingStyle.set(layerKey, []);
   }
 
   /**
@@ -289,27 +301,47 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to remove.
    */
   public removeEventLayer(layerKey: string, styleLayer?: string): void {
-    if (this.hasEventLayer(layerKey)) {
-      if (styleLayer) {
-        this.hideLayer(layerKey, styleLayer);
-      } else {
-        this.removeLoadedLayer(layerKey);
-        const mLayer = this.layers.get(layerKey)!;
+    if (!this.loadingLayer.has(layerKey)) {
 
-        // Removing registered events
-        mLayer.style.forEach((style) => {
-          this.map.removeLayer(style.id);
-        });
+      const removeIndex = this.removeLoadingLayer.indexOf(layerKey+styleLayer?styleLayer:'');
+      if (removeIndex >= 0) {
+        this.removeLoadingLayer.splice(removeIndex,1);
+      }
 
-        // Removing data from Maps
-        this.loadedGeoJson.delete(layerKey);
-        this.layers.delete(layerKey);
-
-        // Deletion of layers & source, putting an empty array to avoid cloning data later
-        (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
-          removeAll: true,
-        });
-        this.map.removeSource(layerKey);
+      if (this.hasEventLayer(layerKey)) {
+        if (styleLayer) {
+          this.hideLayer(layerKey, styleLayer);
+        } else {
+          this.removeLoadedLayer(layerKey);
+          const mLayer = this.layers.get(layerKey)!;
+  
+          // Removing registered events
+          mLayer.style.forEach((style) => {
+            this.map.removeLayer(style.id);
+          });
+  
+          // Removing data from Maps
+          this.loadedGeoJson.delete(layerKey);
+          this.layers.delete(layerKey);
+  
+          // Deletion of layers & source, putting an empty array to avoid cloning data later
+          (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
+            removeAll: true,
+          });
+          this.map.removeSource(layerKey);
+        }
+      }
+    } else {
+      this.removeLoadingLayer.push(layerKey+(styleLayer?styleLayer:''));
+      if(styleLayer) {
+        if (this.loadingStyle.get(layerKey)) {
+          if (!this.loadingStyle.get(layerKey)[styleLayer]) {
+            const removeIndex = this.loadingStyle.get(layerKey).indexOf(styleLayer);
+            if (removeIndex >= 0) {
+              this.loadingStyle.get(layerKey).splice(removeIndex,1);
+            }
+          }
+        }
       }
     }
   }
@@ -396,7 +428,7 @@ export class MapService {
     }
   }
 
-  public setDraw(draw : any) : void {
+  public setDraw(draw: any): void {
     this.draw = draw;
   }
   public getDrawActive(): boolean {
@@ -407,7 +439,7 @@ export class MapService {
     this.draw.deleteAll();
   }
 
-  public setDrawMode(mode : string) : void{
+  public setDrawMode(mode: string): void {
     this.draw.changeMode(mode);
   }
   /**
