@@ -461,21 +461,23 @@ export class MapService {
     const res = await this.layerDataService.getLayerIndex(key);
     const index: any[] = (res as any)['features'];
 
-    for (const coordRaw of index) {
-      const coords: string[] = (coordRaw['properties']['bbox'] as string)
-        .replace('POLYGON((', '')
-        .replace(')', '')
-        .split(',');
+    if(index && index.length > 0) {
+      for (const coordRaw of index) {
+        const coords: string[] = (coordRaw['properties']['bbox'] as string)
+          .replace('POLYGON((', '')
+          .replace(')', '')
+          .split(',');
 
-      const box2: Box = {
-        y1: Math.max(...coords.map((coord) => parseFloat(coord.split(' ')[0]))),
-        y2: Math.min(...coords.map((coord) => parseFloat(coord.split(' ')[0]))),
-        x1: Math.max(...coords.map((coord) => parseFloat(coord.split(' ')[1]))),
-        x2: Math.min(...coords.map((coord) => parseFloat(coord.split(' ')[1]))),
-      };
+        const box2: Box = {
+          y1: Math.max(...coords.map((coord) => parseFloat(coord.split(' ')[0]))),
+          y2: Math.min(...coords.map((coord) => parseFloat(coord.split(' ')[0]))),
+          x1: Math.max(...coords.map((coord) => parseFloat(coord.split(' ')[1]))),
+          x2: Math.min(...coords.map((coord) => parseFloat(coord.split(' ')[1]))),
+        };
 
-      if (this.checkIfBoxesOverlap(box2, box1)) {
-        listTile.push(coordRaw['properties']['file']);
+        if (this.checkIfBoxesOverlap(box2, box1)) {
+          listTile.push(coordRaw['properties']['file']);
+        }
       }
     }
 
