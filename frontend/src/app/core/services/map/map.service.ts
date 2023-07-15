@@ -11,7 +11,6 @@ import { Layer } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { MapEventService } from './map-event.service';
 
 export interface Box {
@@ -230,11 +229,28 @@ export class MapService {
           if (removeIndex >= 0) {
             this.removeEventLayer(layerKey,styleKey);
           }
+          this.reorderMapStyleDisplay();
           resolve();
         });
       });
       this.loadingLayer.set(layerKey, layerPromise);
       return layerPromise;
+    }
+  }
+
+  /**
+   * Method to reorder the layer style position (zindex)
+   */
+  private reorderMapStyleDisplay() {
+    let layerSorted = this.layersConfiguration.filter(layer => this.loadedLayer.includes(layer.lyrTableName.replace("asset.",""))).sort((a,b) => a.lyrNumOrder-b.lyrNumOrder);
+    for(let lyr of layerSorted) {
+      for(let style of lyr.listStyle) {
+        for(let mapLayer in this.getMap().style._layers) {
+          if(mapLayer.includes(style.code)){
+            this.getMap().moveLayer(mapLayer);
+          }
+        }
+      }
     }
   }
 
