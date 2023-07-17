@@ -25,15 +25,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
     private assetFilterService: AssetFilterService,
     private userService: UserService,
     private filterService: FilterService
-  ) {
-    this.templateDataService.getformsTemplate().then(forms => {
-      this.assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
-      this.assetFilterService.setAssetFilter(this.assetFilterTree);
-      this.assetFilterSegment = this.assetFilterService.getFilterSegment(this.assetFilterService.getAssetFilter());
-      this.selectedSegment = this.assetFilterSegment[0].name;
-    });
-
-    this.userService.getUser().then(usr => this.user = usr);
+  ) { 
   }
 
   @ViewChild('scrolling') scrolling: ElementRef;
@@ -43,12 +35,23 @@ export class AssetDrawer implements OnInit, OnDestroy {
   public selectedSegment?: string;
   public assetFilterTree: FilterAsset[];
   public isMobile: boolean = false;
+  public isLoading: boolean = true;
   public user: User;
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
+    this.isLoading = true;
+    this.templateDataService.getformsTemplate().then(forms => {
+      this.assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
+      this.assetFilterService.setAssetFilter(this.assetFilterTree);
+      this.assetFilterSegment = this.assetFilterService.getFilterSegment(this.assetFilterService.getAssetFilter());
+      this.selectedSegment = this.assetFilterSegment[0].name;
+      this.isLoading = false;
+    });
+
+    this.userService.getUser().then(usr => this.user = usr);
   }
 
   onClose() {
