@@ -36,7 +36,7 @@ export class LayerReferencesSettingsComponent implements OnInit {
 
   ngOnInit() {
     this.form = new FormGroup({
-      listUserId: new FormControl([]),
+      listUserEmail: new FormControl([]),
       lyrTableName: new FormControl(null, Validators.required),
     });
 
@@ -45,9 +45,6 @@ export class LayerReferencesSettingsComponent implements OnInit {
     // Get the list of layers
     this.layerService.getLayers().then((layers: Layer[]) => this.layers = layers);
     // Get all layer references of the user
-    // TODO: It will be certainly change because a user can set the layer references of other users.
-    // So in this case we should set the layerReferences list in adequacy with the users selected.
-    // But how to manage the case where two selected users have different layer references ?
     this.layerReferencesDataService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
 
     // Listen form value changes on lyrTableName
@@ -67,13 +64,13 @@ export class LayerReferencesSettingsComponent implements OnInit {
     this.settingsType = newSettingsType;
 
     // We set validators in adequacy with input which are in the page
-    const listUserIdControl = this.form.get('listUserId');
+    const listUserEmailControl = this.form.get('listUserEmail');
     if (this.settingsType === SettingsTypeEnum.USERS_SETTINGS) {
-      listUserIdControl.setValidators(Validators.required);
+      listUserEmailControl.setValidators(Validators.required);
     } else {
-      listUserIdControl.clearValidators();
+      listUserEmailControl.clearValidators();
     }
-    listUserIdControl.updateValueAndValidity();
+    listUserEmailControl.updateValueAndValidity();
   }
 
   isToggleDisabled(ref: UserReference) {
@@ -85,7 +82,7 @@ export class LayerReferencesSettingsComponent implements OnInit {
       const formValues = this.form.value;
 
       // Get the list of user who will be update in adequacy with the current SettingsType
-      let listUserId: number[] = formValues.listUserId;
+      let listUserId: number[] = this.users.filter((user) => formValues.listUserEmail.includes(user.email)).map((usr) => usr.id);
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
         const currentUser = await this.userService.getUser();
         listUserId = [currentUser.id];
