@@ -102,38 +102,40 @@ export class MapEventService {
     featureId: string | undefined,
     fireEvent: boolean = true
   ): void {
-    if (this.hoveredFeatureId && this.hoveredFeatureId !== featureId) {
-      mapLibre.setFeatureState(
-        { source: this.hoveredLayer, id: this.hoveredFeatureId },
-        { hover: false }
-      );
-      this.hoveredFeatureId = undefined;
-      this.hoveredLayer = undefined;
-      if (fireEvent) {
-        this.onFeatureHovered$.next(undefined);
-      }
-    }
-
-    if (featureId && this.hoveredFeatureId !== featureId) {
-      mapLibre.setFeatureState(
-        { source: sourceKey, id: featureId },
-        { hover: true }
-      );
-      this.hoveredFeatureId = featureId;
-      this.hoveredLayer = sourceKey;
-      if (fireEvent) {
-        this.onFeatureHovered$.next(featureId);
+    if(mapLibre.style.getSource(this.hoveredLayer)) {
+      if (this.hoveredFeatureId && this.hoveredFeatureId !== featureId) {
+        mapLibre.setFeatureState(
+          { source: this.hoveredLayer, id: this.hoveredFeatureId },
+          { hover: false }
+        );
+        this.hoveredFeatureId = undefined;
+        this.hoveredLayer = undefined;
+        if (fireEvent) {
+          this.onFeatureHovered$.next(undefined);
+        }
       }
 
-    } else if (!featureId && this.hoveredFeatureId) {
-      mapLibre.setFeatureState(
-        { source: this.hoveredLayer, id: this.hoveredFeatureId },
-        { hover: false }
-      );
-      this.hoveredFeatureId = undefined;
-      this.hoveredLayer = undefined;
-      if (fireEvent) {
-        this.onFeatureHovered$.next(undefined);
+      if (featureId && this.hoveredFeatureId !== featureId) {
+        mapLibre.setFeatureState(
+          { source: sourceKey, id: featureId },
+          { hover: true }
+        );
+        this.hoveredFeatureId = featureId;
+        this.hoveredLayer = sourceKey;
+        if (fireEvent) {
+          this.onFeatureHovered$.next(featureId);
+        }
+
+      } else if (!featureId && this.hoveredFeatureId) {
+        mapLibre.setFeatureState(
+          { source: this.hoveredLayer, id: this.hoveredFeatureId },
+          { hover: false }
+        );
+        this.hoveredFeatureId = undefined;
+        this.hoveredLayer = undefined;
+        if (fireEvent) {
+          this.onFeatureHovered$.next(undefined);
+        }
       }
     }
   }
