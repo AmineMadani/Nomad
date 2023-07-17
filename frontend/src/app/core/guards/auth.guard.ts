@@ -3,6 +3,8 @@ import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from
 import { KeycloakService } from '../services/keycloak.service';
 import { InitService } from '../services/init.service';
 import { UserService } from '../services/user.service';
+import { UtilsService } from '../services/utils.service';
+import { PreferenceService } from '../services/preference.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,9 @@ export class AuthGuardService implements CanActivate {
     private router: Router,
     private keycloakService: KeycloakService,
     private userService: UserService,
-    private initService: InitService  ) { }
+    private initService: InitService,
+    private utilsService: UtilsService,
+    private preferenceService: PreferenceService  ) { }
 
   /**
  * Determines whether the user can activate a particular route.
@@ -35,6 +39,15 @@ export class AuthGuardService implements CanActivate {
       const user = await this.userService.getUser();
 
       if (user) {
+
+        if(this.utilsService.isMobilePlateform()) {
+          const loadedMobileApp = await this.preferenceService.getPreference("loadedApp");
+          if(!loadedMobileApp) {
+            this.router.navigate(['loading-mobile']);
+            return false;
+          }
+        }
+
         // Get initialization data for the user
         const isComplete: boolean = await this.initService.getInitData();
 

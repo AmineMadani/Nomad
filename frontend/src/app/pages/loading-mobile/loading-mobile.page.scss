@@ -1,0 +1,29 @@
+.loading-mobile-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+    margin-top: -40px;
+
+    .loading-mobile-title {
+        font-family: "FS Sinclair Italic";
+        font-size: 90px;
+        color: var(--ion-color-primary)
+    }
+
+    .loading-mobile-subtitle {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .loading-mobile-progress-bar {
+        width: 90%;
+    }
+
+    .loading-mobile-progress-text {
+        margin-top: 5px;
+        font-size: 13px;
+        color: grey;
+    }
+}
