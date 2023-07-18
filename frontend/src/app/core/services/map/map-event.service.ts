@@ -23,7 +23,7 @@ export class MapEventService {
   private onFeatureHovered$: Subject<string | undefined> = new Subject();
   private onFeatureSelected$: Subject<any | undefined> = new Subject();
 
-  constructor() {}
+  constructor() { }
 
   public onFeatureHovered(): Observable<string | undefined> {
     return this.onFeatureHovered$.asObservable();
@@ -33,13 +33,13 @@ export class MapEventService {
     return this.onFeatureSelected$.asObservable();
   }
 
-  public getSelectedFeature() : string {
+  public getSelectedFeature(): string {
     return this.selectedFeatureId;
   }
 
-  public setSelectedFeature(idFeature : string){
+  public setSelectedFeature(idFeature: string) {
     this.selectedFeatureId = idFeature;
-  } 
+  }
 
   /**
    * The function highlights a selected feature on the Maplibre map.
@@ -74,7 +74,7 @@ export class MapEventService {
       this.selectedFeatureId = featureId;
       this.selectedLayer = sourceKey;
       if (fireEvent) {
-        this.onFeatureSelected$.next({featureId: featureId, layerKey: sourceKey, x:e?.lngLat?.lng, y:e?.lngLat?.lat});
+        this.onFeatureSelected$.next({ featureId: featureId, layerKey: sourceKey, x: e?.lngLat?.lng, y: e?.lngLat?.lat });
       }
 
     } else if (!featureId && this.selectedFeatureId) {
@@ -102,7 +102,8 @@ export class MapEventService {
     featureId: string | undefined,
     fireEvent: boolean = true
   ): void {
-    if(mapLibre.style.getSource(this.hoveredLayer)) {
+
+    if (mapLibre.style.getSource(this.hoveredLayer)) {
       if (this.hoveredFeatureId && this.hoveredFeatureId !== featureId) {
         mapLibre.setFeatureState(
           { source: this.hoveredLayer, id: this.hoveredFeatureId },
@@ -114,30 +115,31 @@ export class MapEventService {
           this.onFeatureHovered$.next(undefined);
         }
       }
+    }
 
-      if (featureId && this.hoveredFeatureId !== featureId) {
-        mapLibre.setFeatureState(
-          { source: sourceKey, id: featureId },
-          { hover: true }
-        );
-        this.hoveredFeatureId = featureId;
-        this.hoveredLayer = sourceKey;
-        if (fireEvent) {
-          this.onFeatureHovered$.next(featureId);
-        }
+    if (featureId && this.hoveredFeatureId !== featureId) {
+      mapLibre.setFeatureState(
+        { source: sourceKey, id: featureId },
+        { hover: true }
+      );
+      this.hoveredFeatureId = featureId;
+      this.hoveredLayer = sourceKey;
+      if (fireEvent) {
+        this.onFeatureHovered$.next(featureId);
+      }
 
-      } else if (!featureId && this.hoveredFeatureId) {
-        mapLibre.setFeatureState(
-          { source: this.hoveredLayer, id: this.hoveredFeatureId },
-          { hover: false }
-        );
-        this.hoveredFeatureId = undefined;
-        this.hoveredLayer = undefined;
-        if (fireEvent) {
-          this.onFeatureHovered$.next(undefined);
-        }
+    } else if (!featureId && this.hoveredFeatureId) {
+      mapLibre.setFeatureState(
+        { source: this.hoveredLayer, id: this.hoveredFeatureId },
+        { hover: false }
+      );
+      this.hoveredFeatureId = undefined;
+      this.hoveredLayer = undefined;
+      if (fireEvent) {
+        this.onFeatureHovered$.next(undefined);
       }
     }
+
   }
 
   public highlighSelectedFeatures(mapLibre: Maplibregl.Map, features: MultiSelection[]) {
