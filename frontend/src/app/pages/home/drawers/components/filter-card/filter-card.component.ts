@@ -20,7 +20,6 @@ export class FilterCardComponent implements OnInit, OnDestroy {
       .onFeatureHovered()
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((f: string | number | undefined) => {
-        console.log(f);
         if (f) {
           this.featureHovered = f;
           const feature = document.getElementById(
