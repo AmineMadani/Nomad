@@ -34,6 +34,7 @@ import { FormLayerReferenceComponent } from './form-editor/properties/form-layer
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SearchMultiSelectComponent } from './components/search-multi-select/search-multi-select.component';
 import { FormHistoryComponent } from './form-editor/properties/form-history/form-history.component';
+import { FormEquipmentsComponent } from './form-editor/properties/form-equipments/form-equipments.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { FormHistoryComponent } from './form-editor/properties/form-history/form
     FormBottomAttachmentComponent,
     FormLifeCycleComponent,
     FormLayerReferenceComponent,
+    FormEquipmentsComponent,
     // DIRECTIVES
     ClearDataDirective,
   ],

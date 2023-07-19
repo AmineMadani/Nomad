@@ -22,20 +22,31 @@ export class WkoViewComponent implements OnInit {
       this.referentialService.getReferential('workorder_task_reason'),
       this.referentialService.getReferential('asset'),
     ]).subscribe((res) => {
-      this.status = res[0].find(
-        (refStatus) =>
-          refStatus.id.toString() === this.workOrder.status.toString()
-      ).wts_llabel;
+      this.status = res[0]
+        .find(
+          (refStatus) =>
+            refStatus.id.toString() === this.workOrder.wts_id.toString()
+        )
+        .wts_llabel;
+      this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+      this.reason = res[1].find(
+        (refReason) =>
+          refReason.id.toString() === this.workOrder.wtr_id.toString()
+      ).wtr_llabel;
       this.assetLabel = this.simplifyString(
         res[2].find(
           (refAsset) =>
-            refAsset.id.toString() === this.workOrder.equipmentId.toString()
-        ).ass_obj_table
+            refAsset.id.toString() === this.workOrder.ass_id.toString()
+        )?.ass_obj_table
       );
     });
   }
 
   private simplifyString(inputString: string): string {
+    if (!inputString) {
+      return '';
+    }
+
     const parts = inputString.split(/\.aep_|\.ass_/);
     const lastPart = parts[parts.length - 1];
     const simplifiedString = lastPart.replace(/_/g, ' ').trim();

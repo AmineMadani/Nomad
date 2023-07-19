@@ -25,29 +25,13 @@ import { TemplateDataService } from 'src/app/core/services/dataservices/template
 })
 export class WorkOrderDrawer implements OnInit, OnDestroy {
   constructor(
-    private router: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private alertCtrl: AlertController,
     private location: Location,
     private exploitationDateService: ExploitationDataService,
     private drawer: DrawerService,
-    private layerService: LayerService,
-    private referentialService: ReferentialDataService,
-    private mapService: MapService,
-    private templateDataService: TemplateDataService
-  ) {
-    this.router.queryParams
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((params) => {
-        this.workOrder = MapFeature.from(params);
-        this.workOrder.id = this.router.snapshot.paramMap.get('id');
-        this.asset = params;
-        if (!this.workOrder?.id) {
-          this.buttons = [];
-          this.editMode = true;
-          this.createForm();
-        }
-      });
-  }
+    private layerService: LayerService
+  ) {}
 
   public buttons: SynthesisButton[] = [
     { key: 'note', label: 'Compte-rendu', icon: 'reader' },
@@ -59,39 +43,10 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   public workOrderForm: FormGroup;
   public creationDisabled: boolean;
 
-  private asset: Params;
   private markerCreation: any;
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  @ViewChild('formEditor') formEditor: FormEditorComponent;
-
-  ngOnInit(): void {
-    if (this.editMode) {
-      if (this.mapService.getMap()) {
-        this.generateMarker();
-      } else {
-        this.mapService
-          .onMapLoaded()
-          .pipe(
-            filter((isMapLoaded) => isMapLoaded),
-            first()
-          )
-          .subscribe(() => {
-            this.generateMarker();
-          });
-      }
-    } else {
-      if (this.workOrder['wts_id']) {
-        this.referentialService
-          .getReferential('workorder_task_status')
-          .subscribe((lstatus) => {
-            this.workOrder.labelStatus = lstatus.find(
-              (status) => status.id.toString() === this.workOrder['wts_id']
-            )['wts_llabel'];
-          });
-      }
-    }
-  }
+  ngOnInit(): void {}
 
   /**
    * Select the target form
@@ -119,7 +74,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   public onTabButtonClicked(ev: SynthesisButton): void {
     switch (ev.key) {
       case 'update':
-        this.editMode = !this.editMode;
+        // Not implemented yet
+        // this.editMode = !this.editMode;
         break;
       case 'note':
         this.drawer.navigateTo(DrawerRouteEnum.REPORT, [this.workOrder.id]);
@@ -134,17 +90,21 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * @returns Title of the workorder drawer
    */
   public getTitle(): string {
+    if (!this.workOrder) {
+      return null;
+    }
+
     return this.workOrder?.id
-      ? 'I' + this.workOrder.id
-      : 'Générer une intervention';
+    ? 'I' + this.workOrder.id
+    : 'Générer une intervention';
   }
 
   public onSubmit(): void {
     const { wtrId, ...form } = this.workOrderForm.value;
 
     const asset = {
-      assObjRef: this.asset['id'],
-      assObjTable: this.asset['lyr_table_name'],
+      assObjRef: this.workOrder['equipmentId'],
+      assObjTable: this.workOrder['lyr_table_name'],
       wtrId: wtrId,
       latitude: this.markerCreation.getLngLat().lat,
       longitude: this.markerCreation.getLngLat().lng
@@ -155,12 +115,10 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     form.longitude = form.tasks[0].longitude;
 
     this.exploitationDateService.createWorkOrder(form).subscribe((res) => {
-      const mapFeature = MapFeature.from(res);
       this.markerCreation.remove();
       this.layerService.addGeojsonToLayer(res, 'workorder');
-      this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [mapFeature.id], {
-        lyr_table_name: this.asset['lyr_table_name'],
-        ...res,
+      this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [res.id], {
+        lyr_table_name: 'workorder'
       });
     });
   }
@@ -197,7 +155,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
    * Case 1 : Marker on the equipment and only draggable on it
    * Case 2 : Marker on the map and draggable on all the map. Update the params if the position change (city&contract)
    */
-  private generateMarker() {
+  private generateMarker(): void {
     this.layerService.moveToXY(this.workOrder.x, this.workOrder.y).then(() => {
       if (this.workOrder.equipmentId && this.workOrder.lyr_table_name) {
         this.layerService
@@ -227,26 +185,27 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
           true
         );
 
-        this.markerCreation.on('dragend', (e) => {
-          this.referentialService
-            .getReferentialIdByLongitudeLatitude(
-              'contract',
-              this.markerCreation.getLngLat().lng,
-              this.markerCreation.getLngLat().lat
-            )
-            .subscribe((l_ctr_id) => {
-              this.formEditor.paramMap.set('ctr_id', l_ctr_id.join(','));
-            });
-          this.referentialService
-            .getReferentialIdByLongitudeLatitude(
-              'city',
-              this.markerCreation.getLngLat().lng,
-              this.markerCreation.getLngLat().lat
-            )
-            .subscribe((l_cty_id) => {
-              this.formEditor.paramMap.set('cty_id', l_cty_id.join(','));
-            });
-        });
+        // Does not work anymore with the new version without Form Editor
+        // this.markerCreation.on('dragend', (e) => {
+        //   this.referentialService
+        //     .getReferentialIdByLongitudeLatitude(
+        //       'contract',
+        //       this.markerCreation.getLngLat().lng,
+        //       this.markerCreation.getLngLat().lat
+        //     )
+        //     .subscribe((l_ctr_id) => {
+        //       this.workOrder.ctr_id = l_ctr_id;
+        //     });
+        //   this.referentialService
+        //     .getReferentialIdByLongitudeLatitude(
+        //       'city',
+        //       this.markerCreation.getLngLat().lng,
+        //       this.markerCreation.getLngLat().lat
+        //     )
+        //     .subscribe((l_cty_id) => {
+        //       this.workOrder.cty_id = l_cty_id;
+        //     });
+        // });
       }
     });
   }
@@ -257,5 +216,17 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     }
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
+  }
+
+  public onInitWorkorder(params: any): void {
+    this.workOrder = params;
+
+    if (!this.workOrder?.id) {
+      this.workOrder = this.activatedRoute.snapshot.queryParams;
+      this.buttons = [];
+      this.editMode = true;
+      this.generateMarker();
+      this.createForm();
+    }
   }
 }

@@ -9,8 +9,10 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { Subject, takeUntil, filter } from 'rxjs';
+import { Subject, takeUntil, filter, switchMap } from 'rxjs';
 import { Layer } from 'src/app/core/models/layer.model';
+import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -20,10 +22,12 @@ import { Layer } from 'src/app/core/models/layer.model';
 export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   constructor(
     private router: Router,
+    private layerDataservice: LayerDataService,
     private mapService: MapService,
     private layerService: LayerService,
     private drawerService: DrawerService,
-    private mapEvent: MapEventService
+    private mapEvent: MapEventService,
+    private utils: UtilsService
   ) {}
 
   public buttons: SynthesisButton[] = [
@@ -39,22 +43,44 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   private layersConf: Layer[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
+  private paramFeatures: any;
 
   ngOnInit() {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        switchMap(() => {
+          const urlParams = new URLSearchParams(window.location.search);
+          this.paramFeatures = this.utils.transformMap(
+            new Map(urlParams.entries())
+          );
+          return this.layerDataservice.getEquipmentsByLayersAndIds(
+            this.paramFeatures
+          );
+        }),
         takeUntil(this.ngUnsubscribe$)
       )
-      .subscribe(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const paramMap = new Map(urlParams.entries());
+      .subscribe((features: any[]) => {
         this.featuresSelected = [];
         this.filteredFeatures = [];
         this.sources = [];
         this.layersConf = [];
-        this.onInitSelection(paramMap);
+        this.layerService.fitBounds(
+          features.map((f) => {
+            return [+f.x, +f.y];
+          })
+        );
+
+        const equipments = features.map((f) => {
+          return {
+            ...f,
+            lyr_table_name: this.paramFeatures.find((map) =>
+              map.equipmentIds.includes(f.id)
+            ).lyrTableName,
+          };
+        });
+        this.onInitSelection(equipments);
       });
   }
 
@@ -67,15 +93,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     return feature.id;
   }
 
-  public onInitSelection(paramsMap: Map<string, string>): void {
+  public async onInitSelection(paramsMap: any): Promise<void> {
     this.isLoading = true;
-    const abstractFeatures = this.convertToObjectArray(paramsMap);
-    this.addLayerToMap(abstractFeatures);
-    this.layerService.fitBounds(
-      abstractFeatures.map((absF) => {
-        return [+absF.x, +absF.y];
-      })
-    );
+    await this.addLayerToMap(paramsMap);
   }
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
@@ -129,8 +149,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public openFeature(feature: any): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [feature.id], {
-      x: feature.x,
-      y: feature.y,
       lyr_table_name: feature.lyr_table_name,
     });
   }

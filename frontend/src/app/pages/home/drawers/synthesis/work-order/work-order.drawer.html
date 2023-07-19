@@ -8,6 +8,20 @@
     </div>
     <app-wko-creation *ngIf="workOrderForm" [form]="workOrderForm"></app-wko-creation>
   </ng-container>
+  <ng-container *ngIf="!workOrder">
+    <ion-list>
+      <ion-item lines="none" class="ion-no-margin" *ngFor="let number of [0,1,2,3,4,5,6,7]">
+        <ion-label class="label">
+          <h3>
+            <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+          </h3>
+          <p>
+            <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
 </ng-template>
 
 <ng-template #workOrderfooter>
@@ -23,6 +37,6 @@
   </ng-container>
 </ng-template>
 
-<app-synthesis [drawerTitle]="getTitle()" [hasFile]="true" [tabButtons]="buttons" [contentTemplate]="workOrderTemplate"
-  [sourceLayer]="'workorder'" [footerTemplate]="workOrderfooter" (onTabButton)="onTabButtonClicked($event)">
+<app-synthesis [drawerTitle]="getTitle()" [hasFile]="true" [tabButtons]="buttons" [tabDisabled]="!workOrder" [contentTemplate]="workOrderTemplate"
+  [sourceLayer]="'workorder'" [footerTemplate]="workOrderfooter" (onTabButton)="onTabButtonClicked($event)" (onInitComponent)="onInitWorkorder($event)">
 </app-synthesis>

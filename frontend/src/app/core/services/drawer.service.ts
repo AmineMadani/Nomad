@@ -129,13 +129,13 @@ export class DrawerService {
       url = url.replace(/:[^\/]+/, pathVariable);
     });
 
-    if (Array.isArray(queryParams )) {
+    if (Array.isArray(queryParams)) {
       queryParams = queryParams.map((param: any) => {
         // Convert each object in the array to a web query parameter string
         return Object.entries(param)
           .map(
             ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value as any)}`
+              `${key}=${value}`
           )
           .join('&');
       });

@@ -2,11 +2,13 @@ package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -58,6 +60,18 @@ public class LayerRepositoryImpl {
      * @return the equipment
      */
 	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
-        return jdbcTemplate.queryForList("select * from asset."+layer+" where id=?",id);
+        String query = "SELECT ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, * FROM asset." + layer + " WHERE id=?";
+        //String query = "SELECT * FROM asset." + layer + " WHERE id=?";
+        return jdbcTemplate.queryForList(query, id);
+    }
+
+    public List<Map<String, Object>> getEquipmentsByLayerAndIds(String layer, List<String> ids) {
+        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+        System.out.println(placeholders);
+        // Create the SQL query with the IN clause and placeholders
+        String query = "SELECT ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, * FROM asset." + layer + " WHERE id IN (" + placeholders + ")";
+        System.out.println(query);
+        // Pass the IDs as arguments to the query
+        return jdbcTemplate.queryForList(query, ids.toArray());
     }
 }
