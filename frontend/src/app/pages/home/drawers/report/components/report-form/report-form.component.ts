@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CustomTask } from 'src/app/core/models/workorder.model';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
-import { ReferentialService } from 'src/app/core/services/referential.service';
+import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 
 @Component({
@@ -13,12 +13,13 @@ import { Form } from 'src/app/shared/form-editor/models/form.model';
 export class ReportFormComponent implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
     private templateDataService: TemplateDataService
   ) { }
 
   @Input() task: CustomTask;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
+
+  @ViewChild('formEditor') formEditor: FormEditorComponent;
 
   public form: Form;
 
@@ -41,5 +42,9 @@ export class ReportFormComponent implements OnInit {
     }
   }
 
+  public test() {
+    console.log(this.formEditor.sections[0].children);
+    console.log(this.formEditor.indexChild);
+  }
 
 }

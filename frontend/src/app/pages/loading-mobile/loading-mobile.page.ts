@@ -45,8 +45,8 @@ export class LoadingMobilePage implements OnInit {
       if (this.progress > 1) {
         this.preferenceService.setPreference("loadedApp","true").then(() => {
           this.route.navigate(["/home"]);
-          this.buffer += 0.1;
-          this.progress += 0.1;
+          this.buffer = 0.1;
+          this.progress = 0;
         })
       }
     }, 1000);

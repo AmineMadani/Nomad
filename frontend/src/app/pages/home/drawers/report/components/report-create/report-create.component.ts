@@ -1,8 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { ReportFormComponent } from '../report-form/report-form.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-report-create',
@@ -14,7 +16,8 @@ export class ReportCreateComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private utils: UtilsService,
-    private exploitationService: ExploitationService 
+    private exploitationService: ExploitationService,
+    private route: Router
   ) { }
 
   @Input() workorder: CustomWorkOrder;
@@ -22,6 +25,10 @@ export class ReportCreateComponent implements OnInit {
   public isMobile: boolean;
   public step: number = 1;
   public selectedTask: CustomTask;
+  public hasPreviousQuestion: boolean = false;
+  public isSubmit: boolean = false;
+
+  @ViewChild('stepForm') stepForm: ReportFormComponent;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
@@ -48,6 +55,49 @@ export class ReportCreateComponent implements OnInit {
     if (this.step <= 3) {
       this.step++;
       this.onSaveWorkOrderState();
+    }
+  }
+
+  /**
+   * Action on click for the previous question
+   */
+  public previousFormQuestion(){
+    if(this.stepForm.formEditor.indexChild > 0){
+      this.stepForm.formEditor.indexChild--;
+      if(this.stepForm.formEditor.indexChild == 0){
+        this.hasPreviousQuestion = false
+      }
+      this.isSubmit = false;
+    }
+  }
+
+  /**
+   * Action on click for the next question
+   */
+  public nextFormQuestion() {
+    let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexChild];
+    let childrens = child.children ? child.children : [child];
+    let valid: boolean = true;
+    for(let children of childrens) {
+      this.stepForm.formEditor.form.get(children.definition.key).updateValueAndValidity();
+      this.stepForm.formEditor.form.get(children.definition.key).markAsTouched();
+      valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
+    }
+    if(valid){
+      this.stepForm.formEditor.indexChild++;
+      this.hasPreviousQuestion = true;
+      if(this.stepForm.formEditor.indexChild+1 >= this.stepForm.formEditor.sections[0].children.length) {
+        this.isSubmit = true;
+      }
+    }
+  }
+
+  public submitForm() {
+    this.stepForm.formEditor.form.updateValueAndValidity();
+    this.stepForm.formEditor.form.markAllAsTouched();
+
+    if(this.stepForm.formEditor.form.valid) {
+      this.route.navigate(["/home"]);
     }
   }
 

@@ -1,10 +1,10 @@
-<div style="margin-top:25px" *ngIf="form">
-  <app-form-editor [nomadForm]="form" [editMode]="true"
-    (submitAction)="onSubmit($event)"></app-form-editor>
-</div>
-<div style="margin-top:25px" *ngIf="!form">
-  Pas de formulaire disponible.
-  Veuillez contacter votre responsable.
+<div style="margin:25px auto;width: 90%;">
+  <app-form-editor *ngIf="form" [nomadForm]="form" [editMode]="true"
+    (submitAction)="onSubmit($event)" #formEditor></app-form-editor>
+  <ng-containe  *ngIf="!form">
+    Pas de formulaire disponible.
+    Veuillez contacter votre responsable.
+  </ng-containe>
 </div>
 
 

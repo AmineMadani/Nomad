@@ -1,12 +1,10 @@
 .cr-container {
     width: 100%;
-    overflow-x: auto;
     color: var(--ion-color-primary);
 
     .cr-stepper {
         display: flex;
         justify-content: center;
-        min-width: 470px;
         height: 30px;
         margin-bottom: 2px;
 

@@ -15,11 +15,14 @@
     <app-report-context [task]="selectedTask" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
   </ng-container>
   <ng-container *ngIf="step == 3">
-    <app-report-form [task]="selectedTask" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-form>
+    <app-report-form [task]="selectedTask" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepForm></app-report-form>
   </ng-container>
 </div>
 
 <div class="report-footer-actions" lines="none">
-  <ion-button *ngIf="step >= 2" fill="clear" style="float: left;" (click)="onBack()">Précèdent</ion-button>
-  <ion-button *ngIf="(step == 1 && selectedTask) || (step == 2 && selectedTask.wtrId) || step == 3" fill="clear" style="float: right;" (click)="onNext()">Suivant</ion-button>
+  <ion-button *ngIf="step >= 2 && !hasPreviousQuestion" fill="clear" style="float: left;" (click)="onBack()">Etape précédente</ion-button>
+  <ion-button *ngIf="(step == 1 && selectedTask) || (step == 2 && selectedTask.wtrId)" fill="clear" style="float: right;" (click)="onNext()">Etape suivante</ion-button>
+  <ion-button *ngIf="(step == 3) && hasPreviousQuestion" fill="clear" (click)="previousFormQuestion()">Question précédente</ion-button>
+  <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()">Question suivante</ion-button>
+  <ion-button *ngIf="isSubmit" fill="clear" (click)="submitForm()">Clôturer</ion-button>
 </div>

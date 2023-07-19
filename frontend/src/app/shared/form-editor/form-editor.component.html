@@ -148,9 +148,6 @@
     <div *ngFor="let child of node.children ; let index = index">
       <div [style.display]="index == indexChild ? 'block':'none'">
         <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node:child }"></ng-container>
-        <br/>
-        <ion-button (click)="previousQuestion()">Précèdent</ion-button>
-        <ion-button (click)="nextQuestion(child)">Suivant</ion-button>
       </div>
     </div>
 </ng-template>
