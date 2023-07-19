@@ -32,8 +32,9 @@ import { FormBottomAttachmentComponent } from './form-editor/properties/form-bot
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 import { FormLayerReferenceComponent } from './form-editor/properties/form-layer-reference/form-layer-reference.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import { SearchMultiSelectComponent } from './components/search-multi-select/search-multi-select.component';
+import { SearchSelectComponent } from './components/search-select/search-select.component';
 import { FormHistoryComponent } from './form-editor/properties/form-history/form-history.component';
+import { GenericTableComponent } from './components/generic-table/generic-table.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { FormHistoryComponent } from './form-editor/properties/form-history/form
     DatepickerComponent,
     ImageReaderComponent,
     PageHeaderComponent,
-    SearchMultiSelectComponent,
+    SearchSelectComponent,
+    GenericTableComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -84,7 +86,8 @@ import { FormHistoryComponent } from './form-editor/properties/form-history/form
     PageHeaderComponent,
     FormEditorComponent,
     ClearDataDirective,
-    SearchMultiSelectComponent
+    SearchSelectComponent,
+    GenericTableComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

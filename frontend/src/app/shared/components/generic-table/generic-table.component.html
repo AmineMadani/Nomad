@@ -1,0 +1,27 @@
+<ion-grid class="table">
+  <ion-row class="header">
+    <ng-container *ngFor="let column of columns; let i = index">
+
+      <ion-col *ngIf="column.type === TypeColumn.ACTION" size="1" class="cell left-border action-col">
+        <ion-checkbox [checked]="isAllRowsSelected()" (ionChange)="onSelectAll()"></ion-checkbox>
+      </ion-col>
+
+      <ion-col *ngIf="column.type === TypeColumn.TEXT" [size]="column.size" [ngClass]="{ 'left-border': i !== 0 }">
+        {{ column.label }}
+      </ion-col>
+    </ng-container>
+
+  </ion-row>
+  <ion-row *ngFor="let row of data" class="row">
+    <ng-container *ngFor="let column of columns; let i = index">
+
+      <ion-col *ngIf="column.type === TypeColumn.ACTION" size="1" class="left-border cell action-col">
+        <ion-checkbox [checked]="isRowSelected(row)" (ionChange)="onRowSelect(row)"></ion-checkbox>
+      </ion-col>
+
+      <ion-col *ngIf="column.type === TypeColumn.TEXT" [size]="column.size" class="cell" [ngClass]="{ 'left-border': i !== 0 }">
+        {{ row[column.key] }}
+      </ion-col>
+    </ng-container>
+  </ion-row>
+</ion-grid>

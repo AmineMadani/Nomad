@@ -1,0 +1,40 @@
+ion-grid {
+  --ion-grid-padding: 0;
+}
+
+ion-col {
+  padding: 10px;
+}
+
+.table {
+  border-right: 1px solid var(--ion-color-border-light-1);
+  border-bottom: 1px solid var(--ion-color-border-light-1);
+  border-top: 1px solid var(--ion-color-border-light-1);
+}
+
+.header {
+  font-weight: 600;
+  font-size: 14px;
+  background-color: var(--ion-color-surface-light-2);
+}
+
+.header>.left-border {
+  border-top: none;
+  border-left: 1px solid var(--ion-color-border-light-1);
+}
+
+.cell {
+  font-weight: 400;
+  font-size: 14px;
+  border-top: 1px solid var(--ion-color-border-light-1);
+}
+
+.cell.left-border {
+  border-left: 1px solid var(--ion-color-border-light-1);
+}
+
+.action-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -17,6 +17,10 @@ export interface Layer {
   listStyle: LayerStyle[];
 }
 
+export function getLayerLabel(layer: Layer) {
+  return layer.lyrSlabel;
+}
+
 export interface LayerStyle {
   code: string;
   definition: string;

@@ -7,6 +7,10 @@ export interface User {
     usrConfiguration: UserConfiguration;
 }
 
+export function getUserEmail(user: User) {
+  return user.email;
+}
+
 export interface UserConfiguration {
     favorites?: Favorite[];
     context?: Context;

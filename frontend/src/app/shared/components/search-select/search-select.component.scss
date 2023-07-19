@@ -1,12 +1,11 @@
-.search-multi-select-input {
+.search-select-input {
   display: flex;
   flex-direction: column;
-  height: 110px;
   margin-top: 10px;
   padding-right: 20px;
   padding-left: 20px;
   padding-top: 8px;
-  background-color: var(--ion-color-component-background);
+  min-width: 300px;
 
   ion-label {
     margin-bottom: 5px;
@@ -15,24 +14,34 @@
   ion-input {
     min-height: 42px;
   }
+
+  .select-invalid {
+    --color: var(--ion-color-danger) !important;
+    --border-color: var(--ion-color-danger);
+  }
 }
 
-.search-multi-select-modal {
+.search-select-modal {
   --border-radius: 5px;
 
-  .search-multi-select-modal-close {
+  .search-select-modal-close {
     margin-right: 15px;
     cursor: pointer;
   }
 
-  .search-multi-select-list {
+  .search-select-list {
     display: flex;
     flex-direction: column;
     padding-left: 20px;
     padding-right: 20px;
 
-    ion-checkbox {
+    ion-checkbox, ion-radio {
       margin-bottom: 5px;
+    }
+
+    ion-radio-group {
+      display: flex;
+      flex-direction: column;
     }
   }
 }

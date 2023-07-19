@@ -24,6 +24,10 @@ export class SettingsPage implements OnInit {
           url: 'events',
           title: 'Affichage des évènements',
         },
+        {
+          url: 'layer-styles',
+          title: 'Personnalisation des styles par défaut',
+        },
       ]
     },
     {

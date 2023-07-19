@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
   templateUrl: './patrimony-settings.component.html',
   styleUrls: ['./patrimony-settings.component.scss'],
 })
-export class PatrimonySettingsComponent implements OnInit {
+export class PatrimonySettingsPage implements OnInit {
 
   constructor() { }
 

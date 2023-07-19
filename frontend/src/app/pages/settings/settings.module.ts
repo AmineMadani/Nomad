@@ -8,9 +8,10 @@ import { SettingsPageRoutingModule } from './settings-routing.module';
 
 import { SettingsPage } from './settings.page';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { PatrimonySettingsComponent } from './patrimony-settings/patrimony-settings.component';
+import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { SettingsSegmentComponent } from './components/settings-segment/settings-segment.component';
-import { LayerReferencesSettingsComponent } from './layer-references-settings/layer-references-settings.component';
+import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
+import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 
 @NgModule({
   imports: [
@@ -19,12 +20,13 @@ import { LayerReferencesSettingsComponent } from './layer-references-settings/la
     ReactiveFormsModule,
     IonicModule,
     SharedModule,
-    SettingsPageRoutingModule
+    SettingsPageRoutingModule,
   ],
   declarations: [
     SettingsPage,
-    PatrimonySettingsComponent,
-    LayerReferencesSettingsComponent,
+    PatrimonySettingsPage,
+    LayerReferencesSettingsPage,
+    LayerStylesSettingsPage,
     SettingsSegmentComponent
   ]
 })
