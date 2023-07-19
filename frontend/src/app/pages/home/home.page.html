@@ -47,8 +47,8 @@
         <!-- Bottom sheet -->
         <ng-container *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET">
           <ion-modal id="modal-bottom-sheet" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME" backdropDismiss="false"
-            show-backdrop="false" canDismiss="false" (didDismiss)="onBottomSheetDismiss($event)" [initialBreakpoint]="0.5"
-            [breakpoints]="[0.25, 0.5, 1]" backdropBreakpoint="0.75">
+            show-backdrop="false" (didDismiss)="onBottomSheetDismiss($event)" [initialBreakpoint]="0.5"
+            [breakpoints]="[0, 0.25, 0.5, 1]" backdropBreakpoint="0.5">
             <ng-template>
               <div class="router-container">
                 <router-outlet [animation]="animationBuilder"></router-outlet>

@@ -6,7 +6,7 @@
 <ion-item lines="none" class="ion-text-center">
   <ion-label>
     <ion-chip *ngIf="workOrder.wts_id" [ngClass]="'status-PLANIFIE'" [outline]="false">
-      <ion-label>{{ workOrder.labelStatus }}</ion-label>
+      <ion-label>{{ status }}</ion-label>
     </ion-chip>
     <ion-chip *ngIf="workOrder.wko_emergency === 'true'" class="status" [outline]="true">
       <ion-icon name="calendar-outline"></ion-icon>
@@ -22,28 +22,28 @@
 <ion-item lines="none" class="ion-no-margin ion-no-padding">
   <ion-label class="label">
     <h3>Patrimoine</h3>
-    <p>{{ assetLabel }}</p>
+    <p>{{ assetLabel?.length > 0 ? assetLabel : 'Non défini' }}</p>
   </ion-label>
 </ion-item>
 
 <ion-item lines="none" class="ion-no-margin ion-no-padding">
   <ion-label class="label">
-    <h3>Libellé</h3>
-    <p>{{ workOrder.wko_name }}</p>
+    <h3>Raison</h3>
+    <p>{{ reason }}</p>
   </ion-label>
 </ion-item>
 
 <ion-item lines="none" class="ion-no-margin ion-no-padding">
   <ion-label class="label">
     <h3>Date de début</h3>
-    <p>{{ workOrder.datebegin | date: 'dd/MM/yyyy' }}</p>
+    <p>{{ workOrder.wko_planning_start_date | date: 'dd/MM/yyyy' }}</p>
   </ion-label>
 </ion-item>
 
 <ion-item lines="none" class="ion-no-margin ion-no-padding">
   <ion-label class="label">
     <h3>Date de fin</h3>
-    <p>{{ workOrder.dateend | date: 'dd/MM/yyyy' }}</p>
+    <p>{{ workOrder.wko_planning_end_date | date: 'dd/MM/yyyy' }}</p>
   </ion-label>
 </ion-item>
 

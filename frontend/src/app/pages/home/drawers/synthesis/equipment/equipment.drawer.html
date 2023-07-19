@@ -43,6 +43,6 @@
 </ng-template>
 
 <app-synthesis [drawerTitle]="equipment?.id" [sourceLayer]="equipment?.layer" [hasFile]="true"
-  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [contentTemplate]="equipmentTemplate"
+  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [contentTemplate]="equipmentTemplate" [sourceLayer]="'assets'"
   [footerTemplate]="footerTemplate" (onDetails)="onNavigateToDetails()" (onInitComponent)="onInitEquipment($event)">
 </app-synthesis>

@@ -24,7 +24,9 @@ export class CacheService {
   }
 
   public async cacheIsAlreadySet(): Promise<boolean> {
-    const tiles: ITiles[] = await this.db.tiles.filter((tile: ITiles) => /index/.test(tile.key)).toArray();
+    const tiles: ITiles[] = await this.db.tiles
+      .filter((tile: ITiles) => /index/.test(tile.key))
+      .toArray();
     return tiles.length > 0;
   }
 

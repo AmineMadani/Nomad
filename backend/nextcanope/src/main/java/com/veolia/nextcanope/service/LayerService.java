@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.veolia.nextcanope.exception.TechnicalException;
+
+import com.veolia.nextcanope.dto.GetEquipmentsPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -93,5 +95,14 @@ public class LayerService {
      */
 	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
         return layerRepositoryImpl.getEquipmentByLayerAndId(layer, id);
+    }
+
+    public List<Map<String, Object>> getEquipmentsByLayersAndIds(List<GetEquipmentsPayload> equipmentsPayload) {
+        List<Map<String, Object>> features = new ArrayList();
+        for(GetEquipmentsPayload payload : equipmentsPayload) {
+            List<Map<String, Object>> layerFeatures = this.layerRepositoryImpl.getEquipmentsByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds());
+            features.addAll(layerFeatures);
+        }
+        return features;
     }
 }

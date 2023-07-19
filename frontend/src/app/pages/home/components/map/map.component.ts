@@ -554,8 +554,6 @@ export class MapComponent implements OnInit, OnDestroy {
               const item = features.find((feature) => feature.id === id);
               return {
                 id: item.id,
-                x: item.properties['x'],
-                y: item.properties['y'],
                 lyr_table_name: item.source,
               };
             }
@@ -692,9 +690,9 @@ export class MapComponent implements OnInit, OnDestroy {
           route = DrawerRouteEnum.EQUIPMENT;
           break;
       }
-      this.drawerService.navigateTo(route, [properties['id']], properties);
+      this.drawerService.navigateTo(route, [properties['id']], { lyr_table_name: properties['lyr_table_name'] });
+      //this.drawerService.navigateTo(route, [properties['id']], { id: properties['id'], x: properties['x'], y: properties['y'], lyr_table_name: properties['lyr_table_name'] });
     }
-
   }
 
   /**

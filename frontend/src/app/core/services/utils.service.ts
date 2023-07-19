@@ -83,4 +83,46 @@ export class UtilsService {
       (drawerRoute) => drawerRoute.name.toUpperCase() === name
     )?.path;
   }
+
+  public transformMap(map: Map<string, string>): { lyrTableName: string, equipmentIds: string[] }[] {
+    const result: { lyrTableName: string, equipmentIds: string[] }[] = [];
+  
+    map.forEach((value, key) => {
+      const params = new URLSearchParams(value);
+      const lyrTableName = params.get('lyr_table_name');
+  
+      if (lyrTableName) {
+        const existingEntry = result.find(entry => entry.lyrTableName === lyrTableName);
+  
+        if (existingEntry) {
+          existingEntry.equipmentIds.push(params.get('id') || '');
+        } else {
+          result.push({
+            lyrTableName: lyrTableName,
+            equipmentIds: [params.get('id') || '']
+          });
+        }
+      }
+    });
+  
+    return result;
+  }
+
+  public sortMap(map: Map<string, string[]>): { key: string, ids: string[] }[] {
+    const mergedMap = new Map<string, string[]>();
+  
+    for (const [key, ids] of map.entries()) {
+      if (mergedMap.has(key)) {
+        const existingIds = mergedMap.get(key);
+        if (existingIds) {
+          mergedMap.set(key, [...existingIds, ...ids]);
+        }
+      } else {
+        mergedMap.set(key, ids);
+      }
+    }
+  
+    const sortedEntries = Array.from(mergedMap.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+    return sortedEntries.map(([key, ids]) => ({ key, ids }));
+  }
 }

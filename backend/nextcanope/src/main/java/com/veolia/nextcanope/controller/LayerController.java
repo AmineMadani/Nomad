@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.utils.ResponseMessage;
+import com.veolia.nextcanope.dto.GetEquipmentsPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,6 +95,22 @@ public class LayerController {
     public List<LayerDto> getAllLayers(AccountTokenDto account) {
         return  layerService.getLayers(account.getId());
     }
+
+    @PostMapping(path = "/equipment")
+    @Operation(summary = "Get the equipment by layer and id")
+    @ApiResponses(value = {
+            @ApiResponse(description= "The equipment", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<Map<String, Object>> getEquipmentsByLayers(@RequestBody List<GetEquipmentsPayload> getEquipmentsPayload) throws Exception {
+        try {
+            List<Map<String, Object>> features = this.layerService.getEquipmentsByLayersAndIds(getEquipmentsPayload);
+            return features;
+        } catch (Exception e) {
+            throw new Exception("Error during the layer references saving");
+        }
+    }
     
     @GetMapping(path = "/{key}/equipment/{id}")
     @Operation(summary = "Get the equipment by layer and id")
@@ -104,8 +121,7 @@ public class LayerController {
     			})
     public List<Map<String, Object>> getEquipmentByLayerAndId(
             @PathVariable String key,
-            @PathVariable String id,
-            AccountTokenDto account
+            @PathVariable String id
     ) {
         return this.layerService.getEquipmentByLayerAndId(key, id);
     }

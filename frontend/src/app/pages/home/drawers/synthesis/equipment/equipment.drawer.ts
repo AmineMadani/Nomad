@@ -13,6 +13,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { filter, of } from 'rxjs';
+import { AppDB } from 'src/app/core/models/app-db.model';
 
 @Component({
   selector: 'app-equipment',
@@ -25,9 +26,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private layerReferencesService: LayerReferencesService,
     private utils: UtilsService,
     private drawer: DrawerService,
-    private activatedRoute: ActivatedRoute,
-    private layerService: LayerService,
-    private layerDataService: LayerDataService
+    private layerDataService: LayerDataService,
   ) {}
 
   public buttons: SynthesisButton[] = [
@@ -50,10 +49,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     this.ngUnsubscribe$.complete();
   }
 
-  public onTabButtonClicked(ev: SynthesisButton): void {
+  public async onTabButtonClicked(ev: SynthesisButton) {
     if (ev.key === 'create') {
+      // Mono-equipment
+      const { id, ...eq } = this.equipment;
       this.router.navigate(['/home/work-order'], {
-        queryParams: this.equipment,
+        queryParams: { ...eq, equipmentId: id},
       });
     }
   }
@@ -66,39 +67,15 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     );
   }
 
-  public onInitEquipment(paramMap: Map<string, string>) {
+  public onInitEquipment(feature: any) {
     from(
       this.layerReferencesService.getUserReferences(
-        paramMap.get('lyr_table_name')
+        feature.lyr_table_name
       )
-    )
-      .pipe(
-        switchMap((ref: UserReference[]) => {
-          this.userReferences = ref.filter(x => x.displayType == 'SYNTHETIC');
-          this.equipment = paramMap;
-          return this.activatedRoute.params;
-        }),
-        filter((res: any | undefined) => res !== undefined),
-        takeUntil(this.ngUnsubscribe$)
-      )
-      .subscribe((localParams: Params) => {
-        if (localParams['id'] && paramMap.get('lyr_table_name')) {
-          this.equipment = this.layerService.getFeatureById(
-            paramMap.get('lyr_table_name'),
-            localParams['id']
-          ).properties;
-          this.equipment = Object.assign(
-            this.equipment,
-            Object.fromEntries(paramMap)
-          );
-          this.layerDataService.getEquipmentByLayerAndId(
-            this.equipment.lyr_table_name,
-            this.equipment.id
-          ).then((res) => {
-            this.equipment = Object.assign(this.equipment, res[0]);
-            this.isDetailAvailabled = true;
-          });
-        }
-      });
+    ).subscribe((refs: UserReference[]) => {
+      this.userReferences = refs;
+      this.equipment = feature;
+      this.isDetailAvailabled = true;
+    });
   }
 }
