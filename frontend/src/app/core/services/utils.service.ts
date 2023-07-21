@@ -134,8 +134,11 @@ export class UtilsService {
   }
 
   public removeDuplicatesFromArr(arr: any[], key: string): any[] {
-    const uniqueMap = new Map<any, any>();
-    arr.forEach((item) => uniqueMap.set(item[key], item));
-    return Array.from(uniqueMap.values());
+    return arr.reduce((unique, o) => {
+      if(!unique.some(obj => obj[key] === o[key])) {
+        unique.push(o);
+      }
+      return unique;
+    },[]);
   }
  }

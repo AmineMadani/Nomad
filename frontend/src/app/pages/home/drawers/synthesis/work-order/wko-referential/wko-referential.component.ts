@@ -35,13 +35,15 @@ export class WkoReferentialComponent implements OnInit {
   public querySearch: string;
   public valueKey: string;
 
+  public valueLabel: string = '';
+
   ngOnInit(): void {
     from(this.referentialService.getReferential(this.repository)).subscribe(
       (res) => {
         this.originalOptions = res.sort((a, b) =>
           a[this.repositoryValue].localeCompare(b[this.repositoryValue])
         );
-        this.getValueLabel();
+        this.valueLabel = this.getValueLabel();
         if (this.control.value && this.control.value.length > 0) {
           this.disabled = true;
         }
@@ -50,8 +52,10 @@ export class WkoReferentialComponent implements OnInit {
   }
 
   public onOpenModal(): void {
-    this.displayOptions = this.getFilterOptions(this.querySearch).slice(0, 50);
-    this.modalReferential.present();
+    if(!this.disabled) {
+      this.displayOptions = this.getFilterOptions(this.querySearch).slice(0, 50);
+      this.modalReferential.present();
+    }
   }
 
   public dismiss(): void {
@@ -63,7 +67,7 @@ export class WkoReferentialComponent implements OnInit {
     // If found, the code looks for a matching object in the filtered options and updates the control value accordingly.
     // If not found, it returns the repositoryValue based on the control value.
     // If the paramMap has multiple values, the code directly returns the corresponding repositoryValue based on the control value.
-    if (this.paramMap[this.key]?.split(',').length == 1) {
+    if (this.paramMap[this.key]?.toString().split(',').length == 1) {
       const obj = this.getFilterOptions(this.querySearch).find(
         (val) => val[this.repositoryKey].toString() == this.paramMap[this.key]
       );
@@ -92,7 +96,7 @@ export class WkoReferentialComponent implements OnInit {
 
   public getFilterOptions(query): any[] {
     let preSelectId = [];
-    if (this.paramMap[this.key]?.split(',').length > 1) {
+    if (this.paramMap[this.key]?.toString().split(',').length > 1) {
       preSelectId = this.paramMap[this.key]?.split(',');
     }
     if (this.filters) {
@@ -123,8 +127,10 @@ export class WkoReferentialComponent implements OnInit {
         preSelectId.includes(option[this.key].toString())
       );
     }
-    const noDuplicates = this.utils.removeDuplicatesFromArr(options, this.key);
-    return noDuplicates;
+    if(this.repository == 'v_layer_wtr') {
+      options = this.utils.removeDuplicatesFromArr(options, this.repositoryKey);
+    }
+    return options;
   }
 
   public onHandleInput(event): void {
@@ -138,9 +144,10 @@ export class WkoReferentialComponent implements OnInit {
     );
     this.valueKey = obj[this.repositoryKey].toString();
     this.control.setValue(this.valueKey);
-    if (this.paramMap[this.key]?.split(',').length < 1) {
+    if (this.paramMap[this.key]?.toString().split(',').length < 1) {
       this.paramMap[this.key] = this.control.value;
     }
+    this.valueLabel = this.getValueLabel();
   }
 
   public onIonInfinite(e) {

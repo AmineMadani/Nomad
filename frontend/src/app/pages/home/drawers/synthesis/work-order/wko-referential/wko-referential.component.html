@@ -1,5 +1,5 @@
 <ion-input aria-label="def-input" labelPlacement="floating" fill="outline" [id]="'referential-'+key" [label]="label"
-  [placeholder]="label" [value]="getValueLabel()" (click)="onOpenModal()" [readonly]="true" [disabled]="disabled" />
+  [placeholder]="label" [value]="valueLabel" (click)="onOpenModal()" [readonly]="true" [disabled]="disabled" />
 
 <ion-modal [id]="'modal-'+key" #modalReferential>
   <ng-template>
@@ -16,7 +16,7 @@
     <ion-content>
       <ion-list class="ion-margin">
         <ion-radio-group aria-label="def-radio" [value]="valueKey" (ionChange)="onRadioChange($event)">
-          <ng-container *ngFor="let item of displayOptions; let index">
+          <ng-container *ngFor="let item of displayOptions">
             <ion-radio *ngIf="item" aria-label="Option Label" class="form-property-referential-modal-radio"
               [value]="item[repositoryKey].toString()" labelPlacement="end" (click)="modalReferential.dismiss()">{{
               item[repositoryValue] }}</ion-radio>
