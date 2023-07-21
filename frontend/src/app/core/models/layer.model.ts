@@ -14,14 +14,14 @@ export interface Layer {
   lyrLlabel: string;
   lyrValid: Boolean;
   lyrDisplay: Boolean;
-  listStyle: LayerStyle[];
+  listStyle: LayerStyleDefinition[];
 }
 
 export function getLayerLabel(layer: Layer) {
-  return layer.lyrSlabel;
+  return layer.lyrSlabel + ' - ' + layer.domLLabel;
 }
 
-export interface LayerStyle {
+export interface LayerStyleDefinition {
   code: string;
   definition: string;
   listImage: StyleImage[];
@@ -30,6 +30,12 @@ export interface LayerStyle {
 export interface StyleImage {
   code: string;
   source: string;
+}
+
+export interface LayerStyle {
+  lseId: number;
+  lseCode: string;
+  lyrId: number;
 }
 
 export enum  localisationExportMode  {

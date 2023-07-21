@@ -1,5 +1,5 @@
 <ion-content class="settings-flex">
-  <form [formGroup]="form" (ngSubmit)="save()" class="settings-content-template">
+  <form [formGroup]="form" class="settings-content-template">
 
     <div>
       <ion-label class="label">
@@ -14,7 +14,7 @@
         [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
       </app-search-select>
 
-      <app-generic-table [columns]="myColumns" [data]="myData" [selectedData]="mySelectedData"></app-generic-table>
+      <app-generic-table [toolbar]="toolbar" [columns]="columns" [data]="layerStyles" [selectedData]="selectedLayerStyles"></app-generic-table>
     </div>
   </form>
 </ion-content>

@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs';
-import { Layer, LayerStyle } from './layer.model';
+import { Layer, LayerStyleDefinition } from './layer.model';
 import * as Maplibregl from 'maplibre-gl';
 
 export class MaplibreLayer {
@@ -31,7 +31,7 @@ export class MaplibreLayer {
     };
   }
 
-  private buildStyle(map : Maplibregl.Map, lLayerStyle: LayerStyle[]): any[] {
+  private buildStyle(map : Maplibregl.Map, lLayerStyle: LayerStyleDefinition[]): any[] {
     let styles:any[] = [];
     for(let layerStyle of lLayerStyle){
       let transformStyle = JSON.parse(layerStyle.definition);

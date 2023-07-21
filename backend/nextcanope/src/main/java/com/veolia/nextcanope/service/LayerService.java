@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.veolia.nextcanope.dto.LayerStyleDto;
 import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.LayerStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.LayerDto;
-import com.veolia.nextcanope.dto.LayerStyleDto;
+import com.veolia.nextcanope.dto.LayerDefinitionDto;
 import com.veolia.nextcanope.dto.StyleDto;
 import com.veolia.nextcanope.model.Layer;
 import com.veolia.nextcanope.model.StyleDefinition;
@@ -67,8 +69,8 @@ public class LayerService {
     	List<Layer> layers = layerRepository.findAll();
     	for(Layer layer:layers) {
     		LayerDto layerDto = new LayerDto(layer);
-    		List<LayerStyleDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
-    		for(LayerStyleDto layerStyle: lLayerStyle) {
+    		List<LayerDefinitionDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
+    		for(LayerDefinitionDto layerStyle: lLayerStyle) {
     			Optional<StyleDefinition> optStyleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId());
                 if (optStyleDefinition.isPresent()) {
                     StyleDefinition styleDefinition = optStyleDefinition.get();
@@ -94,4 +96,24 @@ public class LayerService {
 	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
         return layerRepositoryImpl.getEquipmentByLayerAndId(layer, id);
     }
+
+    /**
+     * Retrieves a list of LayerStyleDto objects containing a subset of LayerStyle information.
+     *
+     * @return A List of LayerStyleDto objects representing a subset of LayerStyle entities.
+     */
+    public List<LayerStyleDto> getAllLayerStyles() {
+        List<LayerStyleDto> layerStyleDtos = new ArrayList<>();
+
+        // Retrieve all LayerStyle entities from the database
+        List<LayerStyle> layerStyles = layerStyleRepository.findAll();
+
+        // Convert each LayerStyle entity to a LayerStyleDto and add it to the result list
+        for (LayerStyle style : layerStyles) {
+            layerStyleDtos.add(new LayerStyleDto(style.getId(), style.getLseCode(), style.getLyrId()));
+        }
+
+        return layerStyleDtos;
+    }
+
 }

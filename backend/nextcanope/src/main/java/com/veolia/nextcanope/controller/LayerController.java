@@ -3,7 +3,10 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.veolia.nextcanope.dto.LayerStyleDto;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
+import com.veolia.nextcanope.model.LayerStyle;
+import com.veolia.nextcanope.repository.LayerStyleRepository;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +45,9 @@ public class LayerController {
     
     @Autowired
     public LayerReferencesService layerReferencesService;
+
+    @Autowired
+    public LayerStyleRepository layerStyleRepository;
 
     @GetMapping(path = "/{key}")
     @Operation(summary = "Get the index by key")
@@ -135,5 +141,16 @@ public class LayerController {
     public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserPayload saveDto, AccountTokenDto account) {
         this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
         return new ResponseMessage("Les données attributaires ont été enregistrées avec succès.");
+    }
+
+    @GetMapping(path = "/styles")
+    @Operation(summary = "Get all layer styles by layer id")
+    @ApiResponses(value = {
+        @ApiResponse(description= "The list of layer styles", content =  {
+                @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<LayerStyleDto> getStylesByLayerId() {
+        return this.layerService.getAllLayerStyles();
     }
 }

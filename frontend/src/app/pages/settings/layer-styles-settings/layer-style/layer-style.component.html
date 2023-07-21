@@ -1,0 +1,32 @@
+<div class="layer-style-content">
+  <div class="layer-style-header">
+    <ion-label class="label">
+      <h2>
+        Définition du style {{ lseId }}
+      </h2>
+    </ion-label>
+
+    <ion-button (click)="close()" fill="clear">
+      <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+  </div>
+
+  <div class="layer-style-body">
+    <form [formGroup]="form" class="layer-style-form">
+      <ion-input labelPlacement="stacked" fill="outline" label="Code" placeholder="Code" type="text"
+        formControlName="lseCode"></ion-input>
+
+      <ion-textarea labelPlacement="stacked" fill="outline" label="Définition" placeholder="Définition" type="text-area"
+        formControlName="sydDefinition"></ion-textarea>
+
+      <input type="file" id="images" name="images" accept="image/svg+xml" multiple (change)="onFileChanged($event)">
+    </form>
+
+    <ion-button [disabled]="form.pristine" (click)="save()" fill="clear">
+      <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+  </div>
+
+</div>
+
+

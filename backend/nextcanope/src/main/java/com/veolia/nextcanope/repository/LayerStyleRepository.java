@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.veolia.nextcanope.dto.LayerStyleDto;
+import com.veolia.nextcanope.dto.LayerDefinitionDto;
 import com.veolia.nextcanope.model.LayerStyle;
 
 /**
@@ -30,5 +30,5 @@ public interface LayerStyleRepository extends JpaRepository<LayerStyle, Long> {
             		+ "where ls.lyr_id = :layerId ",
             nativeQuery = true
     )
-    List<LayerStyleDto> getLayerStyleByLayerAndUser(@Param("layerId") Long layerId, @Param("userId") Long userId);
+    List<LayerDefinitionDto> getLayerStyleByLayerAndUser(@Param("layerId") Long layerId, @Param("userId") Long userId);
 }

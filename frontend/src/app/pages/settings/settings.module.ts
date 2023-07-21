@@ -12,6 +12,7 @@ import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.c
 import { SettingsSegmentComponent } from './components/settings-segment/settings-segment.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
+import { LayerStyleComponent } from './layer-styles-settings/layer-style/layer-style.component';
 
 @NgModule({
   imports: [
@@ -27,7 +28,8 @@ import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-se
     PatrimonySettingsPage,
     LayerReferencesSettingsPage,
     LayerStylesSettingsPage,
-    SettingsSegmentComponent
+    SettingsSegmentComponent,
+    LayerStyleComponent
   ]
 })
 export class SettingsPageModule {}

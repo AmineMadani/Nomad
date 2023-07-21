@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Column, TypeColumn } from 'src/app/core/models/column.model';
+import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 
 @Component({
   selector: 'app-generic-table',
@@ -9,6 +10,7 @@ import { Column, TypeColumn } from 'src/app/core/models/column.model';
 export class GenericTableComponent implements OnInit {
 
   @Input() columns: Column[] = [];
+  @Input() toolbar?: TableToolbar;
 
   @Input() data: any[] = [];
   @Input() selectedData: any[] = [];
@@ -21,14 +23,22 @@ export class GenericTableComponent implements OnInit {
 
   onSelectAll() {
     if (this.selectedData.length === this.data.length) {
-      this.selectedData = [];
+      this.selectedData.splice(0, this.selectedData.length);
     } else {
-      this.selectedData = [...this.data];
+      this.data.forEach((d) => {
+        if (!this.selectedData.some((s) => s == d)) {
+          this.selectedData.push(d);
+        }
+      })
     }
   }
 
-  isAllRowsSelected() {
-    return this.selectedData.length === this.data.length;
+  isAllRowsSelected(): boolean {
+    let isSelected: boolean = true;
+    if (this.data.length === 0 || this.selectedData.length !== this.data.length) {
+      isSelected = false;
+    }
+    return isSelected;
   }
 
   onRowSelect(row: any) {

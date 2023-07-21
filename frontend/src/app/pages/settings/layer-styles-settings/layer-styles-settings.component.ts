@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Column, TypeColumn } from 'src/app/core/models/column.model';
-import { Layer, getLayerLabel } from 'src/app/core/models/layer.model';
+import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Layer, LayerStyle, getLayerLabel } from 'src/app/core/models/layer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
+import { LayerStyleDataService } from 'src/app/core/services/dataservices/layer-style.dataservice';
+import { ModalController } from '@ionic/angular';
+import { LayerStyleComponent } from './layer-style/layer-style.component';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -11,62 +15,94 @@ import { LayerDataService } from 'src/app/core/services/dataservices/layer.datas
 })
 export class LayerStylesSettingsPage implements OnInit {
 
-  constructor(private layerService: LayerDataService) { }
+  constructor(
+    private layerService: LayerDataService,
+    private layerStyleDataService: LayerStyleDataService,
+    private modalController: ModalController
+  ) { }
 
   public form: FormGroup;
-
+  public modal: any;
+  // Layers
   public layers: Layer[];
   public getLayerLabel = getLayerLabel;
+  // Styles
+  public allLayerStyles: LayerStyle[] = [];
+  public layerStyles: LayerStyle[] = [];
+  public selectedLayerStyles: LayerStyle[] = [];
 
-  myColumns: Column[] = [
-    { type: TypeColumn.ACTION },
-    { key: 'name', label: 'Name', type: TypeColumn.TEXT, size: '6' },
-    { key: 'email', label: 'Email', type: TypeColumn.TEXT, size: '5' },
+  // Table Toolbar
+  public toolbar: TableToolbar = {
+    title: 'Liste des styles de couche',
+    buttons: [
+      {
+        name: 'trash',
+        onClick: () => {
+          console.log('trash clicked');
+        },
+        disableFunction: () => {
+          return this.selectedLayerStyles.length === 0;
+        }
+      },
+      {
+        name: 'add',
+        onClick: () => {
+          this.openLayerStyleDetails();
+        },
+        disableFunction: () => {
+          return false;
+        }
+      }
+    ],
+  }
+  // Table Columns
+  public columns: Column[] = [
+    { type: TypeColumn.CHECKBOX, size: '1' },
+    {
+      type: TypeColumn.ACTION, label: '', size: '1', onClick: (style: LayerStyle) => {
+        this.openLayerStyleDetails(style.lseId);
+      }
+    },
+    { key: 'lseCode', label: 'Code', type: TypeColumn.TEXT, size: '10' },
   ];
 
-  myData = [
-    { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
-    { id: 2, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 3, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 4, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 5, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 6, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 7, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 21, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 22, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 23, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 24, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 25, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 26, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 27, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 28, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 29, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 210, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 211, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    { id: 212, name: 'Jane Doe', email: 'jane.doe@example.com' },
-    // ... more data ...
-  ];
+  async ngOnInit() {
+    // Init form
+    this.initLayerSelectionForm();
 
-  mySelectedData = [];
+    // Get datas
+    // Layers
+    this.layerService.getLayers().then((layers) => this.layers = layers);
+    // Layer styles
+    this.layerStyleDataService.getAllLayerStyles().subscribe((styles) => {
+      this.allLayerStyles = styles;
+    });
+  }
 
-  ngOnInit() {
+  private initLayerSelectionForm() {
     this.form = new FormGroup({
-      listUserEmail: new FormControl([]),
       lyrTableName: new FormControl(null, Validators.required),
     });
 
-    // Get the list of layers
-    this.layerService.getLayers().then((layers: Layer[]) => this.layers = layers);
+    // Listen form value changes on lyrTableName
+    this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
+      const lyrId: number = this.layers.find((lyr) => lyr.lyrTableName === lyrTableName)?.id;
+      if (lyrId) {
+        // Get the styles for the selected layer
+        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === lyrId);
+      } else {
+        this.layerStyles = [];
+      }
+    });
   }
 
-  async save() {
-    if (this.form.valid) {
-      const formValues = this.form.value;
-
-      console.log(formValues);
-    } else {
-      // Permit to show the current form errors to the user
-      this.form.markAllAsTouched();
-    }
+  async openLayerStyleDetails(lseId?: number) {
+    const modal = await this.modalController.create({
+      component: LayerStyleComponent,
+      componentProps: {
+        lseId: lseId
+      }
+    });
+    return await modal.present();
   }
 }
