@@ -27,6 +27,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
+import { KeycloakService } from 'src/app/core/services/keycloak.service';
 
 @Component({
   selector: 'app-map',
@@ -47,7 +48,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private clipboard: Clipboard,
     private configurationService: ConfigurationService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private keycloakService: KeycloakService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -726,6 +728,21 @@ export class MapComponent implements OnInit, OnDestroy {
                             )
                             /Math.log (2)
                     );
+  }
+
+  /**
+   * Check if there is an report in progress to finish
+   * @returns True if there is a external report in progress
+   */
+  public hasResumeReport():boolean{
+    return this.keycloakService.externalReport ? true : false;
+  }
+
+  /**
+   * Navigate to the current report
+   */
+  public resumeReport(){
+    this.router.navigate(['/home/work-order/'+this.keycloakService.externalReport+'/cr']);
   }
 
 }

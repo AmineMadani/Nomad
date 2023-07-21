@@ -1,10 +1,9 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
+import { CustomTask, CustomWorkOrder, Report } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
-import { Router } from '@angular/router';
 import { IntentAction } from 'plugins/intent-action/src';
 
 @Component({
@@ -17,8 +16,7 @@ export class ReportCreateComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private utils: UtilsService,
-    private exploitationService: ExploitationService,
-    private route: Router
+    private exploitationService: ExploitationService
   ) { }
 
   @Input() workorder: CustomWorkOrder;
@@ -33,6 +31,16 @@ export class ReportCreateComponent implements OnInit {
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+    if(this.workorder.selectedTaskId) {
+      this.selectedTask = this.workorder.tasks.find(task => task.id == this.workorder.selectedTaskId);
+      this.step = 2;
+      if(this.selectedTask.report?.questionIndex){
+        this.step = 3;
+        if(this.selectedTask.report.questionIndex > 0) {
+          this.hasPreviousQuestion = true;
+        }
+      }
+    }
   }
 
   /**
@@ -55,6 +63,9 @@ export class ReportCreateComponent implements OnInit {
   public onNext() {
     if (this.step <= 3) {
       this.step++;
+      if(this.step == 2) {
+        this.workorder.selectedTaskId= this.selectedTask.id;
+      }
       this.onSaveWorkOrderState();
     }
   }
@@ -63,20 +74,21 @@ export class ReportCreateComponent implements OnInit {
    * Action on click for the previous question
    */
   public previousFormQuestion(){
-    if(this.stepForm.formEditor.indexChild > 0){
-      this.stepForm.formEditor.indexChild--;
-      if(this.stepForm.formEditor.indexChild == 0){
+    if(this.stepForm.formEditor.indexQuestion > 0){
+      this.stepForm.formEditor.indexQuestion--;
+      if(this.stepForm.formEditor.indexQuestion == 0){
         this.hasPreviousQuestion = false
       }
       this.isSubmit = false;
     }
+    this.saveWorkorderState();
   }
 
   /**
    * Action on click for the next question
    */
   public nextFormQuestion() {
-    let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexChild];
+    let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexQuestion];
     let childrens = child.children ? child.children : [child];
     let valid: boolean = true;
     for(let children of childrens) {
@@ -85,12 +97,32 @@ export class ReportCreateComponent implements OnInit {
       valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
     }
     if(valid){
-      this.stepForm.formEditor.indexChild++;
+      this.stepForm.formEditor.indexQuestion++;
       this.hasPreviousQuestion = true;
-      if(this.stepForm.formEditor.indexChild+1 >= this.stepForm.formEditor.sections[0].children.length) {
+      if(this.stepForm.formEditor.indexQuestion+1 >= this.stepForm.formEditor.sections[0].children.length) {
         this.isSubmit = true;
       }
+      this.saveWorkorderState();
     }
+  }
+
+  private saveWorkorderState() {
+    let report:Report = {
+      dateCompletion: new Date(),
+      reportValues: [],
+      questionIndex: this.stepForm.formEditor.indexQuestion
+    };
+    for(let definition of this.stepForm.formEditor.nomadForm.definitions) {
+      if(definition.type == 'property') {
+        report.reportValues.push({
+          key: definition.key,
+          question: definition.label,
+          answer: this.stepForm.formEditor.form.value[definition.key]
+        });
+      }
+    }
+    this.selectedTask.report = report;
+    this.onSaveWorkOrderState();
   }
 
   public submitForm() {
@@ -99,9 +131,21 @@ export class ReportCreateComponent implements OnInit {
 
     if(this.stepForm.formEditor.form.valid) {
       if(this.isMobile) {
-        IntentAction.echo({value:"retour ok"});
+        IntentAction.closeIntent({value:{"result":"ok","param1":"value"}});
       } else {
-        this.route.navigate(["/home"]);
+        let report:Report = {
+          dateCompletion: new Date(),
+          reportValues: []
+        };
+        for(let definition of this.stepForm.formEditor.nomadForm.definitions) {
+          if(definition.type == 'property') {
+            report.reportValues.push({
+              key: definition.key,
+              question: definition.label,
+              answer: this.stepForm.formEditor.form.value[definition.key]
+            });
+          }
+        }
       }
     }
   }
@@ -110,6 +154,9 @@ export class ReportCreateComponent implements OnInit {
    * Previous step
    */
   public onBack() {
+    if(this.step == 1) {
+      this.workorder.selectedTaskId = undefined;
+    }
     if (this.step >= 2) {
       this.step--;
     }

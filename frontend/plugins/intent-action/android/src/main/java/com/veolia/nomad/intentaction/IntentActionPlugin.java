@@ -5,26 +5,31 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import java.util.Iterator;
+
 @CapacitorPlugin(name = "IntentAction")
 public class IntentActionPlugin extends Plugin {
 
-    private IntentAction implementation = new IntentAction();
-
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
+    public void closeIntent(PluginCall call) {
+        JSObject value = call.getObject("value");
         JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
-
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("result","Oui");
+
+        for (Iterator<String> it = value.keys(); it.hasNext(); ) {
+            String key = it.next();
+            String val = value.getString(key);
+            ret.put(key, val);
+            returnIntent.putExtra(key,val);
+        }
+
         getActivity().setResult(getActivity().RESULT_OK, returnIntent);
         getActivity().finish();
 

@@ -31,6 +31,7 @@ export interface CustomWorkOrder {
     latitude: number;
     wkoAgentNb: number;
     tasks: CustomTask[];
+    selectedTaskId: number;
 }
 
 export interface CustomTask {
@@ -43,4 +44,17 @@ export interface CustomTask {
     longitude: number;
     latitude: number;
     tskCompletionDate: Date;
+    report?: Report;
+}
+
+export interface Report {
+    dateCompletion: Date;
+    reportValues: ReportValue[];
+    questionIndex?: number;
+}
+
+export interface ReportValue {
+    key: string;
+    question: string;
+    answer: string;
 }

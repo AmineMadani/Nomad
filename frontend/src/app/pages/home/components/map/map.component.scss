@@ -22,6 +22,17 @@
         }
     }
 
+    ion-fab.layers-fab-resume {
+        position: absolute;
+        z-index: 0;
+        bottom: 8px;
+        left: 55px;
+
+        ion-fab-button {
+            --border-radius: 12px;
+        }
+    }
+
     .right-buttons {
         position: absolute;
         right: 16px;

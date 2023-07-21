@@ -149,7 +149,7 @@
 
 <ng-template #questionTemplate let-node="node">
     <div *ngFor="let child of node.children ; let index = index">
-      <div [style.display]="index == indexChild ? 'block':'none'">
+      <div [style.display]="index == indexQuestion ? 'block':'none'">
         <ng-container [ngTemplateOutlet]="construct" [ngTemplateOutletContext]="{ node:child }"></ng-container>
       </div>
     </div>

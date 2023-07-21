@@ -2,7 +2,7 @@ import { PluginListenerHandle } from "@capacitor/core";
 
 export interface IntentActionPlugin {
   
-  echo(options: { value: string }): Promise<{ value: string }>;
+  closeIntent(options: { value: any }): Promise<{ value: any }>;
 
   /**
   * Listen for send action intent events (Android only). The extras will be passed as a key value pair

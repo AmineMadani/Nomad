@@ -21,20 +21,20 @@ export class ReportFormComponent implements OnInit {
   @ViewChild('formEditor') formEditor: FormEditorComponent;
 
   public form: Form;
+  public indexQuestion: number=0;
+  public isLoading:boolean = true;
 
   ngOnInit() {
     this.templateDataService.getformsTemplate().then(forms => {
-      console.log(('REPORT_' + this.task.assObjTable.replace("asset.", "") + '_' + this.task.wtrCode).toUpperCase())
       let formTemplate = forms.find(form => form['formCode'] == ('REPORT_' + this.task.assObjTable.replace("asset.", "") + '_' + this.task.wtrCode).toUpperCase());
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);
+        if(this.task.report?.questionIndex){
+          this.indexQuestion = this.task.report?.questionIndex;
+        }
       }
+      this.isLoading = false;
     });
-  }
-
-  public test() {
-    console.log(this.formEditor.sections[0].children);
-    console.log(this.formEditor.indexChild);
   }
 
 }

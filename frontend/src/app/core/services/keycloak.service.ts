@@ -27,7 +27,7 @@ export class KeycloakService {
   public initialState: string | undefined;
   private mobileUrlState: string | undefined;
 
-  private externalReport: string | undefined;
+  public externalReport: string | undefined;
 
   configure(){
     if(this.configurationService.keycloak.active) {

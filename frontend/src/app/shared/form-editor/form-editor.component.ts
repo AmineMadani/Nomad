@@ -14,6 +14,7 @@ import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { ReportValue } from 'src/app/core/models/workorder.model';
 
 export interface FormNode {
   definition: any;
@@ -36,14 +37,14 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() nomadForm: Form;
   @Input() tableName: string;
   @Input() editMode: boolean;
+  @Input() indexQuestion = 0;
+  @Input() resumeQuestions: ReportValue[];
   @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
 
   public form: FormGroup;
   public sections: FormNode[] = [];
   public paramMap: Map<string, string>;
   public isMobile: boolean;
-
-  public indexChild = 0;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -60,6 +61,14 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     this.form.valueChanges.pipe(takeUntil(this.ngUnsubscribe$)).subscribe(() => {
       this.relationService.checkRelation(this.nomadForm.relations, this.form);
+    });
+
+    setTimeout(() => {
+      if(this.resumeQuestions){
+        for(let question of this.resumeQuestions) {
+          this.form.get(question.key).setValue(question.answer);
+        }
+      }
     });
   }
 
@@ -145,7 +154,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
       valid = valid && this.form.get(children.definition.key).valid;
     }
     if(valid){
-      this.indexChild++;
+      this.indexQuestion++;
     }
   }
 
@@ -153,8 +162,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * Action on click for the previous question
    */
   public previousQuestion(): void {
-    if(this.indexChild > 0){
-      this.indexChild--;
+    if(this.indexQuestion > 0){
+      this.indexQuestion--;
     }
   }
 }
