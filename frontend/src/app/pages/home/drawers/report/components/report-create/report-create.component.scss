@@ -12,7 +12,8 @@ ion-icon {
 }
 
 .filter-content {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: calc(100% - 160px);
 }
 
@@ -22,4 +23,18 @@ ion-icon {
     flex-direction: row;
     justify-content: space-between;
     padding: 27px 0px;
+}
+
+.font-mobile{
+    font-size: 10px;
+}
+
+app-report-form{
+    flex:1;
+}
+
+.form-questions-count{
+    text-align-last: center;
+    font-size: 13px;
+    color: grey;
 }

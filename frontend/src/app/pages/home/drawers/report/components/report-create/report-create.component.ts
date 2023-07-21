@@ -39,6 +39,9 @@ export class ReportCreateComponent implements OnInit {
         if(this.selectedTask.report.questionIndex > 0) {
           this.hasPreviousQuestion = true;
         }
+        if(this.selectedTask.report.questionIndex == this.selectedTask.report.reportValues.length-1) {
+          this.isSubmit=true;
+        }
       }
     }
   }
@@ -175,5 +178,20 @@ export class ReportCreateComponent implements OnInit {
    */
   public onSaveWorkOrderState() {
     this.exploitationService.saveStateWorkorder(this.workorder);
+  }
+
+  /**
+   * count form question label
+   * @return the label
+   */
+  public getFormQuestionLabel(): string{
+    if(this.stepForm?.formEditor?.sections[0]?.children){
+      if(this.selectedTask?.report?.questionIndex) {
+        return (this.selectedTask.report.questionIndex+1)+" sur "+this.stepForm.formEditor.sections[0].children.length;
+      } else if(this.selectedTask && this.step == 3){
+        return '1 sur '+this.stepForm.formEditor.sections[0].children.length;
+      }
+    }
+    return "";
   }
 }
