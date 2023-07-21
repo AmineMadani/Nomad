@@ -1,9 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SynthesisButton } from '../synthesis.drawer';
-import {
-  NavigationEnd,
-  Router,
-} from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -22,30 +19,14 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   constructor(
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private layerDataservice: LayerDataService,
     private mapService: MapService,
     private layerService: LayerService,
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private utils: UtilsService
-  ) {}
-
-  public buttons: SynthesisButton[] = [
-    { key: 'add', label: 'Ajouter un élement', icon: 'add' },
-    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' },
-    { key: 'ask', label: 'Faire une demande de MAJ', icon: 'refresh' },
-  ];
-
-  public featuresSelected: any[] = [];
-  public filteredFeatures: any[] = [];
-  public sources: { key: string; label: string }[] = [];
-  public isLoading: boolean = false;
-
-  private layersConf: Layer[] = [];
-  private ngUnsubscribe$: Subject<void> = new Subject();
-  private paramFeatures: any;
-
-  ngOnInit() {
+  ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
       .pipe(
@@ -82,6 +63,35 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         });
         this.onInitSelection(equipments);
       });
+  }
+
+  public buttons: SynthesisButton[] = [];
+
+  public featuresSelected: any[] = [];
+  public filteredFeatures: any[] = [];
+  public sources: { key: string; label: string }[] = [];
+  public isLoading: boolean = false;
+
+  public wkoDraft: string;
+
+  private layersConf: Layer[] = [];
+  private ngUnsubscribe$: Subject<void> = new Subject();
+  private paramFeatures: any;
+
+  ngOnInit() {
+    this.wkoDraft =
+      this.activatedRoute.snapshot.queryParams?.['redirect'];
+    this.buttons = [
+      { key: 'add', label: 'Ajouter un élement', icon: 'add' },
+      {
+        key: 'create',
+        label: this.wkoDraft
+          ? "Reprendre l'intervention"
+          : 'Générer une intervention',
+        icon: 'person-circle',
+      },
+      { key: 'ask', label: 'Faire une demande de MAJ', icon: 'refresh' },
+    ];
   }
 
   ngOnDestroy(): void {
@@ -134,7 +144,17 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
-  public onTabButtonClicked(e: any): any {}
+  public onTabButtonClicked(e: SynthesisButton): void {
+    switch (e.key) {
+      case 'create':
+        this.router.navigate(['/home/work-order'], {
+          queryParams: {...this.generateFeatureParams(this.featuresSelected), draft: this.wkoDraft }
+        });
+        break;
+      default:
+        break;
+    }
+  }
 
   public handleChange(e: Event): void {
     const event: CustomEvent = e as CustomEvent;
@@ -181,11 +201,24 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       .domLLabel;
   }
 
-  private convertToObjectArray(paramsMap: Map<string, string>): any[] {
-    return Array.from(paramsMap.entries()).map(([key, value]) => {
-      const params = new URLSearchParams(value);
-      const obj = Object.fromEntries(params);
-      return obj;
+  public generateFeatureParams(features: any[]): any {
+    const featureParams: any = {};
+
+    features.forEach((feature) => {
+      const source = feature.lyr_table_name || feature.source;
+
+      if (!featureParams[source]) {
+        featureParams[source] = new Set();
+      }
+
+      featureParams[source].add(feature.id);
     });
+
+    // Convert the Sets to comma-separated strings
+    Object.keys(featureParams).forEach((source) => {
+      featureParams[source] = Array.from(featureParams[source]).join(',');
+    });
+
+    return featureParams;
   }
 }

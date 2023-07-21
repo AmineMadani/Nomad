@@ -84,33 +84,38 @@ export class UtilsService {
     )?.path;
   }
 
-  public transformMap(map: Map<string, string>): { lyrTableName: string, equipmentIds: string[] }[] {
-    const result: { lyrTableName: string, equipmentIds: string[] }[] = [];
-  
-    map.forEach((value, key) => {
-      const params = new URLSearchParams(value);
-      const lyrTableName = params.get('lyr_table_name');
-  
-      if (lyrTableName) {
-        const existingEntry = result.find(entry => entry.lyrTableName === lyrTableName);
-  
-        if (existingEntry) {
-          existingEntry.equipmentIds.push(params.get('id') || '');
-        } else {
-          result.push({
-            lyrTableName: lyrTableName,
-            equipmentIds: [params.get('id') || '']
-          });
-        }
-      }
-    });
-  
-    return result;
+  public simplifyAssetLabel(inputString: string): string {
+    if (!inputString) {
+      return '';
+    }
+
+    const parts = inputString.split(/\.aep_|\.ass_/);
+    const lastPart = parts[parts.length - 1];
+    const simplifiedString = lastPart.replace(/_/g, ' ').trim();
+    const capitalizedString =
+      simplifiedString.charAt(0).toUpperCase() + simplifiedString.slice(1);
+    return capitalizedString;
   }
 
-  public sortMap(map: Map<string, string[]>): { key: string, ids: string[] }[] {
-    const mergedMap = new Map<string, string[]>();
+  public transformMap(
+    params: Map<string, string>
+  ): any {
+    const filteredEntries = Array.from(params.entries()).filter(([key]) => key.startsWith('aep_') || key.startsWith('ass_'));
   
+    const transformedArray = filteredEntries.map(([key, value]) => {
+      const equipmentIds = value.split(',');
+      return {
+        lyrTableName: key,
+        equipmentIds
+      };
+    });
+    
+    return transformedArray;
+  }
+
+  public sortMap(map: Map<string, string[]>): { key: string; ids: string[] }[] {
+    const mergedMap = new Map<string, string[]>();
+
     for (const [key, ids] of map.entries()) {
       if (mergedMap.has(key)) {
         const existingIds = mergedMap.get(key);
@@ -121,8 +126,16 @@ export class UtilsService {
         mergedMap.set(key, ids);
       }
     }
-  
-    const sortedEntries = Array.from(mergedMap.entries()).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+
+    const sortedEntries = Array.from(mergedMap.entries()).sort(
+      ([keyA], [keyB]) => keyA.localeCompare(keyB)
+    );
     return sortedEntries.map(([key, ids]) => ({ key, ids }));
   }
-}
+
+  public removeDuplicatesFromArr(arr: any[], key: string): any[] {
+    const uniqueMap = new Map<any, any>();
+    arr.forEach((item) => uniqueMap.set(item[key], item));
+    return Array.from(uniqueMap.values());
+  }
+ }

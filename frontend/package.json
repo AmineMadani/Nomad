@@ -35,7 +35,6 @@
     "@ionic/angular": "^7.0.2",
     "@mapbox/mapbox-gl-draw": "^1.4.1",
     "@turf/turf": "^6.5.0",
-    "@types/geojson": "^7946.0.10",
     "angular-oauth2-oidc": "^15.0.1",
     "cordova-plugin-lottie-splashscreen": "git+https://github.com/timbru31/cordova-plugin-lottie-splashscreen.git",
     "dexie": "^3.2.3",
@@ -47,6 +46,7 @@
     "rxjs": "^7.5.0",
     "swiper": "^9.4.1",
     "tslib": "^2.3.0",
+    "uuid": "^9.0.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
@@ -67,6 +67,8 @@
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "5.3.0",
     "@typescript-eslint/parser": "5.3.0",
+    "@types/geojson": "^7946.0.10",
+    "@types/uuid": "9.0.2",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",

@@ -130,7 +130,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     this.route.params
       .pipe(
         switchMap((param: Params) => {
-          if (params.size === 1) {
+          if (params.has('lyr_table_name') && params.size === 1) {
             return from(
               this.layerDataservice.getEquipmentByLayerAndId2(
                 params.get('lyr_table_name'),

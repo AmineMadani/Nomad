@@ -130,18 +130,17 @@ export class DrawerService {
     });
 
     if (Array.isArray(queryParams)) {
-      queryParams = queryParams.map((param: any) => {
-        // Convert each object in the array to a web query parameter string
-        return Object.entries(param)
-          .map(
-            ([key, value]) =>
-              `${key}=${value}`
-          )
-          .join('&');
-      });
+      queryParams = this.generateFeatureParams(queryParams);
     }
-
+    
     this.router.navigate([url], { queryParams: queryParams, replaceUrl });
+  }
+
+  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], redirectionId: string): void {
+    const url = this.getUrlFromDrawerName(route);
+    const eqParams = this.generateFeatureParams(equipments);
+
+    this.router.navigate([url], { queryParams: { ...eqParams, redirect: redirectionId } });
   }
 
   closeDrawer() {
@@ -170,5 +169,26 @@ export class DrawerService {
 
   setLocationBack() {
     this.location.back();
+  }
+
+  public generateFeatureParams(features: any[]): any {
+    const featureParams: any = {};
+
+    features.forEach(feature => {
+      const source = feature.lyr_table_name || feature.source;
+      
+      if (!featureParams[source]) {
+        featureParams[source] = new Set();
+      }
+      
+      featureParams[source].add(feature.id);
+    });
+  
+    // Convert the Sets to comma-separated strings
+    Object.keys(featureParams).forEach(source => {
+      featureParams[source] = Array.from(featureParams[source]).join(',');
+    });
+  
+    return featureParams;
   }
 }

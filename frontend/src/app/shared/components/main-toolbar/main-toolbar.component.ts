@@ -34,7 +34,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  imgUrl: string|undefined;
+  imgUrl: string | undefined;
 
   isMobile : boolean = false;
 
