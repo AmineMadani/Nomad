@@ -19,15 +19,21 @@ export interface ILayerReferences {
   data: LayerReferences[];
 }
 
+export interface IDraftWko {
+  key: string,
+  data: any;
+}
+
 export class AppDB extends Dexie {
   constructor() {
     super('nomad');
-    this.version(2).stores({
+    this.version(3).stores({
         tiles: 'key',
         indexes: 'key',
         layerReferences: 'key',
         referentials: 'key',
-        workorders: 'key'
+        workorders: 'key',
+        draftwko: 'key'
     });
   }
 
@@ -36,6 +42,7 @@ export class AppDB extends Dexie {
   layerReferences: Dexie.Table<ILayerReferences, string>;
   referentials: Dexie.Table<any, string>;
   workorders: Dexie.Table<any, string>;
+  draftwko: Dexie.Table<IDraftWko, string>;
 }
 
 export const db = new AppDB();

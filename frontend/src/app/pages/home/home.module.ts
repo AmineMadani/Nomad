@@ -34,14 +34,14 @@ import { AssetAccordionComponent } from './drawers/asset/components/asset-accord
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
 import { ReportDrawer } from './drawers/report/report.drawer';
-import { WkoCreationComponent } from './drawers/components/wko-creation/wko-creation.component';
-import { WkoViewComponent } from './drawers/components/wko-view/wko-view.component';
-import { WkoReferentialComponent } from './drawers/components/wko-referential/wko-referential.component';
 import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
 import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
 import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
 import { ReportContextComponent } from './drawers/report/components/report-context/report-context.component';
 import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
+import { WkoCreationComponent } from './drawers/synthesis/work-order/wko-creation/wko-creation.component';
+import { WkoViewComponent } from './drawers/synthesis/work-order/wko-view/wko-view.component';
+import { WkoReferentialComponent } from './drawers/synthesis/work-order/wko-referential/wko-referential.component';
 
 @NgModule({
   imports: [

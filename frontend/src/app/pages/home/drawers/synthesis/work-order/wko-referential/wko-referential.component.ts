@@ -3,6 +3,7 @@ import { ActivatedRoute, ParamMap, Params, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
 import { from, switchMap } from 'rxjs';
 import { ReferentialService } from 'src/app/core/services/referential.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-wko-referential',
@@ -11,8 +12,8 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 })
 export class WkoReferentialComponent implements OnInit {
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private referentialService: ReferentialService
+    private referentialService: ReferentialService,
+    private utils: UtilsService
   ) {}
 
   @ViewChild('modalReferential', { static: true }) modalReferential: IonModal;
@@ -107,7 +108,7 @@ export class WkoReferentialComponent implements OnInit {
           );
           if (preSelectId.length > 0) {
             options = options.filter((option) =>
-              preSelectId.includes(option['id'].toString())
+              preSelectId.includes(option[this.key].toString())
             );
           }
           return options;
@@ -119,10 +120,11 @@ export class WkoReferentialComponent implements OnInit {
     );
     if (preSelectId.length > 0) {
       options = options.filter((option) =>
-        preSelectId.includes(option['id'].toString())
+        preSelectId.includes(option[this.key].toString())
       );
     }
-    return options;
+    const noDuplicates = this.utils.removeDuplicatesFromArr(options, this.key);
+    return noDuplicates;
   }
 
   public onHandleInput(event): void {

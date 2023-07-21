@@ -45,9 +45,7 @@ export class LayerService {
     layerKey: string,
     featureId: string
   ): Promise<any | null> {
-    let geom;
-    await this.cacheService.getGeometryByLayerAndId(featureId, layerKey).then(r => geom = r);
-    return geom;
+    return await this.cacheService.getGeometryByLayerAndId(featureId, layerKey);
   }
 
   /**

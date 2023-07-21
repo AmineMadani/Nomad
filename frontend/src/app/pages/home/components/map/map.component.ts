@@ -555,20 +555,10 @@ export class MapComponent implements OnInit, OnDestroy {
         );
 
         if (features.length > 0) {
-          const featuresMap = [...new Set(features.map((item) => item.id))].map(
-            (id) => {
-              const item = features.find((feature) => feature.id === id);
-              return {
-                id: item.id,
-                lyr_table_name: item.source,
-              };
-            }
-          );
-
           this.drawerService.navigateTo(
             DrawerRouteEnum.SELECTION,
             null,
-            featuresMap
+            features
           );
         }
       });

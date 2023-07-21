@@ -26,7 +26,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private layerReferencesService: LayerReferencesService,
     private utils: UtilsService,
     private drawer: DrawerService,
-    private layerDataService: LayerDataService,
   ) {}
 
   public buttons: SynthesisButton[] = [
@@ -54,7 +53,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       // Mono-equipment
       const { id, ...eq } = this.equipment;
       this.router.navigate(['/home/work-order'], {
-        queryParams: { ...eq, equipmentId: id},
+        queryParams: { [this.equipment.lyr_table_name]: this.equipment.id },
       });
     }
   }

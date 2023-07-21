@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { ReferentialService } from 'src/app/core/services/referential.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -8,7 +9,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
   styleUrls: ['./wko-view.component.scss'],
 })
 export class WkoViewComponent implements OnInit {
-  constructor(private referentialService: ReferentialService) {}
+  constructor(private referentialService: ReferentialService, private utils: UtilsService) {}
 
   @Input() workOrder: any;
 
@@ -33,25 +34,12 @@ export class WkoViewComponent implements OnInit {
         (refReason) =>
           refReason.id.toString() === this.workOrder.wtr_id.toString()
       ).wtr_llabel;
-      this.assetLabel = this.simplifyString(
+      this.assetLabel = this.utils.simplifyAssetLabel(
         res[2].find(
           (refAsset) =>
             refAsset.id.toString() === this.workOrder.ass_id.toString()
         )?.ass_obj_table
       );
     });
-  }
-
-  private simplifyString(inputString: string): string {
-    if (!inputString) {
-      return '';
-    }
-
-    const parts = inputString.split(/\.aep_|\.ass_/);
-    const lastPart = parts[parts.length - 1];
-    const simplifiedString = lastPart.replace(/_/g, ' ').trim();
-    const capitalizedString =
-      simplifiedString.charAt(0).toUpperCase() + simplifiedString.slice(1);
-    return capitalizedString;
   }
 }

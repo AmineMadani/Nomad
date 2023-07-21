@@ -8,7 +8,7 @@ ion-input {
     width: 100%;
 }
 
-.wko-calendar {
+.wko-assets, .wko-calendar {
     display: flex;
     flex-direction: row;
     column-gap: 10px;
@@ -27,5 +27,14 @@ ion-input {
     ion-radio-group {
         display: flex;
         flex-direction: column;
+    }
+}
+
+.error-message {
+    margin-top: -15px;
+    margin-bottom: 15px;
+
+    ion-note {
+        --color: var(--ion-color-danger);
     }
 }
