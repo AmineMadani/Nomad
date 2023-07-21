@@ -27,6 +27,8 @@ export class KeycloakService {
   public initialState: string | undefined;
   private mobileUrlState: string | undefined;
 
+  private externalReport: string | undefined;
+
   configure(){
     if(this.configurationService.keycloak.active) {
       if (this.platform.ANDROID) {
@@ -154,8 +156,13 @@ export class KeycloakService {
     this.oauthService.setupAutomaticSilentRefresh();
 
     IntentAction.addListener('appActionIntent', res => {
-      console.log("event praxedo");
-      console.log(res);
+      if(res.extras.refextint) {
+        this.externalReport = res.extras.refextint;
+      }
+      this.externalReport = '3';
+      if(this.externalReport && this.hasValidToken()){
+        this.router.navigate(["/home/work-order/"+this.externalReport+"/cr"]);
+      }
     });
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
@@ -191,13 +198,20 @@ export class KeycloakService {
             // After updating the route, trigger login in oauthlib and
             this.oauthService.tryLogin().then(tryLoginResult => {
               if (this.oauthService.hasValidAccessToken()) {
-                if(!url.href.replace(url.origin,'').includes('/login')) {
-                  this.router.navigateByUrl(url.href.replace(url.origin,''));
+                if(!this.externalReport) {
+                  if(!url.href.replace(url.origin,'').includes('/login')) {
+                    this.router.navigateByUrl(url.href.replace(url.origin,''));
+                  } else {
+                    if(this.mobileUrlState){
+                      this.router.navigateByUrl(this.mobileUrlState);
+                      this.mobileUrlState=undefined;
+                    }
+                  }
                 } else {
                   if(this.mobileUrlState){
-                    this.router.navigateByUrl(this.mobileUrlState);
                     this.mobileUrlState=undefined;
                   }
+                  this.router.navigate(["/home/work-order/"+this.externalReport+"/cr"]);
                 }
                 this.loadUserProfile();
                 this.realmRoles = this.getRealmRoles();
@@ -207,5 +221,13 @@ export class KeycloakService {
           .catch(error => console.error(error));
       });
     });
+  }
+
+  /**
+   * Get access token
+   * @returns Access token
+   */
+  public getAccessToken(): string {
+    return this.oauthService.getAccessToken();
   }
 }

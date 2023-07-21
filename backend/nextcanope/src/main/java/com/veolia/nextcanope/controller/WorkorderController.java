@@ -3,7 +3,6 @@ package com.veolia.nextcanope.controller;
 import java.util.HashMap;
 import java.util.List;
 
-import com.veolia.nextcanope.dto.WorkorderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

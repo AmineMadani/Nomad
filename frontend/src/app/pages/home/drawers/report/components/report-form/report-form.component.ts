@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 import { CustomTask } from 'src/app/core/models/workorder.model';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
@@ -31,15 +30,6 @@ export class ReportFormComponent implements OnInit {
         this.form = JSON.parse(formTemplate.definition);
       }
     });
-  }
-
-  public onSubmit(form: FormGroup) {
-
-    form.markAllAsTouched();
-
-    if (form.valid) {
-      console.log("form valid!!");
-    }
   }
 
   public test() {

@@ -9,12 +9,13 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { OAuthModule } from 'angular-oauth2-oidc';
+import { OAuthModule, OAuthStorage } from 'angular-oauth2-oidc';
 import { TokenInterceptor } from './core/interceptors/token.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigurationService } from './core/services/configuration.service';
 import { DatePipe } from '@angular/common';
 import { ClipboardModule } from '@angular/cdk/clipboard';
+import { customOAuthStorageService } from './core/services/customOAuthStorage.service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     AppRoutingModule,
     HttpClientModule,
     OAuthModule.forRoot(),
-    ClipboardModule
+    ClipboardModule,
+    
   ],
   providers: [
     DatePipe,
@@ -40,7 +42,17 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
     },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    {
+      provide: OAuthStorage,
+      useClass: customOAuthStorageService
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initAuthStorage,
+      deps: [OAuthStorage],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
@@ -49,4 +61,8 @@ export class AppModule { }
 
 export function AppConfigurationFactory(appConfig: ConfigurationService) {
   return () => appConfig.ensureInit();
+}
+
+export function initAuthStorage(storage: customOAuthStorageService) {
+  return () => storage.init();
 }

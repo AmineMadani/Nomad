@@ -509,8 +509,11 @@ export class MapComponent implements OnInit, OnDestroy {
         if(!this.preventTouchMoveClicked) { 
           const nearestFeature = this.queryNearestFeature(e);
           this.onFeatureSelected(nearestFeature,e);
+        } else {
+          setTimeout(() => {
+            this.preventTouchMoveClicked=false;
+          }, 500);
         }
-        this.preventTouchMoveClicked=false;
       });
     
 
@@ -532,6 +535,7 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
+        this.preventTouchMoveClicked=true;
         this.scale = this.calculateScale();
       });
 

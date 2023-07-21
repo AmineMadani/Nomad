@@ -5,6 +5,7 @@ import { ExploitationService } from 'src/app/core/services/exploitation.service'
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
 import { Router } from '@angular/router';
+import { IntentAction } from 'plugins/intent-action/src';
 
 @Component({
   selector: 'app-report-create',
@@ -97,7 +98,11 @@ export class ReportCreateComponent implements OnInit {
     this.stepForm.formEditor.form.markAllAsTouched();
 
     if(this.stepForm.formEditor.form.valid) {
-      this.route.navigate(["/home"]);
+      if(this.isMobile) {
+        IntentAction.echo({value:"retour ok"});
+      } else {
+        this.route.navigate(["/home"]);
+      }
     }
   }
 

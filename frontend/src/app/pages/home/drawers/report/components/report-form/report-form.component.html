@@ -1,6 +1,5 @@
 <div style="margin:25px auto;width: 90%;">
-  <app-form-editor *ngIf="form" [nomadForm]="form" [editMode]="true"
-    (submitAction)="onSubmit($event)" #formEditor></app-form-editor>
+  <app-form-editor *ngIf="form" [nomadForm]="form" [editMode]="true" #formEditor></app-form-editor>
   <ng-containe  *ngIf="!form">
     Pas de formulaire disponible.
     Veuillez contacter votre responsable.
