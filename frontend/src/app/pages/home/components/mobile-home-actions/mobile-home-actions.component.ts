@@ -79,4 +79,18 @@ export class MobileHomeActionsComponent implements OnInit {
     this.mapService.setDrawMode('draw_rectangle');
     this.modalCtlr.dismiss();
   }
+
+  /**
+  * Call mapservice to share the click position
+  */
+  public  async onShareLocalisation() {
+    const centerMapPosition = this.mapService.getMap().getCenter();
+    this.mapService.sharePosition(centerMapPosition.lat, centerMapPosition.lng);
+  }
+  /**
+   * call mapservice to remone the pin of initial localisation
+   */
+  public async onRemoveMarker(){
+    await this.mapService.removeLocalisationMarker();
+  }
 }

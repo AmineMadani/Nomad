@@ -6,7 +6,11 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import {
+  AlertController,
+  LoadingController,
+  ToastController,
+} from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -18,7 +22,6 @@ import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { debounceTime, first, firstValueFrom, switchMap } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
-import { localisationExportMode } from 'src/app/core/models/layer.model';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -89,6 +92,8 @@ export class MapComponent implements OnInit, OnDestroy {
   private preventTouchMoveClicked: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
+  private clicklatitude: number;
+  private clicklongitute: number;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -185,8 +190,10 @@ export class MapComponent implements OnInit, OnDestroy {
       case 'WMS':
         mapLayer = {
           tiles: [
-            `${layer.map_url}?layer=${layer.map_layer
-            }&style=normal&tilematrixset=${layer.map_matrixset
+            `${layer.map_url}?layer=${
+              layer.map_layer
+            }&style=normal&tilematrixset=${
+              layer.map_matrixset
             }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
               layer.map_format
             )}&TileMatrix={z}&TileCol={x}&TileRow={y}`,
@@ -232,47 +239,131 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if there is an report in progress to finish
+   * @returns True if there is a external report in progress
+   */
+  public hasResumeReport(): boolean {
+    return this.keycloakService.externalReport ? true : false;
+  }
+
+  /**
+   * Navigate to the current report
+   */
+  public resumeReport() {
+    this.router.navigate([
+      '/home/work-order/' + this.keycloakService.externalReport + '/cr',
+    ]);
+  }
+
+  /**
    * Resets the rotation of the map to north.
    */
   public onResetRotation(): void {
     this.map.rotateTo(0);
   }
 
-  /**
-   * Sets the zoom level of the map to the value e.
-   * @param {number} e - e is a number representing the new zoom level that the map should be set to
-   */
-  public onZoomChange(e: number): void {
-    this.zoom = e;
-    this.map.zoomTo(this.zoom);
-  }
-
-  /**
-   * calculation of the resolution at level zero for 1 tile of 512
-   * circumference of the earth (6,378,137 m)
-   * resolution at zero zoom on the equator
-   * 40075.016686 * 1000 / 512 ≈ 6378137 * 2 * ft / 512 = 78271.516964020480767923472190235
-   *
-   * resolution depending on zoom level
-   * resolution = 156543.03 meters/pixel * cos(latitude) / (2^zoomlevel)
-   * scale = 1: (screen_dpi * 1/0.0254 in/m * resolution)
-   * we take a standard resolution of 90 dpi
-   * from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-   */
-  public calculateScale(): string {
-    const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
-    const resolutionAtLatitudeAndZoom: number =
-      (resolutionAtZeroZoom *
-        Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /
-      2 ** this.map.getZoom();
-    return (
-      '1: ' + Math.ceil((90 / 0.0254) * resolutionAtLatitudeAndZoom).toString()
-    );
-  }
-
   // --------------------- //
   // ---- MAP ACTIONS ---- //
   // --------------------- //
+
+  private addEvents(): void {
+    fromEvent(this.map, 'mousemove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        const mapElement = document.getElementById('map');
+        const canvasElement =
+          document.getElementsByClassName('maplibregl-canvas')[0];
+
+        if (
+          mapElement.classList.contains('mode-draw_polygon') ||
+          mapElement.classList.contains('mode-draw_rectangle')
+        ) {
+          canvasElement.classList.add('cursor-pointer');
+        } else if (canvasElement.classList.contains('cursor-pointer')) {
+          canvasElement.classList.remove('cursor-pointer');
+        }
+      });
+
+    // Loading tiles event
+    fromEvent(this.map, 'moveend')
+      .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
+      .subscribe(() => {
+        this.mapService.onMoveEnd();
+      });
+
+    // Hovering feature event
+    fromEvent(this.map, 'mousemove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.queryNearestFeature(e);
+        this.onFeatureHovered(nearestFeature);
+      });
+
+    // Click on feature event
+    fromEvent(this.map, 'click')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.queryNearestFeature(e);
+        this.onFeatureSelected(nearestFeature, e);
+      });
+
+    fromEvent(this.map, 'touchend')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        if (!this.preventTouchMoveClicked) {
+          const nearestFeature = this.queryNearestFeature(e);
+          this.onFeatureSelected(nearestFeature, e);
+        } else {
+          setTimeout(() => {
+            this.preventTouchMoveClicked = false;
+          }, 500);
+        }
+      });
+
+    fromEvent(this.map, 'touchmove')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        this.preventTouchMoveClicked = true;
+      });
+
+    // Right click, as context menu, event
+    fromEvent(this.map, 'contextmenu')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        const nearestFeature = this.queryNearestFeature(e);
+        this.openNomadContextMenu(e, nearestFeature);
+      });
+
+    // Ending zoom event
+    fromEvent(this.map, 'zoom')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        this.preventTouchMoveClicked = true;
+        this.scale = this.calculateScale();
+      });
+
+    // Ending zoom event
+    fromEvent(this.map, 'draw.create')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: any) => {
+        this.draw.deleteAll();
+
+        const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
+
+        const features = this.map.queryRenderedFeatures(
+          [this.map.project([maxX, maxY]), this.map.project([minX, minY])],
+          { layers: this.mapService.getCurrentLayersIds() }
+        );
+
+        if (features.length > 0) {
+          this.drawerService.navigateTo(
+            DrawerRouteEnum.SELECTION,
+            null,
+            features
+          );
+        }
+      });
+  }
 
   /**
    * Opens a context menu on the map and updates its content based on the selected feature.
@@ -294,6 +385,8 @@ export class MapComponent implements OnInit, OnDestroy {
     menu.className = 'show';
     menu.style.top = e.originalEvent.clientY - 56 + 'px';
     menu.style.left = e.originalEvent.clientX + 'px';
+    this.clicklatitude = e.lngLat.lat;
+    this.clicklongitute = e.lngLat.lng;
 
     if (!feature) {
       let l_ctr_id = await firstValueFrom(
@@ -368,18 +461,26 @@ export class MapComponent implements OnInit, OnDestroy {
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
 
-    /**
+  /**
    * Use the polygon drawing tool of MapboxDraw, with their input hidden
    */
-    public onRectangleSelection(): void {
-      (
-        document.getElementsByClassName(
-          'mapbox-gl-draw_ctrl-draw-btn'
-        )[0] as HTMLButtonElement
-      ).click();
-      this.draw.changeMode('draw_rectangle');
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-    }
+  public onRectangleSelection(): void {
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
+    this.draw.changeMode('draw_rectangle');
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+  }
+
+  /**
+   * Remove the pin representing the initial localisation
+   */
+  public async onRemoveMarker() {
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    await this.mapService.removeLocalisationMarker();
+  }
 
   /**
    * Use the geolocate feature of Maplibre, with their input hidden
@@ -404,7 +505,7 @@ export class MapComponent implements OnInit, OnDestroy {
       new Maplibregl.ScaleControl({
         unit: 'metric',
       }),
-      "bottom-right"
+      'bottom-right'
     );
     if (this.isMobile) {
       this.map.addControl(new CustomZoomControl(), 'bottom-right');
@@ -415,10 +516,10 @@ export class MapComponent implements OnInit, OnDestroy {
         polygon: true,
         trash: true,
       },
-      modes:{
+      modes: {
         ...MapboxDraw.modes,
-        draw_rectangle : DrawRectangle
-      }
+        draw_rectangle: DrawRectangle,
+      },
     });
     this.map.addControl(this.draw as any, 'top-left');
     this.mapService.setDraw(this.draw);
@@ -430,138 +531,32 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   public async onShareLocalisation(): Promise<void> {
     document.getElementById('map-nomad-context-menu').className = 'hide';
-
-    const alert = await this.alertCtrl.create({
-      header: 'Sous quelle forme voulez-vous partager votre position ?',
-      buttons: [
-        {
-          text: 'Lien Nomad',
-          role: localisationExportMode.nomadLink,
-        },
-        {
-          text: 'Coordonnées GPS',
-          role: localisationExportMode.gpsCoordinates,
-        },
-      ],
-    });
-
-    await alert.present();
-    const { role } = await alert.onDidDismiss();
-
-    const center = this.map.getCenter();
-    const clipboardText =
-      role === localisationExportMode.gpsCoordinates
-        ? `latitude: ${center.lat}, longitude: ${center.lng}`
-        : `${this.configurationService.host
-        }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${center.lat}&lng=${center.lng
-        }&zoom=${this.map.getZoom()}`;
-
-    this.clipboard.copy(clipboardText);
-
-    const toast = await this.toastCtrl.create({
-      message: 'Localisation copiée dans le presse-papier',
-      duration: 1500,
-      position: 'bottom',
-    });
-    await toast.present();
+    await this.mapService.sharePosition(
+      this.clicklatitude,
+      this.clicklongitute
+    );
   }
 
-  private addEvents(): void {
-    fromEvent(this.map, 'mousemove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        const mapElement = document.getElementById('map');
-        const canvasElement =
-          document.getElementsByClassName('maplibregl-canvas')[0];
+  /**
+   * Sets the zoom level of the map to the value e.
+   * @param {number} e - e is a number representing the new zoom level that the map should be set to
+   */
+  public onZoomChange(e: number): void {
+    this.zoom = e;
+    this.map.zoomTo(this.zoom);
+  }
 
-        if (mapElement.classList.contains('mode-draw_polygon') || mapElement.classList.contains('mode-draw_rectangle')) {
-          canvasElement.classList.add('cursor-pointer');
-        } else if (canvasElement.classList.contains('cursor-pointer')) {
-          canvasElement.classList.remove('cursor-pointer');
-        }
-      });
-
-    // Loading tiles event
-    fromEvent(this.map, 'moveend')
-      .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
-      .subscribe(() => {
-        this.mapService.onMoveEnd();
-      });
-
-    // Hovering feature event
-    fromEvent(this.map, 'mousemove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureHovered(nearestFeature);
-      });
-
-    // Click on feature event
-    fromEvent(this.map, 'click')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature,e);
-      });
-
-    
-    fromEvent(this.map, 'touchend')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        if(!this.preventTouchMoveClicked) { 
-          const nearestFeature = this.queryNearestFeature(e);
-          this.onFeatureSelected(nearestFeature,e);
-        } else {
-          setTimeout(() => {
-            this.preventTouchMoveClicked=false;
-          }, 500);
-        }
-      });
-    
-
-    fromEvent(this.map, 'touchmove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        this.preventTouchMoveClicked=true;
-      });
-
-    // Right click, as context menu, event
-    fromEvent(this.map, 'contextmenu')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.openNomadContextMenu(e, nearestFeature);
-      });
-
-    // Ending zoom event
-    fromEvent(this.map, 'zoom')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        this.preventTouchMoveClicked=true;
-        this.scale = this.calculateScale();
-      });
-
-    // Ending zoom event
-    fromEvent(this.map, 'draw.create')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: any) => {
-        this.draw.deleteAll();
-
-        const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
-
-        const features = this.map.queryRenderedFeatures(
-          [this.map.project([maxX, maxY]), this.map.project([minX, minY])],
-          { layers: this.mapService.getCurrentLayersIds() }
-        );
-
-        if (features.length > 0) {
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.SELECTION,
-            null,
-            features
-          );
-        }
-      });
+  /**
+   * event on the change of the scale by the user
+   * @param event the value of the user input
+   */
+  public onScaleChange(event: string): void {
+    const newValue = event;
+    const pattern = /^1:\s?(\d+)$/; //1:232500
+    const matchResult = newValue.match(pattern);
+    matchResult?.[1]
+      ? this.calculateZoomByScale(matchResult[1])
+      : (this.scale = this.calculateScale());
   }
 
   /**
@@ -654,7 +649,10 @@ export class MapComponent implements OnInit, OnDestroy {
    * @returns It navigates to a specific route in the application's drawer with some additional
    * properties.
    */
-  private onFeatureSelected(feature: Maplibregl.MapGeoJSONFeature, e: Maplibregl.MapMouseEvent): void {
+  private onFeatureSelected(
+    feature: Maplibregl.MapGeoJSONFeature,
+    e: Maplibregl.MapMouseEvent
+  ): void {
     if (!feature) {
       return;
     }
@@ -686,23 +684,34 @@ export class MapComponent implements OnInit, OnDestroy {
           route = DrawerRouteEnum.EQUIPMENT;
           break;
       }
-      this.drawerService.navigateTo(route, [properties['id']], { lyr_table_name: properties['lyr_table_name'] });
+      this.drawerService.navigateTo(route, [properties['id']], {
+        lyr_table_name: properties['lyr_table_name'],
+      });
       //this.drawerService.navigateTo(route, [properties['id']], { id: properties['id'], x: properties['x'], y: properties['y'], lyr_table_name: properties['lyr_table_name'] });
     }
   }
 
   /**
-   * event on the change of the scale by the user
-   * @param event the value of the user input
+   * calculation of the resolution at level zero for 1 tile of 512
+   * circumference of the earth (6,378,137 m)
+   * resolution at zero zoom on the equator
+   * 40075.016686 * 1000 / 512 ≈ 6378137 * 2 * ft / 512 = 78271.516964020480767923472190235
+   *
+   * resolution depending on zoom level
+   * resolution = 156543.03 meters/pixel * cos(latitude) / (2^zoomlevel)
+   * scale = 1: (screen_dpi * 1/0.0254 in/m * resolution)
+   * we take a standard resolution of 90 dpi
+   * from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
    */
-    public onScaleChange(event: string): void {
-    const newValue = event;
-    const pattern = /^1:\s?(\d+)$/; //1:232500
-    const matchResult = newValue.match(pattern);
-    matchResult?.[1]
-      ? this.calculateZoomByScale(matchResult[1])
-      : (this.scale = this.calculateScale());
-
+  private calculateScale(): string {
+    const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
+    const resolutionAtLatitudeAndZoom: number =
+      (resolutionAtZeroZoom *
+        Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /
+      2 ** this.map.getZoom();
+    return (
+      '1: ' + Math.ceil((90 / 0.0254) * resolutionAtLatitudeAndZoom).toString()
+    );
   }
 
   /**
@@ -710,29 +719,15 @@ export class MapComponent implements OnInit, OnDestroy {
    * inverse of calculateScale
    * @param scale right part of the scale with the format 1: xxxx with xxxx as number
    */
-  public calculateZoomByScale(scale : string): void {
+  private calculateZoomByScale(scale: string): void {
     const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
-    const resolutionAtLatitudeAndZoom = (Number(scale)*0.0254) /90;
-    this.map.setZoom(Math.log(
-                            (resolutionAtZeroZoom * Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /resolutionAtLatitudeAndZoom
-                            )
-                            /Math.log (2)
-                    );
+    const resolutionAtLatitudeAndZoom = (Number(scale) * 0.0254) / 90;
+    this.map.setZoom(
+      Math.log(
+        (resolutionAtZeroZoom *
+          Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /
+          resolutionAtLatitudeAndZoom
+      ) / Math.log(2)
+    );
   }
-
-  /**
-   * Check if there is an report in progress to finish
-   * @returns True if there is a external report in progress
-   */
-  public hasResumeReport():boolean{
-    return this.keycloakService.externalReport ? true : false;
-  }
-
-  /**
-   * Navigate to the current report
-   */
-  public resumeReport(){
-    this.router.navigate(['/home/work-order/'+this.keycloakService.externalReport+'/cr']);
-  }
-
 }
