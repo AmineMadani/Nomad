@@ -266,7 +266,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Does not work anymore with the new version without Form Editor, need to be repaired
+    // Does not work anymore with the new version without Form Editor, need to be repaired or fixed in a bug report
     // this.markerCreation.on('dragend', (e) => {
     //   this.referentialService
     //     .getReferentialIdByLongitudeLatitude(
