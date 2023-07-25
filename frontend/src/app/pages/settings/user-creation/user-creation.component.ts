@@ -26,6 +26,8 @@ export class UserCreationComponent implements OnInit {
   }
 
   public save(): void {
+    this.userForm.markAllAsTouched();
+
     if (!this.userForm.valid) {
       return;
     }

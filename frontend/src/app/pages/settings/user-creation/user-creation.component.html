@@ -5,7 +5,7 @@
         <h2>Création d'un nouvel utilisateur</h2>
       </ion-label>
 
-      <ion-button [disabled]="userForm.pristine && !userForm.valid" 
+      <ion-button [disabled]="userForm.pristine || !userForm.valid" 
         class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
         Enregistrer
       </ion-button>
