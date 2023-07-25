@@ -8,6 +8,7 @@ export class MapFeature {
   public appointment: boolean;
   public equipmentId: string;
   public lyr_table_name: string;
+  public wko_id: string;
   public x: number;
   public y: number;
 
@@ -24,6 +25,7 @@ export class MapFeature {
     mFeature.appointment = obj['wko_appointment'];
     mFeature.x = obj['longitude'] ? obj['longitude'] : obj['x'];
     mFeature.y = obj['latitude'] ? obj['latitude'] : obj['y'];
+    mFeature.wko_id = obj['wko_id'];
     mFeature.equipmentId = mFeature.id?.toString();
     mFeature.id = mFeature.id?.toString();
 

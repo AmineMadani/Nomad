@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.CustomWorkorderDto;
+import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.service.WorkOrderService;
 
@@ -40,7 +41,7 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<Workorder> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
+    public List<WorkorderDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
         return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
     

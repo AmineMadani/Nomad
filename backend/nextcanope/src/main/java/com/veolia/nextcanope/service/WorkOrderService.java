@@ -61,7 +61,7 @@ public class WorkOrderService {
      * @param searchParameter 
 	 * @return the workorder list
 	 */
-    public List<Workorder> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
+    public List<WorkorderDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
     	return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
     }
     

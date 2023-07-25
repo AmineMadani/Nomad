@@ -53,6 +53,9 @@ public class WorkorderDto {
 
     @JsonProperty("wko_agent_nb")
     private Integer wkoAgentNb ;
+    
+    @JsonProperty("wko_id")
+    private Long wkoId;
 
     public Long getId() {
         return id;
@@ -170,6 +173,14 @@ public class WorkorderDto {
 
 	public void setCtrId(Long ctrId) {
 		this.ctrId = ctrId;
+	}
+	
+	public Long getWkoId() {
+		return wkoId;
+	}
+
+	public void setWkoId(Long wkoId) {
+		this.wkoId = wkoId;
 	}
 
 	public WorkorderDto() {
