@@ -862,7 +862,6 @@
             <column dbComment="longitude" dbDefaultValue="" dbName="longitude" dbNotNull="false" dbPosition="18" dbSize="0" dbTypeName="numeric" inputType="number" javaName="longitude" javaType="java.math.BigDecimal" jdbcTypeCode="2" label="Longitude" notNull="false" selected="true"/>
             <column dbComment="latitude" dbDefaultValue="" dbName="latitude" dbNotNull="false" dbPosition="19" dbSize="0" dbTypeName="numeric" inputType="number" javaName="latitude" javaType="java.math.BigDecimal" jdbcTypeCode="2" label="Latitude" notNull="false" selected="true"/>
             <column dbComment="Geometry of the task" dbDefaultValue="" dbName="geom" dbNotNull="false" dbPosition="20" dbSize="2147483647" dbTypeName="geometry" inputType="" javaName="geom" javaType="java.lang.String" jdbcTypeCode="1111" label="Geom" maxLength="2147483647" notNull="false" selected="true"/>
-            <column dateType="DT" dbComment="" dbDefaultValue="" dbName="tsk_report_date" dbNotNull="false" dbPosition="21" dbSize="29" dbTypeName="timestamp" inputType="" javaName="tskReportDate" javaType="java.util.Date" jdbcTypeCode="93" label="Tsk report date" notNull="false" selected="true"/>
             <fk name="task_ass_id_fkey">
                 <fkcol colname="ass_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="task" tableref="asset" updaterule="3"/>
             </fk>
@@ -935,7 +934,9 @@
             <column dbComment="Last Modificator Id" dbDefaultValue="0" dbName="usr_umod_id" dbNotNull="false" dbPosition="7" dbSize="19" dbTypeName="int8" inputType="number" javaName="usrUmodId" javaType="java.lang.Long" jdbcTypeCode="-5" label="Usr umod id" notNull="false" selected="true"/>
             <column dateType="DT" dbComment="Creation date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="usr_dcre" dbNotNull="false" dbPosition="8" dbSize="29" dbTypeName="timestamp" inputType="" javaName="usrDcre" javaType="java.util.Date" jdbcTypeCode="93" label="Usr dcre" notNull="false" selected="true"/>
             <column dateType="DT" dbComment="Last modification date" dbDefaultValue="CURRENT_TIMESTAMP" dbName="usr_dmod" dbNotNull="false" dbPosition="9" dbSize="29" dbTypeName="timestamp" inputType="" javaName="usrDmod" javaType="java.util.Date" jdbcTypeCode="93" label="Usr dmod" notNull="false" selected="true"/>
+            <column dbComment="" dbDefaultValue="'interne'::text" dbName="usr_status" dbNotNull="true" dbPosition="11" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrStatus" javaType="java.lang.String" jdbcTypeCode="12" label="Usr status" maxLength="2147483647" notEmpty="true" notNull="true" selected="true"/>
             <column dbComment="User configuration" dbDefaultValue="" dbName="usr_configuration" dbNotNull="false" dbPosition="11" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrConfiguration" javaType="java.lang.String" jdbcTypeCode="12" label="Usr configuration" maxLength="2147483647" notNull="false" selected="true"/>
+            <column dbComment="" dbDefaultValue="" dbName="usr_company" dbNotNull="false" dbPosition="12" dbSize="2147483647" dbTypeName="text" inputType="text" javaName="usrCompany" javaType="java.lang.String" jdbcTypeCode="12" label="Usr company" maxLength="2147483647" notNull="false" selected="true"/>
             <fk name="fk_usr_ucre_id">
                 <fkcol colname="usr_ucre_id" colref="id" deferrable="7" deleterule="3" sequence="1" tablename="users" tableref="users" updaterule="3"/>
             </fk>

@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 
+interface MenuItems {
+  title: string;
+  items: { url: string; title: string; disabled?: boolean }[];
+}
+
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
   styleUrls: ['./settings.page.scss'],
 })
 export class SettingsPage implements OnInit {
-  constructor() { }
+  constructor() {}
 
-  menuItems = [
+  public menuItems: MenuItems[] = [
     {
       title: 'Généralités',
       items: [
@@ -24,7 +29,7 @@ export class SettingsPage implements OnInit {
           url: 'events',
           title: 'Affichage des évènements',
         },
-      ]
+      ],
     },
     {
       title: 'Paramétrage par contact',
@@ -35,13 +40,32 @@ export class SettingsPage implements OnInit {
         },
         {
           url: 'workorder',
-          title: 'Génération d\'intervention',
+          title: "Génération d'intervention",
         },
         {
           url: 'report',
           title: 'Compte-rendu',
         },
-      ]
+      ],
+    },
+    {
+      title: 'Gestion des droits',
+      items: [
+        {
+          url: 'profiles',
+          title: 'Consultation des profils existants',
+          disabled: true,
+        },
+        {
+          url: 'user',
+          title: "Création d'un nouvel utilisateur",
+        },
+        {
+          url: 'contracts',
+          title: 'Gestion des périmètres contractuels',
+          disabled: true,
+        },
+      ],
     },
   ];
 

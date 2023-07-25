@@ -2,10 +2,15 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
+import com.veolia.nextcanope.dto.payload.UserCreationPayload;
+import com.veolia.nextcanope.utils.ResponseMessage;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,5 +63,17 @@ public class UserController {
 	})
 	public List<AccountDto> getAllUserAccount() {
 		return this.userService.getAllUserAccount();
+	}
+
+	@PostMapping(path = "/")
+	@Operation(summary = "Create a new user.")
+	@ApiResponses(value = {
+			@ApiResponse(description= "Creation of an user", content =  {
+					@Content(schema = @Schema(implementation = String.class))
+			})
+	})
+	public ResponseMessage createUser(@RequestBody UserCreationPayload userPayload, AccountTokenDto account) {
+		this.userService.createUser(userPayload, account.getId());
+		return new ResponseMessage("L'utilisateur a été créé avec succès.");
 	}
 }

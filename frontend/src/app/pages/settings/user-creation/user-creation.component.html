@@ -1,0 +1,83 @@
+<form [formGroup]="userForm" (ngSubmit)="save()" class="settings-content-template">
+  <div class="settings-content-header-height">
+    <div class="settings-content-template-header">
+      <ion-label class="label">
+        <h2>Création d'un nouvel utilisateur</h2>
+      </ion-label>
+
+      <ion-button [disabled]="userForm.pristine || !userForm.valid" 
+        class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
+        Enregistrer
+      </ion-button>
+    </div>
+
+    <div class="separation-line"></div>
+  </div>
+
+  <div class="settings-user-creation">
+    <div class="user-general">
+      <ion-item lines="none" class="ion-no-margin">
+        <ion-label class="label">
+          <h3>Généralité</h3>
+        </ion-label>
+      </ion-item>
+      <div class="user-creation-form">
+        <div class="user-creation-row">
+          <ion-input aria-label="lastname" labelPlacement="floating" fill="outline" label="Nom *" formControlName="lastname" errorText="Le nom est obligatoire." />
+          <ion-input aria-label="firstname" labelPlacement="floating" fill="outline" label="Prénom *" formControlName="firstname" errorText="Le prénom est obligatoire." />
+        </div>
+        <div class="user-creation-row">
+          <ion-input aria-label="mail" labelPlacement="floating" fill="outline" label="E-Mail *" formControlName="mail" errorText="L'e-mail est obligatoire ou invalide." email />
+        </div>
+        <div class="user-creation-row">
+          <ion-select aria-label="status" label="Statut *" label-placement="floating" fill="outline" [value]="'interne'" formControlName="status">
+            <ion-select-option value="interne">Interne</ion-select-option>
+            <ion-select-option value="externe">Externe</ion-select-option>
+          </ion-select>
+          <ion-input aria-label="company" labelPlacement="floating" fill="outline" label="Société" formControlName="company" />
+        </div>
+      </div>
+    </div>
+
+    <div class="user-perimeter">
+      <ion-item lines="none" class="ion-no-margin">
+        <ion-label class="label">
+          <h3>Périmètre et profil</h3>
+        </ion-label>
+      </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col offset="1" size="1">Libellé</ion-col>
+          <ion-col size="1">Région</ion-col>
+          <ion-col size="1">Territoire</ion-col>
+          <ion-col size="1">Contrats</ion-col>
+          <ion-col size="1">Profil</ion-col>
+        </ion-row>
+        <ion-row *ngFor="let contractForm of contractForms; let i = index">
+          <ion-col><ion-label>Périmètre {{ i + 1 }}</ion-label></ion-col>
+          <ion-col>
+            <ion-input aria-label="label" labelPlacement="floating" fill="outline" label="Libellé" />
+          </ion-col>
+          <ion-col>
+            <ion-input aria-label="area" labelPlacement="floating" fill="outline" label="Région" />
+          </ion-col>
+          <ion-col>
+            <ion-input aria-label="territory" labelPlacement="floating" fill="outline" label="Térritoire" />
+          </ion-col>
+          <ion-col>
+            <ion-input aria-label="contracts" labelPlacement="floating" fill="outline" label="Contrats" />
+          </ion-col>
+          <ion-col>
+            <ion-input aria-label="profile" labelPlacement="floating" fill="outline" label="Profil" />
+          </ion-col>
+          <ion-col>
+            <ion-icon name="pencil-outline"></ion-icon>
+            <ion-icon name="trash-outline"></ion-icon>
+            <ion-icon name="warning-outline"></ion-icon>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-button shape="round" (click)="addContractForm()">Ajouter un périmètre</ion-button>
+    </div>
+  </div>
+</form>

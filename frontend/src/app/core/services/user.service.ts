@@ -4,6 +4,7 @@ import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
+import { Observable } from 'rxjs';
 
 /**
  * Enum of cache items in local storage
@@ -24,7 +25,6 @@ export class UserService {
     private router: Router,
     private preferenceService: PreferenceService
   ) { }
-
 
   /**
    * Create UserContext on Home page
@@ -60,7 +60,7 @@ export class UserService {
    * If the user is not found in local storage, get the user from the server and store it in local storage.
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
-  async getUser(): Promise<User | undefined> {
+  public async getUser(): Promise<User | undefined> {
     const usr: any = await this.userDataService.getUserInformation();
     if (usr.usrConfiguration) {
       usr.usrConfiguration = JSON.parse(usr.usrConfiguration);
@@ -79,7 +79,7 @@ export class UserService {
    * Store the given user in local storage.
    * @param user The user to store in local storage.
    */
-  setUser(user: User) {
+  public setUser(user: User): void {
     this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
     this.updateUser(user);
   }
@@ -87,7 +87,7 @@ export class UserService {
   /**
    * Remove the current user from local storage.
    */
-  resetUser() {
+  public resetUser(): void {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER);
   }
 
@@ -95,9 +95,18 @@ export class UserService {
    * Update the user data
    * @param user  the user
    */
-  updateUser(user: User) {
+  public updateUser(user: User): void {
     this.userDataService.updateUser(user);
   }
+
+    /**
+   * Create an user
+   * @param user the user to create
+   */
+    public createUser(user: User): Observable<any> {
+      return this.userDataService.createUser(user);
+    }
+  
 
   /**
    * Restoring users view preferences
@@ -113,18 +122,6 @@ export class UserService {
     }
     else {
       this.restoreFilter(context);
-    }
-  }
-
-  private restoreFilter(context: Context): void {
-    if (context) {
-      this.mapService.setZoom(context.zoom);
-      this.mapService.setCenter([context.lng, context.lat]);
-      if (context.layers && context.layers.length > 0) {
-        for (let layer of context.layers) {
-            this.mapService.addEventLayer(layer[0], layer[1]);
-        }
-      }
     }
   }
 
@@ -153,5 +150,17 @@ export class UserService {
   public resetUserContext()
   {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER_CONTEXT);
+  }
+
+  private restoreFilter(context: Context): void {
+    if (context) {
+      this.mapService.setZoom(context.zoom);
+      this.mapService.setCenter([context.lng, context.lat]);
+      if (context.layers && context.layers.length > 0) {
+        for (let layer of context.layers) {
+            this.mapService.addEventLayer(layer[0], layer[1]);
+        }
+      }
+    }
   }
 }

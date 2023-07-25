@@ -12,7 +12,7 @@
           </ion-label>
           <ion-list id="inbox-list">
             <ion-item  *ngFor="let item of menu.items;" [routerLink]="item.url"
-              routerLinkActive="ion-activated-background" routerDirection="root"  lines="none" detail="false">
+              routerLinkActive="ion-activated-background" routerDirection="root"  lines="none" detail="false" [disabled]="item?.disabled">
               <ion-label>
                 <p>{{ item.title }}</p>
               </ion-label>

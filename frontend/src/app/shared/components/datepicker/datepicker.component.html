@@ -56,7 +56,7 @@
     <ion-button fill="clear" (click)="close()">Annuler</ion-button>
     <ion-button fill="clear" (click)="reset()">Réinitialiser</ion-button>
     <ion-button fill="clear" (click)="validate()"
-      [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">Valider</ion-button>
+      [disabled]="selectedDates.size < 1">Valider</ion-button>
   </div>
 </ng-container>
 
@@ -71,7 +71,7 @@
       Réinitialiser
     </ion-tab-button>
     <ion-tab-button (click)="validate()"
-      [disabled]="isMultiple && selectedDates.size < 2 || !isMultiple && selectedDates.size < 1">
+      [disabled]="selectedDates.size < 1">
       <ion-icon name="checkmark-outline"></ion-icon>
       Valider
     </ion-tab-button>

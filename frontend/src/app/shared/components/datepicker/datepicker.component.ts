@@ -37,8 +37,8 @@ export class DatepickerComponent implements OnInit {
     setTimeout(() => {
       document
         .getElementById(DateTime.local().toFormat('yyyyMMMM'))
-        ?.scrollIntoView({ behavior: 'smooth' });
-    }, 1000);
+        ?.scrollIntoView({ behavior: 'auto' });
+    }, 100);
   }
 
   public changeYear(change: number): void {

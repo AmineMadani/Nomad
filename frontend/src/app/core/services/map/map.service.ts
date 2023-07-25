@@ -7,11 +7,14 @@ import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
 import { Basemap } from '../../models/basemap.model';
-import { Layer } from '../../models/layer.model';
+import { Layer, localisationExportMode  } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapEventService } from './map-event.service';
+import { DrawerRouteEnum } from '../../models/drawer.model';
+import { AlertController, ToastController } from '@ionic/angular';
+import { Clipboard } from '@capacitor/clipboard';
 
 export interface Box {
   x1: number;
@@ -29,7 +32,9 @@ export class MapService {
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService,
     private configurationService: ConfigurationService,
-    private mapEventService: MapEventService
+    private mapEventService: MapEventService,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
   ) {
   }
 
@@ -48,12 +53,18 @@ export class MapService {
   private loadingLayer: Map<string, Promise<void>> = new Map<string, Promise<void>>();
   private loadingStyle: Map<string, string[]> = new Map<string, string[]>();
   private loadedLayer: Array<string> = new Array<string>();
+  private localisationMarker  : Maplibregl.Marker = undefined;
   private removeLoadingLayer: Array<string> = new Array<string>();
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
    * zoom level and overlapping tiles.
+   * if latitude, longitude and zoom are setted the map will be centered, the zoom will be applyed and a pin will be added
    * @returns The function `createMap()` returns an instance of the `Maplibregl.Map` class.
+   * @param lat latitude of the center of the map
+   * @param lng longitude of the center of the map
+   * @param zoom zoom level
+   * @returns
    */
   public createMap(lat?: number, lng?: number, zoom?: number): Maplibregl.Map {
     this.mapLibreSpec.sprite =
@@ -65,6 +76,11 @@ export class MapService {
       zoom: zoom ?? 14,
       maxZoom: 22,
     });
+    if(lng && lat && zoom){
+      this.localisationMarker = new Maplibregl.Marker({
+      draggable: false}).setLngLat([lng,lat])
+                        .addTo(this.getMap());
+    }
     this.map.dragRotate.disable();
     return this.map;
   }
@@ -567,4 +583,44 @@ export class MapService {
     glyphs: '/assets/myFont.pbf?{fontstack}{range}',
     sprite: this.configurationService.host + 'assets/sprites/@2x',
   };
+
+  /**
+   * Share a position by GPS coordinates or Uri link to application.
+   * the uri link contains the zoom level
+   * @param latitude latitude
+   * @param longitude longitude
+   */
+  public async sharePosition(latitude : number, longitude:number) {
+    const alert = await this.alertCtrl.create({
+      header: 'Sous quelle forme voulez-vous partager votre position ?',
+      buttons: [
+        {
+          text: 'Lien Nomad',
+          role: localisationExportMode.nomadLink,
+        },
+        {
+          text: 'Coordonnées GPS',
+          role: localisationExportMode.gpsCoordinates,
+        },
+      ],
+    });
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+    const clipboardText: string = role === localisationExportMode.gpsCoordinates
+      ? `latitude: ${latitude}, longitude: ${longitude}`
+      : `${this.configurationService.host}${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
+      await Clipboard.write({string: clipboardText});
+      const toast = await this.toastCtrl.create({
+      message: 'Localisation copiée dans le presse-papier',
+      duration: 1500,
+      position: 'bottom',
+    });
+    await toast.present();
+  }
+  /**
+   * Remove the pin corresponding to localisation
+   */
+  public async removeLocalisationMarker()  {
+    this.localisationMarker.remove();
+  }
 }

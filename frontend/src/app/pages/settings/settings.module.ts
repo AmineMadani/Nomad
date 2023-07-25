@@ -11,6 +11,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { PatrimonySettingsComponent } from './patrimony-settings/patrimony-settings.component';
 import { SettingsSegmentComponent } from './components/settings-segment/settings-segment.component';
 import { LayerReferencesSettingsComponent } from './layer-references-settings/layer-references-settings.component';
+import { UserCreationComponent } from './user-creation/user-creation.component';
 
 @NgModule({
   imports: [
@@ -23,9 +24,10 @@ import { LayerReferencesSettingsComponent } from './layer-references-settings/la
   ],
   declarations: [
     SettingsPage,
+    SettingsSegmentComponent,
     PatrimonySettingsComponent,
     LayerReferencesSettingsComponent,
-    SettingsSegmentComponent
+    UserCreationComponent,
   ]
 })
 export class SettingsPageModule {}

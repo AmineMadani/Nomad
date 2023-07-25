@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { SynthesisButton } from '../synthesis.drawer';
@@ -23,7 +23,8 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
     private drawer: DrawerService,
   ) {}
 
-  @ViewChild('wkoCreation', { static: true }) public wkoCreation: WkoCreationComponent;
+  // As the component is in a ng-template, it's not accessible with a simple ViewChild
+  @ViewChildren(WkoCreationComponent) public wkoCreations: QueryList<WkoCreationComponent>;
 
   public buttons: SynthesisButton[] = [
     { key: 'note', label: 'Compte-rendu', icon: 'reader' },
@@ -84,9 +85,9 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
   }
 
   public onSubmit(): void {
-    this.wkoCreation.workOrderForm.markAllAsTouched();
-    if (this.wkoCreation.workOrderForm.valid) {
-      this.wkoCreation.onSubmit();
+    this.wkoCreations.first.workOrderForm.markAllAsTouched();
+    if (this.wkoCreations.first.workOrderForm.valid) {
+      this.wkoCreations.first.onSubmit();
     }
   }
 

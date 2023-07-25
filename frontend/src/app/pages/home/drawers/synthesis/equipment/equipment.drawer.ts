@@ -14,6 +14,7 @@ import { LayerService } from 'src/app/core/services/map/layer.service';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { filter, of } from 'rxjs';
 import { AppDB } from 'src/app/core/models/app-db.model';
+import { CacheService } from 'src/app/core/services/cache.service';
 
 @Component({
   selector: 'app-equipment',
@@ -26,16 +27,18 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private layerReferencesService: LayerReferencesService,
     private utils: UtilsService,
     private drawer: DrawerService,
+    private cacheService: CacheService
   ) {}
 
   public buttons: SynthesisButton[] = [
-    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' }
+    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' },
   ];
 
   public userReferences: UserReference[] = [];
   public equipment: any;
   public isMobile: boolean;
   public isDetailAvailabled: boolean = false;
+  public assetLabel: string;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -68,10 +71,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   public onInitEquipment(feature: any) {
     from(
-      this.layerReferencesService.getUserReferences(
-        feature.lyr_table_name
-      )
-    ).subscribe((refs: UserReference[]) => {
+      this.layerReferencesService.getUserReferences(feature.lyr_table_name)
+    ).subscribe(async (refs: UserReference[]) => {
+      const currentLayer = (
+        await this.cacheService.getObjectFromCache('referentials', 'layers')
+      ).data.find((l) => l.lyrTableName === `asset.${feature.lyr_table_name}`);
+      this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
       this.equipment = feature;
       this.isDetailAvailabled = true;

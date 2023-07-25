@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { SettingsPage } from './settings.page';
 import { PatrimonySettingsComponent } from './patrimony-settings/patrimony-settings.component';
 import { LayerReferencesSettingsComponent } from './layer-references-settings/layer-references-settings.component';
+import { UserCreationComponent } from './user-creation/user-creation.component';
 
 const routes: Routes = [
   {
@@ -39,6 +40,10 @@ const routes: Routes = [
         path: 'report',
         component: PatrimonySettingsComponent,
       },
+      {
+        path: 'user',
+        component: UserCreationComponent,
+      }
     ],
   }
 ];

@@ -94,19 +94,20 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       })
       .afterClosed()
-      .pipe(filter((dts: DateTime[]) => dts && dts.length === 2))
+      .pipe(filter((dts: DateTime[]) => dts && (dts.length === 1 || dts.length === 2)))
       .subscribe((result: DateTime[]) => {
         this.workOrderForm.patchValue({
           wkoPlanningStartDate: this.datePipe.transform(
             result[0].toJSDate(),
-            'yyyy-MM-dd'
+            'dd-MM-yyyy'
           ),
         });
 
         this.workOrderForm.patchValue({
           wkoPlanningEndDate: this.datePipe.transform(
-            result[1].toJSDate(),
-            'yyyy-MM-dd'
+            // if only one day is clicked, end date and start date fields get the same value
+            result[1] ? result[1].toJSDate() : result[0].toJSDate(),
+            'dd-MM-yyyy'
           ),
         });
       });
@@ -145,6 +146,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
+    let [day, month, year] = form.wkoPlanningStartDate.split('-');
+    form.wkoPlanningStartDate = this.datePipe.transform(new Date(year, month - 1, day),'yyyy-MM-dd');
+    [day, month, year] = form.wkoPlanningEndDate.split('-');
+    form.wkoPlanningEndDate = this.datePipe.transform(new Date(year, month - 1, day),'yyyy-MM-dd');
     form.tasks = assets;
     form.latitude =
       assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
@@ -266,7 +271,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Does not work anymore with the new version without Form Editor, need to be repaired
+    // Does not work anymore with the new version without Form Editor, need to be repaired or fixed in a bug report
     // this.markerCreation.on('dragend', (e) => {
     //   this.referentialService
     //     .getReferentialIdByLongitudeLatitude(
