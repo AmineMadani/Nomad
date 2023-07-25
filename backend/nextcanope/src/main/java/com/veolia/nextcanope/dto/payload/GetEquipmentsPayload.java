@@ -1,4 +1,4 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.payload;
 
 import java.util.List;
 

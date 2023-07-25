@@ -59,7 +59,6 @@ export class SettingsPage implements OnInit {
         {
           url: 'user',
           title: "Création d'un nouvel utilisateur",
-          disabled: true,
         },
         {
           url: 'contracts',

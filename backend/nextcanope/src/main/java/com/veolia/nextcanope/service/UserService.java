@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.veolia.nextcanope.dto.payload.UserCreationPayload;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,5 +59,25 @@ public class UserService {
 		}
 
 		return updateUser;
+	}
+
+	public void createUser(UserCreationPayload userPayload, Long ucreId) {
+		Users user = new Users();
+		user.setUsrFirstName(userPayload.getFirstname());
+		user.setUsrLastName(userPayload.getLastname());
+		user.setUsrEmail(userPayload.getMail());
+		user.setUsrStatus(userPayload.getStatus());
+		user.setUsrCompany(userPayload.getCompany());
+		user.setUsrUcreId(ucreId);
+		user.setUsrUmodId(ucreId);
+		user.setUsrValid(true);
+		user.setUsrDcre(new Date());
+		user.setUsrDmod(new Date());
+
+		try {
+			this.userRepository.save(user);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la création d'un utilisateur.", e.getMessage());
+		}
 	}
 }

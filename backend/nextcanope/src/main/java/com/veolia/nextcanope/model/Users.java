@@ -68,9 +68,17 @@ public class Users implements Serializable {
 	@JsonProperty("usr_dmod")
     private Date usrDmod ;
 
+    @Column(name="usr_status", nullable=false, length=2147483647)
+	@JsonProperty("usr_status")
+    private String usrStatus ;
+
     @Column(name="usr_configuration", length=2147483647)
 	@JsonProperty("usr_configuration")
     private String usrConfiguration ;
+
+    @Column(name="usr_company", length=2147483647)
+	@JsonProperty("usr_company")
+    private String usrCompany ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -212,11 +220,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus ; 
+    private List<Basemaps> listOfCreatedBasemaps ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Basemaps> listOfCreatedBasemaps ; 
+    private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus ; 
 
 
     @OneToMany(mappedBy="users")
@@ -245,16 +253,16 @@ public class Users implements Serializable {
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Users> listOfCreatedUsers ; 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<VlTopologyType> listOfModifiedVlTopologyType ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Street> listOfModifiedStreet ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<VlTopologyType> listOfModifiedVlTopologyType ; 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Users> listOfCreatedUsers ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -270,11 +278,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Street> listOfCreatedStreet ; 
+    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<VlTopologyType> listOfCreatedVlTopologyType ; 
+    private List<Street> listOfCreatedStreet ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -286,11 +294,11 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
+    private List<Workorder> listOfModifiedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Workorder> listOfModifiedWorkorder ; 
+    private List<LayerReferencesUser> listOfModifiedLayerReferences ; 
 
 
     @OneToMany(mappedBy="modifiedBy")
@@ -302,25 +310,25 @@ public class Users implements Serializable {
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
+    private List<Workorder> listOfCreatedWorkorder ; 
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Workorder> listOfCreatedWorkorder ; 
+    private List<LayerReferencesUser> listOfCreatedLayerReferences ; 
 
 
     @OneToMany(mappedBy="createdBy")
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom ; 
 
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Layer> listOfCreatedLayer ; 
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
 	@JsonIgnore
     private Users modifiedBy ; 
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Layer> listOfCreatedLayer ; 
 
 
     /**
@@ -402,12 +410,28 @@ public class Users implements Serializable {
         return this.usrDmod;
     }
 
+	public void setUsrStatus( String usrStatus ) {
+        this.usrStatus = usrStatus ;
+    }
+
+    public String getUsrStatus() {
+        return this.usrStatus;
+    }
+
 	public void setUsrConfiguration( String usrConfiguration ) {
         this.usrConfiguration = usrConfiguration ;
     }
 
     public String getUsrConfiguration() {
         return this.usrConfiguration;
+    }
+
+	public void setUsrCompany( String usrCompany ) {
+        this.usrCompany = usrCompany ;
+    }
+
+    public String getUsrCompany() {
+        return this.usrCompany;
     }
 
     //--- GETTERS FOR LINKS
@@ -547,12 +571,12 @@ public class Users implements Serializable {
         return this.listOfModifiedWorkorderTaskStatus;
     } 
 
-    public List<WorkorderTaskStatus> getListOfCreatedWorkorderTaskStatus() {
-        return this.listOfCreatedWorkorderTaskStatus;
-    } 
-
     public List<Basemaps> getListOfCreatedBasemaps() {
         return this.listOfCreatedBasemaps;
+    } 
+
+    public List<WorkorderTaskStatus> getListOfCreatedWorkorderTaskStatus() {
+        return this.listOfCreatedWorkorderTaskStatus;
     } 
 
     public List<LayerStyleCustom> getListOfLayerStyleCustom() {
@@ -579,16 +603,16 @@ public class Users implements Serializable {
         return this.listOfCreatedLayerReferencesDefault;
     } 
 
-    public List<Users> getListOfCreatedUsers() {
-        return this.listOfCreatedUsers;
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
     } 
 
     public List<Street> getListOfModifiedStreet() {
         return this.listOfModifiedStreet;
     } 
 
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
+    public List<Users> getListOfCreatedUsers() {
+        return this.listOfCreatedUsers;
     } 
 
     public List<Report> getListOfModifiedReport() {
@@ -603,12 +627,12 @@ public class Users implements Serializable {
         return this.listOfLayerReferences;
     } 
 
-    public List<Street> getListOfCreatedStreet() {
-        return this.listOfCreatedStreet;
-    } 
-
     public List<VlTopologyType> getListOfCreatedVlTopologyType() {
         return this.listOfCreatedVlTopologyType;
+    } 
+
+    public List<Street> getListOfCreatedStreet() {
+        return this.listOfCreatedStreet;
     } 
 
     public List<Report> getListOfCreatedReport() {
@@ -619,12 +643,12 @@ public class Users implements Serializable {
         return this.listOfCreatedDomains;
     } 
 
-    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
-        return this.listOfModifiedLayerReferences;
-    } 
-
     public List<Workorder> getListOfModifiedWorkorder() {
         return this.listOfModifiedWorkorder;
+    } 
+
+    public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
+        return this.listOfModifiedLayerReferences;
     } 
 
     public List<FormTemplateCustom> getListOfModifiedFormTemplateCustom() {
@@ -635,24 +659,24 @@ public class Users implements Serializable {
         return this.listOfModifiedLayer;
     } 
 
-    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
-        return this.listOfCreatedLayerReferences;
-    } 
-
     public List<Workorder> getListOfCreatedWorkorder() {
         return this.listOfCreatedWorkorder;
+    } 
+
+    public List<LayerReferencesUser> getListOfCreatedLayerReferences() {
+        return this.listOfCreatedLayerReferences;
     } 
 
     public List<FormTemplateCustom> getListOfCreatedFormTemplateCustom() {
         return this.listOfCreatedFormTemplateCustom;
     } 
 
-    public List<Layer> getListOfCreatedLayer() {
-        return this.listOfCreatedLayer;
-    } 
-
     public Users getModifiedBy() {
         return this.modifiedBy;
+    } 
+
+    public List<Layer> getListOfCreatedLayer() {
+        return this.listOfCreatedLayer;
     } 
 
 

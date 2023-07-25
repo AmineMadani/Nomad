@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import com.veolia.nextcanope.exception.TechnicalException;
 
-import com.veolia.nextcanope.dto.GetEquipmentsPayload;
+import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

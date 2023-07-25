@@ -1,0 +1,44 @@
+.settings-content-template {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+
+  .settings-user-creation {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 20px;
+
+    .user-general {
+      flex: 0;
+      .user-creation-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      
+        .user-creation-row {
+          display: flex;
+          flex-direction: row;
+          column-gap: 20px;
+        }
+      }
+    }
+
+    .user-perimeter {
+      flex: 1;
+      overflow: auto;
+
+      ion-grid {
+        --ion-grid-columns: 7;
+      
+        ion-col {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}

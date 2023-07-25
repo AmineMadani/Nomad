@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.utils.ResponseMessage;
-import com.veolia.nextcanope.dto.GetEquipmentsPayload;
+import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

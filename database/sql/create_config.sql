@@ -37,6 +37,8 @@ create table users
   usr_first_name    text not null,
   usr_last_name	    text not null,
   usr_email	        text unique not null,
+  usr_status        text not null default 'interne',
+  usr_company       text,
   -- Technical metadata
   usr_valid         boolean default True,
   usr_ucre_id       bigint default 0,
