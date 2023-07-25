@@ -44,7 +44,7 @@ export class ReportCreateComponent implements OnInit {
     this.isMobile = this.utils.isMobilePlateform();
     this.referential.getReferential('workorder_task_status').then(lStatus => {
       const status = lStatus.find(sts => sts['id'] == this.workorder.wtsId);
-      if(status.wts_code == 'TERMINE') {
+      if (status.wts_code == 'TERMINE') {
         this.presentAlert();
       }
     });
@@ -172,7 +172,7 @@ export class ReportCreateComponent implements OnInit {
             answer: this.stepForm.formEditor.form.value[definition.key]
           });
 
-          if(definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
+          if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
             comment = this.stepForm.formEditor.form.value[definition.key];
           }
         }
@@ -182,7 +182,6 @@ export class ReportCreateComponent implements OnInit {
       this.exploitationDataService.updateWorkOrder(this.workorder).subscribe(res => {
         this.closeReport();
       });
-
     }
   }
 
@@ -190,23 +189,21 @@ export class ReportCreateComponent implements OnInit {
    * List of action after the workorder is send
    */
   private closeReport() {
-    if(this.keycloakService.externalReport) {
+    if (this.keycloakService.externalReport) {
       this.referential.getReferential('contract').then(contracts => {
         let contract = contracts.find(ctr => ctr['id'] == this.workorder.tasks[0].ctrId);
         let comment = "";
-        for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-          if (definition.type == 'property') {
-            if(definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
-              comment = this.stepForm.formEditor.form.value[definition.key];
-            }
+        for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
+          if (reportValue.key == 'COMMENT') {
+            comment = reportValue.answer;
           }
         }
-        IntentAction.closeIntent({value:{'RETOUR':'ok','CONTRAT':(contract ? contract['ctr_code']:''),'COMMENTAIRE':comment}});
+        IntentAction.closeIntent({ value: { 'RETOUR': 'ok', 'CONTRAT': (contract ? contract['ctr_code'] : ''), 'COMMENTAIRE': comment } });
         this.isSubmitting = false;
         this.exploitationService.deleteStateWorkorder(this.workorder);
       });
     } else {
-      this.router.navigate(['/home/work-order/'+this.workorder.id],{queryParams:{'lyr_table_name':'workorder'}});
+      this.router.navigate(['/home/work-order/' + this.workorder.tasks[0].id], { queryParams: { 'lyr_table_name': 'workorder' } });
       this.isSubmitting = false;
       this.exploitationService.deleteStateWorkorder(this.workorder);
     }
