@@ -55,6 +55,17 @@ public class WorkorderController {
     	return this.workOrderService.createWorkOrder(customWorkorderDto, account);
     }
     
+    @PostMapping(path = "update")
+    @Operation(summary = "Update a workorder")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "The workorder", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public CustomWorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
+    	return this.workOrderService.updateWorkOrder(customWorkorderDto, account);
+    }
+    
     @GetMapping(path = "/{id}")
     @Operation(summary = "Get a workorder")
     @ApiResponses(value = {

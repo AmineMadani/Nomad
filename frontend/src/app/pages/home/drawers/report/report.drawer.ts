@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
+import { CustomWorkOrder } from 'src/app/core/models/workorder.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
@@ -28,14 +27,14 @@ export class ReportDrawer implements OnInit {
   ngOnInit() {
     let id = Number.parseInt(this.router.snapshot.paramMap.get('id'));
     //display and zoom on the workorder
-    this.layerDataService.getEquipmentByLayerAndId('workorder', id).then(wko => {
+    this.layerDataService.getEquipmentByLayerAndId2('workorder', id.toString()).then(wko => {
       this.mapService.onMapLoaded().subscribe(() => {
         this.layerService
-          .moveToXY(wko[0].longitude, wko[0].latitude)
+          .moveToXY(wko.longitude, wko.latitude)
           .then(() => {
             this.layerService.zoomOnXyToFeatureByIdAndLayerKey('workorder', id.toString()).then(() => {
               //display the equipment of all tasks
-              this.exploitationService.getWorkorderById(id).then(workorder => {
+              this.exploitationService.getWorkorderById(wko.wko_id).then(workorder => {
                 this.workorder = workorder;
                 for (let task of workorder.tasks) {
                   this.mapService.addEventLayer(task.assObjTable.replace('asset.', ''));

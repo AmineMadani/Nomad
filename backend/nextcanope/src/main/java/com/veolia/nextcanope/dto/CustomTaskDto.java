@@ -1,8 +1,11 @@
 package com.veolia.nextcanope.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.Task;
 
 public class CustomTaskDto {
@@ -17,11 +20,15 @@ public class CustomTaskDto {
 
     private Long wtrId;
     
+    private Long ctrId;
+    
     private BigDecimal longitude;
     
     private BigDecimal latitude;
     
     private Date tskCompletionDate;
+    
+    private ReportDto report;
 
     public Long getId() {
         return id;
@@ -47,7 +54,15 @@ public class CustomTaskDto {
         this.wtrId = wtrId;
     }
 
-    public BigDecimal getLongitude() {
+    public Long getCtrId() {
+		return ctrId;
+	}
+
+	public void setCtrId(Long ctrId) {
+		this.ctrId = ctrId;
+	}
+
+	public BigDecimal getLongitude() {
         return longitude;
     }
 
@@ -87,6 +102,14 @@ public class CustomTaskDto {
 		this.tskCompletionDate = tskCompletionDate;
 	}
 
+	public ReportDto getReport() {
+		return report;
+	}
+
+	public void setReport(ReportDto report) {
+		this.report = report;
+	}
+
 	public CustomTaskDto() {
 		super();
 	}
@@ -101,5 +124,20 @@ public class CustomTaskDto {
         this.assObjTable = task.getAsset().getAssObjTable();
         this.tskCompletionDate = task.getTskCompletionDate();
         this.wtrId = task.getWtrId();
+        this.ctrId = task.getCtrId();
+        this.report = new ReportDto();
+        this.report.setDateCompletion(task.getTskReportDate());
+        
+        if(task.getListOfReport().size() > 0) {
+        	List<ReportValueDto> reportValues = new ArrayList<ReportValueDto>();
+        	for(Report report: task.getListOfReport()) {
+        		ReportValueDto reportValue = new ReportValueDto();
+        		reportValue.setKey(report.getRptKey());
+        		reportValue.setAnswer(report.getRptValue());
+        		reportValue.setQuestion(report.getRptLabel());
+        		reportValues.add(reportValue);
+        	}
+        	this.report.setReportValues(reportValues);
+        }
     }
 }

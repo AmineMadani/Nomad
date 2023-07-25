@@ -1,15 +1,14 @@
 package com.veolia.nextcanope.repository;
 
-import com.veolia.nextcanope.constants.ConfigConstants;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
+
+import com.veolia.nextcanope.constants.ConfigConstants;
 
 /**
  * LayerRepositoryImpl is a repository class for managing layer-related data in the persistence layer.

@@ -84,7 +84,7 @@ public class StyleDefinition implements Serializable {
     private Users createdBy ; 
 
 
-    @OneToMany(mappedBy="styleDefinition")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="styleDefinition")
     private List<StyleImage> listOfStyleImage ; 
 
 

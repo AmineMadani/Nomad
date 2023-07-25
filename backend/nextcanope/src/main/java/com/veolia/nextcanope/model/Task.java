@@ -118,6 +118,11 @@ public class Task implements Serializable {
 	@JsonProperty("geom")
     private Geometry geom ;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_report_date")
+	@JsonProperty("tsk_report_date")
+    private Date tskReportDate ;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 
@@ -327,6 +332,14 @@ public class Task implements Serializable {
 
     public Geometry getGeom() {
         return this.geom;
+    }
+
+	public void setTskReportDate( Date tskReportDate ) {
+        this.tskReportDate = tskReportDate ;
+    }
+
+    public Date getTskReportDate() {
+        return this.tskReportDate;
     }
 
     //--- GETTERS FOR LINKS

@@ -98,7 +98,7 @@ public class LayerService {
     }
 
     public List<Map<String, Object>> getEquipmentsByLayersAndIds(List<GetEquipmentsPayload> equipmentsPayload) {
-        List<Map<String, Object>> features = new ArrayList();
+        List<Map<String, Object>> features = new ArrayList<Map<String,Object>>();
         for(GetEquipmentsPayload payload : equipmentsPayload) {
             List<Map<String, Object>> layerFeatures = this.layerRepositoryImpl.getEquipmentsByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds());
             features.addAll(layerFeatures);

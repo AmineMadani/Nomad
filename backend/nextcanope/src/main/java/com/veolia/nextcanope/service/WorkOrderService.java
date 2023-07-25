@@ -11,14 +11,17 @@ import org.springframework.stereotype.Service;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.CustomTaskDto;
 import com.veolia.nextcanope.dto.CustomWorkorderDto;
+import com.veolia.nextcanope.dto.ReportValueDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
+import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.Task;
 import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.model.WorkorderTaskStatus;
 import com.veolia.nextcanope.repository.CityRepository;
+import com.veolia.nextcanope.repository.ReportRepository;
 import com.veolia.nextcanope.repository.TaskRepository;
 import com.veolia.nextcanope.repository.WorkOrderRepositoryImpl;
 import com.veolia.nextcanope.repository.WorkorderRepository;
@@ -38,6 +41,9 @@ public class WorkOrderService {
     
     @Autowired
     private TaskRepository taskRepository;
+    
+    @Autowired
+    private ReportRepository reportRepository;
     
     @Autowired 
     private AssetService assetService;
@@ -134,6 +140,81 @@ public class WorkOrderService {
 		}
 		
     	return workorder;
+    }
+    
+    /**
+     * Method to update a workorder
+     * @param customWorkorderDto
+     * @return the workorder dto
+     */
+    public CustomWorkorderDto updateWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
+    	
+    	Workorder workorder = workOrderRepository.findById(customWorkorderDto.getId()).get();
+
+		try {
+	        workorder.setWkoCompletionDate(new Date());
+	        workorder.setLongitude(customWorkorderDto.getLongitude());
+	        workorder.setLatitude(customWorkorderDto.getLatitude());
+			workorder.setWkoUmodId(account.getId());
+			workorder.setWkoDmod(new Date());
+			
+			WorkorderTaskStatus status = statusService.getStatus("TERMINE");
+			workorder.setWtsId(status.getId());
+
+			workorder = workOrderRepository.save(workorder);
+
+			// Get the work order asset
+			for (CustomTaskDto taskDto : customWorkorderDto.getTasks()) {
+				Asset asset = assetService.getAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), account);
+
+				try {
+					Task task = taskRepository.findById(taskDto.getId()).get();
+					task.setWtsId(workorder.getWtsId());
+					task.setWtrId(taskDto.getWtrId());
+					task.setAssId(asset.getId());
+					task.setTskUmodId(account.getId());
+					task.setTskDmod(new Date());
+					task.setLongitude(taskDto.getLongitude());
+					task.setLatitude(taskDto.getLatitude());
+					
+					if(taskDto.getReport() != null) {
+						task.setTskReportDate(taskDto.getReport().getDateCompletion());
+						for(ReportValueDto reportValue: taskDto.getReport().getReportValues()) {
+							Report report = reportRepository.findByTskIdAndRptKey(taskDto.getId(), reportValue.getKey());
+							if(report == null) {
+								report = new Report();
+								report.setRptKey(reportValue.getKey());
+								report.setTskId(task.getId());
+								report.setRptDcre(new Date());
+								report.setRptUcreId(account.getId());
+							}
+							
+							report.setRptLabel(reportValue.getQuestion());
+							report.setRptValue(reportValue.getAnswer());
+							report.setRptDmod(new Date());
+							report.setRptUmodId(account.getId());
+							report = reportRepository.save(report);
+						}
+					}
+
+					task = taskRepository.save(task);
+
+					workOrderRepositoryImpl.updateGeomForTask(task.getId());
+
+				} catch (Exception e) {
+					throw new TechnicalException("Erreur lors de la sauvegarde de la tache pour l'utilisateur avec l'id  " + account.getId() + ".", e.getMessage());
+				}
+			}
+			
+			if(workorder.getLongitude() != null && workorder.getLatitude() != null) {
+				workOrderRepositoryImpl.updateGeom(workorder.getId());
+			}
+			
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde du workorder pour l'utilisateur avec l'id  " + account.getId() + ".", e.getMessage());
+		}
+		
+    	return customWorkorderDto;
     }
 
 	/**

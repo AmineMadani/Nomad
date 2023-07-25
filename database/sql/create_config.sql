@@ -753,6 +753,7 @@ create table if not exists task
   tsk_planning_end_date	   timestamp without time zone,
   tsk_completion_date	     timestamp without time zone,
   tsk_realization_user     bigint,
+  tsk_report_date          timestamp without time zone,
   -- Technical metadata
   tsk_ucre_id              bigint references users(id) default 0,
   tsk_umod_id              bigint references users(id) default 0,
@@ -780,6 +781,7 @@ comment on column task.tsk_planning_start_date is 'Planning start date of the ta
 comment on column task.tsk_planning_end_date is 'Planning end date of the task';
 comment on column task.tsk_completion_date is 'Completion date of the task';
 comment on column task.tsk_realization_user is 'Realization user of the task';
+comment on column task.tsk_report_date is 'Date of the report';
 comment on column task.tsk_ucre_id is 'creator Id';
 comment on column task.tsk_umod_id is 'Last modificator Id';
 comment on column task.tsk_dcre is 'Creation date';
@@ -793,9 +795,10 @@ comment on column task.geom is 'Geometry of the task';
 -- Contains the reports
 create table if not exists report(
   id                           bigserial primary key,
-  tsk_id                       bigint references task(id) ,
-  rpt_report_date              timestamp without time zone  default current_timestamp,
-  rpt_detail                   jsonb,
+  tsk_id                       bigint references task(id),
+  rpt_key                      text,
+  rpt_label                    text,
+  rpt_value                    text,
   -- Technical metadata
   rpt_ucre_id                   bigint references users(id) default 0,
   rpt_umod_id                   bigint references users(id) default 0,
@@ -809,6 +812,9 @@ comment on table report is 'This table contains the reports';
 comment on column report.id is 'Table unique ID';
 comment on column report.tsk_id is 'Task';
 comment on column report.rpt_report_date is 'Report date';
+comment on column report.rpt_key is 'Report key';
+comment on column report.rpt_label is 'Report question';
+comment on column report.rpt_value is 'Report answer';
 comment on column report.rpt_detail is 'Report detail on json format';
 comment on column report.rpt_ucre_id is 'creator Id';
 comment on column report.rpt_umod_id is 'Last modificator Id';

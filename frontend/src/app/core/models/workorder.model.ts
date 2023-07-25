@@ -40,6 +40,7 @@ export interface CustomTask {
     assObjTable: string;
     wtsId: string;
     wtrId: string;
+    ctrId: string;
     wtrCode: string;
     longitude: number;
     latitude: number;

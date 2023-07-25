@@ -29,7 +29,7 @@ public class AssetService {
 		Asset asset = new Asset();
 
 		asset.setAssObjRef(assetRef);
-    	asset.setAssObjTable("asset."+tableRef);
+    	asset.setAssObjTable("asset."+tableRef.replace("asset.", ""));
 		asset.setAssUcreId(account.getId());
 		asset.setAssUmodId(account.getId());
 		asset.setAssDcre(new Date());

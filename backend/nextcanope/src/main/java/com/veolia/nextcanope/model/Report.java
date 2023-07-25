@@ -37,14 +37,17 @@ public class Report implements Serializable {
 	@JsonProperty("tsk_id")
     private Long tskId ;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="rpt_report_date")
-	@JsonProperty("rpt_report_date")
-    private Date rptReportDate ;
+    @Column(name="rpt_key", length=2147483647)
+	@JsonProperty("rpt_key")
+    private String rptKey ;
 
     @Column(name="rpt_ucre_id")
 	@JsonProperty("rpt_ucre_id")
     private Long rptUcreId ;
+
+    @Column(name="rpt_label", length=2147483647)
+	@JsonProperty("rpt_label")
+    private String rptLabel ;
 
     @Column(name="rpt_umod_id")
 	@JsonProperty("rpt_umod_id")
@@ -55,6 +58,10 @@ public class Report implements Serializable {
 	@JsonProperty("rpt_dcre")
     private Date rptDcre ;
 
+    @Column(name="rpt_value", length=2147483647)
+	@JsonProperty("rpt_value")
+    private String rptValue ;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_dmod")
 	@JsonProperty("rpt_dmod")
@@ -64,10 +71,6 @@ public class Report implements Serializable {
     @Column(name="rpt_ddel")
 	@JsonProperty("rpt_ddel")
     private Date rptDdel ;
-
-    @Column(name="rpt_detail", length=2147483647)
-	@JsonProperty("rpt_detail")
-    private String rptDetail ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
@@ -112,12 +115,12 @@ public class Report implements Serializable {
         return this.tskId;
     }
 
-	public void setRptReportDate( Date rptReportDate ) {
-        this.rptReportDate = rptReportDate ;
+	public void setRptKey( String rptKey ) {
+        this.rptKey = rptKey ;
     }
 
-    public Date getRptReportDate() {
-        return this.rptReportDate;
+    public String getRptKey() {
+        return this.rptKey;
     }
 
 	public void setRptUcreId( Long rptUcreId ) {
@@ -126,6 +129,14 @@ public class Report implements Serializable {
 
     public Long getRptUcreId() {
         return this.rptUcreId;
+    }
+
+	public void setRptLabel( String rptLabel ) {
+        this.rptLabel = rptLabel ;
+    }
+
+    public String getRptLabel() {
+        return this.rptLabel;
     }
 
 	public void setRptUmodId( Long rptUmodId ) {
@@ -144,6 +155,14 @@ public class Report implements Serializable {
         return this.rptDcre;
     }
 
+	public void setRptValue( String rptValue ) {
+        this.rptValue = rptValue ;
+    }
+
+    public String getRptValue() {
+        return this.rptValue;
+    }
+
 	public void setRptDmod( Date rptDmod ) {
         this.rptDmod = rptDmod ;
     }
@@ -158,14 +177,6 @@ public class Report implements Serializable {
 
     public Date getRptDdel() {
         return this.rptDdel;
-    }
-
-	public void setRptDetail( String rptDetail ) {
-        this.rptDetail = rptDetail ;
-    }
-
-    public String getRptDetail() {
-        return this.rptDetail;
     }
 
     //--- GETTERS FOR LINKS
