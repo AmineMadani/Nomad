@@ -26,6 +26,7 @@ export class LayerStylesSettingsPage implements OnInit {
   // Layers
   public layers: Layer[];
   public getLayerLabel = getLayerLabel;
+  public currentLayerId: number;
   // Styles
   public allLayerStyles: LayerStyle[] = [];
   public layerStyles: LayerStyle[] = [];
@@ -57,13 +58,24 @@ export class LayerStylesSettingsPage implements OnInit {
   }
   // Table Columns
   public columns: Column[] = [
-    { type: TypeColumn.CHECKBOX, size: '1' },
     {
-      type: TypeColumn.ACTION, label: '', size: '1', onClick: (style: LayerStyle) => {
+      type: TypeColumn.CHECKBOX,
+      size: '1'
+    },
+    {
+      type: TypeColumn.ACTION,
+      label: '',
+      size: '1',
+      onClick: (style: LayerStyle) => {
         this.openLayerStyleDetails(style.lseId);
       }
     },
-    { key: 'lseCode', label: 'Code', type: TypeColumn.TEXT, size: '10' },
+    {
+      key: 'lseCode',
+      label: 'Code',
+      type: TypeColumn.TEXT,
+      size: '10'
+    },
   ];
 
   async ngOnInit() {
@@ -86,10 +98,10 @@ export class LayerStylesSettingsPage implements OnInit {
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
-      const lyrId: number = this.layers.find((lyr) => lyr.lyrTableName === lyrTableName)?.id;
-      if (lyrId) {
+      this.currentLayerId = this.layers.find((lyr) => lyr.lyrTableName === lyrTableName)?.id;
+      if (this.currentLayerId) {
         // Get the styles for the selected layer
-        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === lyrId);
+        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId);
       } else {
         this.layerStyles = [];
       }
@@ -100,8 +112,10 @@ export class LayerStylesSettingsPage implements OnInit {
     const modal = await this.modalController.create({
       component: LayerStyleComponent,
       componentProps: {
-        lseId: lseId
-      }
+        lseId: lseId,
+        parentLayer: this.layers.find((lyr) => lyr.lyrTableName === this.form.get('lyrTableName').value),
+      },
+      backdropDismiss: false,
     });
     return await modal.present();
   }

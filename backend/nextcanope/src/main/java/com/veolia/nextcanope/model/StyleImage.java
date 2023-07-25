@@ -8,6 +8,8 @@ import java.util.Date;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,58 +35,45 @@ public class StyleImage implements Serializable {
     private Long id ;
 
     //--- ENTITY DATA FIELDS 
-    @Column(name="syd_id", nullable=false)
-	@JsonProperty("syd_id")
-    private Long sydId ;
-
     @Column(name="syi_code", nullable=false, length=2147483647)
-	@JsonProperty("syi_code")
+    @JsonProperty("syi_code")
     private String syiCode ;
 
     @Column(name="syi_source", nullable=false, length=2147483647)
-	@JsonProperty("syi_source")
+    @JsonProperty("syi_source")
     private String syiSource ;
-
-    @Column(name="syi_ucre_id")
-	@JsonProperty("syi_ucre_id")
-    private Long syiUcreId ;
-
-    @Column(name="syi_umod_id")
-	@JsonProperty("syi_umod_id")
-    private Long syiUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syi_dcre")
-	@JsonProperty("syi_dcre")
+    @CreationTimestamp
+    @JsonProperty("syi_dcre")
     private Date syiDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syi_dmod")
-	@JsonProperty("syi_dmod")
+    @UpdateTimestamp
+    @JsonProperty("syi_dmod")
     private Date syiDmod ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syi_ddel")
-	@JsonProperty("syi_ddel")
+    @JsonProperty("syi_ddel")
     private Date syiDdel ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
-
     @ManyToOne
-    @JoinColumn(name="syi_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="syi_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy ; 
 
-
     @ManyToOne
-    @JoinColumn(name="syi_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="syi_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy ; 
 
-
     @ManyToOne
-    @JoinColumn(name="syd_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="syd_id", referencedColumnName="id")
     private StyleDefinition styleDefinition ; 
 
 
@@ -103,14 +92,6 @@ public class StyleImage implements Serializable {
         return this.id;
     }
 
-	public void setSydId( Long sydId ) {
-        this.sydId = sydId ;
-    }
-
-    public Long getSydId() {
-        return this.sydId;
-    }
-
 	public void setSyiCode( String syiCode ) {
         this.syiCode = syiCode ;
     }
@@ -125,22 +106,6 @@ public class StyleImage implements Serializable {
 
     public String getSyiSource() {
         return this.syiSource;
-    }
-
-	public void setSyiUcreId( Long syiUcreId ) {
-        this.syiUcreId = syiUcreId ;
-    }
-
-    public Long getSyiUcreId() {
-        return this.syiUcreId;
-    }
-
-	public void setSyiUmodId( Long syiUmodId ) {
-        this.syiUmodId = syiUmodId ;
-    }
-
-    public Long getSyiUmodId() {
-        return this.syiUmodId;
     }
 
 	public void setSyiDcre( Date syiDcre ) {
@@ -167,18 +132,27 @@ public class StyleImage implements Serializable {
         return this.syiDdel;
     }
 
-    //--- GETTERS FOR LINKS
+    //--- GETTERS AND SETTERS FOR LINKS
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
     public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
-    } 
+    }
 
+    public void setStyleDefinition(StyleDefinition styleDefinition) {
+        this.styleDefinition = styleDefinition;
+    }
 
 }

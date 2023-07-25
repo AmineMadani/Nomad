@@ -8,6 +8,9 @@ public class ImageDto {
 	
 	private String source;
 
+	public ImageDto() {
+	}
+
 	public ImageDto(StyleImage styleImage) {
 		this.code = styleImage.getSyiCode();
 		this.source = styleImage.getSyiSource();

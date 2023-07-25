@@ -2,7 +2,7 @@
   <div class="layer-style-header">
     <ion-label class="label">
       <h2>
-        Définition du style {{ lseId }}
+        Définition du style {{ form.get('lseCode')?.value }}
       </h2>
     </ion-label>
 
@@ -11,8 +11,11 @@
     </ion-button>
   </div>
 
-  <div class="layer-style-body">
-    <form [formGroup]="form" class="layer-style-form">
+  <div class="layer-style-body" *ngIf="layerStyle || isCreation">
+    <form [formGroup]="form" (ngSubmit)="save()" class="layer-style-form">
+      <ion-input labelPlacement="stacked" fill="outline" label="Couche" placeholder="Couche" type="text"
+        formControlName="lyrTableName"></ion-input>
+
       <ion-input labelPlacement="stacked" fill="outline" label="Code" placeholder="Code" type="text"
         formControlName="lseCode"></ion-input>
 
@@ -20,11 +23,32 @@
         formControlName="sydDefinition"></ion-textarea>
 
       <input type="file" id="images" name="images" accept="image/svg+xml" multiple (change)="onFileChanged($event)">
-    </form>
 
-    <ion-button [disabled]="form.pristine" (click)="save()" fill="clear">
-      <ion-icon slot="icon-only" name="save"></ion-icon>
-    </ion-button>
+      <div class="swiper-container">
+        <swiper-container [modules]="swiperModules" [navigation]="true" [options]="opts">
+          <swiper-slide *ngFor="let img of layerStyle.listImage">
+            <div class="image-container">
+              <img [src]="img.source" />
+              <ion-label>{{ img.code }}</ion-label>
+            </div>
+          </swiper-slide>
+        </swiper-container>
+      </div>
+
+      <ion-button fill="clear" type="submit">
+        <ion-icon slot="icon-only" name="save"></ion-icon>
+      </ion-button>
+    </form>
+  </div>
+
+  <div class="layer-style-skeleton" *ngIf="!layerStyle && !isCreation">
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 150px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
   </div>
 
 </div>

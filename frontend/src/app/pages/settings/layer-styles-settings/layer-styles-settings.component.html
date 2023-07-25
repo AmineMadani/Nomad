@@ -14,7 +14,7 @@
         [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
       </app-search-select>
 
-      <app-generic-table [toolbar]="toolbar" [columns]="columns" [data]="layerStyles" [selectedData]="selectedLayerStyles"></app-generic-table>
+      <app-generic-table *ngIf="currentLayerId" [toolbar]="toolbar" [columns]="columns" [data]="layerStyles" [selectedData]="selectedLayerStyles"></app-generic-table>
     </div>
   </form>
 </ion-content>

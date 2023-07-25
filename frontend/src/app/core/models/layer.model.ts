@@ -38,6 +38,16 @@ export interface LayerStyle {
   lyrId: number;
 }
 
+export interface LayerStyleDetail {
+  lyrId: number;
+  lyrTableName: string;
+  lseId: number;
+  lseCode: string;
+  sydId: number;
+  sydDefinition: string; // Json
+  listImage: StyleImage[];
+}
+
 export enum  localisationExportMode  {
   nomadLink = 'NOMADLINK',
   gpsCoordinates = 'GPS',

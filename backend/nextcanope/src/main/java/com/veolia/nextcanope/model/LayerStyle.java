@@ -9,6 +9,8 @@ import java.util.List;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,64 +37,45 @@ public class LayerStyle implements Serializable {
 
     //--- ENTITY DATA FIELDS 
     @Column(name="lse_code", nullable=false, length=2147483647)
-	@JsonProperty("lse_code")
+    @JsonProperty("lse_code")
     private String lseCode ;
-
-    @Column(name="syd_id", nullable=false)
-	@JsonProperty("syd_id")
-    private Long sydId ;
-
-    @Column(name="lyr_id", nullable=false)
-	@JsonProperty("lyr_id")
-    private Long lyrId ;
-
-    @Column(name="lse_ucre_id")
-	@JsonProperty("lse_ucre_id")
-    private Long lseUcreId ;
-
-    @Column(name="lse_umod_id")
-	@JsonProperty("lse_umod_id")
-    private Long lseUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lse_dcre")
-	@JsonProperty("lse_dcre")
+    @CreationTimestamp
+    @JsonProperty("lse_dcre")
     private Date lseDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lse_dmod")
-	@JsonProperty("lse_dmod")
+    @UpdateTimestamp
+    @JsonProperty("lse_dmod")
     private Date lseDmod ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lse_ddel")
-	@JsonProperty("lse_ddel")
+    @JsonProperty("lse_ddel")
     private Date lseDdel ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
-
     @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lyr_id", referencedColumnName="id")
     private Layer layer ; 
 
-
     @ManyToOne
-    @JoinColumn(name="lse_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lse_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy ; 
 
-
-    @ManyToOne
-    @JoinColumn(name="syd_id", referencedColumnName="id", insertable=false, updatable=false)
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name="syd_id", referencedColumnName="id")
     private StyleDefinition styleDefinition ; 
 
-
     @ManyToOne
-    @JoinColumn(name="lse_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lse_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy ; 
-
 
     @OneToMany(mappedBy="layerStyle")
     private List<LayerStyleCustom> listOfLayerStyleCustom ; 
@@ -121,38 +104,6 @@ public class LayerStyle implements Serializable {
         return this.lseCode;
     }
 
-	public void setSydId( Long sydId ) {
-        this.sydId = sydId ;
-    }
-
-    public Long getSydId() {
-        return this.sydId;
-    }
-
-	public void setLyrId( Long lyrId ) {
-        this.lyrId = lyrId ;
-    }
-
-    public Long getLyrId() {
-        return this.lyrId;
-    }
-
-	public void setLseUcreId( Long lseUcreId ) {
-        this.lseUcreId = lseUcreId ;
-    }
-
-    public Long getLseUcreId() {
-        return this.lseUcreId;
-    }
-
-	public void setLseUmodId( Long lseUmodId ) {
-        this.lseUmodId = lseUmodId ;
-    }
-
-    public Long getLseUmodId() {
-        return this.lseUmodId;
-    }
-
 	public void setLseDcre( Date lseDcre ) {
         this.lseDcre = lseDcre ;
     }
@@ -177,26 +128,41 @@ public class LayerStyle implements Serializable {
         return this.lseDdel;
     }
 
-    //--- GETTERS FOR LINKS
+    //--- GETTERS AND SETTERS FOR LINKS
     public Layer getLayer() {
         return this.layer;
-    } 
+    }
 
+    public void setLayer(Layer layer) {
+        this.layer = layer;
+    }
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
     public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
-    } 
+    }
 
+    public void setStyleDefinition(StyleDefinition styleDefinition) {
+        this.styleDefinition = styleDefinition;
+    }
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
     public List<LayerStyleCustom> getListOfLayerStyleCustom() {
         return this.listOfLayerStyleCustom;
-    } 
+    }
 
+    public void setListOfLayerStyleCustom(List<LayerStyleCustom> listOfLayerStyleCustom) {
+        this.listOfLayerStyleCustom = listOfLayerStyleCustom;
+    }
 
 }

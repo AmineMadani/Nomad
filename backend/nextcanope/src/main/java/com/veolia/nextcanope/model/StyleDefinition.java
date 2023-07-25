@@ -9,6 +9,8 @@ import java.util.List;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,58 +37,47 @@ public class StyleDefinition implements Serializable {
 
     //--- ENTITY DATA FIELDS 
     @Column(name="syd_code", nullable=false, length=2147483647)
-	@JsonProperty("syd_code")
+    @JsonProperty("syd_code")
     private String sydCode ;
 
     @Column(name="syd_definition", nullable=false, length=2147483647)
-	@JsonProperty("syd_definition")
+    @JsonProperty("syd_definition")
     private String sydDefinition ;
-
-    @Column(name="syd_ucre_id")
-	@JsonProperty("syd_ucre_id")
-    private Long sydUcreId ;
-
-    @Column(name="syd_umod_id")
-	@JsonProperty("syd_umod_id")
-    private Long sydUmodId ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_dcre")
-	@JsonProperty("syd_dcre")
+    @CreationTimestamp
+    @JsonProperty("syd_dcre")
     private Date sydDcre ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_dmod")
-	@JsonProperty("syd_dmod")
+    @UpdateTimestamp
+    @JsonProperty("syd_dmod")
     private Date sydDmod ;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_ddel")
-	@JsonProperty("syd_ddel")
+    @JsonProperty("syd_ddel")
     private Date sydDdel ;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP )
-
     @ManyToOne
-    @JoinColumn(name="syd_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="syd_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy ; 
-
 
     @OneToMany(mappedBy="styleDefinition")
     private List<LayerStyleCustom> listOfLayerStyleCustom ; 
 
-
     @ManyToOne
-    @JoinColumn(name="syd_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="syd_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy ; 
 
-
-    @OneToMany(mappedBy="styleDefinition")
+    @OneToMany(mappedBy="styleDefinition", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<StyleImage> listOfStyleImage ; 
-
 
     @OneToMany(mappedBy="styleDefinition")
     private List<LayerStyle> listOfLayerStyle ; 
@@ -123,22 +114,6 @@ public class StyleDefinition implements Serializable {
         return this.sydDefinition;
     }
 
-	public void setSydUcreId( Long sydUcreId ) {
-        this.sydUcreId = sydUcreId ;
-    }
-
-    public Long getSydUcreId() {
-        return this.sydUcreId;
-    }
-
-	public void setSydUmodId( Long sydUmodId ) {
-        this.sydUmodId = sydUmodId ;
-    }
-
-    public Long getSydUmodId() {
-        return this.sydUmodId;
-    }
-
 	public void setSydDcre( Date sydDcre ) {
         this.sydDcre = sydDcre ;
     }
@@ -163,26 +138,41 @@ public class StyleDefinition implements Serializable {
         return this.sydDdel;
     }
 
-    //--- GETTERS FOR LINKS
+    //--- GETTERS AND SETTERS FOR LINKS
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
     public List<LayerStyleCustom> getListOfLayerStyleCustom() {
         return this.listOfLayerStyleCustom;
-    } 
+    }
 
+    public void setListOfLayerStyleCustom(List<LayerStyleCustom> listOfLayerStyleCustom) {
+        this.listOfLayerStyleCustom = listOfLayerStyleCustom;
+    }
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
     public List<StyleImage> getListOfStyleImage() {
         return this.listOfStyleImage;
-    } 
+    }
 
+    public void setListOfStyleImage(List<StyleImage> listOfStyleImage) {
+        this.listOfStyleImage = listOfStyleImage;
+    }
     public List<LayerStyle> getListOfLayerStyle() {
         return this.listOfLayerStyle;
-    } 
+    }
 
+    public void setListOfLayerStyle(List<LayerStyle> listOfLayerStyle) {
+        this.listOfLayerStyle = listOfLayerStyle;
+    }
 
 }
