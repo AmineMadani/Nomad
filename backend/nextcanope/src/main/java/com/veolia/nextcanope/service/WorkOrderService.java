@@ -106,7 +106,7 @@ public class WorkOrderService {
 			workorder.setCtyId(city.getId());
 			workorder.setCtyLlabel(city.getCtyLlabel());
 
-			workorder = workOrderRepository.save(workorder);
+			workorder = workOrderRepository.saveAndFlush(workorder);
 
 			// Get the work order asset
 			for (CustomTaskDto taskDto : customWorkorderDto.getTasks()) {
@@ -130,7 +130,7 @@ public class WorkOrderService {
 					task.setLongitude(taskDto.getLongitude());
 					task.setLatitude(taskDto.getLatitude());
 
-					task = taskRepository.save(task);
+					task = taskRepository.saveAndFlush(task);
 
 					workOrderRepositoryImpl.updateGeomForTask(task.getId());
 
