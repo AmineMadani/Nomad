@@ -16,8 +16,20 @@ ion-item-group {
 
 ion-item-group.equipment-item {
     cursor: pointer;
-
+    background: white;
     &:hover {
         background: var(--ion-color-secondary-variant-90);
+    }
+}
+
+ion-item-group.highlight {
+    background: var(--ion-color-secondary-variant-90);
+}
+
+ion-icon.locate-icon {
+    color: var(--ion-color-medium-tint);
+    
+    &.hightlight-icon {
+        color: var(--ion-color-primary) !important;
     }
 }

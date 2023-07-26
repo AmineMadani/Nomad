@@ -19,7 +19,7 @@ export class MobileHomeActionsComponent implements OnInit {
     private mapService: MapService,
     private referentialService: ReferentialService,
     private router: Router
-  ) {}
+    ) {}
 
   public type: 'DISPLAY' | 'ACTIONS' | 'TOOLS';
   public drawerRouteEnum = DrawerRouteEnum;
@@ -68,6 +68,7 @@ export class MobileHomeActionsComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.modalCtlr.dismiss();
+    this.mapService.setDrawMode('draw_polygon');
   }
 
   public onRectangleTool(): void {

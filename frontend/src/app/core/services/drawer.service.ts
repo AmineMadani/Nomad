@@ -2,7 +2,7 @@ import { LocationStrategy } from '@angular/common';
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { BehaviorSubject, filter, map, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -16,7 +16,6 @@ export class DrawerService {
     private utilsService: UtilsService,
     private nav: NavController
   ) {}
-
   private routerEventsSubscription: Subscription;
 
   // We use a BehaviorSubject to store the current route
@@ -136,7 +135,7 @@ export class DrawerService {
     this.router.navigate([url], { queryParams: queryParams, replaceUrl });
   }
 
-  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], redirectionId: string): void {
+  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], redirectionId?: string): void {
     const url = this.getUrlFromDrawerName(route);
     const eqParams = this.generateFeatureParams(equipments);
 
