@@ -639,7 +639,7 @@
                     <joinColumn insertable="false" name="lse_umod_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="ManyToOne" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_syd_id_fkey" id="LINK_FK_layer_style_syd_id_fkey_O" inverseSideOf="" javaName="styleDefinition" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="StyleDefinition" targetTableName="style_definition" used="true">
+            <link cardinality="ManyToOne" cascade=" PERSIST" fetch="DEFAULT" foreignKeyName="layer_style_syd_id_fkey" id="LINK_FK_layer_style_syd_id_fkey_O" inverseSideOf="" javaName="styleDefinition" javaType="unused" joinTableName="" mappedBy="" optional="" owningSide="true" sourceTableName="layer_style" targetEntity="StyleDefinition" targetTableName="style_definition" used="true">
                 <joinColumns>
                     <joinColumn insertable="false" name="syd_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
@@ -803,7 +803,7 @@
                     <joinColumn insertable="false" name="syd_ucre_id" nullable="true" referencedColumnName="id" unique="false" updatable="false"/>
                 </joinColumns>
             </link>
-            <link cardinality="OneToMany" cascade=" PERSIST" fetch="DEFAULT" foreignKeyName="style_image_syd_id_fkey" id="LINK_FK_style_image_syd_id_fkey_I" inverseSideOf="LINK_FK_style_image_syd_id_fkey_O" javaName="listOfStyleImage" javaType="unused" joinTableName="" mappedBy="styleDefinition" optional="" owningSide="false" sourceTableName="style_definition" targetEntity="StyleImage" targetTableName="style_image" used="true"/>
+            <link cardinality="OneToMany" cascade="ALL" fetch="DEFAULT" foreignKeyName="style_image_syd_id_fkey" id="LINK_FK_style_image_syd_id_fkey_I" inverseSideOf="LINK_FK_style_image_syd_id_fkey_O" javaName="listOfStyleImage" javaType="unused" joinTableName="" mappedBy="styleDefinition" optional="" owningSide="false" sourceTableName="style_definition" targetEntity="StyleImage" targetTableName="style_image" used="true"/>
             <link cardinality="OneToMany" cascade="" fetch="DEFAULT" foreignKeyName="layer_style_syd_id_fkey" id="LINK_FK_layer_style_syd_id_fkey_I" inverseSideOf="LINK_FK_layer_style_syd_id_fkey_O" javaName="listOfLayerStyle" javaType="unused" joinTableName="" mappedBy="styleDefinition" optional="" owningSide="false" sourceTableName="style_definition" targetEntity="LayerStyle" targetTableName="layer_style" used="true"/>
         </table>
         <table catalog="" databaseComment="This table contains the style image" databaseType="TABLE" javaBean="StyleImage" name="style_image" schema="nomad">

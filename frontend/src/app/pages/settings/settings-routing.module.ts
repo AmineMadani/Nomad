@@ -2,9 +2,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SettingsPage } from './settings.page';
-import { PatrimonySettingsComponent } from './patrimony-settings/patrimony-settings.component';
-import { LayerReferencesSettingsComponent } from './layer-references-settings/layer-references-settings.component';
 import { UserCreationComponent } from './user-creation/user-creation.component';
+import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
+import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
+import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 
 const routes: Routes = [
   {
@@ -18,27 +19,31 @@ const routes: Routes = [
       },
       {
         path: 'patrimony',
-        component: PatrimonySettingsComponent,
+        component: PatrimonySettingsPage,
       },
       {
         path: 'layer-references',
-        component: LayerReferencesSettingsComponent,
+        component: LayerReferencesSettingsPage,
       },
       {
         path: 'events',
-        component: PatrimonySettingsComponent,
+        component: PatrimonySettingsPage,
+      },
+      {
+        path: 'layer-styles',
+        component: LayerStylesSettingsPage,
       },
       {
         path: 'perimeter',
-        component: PatrimonySettingsComponent,
+        component: PatrimonySettingsPage,
       },
       {
         path: 'workorder',
-        component: PatrimonySettingsComponent,
+        component: PatrimonySettingsPage,
       },
       {
         path: 'report',
-        component: PatrimonySettingsComponent,
+        component: PatrimonySettingsPage,
       },
       {
         path: 'user',

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.model.Layer;
 /**
  * Dto for Layer Entity
@@ -39,7 +40,7 @@ public class LayerDto {
 
     private Boolean lyrDisplay ;
     
-    private List<StyleDto> listStyle = new ArrayList<StyleDto>();
+    private List<LayerStyleDetailDto> listStyle = new ArrayList<LayerStyleDetailDto>();
 
     //--- GETTERS & SETTERS FOR FIELDS
     public void setId( Long id ) {
@@ -153,11 +154,11 @@ public class LayerDto {
         return this.lyrDisplay;
     }
     
-	public List<StyleDto> getListStyle() {
+	public List<LayerStyleDetailDto> getListStyle() {
 		return listStyle;
 	}
 	
-	public void setListStyle(List<StyleDto> listStyle) {
+	public void setListStyle(List<LayerStyleDetailDto> listStyle) {
 		this.listStyle = listStyle;
 	}
 	

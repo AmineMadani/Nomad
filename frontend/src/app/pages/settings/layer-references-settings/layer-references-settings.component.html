@@ -22,28 +22,16 @@
 
         <div class="separation-line"></div>
 
-        <app-search-multi-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" key="email"
-          title="Filtre de sélection des utilisateurs" label="Utilisateurs" [originalList]="users"
-          [control]="form.controls['listUserEmail']">
-        </app-search-multi-select>
-      </div>
+      <app-search-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" class="users-multi-selection"
+        key="id" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
+        [elements]="users" [control]="form.controls['listUserId']" [elementLabelFunction]="getUserEmail" [isMultiSelection]="true">
+      </app-search-select>
+    </div>
 
-      <div class="settings-layer-references"
-        [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
-        <div>
-          <ion-select aria-label="search-select" label="Couche à paramétrer" label-placement="floating"
-            class="layer-select" formControlName="lyrTableName">
-            <ion-select-option *ngFor="let layer of layers" [value]="layer.lyrTableName">
-              {{ layer.lyrSlabel }}
-            </ion-select-option>
-          </ion-select>
-          <ng-container
-            *ngIf="form.controls['lyrTableName'].hasError('required') && form.controls['lyrTableName'].touched">
-            <ion-label color="danger" lines="none">
-              Le champ est requis.
-            </ion-label>
-          </ng-container>
-        </div>
+    <div class="settings-layer-references" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+      <app-search-select key="lyrTableName" label="Couche à paramétrer" [elements]="layers"
+        [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
+      </app-search-select>
 
 
         <div class="separation-line"></div>

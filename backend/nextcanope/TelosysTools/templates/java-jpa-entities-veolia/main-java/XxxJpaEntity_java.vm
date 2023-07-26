@@ -19,8 +19,8 @@
 ## #set($jpa.genTargetEntity = true)
 ## ---------------------------
 ## Define default value (true or false) for "insertable" and "updatable" in "@JoinColumn"
-## #set($jpa.joinColumnInsertable = true) 
-## #set($jpa.joinColumnUpdatable  = true)
+#set($jpa.joinColumnInsertable = true)
+#set($jpa.joinColumnUpdatable  = true)
 ## ---------------------------
 ## Set default FETCH-TYPE for each cardinality ( "LAZY" or "EAGER" )
 ## #set($jpa.manyToOneFetchType  = "LAZY" )
@@ -44,15 +44,28 @@ import $b;
 import $b;
 #end
 
+#set($hasImportedCollectors = false)
 #foreach( $link in $entity.links )
 #if($link.fieldName.contains('createdBy'))
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+#end
+#if(($link.cardinality == "OneToMany" || $link.cardinality == "ManyToMany") && !$hasImportedCollectors)
+import java.util.stream.Collectors;
+#set($hasImportedCollectors = true)
 #end
 #end
 
 #foreach( $attribute in $entity.nonKeyAttributes )
 #if($attribute.name.contains('geom'))
 import org.locationtech.jts.geom.Geometry;
+#end
+#if($attribute.name.contains('dcre'))
+import org.hibernate.annotations.CreationTimestamp;
+#end
+#if($attribute.name.contains('dmod'))
+import org.hibernate.annotations.UpdateTimestamp;
 #end
 #end
 
@@ -83,6 +96,7 @@ $jpa.fieldAnnotations(4, $attribute).replace("AUTO", "IDENTITY")
 #end
     //--- ENTITY DATA FIELDS 
 #foreach( $attribute in $entity.nonKeyAttributes )
+#if(!$attribute.isFK())
 $jpa.fieldAnnotations(4, $attribute)
 #set( $attrName=$attribute.name ) 
 #if($valueToRewrite.contains($attribute.name)) 
@@ -91,19 +105,26 @@ $jpa.fieldAnnotations(4, $attribute)
 #if($attribute.name.contains('geom'))
 	@JsonProperty("$attribute.databaseName")
     private Geometry $attrName #if($attribute.hasInitialValue())= ${attribute.initialValue} #end;
-
+#elseif($attribute.name.contains('Ddel'))
+    @JsonProperty("$attribute.databaseName")
+    private Date deletedAt;
 #else
-	@JsonProperty("$attribute.databaseName")
+#if($attribute.name.contains('Dmod'))
+    @UpdateTimestamp
+#elseif($attribute.name.contains('Dcre'))
+    @CreationTimestamp
+#end
+    @JsonProperty("$attribute.databaseName")
     private $attribute.formattedType(1) $attrName #if($attribute.hasInitialValue())= ${attribute.initialValue} #end;
 
+#end
 #end
 #end
 
     //--- ENTITY LINKS ( RELATIONSHIP )
 #foreach( $link in $entity.links )
 ## all annotations : Cardinality, JoinColumn(s), etc
-
-$jpa.linkAnnotations(4, $link, $entity.attributes)
+$jpa.linkAnnotations(4, $link)
 ## $jpa.linkCardinalityAnnotation(4, $link)
 ## $jpa.linkJoinAnnotation(4, $link)
 #if($link.fieldName.contains('createdBy') ||  $link.fieldName.contains('modifiedBy')) 
@@ -122,6 +143,7 @@ $jpa.linkAnnotations(4, $link, $entity.attributes)
     
     //--- GETTERS & SETTERS FOR FIELDS
 #foreach( $attribute in $entity.keyAttributes )
+#if(!$attribute.isFK())
 #set( $attrName=$attribute.name ) 
 #if($valueToRewrite.contains($attribute.name)) 
 	#set( $attrName=$attribute.name+'_' )
@@ -134,7 +156,9 @@ $jpa.linkAnnotations(4, $link, $entity.attributes)
     }
 
 #end
+#end
 #foreach( $attribute in $entity.nonKeyAttributes )
+#if(!$attribute.isFK())
 #set( $attrName=$attribute.name ) 
 #if($valueToRewrite.contains($attribute.name)) 
 	#set( $attrName=$attribute.name+'_' )
@@ -147,6 +171,19 @@ $jpa.linkAnnotations(4, $link, $entity.attributes)
     public Geometry ${attribute.getter}() {
         return this.$attrName;
     }
+#elseif($attribute.name.contains('Ddel'))
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
 #else
 	public void ${attribute.setter}( $attribute.type $attrName ) {
         this.$attrName = $attrName ;
@@ -158,12 +195,32 @@ $jpa.linkAnnotations(4, $link, $entity.attributes)
 #end
 
 #end
-    //--- GETTERS FOR LINKS
+#end
+//--- GETTERS AND SETTERS FOR LINKS
 #foreach( $link in $entity.selectedLinks )
+    #if($link.cardinality == "OneToMany" || $link.cardinality == "ManyToMany")
+    public ${link.formattedFieldType(0)} ${link.getter}() {
+        return this.${link.formattedFieldName(0)}.stream()
+            .filter(e -> e.getDeletedAt() == null)
+            .collect(Collectors.toList());
+    }
+
+    public ${link.formattedFieldType(0)} getAll${link.formattedFieldName(1)}() {
+        return this.${link.formattedFieldName(0)};
+    }
+    #else
+##    this must be add when we will refacto all the models
+##    public ${link.formattedFieldType(0)} ${link.getter}() {
+##        return (this.${link.formattedFieldName(0)}.getDeletedAt() == null) ? this.${link.formattedFieldName(0)} : null;
+##    }
     public ${link.formattedFieldType(0)} ${link.getter}() {
         return this.${link.formattedFieldName(0)};
-    } 
+    }
+    #end
 
+    public void ${link.setter}(${link.formattedFieldType(0)} ${link.fieldName}) {
+        this.${link.formattedFieldName(0)} = ${link.fieldName};
+    }
 #end
 
 }
