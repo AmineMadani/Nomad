@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
-import { Layer, LayerStyle, getLayerLabel } from 'src/app/core/models/layer.model';
+import { Layer, getLayerLabel } from 'src/app/core/models/layer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { LayerStyleDataService } from 'src/app/core/services/dataservices/layer-style.dataservice';
 import { ModalController } from '@ionic/angular';
 import { LayerStyleComponent } from './layer-style/layer-style.component';
+import { LayerStyleSummary } from 'src/app/core/models/layer-style.model';
+import { firstValueFrom, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -28,9 +30,9 @@ export class LayerStylesSettingsPage implements OnInit {
   public getLayerLabel = getLayerLabel;
   public currentLayerId: number;
   // Styles
-  public allLayerStyles: LayerStyle[] = [];
-  public layerStyles: LayerStyle[] = [];
-  public selectedLayerStyles: LayerStyle[] = [];
+  public allLayerStyles: LayerStyleSummary[] = [];
+  public layerStyles: LayerStyleSummary[] = [];
+  public selectedLayerStyles: LayerStyleSummary[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -39,7 +41,7 @@ export class LayerStylesSettingsPage implements OnInit {
       {
         name: 'trash',
         onClick: () => {
-          console.log('trash clicked');
+          this.deleteLayerStyles();
         },
         disableFunction: () => {
           return this.selectedLayerStyles.length === 0;
@@ -66,7 +68,7 @@ export class LayerStylesSettingsPage implements OnInit {
       type: TypeColumn.ACTION,
       label: '',
       size: '1',
-      onClick: (style: LayerStyle) => {
+      onClick: (style: LayerStyleSummary) => {
         this.openLayerStyleDetails(style.lseId);
       }
     },
@@ -108,7 +110,20 @@ export class LayerStylesSettingsPage implements OnInit {
     });
   }
 
-  async openLayerStyleDetails(lseId?: number) {
+  private async reloadLayerStyles() {
+    // Get layer styles data
+    this.layerStyleDataService.getAllLayerStyles().subscribe((styles) => {
+      this.allLayerStyles = styles;
+      // And update the styles for the selected layer
+      if (this.currentLayerId) {
+        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId);
+      } else {
+        this.layerStyles = [];
+      }
+    });
+  }
+
+  private async openLayerStyleDetails(lseId?: number) {
     const modal = await this.modalController.create({
       component: LayerStyleComponent,
       componentProps: {
@@ -117,6 +132,27 @@ export class LayerStylesSettingsPage implements OnInit {
       },
       backdropDismiss: false,
     });
+
+    modal.onDidDismiss()
+      .then((data) => {
+        const reloadNeeded: boolean = data['data'];
+        // If some data changed
+        if (reloadNeeded) {
+          this.reloadLayerStyles();
+        }
+      });
+
     return await modal.present();
+  }
+
+  private async deleteLayerStyles() {
+    const deleteRequests = this.selectedLayerStyles.map(style =>
+      this.layerStyleDataService.deleteLayerStyle(style.lseId)
+    );
+
+    forkJoin(deleteRequests).subscribe(() => {
+      this.selectedLayerStyles = [];
+      this.reloadLayerStyles();
+    });
   }
 }

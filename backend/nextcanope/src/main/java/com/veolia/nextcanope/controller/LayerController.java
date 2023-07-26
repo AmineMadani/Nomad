@@ -5,9 +5,6 @@ import java.util.Map;
 
 import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
-import com.veolia.nextcanope.dto.payload.UpdateLayerStylePayload;
-import com.veolia.nextcanope.model.LayerStyle;
-import com.veolia.nextcanope.repository.LayerStyleRepository;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,9 +40,6 @@ public class LayerController {
     
     @Autowired
     public LayerReferencesService layerReferencesService;
-
-    @Autowired
-    public LayerStyleRepository layerStyleRepository;
 
     @GetMapping(path = "/{key}")
     @Operation(summary = "Get the index by key")
@@ -139,51 +133,5 @@ public class LayerController {
     public ResponseMessage saveUserLayerReferences(@RequestBody SaveLayerReferenceUserPayload saveDto, AccountTokenDto account) {
         this.layerReferencesService.saveUserLayerReferences(saveDto.getLayerReferences(), saveDto.getUserIds(), account.getId());
         return new ResponseMessage("Les données attributaires ont été enregistrées avec succès.");
-    }
-
-    @GetMapping(path = "/styles")
-    @Operation(summary = "Get all layer styles by layer id")
-    @ApiResponses(value = {
-        @ApiResponse(description= "The list of layer styles", content =  {
-                @Content(schema = @Schema(implementation = String.class))
-        })
-    })
-    public List<LayerStyleDto> getStylesByLayerId() {
-        return this.layerService.getAllLayerStyles();
-    }
-
-    @GetMapping(path = "/styles/{id}")
-    @Operation(summary = "Get a layer style by id")
-    @ApiResponses(value = {
-            @ApiResponse(description= "A layer style", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public LayerStyleDetailDto getLayerStyleById(@PathVariable Long id) {
-        return this.layerService.getLayerStyleById(id);
-    }
-
-    @PostMapping(path = "/styles")
-    @Operation(summary = "Create the layer style. Return a response message.")
-    @ApiResponses(value = {
-            @ApiResponse(description= "A response message", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public ResponseMessage createLayerStyle(@RequestBody LayerStyleDetailDto createPayload, AccountTokenDto account) {
-        this.layerService.createLayerStyle(createPayload, account.getId());
-        return new ResponseMessage("Les styles de couche ont été enregistrées avec succès.");
-    }
-
-    @PutMapping(path = "/styles/{id}")
-    @Operation(summary = "Save the layer styles. Return a response message.")
-    @ApiResponses(value = {
-            @ApiResponse(description= "A response message", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public ResponseMessage updateLayerStyle(@RequestBody LayerStyleDetailDto updatePayload, AccountTokenDto account) {
-        this.layerService.updateLayerStyle(updatePayload, account.getId());
-        return new ResponseMessage("Les styles de couche ont été enregistrées avec succès.");
     }
 }

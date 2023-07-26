@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -55,18 +56,17 @@ public class LayerStyle implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lse_ddel")
     @JsonProperty("lse_ddel")
-    private Date lseDdel ;
-
+    private Date deletedAt;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
-    @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id")
-    private Layer layer ; 
-
     @ManyToOne
     @JoinColumn(name="lse_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy ; 
+
+    @ManyToOne
+    @JoinColumn(name="lyr_id", referencedColumnName="id")
+    private Layer layer ; 
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="syd_id", referencedColumnName="id")
@@ -120,47 +120,58 @@ public class LayerStyle implements Serializable {
         return this.lseDmod;
     }
 
-	public void setLseDdel( Date lseDdel ) {
-        this.lseDdel = lseDdel ;
+    public Date getDeletedAt() {
+        return deletedAt;
     }
 
-    public Date getLseDdel() {
-        return this.lseDdel;
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
-    //--- GETTERS AND SETTERS FOR LINKS
-    public Layer getLayer() {
-        return this.layer;
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
     }
 
-    public void setLayer(Layer layer) {
-        this.layer = layer;
-    }
-    public Users getModifiedBy() {
+//--- GETTERS AND SETTERS FOR LINKS
+        public Users getModifiedBy() {
         return this.modifiedBy;
     }
-
+    
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-    public StyleDefinition getStyleDefinition() {
+        public Layer getLayer() {
+        return this.layer;
+    }
+    
+    public void setLayer(Layer layer) {
+        this.layer = layer;
+    }
+        public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
     }
-
+    
     public void setStyleDefinition(StyleDefinition styleDefinition) {
         this.styleDefinition = styleDefinition;
     }
-    public Users getCreatedBy() {
+        public Users getCreatedBy() {
         return this.createdBy;
     }
-
+    
     public void setCreatedBy(Users createdBy) {
         this.createdBy = createdBy;
     }
-    public List<LayerStyleCustom> getListOfLayerStyleCustom() {
-        return this.listOfLayerStyleCustom;
+        public List<LayerStyleCustom> getListOfLayerStyleCustom() {
+        return this.listOfLayerStyleCustom.stream()
+            .filter(e -> e.getDeletedAt() == null)
+            .collect(Collectors.toList());
     }
 
+    public List<LayerStyleCustom> getAlllistOfLayerStyleCustom() {
+        return this.listOfLayerStyleCustom;
+    }
+    
     public void setListOfLayerStyleCustom(List<LayerStyleCustom> listOfLayerStyleCustom) {
         this.listOfLayerStyleCustom = listOfLayerStyleCustom;
     }

@@ -1,6 +1,7 @@
 import { Subscription } from 'rxjs';
-import { Layer, LayerStyleDefinition } from './layer.model';
+import { Layer } from './layer.model';
 import * as Maplibregl from 'maplibre-gl';
+import { LayerStyleDetail } from './layer-style.model';
 
 export class MaplibreLayer {
   constructor(
@@ -31,16 +32,16 @@ export class MaplibreLayer {
     };
   }
 
-  private buildStyle(map : Maplibregl.Map, lLayerStyle: LayerStyleDefinition[]): any[] {
+  private buildStyle(map: Maplibregl.Map, lLayerStyle: LayerStyleDetail[]): any[] {
     let styles:any[] = [];
     for(let layerStyle of lLayerStyle){
-      let transformStyle = JSON.parse(layerStyle.definition);
+      let transformStyle = JSON.parse(layerStyle.sydDefinition);
       let nb = 0;
       for(let style of transformStyle) {
         if(nb == 0){
-          style.id = layerStyle.code;
+          style.id = layerStyle.lseCode;
         } else {
-          style.id = layerStyle.code+'_'+nb;
+          style.id = layerStyle.lseCode+'_'+nb;
         }
         nb++;
       }

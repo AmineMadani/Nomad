@@ -1,15 +1,15 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.LayerStyle;
 
-public class LayerStyleDto {
+public class LayerStyleSummaryDto {
 	private Long lseId;
 	private String lseCode;
 	private Long lyrId;
 
-	public LayerStyleDto() {
+	public LayerStyleSummaryDto() {
 		// Default constructor
 	}
 
-	public LayerStyleDto(Long lseId, String lseCode, Long lyrId) {
+	public LayerStyleSummaryDto(Long lseId, String lseCode, Long lyrId) {
 		this.lseId = lseId;
 		this.lseCode = lseCode;
 		this.lyrId = lyrId;

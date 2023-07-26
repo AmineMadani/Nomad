@@ -1,17 +1,17 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.LayerStyle;
 
 import com.veolia.nextcanope.model.StyleImage;
 
-public class ImageDto {
+public class StyleImageDto {
 
 	private String code;
 	
 	private String source;
 
-	public ImageDto() {
+	public StyleImageDto() {
 	}
 
-	public ImageDto(StyleImage styleImage) {
+	public StyleImageDto(StyleImage styleImage) {
 		this.code = styleImage.getSyiCode();
 		this.source = styleImage.getSyiSource();
 	}

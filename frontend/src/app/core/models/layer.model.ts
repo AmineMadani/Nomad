@@ -1,3 +1,5 @@
+import { LayerStyleDetail } from "./layer-style.model";
+
 export interface Layer {
   id: number;
   lyrNumOrder: number;
@@ -14,38 +16,11 @@ export interface Layer {
   lyrLlabel: string;
   lyrValid: Boolean;
   lyrDisplay: Boolean;
-  listStyle: LayerStyleDefinition[];
+  listStyle: LayerStyleDetail[];
 }
 
 export function getLayerLabel(layer: Layer) {
   return layer.lyrSlabel + ' - ' + layer.domLLabel;
-}
-
-export interface LayerStyleDefinition {
-  code: string;
-  definition: string;
-  listImage: StyleImage[];
-}
-
-export interface StyleImage {
-  code: string;
-  source: string;
-}
-
-export interface LayerStyle {
-  lseId: number;
-  lseCode: string;
-  lyrId: number;
-}
-
-export interface LayerStyleDetail {
-  lyrId: number;
-  lyrTableName: string;
-  lseId: number;
-  lseCode: string;
-  sydId: number;
-  sydDefinition: string; // Json
-  listImage: StyleImage[];
 }
 
 export enum  localisationExportMode  {

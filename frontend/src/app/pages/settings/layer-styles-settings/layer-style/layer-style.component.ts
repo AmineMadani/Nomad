@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { SafeResourceUrl } from '@angular/platform-browser';
 import { ModalController } from '@ionic/angular';
-import { Layer, LayerStyle, LayerStyleDetail, StyleImage } from 'src/app/core/models/layer.model';
+import { LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer-style.model';
+import { Layer } from 'src/app/core/models/layer.model';
 import { LayerStyleDataService } from 'src/app/core/services/dataservices/layer-style.dataservice';
 import { Navigation } from 'swiper';
 
@@ -18,15 +18,17 @@ export class LayerStyleComponent implements OnInit {
     private layerStyleDataService: LayerStyleDataService
   ) { }
 
+  // Variables which must be passed at param in the modal of this component
   @Input("lseId") lseId;
   @Input("parentLayer") parentLayer: Layer;
 
   public isCreation: boolean = true;
-
   public form: FormGroup;
-  public layerStyle: LayerStyleDetail;
-  public files: File[] = [];
+  public reloadNeededInPreviousScreen: boolean = false;
 
+  public layerStyle: LayerStyleDetail;
+
+  // Swiper specific variables
   public swiperModules = [Navigation];
   public opts: {
     slidesPerView: true
@@ -65,10 +67,9 @@ export class LayerStyleComponent implements OnInit {
   }
 
   onFileChanged(event) {
-    this.files = event.target.files;
     this.layerStyle.listImage = [];
 
-    Array.from(this.files).forEach(file => {
+    Array.from(event.target.files).forEach((file: any) => {
       let reader = new FileReader();
 
       reader.onload = (e: any) => {
@@ -99,24 +100,34 @@ export class LayerStyleComponent implements OnInit {
   save() {
     if (this.form.valid) {
       const formValues = this.form.value;
-      console.log(formValues);
 
+      // Complete layer style with form data
       this.layerStyle = {
         ...this.layerStyle,
         ...formValues
       };
-
-      console.log(this.layerStyle);
+      // Build payload
+      const layerStylePayload: SaveLayerStylePayload = {
+        lseCode: this.layerStyle.lseCode,
+        sydDefinition: this.layerStyle.sydDefinition,
+        listImage: this.layerStyle.listImage
+      };
 
       // Save in the database
       // A toast is automatically showed to the user when the api call is done.
       if (this.isCreation) {
-        this.layerStyleDataService.createLayerStyle(this.layerStyle).subscribe();
+        this.layerStyleDataService.createLayerStyle(
+          layerStylePayload,
+          this.layerStyle.lyrId
+        ).subscribe();
       } else {
-        this.layerStyleDataService.updateLayerStyle(this.layerStyle).subscribe();
+        this.layerStyleDataService.updateLayerStyle(
+          layerStylePayload,
+          this.layerStyle.lseId
+        ).subscribe();
       }
 
-
+      this.reloadNeededInPreviousScreen = true;
     } else {
       // Permit to show the current form errors to the user
       this.form.markAllAsTouched();
@@ -124,6 +135,6 @@ export class LayerStyleComponent implements OnInit {
   }
 
   close() {
-    this.modalController.dismiss();
+    this.modalController.dismiss(this.reloadNeededInPreviousScreen);
   }
 }

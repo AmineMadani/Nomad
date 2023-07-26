@@ -1,4 +1,4 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.LayerStyle;
 
 import com.veolia.nextcanope.model.LayerStyle;
 import com.veolia.nextcanope.model.StyleImage;
@@ -16,7 +16,7 @@ public class LayerStyleDetailDto {
 	private Long sydId;
 	private String sydDefinition;
 
-	private List<ImageDto> listImage = new ArrayList<ImageDto>();
+	private List<StyleImageDto> listImage = new ArrayList<StyleImageDto>();
 
 	public LayerStyleDetailDto() {
 	}
@@ -29,7 +29,7 @@ public class LayerStyleDetailDto {
 		this.sydId = layerStyle.getStyleDefinition().getId();
 		this.sydDefinition = layerStyle.getStyleDefinition().getSydDefinition();
 		for(StyleImage styleImage: layerStyle.getStyleDefinition().getListOfStyleImage()) {
-			this.listImage.add(new ImageDto(styleImage));
+			this.listImage.add(new StyleImageDto(styleImage));
 		}
 	}
 
@@ -73,11 +73,11 @@ public class LayerStyleDetailDto {
 		this.sydDefinition = sydDefinition;
 	}
 
-	public List<ImageDto> getListImage() {
+	public List<StyleImageDto> getListImage() {
 		return listImage;
 	}
 
-	public void setListImage(List<ImageDto> listImage) {
+	public void setListImage(List<StyleImageDto> listImage) {
 		this.listImage = listImage;
 	}
 

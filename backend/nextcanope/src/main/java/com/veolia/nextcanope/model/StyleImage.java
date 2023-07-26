@@ -58,8 +58,7 @@ public class StyleImage implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syi_ddel")
     @JsonProperty("syi_ddel")
-    private Date syiDdel ;
-
+    private Date deletedAt;
 
     //--- ENTITY LINKS ( RELATIONSHIP )
     @ManyToOne
@@ -124,33 +123,38 @@ public class StyleImage implements Serializable {
         return this.syiDmod;
     }
 
-	public void setSyiDdel( Date syiDdel ) {
-        this.syiDdel = syiDdel ;
+    public Date getDeletedAt() {
+        return deletedAt;
     }
 
-    public Date getSyiDdel() {
-        return this.syiDdel;
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
-    //--- GETTERS AND SETTERS FOR LINKS
-    public Users getCreatedBy() {
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
+//--- GETTERS AND SETTERS FOR LINKS
+        public Users getCreatedBy() {
         return this.createdBy;
     }
-
+    
     public void setCreatedBy(Users createdBy) {
         this.createdBy = createdBy;
     }
-    public Users getModifiedBy() {
+        public Users getModifiedBy() {
         return this.modifiedBy;
     }
-
+    
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-    public StyleDefinition getStyleDefinition() {
+        public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
     }
-
+    
     public void setStyleDefinition(StyleDefinition styleDefinition) {
         this.styleDefinition = styleDefinition;
     }
