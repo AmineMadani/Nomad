@@ -500,6 +500,10 @@ public class Workorder implements Serializable {
     public List<Task> getListOfTask() {
         return this.listOfTask;
     }
+    
+    public void setListOfTask(List<Task> tasks) {
+        this.listOfTask = tasks;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
