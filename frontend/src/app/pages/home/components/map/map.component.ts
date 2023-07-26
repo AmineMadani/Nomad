@@ -7,9 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
-  AlertController,
   LoadingController,
-  ToastController,
 } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -24,10 +22,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
-import { Clipboard } from '@angular/cdk/clipboard';
 import * as turf from '@turf/turf';
 import * as Maplibregl from 'maplibre-gl';
-import { ConfigurationService } from 'src/app/core/services/configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
@@ -47,11 +43,7 @@ export class MapComponent implements OnInit, OnDestroy {
     private elem: ElementRef,
     private referentialService: ReferentialService,
     private mapEvent: MapEventService,
-    private alertCtrl: AlertController,
     private activatedRoute: ActivatedRoute,
-    private clipboard: Clipboard,
-    private configurationService: ConfigurationService,
-    private toastCtrl: ToastController,
     private keycloakService: KeycloakService
   ) {
     this.drawerService
@@ -83,7 +75,6 @@ export class MapComponent implements OnInit, OnDestroy {
 
   public zoom: number;
   public scale: string;
-  public draw: MapboxDraw;
   public isMobile: boolean;
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
@@ -303,8 +294,8 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'click')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature, e);
+          const nearestFeature = this.queryNearestFeature(e);
+          this.onFeatureSelected(nearestFeature, e);
       });
 
     fromEvent(this.map, 'touchend')
@@ -322,7 +313,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
     fromEvent(this.map, 'touchmove')
       .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
+      .subscribe(() => {
         this.preventTouchMoveClicked = true;
       });
 
@@ -337,7 +328,7 @@ export class MapComponent implements OnInit, OnDestroy {
     // Ending zoom event
     fromEvent(this.map, 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
+      .subscribe(() => {
         this.preventTouchMoveClicked = true;
         this.scale = this.calculateScale();
       });
@@ -346,7 +337,7 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
-        this.draw.deleteAll();
+        this.mapService.deleteDrawing();
 
         const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
@@ -356,9 +347,8 @@ export class MapComponent implements OnInit, OnDestroy {
         );
 
         if (features.length > 0) {
-          this.drawerService.navigateTo(
+          this.drawerService.navigateWithEquipments(
             DrawerRouteEnum.SELECTION,
-            null,
             features
           );
         }
@@ -374,7 +364,7 @@ export class MapComponent implements OnInit, OnDestroy {
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
     if (this.mapService.getDrawActive()) {
-      this.draw.deleteAll();
+      this.mapService.deleteDrawing();
     }
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
@@ -459,6 +449,7 @@ export class MapComponent implements OnInit, OnDestroy {
       )[0] as HTMLButtonElement
     ).click();
     document.getElementById('map-nomad-context-menu').className = 'hide';
+    this.mapService.setDrawMode('draw_polygon');
   }
 
   /**
@@ -470,7 +461,7 @@ export class MapComponent implements OnInit, OnDestroy {
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
-    this.draw.changeMode('draw_rectangle');
+    this.mapService.setDrawMode('draw_rectangle');
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
 
@@ -510,7 +501,7 @@ export class MapComponent implements OnInit, OnDestroy {
     if (this.isMobile) {
       this.map.addControl(new CustomZoomControl(), 'bottom-right');
     }
-    this.draw = new MapboxDraw({
+    const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
         polygon: true,
@@ -521,8 +512,8 @@ export class MapComponent implements OnInit, OnDestroy {
         draw_rectangle: DrawRectangle,
       },
     });
-    this.map.addControl(this.draw as any, 'top-left');
-    this.mapService.setDraw(this.draw);
+    this.map.addControl(draw as any, 'top-left');
+    this.mapService.setDraw(draw);
   }
 
   /**

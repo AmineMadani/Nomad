@@ -6,7 +6,7 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { Subject, takeUntil, filter, switchMap } from 'rxjs';
+import { Subject, takeUntil, filter, switchMap, debounceTime } from 'rxjs';
 import { Layer } from 'src/app/core/models/layer.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -24,8 +24,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private mapService: MapService,
     private layerService: LayerService,
     private drawerService: DrawerService,
-    private mapEvent: MapEventService,
-    private utils: UtilsService
+    private mapEventService: MapEventService,
+    private utilsService: UtilsService
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -33,7 +33,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         switchMap(() => {
           const urlParams = new URLSearchParams(window.location.search);
-          this.paramFeatures = this.utils.transformMap(
+          this.paramFeatures = this.utilsService.transformMap(
             new Map(urlParams.entries())
           );
           return this.layerDataservice.getEquipmentsByLayersAndIds(
@@ -61,7 +61,21 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             ).lyrTableName,
           };
         });
+
         this.onInitSelection(equipments);
+      });
+
+    this.mapEventService
+      .onFeatureHovered()
+      .pipe(debounceTime(300), takeUntil(this.ngUnsubscribe$))
+      .subscribe((f: string) => {
+        if (f) {
+          this.featureIdSelected = f;
+          const name = 'feature-container-' + this.featureIdSelected;
+          document.getElementById(name)?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          this.featureIdSelected = undefined;
+        }
       });
   }
 
@@ -71,16 +85,18 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public filteredFeatures: any[] = [];
   public sources: { key: string; label: string }[] = [];
   public isLoading: boolean = false;
+  public isMobile: boolean;
 
   public wkoDraft: string;
+  public featureIdSelected: string = '';
+  public featuresHighlighted: any[] = [];
 
   private layersConf: Layer[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private paramFeatures: any;
 
   ngOnInit() {
-    this.wkoDraft =
-      this.activatedRoute.snapshot.queryParams?.['redirect'];
+    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['redirect'];
     this.buttons = [
       { key: 'add', label: 'Ajouter un élement', icon: 'add' },
       {
@@ -91,7 +107,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         icon: 'person-circle',
       },
       { key: 'ask', label: 'Faire une demande de MAJ', icon: 'refresh' },
+      {
+        key: 'showSelectedFeatures',
+        label: 'Afficher toutes les sélections',
+        icon: 'locate',
+      },
     ];
+    this.isMobile = this.utilsService.isMobilePlateform();
   }
 
   ngOnDestroy(): void {
@@ -134,13 +156,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     });
     this.filteredFeatures = this.featuresSelected;
 
-    this.mapEvent.highlighSelectedFeatures(
+    this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.featuresSelected.map((f: any) => {
         return { id: f.id, source: f.lyr_table_name };
       })
-    );
-
+    );  
     this.isLoading = false;
   }
 
@@ -148,8 +169,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     switch (e.key) {
       case 'create':
         this.router.navigate(['/home/work-order'], {
-          queryParams: {...this.generateFeatureParams(this.featuresSelected), draft: this.wkoDraft }
+          queryParams: {
+            ...this.generateFeatureParams(this.featuresSelected),
+            draft: this.wkoDraft,
+          },
         });
+        break;
+      case 'showSelectedFeatures':
+        this.restoreViewOnFeatureSelected();
         break;
       default:
         break;
@@ -175,6 +202,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public removeFeature(e: Event, feature: any): void {
     e.stopPropagation();
+
+    if (this.featuresHighlighted.includes(feature)) {
+      this.featuresHighlighted.splice(
+        this.featuresHighlighted.findIndex((f) => f.id === feature.id),
+        1
+      );
+    }
+
     this.featuresSelected.splice(
       this.featuresSelected.findIndex((f) => f.id === feature.id),
       1
@@ -185,7 +220,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         1
       );
     }
-    this.mapEvent.removeFeatureFromSelected(
+    this.mapEventService.removeFeatureFromSelected(
       this.mapService.getMap(),
       feature.id
     );
@@ -220,5 +255,55 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     });
 
     return featureParams;
+  }
+
+  public bounceToFeature(e: Event, feature: any) {
+    e.stopPropagation();
+
+    if (this.featuresHighlighted.includes(feature)) {
+      this.featuresHighlighted = [];
+      this.restoreViewOnFeatureSelected();
+      this.hightlightFeatures();
+    } else {
+      this.featuresHighlighted.push(feature);
+      this.hightlightFeatures(this.featuresHighlighted);
+      this.layerService.fitBounds(
+        this.featuresHighlighted.map((f) => {
+          return [+f.x, +f.y];
+        })
+      );
+    }
+  }
+
+  public restoreViewOnFeatureSelected() {
+    this.featuresHighlighted = [];
+    this.hightlightFeatures();
+    this.layerService.fitBounds(
+      this.featuresSelected.map((f) => {
+        return [+f.x, +f.y];
+      })
+    );
+  }
+
+  public highlightSelectedFeature(feature: any): void {
+    if (feature) {
+      const features = this.featuresHighlighted.length > 0 ? [feature, ...this.featuresHighlighted] : [feature];
+      this.hightlightFeatures(features);
+    } else {
+      if (this.featuresHighlighted.length > 0) {
+        this.hightlightFeatures(this.featuresHighlighted);
+      } else {
+        this.hightlightFeatures();
+      }
+    }
+  }
+
+  private hightlightFeatures(features?: any[]): void {
+    this.mapEventService.highlighSelectedFeatures(
+      this.mapService.getMap(),
+      (features ?? this.featuresSelected).map((f: any) => {
+        return { id: f.id, source: f.lyr_table_name };
+      })
+    );
   }
 }
