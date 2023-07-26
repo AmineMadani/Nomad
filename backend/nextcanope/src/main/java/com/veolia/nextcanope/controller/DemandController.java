@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.service.WorkOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;

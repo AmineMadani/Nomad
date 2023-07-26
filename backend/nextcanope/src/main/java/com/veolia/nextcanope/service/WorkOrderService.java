@@ -26,6 +26,10 @@ import com.veolia.nextcanope.repository.TaskRepository;
 import com.veolia.nextcanope.repository.WorkOrderRepositoryImpl;
 import com.veolia.nextcanope.repository.WorkorderRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 /**
  * WorkOrderService is a service class for managing workorder-related data.
  * It interacts with the WorkOrderRepository to access and manipulate the data.
@@ -53,6 +57,9 @@ public class WorkOrderService {
     
     @Autowired
     private StatusService statusService;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
     /**
 	 * Retrieve the list of workorders by most recent date planned limited in number with offset for pagination
@@ -70,7 +77,8 @@ public class WorkOrderService {
      * @param customWorkorderDto
      * @return the workorder dto
      */
-    public Workorder createWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
+    @Transactional
+    public CustomWorkorderDto createWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
     	Workorder workorder = new Workorder();
 
 		try {
@@ -139,7 +147,10 @@ public class WorkOrderService {
 			throw new TechnicalException("Erreur lors de la sauvegarde du workorder pour l'utilisateur avec l'id  " + account.getId() + ".", e.getMessage());
 		}
 		
-    	return workorder;
+		Workorder wko = workOrderRepository.findById(workorder.getId()).get();
+		entityManager.refresh(wko);
+		
+    	return new CustomWorkorderDto(wko);
     }
     
     /**

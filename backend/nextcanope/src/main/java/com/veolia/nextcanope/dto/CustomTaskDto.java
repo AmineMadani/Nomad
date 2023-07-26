@@ -119,7 +119,7 @@ public class CustomTaskDto {
         this.id = task.getId();
         this.longitude = task.getLongitude();
         this.latitude = task.getLatitude();
-        this.wtsId = task.getWorkorderTaskStatus().getId();
+        this.wtsId = task.getWtsId();
         this.assObjRef = task.getAsset().getAssObjRef();
         this.assObjTable = task.getAsset().getAssObjTable();
         this.tskCompletionDate = task.getTskCompletionDate();

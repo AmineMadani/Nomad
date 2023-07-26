@@ -3,6 +3,7 @@ import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
 import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
+import { CustomWorkOrder } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -175,15 +176,15 @@ export class LayerService {
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
-  public addGeojsonToLayer(properties: any, layerKey: string): void {
+  public addGeojsonToLayer(properties: CustomWorkOrder, layerKey: string): void {
     this.mapService.addEventLayer(layerKey).then(() => {
       let newPoint: any = {
         geometry: {
           type: 'Point',
           coordinates: [properties.longitude, properties.latitude],
         },
-        id: properties.id,
-        properties: properties,
+        id: properties.tasks[0].id,
+        properties: properties.tasks[0],
         type: 'Feature',
       };
       this.mapService.addNewPoint(layerKey, newPoint);

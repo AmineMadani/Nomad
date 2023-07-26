@@ -189,7 +189,7 @@ public class Workorder implements Serializable {
     private WorkorderTaskStatus workorderTaskStatus ; 
 
 
-    @OneToMany(mappedBy="workorder")
+    @OneToMany(mappedBy="workorder", cascade = CascadeType.ALL)
     private List<Task> listOfTask ; 
 
 
@@ -499,7 +499,7 @@ public class Workorder implements Serializable {
 
     public List<Task> getListOfTask() {
         return this.listOfTask;
-    } 
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;

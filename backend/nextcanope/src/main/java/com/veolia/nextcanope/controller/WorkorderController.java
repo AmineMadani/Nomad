@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.model.Workorder;
 import com.veolia.nextcanope.service.WorkOrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,7 +51,7 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public Workorder createWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
+    public CustomWorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
     	return this.workOrderService.createWorkOrder(customWorkorderDto, account);
     }
     
