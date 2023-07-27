@@ -15,7 +15,7 @@ import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
 import com.veolia.nextcanope.service.LayerService;
-import com.veolia.nextcanope.service.WorkOrderService;
+import com.veolia.nextcanope.service.WorkorderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -37,7 +37,7 @@ public class LayerController {
     public LayerRepository layerRepository;
     
     @Autowired
-    public WorkOrderService workOrderService;
+    public WorkorderService workOrderService;
     
     @Autowired
     public LayerReferencesService layerReferencesService;

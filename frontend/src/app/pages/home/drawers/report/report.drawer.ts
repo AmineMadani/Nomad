@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CustomWorkOrder } from 'src/app/core/models/workorder.model';
+import { Workorder } from 'src/app/core/models/workorder.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
@@ -22,7 +22,7 @@ export class ReportDrawer implements OnInit {
   ) {
   }
 
-  public workorder: CustomWorkOrder;
+  public workorder: Workorder;
 
   ngOnInit() {
     let id = Number.parseInt(this.router.snapshot.paramMap.get('id'));

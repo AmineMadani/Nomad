@@ -49,11 +49,23 @@ export class FilterWorkOrderComponent implements OnInit {
         this.workOrders = res.map((f: any) =>
           MapFeature.from(f.properties)
         );
-        console.log(this.workOrders);
       } else {
         this.isFromCache = false;
         this.workOrders = res;
-        console.log(this.workOrders);
+      }
+    }
+    for(let workorder of this.workOrders) {
+      if(!workorder.reason) {
+        workorder.reason = workorder['wkoName'];
+      }
+      if(!workorder.datebegin) {
+        workorder.datebegin = workorder['wkoPlanningStartDate'];
+      }
+      if(!workorder.dateend) {
+        workorder.dateend = workorder['wkoPlanningEndDate'];
+      }
+      if(!workorder.status) {
+        workorder.status = workorder['wtsId'];
       }
     }
     return this.workOrders;

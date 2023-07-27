@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
+import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
@@ -21,13 +21,13 @@ export class ReportAssetComponent implements OnInit {
     private mapEventService: MapEventService
   ) { }
 
-  @Input() workorder: CustomWorkOrder;
-  @Input() selectedTask: CustomTask;
-  @Output() onSelectedTaskChange: EventEmitter<CustomTask> = new EventEmitter();
+  @Input() workorder: Workorder;
+  @Input() selectedTask: Task;
+  @Output() onSelectedTaskChange: EventEmitter<Task> = new EventEmitter();
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
-  public currentTaskSelected: CustomTask;
-  public editTaskEquipment: CustomTask;
+  public currentTaskSelected: Task;
+  public editTaskEquipment: Task;
   public draggableMarker: any;
 
   private refLayers: any[];
@@ -62,7 +62,7 @@ export class ReportAssetComponent implements OnInit {
    * @param e event
    * @param task selected task
    */
-  public onSelectTask(e: Event, task: CustomTask) {
+  public onSelectTask(e: Event, task: Task) {
     if (this.currentTaskSelected && this.currentTaskSelected.id == task.id) {
       this.currentTaskSelected = null;
     } else {
@@ -88,7 +88,7 @@ export class ReportAssetComponent implements OnInit {
    * Edit equipment
    * @param tsk  Task equipment to edit
    */
-  public onEditEquipment(tsk: CustomTask) {
+  public onEditEquipment(tsk: Task) {
     this.layerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
       this.draggableMarker = this.layerService.addMarker(tsk.longitude, tsk.latitude, result);
     })
@@ -106,7 +106,7 @@ export class ReportAssetComponent implements OnInit {
    * Validate the equipment change
    * @param tsk the task to update
    */
-  public onValidateChangeEquipment(tsk: CustomTask) {
+  public onValidateChangeEquipment(tsk: Task) {
     let feature: any = this.layerService.getFeatureById("workorder", tsk.id + '');
     feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
     this.mapService.updateFeature("workorder", feature);
@@ -126,7 +126,7 @@ export class ReportAssetComponent implements OnInit {
    * Remove the equipment change
    * @param tsk task change to remove
    */
-  public onRemoveChangeEquipment(tsk: CustomTask) {
+  public onRemoveChangeEquipment(tsk: Task) {
     this.mapService.getMap().setFeatureState(
       { source: tsk.assObjTable.replace("asset.", ""), id: tsk.assObjRef },
       { selected: false }

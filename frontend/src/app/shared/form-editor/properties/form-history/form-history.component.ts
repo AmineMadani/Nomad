@@ -1,13 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { InfiniteScrollCustomEvent } from '@ionic/angular';
+import { Component, Input, OnInit } from '@angular/core';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { Workorder } from 'src/app/core/models/workorder.model';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FormDefinition } from '../../models/form.model';
+import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-form-history',
@@ -24,7 +23,7 @@ export class FormHistoryComponent implements OnInit {
   @Input() definition: FormDefinition;
   @Input() paramMap: Map<string, string>;
 
-  public workorders: Workorder[];
+  public workorders: any[];
   public isLoading: boolean;
 
   private statusRef: any;
@@ -54,6 +53,8 @@ export class FormHistoryComponent implements OnInit {
         this.reasonRef = refs[1];
 
         this.workorders.map((wk) => {
+          /* In the code, `wk` is a variable used in the `map` function to iterate over each element in
+          the `workorders` array. It represents an individual `Workorder` object in the array. */
           wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
           wk.wtrLabel = this.reasonRef.find(
             (reason: { id: number; }) => reason.id === wk.wtsId

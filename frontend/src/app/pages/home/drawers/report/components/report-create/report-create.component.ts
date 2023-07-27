@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { CustomTask, CustomWorkOrder, Report } from 'src/app/core/models/workorder.model';
+import { Task, Workorder, Report } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { ExploitationService } from 'src/app/core/services/exploitation.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -29,11 +29,11 @@ export class ReportCreateComponent implements OnInit {
     private keycloakService: KeycloakService
   ) { }
 
-  @Input() workorder: CustomWorkOrder;
+  @Input() workorder: Workorder;
 
   public isMobile: boolean;
   public step: number = 1;
-  public selectedTask: CustomTask;
+  public selectedTask: Task;
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
@@ -225,7 +225,7 @@ export class ReportCreateComponent implements OnInit {
    * Selected task
    * @param task selected task
    */
-  public onSelectedTaskChange(task: CustomTask) {
+  public onSelectedTaskChange(task: Task) {
     this.selectedTask = task;
   }
 

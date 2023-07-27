@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.dto.CustomWorkorderDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.service.WorkOrderService;
+import com.veolia.nextcanope.service.WorkorderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class WorkorderController {
 
     @Autowired
-    public WorkOrderService workOrderService;
+    public WorkorderService workOrderService;
 
     @PostMapping(path = "pagination/{limit}/{offset}")
     @Operation(summary = "Get the workorders with search parameter in pagination format")
@@ -51,8 +50,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public CustomWorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
-    	return this.workOrderService.createWorkOrder(customWorkorderDto, account);
+    public WorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) WorkorderDto workorderDto) {
+    	return this.workOrderService.createWorkOrder(workorderDto, account);
     }
     
     @PostMapping(path = "update")
@@ -62,8 +61,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public CustomWorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
-    	return this.workOrderService.updateWorkOrder(customWorkorderDto, account);
+    public WorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody(required = true) WorkorderDto workorderDto) {
+    	return this.workOrderService.updateWorkOrder(workorderDto, account);
     }
     
     @GetMapping(path = "/{id}")
@@ -73,7 +72,7 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public CustomWorkorderDto getWorkOrderById(@PathVariable Long id) {
+    public WorkorderDto getWorkOrderById(@PathVariable Long id) {
     	return this.workOrderService.getWorkOrderDto(id);
     }
 }

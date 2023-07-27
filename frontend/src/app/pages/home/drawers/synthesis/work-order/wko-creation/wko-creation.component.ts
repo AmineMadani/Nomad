@@ -15,7 +15,7 @@ import { IonModal } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/app/core/services/cache.service';
-import { CustomWorkOrder } from 'src/app/core/models/workorder.model';
+import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -157,7 +157,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     form.longitude =
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
 
-    this.exploitationDateService.createWorkOrder(form).subscribe((res:CustomWorkOrder) => {
+    this.exploitationDateService.createWorkOrder(form).subscribe((res:Workorder) => {
       this.removeMarkers();
       this.layerService.addGeojsonToLayer(res, 'workorder');
       this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER, [res.tasks[0].id], {

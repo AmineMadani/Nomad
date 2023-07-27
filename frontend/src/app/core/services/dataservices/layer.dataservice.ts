@@ -6,9 +6,9 @@ import { ConfigurationService } from '../configuration.service';
 import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { Layer } from '../../models/layer.model';
-import { Workorder } from '../../models/workorder.model';
 import { CacheService } from '../cache.service';
 import { UtilsService } from '../utils.service';
+import { Workorder } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',

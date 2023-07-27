@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { CustomTask } from 'src/app/core/models/workorder.model';
+import { Task } from 'src/app/core/models/workorder.model';
 import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
@@ -15,7 +15,7 @@ export class ReportFormComponent implements OnInit {
     private templateDataService: TemplateDataService
   ) { }
 
-  @Input() task: CustomTask;
+  @Input() task: Task;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;

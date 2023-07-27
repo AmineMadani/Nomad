@@ -8,7 +8,7 @@ import java.util.List;
 import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.Task;
 
-public class CustomTaskDto {
+public class TaskDto {
 
     private Long id;
 
@@ -110,11 +110,11 @@ public class CustomTaskDto {
 		this.report = report;
 	}
 
-	public CustomTaskDto() {
+	public TaskDto() {
 		super();
 	}
 
-	public CustomTaskDto(Task task) {
+	public TaskDto(Task task) {
         super();
         this.id = task.getId();
         this.longitude = task.getLongitude();
