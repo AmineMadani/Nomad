@@ -122,22 +122,23 @@ public class LayerStyleService {
         // Set code, modified by
         layerStyle.setLseCode(payload.getLseCode());
         layerStyle.setModifiedBy(user);
+
         // Set definition
         layerStyle.getStyleDefinition().setSydDefinition(payload.getSydDefinition());
         layerStyle.getStyleDefinition().setModifiedBy(user);
+
         // Set images
         // We set mark as deleted the missed images in payload
         List<String> payloadImageCodes = payload.getListImage().stream()
                 .map(StyleImageDto::getCode)
                 .collect(Collectors.toList());
-
         for (StyleImage existingImage : layerStyle.getStyleDefinition().getListOfStyleImage()) {
             if (!payloadImageCodes.contains(existingImage.getSyiCode())) {
                 existingImage.markAsDeleted(user);
             }
         }
         // We add or set images find in payload
-        List<StyleImage> images = new ArrayList<>();
+        List<StyleImage> images = new ArrayList<>(layerStyle.getStyleDefinition().getListOfStyleImage());
         for (StyleImageDto image: payload.getListImage()) {
             StyleImage imageToSet = layerStyle.getStyleDefinition().getListOfStyleImage()
                     .stream()
@@ -153,8 +154,7 @@ public class LayerStyleService {
                 images.add(styleImage);
             }
         }
-        layerStyle.getStyleDefinition().getListOfStyleImage().clear();
-        layerStyle.getStyleDefinition().getListOfStyleImage().addAll(images);
+        layerStyle.getStyleDefinition().setListOfStyleImage(images);
 
         // It saves layer styles in the db
         try {
