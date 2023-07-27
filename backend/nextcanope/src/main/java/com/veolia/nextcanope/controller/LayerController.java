@@ -3,6 +3,7 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
@@ -10,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.constants.LayerConstants;
-import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.dto.LayerDto;
-import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;

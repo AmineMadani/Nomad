@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -8,26 +8,32 @@ import { SettingsPageRoutingModule } from './settings-routing.module';
 
 import { SettingsPage } from './settings.page';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { PatrimonySettingsComponent } from './patrimony-settings/patrimony-settings.component';
+import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { SettingsSegmentComponent } from './components/settings-segment/settings-segment.component';
-import { LayerReferencesSettingsComponent } from './layer-references-settings/layer-references-settings.component';
 import { UserCreationComponent } from './user-creation/user-creation.component';
+import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
+import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
+import { LayerStyleComponent } from './layer-styles-settings/layer-style/layer-style.component';
 
 @NgModule({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
     SharedModule,
-    SettingsPageRoutingModule
+    SettingsPageRoutingModule,
   ],
   declarations: [
     SettingsPage,
     SettingsSegmentComponent,
-    PatrimonySettingsComponent,
-    LayerReferencesSettingsComponent,
+    PatrimonySettingsPage,
     UserCreationComponent,
+    PatrimonySettingsPage,
+    LayerReferencesSettingsPage,
+    LayerStylesSettingsPage,
+    LayerStyleComponent
   ]
 })
 export class SettingsPageModule {}

@@ -1,31 +1,72 @@
 .settings-flex {
-  display: flex;
-  flex-direction: column;
   height: 100%;
+}
 
-  .settings-content-template {
-    flex: 1;
+.settings-segment-flex {
+  height: 15%;
+}
+
+.settings-content-template {
+  overflow-y: auto;
+  height: 85%;
+
+  .settings-content-header-height {
+    height: 70px;
+
+    &.users-settings {
+      height: 180px;
+    }
+
+    .users-multi-selection {
+      display: block;
+      height: 110px;
+      background-color: var(--ion-color-component-background);
+    }
+  }
+
+  .settings-layer-references {
     display: flex;
-    flex-direction: column;
-  
-    .settings-layer-references {
-      flex: 1;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-top: 15px;
+    height: calc(100% - 70px);
+
+    ion-select {
+      height: 56px;
+    }
+
+    &.users-settings {
+      height: calc(100% - 180px);
+    }
+
+    .layer-select {
+      width: 300px;
+    }
+
+    .synthetic-references-selection {
       display: flex;
-      gap: 20px;
-      min-height: 0;
+      flex-direction: column;
 
-      .synthetic-references-selection {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+      ion-segment-button {
+        text-transform: none;
+        max-width: 500px;
+      }
 
-        .synthetic-references-selection-content {
-          flex: 1;
+      .synthetic-references-selection-content {
+        overflow-y: auto;
+        margin-top: 15px;
+
+        .synthetic-references-selection-toggle {
           display: flex;
-          flex-direction: column;
-          row-gap: 10px;
-          overflow: auto;
-          margin-top: 10px;
+          flex-direction: row;
+          align-items: center;
+          margin-bottom: 20px;
+          margin-right: 20px;
+          margin-left: 20px;
+
+          ion-toggle {
+            margin-right: 10px
+          }
         }
       }
     }

@@ -2,18 +2,19 @@ package com.veolia.nextcanope.repository;
 
 import java.util.List;
 
+import com.veolia.nextcanope.configuration.NomadRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.veolia.nextcanope.dto.LayerStyleDto;
+import com.veolia.nextcanope.dto.LayerStyle.StyleDefinitionDto;
 import com.veolia.nextcanope.model.LayerStyle;
 
 /**
  * LayerStyleRepository is an interface for managing layer style entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
-public interface LayerStyleRepository extends JpaRepository<LayerStyle, Long> {
+public interface LayerStyleRepository extends NomadRepository<LayerStyle, Long> {
 	
 	
 	/**
@@ -27,8 +28,8 @@ public interface LayerStyleRepository extends JpaRepository<LayerStyle, Long> {
             		+ "inner join nomad.style_definition sd on ls.syd_id=sd.id "
             		+ "left join nomad.layer_style_custom lsc on lsc.lse_id=ls.id and lsc.usr_id = :userId "
             		+ "left join nomad.style_definition sd2 on sd2.id=lsc.syd_id "
-            		+ "where ls.lyr_id = :layerId ",
+            		+ "where ls.lyr_id = :layerId and lse_ddel is null ",
             nativeQuery = true
     )
-    List<LayerStyleDto> getLayerStyleByLayerAndUser(@Param("layerId") Long layerId, @Param("userId") Long userId);
+    List<StyleDefinitionDto> getLayerStyleByLayerAndUser(@Param("layerId") Long layerId, @Param("userId") Long userId);
 }

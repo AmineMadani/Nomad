@@ -1,21 +1,17 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import com.veolia.nextcanope.dto.*;
+import com.veolia.nextcanope.dto.LayerStyle.StyleDefinitionDto;
+import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.exception.TechnicalException;
 
 import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
+import com.veolia.nextcanope.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.veolia.nextcanope.dto.LayerDto;
-import com.veolia.nextcanope.dto.LayerStyleDto;
-import com.veolia.nextcanope.dto.StyleDto;
-import com.veolia.nextcanope.model.Layer;
-import com.veolia.nextcanope.model.StyleDefinition;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.repository.LayerRepositoryImpl;
 import com.veolia.nextcanope.repository.LayerStyleRepository;
@@ -62,27 +58,33 @@ public class LayerService {
     }
     
     /**
-     * Get all Layers.
+     * Get all Layers. For each layer, get the styles of the layer and the user.
+     * @param userId The user id
+     * @return A list of LayerDto
      */
     public List<LayerDto> getLayers(Long userId) {
     	List<LayerDto> layersDto = new ArrayList<LayerDto>();
+        // Get all layers
     	List<Layer> layers = layerRepository.findAll();
-    	for(Layer layer:layers) {
+    	for (Layer layer : layers) {
     		LayerDto layerDto = new LayerDto(layer);
-    		List<LayerStyleDto> lLayerStyle = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
-    		for(LayerStyleDto layerStyle: lLayerStyle) {
-    			Optional<StyleDefinition> optStyleDefinition = styleDefinitionRepository.findById(layerStyle.getDefinitionId());
-                if (optStyleDefinition.isPresent()) {
-                    StyleDefinition styleDefinition = optStyleDefinition.get();
-                    styleDefinition.setSydCode(layerStyle.getCode());
-                    layerDto.getListStyle().add(new StyleDto(styleDefinition));
-                } else {
-                    // We throw a technical exception if a definition is not found because it's an internal data error.
-                    throw new TechnicalException("La définition " + layerStyle.getDefinitionId() + " n'existe pas.");
-                }
+            // Get the styles of the layer and the user
+    		List<StyleDefinitionDto> layerDefinitionsDto = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
+            // Build the LayerStyleDetailDto list
+            for (StyleDefinitionDto styleDefinitionDto : layerDefinitionsDto) {
+                // Get the style definition, if it doesn't exist, throw an exception
+    			StyleDefinition styleDefinition = styleDefinitionRepository
+                            .findById(styleDefinitionDto.getDefinitionId())
+                            .orElseThrow(() -> new TechnicalException("La définition " + styleDefinitionDto.getDefinitionId() + " n'existe pas."));
+                // Get the first layer style of the style definition (there is only one for sure)
+                LayerStyle layerStyleOfDefinition = styleDefinition.getListOfLayerStyle().get(0);
+                // Add the layer style to the list
+                layerDto.getListStyle().add(new LayerStyleDetailDto(layerStyleOfDefinition));
     		}
+            // Add the layer to the list
     		layersDto.add(layerDto);
     	}
+        // Return the list of layers with their styles
         return layersDto;
     }
     

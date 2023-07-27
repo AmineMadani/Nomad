@@ -262,7 +262,7 @@ export class MapService {
     for(let lyr of layerSorted) {
       for(let style of lyr.listStyle) {
         for(let mapLayer in this.getMap().style._layers) {
-          if(mapLayer.includes(style.code)){
+          if(mapLayer.includes(style.lseCode)){
             this.getMap().moveLayer(mapLayer);
           }
         }
@@ -346,16 +346,16 @@ export class MapService {
         } else {
           this.removeLoadedLayer(layerKey);
           const mLayer = this.layers.get(layerKey)!;
-  
+
           // Removing registered events
           mLayer.style.forEach((style) => {
             this.map.removeLayer(style.id);
           });
-  
+
           // Removing data from Maps
           this.loadedGeoJson.delete(layerKey);
           this.layers.delete(layerKey);
-  
+
           // Deletion of layers & source, putting an empty array to avoid cloning data later
           (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
             removeAll: true,

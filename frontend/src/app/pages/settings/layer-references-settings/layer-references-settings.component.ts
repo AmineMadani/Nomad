@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { LayerReferences, ReferenceDisplayType, UserReference } from 'src/app/core/models/layer-references.model';
-import { Layer } from 'src/app/core/models/layer.model';
+import { Layer, getLayerLabel } from 'src/app/core/models/layer.model';
 import { SettingsTypeEnum } from 'src/app/core/models/settings.model';
-import { User } from 'src/app/core/models/user.model';
+import { User, getUserEmail } from 'src/app/core/models/user.model';
 import { LayerReferencesDataService } from 'src/app/core/services/dataservices/layer-reference.dataservice';
 import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
@@ -14,7 +14,7 @@ import { UserService } from 'src/app/core/services/user.service';
   templateUrl: './layer-references-settings.component.html',
   styleUrls: ['./layer-references-settings.component.scss'],
 })
-export class LayerReferencesSettingsComponent implements OnInit {
+export class LayerReferencesSettingsPage implements OnInit {
 
   constructor(
     private layerService: LayerDataService,
@@ -31,12 +31,14 @@ export class LayerReferencesSettingsComponent implements OnInit {
   public settingsType: SettingsTypeEnum = SettingsTypeEnum.PERSONNAL_SETTINGS;
   public ReferenceDisplayType = ReferenceDisplayType;
   public SettingsTypeEnum = SettingsTypeEnum;
+  public getUserEmail = getUserEmail;
+  public getLayerLabel = getLayerLabel;
 
   public form: FormGroup;
 
   ngOnInit() {
     this.form = new FormGroup({
-      listUserEmail: new FormControl([]),
+      listUserId: new FormControl([]),
       lyrTableName: new FormControl(null, Validators.required),
     });
 
@@ -49,10 +51,14 @@ export class LayerReferencesSettingsComponent implements OnInit {
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
-      // Get layer key from lyrTableName
-      const layerKey = lyrTableName.split('.')[1];
-      // Get the user references for the selected layer
-      this.userReferences = this.layerReferences.find((layerReferences) => layerReferences.layerKey === layerKey).references;
+      if (lyrTableName) {
+        // Get layer key from lyrTableName
+        const layerKey = lyrTableName.split('.')[1];
+        // Get the user references for the selected layer
+        this.userReferences = this.layerReferences.find((layerReferences) => layerReferences.layerKey === layerKey).references;
+      } else {
+        this.userReferences = [];
+      }
     });
   }
 
@@ -64,13 +70,13 @@ export class LayerReferencesSettingsComponent implements OnInit {
     this.settingsType = newSettingsType;
 
     // We set validators in adequacy with input which are in the page
-    const listUserEmailControl = this.form.get('listUserEmail');
+    const listUserIdControl = this.form.get('listUserId');
     if (this.settingsType === SettingsTypeEnum.USERS_SETTINGS) {
-      listUserEmailControl.setValidators(Validators.required);
+      listUserIdControl.setValidators(Validators.required);
     } else {
-      listUserEmailControl.clearValidators();
+      listUserIdControl.clearValidators();
     }
-    listUserEmailControl.updateValueAndValidity();
+    listUserIdControl.updateValueAndValidity();
   }
 
   isToggleDisabled(ref: UserReference) {
@@ -82,7 +88,7 @@ export class LayerReferencesSettingsComponent implements OnInit {
       const formValues = this.form.value;
 
       // Get the list of user who will be update in adequacy with the current SettingsType
-      let listUserId: number[] = this.users.filter((user) => formValues.listUserEmail.includes(user.email)).map((usr) => usr.id);
+      let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
         const currentUser = await this.userService.getUser();
         listUserId = [currentUser.id];
