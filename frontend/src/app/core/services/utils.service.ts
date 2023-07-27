@@ -97,19 +97,19 @@ export class UtilsService {
     return capitalizedString;
   }
 
-  public transformMap(
-    params: Map<string, string>
-  ): any {
-    const filteredEntries = Array.from(params.entries()).filter(([key]) => key.startsWith('aep_') || key.startsWith('ass_'));
-  
+  public transformMap(params: Map<string, string>): any {
+    const filteredEntries = Array.from(params.entries()).filter(
+      ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
+    );
+
     const transformedArray = filteredEntries.map(([key, value]) => {
       const equipmentIds = value.split(',');
       return {
         lyrTableName: key,
-        equipmentIds
+        equipmentIds,
       };
     });
-    
+
     return transformedArray;
   }
 
@@ -135,10 +135,31 @@ export class UtilsService {
 
   public removeDuplicatesFromArr(arr: any[], key: string): any[] {
     return arr.reduce((unique, o) => {
-      if(!unique.some(obj => obj[key] === o[key])) {
+      if (!unique.some((obj) => obj[key] === o[key])) {
         unique.push(o);
       }
       return unique;
-    },[]);
+    }, []);
   }
- }
+
+  public generateFeatureParams(features: any[]): any {
+    const featureParams: any = {};
+
+    features.forEach((feature) => {
+      const source = feature.lyr_table_name || feature.source;
+
+      if (!featureParams[source]) {
+        featureParams[source] = new Set();
+      }
+
+      featureParams[source].add(feature.id);
+    });
+
+    // Convert the Sets to comma-separated strings
+    Object.keys(featureParams).forEach((source) => {
+      featureParams[source] = Array.from(featureParams[source]).join(',');
+    });
+
+    return featureParams;
+  }
+}

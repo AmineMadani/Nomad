@@ -137,7 +137,7 @@ export class DrawerService {
 
   navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], redirectionId?: string): void {
     const url = this.getUrlFromDrawerName(route);
-    const eqParams = this.generateFeatureParams(equipments);
+    const eqParams = this.utilsService.generateFeatureParams(equipments);
 
     this.router.navigate([url], { queryParams: { ...eqParams, redirect: redirectionId } });
   }

@@ -3,7 +3,7 @@ import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs/internal/Observable';
 import * as Maplibregl from 'maplibre-gl';
 
-interface MultiSelection { source: string, id: string }
+export interface MultiSelection { source: string, id: string }
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +22,7 @@ export class MapEventService {
 
   private onFeatureHovered$: Subject<string | undefined> = new Subject();
   private onFeatureSelected$: Subject<any | undefined> = new Subject();
+  private onMultiFeaturesSelected$: Subject<any[] | undefined> = new Subject();
 
   constructor() { }
 
@@ -33,12 +34,20 @@ export class MapEventService {
     return this.onFeatureSelected$.asObservable();
   }
 
+  public onMultiFeaturesSelected(): Observable<any | undefined> {
+    return this.onMultiFeaturesSelected$.asObservable();
+  }
+
   public getSelectedFeature(): string {
     return this.selectedFeatureId;
   }
 
   public setSelectedFeature(idFeature: string) {
     this.selectedFeatureId = idFeature;
+  }
+
+  public setMultiFeaturesSelected(features: any[]): void {
+    this.onMultiFeaturesSelected$.next(features);
   }
 
   /**
@@ -142,7 +151,7 @@ export class MapEventService {
 
   }
 
-  public highlighSelectedFeatures(mapLibre: Maplibregl.Map, features: MultiSelection[]) {
+  public highlighSelectedFeatures(mapLibre: Maplibregl.Map, features: MultiSelection[], fireEvent = false) {
     if (!features && this.multiSelection.length > 0) {
       this.multiSelection.forEach((sel: MultiSelection) => {
         mapLibre.setFeatureState(
@@ -168,6 +177,10 @@ export class MapEventService {
           { selected: true }
         );
       });
+
+      if (fireEvent) {
+        this.onMultiFeaturesSelected$.next(features);
+      }
     }
   }
 

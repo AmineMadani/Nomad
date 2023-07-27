@@ -9,7 +9,7 @@ import {
 import {
   LoadingController,
 } from '@ionic/angular';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -338,19 +338,28 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
         this.mapService.deleteDrawing();
+        const fireEvent = this.mapEvent.isFeatureFiredEvent;
 
         const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
-        const features = this.map.queryRenderedFeatures(
+        let features = this.map.queryRenderedFeatures(
           [this.map.project([maxX, maxY]), this.map.project([minX, minY])],
           { layers: this.mapService.getCurrentLayersIds() }
         );
 
-        if (features.length > 0) {
-          this.drawerService.navigateWithEquipments(
-            DrawerRouteEnum.SELECTION,
-            features
-          );
+        features = this.utilsService.removeDuplicatesFromArr(features, 'id');
+
+        if (fireEvent) {
+          this.mapEvent.setMultiFeaturesSelected(features);
+        }
+
+        if (!fireEvent) {
+          if (features.length > 0) {
+            this.drawerService.navigateWithEquipments(
+              DrawerRouteEnum.SELECTION,
+              features
+            );
+          }
         }
       });
   }
@@ -648,10 +657,9 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let firedEvent = false;
-    if (this.mapEvent.isFeatureFiredEvent) {
-      firedEvent = true;
-    }
+    // In certain functions like multi-eq, putting isFeatureFiredEvent to false come faster than the rest of this function
+    // With firedEvent, the value stays to the original isFeatureFiredEvent, avoiding asynchronous weird things
+    const firedEvent = this.mapEvent.isFeatureFiredEvent; 
 
     this.mapEvent.highlightSelectedFeature(
       this.map,
@@ -660,8 +668,8 @@ export class MapComponent implements OnInit, OnDestroy {
       firedEvent,
       e
     );
-
-    if (!this.mapEvent.isFeatureFiredEvent) {
+  
+    if (!firedEvent) {
       const properties = feature.properties;
       if (properties['geometry']) delete properties['geometry'];
       // We pass the layerKey to the drawer to be able to select the equipment on the layer

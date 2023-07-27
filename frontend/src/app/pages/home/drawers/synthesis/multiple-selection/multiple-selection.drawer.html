@@ -1,7 +1,7 @@
 <ng-template #selectionTemplate>
   <ion-select aria-label="Sources" label-placement="floating" fill="outline" placeholder="Sélectionner les sources"
-    [multiple]="true" (ionChange)="handleChange($event)" [disabled]="sources.length === 0">
-    <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
+  [multiple]="true" (ionChange)="handleChange($event)" [(ngModel)]="selectedSource" [disabled]="sources.length === 0">
+  <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
   </ion-select>
   <ng-container *ngIf="filteredFeatures.length > 0 && !isLoading">
     <ng-container *ngFor="let feature of filteredFeatures; trackBy: trackByFn" id="feauture-list" >
@@ -78,3 +78,22 @@
   [contentTemplate]="selectionTemplate" [footerTemplate]="footerTemplate" (onTabButton)="onTabButtonClicked($event)"
   (onInitComponent)="onInitSelection($event)">
 </app-synthesis>
+
+<ion-popover #popover >
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item lines="none" button (click)="setAddMode('unit')">
+        <ion-icon slot="start" name="pin-outline"></ion-icon>
+        <ion-label>Unitaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="setAddMode('rect')">
+        <ion-icon slot="start" name="crop-outline" ></ion-icon>
+        <ion-label>Rectangulaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="setAddMode('polygon')">
+        <ion-icon slot="start" name="logo-web-component"></ion-icon>
+        <ion-label>Polygonale</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>

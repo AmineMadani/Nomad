@@ -49,11 +49,9 @@ export class FilterWorkOrderComponent implements OnInit {
         this.workOrders = res.map((f: any) =>
           MapFeature.from(f.properties)
         );
-        console.log(this.workOrders);
       } else {
         this.isFromCache = false;
         this.workOrders = res;
-        console.log(this.workOrders);
       }
     }
     return this.workOrders;
