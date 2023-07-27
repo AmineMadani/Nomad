@@ -159,7 +159,6 @@ export class KeycloakService {
       if(res.extras.refextint) {
         this.externalReport = res.extras.refextint;
       }
-      this.externalReport = '3';
       if(this.externalReport && this.hasValidToken()){
         this.router.navigate(["/home/work-order/"+this.externalReport+"/cr"]);
       }
