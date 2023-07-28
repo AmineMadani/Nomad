@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { forkJoin } from 'rxjs';
+import { CacheService } from 'src/app/core/services/cache.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -9,7 +10,11 @@ import { UtilsService } from 'src/app/core/services/utils.service';
   styleUrls: ['./wko-view.component.scss'],
 })
 export class WkoViewComponent implements OnInit {
-  constructor(private referentialService: ReferentialService, private utils: UtilsService) {}
+  constructor(
+    private referentialService: ReferentialService, 
+    private utils: UtilsService,
+    private cacheService: CacheService
+  ) {}
 
   @Input() workOrder: any;
 
@@ -42,4 +47,6 @@ export class WkoViewComponent implements OnInit {
       );
     });
   }
+
+
 }

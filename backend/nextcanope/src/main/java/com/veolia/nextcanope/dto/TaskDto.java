@@ -26,7 +26,7 @@ public class TaskDto {
     
     private BigDecimal latitude;
     
-    private Date tskCompletionDate;
+    private Date tskReportDate;
     
     private ReportDto report;
 
@@ -94,12 +94,12 @@ public class TaskDto {
 		this.assObjTable = assObjTable;
 	}
 
-	public Date getTskCompletionDate() {
-		return tskCompletionDate;
+	public Date getTskReportDate() {
+		return tskReportDate;
 	}
 
-	public void setTskCompletionDate(Date tskCompletionDate) {
-		this.tskCompletionDate = tskCompletionDate;
+	public void setTskReportDate(Date tskReportDate) {
+		this.tskReportDate = tskReportDate;
 	}
 
 	public ReportDto getReport() {
@@ -122,7 +122,7 @@ public class TaskDto {
         this.wtsId = task.getWtsId();
         this.assObjRef = task.getAsset().getAssObjRef();
         this.assObjTable = task.getAsset().getAssObjTable();
-        this.tskCompletionDate = task.getTskCompletionDate();
+        this.tskReportDate = task.getTskReportDate();
         this.wtrId = task.getWtrId();
         this.ctrId = task.getCtrId();
         this.report = new ReportDto();

@@ -4,9 +4,9 @@ import { Subject } from 'rxjs';
 import { CustomFilter, FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
-import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FilterService } from 'src/app/core/services/filter.service';
+import { TemplateService } from 'src/app/core/services/template.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
@@ -21,7 +21,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private drawerService: DrawerService,
     private alertController: AlertController,
-    private templateDataService: TemplateDataService,
+    private templateService: TemplateService,
     private assetFilterService: AssetFilterService,
     private userService: UserService,
     private filterService: FilterService
@@ -43,7 +43,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.isLoading = true;
-    this.templateDataService.getformsTemplate().then(forms => {
+    this.templateService.getformsTemplate().then(forms => {
       this.assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
       this.assetFilterService.setAssetFilter(this.assetFilterTree);
       this.assetFilterSegment = this.assetFilterService.getFilterSegment(this.assetFilterService.getAssetFilter());

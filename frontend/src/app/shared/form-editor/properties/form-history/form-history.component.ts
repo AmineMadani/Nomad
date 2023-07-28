@@ -2,11 +2,11 @@ import { Component, Input, OnInit } from '@angular/core';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
-import { ReferentialDataService } from 'src/app/core/services/dataservices/referential.dataservice';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FormDefinition } from '../../models/form.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-form-history',
@@ -16,8 +16,8 @@ import { Workorder } from 'src/app/core/models/workorder.model';
 export class FormHistoryComponent implements OnInit {
   constructor(
     private drawer: DrawerService,
-    private referentialService: ReferentialDataService,
-    private layerdataService: LayerDataService
+    private referentialService: ReferentialService,
+    private workorderService: WorkorderService
   ) {}
 
   @Input() definition: FormDefinition;
@@ -32,7 +32,7 @@ export class FormHistoryComponent implements OnInit {
   ngOnInit() {
     this.isLoading = true;
 
-    this.layerdataService
+    this.workorderService
       .getEquipmentWorkOrderHistory(
         `asset.${this.paramMap.get('lyr_table_name')}`,
         this.paramMap.get('id')

@@ -9,7 +9,7 @@ import { Workorder } from '../../models/workorder.model';
 @Injectable({
   providedIn: 'root',
 })
-export class ExploitationDataService {
+export class WorkorderDataService {
   constructor(
     private configurationService: ConfigurationService,
     private http: HttpClient,
@@ -20,19 +20,12 @@ export class ExploitationDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
-  public getFeaturePagination(
-    key: string,
-    limit: number,
-    offset: number,
-    search: Map<string, string[]> | undefined
-  ): Observable<MapFeature[]> {
+  public getFeaturePagination(key: string,limit: number,offset: number,search: Map<string, string[]> | undefined): Observable<MapFeature[]> {
     return this.http
-      .post<MapFeature[]>(
-        `${this.configurationService.apiUrl}exploitation/${key}/pagination/${limit}/${offset}`,
+      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/${key}/pagination/${limit}/${offset}`,
         this.utilsService.mapToJson(search),
         this.httpOptions
       )
-      .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
   }
 
   public createWorkOrder(workorder: Workorder): Observable<any> {
@@ -58,6 +51,16 @@ export class ExploitationDataService {
   public getWorkorderById(id: number): Observable<Workorder> {
     return this.http.get<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorder/${id}`
+    );
+  }
+
+  /**
+   * Get list of workorders for a given asset
+   * @returns an observable of the list of workorders
+   */
+  public getEquipmentWorkOrderHistory(assetTable: string, assetId: string): Observable<Workorder[]> {
+    return this.http.get<Workorder[]>(
+      `${this.configurationService.apiUrl}layer/${assetTable}/equipment/${assetId}/history`
     );
   }
 }

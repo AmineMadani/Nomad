@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
-import { ExploitationService } from 'src/app/core/services/exploitation.service';
-import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 
@@ -16,7 +15,7 @@ export class ReportAssetComponent implements OnInit {
 
   constructor(
     private referentialService: ReferentialService,
-    private layerService: LayerService,
+    private maplayerService: MapLayerService,
     private mapService: MapService,
     private mapEventService: MapEventService
   ) { }
@@ -44,12 +43,12 @@ export class ReportAssetComponent implements OnInit {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
         this.editTaskEquipment.assObjTable = "asset." + res.layerKey;
-        this.layerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
+        this.maplayerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
           if (this.draggableMarker) {
             this.draggableMarker.remove();
             this.draggableMarker = null;
           }
-          this.draggableMarker = this.layerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, result);
+          this.draggableMarker = this.maplayerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, result);
         })
       }
     });
@@ -89,8 +88,8 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk  Task equipment to edit
    */
   public onEditEquipment(tsk: Task) {
-    this.layerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
-      this.draggableMarker = this.layerService.addMarker(tsk.longitude, tsk.latitude, result);
+    this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
+      this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result);
     })
     this.mapEventService.isFeatureFiredEvent = true;
     this.editTaskEquipment = tsk;
@@ -107,10 +106,10 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk the task to update
    */
   public onValidateChangeEquipment(tsk: Task) {
-    let feature: any = this.layerService.getFeatureById("workorder", tsk.id + '');
+    let feature: any = this.maplayerService.getFeatureById("workorder", tsk.id + '');
     feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
     this.mapService.updateFeature("workorder", feature);
-    this.layerService.updateLocalGeometryFeatureById("workorder", tsk.id + '', feature.geometry.coordinates);
+    this.maplayerService.updateLocalGeometryFeatureById("workorder", tsk.id + '', feature.geometry.coordinates);
     tsk.longitude = this.draggableMarker.getLngLat().lng;
     tsk.latitude = this.draggableMarker.getLngLat().lat;
     if (this.draggableMarker) {

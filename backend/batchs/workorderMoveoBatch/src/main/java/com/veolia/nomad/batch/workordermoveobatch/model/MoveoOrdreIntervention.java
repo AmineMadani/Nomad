@@ -12,7 +12,7 @@ public class MoveoOrdreIntervention {
 	
 	private String type;
 	
-	private Integer motif;
+	private String motif;
 	
 	private String codeContrat;
 	
@@ -56,7 +56,7 @@ public class MoveoOrdreIntervention {
 		codemvt = workorder.getCodeMvt();
 		origine = workorder.getOrigin();
 		type = workorder.getType();
-		motif = Integer.parseInt(workorder.getReason());
+		motif = workorder.getReason();
 		codeContrat = workorder.getContractCode();
 		codeEqpt = workorder.getAssetId() != null ? workorder.getAssetId() : "";
 		nom = workorder.getLyrTableName().equals("xy") ? "SANS PATRIMOINE ASSOCIE" : workorder.getLyrTableName();
@@ -69,8 +69,8 @@ public class MoveoOrdreIntervention {
 		commune = workorder.getCity();
 		commentaires = workorder.getCreationComment();
 		duree = workorder.getDuration();
-		typeDemande = workorder.isAppointment() ? "R" : "D";
-		urgence = workorder.isEmergency() ? "O" : "N";
+		typeDemande = (workorder.isAppointment() != null  && workorder.isAppointment()) ? "R" : "D";
+		urgence = (workorder.isEmergency() != null && workorder.isEmergency())? "O" : "N";
 		nbAgent = workorder.getNbAgent();
 		codeCommuneInsee = workorder.getInseeCode();
 		wkoStatus = workorder.getStatus();
@@ -108,11 +108,11 @@ public class MoveoOrdreIntervention {
 		this.type = type;
 	}
 
-	public Integer getMotif() {
+	public String getMotif() {
 		return motif;
 	}
 
-	public void setMotif(Integer motif) {
+	public void setMotif(String motif) {
 		this.motif = motif;
 	}
 

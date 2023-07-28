@@ -1,155 +1,47 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, firstValueFrom, map, of, switchMap, timeout, timer } from 'rxjs';
-import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
+import { Observable } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
-import { AppDB } from '../../models/app-db.model';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { Layer } from '../../models/layer.model';
-import { CacheService } from '../cache.service';
-import { UtilsService } from '../utils.service';
-import { Workorder } from '../../models/workorder.model';
+import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference } from '../../models/layer.model';
+import { ApiSuccessResponse } from '../../models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayerDataService {
-  private db: AppDB;
 
   constructor(
     private http: HttpClient,
     private configurationService: ConfigurationService,
-    private cacheService: CacheService,
-    private utils: UtilsService
   ) {
-    this.db = new AppDB();
   }
 
-  private listIndexOnLoad: Map<string, string> = new Map<string, string>();
-  private listTileOnLoad: Map<string, string> = new Map<string, string>();
-
   /**
-   * It fetches the index of a layer from indexed db if present or server
-   * If successful, it stores the layer in IndexedDB.
+   * It fetches the index of a layer from server
    * @param {string} layerKey - string - key of the layer
    * @returns The geojson of the index of the layer.
    */
-  public async getLayerIndex(layerKey: string): Promise<GeoJSONObject> {
-    const index = await this.db.indexes.get(layerKey);
-    if (index) {
-      return index.data;
-    }
-    if (!this.listIndexOnLoad.has(layerKey)) {
-      this.listIndexOnLoad.set(
-        layerKey,
-        'Chargement des indexes de la couche ' + layerKey
-      );
-      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-      const req = await firstValueFrom(
-        this.http.get<GeoJSONObject>(
-          `${this.configurationService.apiUrl}layer/${layerKey}`
-        )
-      );
-      if (!req) {
-        throw new Error(`Failed to fetch index for ${layerKey}`);
-      }
-      await this.db.indexes.put({ data: req, key: layerKey }, layerKey);
-      this.listIndexOnLoad.delete(layerKey);
-      return req;
-    }
-    return {};
+  public getLayerIndex(layerKey: string): Observable<GeoJSONObject> {
+    return this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layer/${layerKey}`);
   }
 
   /**
    * Fetches the tile of a layer from server.
-   * If successful, stores the layer's file in IndexedDB.
-   * If the network duration is superior to 2 seconds, it returns the indexedDB data.
    * @param {string} layerKey - Key of the layer.
-   * @param {string} file - The file where the view is.
+   * @param {number} featureNumber - The file number where the view is.
    * @returns The GeoJSON file for the current tile.
    */
-  public async getLayerFile(
-    layerKey: string,
-    file: string
-  ): Promise<NomadGeoJson> {
-    this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
-    /* It's getting the number from the file name. */
-    const featureNumber: number = +file.match(
-      new RegExp(`${layerKey}_(\\d+)\\.geojson`)
-    )![1];
-    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-    const req: NomadGeoJson = await lastValueFrom(
-      this.http
-        .get<NomadGeoJson>(
-          `${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`
-        )
-        .pipe(
-          timeout(5000),
-          catchError(async () => {
-            const tile = await this.db.tiles.get(file);
-            if (tile) {
-              return tile.data;
-            }
-            return null;
-          })
-        )
-    );
-    if (!req) {
-      this.listTileOnLoad.delete(layerKey);
-      throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
-    }
-
-    await this.db.tiles.put({ data: req, key: file }, file);
-
-    this.listTileOnLoad.delete(layerKey);
-    return req;
-  }
-
-  public getLayerStyle(layerKey: string): Observable<any> {
-    return this.http.get('./assets/sample/canalisation_style.json');
-  }
-
-  /**
-   * Method to know if layer data is currently loading from the server
-   * @returns true is data is currently loading
-   */
-  public isDataLoading(): boolean {
-    return this.listTileOnLoad.size > 0 || this.listIndexOnLoad.size > 0;
-  }
-
-  /**
-   * Method to get the list of layer currently loading from server (index or tile)
-   * @returns The list of layer currently loading
-   */
-  public getListLoadingData(): string[] {
-    return [
-      ...Array.from(this.listIndexOnLoad.values()),
-      ...Array.from(this.listTileOnLoad.values()),
-    ];
+  public getLayerFile(layerKey: string, featureNumber: number): Observable<NomadGeoJson> {
+    return this.http.get<NomadGeoJson>(`${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`);
   }
 
   /**
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public async getLayers(): Promise<Layer[]> {
-    const layers = await this.db.referentials.get('layers');
-    if (layers) {
-      return layers.data;
-    }
-
-    const res = await lastValueFrom(
-      this.http.get<Layer[]>(
-        `${this.configurationService.apiUrl}layer/default/definitions`
-      )
-    );
-    if (!res) {
-      throw new Error(`Failed to fetch layers`);
-    }
-
-    await this.db.referentials.put({ data: res, key: 'layers' }, 'layers');
-
-    return res;
+  public getLayers(): Observable<Layer[]> {
+    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`);
   }
 
   /**
@@ -158,62 +50,67 @@ export class LayerDataService {
    * @param id the id
    * @returns the equipment
    */
-  public getEquipmentByLayerAndId(layer: string, id: number): Promise<any> {
-    return firstValueFrom(
-      this.http.get<any>(
-        `${this.configurationService.apiUrl}layer/` + layer + `/equipment/` + id
-      )
-    );
-  }
-
-  public getEquipmentByLayerAndId2(layer: string, id: string): Promise<any> {
-    return firstValueFrom(
-      this.http
-        .get<any>(
-          `${this.configurationService.apiUrl}layer/` +
-            layer +
-            `/equipment/` +
-            id
-        )
-        .pipe(
-          map((equipment: any[]) => equipment[0]),
-          timeout(5000),
-          catchError(async () => {
-            const feature = await this.cacheService.getFeatureLayerAndId(
-              id,
-              layer
-            );
-            return { id: feature.id, ...feature.properties };
-          })
-        )
-    );
-  }
-
-  public getEquipmentsList(ids: Map<string, string[]>): any {
-    const body = this.utils.sortMap(ids);
-
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}layer/equipment/`,
-      body
-    );
-  }
-
-  /* Get list of workorders for a given asset
-   * @returns an observable of the list of workorders
-   */
-  public getEquipmentWorkOrderHistory(
-    assetTable: string,
-    assetId: string
-  ): Observable<Workorder[]> {
-    return this.http.get<Workorder[]>(
-      `${this.configurationService.apiUrl}layer/${assetTable}/equipment/${assetId}/history`
-    );
+  public getEquipmentByLayerAndId(layer: string, id: string): Observable<any> {
+    return this.http.get<any>(`${this.configurationService.apiUrl}layer/` + layer + `/equipment/` + id)
   }
 
   public getEquipmentsByLayersAndIds(idsLayers: any): Observable<any> {
-    return this.http.post(
-      `${this.configurationService.apiUrl}layer/equipment`,
-      idsLayers
-    );
+    return this.http.post(`${this.configurationService.apiUrl}layer/equipment`,idsLayers);
+  }
+
+  /**
+  * Get all layer styles.
+  * @returns A promise that resolves to the list of layer styles.
+  */
+  public getAllLayerStyles(): Observable<LayerStyleSummary[]> {
+    return this.http.get<LayerStyleSummary[]>(`${this.configurationService.apiUrl}layer/styles`);
+  }
+
+  /**
+  * Get all layer styles.
+  * @returns A promise that resolves to the list of layer styles.
+  */
+  public getLayerStyleById(layerStyleId: number): Observable<LayerStyleDetail> {
+    return this.http.get<LayerStyleDetail>(`${this.configurationService.apiUrl}layer/styles/${layerStyleId}`);
+  }
+
+  /**
+   * Create a layer style.
+   */
+  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<any> {
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/${lyrId}/styles`, layerStyle);
+  }
+
+  /**
+   * Update a layer style.
+   */
+  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<any> {
+    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/styles/${lseId}`, layerStyle);
+  }
+
+  /**
+   * Delete a layer style.
+   */
+  public deleteLayerStyle(lseId: number): Observable<any> {
+    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/styles/${lseId}`);
+  }
+
+  /**
+ * Gets the layer references for a user, either from the IndexedDB cache or the API.
+ * @param userId The ID of the user to get the layer references for.
+ * @returns A promise that resolves to the layer references.
+ */
+  public getUserLayerReferences(): Observable<LayerReferences[]> {
+    return this.http.get<LayerReferences[]>(`${this.configurationService.apiUrl}layer/references/user`);
+  }
+
+  /**
+   * Save the new layer references configuration of a list of user.
+   * A toast is automatically showed to the user when the api call is done.
+   * @param payload: layerReferences to apply and userIds concerned.
+   * @returns A response message if successfull, else return an error.
+   */
+  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }):Observable<any> {
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/references/user`, payload);
   }
 }

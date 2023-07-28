@@ -1,7 +1,6 @@
 import { Subscription } from 'rxjs';
-import { Layer } from './layer.model';
+import { Layer, LayerStyleDetail } from './layer.model';
 import * as Maplibregl from 'maplibre-gl';
-import { LayerStyleDetail } from './layer-style.model';
 
 export class MaplibreLayer {
   constructor(

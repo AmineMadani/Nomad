@@ -30,9 +30,9 @@ public class WorkOrder {
 	
 	private String creationComment;
 	
-	private boolean appointment;
+	private Boolean appointment;
 	
-	private boolean emergency;
+	private Boolean emergency;
 	
 	private String inseeCode;
 	
@@ -152,19 +152,19 @@ public class WorkOrder {
 		this.creationComment = creationComment;
 	}
 
-	public boolean isAppointment() {
+	public Boolean isAppointment() {
 		return appointment;
 	}
 
-	public void setAppointment(boolean appointment) {
+	public void setAppointment(Boolean appointment) {
 		this.appointment = appointment;
 	}
 
-	public boolean isEmergency() {
+	public Boolean isEmergency() {
 		return emergency;
 	}
 
-	public void setEmergency(boolean emergency) {
+	public void setEmergency(Boolean emergency) {
 		this.emergency = emergency;
 	}
 

@@ -8,7 +8,7 @@ import { Workorder } from '../../models/workorder.model';
 @Injectable({
   providedIn: 'root',
 })
-export class LayerService {
+export class MapLayerService {
 
   constructor(
     private mapService: MapService,
@@ -60,7 +60,7 @@ export class LayerService {
     featureId: string
   ): Promise<any | null> {
     let feature;
-    await this.cacheService.getFeatureLayerAndId(featureId, layerKey).then(r => feature = r);
+    await this.cacheService.getFeatureByLayerAndFeatureId(layerKey,featureId).then(r => feature = r);
     return feature;
   }
 

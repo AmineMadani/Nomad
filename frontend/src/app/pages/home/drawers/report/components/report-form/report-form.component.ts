@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Task } from 'src/app/core/models/workorder.model';
-import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
+import { TemplateService } from 'src/app/core/services/template.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 
@@ -12,7 +12,7 @@ import { Form } from 'src/app/shared/form-editor/models/form.model';
 export class ReportFormComponent implements OnInit {
 
   constructor(
-    private templateDataService: TemplateDataService
+    private templateService: TemplateService
   ) { }
 
   @Input() task: Task;
@@ -25,7 +25,7 @@ export class ReportFormComponent implements OnInit {
   public isLoading:boolean = true;
 
   ngOnInit() {
-    this.templateDataService.getformsTemplate().then(forms => {
+    this.templateService.getformsTemplate().then(forms => {
       let formTemplate = forms.find(form => form['formCode'] == ('REPORT_' + this.task.assObjTable.replace("asset.", "") + '_' + this.task.wtrCode).toUpperCase());
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);

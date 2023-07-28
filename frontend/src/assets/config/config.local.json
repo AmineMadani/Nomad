@@ -5,9 +5,10 @@
     "issuer": "http://localhost:9191/realms/veolia",
     "redirectUri": "http://localhost:8100/login",
     "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
+    "redirectUriAndroid": "http://localhost:8100/login",
     "clientId": "veolia-client",
     "revocationEndpoint": "http://localhost:9191/realms/veolia/protocol/openid-connect/revoke"
   },
-  "host":"http://localhost:8100/"
+  "host":"http://localhost:8100/",
+  "offlineTimeout":5000
 }

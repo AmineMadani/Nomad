@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
-import { Layer, getLayerLabel } from 'src/app/core/models/layer.model';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { Layer, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { LayerStyleDataService } from 'src/app/core/services/dataservices/layer-style.dataservice';
 import { ModalController } from '@ionic/angular';
 import { LayerStyleComponent } from './layer-style/layer-style.component';
-import { LayerStyleSummary } from 'src/app/core/models/layer-style.model';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -18,8 +16,7 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 export class LayerStylesSettingsPage implements OnInit {
 
   constructor(
-    private layerService: LayerDataService,
-    private layerStyleDataService: LayerStyleDataService,
+    private layerService: LayerService,
     private modalController: ModalController
   ) { }
 
@@ -88,7 +85,7 @@ export class LayerStylesSettingsPage implements OnInit {
     // Layers
     this.layerService.getLayers().then((layers) => this.layers = layers);
     // Layer styles
-    this.layerStyleDataService.getAllLayerStyles().subscribe((styles) => {
+    this.layerService.getAllLayerStyles().subscribe((styles) => {
       this.allLayerStyles = styles;
     });
   }
@@ -112,7 +109,7 @@ export class LayerStylesSettingsPage implements OnInit {
 
   private async reloadLayerStyles() {
     // Get layer styles data
-    this.layerStyleDataService.getAllLayerStyles().subscribe((styles) => {
+    this.layerService.getAllLayerStyles().subscribe((styles) => {
       this.allLayerStyles = styles;
       // And update the styles for the selected layer
       if (this.currentLayerId) {
@@ -147,7 +144,7 @@ export class LayerStylesSettingsPage implements OnInit {
 
   private async deleteLayerStyles() {
     const deleteRequests = this.selectedLayerStyles.map(style =>
-      this.layerStyleDataService.deleteLayerStyle(style.lseId)
+      this.layerService.deleteLayerStyle(style.lseId)
     );
 
     forkJoin(deleteRequests).subscribe(() => {

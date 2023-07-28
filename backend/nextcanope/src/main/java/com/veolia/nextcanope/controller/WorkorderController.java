@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
+import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.service.WorkorderService;
 
 import io.swagger.v3.oas.annotations.Operation;

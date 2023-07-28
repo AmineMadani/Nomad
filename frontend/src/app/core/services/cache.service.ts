@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
+import { feature } from '@turf/turf';
 
 @Injectable({
   providedIn: 'root',
@@ -40,19 +41,50 @@ export class CacheService {
    * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
    * @returns
    */
-  public async getFeatureLayerAndId(
-    featureId: string,
-    layerKey: string
+  public async getFeatureByLayerAndFeatureId(
+    layerKey: string,
+    featureId: string
   ): Promise<any> {
     return await this.db.tiles
       .where('key')
       .startsWith(layerKey)
       .filter((tile) => {
-        return tile.data.features?.some((feature) => feature.id === featureId);
+        return tile?.data?.features?.some((feature) => feature.id.toString() === featureId);
       })
-      .first((tile) =>
-        tile.data.features.find((feature) => feature.id === featureId)
+      .first((tile) => {
+        return tile?.data?.features?.find((feature) => feature.id.toString() === featureId)
+      }
       );
+  }
+
+  /**
+   * Return all the feature from a specific layer which have the wanted property
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation 
+   * @param property the property use has a key to search
+   * @param value  the value to search
+   * @returns List of match feature
+   */
+  public async getFeatureByLayerAndProperty(
+    layerKey: string,
+    property: string,
+    value: string
+  ): Promise<any> {
+
+    return await this.db.tiles
+      .where('key')
+      .startsWith(layerKey)
+      .filter((tile) => {
+        return tile.data.features?.some((feature) => feature.properties[property].toString() === value);
+      })
+      .toArray().then(tiles => {
+        let result: any[] = [];
+        if (tiles.length > 0) {
+          for (let tile of tiles) {
+            result = [...result, ...tile.data.features?.filter(feature => feature.properties[property].toString() === value)];
+          }
+        }
+        return result;
+      })
   }
 
   /**
@@ -114,7 +146,7 @@ export class CacheService {
     layerKey: string
   ): Promise<any> {
     let geom;
-    await this.getFeatureLayerAndId(featureId, layerKey).then(
+    await this.getFeatureByLayerAndFeatureId(layerKey,featureId).then(
       (result) => (geom = result.geometry.coordinates)
     );
     return geom;

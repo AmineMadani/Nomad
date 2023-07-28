@@ -2,6 +2,7 @@ export interface Workorder {
     id: number;
     wkoName: number;
     wkoEmergency: boolean;
+    wkoAppointment: boolean;
     wkoAddress: string;
     wkoPlanningStartDate: Date;
     wkoPlanningEndDate: Date;
@@ -11,7 +12,7 @@ export interface Workorder {
     latitude: number;
     wkoAgentNb: number;
     tasks: Task[];
-    selectedTaskId: number;
+    selectedTaskId?: number;
 }
 
 export interface Task {
@@ -21,10 +22,11 @@ export interface Task {
     wtsId: string;
     wtrId: string;
     ctrId: string;
-    wtrCode: string;
+    wtrCode?: string;
+    wkoId?: string;
     longitude: number;
     latitude: number;
-    tskCompletionDate: Date;
+    tskReportDate: Date;
     report?: Report;
 }
 

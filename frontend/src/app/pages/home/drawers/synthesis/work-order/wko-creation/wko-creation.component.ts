@@ -7,8 +7,6 @@ import { Subject, filter, takeUntil, tap } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { LayerService } from 'src/app/core/services/map/layer.service';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal } from '@ionic/angular';
@@ -16,6 +14,8 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 
 @Component({
   selector: 'app-wko-creation',
@@ -24,7 +24,7 @@ import { Workorder } from 'src/app/core/models/workorder.model';
 })
 export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
-    private layerService: LayerService,
+    private mapLayerService: MapLayerService,
     private dialogService: DialogService,
     private mapService: MapService,
     private activatedRoute: ActivatedRoute,
@@ -32,7 +32,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private cacheService: CacheService,
-    private exploitationDateService: ExploitationDataService,
+    private workorderService: WorkorderService,
     private datePipe: DatePipe
   ) {}
 
@@ -157,9 +157,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     form.longitude =
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
 
-    this.exploitationDateService.createWorkOrder(form).subscribe((res:Workorder) => {
+    this.workorderService.createWorkOrder(form).subscribe((res:Workorder) => {
       this.removeMarkers();
-      this.layerService.addGeojsonToLayer(res, 'workorder');
+      this.mapLayerService.addGeojsonToLayer(res, 'workorder');
       this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER, [res.tasks[0].id], {
         lyr_table_name: 'workorder',
       });
@@ -241,13 +241,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyr_table_name);
         }
         if (!this.markerCreation.has(eq.id)) {
-          const geom = await this.layerService.getCoordinateFeaturesById(
+          const geom = await this.mapLayerService.getCoordinateFeaturesById(
             eq.lyr_table_name,
             eq.id
           );
           this.markerCreation.set(
             eq.id,
-            this.layerService.addMarker(eq.x, eq.y, geom)
+            this.mapLayerService.addMarker(eq.x, eq.y, geom)
           );
         }
       }
@@ -262,7 +262,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.markerCreation.has('xy')) {
         this.markerCreation.set(
           'xy',
-          this.layerService.addMarker(
+          this.mapLayerService.addMarker(
             this.params.x,
             this.params.y,
             [this.params.x, this.params.y],

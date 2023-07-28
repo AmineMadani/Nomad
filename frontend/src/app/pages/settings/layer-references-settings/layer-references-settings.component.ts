@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { LayerReferences, ReferenceDisplayType, UserReference } from 'src/app/core/models/layer-references.model';
-import { Layer, getLayerLabel } from 'src/app/core/models/layer.model';
+import { Layer, getLayerLabel, LayerReferences, ReferenceDisplayType, UserReference  } from 'src/app/core/models/layer.model';
 import { SettingsTypeEnum } from 'src/app/core/models/settings.model';
 import { User, getUserEmail } from 'src/app/core/models/user.model';
-import { LayerReferencesDataService } from 'src/app/core/services/dataservices/layer-reference.dataservice';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
-import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
+import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -17,10 +14,8 @@ import { UserService } from 'src/app/core/services/user.service';
 export class LayerReferencesSettingsPage implements OnInit {
 
   constructor(
-    private layerService: LayerDataService,
-    private layerReferencesDataService: LayerReferencesDataService,
-    private userDataService: UserDataService,
-    private userService: UserService,
+    private layerService: LayerService,
+    private userService: UserService
   ) { }
 
   public users: User[];
@@ -43,11 +38,11 @@ export class LayerReferencesSettingsPage implements OnInit {
     });
 
     // Get the list of users
-    this.userDataService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
+    this.userService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
     // Get the list of layers
     this.layerService.getLayers().then((layers: Layer[]) => this.layers = layers);
     // Get all layer references of the user
-    this.layerReferencesDataService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
+    this.layerService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
@@ -96,7 +91,7 @@ export class LayerReferencesSettingsPage implements OnInit {
 
       // Save in the database
       // A toast is automatically showed to the user when the api call is done.
-      this.layerReferencesDataService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe();
+      this.layerService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe();
     } else {
       // Permit to show the current form errors to the user
       this.form.markAllAsTouched();

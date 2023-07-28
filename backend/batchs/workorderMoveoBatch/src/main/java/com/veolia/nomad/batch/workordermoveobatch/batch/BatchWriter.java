@@ -90,6 +90,12 @@ public class BatchWriter implements ItemWriter<MoveoOrdreIntervention> {
 		jdbcTemplate.update("UPDATE nomad.workorder "
 				+ "SET wko_ext_date_sync=CURRENT_TIMESTAMP, wko_ext_to_sync=?, wko_ext_ref=?, wko_ext_error=?"+statusUpdate+" "
 				+ "WHERE id=?", toSync, intNumero, error, oi.getId());
+		
+		if(statusUpdate.length() > 0) {
+			jdbcTemplate.update("UPDATE nomad.task "
+					+ "SET wts_id=(select id from nomad.workorder_task_status wts where wts_code='ENVOYEPLANIF') "
+					+ "WHERE wko_id=?", oi.getId());
+		}
 	}
 
 }
