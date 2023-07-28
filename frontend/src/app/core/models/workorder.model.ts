@@ -1,27 +1,8 @@
 export interface Workorder {
     id: number;
-    wkoName: string;
-    wkoEmergency: boolean;
-    wkoAddress: string;
-    wkoPlanningStartDate: Date;
-    wkoPlanningEndDate: Date;
-    wkoCompletionDate: Date;
-    wkoRealizationCell: string;
-    wkoAgentNb: number;
-    assId: number;
-    wtsId: number;
-    wtsLabel: string;
-    wtrId: number;
-    wtrLabel: string;
-    longitude: number;
-    latitude: number;
-    status?: any;
-}
-
-export interface CustomWorkOrder {
-    id: number;
     wkoName: number;
     wkoEmergency: boolean;
+    wkoAppointment: boolean;
     wkoAddress: string;
     wkoPlanningStartDate: Date;
     wkoPlanningEndDate: Date;
@@ -30,21 +11,22 @@ export interface CustomWorkOrder {
     longitude: number;
     latitude: number;
     wkoAgentNb: number;
-    tasks: CustomTask[];
-    selectedTaskId: number;
+    tasks: Task[];
+    selectedTaskId?: number;
 }
 
-export interface CustomTask {
+export interface Task {
     id:number;
     assObjRef: string;
     assObjTable: string;
     wtsId: string;
     wtrId: string;
     ctrId: string;
-    wtrCode: string;
+    wtrCode?: string;
+    wkoId?: string;
     longitude: number;
     latitude: number;
-    tskCompletionDate: Date;
+    tskReportDate: Date;
     report?: Report;
 }
 

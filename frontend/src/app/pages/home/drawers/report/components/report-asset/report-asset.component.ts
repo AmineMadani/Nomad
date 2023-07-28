@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { CustomTask, CustomWorkOrder } from 'src/app/core/models/workorder.model';
-import { ExploitationService } from 'src/app/core/services/exploitation.service';
-import { LayerService } from 'src/app/core/services/map/layer.service';
+import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 
@@ -16,18 +15,18 @@ export class ReportAssetComponent implements OnInit {
 
   constructor(
     private referentialService: ReferentialService,
-    private layerService: LayerService,
+    private maplayerService: MapLayerService,
     private mapService: MapService,
     private mapEventService: MapEventService
   ) { }
 
-  @Input() workorder: CustomWorkOrder;
-  @Input() selectedTask: CustomTask;
-  @Output() onSelectedTaskChange: EventEmitter<CustomTask> = new EventEmitter();
+  @Input() workorder: Workorder;
+  @Input() selectedTask: Task;
+  @Output() onSelectedTaskChange: EventEmitter<Task> = new EventEmitter();
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
-  public currentTaskSelected: CustomTask;
-  public editTaskEquipment: CustomTask;
+  public currentTaskSelected: Task;
+  public editTaskEquipment: Task;
   public draggableMarker: any;
 
   private refLayers: any[];
@@ -44,12 +43,12 @@ export class ReportAssetComponent implements OnInit {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
         this.editTaskEquipment.assObjTable = "asset." + res.layerKey;
-        this.layerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
+        this.maplayerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
           if (this.draggableMarker) {
             this.draggableMarker.remove();
             this.draggableMarker = null;
           }
-          this.draggableMarker = this.layerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, result);
+          this.draggableMarker = this.maplayerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, result);
         })
       }
     });
@@ -62,7 +61,7 @@ export class ReportAssetComponent implements OnInit {
    * @param e event
    * @param task selected task
    */
-  public onSelectTask(e: Event, task: CustomTask) {
+  public onSelectTask(e: Event, task: Task) {
     if (this.currentTaskSelected && this.currentTaskSelected.id == task.id) {
       this.currentTaskSelected = null;
     } else {
@@ -88,9 +87,9 @@ export class ReportAssetComponent implements OnInit {
    * Edit equipment
    * @param tsk  Task equipment to edit
    */
-  public onEditEquipment(tsk: CustomTask) {
-    this.layerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
-      this.draggableMarker = this.layerService.addMarker(tsk.longitude, tsk.latitude, result);
+  public onEditEquipment(tsk: Task) {
+    this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
+      this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result);
     })
     this.mapEventService.isFeatureFiredEvent = true;
     this.editTaskEquipment = tsk;
@@ -106,11 +105,11 @@ export class ReportAssetComponent implements OnInit {
    * Validate the equipment change
    * @param tsk the task to update
    */
-  public onValidateChangeEquipment(tsk: CustomTask) {
-    let feature: any = this.layerService.getFeatureById("workorder", tsk.id + '');
+  public onValidateChangeEquipment(tsk: Task) {
+    let feature: any = this.maplayerService.getFeatureById("workorder", tsk.id + '');
     feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
     this.mapService.updateFeature("workorder", feature);
-    this.layerService.updateLocalGeometryFeatureById("workorder", tsk.id + '', feature.geometry.coordinates);
+    this.maplayerService.updateLocalGeometryFeatureById("workorder", tsk.id + '', feature.geometry.coordinates);
     tsk.longitude = this.draggableMarker.getLngLat().lng;
     tsk.latitude = this.draggableMarker.getLngLat().lat;
     if (this.draggableMarker) {
@@ -126,7 +125,7 @@ export class ReportAssetComponent implements OnInit {
    * Remove the equipment change
    * @param tsk task change to remove
    */
-  public onRemoveChangeEquipment(tsk: CustomTask) {
+  public onRemoveChangeEquipment(tsk: Task) {
     this.mapService.getMap().setFeatureState(
       { source: tsk.assObjTable.replace("asset.", ""), id: tsk.assObjRef },
       { selected: false }

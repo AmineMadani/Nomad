@@ -9,10 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
-import com.veolia.nextcanope.dto.CustomTaskDto;
-import com.veolia.nextcanope.dto.CustomWorkorderDto;
-import com.veolia.nextcanope.dto.ReportValueDto;
+import com.veolia.nextcanope.dto.TaskDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
+import com.veolia.nextcanope.dto.ReportValueDto;
 import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.Asset;
 import com.veolia.nextcanope.model.City;
@@ -23,7 +22,7 @@ import com.veolia.nextcanope.model.WorkorderTaskStatus;
 import com.veolia.nextcanope.repository.CityRepository;
 import com.veolia.nextcanope.repository.ReportRepository;
 import com.veolia.nextcanope.repository.TaskRepository;
-import com.veolia.nextcanope.repository.WorkOrderRepositoryImpl;
+import com.veolia.nextcanope.repository.WorkorderRepositoryImpl;
 import com.veolia.nextcanope.repository.WorkorderRepository;
 
 import jakarta.persistence.EntityManager;
@@ -35,10 +34,10 @@ import jakarta.transaction.Transactional;
  * It interacts with the WorkOrderRepository to access and manipulate the data.
  */
 @Service
-public class WorkOrderService {
+public class WorkorderService {
 
     @Autowired
-    private WorkOrderRepositoryImpl workOrderRepositoryImpl;
+    private WorkorderRepositoryImpl workOrderRepositoryImpl;
     
     @Autowired
     private WorkorderRepository workOrderRepository;
@@ -78,7 +77,7 @@ public class WorkOrderService {
      * @return the workorder dto
      */
     @Transactional
-    public CustomWorkorderDto createWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
+    public WorkorderDto createWorkOrder(WorkorderDto customWorkorderDto, AccountTokenDto account) {
     	Workorder workorder = new Workorder();
 
 		try {
@@ -110,7 +109,7 @@ public class WorkOrderService {
 			workorder.setListOfTask(new ArrayList<Task>());
 
 			// Get the work order asset
-			for (CustomTaskDto taskDto : customWorkorderDto.getTasks()) {
+			for (TaskDto taskDto : customWorkorderDto.getTasks()) {
 				Asset asset = assetService.getAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), account);
 
 				try {
@@ -153,7 +152,7 @@ public class WorkOrderService {
 		Workorder wko = workOrderRepository.findById(workorder.getId()).get();
 		entityManager.refresh(wko);
 		
-    	return new CustomWorkorderDto(wko);
+    	return new WorkorderDto(wko);
     }
     
     /**
@@ -161,7 +160,7 @@ public class WorkOrderService {
      * @param customWorkorderDto
      * @return the workorder dto
      */
-    public CustomWorkorderDto updateWorkOrder(CustomWorkorderDto customWorkorderDto, AccountTokenDto account) {
+    public WorkorderDto updateWorkOrder(WorkorderDto customWorkorderDto, AccountTokenDto account) {
     	
     	Workorder workorder = workOrderRepository.findById(customWorkorderDto.getId()).get();
 
@@ -178,7 +177,7 @@ public class WorkOrderService {
 			workorder = workOrderRepository.save(workorder);
 
 			// Get the work order asset
-			for (CustomTaskDto taskDto : customWorkorderDto.getTasks()) {
+			for (TaskDto taskDto : customWorkorderDto.getTasks()) {
 				Asset asset = assetService.getAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), account);
 
 				try {
@@ -246,8 +245,8 @@ public class WorkOrderService {
 		return workordersDto;
 	}
 	
-	public CustomWorkorderDto getWorkOrderDto(Long id) {
+	public WorkorderDto getWorkOrderDto(Long id) {
 		Workorder workOrder = workOrderRepository.findById(id).get();
-		return new CustomWorkorderDto(workOrder);
+		return new WorkorderDto(workOrder);
 	}
 }

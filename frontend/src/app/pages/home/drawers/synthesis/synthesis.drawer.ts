@@ -1,26 +1,14 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  Input,
-  Output,
-  TemplateRef,
-  EventEmitter,
-  ViewChild,
-  AfterViewInit,
-  ElementRef,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, TemplateRef, EventEmitter, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { DrawerService } from 'src/app/core/services/drawer.service';
-import { LayerService } from 'src/app/core/services/map/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { ActivatedRoute, Params } from '@angular/router';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { Observable, filter, from, of, switchMap } from 'rxjs';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
+import { filter, from, switchMap } from 'rxjs';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 export interface SynthesisButton {
   key: string;
@@ -36,13 +24,12 @@ export interface SynthesisButton {
 export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private utils: UtilsService,
-    private layerService: LayerService,
+    private mapLayerService: MapLayerService,
     private mapEventService: MapEventService,
     private drawerService: DrawerService,
     private mapService: MapService,
     private route: ActivatedRoute,
-    private layerDataservice: LayerDataService,
-    private exploitationDataservice: ExploitationDataService
+    private layerService: LayerService
   ) {}
 
   @ViewChild('content', { static: true }) content: ElementRef;
@@ -132,13 +119,13 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
         switchMap((param: Params) => {
           if (params.has('lyr_table_name') && params.size === 1) {
             return from(
-              this.layerDataservice.getEquipmentByLayerAndId2(
+              this.layerService.getEquipmentByLayerAndId(
                 params.get('lyr_table_name'),
                 param['id']
               )
             );
           } else {
-            return this.layerDataservice.getEquipmentsByLayersAndIds(
+            return this.layerService.getEquipmentsByLayersAndIds(
               this.utils.transformMap(params)
             );
           }
@@ -152,8 +139,8 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
 
         // Mono-Equipment
         if (!Array.isArray(feature)) {
-          await this.layerService.moveToXY(feature.x, feature.y);
-          await this.layerService.zoomOnXyToFeatureByIdAndLayerKey(
+          await this.mapLayerService.moveToXY(feature.x, feature.y);
+          await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
             params.get('lyr_table_name'),
             feature.id
           );
@@ -164,7 +151,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
 
           // Multi-Equipment
         } else {
-          this.layerService.fitBounds(
+          this.mapLayerService.fitBounds(
             feature.map((f) => {
               return [+f.x, +f.y];
             })

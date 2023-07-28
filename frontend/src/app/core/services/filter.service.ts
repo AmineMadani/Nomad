@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { finalize } from 'rxjs';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { FilterDataService } from 'src/app/core/services/dataservices/filter.dataservice';
-import { LayerService } from 'src/app/core/services/map/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { WorkorderService } from './workorder.service';
+import { MapLayerService } from './map/map-layer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +13,8 @@ import { MapService } from 'src/app/core/services/map/map.service';
 export class FilterService {
   constructor(
     private mapService: MapService,
-    private layerService: LayerService,
-    private expDataservice: ExploitationDataService,
+    private mapLayerService: MapLayerService,
+    private workorderService: WorkorderService,
     private filterDataService: FilterDataService
   ) { }
 
@@ -30,7 +30,7 @@ export class FilterService {
     if (features && features.length > 0) {
       return features;
     } else {
-      return this.layerService.getFeaturesInView(layerkey);
+      return this.mapLayerService.getFeaturesInView(layerkey);
     }
   }
 
@@ -53,7 +53,7 @@ export class FilterService {
     if (!toogle) {
       this.mapService.removeEventLayer(layerkey);
       this.isLoading = true;
-      this.expDataservice
+      this.workorderService
         .getFeaturePagination(layerkey, 20, 0, this.filterDataService.getSearchFilterListData().get(layerkey))
         .subscribe((features: MapFeature[]) => {
           this.filterDataService.getFilterData().set(layerkey, features);
@@ -116,7 +116,7 @@ export class FilterService {
   public updateData(key: string, ev?: InfiniteScrollCustomEvent): void {
     let features = this.filterDataService.getFilterData().get(key);
     if (features) {
-      this.expDataservice
+      this.workorderService
         .getFeaturePagination(key, 20, features.length, this.filterDataService.getSearchFilterListData().get(key))
         .pipe(finalize(() => ev?.target.complete()))
         .subscribe((f: MapFeature[]) => {

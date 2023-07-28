@@ -9,5 +9,6 @@
     "clientId": "nomad",
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },
-  "host":"http://localhost/"
+  "host":"http://localhost/",
+  "offlineTimeout":5000
 }

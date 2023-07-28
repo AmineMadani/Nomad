@@ -1,61 +1,46 @@
 package com.veolia.nextcanope.dto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.veolia.nextcanope.model.Task;
 import com.veolia.nextcanope.model.Workorder;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkorderDto {
 
     private Long id;
 
-    @JsonProperty("wko_name")
     private String wkoName;
 
-    @JsonProperty("wko_emergency")
     private Boolean wkoEmergency;
-
-    @JsonProperty("wko_address")
-    private String wkoAddress ;
-
-    @JsonProperty("wko_planning_start_date")
-    private Date wkoPlanningStartDate ;
-
-    @JsonProperty("wko_planning_end_date")
-    private Date wkoPlanningEndDate ;
-
-    @JsonProperty("wts_id")
-    private Long wtsId ;
-
-    @JsonProperty("wtr_id")
-    private Long wtrId ;
     
-    @JsonProperty("ctr_id")
-    private Long ctrId ;
+    private Boolean wkoAppointment;
 
-    @JsonProperty("ass_id")
-    private Long assId;
+    private Long ctyId;
 
-    @JsonProperty("wko_completion_date")
+    private Long ctrId;
+
+    private String wkoAddress;
+
+    private Date wkoPlanningStartDate;
+
+    private Date wkoPlanningEndDate;
+
+    private Long wtsId;
+    
     private Date wkoCompletionDate;
-
-    @JsonProperty("wko_realization_cell")
-    private String wkoRealizationCell;
-
-    @JsonProperty("longitude")
-    private BigDecimal longitude ;
-
-    @JsonProperty("latitude")
-    private BigDecimal latitude ;
-
-    @JsonProperty("wko_agent_nb")
-    private Integer wkoAgentNb ;
     
-    @JsonProperty("wko_id")
-    private Long wkoId;
+    private BigDecimal longitude;
+    
+    private BigDecimal latitude;
+    
+    private Integer wkoAgentNb;
+
+    private String wkoCreationComment;
+    
+    private List<TaskDto> tasks;
 
     public Long getId() {
         return id;
@@ -103,14 +88,6 @@ public class WorkorderDto {
         this.wkoPlanningEndDate = wkoPlanningEndDate;
     }
 
-    public Long getAssId() {
-        return assId;
-    }
-
-    public void setAssId(Long assId) {
-        this.assId = assId;
-    }
-
     public Long getWtsId() {
         return wtsId;
     }
@@ -119,28 +96,12 @@ public class WorkorderDto {
         this.wtsId = wtsId;
     }
 
-    public Long getWtrId() {
-        return wtrId;
-    }
-
-    public void setWtrId(Long wtrId) {
-        this.wtrId = wtrId;
-    }
-
     public Date getWkoCompletionDate() {
         return wkoCompletionDate;
     }
 
     public void setWkoCompletionDate(Date wkoCompletionDate) {
         this.wkoCompletionDate = wkoCompletionDate;
-    }
-
-    public String getWkoRealizationCell() {
-        return wkoRealizationCell;
-    }
-
-    public void setWkoRealizationCell(String wkoRealizationCell) {
-        this.wkoRealizationCell = wkoRealizationCell;
     }
 
     public BigDecimal getLongitude() {
@@ -166,39 +127,69 @@ public class WorkorderDto {
     public void setWkoAgentNb(Integer wkoAgentNb) {
         this.wkoAgentNb = wkoAgentNb;
     }
+    
+	public List<TaskDto> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(List<TaskDto> tasks) {
+		this.tasks = tasks;
+	}
+
+	public Boolean getWkoAppointment() {
+		return wkoAppointment;
+	}
+
+	public void setWkoAppointment(Boolean wkoAppointment) {
+		this.wkoAppointment = wkoAppointment;
+	}
 
     public Long getCtrId() {
-		return ctrId;
-	}
+        return ctrId;
+    }
 
-	public void setCtrId(Long ctrId) {
-		this.ctrId = ctrId;
-	}
-	
-	public Long getWkoId() {
-		return wkoId;
-	}
+    public void setCtrId(Long ctrId) {
+        this.ctrId = ctrId;
+    }
 
-	public void setWkoId(Long wkoId) {
-		this.wkoId = wkoId;
-	}
+    public String getWkoCreationComment() {
+        return wkoCreationComment;
+    }
+
+    public void setWkoCreationComment(String wkoCreationComment) {
+        this.wkoCreationComment = wkoCreationComment;
+    }
 
 	public WorkorderDto() {
 		super();
 	}
+
+    public Long getCtyId() {
+        return ctyId;
+    }
+
+    public void setCtyId(Long ctyId) {
+        this.ctyId = ctyId;
+    }
 
 	public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
         this.wkoName = workorder.getWkoName();
         this.wkoEmergency = workorder.getWkoEmergency();
+        this.wkoAppointment = workorder.getWkoAppointment();
         this.wkoAddress = workorder.getWkoAddress();
         this.wkoPlanningStartDate = workorder.getWkoPlanningStartDate();
         this.wkoPlanningEndDate = workorder.getWkoPlanningEndDate();
         this.wkoCompletionDate = workorder.getWkoCompletionDate();
-        this.wkoRealizationCell = workorder.getWkoRealizationCell();
+        this.wtsId = workorder.getWtsId();
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();
+        this.tasks = new ArrayList<TaskDto>();
+        
+        for(Task task: workorder.getListOfTask()) {
+        	this.tasks.add(new TaskDto(task));
+        }
     }
 }

@@ -1,9 +1,8 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { TemplateForm } from 'src/app/core/models/template.model';
-import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
+import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import {
   Form,
@@ -17,10 +16,9 @@ import {
 })
 export class EquipmentDetailsComponent implements OnInit {
   constructor(
-    private http: HttpClient,
     private utils: UtilsService,
     private activatedRoute: ActivatedRoute,
-    private templateDataService: TemplateDataService
+    private templateService: TemplateService
   ) {}
 
   public form: Form;
@@ -42,7 +40,7 @@ export class EquipmentDetailsComponent implements OnInit {
             this.type = type.charAt(0).toUpperCase() + type.slice(1);
           }
 
-          return this.templateDataService.getformsTemplate();
+          return this.templateService.getformsTemplate();
         })
       )
       .subscribe((forms: TemplateForm[]) => {

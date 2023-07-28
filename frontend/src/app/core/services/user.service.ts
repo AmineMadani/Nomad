@@ -4,7 +4,7 @@ import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
-import { Observable } from 'rxjs';
+import { Observable, catchError, lastValueFrom, of, timeout } from 'rxjs';
 
 /**
  * Enum of cache items in local storage
@@ -27,6 +27,36 @@ export class UserService {
   ) { }
 
   /**
+   * Method to get all the user informations from server
+   * @returns User information
+   */
+  async getUserInformation(): Promise<Observable<User>> {
+    const res = await lastValueFrom(
+      this.userDataService.getUserInformation()
+        .pipe(
+          timeout(2000),
+          catchError(async () => {
+            const forms = await this.preferenceService.getPreference(
+              LocalStorageUserKey.USER
+            );
+            if (forms) {
+              return forms.data;
+            }
+            return of(null);
+          })
+        )
+    );
+
+    if (!res) {
+      this.router.navigate(['/error']);
+    }
+
+    this.preferenceService.setPreference(LocalStorageUserKey.USER, res);
+
+    return res;
+  }
+
+  /**
    * Create UserContext on Home page
    * @returns 
    */
@@ -43,10 +73,10 @@ export class UserService {
       lat: mapLibre.getCenter().lat,
       url: this.router.url,
     }
-    
+
     const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
-                                        .filter((value) => !value['source'].startsWith('mapbox'))
-                                        .map((value) => [value['source'], value['id']]);
+      .filter((value) => !value['source'].startsWith('mapbox'))
+      .map((value) => [value['source'], value['id']]);
     mapLayerLoaded.shift();
     context.layers = mapLayerLoaded;
 
@@ -61,7 +91,7 @@ export class UserService {
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
   public async getUser(): Promise<User | undefined> {
-    const usr: any = await this.userDataService.getUserInformation();
+    const usr: any = await this.getUserInformation();
     if (usr.usrConfiguration) {
       usr.usrConfiguration = JSON.parse(usr.usrConfiguration);
       if (!usr.usrConfiguration.favorites) {
@@ -96,17 +126,29 @@ export class UserService {
    * @param user  the user
    */
   public updateUser(user: User): void {
-    this.userDataService.updateUser(user);
+    const usr: any = JSON.parse(JSON.stringify(user));
+    usr.usrConfiguration = JSON.stringify(user.usrConfiguration);
+    this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
+    this.userDataService.updateUser(usr).subscribe({
+      error: (err) => console.error(err),
+    });
   }
 
-    /**
-   * Create an user
-   * @param user the user to create
+  /**
+ * Create an user
+ * @param user the user to create
+ */
+  public createUser(user: User): Observable<any> {
+    return this.userDataService.createUser(user);
+  }
+
+  /**
+   * Method to get all the users from server
+   * @returns Users
    */
-    public createUser(user: User): Observable<any> {
-      return this.userDataService.createUser(user);
-    }
-  
+  getAllUserAccount(): Observable<User[]> {
+    return this.userDataService.getAllUserAccount();
+  }
 
   /**
    * Restoring users view preferences
@@ -117,7 +159,7 @@ export class UserService {
     }
     if (context.url) {
       this.router.navigateByUrl(context.url).then(() => {
-          this.restoreFilter(context);
+        this.restoreFilter(context);
       });
     }
     else {
@@ -147,8 +189,7 @@ export class UserService {
   /**
    * Delete the user context in local storage
    */
-  public resetUserContext()
-  {
+  public resetUserContext() {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER_CONTEXT);
   }
 
@@ -158,7 +199,7 @@ export class UserService {
       this.mapService.setCenter([context.lng, context.lat]);
       if (context.layers && context.layers.length > 0) {
         for (let layer of context.layers) {
-            this.mapService.addEventLayer(layer[0], layer[1]);
+          this.mapService.addEventLayer(layer[0], layer[1]);
         }
       }
     }

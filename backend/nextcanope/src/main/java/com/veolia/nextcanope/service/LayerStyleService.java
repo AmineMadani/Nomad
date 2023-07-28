@@ -1,20 +1,24 @@
 package com.veolia.nextcanope.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleSummaryDto;
 import com.veolia.nextcanope.dto.LayerStyle.StyleImageDto;
 import com.veolia.nextcanope.dto.payload.SaveLayerStylePayload;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
-import com.veolia.nextcanope.model.*;
+import com.veolia.nextcanope.model.Layer;
+import com.veolia.nextcanope.model.LayerStyle;
+import com.veolia.nextcanope.model.StyleDefinition;
+import com.veolia.nextcanope.model.StyleImage;
+import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.LayerStyleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * PatrimonyService is a service class for managing patrimony-related data.

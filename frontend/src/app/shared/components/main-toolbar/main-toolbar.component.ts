@@ -5,7 +5,6 @@ import { AppDB } from 'src/app/core/models/app-db.model';
 import { User } from 'src/app/core/models/user.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
-import { UserDataService } from 'src/app/core/services/dataservices/user.dataservice';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -21,8 +20,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     private cacheService: CacheService,
     private utilsService: UtilsService,
     private userService: UserService,
-    private configurationService: ConfigurationService,
-    private userDataService : UserDataService ) {}
+    private configurationService: ConfigurationService ) {}
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
 
@@ -94,7 +92,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    */
   public async saveContext (): Promise<void>  {
     const user : User = await this.userService.getCurrentUserContext();
-    this.userDataService.updateUser(user);
+    this.userService.updateUser(user);
   }
 
   /**

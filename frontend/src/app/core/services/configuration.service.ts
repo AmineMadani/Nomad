@@ -18,6 +18,7 @@ export class ConfigurationService {
   apiUrl: string;
   host: string;
   keycloak: Keycloak;
+  offlineTimeout: number;
   
 
   constructor(
@@ -36,6 +37,8 @@ export class ConfigurationService {
           this.apiUrl = response.body.apiUrl;
           this.keycloak= response.body.keycloak;
           this.host = response.body.host;
+          this.offlineTimeout = response.body.offlineTimeout;
+
           resolve(this);
         },
         error: (err) => {reject(err)}

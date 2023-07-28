@@ -4,15 +4,12 @@ import { Subject, filter, first, pairwise, switchMap, take, takeUntil, tap } fro
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
-import {
-  DrawerRouteEnum,
-  DrawerTypeEnum,
-} from 'src/app/core/models/drawer.model';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
+import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { UserService } from 'src/app/core/services/user.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { NavigationEnd, Router, RoutesRecognized } from '@angular/router';
+import { Router, RoutesRecognized } from '@angular/router';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +20,7 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
     public drawerService: DrawerService,
-    private layerDataServie: LayerDataService,
+    private layerService: LayerService,
     private modalCtrl: ModalController,
     private userService: UserService,
     private router: Router,
@@ -80,11 +77,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   public isDataLoading(): boolean {
-    return this.layerDataServie.isDataLoading();
+    return this.layerService.isDataLoading();
   }
 
   public listDataLoading(): string[] {
-    return this.layerDataServie.getListLoadingData();
+    return this.layerService.getListLoadingData();
   }
 
   public openModal() {

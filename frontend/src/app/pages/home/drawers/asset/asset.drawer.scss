@@ -33,6 +33,7 @@
   }
 
   .filter-segment {
+    grid-auto-columns: auto;
     border-bottom: solid 1px var(--ion-color-neutral-variant-80);
 
     .scrolling-wrapper-mobile {

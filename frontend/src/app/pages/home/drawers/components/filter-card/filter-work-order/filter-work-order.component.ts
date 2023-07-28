@@ -54,6 +54,20 @@ export class FilterWorkOrderComponent implements OnInit {
         this.workOrders = res;
       }
     }
+    for(let workorder of this.workOrders) {
+      if(!workorder.reason) {
+        workorder.reason = workorder['wkoName'];
+      }
+      if(!workorder.datebegin) {
+        workorder.datebegin = workorder['wkoPlanningStartDate'];
+      }
+      if(!workorder.dateend) {
+        workorder.dateend = workorder['wkoPlanningEndDate'];
+      }
+      if(!workorder.status) {
+        workorder.status = workorder['wtsId'];
+      }
+    }
     return this.workOrders;
   }
 

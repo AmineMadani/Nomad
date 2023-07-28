@@ -17,7 +17,7 @@ import com.veolia.nextcanope.dto.WorkorderDto;
  * queries.
  */
 @Repository
-public class WorkOrderRepositoryImpl {
+public class WorkorderRepositoryImpl {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;

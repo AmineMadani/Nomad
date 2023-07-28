@@ -1,9 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer-style.model';
-import { Layer } from 'src/app/core/models/layer.model';
-import { LayerStyleDataService } from 'src/app/core/services/dataservices/layer-style.dataservice';
+import { Layer, LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 import { Navigation } from 'swiper';
 
 @Component({
@@ -15,7 +14,7 @@ export class LayerStyleComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private layerStyleDataService: LayerStyleDataService
+    private layerService: LayerService
   ) { }
 
   // Variables which must be passed at param in the modal of this component
@@ -44,7 +43,7 @@ export class LayerStyleComponent implements OnInit {
     });
 
     if (!this.isCreation) {
-      this.layerStyleDataService.getLayerStyleById(this.lseId)
+      this.layerService.getLayerStyleById(this.lseId)
         .subscribe((lse: LayerStyleDetail) => {
           this.layerStyle = lse;
           this.layerStyle.listImage = lse.listImage;
@@ -116,12 +115,12 @@ export class LayerStyleComponent implements OnInit {
       // Save in the database
       // A toast is automatically showed to the user when the api call is done.
       if (this.isCreation) {
-        this.layerStyleDataService.createLayerStyle(
+        this.layerService.createLayerStyle(
           layerStylePayload,
           this.layerStyle.lyrId
         ).subscribe();
       } else {
-        this.layerStyleDataService.updateLayerStyle(
+        this.layerService.updateLayerStyle(
           layerStylePayload,
           this.layerStyle.lseId
         ).subscribe();

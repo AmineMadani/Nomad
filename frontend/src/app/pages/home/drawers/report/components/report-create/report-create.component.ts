@@ -1,11 +1,10 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { CustomTask, CustomWorkOrder, Report } from 'src/app/core/models/workorder.model';
+import { Task, Workorder, Report } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
-import { ExploitationService } from 'src/app/core/services/exploitation.service';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
-import { ExploitationDataService } from 'src/app/core/services/dataservices/exploitation.dataservice';
 import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { AlertController, IonModal } from '@ionic/angular';
@@ -21,19 +20,19 @@ export class ReportCreateComponent implements OnInit {
   constructor(
     private drawerService: DrawerService,
     private utils: UtilsService,
-    private exploitationService: ExploitationService,
-    private exploitationDataService: ExploitationDataService,
+    private exploitationService: WorkorderService,
+    private workorderService: WorkorderService,
     private router: Router,
     private referential: ReferentialService,
     private alertController: AlertController,
     private keycloakService: KeycloakService
   ) { }
 
-  @Input() workorder: CustomWorkOrder;
+  @Input() workorder: Workorder;
 
   public isMobile: boolean;
   public step: number = 1;
-  public selectedTask: CustomTask;
+  public selectedTask: Task;
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
@@ -179,7 +178,7 @@ export class ReportCreateComponent implements OnInit {
       }
       this.selectedTask.report = report;
       this.onSaveWorkOrderState();
-      this.exploitationDataService.updateWorkOrder(this.workorder).subscribe(res => {
+      this.workorderService.updateWorkOrder(this.workorder).subscribe(res => {
         this.closeReport();
       });
     }
@@ -225,7 +224,7 @@ export class ReportCreateComponent implements OnInit {
    * Selected task
    * @param task selected task
    */
-  public onSelectedTaskChange(task: CustomTask) {
+  public onSelectedTaskChange(task: Task) {
     this.selectedTask = task;
   }
 

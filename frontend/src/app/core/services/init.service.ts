@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { LayerReferencesDataService } from './dataservices/layer-reference.dataservice';
+import { LayerService } from './layer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +7,7 @@ import { LayerReferencesDataService } from './dataservices/layer-reference.datas
 export class InitService {
 
   constructor(
-    private layerReferenceDataService: LayerReferencesDataService
+    private layerService: LayerService
   ) { }
 
   /**
@@ -20,7 +20,7 @@ export class InitService {
 
     try {
       // Try to get the user's layer references data
-      await this.layerReferenceDataService.getUserLayerReferences();
+      await this.layerService.getUserLayerReferences();
     } catch (e) {
       // If an error occurs, set isComplete to false
       isComplete = false;

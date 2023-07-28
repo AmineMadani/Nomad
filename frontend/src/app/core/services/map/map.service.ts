@@ -1,7 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, from } from 'rxjs';
-import { LayerDataService } from '../dataservices/layer.dataservice';
+import { Observable, ReplaySubject } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
@@ -15,6 +14,7 @@ import { MapEventService } from './map-event.service';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Clipboard } from '@capacitor/clipboard';
+import { LayerService } from '../layer.service';
 
 export interface Box {
   x1: number;
@@ -28,7 +28,7 @@ export interface Box {
 })
 export class MapService {
   constructor(
-    private layerDataService: LayerDataService,
+    private layerService: LayerService,
     private basemapsDataservice: BaseMapsDataService,
     private filterDataService: FilterDataService,
     private configurationService: ConfigurationService,
@@ -190,7 +190,7 @@ export class MapService {
       this.removeLoadingLayer.splice(removeIndex,1);
     }
 
-    this.layersConfiguration = await this.layerDataService.getLayers();
+    this.layersConfiguration = await this.layerService.getLayers();
 
     //If style loading in queue
     if (this.loadingStyle.get(layerKey)) {
@@ -490,7 +490,7 @@ export class MapService {
       y2: Math.max(val._sw.lng, val._ne.lng),
     };
 
-    const res = await this.layerDataService.getLayerIndex(key);
+    const res = await this.layerService.getLayerIndex(key);
     const index: any[] = (res as any)['features'];
 
     if(index && index.length > 0) {
@@ -524,7 +524,7 @@ export class MapService {
   private async loadNewTile(layerKey: string, file: string): Promise<void> {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     if (source) {
-      const newLayer = await this.layerDataService.getLayerFile(layerKey, file);
+      const newLayer = await this.layerService.getLayerFile(layerKey, file);
       const addData: Maplibregl.GeoJSONSourceDiff = {
         add: newLayer.features,
       };

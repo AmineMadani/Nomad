@@ -1,5 +1,3 @@
-import { LayerStyleDetail } from "./layer-style.model";
-
 export interface Layer {
   id: number;
   lyrNumOrder: number;
@@ -26,4 +24,51 @@ export function getLayerLabel(layer: Layer) {
 export enum  localisationExportMode  {
   nomadLink = 'NOMADLINK',
   gpsCoordinates = 'GPS',
+}
+
+export interface LayerStyleSummary {
+  lseId: number;
+  lseCode: string;
+  lyrId: number;
+}
+
+export interface LayerStyleDetail {
+  lyrId: number;
+  lyrTableName: string;
+  lseId: number;
+  lseCode: string;
+  sydId: number;
+  sydDefinition: string; // Json
+  listImage: StyleImage[];
+}
+
+export interface StyleImage {
+  code: string;
+  source: string;
+}
+
+export interface SaveLayerStylePayload {
+  lseCode: string;
+  sydDefinition: string; // Json
+  listImage: StyleImage[];
+}
+
+export interface LayerReferences {
+  layerKey: string;
+  references: UserReference[];
+}
+
+export interface UserReference {
+  referenceId: number;
+  referenceKey: string;
+  alias: string;
+  displayType: ReferenceDisplayType,
+  position: number;
+  section: string;
+  isVisible: boolean;
+}
+
+export enum ReferenceDisplayType {
+  SYNTHETIC = 'SYNTHETIC',
+  DETAILED = 'DETAILED',
 }

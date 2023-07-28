@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
-import { CustomTask } from 'src/app/core/models/workorder.model';
+import { Task } from 'src/app/core/models/workorder.model';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
@@ -14,7 +14,7 @@ export class ReportContextComponent implements OnInit {
     private referentialService: ReferentialService
   ) { }
 
-  @Input() task: CustomTask;
+  @Input() task: Task;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('modalReportContext') modal: IonModal;

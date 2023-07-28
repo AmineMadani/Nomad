@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { SynthesisButton } from '../synthesis.drawer';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { LayerService } from 'src/app/core/services/map/layer.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, switchMap, EMPTY, debounceTime } from 'rxjs';
 import { Layer } from 'src/app/core/models/layer.model';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -21,9 +21,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private layerDataservice: LayerDataService,
-    private mapService: MapService,
     private layerService: LayerService,
+    private mapService: MapService,
+    private mapLayerService: MapLayerService,
     private drawerService: DrawerService,
     private mapEventService: MapEventService,
     private utilsService: UtilsService
@@ -41,7 +41,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           this.paramFeatures = this.utilsService.transformMap(
             new Map(urlParams.entries())
           );
-          return this.layerDataservice.getEquipmentsByLayersAndIds(
+          return this.layerService.getEquipmentsByLayersAndIds(
             this.paramFeatures
           );
         }),
@@ -53,7 +53,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.sources = [];
         this.layersConf = [];
         this.featuresHighlighted = [];
-        this.layerService.fitBounds(
+        this.mapLayerService.fitBounds(
           features.map((f) => {
             return [+f.x, +f.y];
           })
@@ -174,7 +174,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     this.featuresSelected = abstractFeatures.map((absF: any) => {
       return {
-        ...this.layerService.getFeatureById(absF.lyr_table_name, absF.id)
+        ...this.mapLayerService.getFeatureById(absF.lyr_table_name, absF.id)
           .properties,
         lyr_table_name: absF.lyr_table_name,
       };
@@ -189,7 +189,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       })
     );
 
-    this.layerService.fitBounds(
+    this.mapLayerService.fitBounds(
       this.featuresSelected.map((f) => {
         return [+f.x, +f.y];
       })
@@ -330,7 +330,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     } else {
       this.featuresHighlighted.push(feature);
       this.hightlightFeatures(this.featuresHighlighted);
-      this.layerService.fitBounds(
+      this.mapLayerService.fitBounds(
         this.featuresHighlighted.map((f) => {
           return [+f.x, +f.y];
         })
@@ -341,7 +341,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public restoreViewOnFeatureSelected() {
     this.featuresHighlighted = [];
     this.hightlightFeatures();
-    this.layerService.fitBounds(
+    this.mapLayerService.fitBounds(
       this.featuresSelected.map((f) => {
         return [+f.x, +f.y];
       })
@@ -372,10 +372,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   private addNewFeatures(features: any | any[]): void {
     if (!Array.isArray(features)) {
-      features = [ {...this.layerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyr_table_name: features.layerKey }];
+      features = [ {...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyr_table_name: features.layerKey }];
     } else {
       features = features.map((f) => {
-        return { ...this.layerService.getFeatureById(f.source, f.id)['properties'], lyr_table_name: f.source} 
+        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyr_table_name: f.source} 
       })
     }
 

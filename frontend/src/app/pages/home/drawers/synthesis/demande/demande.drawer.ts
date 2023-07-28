@@ -10,7 +10,7 @@ import {
   FormDefinition,
 } from 'src/app/shared/form-editor/models/form.model';
 import { DatePipe } from '@angular/common';
-import { TemplateDataService } from 'src/app/core/services/dataservices/template.dataservice';
+import { TemplateService } from 'src/app/core/services/template.service';
 
 @Component({
   selector: 'app-demande',
@@ -22,7 +22,7 @@ export class DemandeDrawer implements OnInit {
     private router: ActivatedRoute,
     private http: HttpClient,
     private datePipe: DatePipe,
-    private templateDataService: TemplateDataService
+    private templateService: TemplateService
   ) {
     this.router.queryParams
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -50,7 +50,7 @@ export class DemandeDrawer implements OnInit {
   }
 
   createForm(): void {
-    this.templateDataService.getformsTemplate()
+    this.templateService.getformsTemplate()
       .then(forms => {
         let demForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
         demForm.definitions.map((def: FormDefinition) => {
