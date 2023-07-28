@@ -9,5 +9,6 @@
     "clientId": "[keycloakClientId]",
     "revocationEndpoint": "[keycloakRevocation]"
   },
-  "host": "[hostNomad]"
+  "host": "[hostNomad]",
+  "offlineTimeout":5000
 }
