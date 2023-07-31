@@ -72,25 +72,25 @@ insert into domains
 
 
 insert into asset_type(dom_id, ast_code, ast_slabel ) values
-  ((select id from domains where dom_type = 'dw'),'N20', 'Canalisation AEP')
-, ((select id from domains where dom_type = 'dw'),'N21', 'Branchemment AEP')
-, ((select id from domains where dom_type = 'dw'),'N22', 'Ouvrages AEP')
-, ((select id from domains where dom_type = 'dw'),'N23', 'Vannes AEP')
-, ((select id from domains where dom_type = 'dw'),'N24', 'Equipement Incendie')
-, ((select id from domains where dom_type = 'dw'),'N25', 'Equipement de Comptage')
-, ((select id from domains where dom_type = 'dw'),'N26', 'Autre Equipement AEP')
-, ((select id from domains where dom_type = 'dw'),'N27', 'Equipement de Régulation')
-, ((select id from domains where dom_type = 'dw'),'N28', 'Multi-patrimoine AEP') -- FIXME
-, ((select id from domains where dom_type = 'dw'),'N29', 'X, Y, Adresse AEP')
+  ((select id from domains where dom_type = 'dw'),'20', 'Canalisation AEP')
+, ((select id from domains where dom_type = 'dw'),'21', 'Branchemment AEP')
+, ((select id from domains where dom_type = 'dw'),'22', 'Ouvrages AEP')
+, ((select id from domains where dom_type = 'dw'),'23', 'Vannes AEP')
+, ((select id from domains where dom_type = 'dw'),'24', 'Equipement Incendie')
+, ((select id from domains where dom_type = 'dw'),'25', 'Equipement de Comptage')
+, ((select id from domains where dom_type = 'dw'),'26', 'Autre Equipement AEP')
+, ((select id from domains where dom_type = 'dw'),'27', 'Equipement de Régulation')
+, ((select id from domains where dom_type = 'dw'),'28', 'Multi-patrimoine AEP') -- FIXME
+, ((select id from domains where dom_type = 'dw'),'29', 'X, Y, Adresse AEP')
 --------------------------------------------
-, ((select id from domains where dom_type = 'ww'),'N30', 'Collecteur')
-, ((select id from domains where dom_type = 'ww'),'N31', 'Branchement ASST')
-, ((select id from domains where dom_type = 'ww'),'N32', 'Ouvrages ASST')
-, ((select id from domains where dom_type = 'ww'),'N33', 'Avaloir')
-, ((select id from domains where dom_type = 'ww'),'N34', 'Regard')
-, ((select id from domains where dom_type = 'ww'),'N35', 'Autre équipement ASST')
-, ((select id from domains where dom_type = 'dw'),'N38', 'Multi-patrimoine ASST') -- FIXME
-, ((select id from domains where dom_type = 'ww'),'N39', 'X, Y, Adresse ASST')
+, ((select id from domains where dom_type = 'ww'),'30', 'Collecteur')
+, ((select id from domains where dom_type = 'ww'),'31', 'Branchement ASST')
+, ((select id from domains where dom_type = 'ww'),'32', 'Ouvrages ASST')
+, ((select id from domains where dom_type = 'ww'),'33', 'Avaloir')
+, ((select id from domains where dom_type = 'ww'),'34', 'Regard')
+, ((select id from domains where dom_type = 'ww'),'35', 'Autre équipement ASST')
+, ((select id from domains where dom_type = 'dw'),'38', 'Multi-patrimoine ASST') -- FIXME
+, ((select id from domains where dom_type = 'ww'),'39', 'X, Y, Adresse ASST')
 ;
 
 insert into layer
@@ -222,31 +222,31 @@ on conflict do nothing;
 --  FIXME doublon de code / clef sur ID qui peut changer / plus facile de metre un code unique en lien avec les workorders
 insert into workorder_task_reason(wtr_slabel, wtr_llabel, wtr_code)
 values
-('Poser', 'Poser', 'N10'),
-('Raccorder', 'Raccorder', 'N11'),
-('Renouveler', 'Renouveler', 'N12'),
-('Réaliser un Métré', 'Réaliser un Métré', 'N13'),
-('Mettre hors service', 'Mettre hors service', 'N14'),
-('Entretenir / Réparer / Maintenir', 'Entretenir / Réparer / Maintenir', 'N15'),
-('Contrôler / Enquêter / Relever', 'Contrôler / Enquêter / Relever', 'N16'),
-('Entretenir / Réparer BAC ou Fontes de Voirie', 'Entretenir / Réparer BAC ou Fontes de Voirie', 'N17'),
-('Repérer / Enquêter sur X,Y', 'Repérer / Enquêter sur X,Y', 'N19'),
-('Rechercher Fuite', 'Rechercher Fuite', 'N20'),
-('Réparer Fuite', 'Réparer Fuite', 'N21'),
-('Purger', 'Purger', 'N22'),
-('Nettoyer', 'Nettoyer', 'N23'),
-('Informe Arrêt d''Eau', 'Informe Arrêt d''Eau', 'N28'),
-('Exécuter un arrêt ou une remise en eau', 'Exécuter un arrêt ou une remise en eau', 'N29'),
-('Curer', 'Curer', 'N30'),
-('Désobstruer', 'Désobstruer', 'N31'),
-('Pomper Vidanger', 'Pomper Vidanger', 'N32'),
-('Détruire nuisible', 'Détruire nuisible', 'N33'),
-('Réaliser une ITV', 'Réaliser une ITV', 'N34'),
-('Réhabiliter', 'Réhabiliter', 'N35'),
-('Test à la fumée', 'Test à la fumée', 'N36'),
-('Terrasser', 'Terrasser', 'N40'),
-('Effectuer un remblais', 'Effectuer un remblais', 'N41'),
-('Effectuer Réfection de Voirie X,Y', 'Effectuer Réfection de Voirie X,Y', 'N42');
+('Poser', 'Poser', '10'),
+('Raccorder', 'Raccorder', '11'),
+('Renouveler', 'Renouveler', '12'),
+('Réaliser un Métré', 'Réaliser un Métré', '13'),
+('Mettre hors service', 'Mettre hors service', '14'),
+('Entretenir / Réparer / Maintenir', 'Entretenir / Réparer / Maintenir', '15'),
+('Contrôler / Enquêter / Relever', 'Contrôler / Enquêter / Relever', '16'),
+('Entretenir / Réparer BAC ou Fontes de Voirie', 'Entretenir / Réparer BAC ou Fontes de Voirie', '17'),
+('Repérer / Enquêter sur X,Y', 'Repérer / Enquêter sur X,Y', '19'),
+('Rechercher Fuite', 'Rechercher Fuite', '20'),
+('Réparer Fuite', 'Réparer Fuite', '21'),
+('Purger', 'Purger', '22'),
+('Nettoyer', 'Nettoyer', '23'),
+('Informe Arrêt d''Eau', 'Informe Arrêt d''Eau', '28'),
+('Exécuter un arrêt ou une remise en eau', 'Exécuter un arrêt ou une remise en eau', '29'),
+('Curer', 'Curer', '30'),
+('Désobstruer', 'Désobstruer', '31'),
+('Pomper Vidanger', 'Pomper Vidanger', '32'),
+('Détruire nuisible', 'Détruire nuisible', '33'),
+('Réaliser une ITV', 'Réaliser une ITV', '34'),
+('Réhabiliter', 'Réhabiliter', '35'),
+('Test à la fumée', 'Test à la fumée', '36'),
+('Terrasser', 'Terrasser', '40'),
+('Effectuer un remblais', 'Effectuer un remblais', '41'),
+('Effectuer Réfection de Voirie X,Y', 'Effectuer Réfection de Voirie X,Y', '42');
 
 alter sequence workorder_task_reason_id_seq restart with 170;
 
@@ -254,129 +254,129 @@ alter sequence workorder_task_reason_id_seq restart with 170;
 create table tmp_asset_type_wtr(ast_code text, wtr_code text, ast_id integer, wtr_id integer);
 insert into tmp_asset_type_wtr(ast_code, wtr_code)
 values
-('N20', 'N10'),
-('N20', 'N11'),
-('N20', 'N12'),
-('N20', 'N14'),
-('N20', 'N16'),
-('N20', 'N20'),
-('N20', 'N21'),
-('N20', 'N22'),
+('20', '10'),
+('20', '11'),
+('20', '12'),
+('20', '14'),
+('20', '16'),
+('20', '20'),
+('20', '21'),
+('20', '22'),
 ----------------
-('N21', 'N10'),
-('N21', 'N12'),
-('N21', 'N14'),
-('N21', 'N16'),
-('N21', 'N21'),
+('21', '10'),
+('21', '12'),
+('21', '14'),
+('21', '16'),
+('21', '21'),
 ----------------
-('N23', 'N23'),
+('23', '23'),
 ----------------
-('N23', 'N10'),
-('N23', 'N11'),
-('N23', 'N12'),
-('N23', 'N14'),
-('N23', 'N15'),
-('N23', 'N16'),
-('N23', 'N17'),
-('N23', 'N21'),
+('23', '10'),
+('23', '11'),
+('23', '12'),
+('23', '14'),
+('23', '15'),
+('23', '16'),
+('23', '17'),
+('23', '21'),
 ----------------
-('N24', 'N10'),
-('N24', 'N11'),
-('N24', 'N12'),
-('N24', 'N14'),
-('N24', 'N15'),
-('N24', 'N16'),
-('N24', 'N21'),
+('24', '10'),
+('24', '11'),
+('24', '12'),
+('24', '14'),
+('24', '15'),
+('24', '16'),
+('24', '21'),
 ----------------
-('N25', 'N10'),
-('N25', 'N12'),
-('N25', 'N15'),
-('N25', 'N16'),
-('N25', 'N17'),
-('N25', 'N21'),
+('25', '10'),
+('25', '12'),
+('25', '15'),
+('25', '16'),
+('25', '17'),
+('25', '21'),
 ----------------
-('N26', 'N10'),
-('N26', 'N11'),
-('N26', 'N12'),
-('N26', 'N14'),
-('N26', 'N15'),
-('N26', 'N16'),
-('N26', 'N17'),
-('N26', 'N21'),
+('26', '10'),
+('26', '11'),
+('26', '12'),
+('26', '14'),
+('26', '15'),
+('26', '16'),
+('26', '17'),
+('26', '21'),
 ----------------
-('N27', 'N10'),
-('N27', 'N11'),
-('N27', 'N12'),
-('N27', 'N14'),
-('N27', 'N15'),
-('N27', 'N17'),
-('N27', 'N21'),
+('27', '10'),
+('27', '11'),
+('27', '12'),
+('27', '14'),
+('27', '15'),
+('27', '17'),
+('27', '21'),
 ----------------
-('N29', 'N13'),
-('N29', 'N19'),
-('N29', 'N20'),
-('N29', 'N21'),
-('N29', 'N28'),
-('N29', 'N29'),
-('N29', 'N40'),
-('N29', 'N41'),
-('N29', 'N42'),
+('29', '13'),
+('29', '19'),
+('29', '20'),
+('29', '21'),
+('29', '28'),
+('29', '29'),
+('29', '40'),
+('29', '41'),
+('29', '42'),
 ----------------
-('N30', 'N10'),
-('N30', 'N12'),
-('N30', 'N15'),
-('N30', 'N16'),
-('N30', 'N30'),
-('N30', 'N31'),
-('N30', 'N32'),
-('N30', 'N34'),
-('N30', 'N35'),
-('N30', 'N36'),
+('30', '10'),
+('30', '12'),
+('30', '15'),
+('30', '16'),
+('30', '30'),
+('30', '31'),
+('30', '32'),
+('30', '34'),
+('30', '35'),
+('30', '36'),
 ----------------
-('N31', 'N10'),
-('N31', 'N12'),
-('N31', 'N15'),
-('N31', 'N16'),
-('N31', 'N30'),
-('N31', 'N31'),
-('N31', 'N32'),
-('N31', 'N34'),
+('31', '10'),
+('31', '12'),
+('31', '15'),
+('31', '16'),
+('31', '30'),
+('31', '31'),
+('31', '32'),
+('31', '34'),
 ----------------
-('N32', 'N16'),
-('N32', 'N30'),
-('N32', 'N31'),
-('N32', 'N32'),
+('32', '16'),
+('32', '30'),
+('32', '31'),
+('32', '32'),
 ----------------
-('N33', 'N10'),
-('N33', 'N12'),
-('N33', 'N15'),
-('N33', 'N16'),
-('N33', 'N17'),
-('N33', 'N30'),
-('N33', 'N31'),
-('N33', 'N32'),
+('33', '10'),
+('33', '12'),
+('33', '15'),
+('33', '16'),
+('33', '17'),
+('33', '30'),
+('33', '31'),
+('33', '32'),
 ----------------
-('N34', 'N12'),
-('N34', 'N15'),
-('N34', 'N16'),
-('N34', 'N17'),
-('N34', 'N30'),
-('N34', 'N31'),
-('N34', 'N32'),
-('N34', 'N33'),
+('34', '12'),
+('34', '15'),
+('34', '16'),
+('34', '17'),
+('34', '30'),
+('34', '31'),
+('34', '32'),
+('34', '33'),
 ----------------
-('N35', 'N10'),
-('N35', 'N12'),
-('N35', 'N15'),
-('N35', 'N16'),
-('N35', 'N17'),
+('35', '10'),
+('35', '12'),
+('35', '15'),
+('35', '16'),
+('35', '17'),
 ----------------
-('N39', 'N13'),
-('N39', 'N16'),
-('N39', 'N32'),
-('N39', 'N40'),
-('N39', 'N41'),
-('N39', 'N42')
+('39', '13'),
+('39', '16'),
+('39', '32'),
+('39', '40'),
+('39', '41'),
+('39', '42')
 ;
 
 update tmp_asset_type_wtr t
