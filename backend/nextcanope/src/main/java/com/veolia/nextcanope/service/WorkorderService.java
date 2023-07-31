@@ -1,10 +1,11 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
+import com.veolia.nextcanope.enums.StatusCode;
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,6 @@ import com.veolia.nextcanope.dto.TaskDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.dto.ReportValueDto;
 import com.veolia.nextcanope.exception.TechnicalException;
-import com.veolia.nextcanope.model.Asset;
-import com.veolia.nextcanope.model.City;
-import com.veolia.nextcanope.model.Report;
-import com.veolia.nextcanope.model.Task;
-import com.veolia.nextcanope.model.Workorder;
-import com.veolia.nextcanope.model.WorkorderTaskStatus;
 import com.veolia.nextcanope.repository.CityRepository;
 import com.veolia.nextcanope.repository.ReportRepository;
 import com.veolia.nextcanope.repository.TaskRepository;
@@ -97,8 +92,8 @@ public class WorkorderService {
 			workorder.setWkoDcre(new Date());
 			workorder.setWkoDmod(new Date());
 			workorder.setWkoExtToSync(true);
-			
-			WorkorderTaskStatus status = statusService.getStatus("CREE");
+
+			WorkorderTaskStatus status = statusService.getStatus(String.valueOf(StatusCode.CREE));
 			workorder.setWtsId(status.getId());
 
 			City city = cityRepository.findById(customWorkorderDto.getCtyId()).get();
@@ -229,6 +224,45 @@ public class WorkorderService {
 		
     	return customWorkorderDto;
     }
+
+	/**
+	 * Method to cancel a workorder and all associated tasks
+	 * @param taskId task id
+	 * @param reason cancelation reason
+	 * @return message returned to front
+	 */
+	public String cancelWorkOrder(CancelWorkorderPayload cancelWorkorderPayload) {
+		Optional<Task> optTask = taskRepository.findById(cancelWorkorderPayload.getId());
+		if (optTask.isEmpty()) {
+			throw new FunctionalException("L'intervention avec l'id " + cancelWorkorderPayload.getId() + " n'existe pas.");
+		}
+		Optional<Workorder> optWorkorder = workOrderRepository.findById(optTask.get().getWkoId());
+		if (optWorkorder.isEmpty()) {
+			throw new FunctionalException("L'intervention avec l'id " + cancelWorkorderPayload.getId() + " n'existe pas.");
+		}
+
+		Workorder workorder = optWorkorder.get();
+		WorkorderTaskStatus oldStatus = statusService.getStatus(workorder.getWtsId());
+		WorkorderTaskStatus newStatus = statusService.getStatus(String.valueOf(StatusCode.ANNULE));
+		workorder.setWtsId(newStatus.getId());
+		workorder.setWkoCancelComment(cancelWorkorderPayload.getCancelComment());
+
+		for (Task task : workorder.getListOfTask()) {
+			task.setWtsId(newStatus.getId());
+			taskRepository.save(task);
+		}
+
+		if (oldStatus.getWtsCode().equals(String.valueOf(StatusCode.ENVOYEPLANIF))) {
+			workorder.setWkoExtToSync(true);
+		}
+
+		workorder = workOrderRepository.save(workorder);
+
+		if (oldStatus.getWtsCode().equals(String.valueOf(StatusCode.ENVOYEPLANIF))) {
+			return "L’intervention a été annulée, planification en cours de mise à jour";
+		}
+		return "L’intervention a été annulée";
+	}
 
 	/**
 	 * Retrieve the workorders associated with an asset given by his id and his table
