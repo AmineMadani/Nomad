@@ -3,6 +3,7 @@ package com.veolia.nextcanope.controller;
 import java.util.HashMap;
 import java.util.List;
 
+import com.veolia.nextcanope.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.service.WorkorderService;
 
@@ -74,5 +76,17 @@ public class WorkorderController {
     			})
     public WorkorderDto getWorkOrderById(@PathVariable Long id) {
     	return this.workOrderService.getWorkOrderDto(id);
+    }
+
+    @PostMapping(path = "cancel")
+    @Operation(summary = "Cancel a workorder")
+    @ApiResponses(value = {
+            @ApiResponse(description= "The workorder", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public ResponseMessage cancelWorkOrder(@RequestBody(required = true) CancelWorkorderPayload cancelWorkorderPayload) {
+        String messageRetour = this.workOrderService.cancelWorkOrder(cancelWorkorderPayload);
+        return new ResponseMessage(messageRetour);
     }
 }

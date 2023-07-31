@@ -32,4 +32,18 @@ public class StatusService {
 
         return optWorkorderTaskStatus.get();
     }
+
+    /**
+     * Retrieves a status by his id
+     * @param statusId
+     * @return the status
+     */
+    public WorkorderTaskStatus getStatus(Long statusId) {
+        Optional<WorkorderTaskStatus> optWorkorderTaskStatus = statusRepository.findById(statusId);
+        if (optWorkorderTaskStatus.isEmpty()) {
+            throw new FunctionalException("Le statut id = " + statusId + " n'existe pas.");
+        }
+
+        return optWorkorderTaskStatus.get();
+    }
 }

@@ -667,6 +667,7 @@ create table if not exists workorder
   wko_realization_cell         text,
   wko_realization_comment      text,
   wko_agent_nb                 INT,
+  wko_cancel_comment		       text,
   ------
   cty_id                       bigint references city(id),
   cty_llabel                   text,

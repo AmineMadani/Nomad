@@ -15,6 +15,11 @@ export interface Workorder {
     selectedTaskId?: number;
 }
 
+export interface CancelWorkOrder {
+    id: number;
+    cancelComment: string;
+}
+
 export interface Task {
     id:number;
     assObjRef: string;

@@ -14,6 +14,7 @@ export interface SynthesisButton {
   key: string;
   label: string;
   icon: string;
+  disabled?: boolean;
 }
 
 @Component({

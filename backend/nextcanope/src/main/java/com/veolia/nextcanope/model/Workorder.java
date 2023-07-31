@@ -117,6 +117,10 @@ public class Workorder implements Serializable {
 	@JsonProperty("wko_dcre")
     private Date wkoDcre ;
 
+    @Column(name="wko_cancel_comment")
+    @JsonProperty("wko_cancel_comment")
+    private String wkoCancelComment ;
+
     @Column(name="cty_id")
 	@JsonProperty("cty_id")
     private Long ctyId ;
@@ -374,6 +378,14 @@ public class Workorder implements Serializable {
 
     public Date getWkoDcre() {
         return this.wkoDcre;
+    }
+
+    public void setWkoCancelComment( String wkoCancelComment ) {
+        this.wkoCancelComment = wkoCancelComment ;
+    }
+
+    public String getWkoCancelComment() {
+        return this.wkoCancelComment;
     }
 
 	public void setCtyId( Long ctyId ) {

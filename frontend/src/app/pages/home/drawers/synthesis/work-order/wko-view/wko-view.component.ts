@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, SimpleChanges, Input } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -13,7 +13,6 @@ export class WkoViewComponent implements OnInit {
   constructor(
     private referentialService: ReferentialService, 
     private utils: UtilsService,
-    private cacheService: CacheService
   ) {}
 
   @Input() workOrder: any;
@@ -23,11 +22,11 @@ export class WkoViewComponent implements OnInit {
   public reason: string;
 
   ngOnInit() {
-    forkJoin([
+    Promise.all([
       this.referentialService.getReferential('workorder_task_status'),
       this.referentialService.getReferential('workorder_task_reason'),
       this.referentialService.getReferential('asset'),
-    ]).subscribe((res) => {
+    ]).then((res) => {
       this.status = res[0]
         .find(
           (refStatus) =>
@@ -47,6 +46,4 @@ export class WkoViewComponent implements OnInit {
       );
     });
   }
-
-
 }

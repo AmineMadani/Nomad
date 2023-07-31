@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { MapFeature } from '../../models/map-feature.model';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
-import { Workorder } from '../../models/workorder.model';
+import { CancelWorkOrder, Workorder } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +40,19 @@ export class WorkorderDataService {
     return this.http.post<any>(
       `${this.configurationService.apiUrl}exploitation/workorder/update`,
       workorder,
+      this.httpOptions
+    );
+  }
+
+  /**
+   * Cancel a workorder
+   * @param cancelWko : input with workorder id and cancelation reason
+   * @returns 
+   */
+  public cancelWorkOrder(cancelWko: CancelWorkOrder): Observable<any> {
+    return this.http.post<any>(
+      `${this.configurationService.apiUrl}exploitation/workorder/cancel`,
+      cancelWko,
       this.httpOptions
     );
   }
