@@ -813,7 +813,6 @@ comment on table report is 'This table contains the reports';
 /* Comments on fields */
 comment on column report.id is 'Table unique ID';
 comment on column report.tsk_id is 'Task';
-comment on column report.rpt_report_date is 'Report date';
 comment on column report.rpt_key is 'Report key';
 comment on column report.rpt_label is 'Report question';
 comment on column report.rpt_value is 'Report answer';
