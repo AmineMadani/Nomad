@@ -140,13 +140,13 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
 
     if (role === 'confirm') {
       const cancelWko: CancelWorkOrder = {
-        id: this.workOrder.id,
+        id: this.workOrder.wko_id,
         cancelComment: data.values.cancelComment,
       };
       this.workorderDataService.cancelWorkOrder(cancelWko).subscribe((res) => {
         this.workOrder.wts_id = 5;
         this.wkoViews.first.ngOnInit();
-        this.displayCancelToast(res.message);
+        this.displayCancelToast("Modification enregistré avec succès.");
       });
     }
   }

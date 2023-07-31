@@ -4,14 +4,14 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "LayerReferencesDefault"
@@ -26,74 +26,60 @@ public class LayerReferencesDefault implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="lrd_id", nullable=false)
-	@JsonProperty("lrd_id")
-    private Long lrdId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="lrd_position", nullable=false)
-	@JsonProperty("lrd_position")
-    private Integer lrdPosition ;
+    @JsonProperty("lrd_position")
+    private Integer lrdPosition;
 
     @Column(name="lrd_section", length=2147483647)
-	@JsonProperty("lrd_section")
-    private String lrdSection ;
+    @JsonProperty("lrd_section")
+    private String lrdSection;
 
     @Column(name="lrd_isvisible")
-	@JsonProperty("lrd_isvisible")
-    private Boolean lrdIsvisible ;
+    @JsonProperty("lrd_isvisible")
+    private Boolean lrdIsvisible;
 
     @Column(name="lrd_display_type", nullable=false, length=2147483647)
-	@JsonProperty("lrd_display_type")
-    private String lrdDisplayType ;
-
-    @Column(name="lrd_ucre_id")
-	@JsonProperty("lrd_ucre_id")
-    private Long lrdUcreId ;
+    @JsonProperty("lrd_display_type")
+    private String lrdDisplayType;
 
     @Column(name="lrd_valid")
-	@JsonProperty("lrd_valid")
-    private Boolean lrdValid ;
-
-    @Column(name="lrd_umod_id")
-	@JsonProperty("lrd_umod_id")
-    private Long lrdUmodId ;
+    @JsonProperty("lrd_valid")
+    private Boolean lrdValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrd_dcre")
-	@JsonProperty("lrd_dcre")
-    private Date lrdDcre ;
+    @CreationTimestamp
+    @JsonProperty("lrd_dcre")
+    private Date lrdDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrd_dmod")
-	@JsonProperty("lrd_dmod")
-    private Date lrdDmod ;
+    @UpdateTimestamp
+    @JsonProperty("lrd_dmod")
+    private Date lrdDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="lrd_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lrd_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lrd_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lrd_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     @ManyToOne
-    @JoinColumn(name="lrd_id", referencedColumnName="id", insertable=false, updatable=false)
-    private LayerReferences layerReferences ; 
-
+    @JoinColumn(name="lrd_id", referencedColumnName="id")
+    private LayerReferences layerReferences;
 
     /**
      * Constructor
@@ -102,106 +88,94 @@ public class LayerReferencesDefault implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setLrdId( Long lrdId ) {
-        this.lrdId = lrdId ;
-    }
-
-    public Long getLrdId() {
-        return this.lrdId;
-    }
-
-	public void setLrdPosition( Integer lrdPosition ) {
-        this.lrdPosition = lrdPosition ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public Integer getLrdPosition() {
         return this.lrdPosition;
     }
 
-	public void setLrdSection( String lrdSection ) {
-        this.lrdSection = lrdSection ;
+	public void setLrdPosition( Integer lrdPosition ) {
+        this.lrdPosition = lrdPosition ;
     }
 
     public String getLrdSection() {
         return this.lrdSection;
     }
 
-	public void setLrdIsvisible( Boolean lrdIsvisible ) {
-        this.lrdIsvisible = lrdIsvisible ;
+	public void setLrdSection( String lrdSection ) {
+        this.lrdSection = lrdSection ;
     }
 
     public Boolean getLrdIsvisible() {
         return this.lrdIsvisible;
     }
 
-	public void setLrdDisplayType( String lrdDisplayType ) {
-        this.lrdDisplayType = lrdDisplayType ;
+	public void setLrdIsvisible( Boolean lrdIsvisible ) {
+        this.lrdIsvisible = lrdIsvisible ;
     }
 
     public String getLrdDisplayType() {
         return this.lrdDisplayType;
     }
 
-	public void setLrdUcreId( Long lrdUcreId ) {
-        this.lrdUcreId = lrdUcreId ;
-    }
-
-    public Long getLrdUcreId() {
-        return this.lrdUcreId;
-    }
-
-	public void setLrdValid( Boolean lrdValid ) {
-        this.lrdValid = lrdValid ;
+	public void setLrdDisplayType( String lrdDisplayType ) {
+        this.lrdDisplayType = lrdDisplayType ;
     }
 
     public Boolean getLrdValid() {
         return this.lrdValid;
     }
 
-	public void setLrdUmodId( Long lrdUmodId ) {
-        this.lrdUmodId = lrdUmodId ;
-    }
-
-    public Long getLrdUmodId() {
-        return this.lrdUmodId;
-    }
-
-	public void setLrdDcre( Date lrdDcre ) {
-        this.lrdDcre = lrdDcre ;
+	public void setLrdValid( Boolean lrdValid ) {
+        this.lrdValid = lrdValid ;
     }
 
     public Date getLrdDcre() {
         return this.lrdDcre;
     }
 
-	public void setLrdDmod( Date lrdDmod ) {
-        this.lrdDmod = lrdDmod ;
+	public void setLrdDcre( Date lrdDcre ) {
+        this.lrdDcre = lrdDcre ;
     }
 
     public Date getLrdDmod() {
         return this.lrdDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setLrdDmod( Date lrdDmod ) {
+        this.lrdDmod = lrdDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public LayerReferences getLayerReferences() {
         return this.layerReferences;
-    } 
+    }
 
+    public void setLayerReferences(LayerReferences layerReferences) {
+        this.layerReferences = layerReferences;
+    }
 
 }

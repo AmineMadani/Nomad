@@ -111,6 +111,7 @@ public class LayerStyleService {
     /**
      * Update a layer style.
      * @param payload The payload containing the layer style data.
+     * @param lseId The layer style id.
      * @param userId The id of the user who updated the layer style.
      */
     public void updateLayerStyle(SaveLayerStylePayload payload, Long lseId, Long userId) {

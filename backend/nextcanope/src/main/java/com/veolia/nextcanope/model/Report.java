@@ -4,14 +4,14 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "Report"
@@ -26,71 +26,57 @@ public class Report implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="tsk_id")
-	@JsonProperty("tsk_id")
-    private Long tskId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="rpt_key", length=2147483647)
-	@JsonProperty("rpt_key")
-    private String rptKey ;
-
-    @Column(name="rpt_ucre_id")
-	@JsonProperty("rpt_ucre_id")
-    private Long rptUcreId ;
+    @JsonProperty("rpt_key")
+    private String rptKey;
 
     @Column(name="rpt_label", length=2147483647)
-	@JsonProperty("rpt_label")
-    private String rptLabel ;
-
-    @Column(name="rpt_umod_id")
-	@JsonProperty("rpt_umod_id")
-    private Long rptUmodId ;
+    @JsonProperty("rpt_label")
+    private String rptLabel;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_dcre")
-	@JsonProperty("rpt_dcre")
-    private Date rptDcre ;
+    @CreationTimestamp
+    @JsonProperty("rpt_dcre")
+    private Date rptDcre;
 
     @Column(name="rpt_value", length=2147483647)
-	@JsonProperty("rpt_value")
-    private String rptValue ;
+    @JsonProperty("rpt_value")
+    private String rptValue;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_dmod")
-	@JsonProperty("rpt_dmod")
-    private Date rptDmod ;
+    @UpdateTimestamp
+    @JsonProperty("rpt_dmod")
+    private Date rptDmod;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="rpt_ddel")
-	@JsonProperty("rpt_ddel")
-    private Date rptDdel ;
+    @JsonProperty("rpt_ddel")
+    private Date deletedAt;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="rpt_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="rpt_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="tsk_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Task task ; 
-
+    @JoinColumn(name="tsk_id", referencedColumnName="id")
+    private Task task;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="rpt_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="rpt_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     /**
      * Constructor
@@ -99,98 +85,91 @@ public class Report implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setTskId( Long tskId ) {
-        this.tskId = tskId ;
-    }
-
-    public Long getTskId() {
-        return this.tskId;
-    }
-
-	public void setRptKey( String rptKey ) {
-        this.rptKey = rptKey ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getRptKey() {
         return this.rptKey;
     }
 
-	public void setRptUcreId( Long rptUcreId ) {
-        this.rptUcreId = rptUcreId ;
-    }
-
-    public Long getRptUcreId() {
-        return this.rptUcreId;
-    }
-
-	public void setRptLabel( String rptLabel ) {
-        this.rptLabel = rptLabel ;
+	public void setRptKey( String rptKey ) {
+        this.rptKey = rptKey ;
     }
 
     public String getRptLabel() {
         return this.rptLabel;
     }
 
-	public void setRptUmodId( Long rptUmodId ) {
-        this.rptUmodId = rptUmodId ;
-    }
-
-    public Long getRptUmodId() {
-        return this.rptUmodId;
-    }
-
-	public void setRptDcre( Date rptDcre ) {
-        this.rptDcre = rptDcre ;
+	public void setRptLabel( String rptLabel ) {
+        this.rptLabel = rptLabel ;
     }
 
     public Date getRptDcre() {
         return this.rptDcre;
     }
 
-	public void setRptValue( String rptValue ) {
-        this.rptValue = rptValue ;
+	public void setRptDcre( Date rptDcre ) {
+        this.rptDcre = rptDcre ;
     }
 
     public String getRptValue() {
         return this.rptValue;
     }
 
-	public void setRptDmod( Date rptDmod ) {
-        this.rptDmod = rptDmod ;
+	public void setRptValue( String rptValue ) {
+        this.rptValue = rptValue ;
     }
 
     public Date getRptDmod() {
         return this.rptDmod;
     }
 
-	public void setRptDdel( Date rptDdel ) {
-        this.rptDdel = rptDdel ;
+	public void setRptDmod( Date rptDmod ) {
+        this.rptDmod = rptDmod ;
     }
 
-    public Date getRptDdel() {
-        return this.rptDdel;
+    public Date getDeletedAt() {
+        return deletedAt;
     }
 
-    //--- GETTERS FOR LINKS
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Task getTask() {
         return this.task;
-    } 
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

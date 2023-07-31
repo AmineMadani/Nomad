@@ -1,8 +1,7 @@
 package com.veolia.nextcanope.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.veolia.nextcanope.model.City;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * CityRepository is an interface for managing City entities in the persistence layer.

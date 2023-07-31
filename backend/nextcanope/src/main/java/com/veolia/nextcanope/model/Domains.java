@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "Domains"
@@ -27,82 +29,65 @@ public class Domains implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="dom_type", nullable=false, length=2147483647)
-	@JsonProperty("dom_type")
-    private String domType ;
-
-    @Column(name="dom_parent_id")
-	@JsonProperty("dom_parent_id")
-    private Long domParentId ;
+    @JsonProperty("dom_type")
+    private String domType;
 
     @Column(name="dom_slabel", length=2147483647)
-	@JsonProperty("dom_slabel")
-    private String domSlabel ;
+    @JsonProperty("dom_slabel")
+    private String domSlabel;
 
     @Column(name="dom_llabel", length=2147483647)
-	@JsonProperty("dom_llabel")
-    private String domLlabel ;
+    @JsonProperty("dom_llabel")
+    private String domLlabel;
 
     @Column(name="dom_valid")
-	@JsonProperty("dom_valid")
-    private Boolean domValid ;
-
-    @Column(name="dom_ucre_id")
-	@JsonProperty("dom_ucre_id")
-    private Long domUcreId ;
-
-    @Column(name="dom_umod_id")
-	@JsonProperty("dom_umod_id")
-    private Long domUmodId ;
+    @JsonProperty("dom_valid")
+    private Boolean domValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dom_dcre")
-	@JsonProperty("dom_dcre")
-    private Date domDcre ;
+    @CreationTimestamp
+    @JsonProperty("dom_dcre")
+    private Date domDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="dom_dmod")
-	@JsonProperty("dom_dmod")
-    private Date domDmod ;
+    @UpdateTimestamp
+    @JsonProperty("dom_dmod")
+    private Date domDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="dom_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     @OneToMany(mappedBy="domains")
-    private List<AssetType> listOfAssetType ; 
-
+    private List<AssetType> listOfAssetType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="dom_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="dom_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users createdBy;
 
     @OneToMany(mappedBy="domains")
-    private List<Domains> listOfDomains ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="dom_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
-
+    private List<Domains> listOfDomains;
 
     @OneToMany(mappedBy="domains")
-    private List<Layer> listOfLayer ; 
-
+    private List<Layer> listOfLayer;
 
     @ManyToOne
-    @JoinColumn(name="dom_parent_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Domains domains ; 
-
+    @JoinColumn(name="dom_parent_id", referencedColumnName="id")
+    private Domains domains;
 
     /**
      * Constructor
@@ -111,110 +96,110 @@ public class Domains implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setDomType( String domType ) {
-        this.domType = domType ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getDomType() {
         return this.domType;
     }
 
-	public void setDomParentId( Long domParentId ) {
-        this.domParentId = domParentId ;
-    }
-
-    public Long getDomParentId() {
-        return this.domParentId;
-    }
-
-	public void setDomSlabel( String domSlabel ) {
-        this.domSlabel = domSlabel ;
+	public void setDomType( String domType ) {
+        this.domType = domType ;
     }
 
     public String getDomSlabel() {
         return this.domSlabel;
     }
 
-	public void setDomLlabel( String domLlabel ) {
-        this.domLlabel = domLlabel ;
+	public void setDomSlabel( String domSlabel ) {
+        this.domSlabel = domSlabel ;
     }
 
     public String getDomLlabel() {
         return this.domLlabel;
     }
 
-	public void setDomValid( Boolean domValid ) {
-        this.domValid = domValid ;
+	public void setDomLlabel( String domLlabel ) {
+        this.domLlabel = domLlabel ;
     }
 
     public Boolean getDomValid() {
         return this.domValid;
     }
 
-	public void setDomUcreId( Long domUcreId ) {
-        this.domUcreId = domUcreId ;
-    }
-
-    public Long getDomUcreId() {
-        return this.domUcreId;
-    }
-
-	public void setDomUmodId( Long domUmodId ) {
-        this.domUmodId = domUmodId ;
-    }
-
-    public Long getDomUmodId() {
-        return this.domUmodId;
-    }
-
-	public void setDomDcre( Date domDcre ) {
-        this.domDcre = domDcre ;
+	public void setDomValid( Boolean domValid ) {
+        this.domValid = domValid ;
     }
 
     public Date getDomDcre() {
         return this.domDcre;
     }
 
-	public void setDomDmod( Date domDmod ) {
-        this.domDmod = domDmod ;
+	public void setDomDcre( Date domDcre ) {
+        this.domDcre = domDcre ;
     }
 
     public Date getDomDmod() {
         return this.domDmod;
     }
 
-    //--- GETTERS FOR LINKS
-    public List<AssetType> getListOfAssetType() {
-        return this.listOfAssetType;
-    } 
+	public void setDomDmod( Date domDmod ) {
+        this.domDmod = domDmod ;
+    }
 
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
-    public List<Domains> getListOfDomains() {
-        return this.listOfDomains;
-    } 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+    public List<AssetType> getListOfAssetType() {
+        return this.listOfAssetType;
+    }
+
+    public void setListOfAssetType(List<AssetType> listOfAssetType) {
+        this.listOfAssetType = listOfAssetType;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public List<Domains> getListOfDomains() {
+        return this.listOfDomains;
+    }
+
+    public void setListOfDomains(List<Domains> listOfDomains) {
+        this.listOfDomains = listOfDomains;
+    }
 
     public List<Layer> getListOfLayer() {
         return this.listOfLayer;
-    } 
+    }
+
+    public void setListOfLayer(List<Layer> listOfLayer) {
+        this.listOfLayer = listOfLayer;
+    }
 
     public Domains getDomains() {
         return this.domains;
-    } 
+    }
 
+    public void setDomains(Domains domains) {
+        this.domains = domains;
+    }
 
 }

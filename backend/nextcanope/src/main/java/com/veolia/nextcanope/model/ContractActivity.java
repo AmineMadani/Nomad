@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "ContractActivity"
@@ -27,65 +29,55 @@ public class ContractActivity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="cta_code", nullable=false, length=2147483647)
-	@JsonProperty("cta_code")
-    private String ctaCode ;
+    @JsonProperty("cta_code")
+    private String ctaCode;
 
     @Column(name="cta_slabel", length=2147483647)
-	@JsonProperty("cta_slabel")
-    private String ctaSlabel ;
+    @JsonProperty("cta_slabel")
+    private String ctaSlabel;
 
     @Column(name="cta_llabel", length=2147483647)
-	@JsonProperty("cta_llabel")
-    private String ctaLlabel ;
+    @JsonProperty("cta_llabel")
+    private String ctaLlabel;
 
     @Column(name="cta_valid")
-	@JsonProperty("cta_valid")
-    private Boolean ctaValid ;
-
-    @Column(name="cta_ucre_id")
-	@JsonProperty("cta_ucre_id")
-    private Long ctaUcreId ;
-
-    @Column(name="cta_umod_id")
-	@JsonProperty("cta_umod_id")
-    private Long ctaUmodId ;
+    @JsonProperty("cta_valid")
+    private Boolean ctaValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cta_dcre")
-	@JsonProperty("cta_dcre")
-    private Date ctaDcre ;
+    @CreationTimestamp
+    @JsonProperty("cta_dcre")
+    private Date ctaDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="cta_dmod")
-	@JsonProperty("cta_dmod")
-    private Date ctaDmod ;
+    @UpdateTimestamp
+    @JsonProperty("cta_dmod")
+    private Date ctaDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="cta_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="cta_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     @OneToMany(mappedBy="contractActivity")
-    private List<Contract> listOfContract ; 
-
+    private List<Contract> listOfContract;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="cta_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="cta_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -94,90 +86,86 @@ public class ContractActivity implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setCtaCode( String ctaCode ) {
-        this.ctaCode = ctaCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getCtaCode() {
         return this.ctaCode;
     }
 
-	public void setCtaSlabel( String ctaSlabel ) {
-        this.ctaSlabel = ctaSlabel ;
+	public void setCtaCode( String ctaCode ) {
+        this.ctaCode = ctaCode ;
     }
 
     public String getCtaSlabel() {
         return this.ctaSlabel;
     }
 
-	public void setCtaLlabel( String ctaLlabel ) {
-        this.ctaLlabel = ctaLlabel ;
+	public void setCtaSlabel( String ctaSlabel ) {
+        this.ctaSlabel = ctaSlabel ;
     }
 
     public String getCtaLlabel() {
         return this.ctaLlabel;
     }
 
-	public void setCtaValid( Boolean ctaValid ) {
-        this.ctaValid = ctaValid ;
+	public void setCtaLlabel( String ctaLlabel ) {
+        this.ctaLlabel = ctaLlabel ;
     }
 
     public Boolean getCtaValid() {
         return this.ctaValid;
     }
 
-	public void setCtaUcreId( Long ctaUcreId ) {
-        this.ctaUcreId = ctaUcreId ;
-    }
-
-    public Long getCtaUcreId() {
-        return this.ctaUcreId;
-    }
-
-	public void setCtaUmodId( Long ctaUmodId ) {
-        this.ctaUmodId = ctaUmodId ;
-    }
-
-    public Long getCtaUmodId() {
-        return this.ctaUmodId;
-    }
-
-	public void setCtaDcre( Date ctaDcre ) {
-        this.ctaDcre = ctaDcre ;
+	public void setCtaValid( Boolean ctaValid ) {
+        this.ctaValid = ctaValid ;
     }
 
     public Date getCtaDcre() {
         return this.ctaDcre;
     }
 
-	public void setCtaDmod( Date ctaDmod ) {
-        this.ctaDmod = ctaDmod ;
+	public void setCtaDcre( Date ctaDcre ) {
+        this.ctaDcre = ctaDcre ;
     }
 
     public Date getCtaDmod() {
         return this.ctaDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setCtaDmod( Date ctaDmod ) {
+        this.ctaDmod = ctaDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public List<Contract> getListOfContract() {
         return this.listOfContract;
-    } 
+    }
+
+    public void setListOfContract(List<Contract> listOfContract) {
+        this.listOfContract = listOfContract;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

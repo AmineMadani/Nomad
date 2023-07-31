@@ -3,12 +3,12 @@ import { Subject } from 'rxjs/internal/Subject';
 import { from } from 'rxjs/internal/observable/from';
 import { Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
-import { LayerService } from 'src/app/core/services/layer.service';
-import { UserReference } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { CacheService } from 'src/app/core/services/cache.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer.model';
 
 @Component({
   selector: 'app-equipment',
@@ -33,6 +33,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public isMobile: boolean;
   public isDetailAvailabled: boolean = false;
   public assetLabel: string;
+  public ReferenceDisplayType = ReferenceDisplayType;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -72,6 +73,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       ).data.find((l) => l.lyrTableName === `asset.${feature.lyr_table_name}`);
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
+      console.log(this.userReferences);
       this.equipment = feature;
       this.isDetailAvailabled = true;
     });

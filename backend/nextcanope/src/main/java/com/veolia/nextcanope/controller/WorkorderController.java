@@ -3,7 +3,7 @@ package com.veolia.nextcanope.controller;
 import java.util.HashMap;
 import java.util.List;
 
-import com.veolia.nextcanope.utils.ResponseMessage;
+import com.veolia.nextcanope.service.WorkorderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.service.WorkorderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,8 +51,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public WorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) WorkorderDto workorderDto) {
-    	return this.workOrderService.createWorkOrder(workorderDto, account);
+    public WorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody WorkorderDto workorderDto) {
+    	return this.workOrderService.createWorkOrder(workorderDto, account.getId());
     }
     
     @PostMapping(path = "update")
@@ -63,8 +62,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public WorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody(required = true) WorkorderDto workorderDto) {
-    	return this.workOrderService.updateWorkOrder(workorderDto, account);
+    public WorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody WorkorderDto workorderDto) {
+    	return this.workOrderService.updateWorkOrder(workorderDto, account.getId());
     }
     
     @GetMapping(path = "/{id}")
@@ -75,7 +74,7 @@ public class WorkorderController {
     					})
     			})
     public WorkorderDto getWorkOrderById(@PathVariable Long id) {
-    	return this.workOrderService.getWorkOrderDto(id);
+    	return this.workOrderService.getWorkOrderDtoById(id);
     }
 
     @PostMapping(path = "cancel")
@@ -85,8 +84,7 @@ public class WorkorderController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public ResponseMessage cancelWorkOrder(@RequestBody(required = true) CancelWorkorderPayload cancelWorkorderPayload) {
-        String messageRetour = this.workOrderService.cancelWorkOrder(cancelWorkorderPayload);
-        return new ResponseMessage(messageRetour);
+    public WorkorderDto cancelWorkOrder(@RequestBody CancelWorkorderPayload cancelWorkorderPayload) {
+        return this.workOrderService.cancelWorkOrder(cancelWorkorderPayload);
     }
 }

@@ -10,6 +10,7 @@ psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/drop_schemas.sql
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_schemas.sql
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_config.sql -v srid=3857
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_functions.sql
+psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_triggers.sql
 psql -h %host% -d %dbname% -U %user% -p %port% -b -q -f ../sql/create_views.sql
 
 echo Set config for VEF...

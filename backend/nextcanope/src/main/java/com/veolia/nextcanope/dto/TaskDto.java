@@ -119,12 +119,12 @@ public class TaskDto {
         this.id = task.getId();
         this.longitude = task.getLongitude();
         this.latitude = task.getLatitude();
-        this.wtsId = task.getWtsId();
+        this.wtsId = task.getWorkorderTaskStatus().getId();
         this.assObjRef = task.getAsset().getAssObjRef();
-        this.assObjTable = task.getAsset().getAssObjTable();
         this.tskReportDate = task.getTskReportDate();
-        this.wtrId = task.getWtrId();
-        this.ctrId = task.getCtrId();
+        this.assObjTable = task.getAsset().getLayer().getLyrTableName();
+        this.wtrId = task.getWorkorderTaskReason().getId();
+        this.ctrId = task.getContract().getId();
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
         

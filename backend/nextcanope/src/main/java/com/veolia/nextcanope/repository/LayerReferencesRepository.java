@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.repository;
 
+import com.veolia.nextcanope.configuration.NomadRepository;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
 import com.veolia.nextcanope.model.LayerReferences;
 import org.springframework.data.jpa.repository.JpaRepository;

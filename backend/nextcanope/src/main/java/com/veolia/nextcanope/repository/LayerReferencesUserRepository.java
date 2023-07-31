@@ -9,5 +9,5 @@ import java.util.Optional;
  * It extends JpaRepository, which provides generic CRUD operations.
  */
 public interface LayerReferencesUserRepository extends JpaRepository<LayerReferencesUser, Long> {
-    Optional<LayerReferencesUser> findByLrfIdAndLruUserId(Long lrfId, Long lruUserId);
+    Optional<LayerReferencesUser> findByLayerReferences_IdAndUser_Id(Long lrfId, Long lruUserId);
 }

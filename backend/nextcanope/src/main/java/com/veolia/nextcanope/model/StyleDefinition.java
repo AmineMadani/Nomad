@@ -4,18 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.CreationTimestamp;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "StyleDefinition"
@@ -30,58 +29,58 @@ public class StyleDefinition implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="syd_code", nullable=false, length=2147483647)
     @JsonProperty("syd_code")
-    private String sydCode ;
+    private String sydCode;
 
     @Column(name="syd_definition", nullable=false, length=2147483647)
     @JsonProperty("syd_definition")
-    private String sydDefinition ;
+    private String sydDefinition;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_dcre")
     @CreationTimestamp
     @JsonProperty("syd_dcre")
-    private Date sydDcre ;
+    private Date sydDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_dmod")
     @UpdateTimestamp
     @JsonProperty("syd_dmod")
-    private Date sydDmod ;
+    private Date sydDmod;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="syd_ddel")
     @JsonProperty("syd_ddel")
     private Date deletedAt;
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
     @JoinColumn(name="syd_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
+    private Users modifiedBy;
 
     @OneToMany(mappedBy="styleDefinition")
-    private List<LayerStyleCustom> listOfLayerStyleCustom ; 
+    private List<LayerStyleCustom> listOfLayerStyleCustom;
 
     @ManyToOne
     @JoinColumn(name="syd_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
+    private Users createdBy;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="styleDefinition")
-    private List<StyleImage> listOfStyleImage ; 
+    private List<StyleImage> listOfStyleImage;
 
     @OneToMany(mappedBy="styleDefinition")
-    private List<LayerStyle> listOfLayerStyle ; 
-
+    private List<LayerStyle> listOfLayerStyle;
 
     /**
      * Constructor
@@ -90,44 +89,45 @@ public class StyleDefinition implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setSydCode( String sydCode ) {
-        this.sydCode = sydCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getSydCode() {
         return this.sydCode;
     }
 
-	public void setSydDefinition( String sydDefinition ) {
-        this.sydDefinition = sydDefinition ;
+	public void setSydCode( String sydCode ) {
+        this.sydCode = sydCode ;
     }
 
     public String getSydDefinition() {
         return this.sydDefinition;
     }
 
-	public void setSydDcre( Date sydDcre ) {
-        this.sydDcre = sydDcre ;
+	public void setSydDefinition( String sydDefinition ) {
+        this.sydDefinition = sydDefinition ;
     }
 
     public Date getSydDcre() {
         return this.sydDcre;
     }
 
-	public void setSydDmod( Date sydDmod ) {
-        this.sydDmod = sydDmod ;
+	public void setSydDcre( Date sydDcre ) {
+        this.sydDcre = sydDcre ;
     }
 
     public Date getSydDmod() {
         return this.sydDmod;
+    }
+
+	public void setSydDmod( Date sydDmod ) {
+        this.sydDmod = sydDmod ;
     }
 
     public Date getDeletedAt() {
@@ -143,57 +143,73 @@ public class StyleDefinition implements Serializable {
         this.modifiedBy = user;
     }
 
-//--- GETTERS AND SETTERS FOR LINKS
-        public Users getModifiedBy() {
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Users getModifiedBy() {
         return this.modifiedBy;
     }
-    
+
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
-        public List<LayerStyleCustom> getListOfLayerStyleCustom() {
-        return this.listOfLayerStyleCustom.stream()
-            .filter(e -> e.getDeletedAt() == null)
-            .collect(Collectors.toList());
+
+    public List<LayerStyleCustom> getListOfLayerStyleCustom() {
+        if (this.listOfLayerStyleCustom != null) {
+            return this.listOfLayerStyleCustom.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
-    public List<LayerStyleCustom> getAlllistOfLayerStyleCustom() {
+    public List<LayerStyleCustom> getListOfLayerStyleCustomWithDeleted() {
         return this.listOfLayerStyleCustom;
     }
-    
+
     public void setListOfLayerStyleCustom(List<LayerStyleCustom> listOfLayerStyleCustom) {
         this.listOfLayerStyleCustom = listOfLayerStyleCustom;
     }
-        public Users getCreatedBy() {
+
+    public Users getCreatedBy() {
         return this.createdBy;
     }
-    
+
     public void setCreatedBy(Users createdBy) {
         this.createdBy = createdBy;
     }
-        public List<StyleImage> getListOfStyleImage() {
-        return this.listOfStyleImage.stream()
-            .filter(e -> e.getDeletedAt() == null)
-            .collect(Collectors.toList());
+
+    public List<StyleImage> getListOfStyleImage() {
+        if (this.listOfStyleImage != null) {
+            return this.listOfStyleImage.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
-    public List<StyleImage> getAlllistOfStyleImage() {
+    public List<StyleImage> getListOfStyleImageWithDeleted() {
         return this.listOfStyleImage;
     }
-    
+
     public void setListOfStyleImage(List<StyleImage> listOfStyleImage) {
         this.listOfStyleImage = listOfStyleImage;
     }
-        public List<LayerStyle> getListOfLayerStyle() {
-        return this.listOfLayerStyle.stream()
-            .filter(e -> e.getDeletedAt() == null)
-            .collect(Collectors.toList());
+
+    public List<LayerStyle> getListOfLayerStyle() {
+        if (this.listOfLayerStyle != null) {
+            return this.listOfLayerStyle.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
-    public List<LayerStyle> getAlllistOfLayerStyle() {
+    public List<LayerStyle> getListOfLayerStyleWithDeleted() {
         return this.listOfLayerStyle;
     }
-    
+
     public void setListOfLayerStyle(List<LayerStyle> listOfLayerStyle) {
         this.listOfLayerStyle = listOfLayerStyle;
     }
