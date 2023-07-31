@@ -3,9 +3,10 @@ package com.veolia.nextcanope.service;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
 import com.veolia.nextcanope.dto.LayerReference.LayerReferenceUserDto;
-import com.veolia.nextcanope.enums.LayerReferencesDisplayType;
 import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.LayerReferences;
 import com.veolia.nextcanope.model.LayerReferencesUser;
+import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.LayerReferencesRepository;
 import com.veolia.nextcanope.repository.LayerReferencesUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -86,23 +86,24 @@ public class LayerReferencesService {
         List<LayerReferencesUser> layerReferencesUsers = new ArrayList<>();
 
         for (Long userId : userIds) {
+            Users user = new Users();
+            user.setId(userId);
+
             for (LayerReferenceUserDto ref : userReferences) {
-                LayerReferencesUser layerReferencesUser = new LayerReferencesUser();
-
                 // It checks if a reference already exist with the same lrfId and lruUserId
-                Optional<LayerReferencesUser> optLayerReferencesUser = this.layerReferencesUserRepository.findByLrfIdAndLruUserId(ref.getReferenceId(), userId);
-                if (optLayerReferencesUser.isPresent()) {
-                    layerReferencesUser = optLayerReferencesUser.get();
-                }
+                LayerReferencesUser layerReferencesUser =
+                        this.layerReferencesUserRepository.findByLayerReferences_IdAndUser_Id(ref.getReferenceId(), userId)
+                                .orElse(new LayerReferencesUser());
 
-                layerReferencesUser.setLruUserId(userId);
-                layerReferencesUser.setLrfId(ref.getReferenceId());
+                LayerReferences layerReferences = this.layerReferencesRepository.findById(ref.getReferenceId()).orElse(null);
+                layerReferencesUser.setLayerReferences(layerReferences);
+                layerReferencesUser.setUser(user);
                 layerReferencesUser.setLruIsvisible(ref.getIsVisible());
                 layerReferencesUser.setLruPosition(ref.getPosition());
-                layerReferencesUser.setLruDisplayType(LayerReferencesDisplayType.valueOf(ref.getDisplayType()));
+                layerReferencesUser.setLruDisplayType(ref.getDisplayType());
                 layerReferencesUser.setLruValid(ref.getValid());
                 layerReferencesUser.setLruSection(ref.getSection());
-                layerReferencesUser.setLruUcreId(currentUserId);
+                layerReferencesUser.setCreatedBy(user);
 
                 layerReferencesUsers.add(layerReferencesUser);
             }

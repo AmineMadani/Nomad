@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "WorkorderTaskStatus"
@@ -27,77 +29,66 @@ public class WorkorderTaskStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="wts_code", nullable=false, length=2147483647)
-	@JsonProperty("wts_code")
-    private String wtsCode ;
+    @JsonProperty("wts_code")
+    private String wtsCode;
 
     @Column(name="wts_slabel", nullable=false, length=2147483647)
-	@JsonProperty("wts_slabel")
-    private String wtsSlabel ;
+    @JsonProperty("wts_slabel")
+    private String wtsSlabel;
 
     @Column(name="wts_llabel", length=2147483647)
-	@JsonProperty("wts_llabel")
-    private String wtsLlabel ;
+    @JsonProperty("wts_llabel")
+    private String wtsLlabel;
 
     @Column(name="wts_wo")
-	@JsonProperty("wts_wo")
-    private Boolean wtsWo ;
+    @JsonProperty("wts_wo")
+    private Boolean wtsWo;
 
     @Column(name="wts_task")
-	@JsonProperty("wts_task")
-    private Boolean wtsTask ;
+    @JsonProperty("wts_task")
+    private Boolean wtsTask;
 
     @Column(name="wts_valid")
-	@JsonProperty("wts_valid")
-    private Boolean wtsValid ;
-
-    @Column(name="wts_ucre_id")
-	@JsonProperty("wts_ucre_id")
-    private Long wtsUcreId ;
-
-    @Column(name="wts_umod_id")
-	@JsonProperty("wts_umod_id")
-    private Long wtsUmodId ;
+    @JsonProperty("wts_valid")
+    private Boolean wtsValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wts_dcre")
-	@JsonProperty("wts_dcre")
-    private Date wtsDcre ;
+    @CreationTimestamp
+    @JsonProperty("wts_dcre")
+    private Date wtsDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wts_dmod")
-	@JsonProperty("wts_dmod")
-    private Date wtsDmod ;
+    @UpdateTimestamp
+    @JsonProperty("wts_dmod")
+    private Date wtsDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="wts_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="wts_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     @OneToMany(mappedBy="workorderTaskStatus")
-    private List<Task> listOfTask ; 
-
+    private List<Task> listOfTask;
 
     @OneToMany(mappedBy="workorderTaskStatus")
-    private List<Workorder> listOfWorkorder ; 
-
+    private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="wts_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="wts_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -106,110 +97,130 @@ public class WorkorderTaskStatus implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setWtsCode( String wtsCode ) {
-        this.wtsCode = wtsCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getWtsCode() {
         return this.wtsCode;
     }
 
-	public void setWtsSlabel( String wtsSlabel ) {
-        this.wtsSlabel = wtsSlabel ;
+	public void setWtsCode( String wtsCode ) {
+        this.wtsCode = wtsCode ;
     }
 
     public String getWtsSlabel() {
         return this.wtsSlabel;
     }
 
-	public void setWtsLlabel( String wtsLlabel ) {
-        this.wtsLlabel = wtsLlabel ;
+	public void setWtsSlabel( String wtsSlabel ) {
+        this.wtsSlabel = wtsSlabel ;
     }
 
     public String getWtsLlabel() {
         return this.wtsLlabel;
     }
 
-	public void setWtsWo( Boolean wtsWo ) {
-        this.wtsWo = wtsWo ;
+	public void setWtsLlabel( String wtsLlabel ) {
+        this.wtsLlabel = wtsLlabel ;
     }
 
     public Boolean getWtsWo() {
         return this.wtsWo;
     }
 
-	public void setWtsTask( Boolean wtsTask ) {
-        this.wtsTask = wtsTask ;
+	public void setWtsWo( Boolean wtsWo ) {
+        this.wtsWo = wtsWo ;
     }
 
     public Boolean getWtsTask() {
         return this.wtsTask;
     }
 
-	public void setWtsValid( Boolean wtsValid ) {
-        this.wtsValid = wtsValid ;
+	public void setWtsTask( Boolean wtsTask ) {
+        this.wtsTask = wtsTask ;
     }
 
     public Boolean getWtsValid() {
         return this.wtsValid;
     }
 
-	public void setWtsUcreId( Long wtsUcreId ) {
-        this.wtsUcreId = wtsUcreId ;
-    }
-
-    public Long getWtsUcreId() {
-        return this.wtsUcreId;
-    }
-
-	public void setWtsUmodId( Long wtsUmodId ) {
-        this.wtsUmodId = wtsUmodId ;
-    }
-
-    public Long getWtsUmodId() {
-        return this.wtsUmodId;
-    }
-
-	public void setWtsDcre( Date wtsDcre ) {
-        this.wtsDcre = wtsDcre ;
+	public void setWtsValid( Boolean wtsValid ) {
+        this.wtsValid = wtsValid ;
     }
 
     public Date getWtsDcre() {
         return this.wtsDcre;
     }
 
-	public void setWtsDmod( Date wtsDmod ) {
-        this.wtsDmod = wtsDmod ;
+	public void setWtsDcre( Date wtsDcre ) {
+        this.wtsDcre = wtsDcre ;
     }
 
     public Date getWtsDmod() {
         return this.wtsDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setWtsDmod( Date wtsDmod ) {
+        this.wtsDmod = wtsDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public List<Task> getListOfTask() {
+        if (this.listOfTask != null) {
+            return this.listOfTask.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Task> getListOfTaskWithDeleted() {
         return this.listOfTask;
-    } 
+    }
+
+    public void setListOfTask(List<Task> listOfTask) {
+        this.listOfTask = listOfTask;
+    }
 
     public List<Workorder> getListOfWorkorder() {
+        if (this.listOfWorkorder != null) {
+            return this.listOfWorkorder.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Workorder> getListOfWorkorderWithDeleted() {
         return this.listOfWorkorder;
-    } 
+    }
+
+    public void setListOfWorkorder(List<Workorder> listOfWorkorder) {
+        this.listOfWorkorder = listOfWorkorder;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

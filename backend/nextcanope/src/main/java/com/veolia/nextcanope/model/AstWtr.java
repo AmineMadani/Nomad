@@ -5,14 +5,14 @@ package com.veolia.nextcanope.model;
 
 
 import java.io.Serializable;
-import java.util.Date;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "AstWtr"
@@ -28,62 +28,51 @@ public class AstWtr implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
-    @Column(name="wtr_id", nullable=false)
-    private Long wtrId ;
+    @Column(name="wtr_id", nullable=false, insertable=false, updatable=false)
+    private Long wtrId;
 
     @Id
-    @Column(name="ast_id", nullable=false)
-    private Long astId ;
+    @Column(name="ast_id", nullable=false, insertable=false, updatable=false)
+    private Long astId;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="asw_ucre_id")
-	@JsonProperty("asw_ucre_id")
-    private Long aswUcreId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="asw_valid")
-	@JsonProperty("asw_valid")
-    private Boolean aswValid ;
-
-    @Column(name="asw_umod_id")
-	@JsonProperty("asw_umod_id")
-    private Long aswUmodId ;
+    @JsonProperty("asw_valid")
+    private Boolean aswValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="asw_dcre")
-	@JsonProperty("asw_dcre")
-    private Date aswDcre ;
+    @CreationTimestamp
+    @JsonProperty("asw_dcre")
+    private Date aswDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="asw_dmod")
-	@JsonProperty("asw_dmod")
-    private Date aswDmod ;
+    @UpdateTimestamp
+    @JsonProperty("asw_dmod")
+    private Date aswDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
-    private AssetType assetType ; 
-
+    @JoinColumn(name="ast_id", referencedColumnName="id")
+    private AssetType assetType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="asw_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="asw_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="wtr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskReason workorderTaskReason ; 
-
+    @JoinColumn(name="wtr_id", referencedColumnName="id")
+    private WorkorderTaskReason workorderTaskReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="asw_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="asw_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     /**
      * Constructor
@@ -92,77 +81,62 @@ public class AstWtr implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setWtrId( Long wtrId ) {
-        this.wtrId = wtrId ;
-    }
-    public Long getWtrId() {
-        return this.wtrId;
-    }
-
-    public void setAstId( Long astId ) {
-        this.astId = astId ;
-    }
-    public Long getAstId() {
-        return this.astId;
-    }
-
-	public void setAswUcreId( Long aswUcreId ) {
-        this.aswUcreId = aswUcreId ;
-    }
-
-    public Long getAswUcreId() {
-        return this.aswUcreId;
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
+    public Boolean getAswValid() {
+        return this.aswValid;
     }
 
 	public void setAswValid( Boolean aswValid ) {
         this.aswValid = aswValid ;
     }
 
-    public Boolean getAswValid() {
-        return this.aswValid;
-    }
-
-	public void setAswUmodId( Long aswUmodId ) {
-        this.aswUmodId = aswUmodId ;
-    }
-
-    public Long getAswUmodId() {
-        return this.aswUmodId;
+    public Date getAswDcre() {
+        return this.aswDcre;
     }
 
 	public void setAswDcre( Date aswDcre ) {
         this.aswDcre = aswDcre ;
     }
 
-    public Date getAswDcre() {
-        return this.aswDcre;
+    public Date getAswDmod() {
+        return this.aswDmod;
     }
 
 	public void setAswDmod( Date aswDmod ) {
         this.aswDmod = aswDmod ;
     }
 
-    public Date getAswDmod() {
-        return this.aswDmod;
-    }
-
-    //--- GETTERS FOR LINKS
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public AssetType getAssetType() {
         return this.assetType;
-    } 
+    }
+
+    public void setAssetType(AssetType assetType) {
+        this.assetType = assetType;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public WorkorderTaskReason getWorkorderTaskReason() {
         return this.workorderTaskReason;
-    } 
+    }
+
+    public void setWorkorderTaskReason(WorkorderTaskReason workorderTaskReason) {
+        this.workorderTaskReason = workorderTaskReason;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

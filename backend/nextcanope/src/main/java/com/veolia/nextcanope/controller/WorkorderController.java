@@ -51,8 +51,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public CustomWorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
-    	return this.workOrderService.createWorkOrder(customWorkorderDto, account);
+    public CustomWorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody CustomWorkorderDto customWorkorderDto) {
+    	return this.workOrderService.createWorkOrder(customWorkorderDto, account.getId());
     }
     
     @PostMapping(path = "update")
@@ -62,8 +62,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public CustomWorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody(required = true) CustomWorkorderDto customWorkorderDto) {
-    	return this.workOrderService.updateWorkOrder(customWorkorderDto, account);
+    public CustomWorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody CustomWorkorderDto customWorkorderDto) {
+    	return this.workOrderService.updateWorkOrder(customWorkorderDto, account.getId());
     }
     
     @GetMapping(path = "/{id}")
@@ -74,6 +74,6 @@ public class WorkorderController {
     					})
     			})
     public CustomWorkorderDto getWorkOrderById(@PathVariable Long id) {
-    	return this.workOrderService.getWorkOrderDto(id);
+    	return this.workOrderService.getWorkOrderDtoById(id);
     }
 }

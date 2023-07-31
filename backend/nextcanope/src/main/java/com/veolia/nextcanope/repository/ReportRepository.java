@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.veolia.nextcanope.configuration.NomadRepository;
 
 import com.veolia.nextcanope.model.Report;
 
@@ -8,7 +8,7 @@ import com.veolia.nextcanope.model.Report;
  * ReportRepository is an interface for managing Report entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
-public interface ReportRepository extends JpaRepository<Report, Long> {
+public interface ReportRepository extends NomadRepository<Report, Long> {
 	
 	/**
 	 * Find report by task id and key 
@@ -16,6 +16,6 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 	 * @param tskId task
 	 * @return the report
 	 */
-	Report findByTskIdAndRptKey(Long tskId, String rptKey);
+	Report findByTask_IdAndRptKey(Long tskId, String rptKey);
 
 }

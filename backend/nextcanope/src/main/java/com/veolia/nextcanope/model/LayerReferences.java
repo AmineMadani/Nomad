@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "LayerReferences"
@@ -27,78 +29,62 @@ public class LayerReferences implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="lyr_id", nullable=false)
-	@JsonProperty("lyr_id")
-    private Long lyrId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="lrf_reference_key", nullable=false, length=2147483647)
-	@JsonProperty("lrf_reference_key")
-    private String lrfReferenceKey ;
+    @JsonProperty("lrf_reference_key")
+    private String lrfReferenceKey;
 
     @Column(name="lrf_slabel", length=2147483647)
-	@JsonProperty("lrf_slabel")
-    private String lrfSlabel ;
-
-    @Column(name="lrf_ucre_id")
-	@JsonProperty("lrf_ucre_id")
-    private Long lrfUcreId ;
+    @JsonProperty("lrf_slabel")
+    private String lrfSlabel;
 
     @Column(name="lrf_llabel", length=2147483647)
-	@JsonProperty("lrf_llabel")
-    private String lrfLlabel ;
-
-    @Column(name="lrf_umod_id")
-	@JsonProperty("lrf_umod_id")
-    private Long lrfUmodId ;
+    @JsonProperty("lrf_llabel")
+    private String lrfLlabel;
 
     @Column(name="lrf_valid")
-	@JsonProperty("lrf_valid")
-    private Boolean lrfValid ;
+    @JsonProperty("lrf_valid")
+    private Boolean lrfValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrf_dcre")
-	@JsonProperty("lrf_dcre")
-    private Date lrfDcre ;
+    @CreationTimestamp
+    @JsonProperty("lrf_dcre")
+    private Date lrfDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lrf_dmod")
-	@JsonProperty("lrf_dmod")
-    private Date lrfDmod ;
+    @UpdateTimestamp
+    @JsonProperty("lrf_dmod")
+    private Date lrfDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lrf_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lrf_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Layer layer ; 
-
-
-    @OneToMany(mappedBy="layerReferences")
-    private List<LayerReferencesDefault> listOfLayerReferencesDefault ; 
-
+    @JoinColumn(name="lyr_id", referencedColumnName="id")
+    private Layer layer;
 
     @OneToMany(mappedBy="layerReferences")
-    private List<LayerReferencesUser> listOfLayerReferencesUser ; 
+    private List<LayerReferencesDefault> listOfLayerReferencesDefault;
 
+    @OneToMany(mappedBy="layerReferences")
+    private List<LayerReferencesUser> listOfLayerReferencesUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lrf_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lrf_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     /**
      * Constructor
@@ -107,106 +93,102 @@ public class LayerReferences implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setLyrId( Long lyrId ) {
-        this.lyrId = lyrId ;
-    }
-
-    public Long getLyrId() {
-        return this.lyrId;
-    }
-
-	public void setLrfReferenceKey( String lrfReferenceKey ) {
-        this.lrfReferenceKey = lrfReferenceKey ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getLrfReferenceKey() {
         return this.lrfReferenceKey;
     }
 
-	public void setLrfSlabel( String lrfSlabel ) {
-        this.lrfSlabel = lrfSlabel ;
+	public void setLrfReferenceKey( String lrfReferenceKey ) {
+        this.lrfReferenceKey = lrfReferenceKey ;
     }
 
     public String getLrfSlabel() {
         return this.lrfSlabel;
     }
 
-	public void setLrfUcreId( Long lrfUcreId ) {
-        this.lrfUcreId = lrfUcreId ;
-    }
-
-    public Long getLrfUcreId() {
-        return this.lrfUcreId;
-    }
-
-	public void setLrfLlabel( String lrfLlabel ) {
-        this.lrfLlabel = lrfLlabel ;
+	public void setLrfSlabel( String lrfSlabel ) {
+        this.lrfSlabel = lrfSlabel ;
     }
 
     public String getLrfLlabel() {
         return this.lrfLlabel;
     }
 
-	public void setLrfUmodId( Long lrfUmodId ) {
-        this.lrfUmodId = lrfUmodId ;
-    }
-
-    public Long getLrfUmodId() {
-        return this.lrfUmodId;
-    }
-
-	public void setLrfValid( Boolean lrfValid ) {
-        this.lrfValid = lrfValid ;
+	public void setLrfLlabel( String lrfLlabel ) {
+        this.lrfLlabel = lrfLlabel ;
     }
 
     public Boolean getLrfValid() {
         return this.lrfValid;
     }
 
-	public void setLrfDcre( Date lrfDcre ) {
-        this.lrfDcre = lrfDcre ;
+	public void setLrfValid( Boolean lrfValid ) {
+        this.lrfValid = lrfValid ;
     }
 
     public Date getLrfDcre() {
         return this.lrfDcre;
     }
 
-	public void setLrfDmod( Date lrfDmod ) {
-        this.lrfDmod = lrfDmod ;
+	public void setLrfDcre( Date lrfDcre ) {
+        this.lrfDcre = lrfDcre ;
     }
 
     public Date getLrfDmod() {
         return this.lrfDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setLrfDmod( Date lrfDmod ) {
+        this.lrfDmod = lrfDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Layer getLayer() {
         return this.layer;
-    } 
+    }
+
+    public void setLayer(Layer layer) {
+        this.layer = layer;
+    }
 
     public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
         return this.listOfLayerReferencesDefault;
-    } 
+    }
+
+    public void setListOfLayerReferencesDefault(List<LayerReferencesDefault> listOfLayerReferencesDefault) {
+        this.listOfLayerReferencesDefault = listOfLayerReferencesDefault;
+    }
 
     public List<LayerReferencesUser> getListOfLayerReferencesUser() {
         return this.listOfLayerReferencesUser;
-    } 
+    }
+
+    public void setListOfLayerReferencesUser(List<LayerReferencesUser> listOfLayerReferencesUser) {
+        this.listOfLayerReferencesUser = listOfLayerReferencesUser;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

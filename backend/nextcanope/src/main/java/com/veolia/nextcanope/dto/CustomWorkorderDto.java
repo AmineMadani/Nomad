@@ -182,7 +182,7 @@ public class CustomWorkorderDto {
         this.wkoPlanningStartDate = workorder.getWkoPlanningStartDate();
         this.wkoPlanningEndDate = workorder.getWkoPlanningEndDate();
         this.wkoCompletionDate = workorder.getWkoCompletionDate();
-        this.wtsId = workorder.getWtsId();
+        this.wtsId = workorder.getWorkorderTaskStatus().getId();
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();

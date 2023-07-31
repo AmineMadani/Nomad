@@ -4,17 +4,19 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import org.locationtech.jts.geom.Geometry;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "Task"
@@ -29,143 +31,107 @@ public class Task implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="wko_id")
-	@JsonProperty("wko_id")
-    private Long wkoId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="tsk_name", length=2147483647)
-	@JsonProperty("tsk_name")
-    private String tskName ;
-
-    @Column(name="wts_id")
-	@JsonProperty("wts_id")
-    private Long wtsId ;
-
-    @Column(name="wtr_id")
-	@JsonProperty("wtr_id")
-    private Long wtrId ;
+    @JsonProperty("tsk_name")
+    private String tskName;
 
     @Column(name="tsk_comment", length=2147483647)
-	@JsonProperty("tsk_comment")
-    private String tskComment ;
-
-    @Column(name="ctr_id")
-	@JsonProperty("ctr_id")
-    private Long ctrId ;
-
-    @Column(name="ass_id")
-	@JsonProperty("ass_id")
-    private Long assId ;
+    @JsonProperty("tsk_comment")
+    private String tskComment;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_planning_start_date")
-	@JsonProperty("tsk_planning_start_date")
-    private Date tskPlanningStartDate ;
+    @JsonProperty("tsk_planning_start_date")
+    private Date tskPlanningStartDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_planning_end_date")
-	@JsonProperty("tsk_planning_end_date")
-    private Date tskPlanningEndDate ;
+    @JsonProperty("tsk_planning_end_date")
+    private Date tskPlanningEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_completion_date")
-	@JsonProperty("tsk_completion_date")
-    private Date tskCompletionDate ;
+    @JsonProperty("tsk_completion_date")
+    private Date tskCompletionDate;
 
     @Column(name="tsk_realization_user")
-	@JsonProperty("tsk_realization_user")
-    private Long tskRealizationUser ;
-
-    @Column(name="tsk_ucre_id")
-	@JsonProperty("tsk_ucre_id")
-    private Long tskUcreId ;
-
-    @Column(name="tsk_umod_id")
-	@JsonProperty("tsk_umod_id")
-    private Long tskUmodId ;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="tsk_dcre")
-	@JsonProperty("tsk_dcre")
-    private Date tskDcre ;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="tsk_dmod")
-	@JsonProperty("tsk_dmod")
-    private Date tskDmod ;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="tsk_ddel")
-	@JsonProperty("tsk_ddel")
-    private Date tskDdel ;
-
-    @Column(name="longitude")
-	@JsonProperty("longitude")
-    private BigDecimal longitude ;
-
-    @Column(name="latitude")
-	@JsonProperty("latitude")
-    private BigDecimal latitude ;
-
-    @Column(name="geom", length=2147483647)
-	@JsonProperty("geom")
-    private Geometry geom ;
+    @JsonProperty("tsk_realization_user")
+    private Long tskRealizationUser;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_report_date")
-	@JsonProperty("tsk_report_date")
-    private Date tskReportDate ;
+    @JsonProperty("tsk_report_date")
+    private Date tskReportDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_dcre")
+    @CreationTimestamp
+    @JsonProperty("tsk_dcre")
+    private Date tskDcre;
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_dmod")
+    @UpdateTimestamp
+    @JsonProperty("tsk_dmod")
+    private Date tskDmod;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_ddel")
+    @JsonProperty("tsk_ddel")
+    private Date deletedAt;
+
+    @Column(name="longitude")
+    @JsonProperty("longitude")
+    private BigDecimal longitude;
+
+    @Column(name="latitude")
+    @JsonProperty("latitude")
+    private BigDecimal latitude;
+
+    @Column(name="geom", length=2147483647)
+	@JsonProperty("geom")
+    private Geometry geom;
+
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne
+    @JoinColumn(name="wtr_id", referencedColumnName="id")
+    private WorkorderTaskReason workorderTaskReason;
 
     @ManyToOne
-    @JoinColumn(name="wtr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskReason workorderTaskReason ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="wts_id", referencedColumnName="id", insertable=false, updatable=false)
-    private WorkorderTaskStatus workorderTaskStatus ; 
-
+    @JoinColumn(name="wts_id", referencedColumnName="id")
+    private WorkorderTaskStatus workorderTaskStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tsk_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="tsk_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
+    private Users modifiedBy;
 
-
-    @ManyToOne
-    @JoinColumn(name="ass_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Asset asset ; 
-
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name="ass_id", referencedColumnName="id")
+    private Asset asset;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tsk_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="tsk_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="wko_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Workorder workorder ; 
-
+    private Users createdBy;
 
     @ManyToOne
-    @JoinColumn(name="ctr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Contract contract ; 
+    @JoinColumn(name="wko_id", referencedColumnName="id")
+    private Workorder workorder;
 
+    @ManyToOne
+    @JoinColumn(name="ctr_id", referencedColumnName="id")
+    private Contract contract;
 
-    @OneToMany(mappedBy="task")
-    private List<Report> listOfReport ; 
-
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="task")
+    private List<Report> listOfReport;
 
     /**
      * Constructor
@@ -174,206 +140,197 @@ public class Task implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setWkoId( Long wkoId ) {
-        this.wkoId = wkoId ;
-    }
-
-    public Long getWkoId() {
-        return this.wkoId;
-    }
-
-	public void setTskName( String tskName ) {
-        this.tskName = tskName ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getTskName() {
         return this.tskName;
     }
 
-	public void setWtsId( Long wtsId ) {
-        this.wtsId = wtsId ;
-    }
-
-    public Long getWtsId() {
-        return this.wtsId;
-    }
-
-	public void setWtrId( Long wtrId ) {
-        this.wtrId = wtrId ;
-    }
-
-    public Long getWtrId() {
-        return this.wtrId;
-    }
-
-	public void setTskComment( String tskComment ) {
-        this.tskComment = tskComment ;
+	public void setTskName( String tskName ) {
+        this.tskName = tskName ;
     }
 
     public String getTskComment() {
         return this.tskComment;
     }
 
-	public void setCtrId( Long ctrId ) {
-        this.ctrId = ctrId ;
-    }
-
-    public Long getCtrId() {
-        return this.ctrId;
-    }
-
-	public void setAssId( Long assId ) {
-        this.assId = assId ;
-    }
-
-    public Long getAssId() {
-        return this.assId;
-    }
-
-	public void setTskPlanningStartDate( Date tskPlanningStartDate ) {
-        this.tskPlanningStartDate = tskPlanningStartDate ;
+	public void setTskComment( String tskComment ) {
+        this.tskComment = tskComment ;
     }
 
     public Date getTskPlanningStartDate() {
         return this.tskPlanningStartDate;
     }
 
-	public void setTskPlanningEndDate( Date tskPlanningEndDate ) {
-        this.tskPlanningEndDate = tskPlanningEndDate ;
+	public void setTskPlanningStartDate( Date tskPlanningStartDate ) {
+        this.tskPlanningStartDate = tskPlanningStartDate ;
     }
 
     public Date getTskPlanningEndDate() {
         return this.tskPlanningEndDate;
     }
 
-	public void setTskCompletionDate( Date tskCompletionDate ) {
-        this.tskCompletionDate = tskCompletionDate ;
+	public void setTskPlanningEndDate( Date tskPlanningEndDate ) {
+        this.tskPlanningEndDate = tskPlanningEndDate ;
     }
 
     public Date getTskCompletionDate() {
         return this.tskCompletionDate;
     }
 
-	public void setTskRealizationUser( Long tskRealizationUser ) {
-        this.tskRealizationUser = tskRealizationUser ;
+	public void setTskCompletionDate( Date tskCompletionDate ) {
+        this.tskCompletionDate = tskCompletionDate ;
     }
 
     public Long getTskRealizationUser() {
         return this.tskRealizationUser;
     }
 
-	public void setTskUcreId( Long tskUcreId ) {
-        this.tskUcreId = tskUcreId ;
-    }
-
-    public Long getTskUcreId() {
-        return this.tskUcreId;
-    }
-
-	public void setTskUmodId( Long tskUmodId ) {
-        this.tskUmodId = tskUmodId ;
-    }
-
-    public Long getTskUmodId() {
-        return this.tskUmodId;
-    }
-
-	public void setTskDcre( Date tskDcre ) {
-        this.tskDcre = tskDcre ;
-    }
-
-    public Date getTskDcre() {
-        return this.tskDcre;
-    }
-
-	public void setTskDmod( Date tskDmod ) {
-        this.tskDmod = tskDmod ;
-    }
-
-    public Date getTskDmod() {
-        return this.tskDmod;
-    }
-
-	public void setTskDdel( Date tskDdel ) {
-        this.tskDdel = tskDdel ;
-    }
-
-    public Date getTskDdel() {
-        return this.tskDdel;
-    }
-
-	public void setLongitude( BigDecimal longitude ) {
-        this.longitude = longitude ;
-    }
-
-    public BigDecimal getLongitude() {
-        return this.longitude;
-    }
-
-	public void setLatitude( BigDecimal latitude ) {
-        this.latitude = latitude ;
-    }
-
-    public BigDecimal getLatitude() {
-        return this.latitude;
-    }
-
-	public void setGeom( Geometry geom ) {
-        this.geom = geom ;
-    }
-
-    public Geometry getGeom() {
-        return this.geom;
-    }
-
-	public void setTskReportDate( Date tskReportDate ) {
-        this.tskReportDate = tskReportDate ;
+	public void setTskRealizationUser( Long tskRealizationUser ) {
+        this.tskRealizationUser = tskRealizationUser ;
     }
 
     public Date getTskReportDate() {
         return this.tskReportDate;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setTskReportDate( Date tskReportDate ) {
+        this.tskReportDate = tskReportDate ;
+    }
+
+    public Date getTskDcre() {
+        return this.tskDcre;
+    }
+
+	public void setTskDcre( Date tskDcre ) {
+        this.tskDcre = tskDcre ;
+    }
+
+    public Date getTskDmod() {
+        return this.tskDmod;
+    }
+
+	public void setTskDmod( Date tskDmod ) {
+        this.tskDmod = tskDmod ;
+    }
+
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
+    public BigDecimal getLongitude() {
+        return this.longitude;
+    }
+
+	public void setLongitude( BigDecimal longitude ) {
+        this.longitude = longitude ;
+    }
+
+    public BigDecimal getLatitude() {
+        return this.latitude;
+    }
+
+	public void setLatitude( BigDecimal latitude ) {
+        this.latitude = latitude ;
+    }
+
+    public Geometry getGeom() {
+        return this.geom;
+    }
+
+	public void setGeom( Geometry geom ) {
+        this.geom = geom ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public WorkorderTaskReason getWorkorderTaskReason() {
         return this.workorderTaskReason;
-    } 
+    }
+
+    public void setWorkorderTaskReason(WorkorderTaskReason workorderTaskReason) {
+        this.workorderTaskReason = workorderTaskReason;
+    }
 
     public WorkorderTaskStatus getWorkorderTaskStatus() {
         return this.workorderTaskStatus;
-    } 
+    }
+
+    public void setWorkorderTaskStatus(WorkorderTaskStatus workorderTaskStatus) {
+        this.workorderTaskStatus = workorderTaskStatus;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Asset getAsset() {
         return this.asset;
-    } 
+    }
+
+    public void setAsset(Asset asset) {
+        this.asset = asset;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public Workorder getWorkorder() {
         return this.workorder;
-    } 
+    }
+
+    public void setWorkorder(Workorder workorder) {
+        this.workorder = workorder;
+    }
 
     public Contract getContract() {
         return this.contract;
-    } 
+    }
+
+    public void setContract(Contract contract) {
+        this.contract = contract;
+    }
 
     public List<Report> getListOfReport() {
-        return this.listOfReport;
-    } 
+        if (this.listOfReport != null) {
+            return this.listOfReport.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
+    public List<Report> getListOfReportWithDeleted() {
+        return this.listOfReport;
+    }
+
+    public void setListOfReport(List<Report> listOfReport) {
+        this.listOfReport = listOfReport;
+    }
 
 }

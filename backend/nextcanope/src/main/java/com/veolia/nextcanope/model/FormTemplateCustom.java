@@ -4,14 +4,14 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "FormTemplateCustom"
@@ -26,77 +26,53 @@ public class FormTemplateCustom implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="fte_id", nullable=false)
-	@JsonProperty("fte_id")
-    private Long fteId ;
-
-    @Column(name="usr_id", nullable=false)
-	@JsonProperty("usr_id")
-    private Long usrId ;
-
-    @Column(name="fdn_id", nullable=false)
-	@JsonProperty("fdn_id")
-    private Long fdnId ;
-
-    @Column(name="ftc_ucre_id")
-	@JsonProperty("ftc_ucre_id")
-    private Long ftcUcreId ;
-
-    @Column(name="ftc_umod_id")
-	@JsonProperty("ftc_umod_id")
-    private Long ftcUmodId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ftc_dcre")
-	@JsonProperty("ftc_dcre")
-    private Date ftcDcre ;
+    @CreationTimestamp
+    @JsonProperty("ftc_dcre")
+    private Date ftcDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ftc_dmod")
-	@JsonProperty("ftc_dmod")
-    private Date ftcDmod ;
+    @UpdateTimestamp
+    @JsonProperty("ftc_dmod")
+    private Date ftcDmod;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ftc_ddel")
-	@JsonProperty("ftc_ddel")
-    private Date ftcDdel ;
+    @JsonProperty("ftc_ddel")
+    private Date deletedAt;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne
+    @JoinColumn(name="fte_id", referencedColumnName="id")
+    private FormTemplate formTemplate;
 
     @ManyToOne
-    @JoinColumn(name="fte_id", referencedColumnName="id", insertable=false, updatable=false)
-    private FormTemplate formTemplate ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="ftc_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="ftc_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="ftc_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="ftc_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="fdn_id", referencedColumnName="id", insertable=false, updatable=false)
-    private FormDefinition formDefinition ; 
-
+    private Users createdBy;
 
     @ManyToOne
-    @JoinColumn(name="usr_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users user ; 
+    @JoinColumn(name="fdn_id", referencedColumnName="id")
+    private FormDefinition formDefinition;
 
+    @ManyToOne
+    @JoinColumn(name="usr_id", referencedColumnName="id")
+    private Users user;
 
     /**
      * Constructor
@@ -105,98 +81,83 @@ public class FormTemplateCustom implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setFteId( Long fteId ) {
-        this.fteId = fteId ;
-    }
-
-    public Long getFteId() {
-        return this.fteId;
-    }
-
-	public void setUsrId( Long usrId ) {
-        this.usrId = usrId ;
-    }
-
-    public Long getUsrId() {
-        return this.usrId;
-    }
-
-	public void setFdnId( Long fdnId ) {
-        this.fdnId = fdnId ;
-    }
-
-    public Long getFdnId() {
-        return this.fdnId;
-    }
-
-	public void setFtcUcreId( Long ftcUcreId ) {
-        this.ftcUcreId = ftcUcreId ;
-    }
-
-    public Long getFtcUcreId() {
-        return this.ftcUcreId;
-    }
-
-	public void setFtcUmodId( Long ftcUmodId ) {
-        this.ftcUmodId = ftcUmodId ;
-    }
-
-    public Long getFtcUmodId() {
-        return this.ftcUmodId;
-    }
-
-	public void setFtcDcre( Date ftcDcre ) {
-        this.ftcDcre = ftcDcre ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public Date getFtcDcre() {
         return this.ftcDcre;
     }
 
-	public void setFtcDmod( Date ftcDmod ) {
-        this.ftcDmod = ftcDmod ;
+	public void setFtcDcre( Date ftcDcre ) {
+        this.ftcDcre = ftcDcre ;
     }
 
     public Date getFtcDmod() {
         return this.ftcDmod;
     }
 
-	public void setFtcDdel( Date ftcDdel ) {
-        this.ftcDdel = ftcDdel ;
+	public void setFtcDmod( Date ftcDmod ) {
+        this.ftcDmod = ftcDmod ;
     }
 
-    public Date getFtcDdel() {
-        return this.ftcDdel;
+    public Date getDeletedAt() {
+        return deletedAt;
     }
 
-    //--- GETTERS FOR LINKS
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public FormTemplate getFormTemplate() {
         return this.formTemplate;
-    } 
+    }
+
+    public void setFormTemplate(FormTemplate formTemplate) {
+        this.formTemplate = formTemplate;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public FormDefinition getFormDefinition() {
         return this.formDefinition;
-    } 
+    }
+
+    public void setFormDefinition(FormDefinition formDefinition) {
+        this.formDefinition = formDefinition;
+    }
 
     public Users getUser() {
         return this.user;
-    } 
+    }
 
+    public void setUser(Users user) {
+        this.user = user;
+    }
 
 }

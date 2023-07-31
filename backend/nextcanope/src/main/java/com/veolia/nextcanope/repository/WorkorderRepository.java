@@ -2,7 +2,7 @@ package com.veolia.nextcanope.repository;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.veolia.nextcanope.configuration.NomadRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,7 +12,7 @@ import com.veolia.nextcanope.model.Workorder;
  * WorkOrderRepository is an interface for managing WorkOrder entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
-public interface WorkorderRepository extends JpaRepository<Workorder, Long> {
+public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 
 	/**
 	 * Get the list of WorkOrder by most recent date planned limited in number with offset for pagination

@@ -1,19 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { from } from 'rxjs/internal/observable/from';
-import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
 import { LayerReferencesService } from 'src/app/core/services/layer-reference.service';
-import { UserReference } from 'src/app/core/models/layer-references.model';
+import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer-references.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { LayerService } from 'src/app/core/services/map/layer.service';
-import { LayerDataService } from 'src/app/core/services/dataservices/layer.dataservice';
-import { filter, of } from 'rxjs';
-import { AppDB } from 'src/app/core/models/app-db.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 
 @Component({
@@ -39,6 +33,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public isMobile: boolean;
   public isDetailAvailabled: boolean = false;
   public assetLabel: string;
+  public ReferenceDisplayType = ReferenceDisplayType;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -78,6 +73,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       ).data.find((l) => l.lyrTableName === `asset.${feature.lyr_table_name}`);
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
+      console.log(this.userReferences);
       this.equipment = feature;
       this.isDetailAvailabled = true;
     });
