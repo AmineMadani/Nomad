@@ -816,7 +816,6 @@ comment on column report.tsk_id is 'Task';
 comment on column report.rpt_key is 'Report key';
 comment on column report.rpt_label is 'Report question';
 comment on column report.rpt_value is 'Report answer';
-comment on column report.rpt_detail is 'Report detail on json format';
 comment on column report.rpt_ucre_id is 'creator Id';
 comment on column report.rpt_umod_id is 'Last modificator Id';
 comment on column report.rpt_dcre is 'Creation date';
