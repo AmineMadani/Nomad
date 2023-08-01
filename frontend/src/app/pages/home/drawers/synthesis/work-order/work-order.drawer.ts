@@ -63,7 +63,7 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
         .getReferential('workorder_task_status')
         .then((status: Status[]) => {
           const wts = status.find(
-            (status) => status.id === this.workOrder.wts_id
+            (status) => status.id === this.workOrder?.wts_id
           );
           this.buttons.find((b) => b.key === 'cancel').disabled =
           wts.wts_code === 'ANNULE' || wts.wts_code === 'TERMINE';
