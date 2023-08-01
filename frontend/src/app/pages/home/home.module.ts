@@ -11,6 +11,8 @@ import { ActionsLayerMobileComponent } from './components/actions-layer/actions-
 import { MapComponent } from './components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { HttpClientModule } from '@angular/common/http';
 import { AssetDrawer } from './drawers/asset/asset.drawer';
 import { HomePage } from './home.page';
@@ -52,7 +54,8 @@ import { WkoViewComponent } from './drawers/synthesis/work-order/wko-view/wko-vi
     SharedModule,
     HttpClientModule,
     MatTreeModule,
-    IonCustomScrollbarModule
+    IonCustomScrollbarModule,
+    MatTooltipModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
