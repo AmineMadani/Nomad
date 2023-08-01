@@ -5,6 +5,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-report',
@@ -15,10 +16,10 @@ export class ReportDrawer implements OnInit {
 
   constructor(
     private router: ActivatedRoute,
-    private mapLayerService: MapLayerService,
     private layerService: LayerService,
     private mapService: MapService,
-    private exploitationService: WorkorderService
+    private mapEvent: MapEventService,
+    private workorderService: WorkorderService
   ) {
   }
 
@@ -26,26 +27,16 @@ export class ReportDrawer implements OnInit {
 
   ngOnInit() {
     let id = Number.parseInt(this.router.snapshot.paramMap.get('id'));
-    //display and zoom on the workorder
+
     this.layerService.getEquipmentByLayerAndId('workorder', id.toString()).then(wko => {
-      this.mapService.onMapLoaded().subscribe(() => {
-        this.mapLayerService
-          .moveToXY(wko.longitude, wko.latitude)
-          .then(() => {
-            this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey('workorder', id.toString()).then(() => {
-              //display the equipment of all tasks
-              this.exploitationService.getWorkorderById(wko.wko_id).then(workorder => {
-                this.workorder = workorder;
-                for (let task of workorder.tasks) {
-                  this.mapService.addEventLayer(task.assObjTable.replace('asset.', ''));
-                  let feature: any = this.mapLayerService.getFeatureById("workorder", task.id + '');
-                  feature.geometry.coordinates = [task.longitude, task.latitude];
-                  this.mapService.updateFeature("workorder", feature);
-                }
-              });
-            });
-          });
-      })
+      this.workorderService.getWorkorderById(wko.wko_id).then(workorder => {
+        this.workorder = workorder;
+      });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), undefined);
+    this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(), undefined);
   }
 }

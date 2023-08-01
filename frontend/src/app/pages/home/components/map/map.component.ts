@@ -631,15 +631,15 @@ export class MapComponent implements OnInit, OnDestroy {
   private onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
     if (!feature) {
       this.map.getCanvas().style.cursor = '';
-      this.mapEvent.highlightHoveredFeature(this.map, undefined, undefined);
+      this.mapEvent.highlightHoveredFeatures(this.map, undefined);
       return;
     }
 
     this.map.getCanvas().style.cursor = 'pointer';
-    this.mapEvent.highlightHoveredFeature(
+    this.mapEvent.highlightHoveredFeatures(
       this.map,
-      feature.source,
-      feature.id.toString()
+      [{source: feature.source,
+        id: feature.id.toString()}]
     );
   }
 
@@ -661,10 +661,10 @@ export class MapComponent implements OnInit, OnDestroy {
     // With firedEvent, the value stays to the original isFeatureFiredEvent, avoiding asynchronous weird things
     const firedEvent = this.mapEvent.isFeatureFiredEvent; 
 
-    this.mapEvent.highlightSelectedFeature(
+    this.mapEvent.highlighSelectedFeatures(
       this.map,
-      feature.source,
-      feature.id.toString(),
+      [{source:feature.source,
+       id:feature.id.toString()}],
       firedEvent,
       e
     );

@@ -1,5 +1,5 @@
 <div style="margin-top: 25px;" *ngIf="workorder">
-  <ion-item *ngFor="let tsk of workorder.tasks">
+  <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)" (mouseleave)="onItemHoverLeave(tsk)">
     <ion-checkbox aria-label="check" slot="start" mode="md" [checked]="tsk.id == currentTaskSelected?.id" (ionChange)="onSelectTask($event,tsk)"></ion-checkbox>
     <div style="display: inline-block;">
       <ion-label>
@@ -11,7 +11,7 @@
         </ion-note>
       </ion-label>
     </div>
-    <ng-container *ngIf="!draggableMarker && !editTaskEquipment">
+    <ng-container *ngIf="!draggableMarker && !editTaskEquipment && workorder.tasks.length == 1">
       <ion-button slot="end" fill="clear" (click)="onEditEquipment(tsk)">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>

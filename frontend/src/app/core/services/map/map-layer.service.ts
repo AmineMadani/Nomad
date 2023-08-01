@@ -165,10 +165,10 @@ export class MapLayerService {
       padding: 20,
       maxZoom: currentZoom,
     });
-    this.mapEvent.highlightSelectedFeature(
+    this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
-      layerKey,
-      r.id.toString()
+      [{source: layerKey,
+       id: r.id.toString()}]
     );
   }
 
@@ -217,14 +217,14 @@ export class MapLayerService {
     return marker;
   }
 
-  public fitBounds(e: any): void {
+  public fitBounds(e: any, maxZoomLevel:number = 17): void {
     const bounds = e.reduce((bounds: any, coord: any) => {
       return bounds.extend(coord);
     }, new Maplibregl.LngLatBounds(e[0], e[0]));
 
     this.mapService.getMap().fitBounds(bounds, {
       padding: 20,
-      maxZoom: 17,
+      maxZoom: maxZoomLevel,
     });
   }
 

@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
 import { Task } from 'src/app/core/models/workorder.model';
+import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
@@ -11,7 +14,10 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class ReportContextComponent implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService
+    private referentialService: ReferentialService,
+    private mapService: MapService,
+    private mapLayerService: MapLayerService,
+    private mapEventService: MapEventService
   ) { }
 
   @Input() task: Task;
@@ -41,6 +47,8 @@ export class ReportContextComponent implements OnInit {
       //Check if the label is editable
       this.getValueLabel();
     });
+
+    this.displayAndZoomTo(this.task);
   }
 
   /**
@@ -101,6 +109,36 @@ export class ReportContextComponent implements OnInit {
       return this.originalOptions.find(opt => opt['wtr_id'] == this.task.wtrId)['wtr_llabel'];
     }
     return "";
+  }
+
+  /**
+   * Method to display and zoom to the workorder equipment
+   * @param workorder the workorder
+   */
+  private displayAndZoomTo(task: Task) {
+
+    let featuresSelection: MultiSelection[] = [];
+
+    this.mapService.onMapLoaded().subscribe(() => {
+      this.mapLayerService.moveToXY(task.longitude, task.latitude).then(() => {
+        this.mapService.addEventLayer('workorder').then(() => {
+          this.mapService.addEventLayer(task.assObjTable.replace('asset.', "")).then(() => {
+
+            featuresSelection.push({
+              id: task.id.toString(),
+              source: 'workorder'
+            });
+            featuresSelection.push({
+              id: task.assObjRef,
+              source: task.assObjTable.replace('asset.', '')
+            });
+
+            this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+            this.mapLayerService.fitBounds([[task.longitude, task.latitude]], 21);
+          });
+        });
+      });
+    })
   }
 
 }

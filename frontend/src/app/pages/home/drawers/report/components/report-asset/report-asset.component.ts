@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -17,7 +17,7 @@ export class ReportAssetComponent implements OnInit {
     private referentialService: ReferentialService,
     private maplayerService: MapLayerService,
     private mapService: MapService,
-    private mapEventService: MapEventService
+    private mapEventService: MapEventService,
   ) { }
 
   @Input() workorder: Workorder;
@@ -34,6 +34,8 @@ export class ReportAssetComponent implements OnInit {
   private oldEquipment: any;
 
   ngOnInit() {
+
+    this.displayAndZoomTo(this.workorder);
 
     this.referentialService.getReferential('layers').then(layers => {
       this.refLayers = layers;
@@ -138,6 +140,59 @@ export class ReportAssetComponent implements OnInit {
       this.draggableMarker.remove();
       this.draggableMarker = null;
     }
+  }
+
+  /**
+   * Method to highligh feature when enter hover
+   * @param task 
+   */
+  public onItemHoverEnter(task: Task){
+    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(),[{id:task.id.toString(),source:'workorder'},{id:task.assObjRef,source:task.assObjTable.replace("asset.", "")}]);
+  }
+
+  /**
+   * Method to unhighligh feature when leave hover
+   * @param task 
+   */
+  public onItemHoverLeave(task: Task){
+    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(),[])
+  }
+
+  /**
+   * Method to display and zoom to the workorder equipment
+   * @param workorder the workorder
+   */
+  private displayAndZoomTo(workorder: Workorder) {
+
+    let featuresSelection: MultiSelection[] = [];
+    let geometries = [];
+
+    this.mapService.onMapLoaded().subscribe(() => {
+      this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
+        this.mapService.addEventLayer('workorder').then(() => {
+          for (let task of workorder.tasks) {
+            this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(() => {
+              let feature: any = this.maplayerService.getFeatureById("workorder", task.id + '');
+              feature.geometry.coordinates = [task.longitude, task.latitude];
+              this.mapService.updateFeature("workorder", feature);
+              geometries.push(feature.geometry.coordinates);
+
+              featuresSelection.push({
+                id: task.id.toString(),
+                source: 'workorder'
+              });
+              featuresSelection.push({
+                id: task.assObjRef,
+                source: task.assObjTable.replace('asset.', '')
+              });
+
+              this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+              this.maplayerService.fitBounds(geometries, 19);
+            });
+          }
+        });
+      });
+    })
   }
 
   ngOnDestroy(): void {

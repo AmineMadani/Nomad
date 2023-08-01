@@ -94,10 +94,9 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
       this.mapService.getMap(),
       undefined
     );
-    this.mapEventService.highlightSelectedFeature(
+    this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
       undefined,
-      undefined
     );
     this.drawerService.closeDrawer();
   }

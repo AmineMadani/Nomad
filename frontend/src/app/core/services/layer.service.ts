@@ -7,6 +7,7 @@ import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeou
 import { CacheService } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ToastController } from '@ionic/angular';
+import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class LayerService {
   constructor(
     private layerDataService: LayerDataService,
     private cacheService: CacheService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private configurationService: ConfigurationService
   ) {
     this.db = new AppDB();
   }
@@ -169,7 +171,7 @@ export class LayerService {
       this.layerDataService.getEquipmentByLayerAndId(layer, id)
         .pipe(
           map((equipment: any[]) => equipment[0]),
-          timeout(5000),
+          timeout(this.configurationService.offlineTimeout),
           catchError(async () => {
             const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
               layer,
