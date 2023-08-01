@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { AlertController, IonAccordion, IonAccordionGroup } from '@ionic/angular';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -10,12 +10,13 @@ import { UserService } from 'src/app/core/services/user.service';
   styleUrls: ['./asset-favorite.component.scss'],
 })
 export class AssetFavoriteComponent implements OnInit {
-
   constructor(
     private userService: UserService,
     private alertCtrl: AlertController,
     public assetFilterService: AssetFilterService
   ) { }
+
+  @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;
 
   public user: User;
   public currentFavOpen: Favorite | undefined;
@@ -30,17 +31,16 @@ export class AssetFavoriteComponent implements OnInit {
     this.selectedFavorite = this.assetFilterService.selectedFavorite?.name;
   }
 
-  public onOpenAccordion(data: Favorite): void {
-    if (this.currentFavOpen === data) {
-      this.currentFavOpen = undefined;
-    } else {
-      this.currentFavOpen = data;
-    }
+  public onOpenAccordion(e: Event, data: Favorite): void {
+    e.stopPropagation();
+    this.currentFavOpen = this.currentFavOpen === data ? undefined : data;
+    this.accordionGroup.value = data.name;
   }
 
-  public onApplyFavorite(favorite: Favorite) {
+  public onApplyFavorite(e: Event, favorite: Favorite) {
+    e.stopPropagation();
     if(this.assetFilterService.selectedFavorite && this.assetFilterService.selectedFavorite.name == favorite.name) {
-      this.assetFilterService.reset();
+      setTimeout(() => this.assetFilterService.reset());
     } else {
       this.assetFilterService.applyFavorite(favorite);
     }
