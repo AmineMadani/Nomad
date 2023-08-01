@@ -1,6 +1,4 @@
 import { Component, OnInit, SimpleChanges, Input } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { CacheService } from 'src/app/core/services/cache.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 

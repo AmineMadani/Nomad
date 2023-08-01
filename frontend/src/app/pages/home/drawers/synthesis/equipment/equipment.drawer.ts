@@ -73,7 +73,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       ).data.find((l) => l.lyrTableName === `asset.${feature.lyr_table_name}`);
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
-      console.log(this.userReferences);
       this.equipment = feature;
       this.isDetailAvailabled = true;
     });

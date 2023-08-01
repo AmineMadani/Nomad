@@ -162,4 +162,32 @@ export class UtilsService {
 
     return featureParams;
   }
+
+  public findMostFrequentValue(arr: Array<number | string>): number | string | undefined {
+    if (arr.length === 0) {
+      // Handle the case of an empty array.
+      return undefined;
+    }
+  
+    // Create an object to store the frequency of each value.
+    const frequencyMap: { [key: string]: number } = {};
+  
+    // Loop through the array and populate the frequencyMap.
+    arr.forEach((value) => {
+      const key = String(value); // Convert the value to a string to use it as the key.
+      frequencyMap[key] = (frequencyMap[key] || 0) + 1;
+    });
+  
+    // Find the maximum frequency and corresponding value.
+    let mostFrequentValue: number | string | undefined;
+    let maxFrequency = 0;
+    for (const [value, frequency] of Object.entries(frequencyMap)) {
+      if (frequency > maxFrequency) {
+        maxFrequency = frequency;
+        mostFrequentValue = value;
+      }
+    }
+  
+    return mostFrequentValue;
+  }
 }

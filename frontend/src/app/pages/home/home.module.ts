@@ -41,7 +41,6 @@ import { ReportContextComponent } from './drawers/report/components/report-conte
 import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
 import { WkoCreationComponent } from './drawers/synthesis/work-order/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/synthesis/work-order/wko-view/wko-view.component';
-import { WkoReferentialComponent } from './drawers/synthesis/work-order/wko-referential/wko-referential.component';
 
 @NgModule({
   imports: [
@@ -82,7 +81,6 @@ import { WkoReferentialComponent } from './drawers/synthesis/work-order/wko-refe
     AssetFavoriteComponent,
     WkoCreationComponent,
     WkoViewComponent,
-    WkoReferentialComponent,
     ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,

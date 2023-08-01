@@ -61,12 +61,12 @@ export class WorkOrderDrawer implements OnInit, OnDestroy {
       // Disable cancel button if status is canceled or terminated
       this.referentialService
         .getReferential('workorder_task_status')
-        .then((res) => {
-          let status: Status = res.find(
+        .then((status: Status[]) => {
+          const wts = status.find(
             (status) => status.id === this.workOrder.wts_id
           );
           this.buttons.find((b) => b.key === 'cancel').disabled =
-            status.wts_code === 'ANNULE' || status.wts_code === 'TERMINE';
+          wts.wts_code === 'ANNULE' || wts.wts_code === 'TERMINE';
         });
     } else {
       this.equipments = Array.isArray(params) ? params : [params];
