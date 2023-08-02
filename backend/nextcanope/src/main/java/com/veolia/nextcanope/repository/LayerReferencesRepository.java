@@ -1,13 +1,13 @@
 package com.veolia.nextcanope.repository;
 
-import com.veolia.nextcanope.configuration.NomadRepository;
-import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
-import com.veolia.nextcanope.model.LayerReferences;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import com.veolia.nextcanope.dto.LayerReference.LayerReferencesFlatDto;
+import com.veolia.nextcanope.model.LayerReferences;
 
 /**
  * LayerReferencesRepository is an interface for managing LayerReferences entities in the persistence layer.

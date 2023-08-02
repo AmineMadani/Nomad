@@ -1,8 +1,6 @@
 package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.configuration.NomadRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.veolia.nextcanope.model.Task;
 
 /**

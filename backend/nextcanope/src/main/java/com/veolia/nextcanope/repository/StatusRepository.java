@@ -1,11 +1,10 @@
 package com.veolia.nextcanope.repository;
 
-import com.veolia.nextcanope.configuration.NomadRepository;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veolia.nextcanope.model.WorkorderTaskStatus;
-
-import java.util.Optional;
 
 /**
  * StatusRepository is an interface for managing Status entities in the persistence layer.

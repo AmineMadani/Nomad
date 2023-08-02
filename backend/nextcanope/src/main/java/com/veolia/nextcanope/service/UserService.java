@@ -2,16 +2,15 @@ package com.veolia.nextcanope.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.veolia.nextcanope.dto.payload.UserCreationPayload;
-import com.veolia.nextcanope.exception.FunctionalException;
-import com.veolia.nextcanope.exception.TechnicalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.AccountDto;
+import com.veolia.nextcanope.dto.payload.UserCreationPayload;
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.UserRepository;
 
