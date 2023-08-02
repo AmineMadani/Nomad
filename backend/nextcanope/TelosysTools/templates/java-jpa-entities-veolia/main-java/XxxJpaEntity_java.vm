@@ -56,7 +56,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.CreationTimestamp;
 #end
-#if(($link.cardinality == "OneToMany" || $link.cardinality == "ManyToMany") && !$hasImportedCollectors)
+#set($hasDeletedAt = false)
+#foreach($attribute in $link.targetEntity.attributes)
+#if($attribute.name.contains('Ddel'))
+#set($hasDeletedAt = true)
+#end
+#end
+#if(($link.cardinality == "OneToMany" || $link.cardinality == "ManyToMany") && $hasDeletedAt && !$hasImportedCollectors)
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 #set($hasImportedCollectors = true)
