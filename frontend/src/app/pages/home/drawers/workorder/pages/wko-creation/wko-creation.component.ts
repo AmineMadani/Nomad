@@ -195,8 +195,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public onSubmit(): void {
-    console.log(this.workOrderForm);
-    return;
     this.workOrderForm.markAllAsTouched();
     if (!this.workOrderForm.valid) {
       return;

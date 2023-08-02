@@ -1,5 +1,7 @@
-.skeleton-name {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+ion-item.skeleton-label {
+    transform: translateX(30%);
+}
+
+ion-item.skeleton-status {
+    transform: translateX(35%);
 }
