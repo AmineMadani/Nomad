@@ -182,7 +182,7 @@ public class WorkorderService {
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setModifiedBy(user);
 
-		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.TERMINEE.toString());
+		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.TERMINE.toString());
 		workorder.setWorkorderTaskStatus(status);
 
 		// Get the work order asset

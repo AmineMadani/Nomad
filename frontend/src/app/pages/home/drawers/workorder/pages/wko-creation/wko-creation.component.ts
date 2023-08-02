@@ -333,9 +333,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Get reasons for all equipments, then remove duplicates
       this.wtrs = this.utils.removeDuplicatesFromArr(
-        await this.cacheService.getWtrByLyrTables(
-          this.equipments.map((eq) => eq.lyr_table_name)
-        ),
+        await this.referentialService.getReferential('v_layer_wtr'),
         'wtr_id'
       );
 

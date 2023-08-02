@@ -4,6 +4,6 @@ public enum WorkOrderStatusCode {
     CREE,
     ENVOYEPLANIF,
     PLANIFIE,
-    TERMINEE,
+    TERMINE,
     ANNULE
 }
