@@ -12,6 +12,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
+import { CacheService } from 'src/app/core/services/cache.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -26,7 +27,8 @@ export class WkoViewComponent implements OnInit {
     private mapLayerService: MapLayerService,
     private mapService: MapService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private cacheService: CacheService
   ) {}
 
   public workOrder: Workorder;
@@ -125,9 +127,10 @@ export class WkoViewComponent implements OnInit {
         id: this.workOrder.id,
         cancelComment: data.values.cancelComment,
       };
-      this.workorderService.cancelWorkorder(cancelWko).subscribe((res) => {
+      this.workorderService.cancelWorkorder(cancelWko).subscribe(async (res) => {
         this.workOrder.wtsId = 5;
         this.getStatus();
+        await this.workorderService.deleteStateWorkorder(this.workOrder)
         this.displayCancelToast('Modification enregistré avec succès.');
       });
     }

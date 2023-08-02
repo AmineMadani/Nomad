@@ -236,11 +236,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.removeMarkers();
       this.mapLayerService.addGeojsonToLayer(res, 'workorder');
       this.drawerService.navigateTo(
-        DrawerRouteEnum.WORKORDER,
-        [res.tasks[0].id],
-        {
-          lyr_table_name: 'workorder',
-        }
+        DrawerRouteEnum.WORKORDER_VIEW,
+        [res.tasks[0].id]
       );
     });
   }
