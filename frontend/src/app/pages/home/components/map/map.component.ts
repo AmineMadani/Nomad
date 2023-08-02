@@ -675,18 +675,19 @@ export class MapComponent implements OnInit, OnDestroy {
       // We pass the layerKey to the drawer to be able to select the equipment on the layer
       properties['lyr_table_name'] = feature.source;
       let route: DrawerRouteEnum;
+      let params = {};
       switch (feature.source) {
         case 'workorder':
-          route = DrawerRouteEnum.WORKORDER;
+          route = DrawerRouteEnum.WORKORDER_VIEW;
           break;
         default:
           route = DrawerRouteEnum.EQUIPMENT;
+          params = {
+            lyr_table_name: properties['lyr_table_name'],
+          };
           break;
       }
-      this.drawerService.navigateTo(route, [properties['id']], {
-        lyr_table_name: properties['lyr_table_name'],
-      });
-      //this.drawerService.navigateTo(route, [properties['id']], { id: properties['id'], x: properties['x'], y: properties['y'], lyr_table_name: properties['lyr_table_name'] });
+      this.drawerService.navigateTo(route, [properties['id']], params);
     }
   }
 

@@ -3,7 +3,7 @@ import { ActivatedRoute, NavigationEnd, NavigationStart, Params, Router } from '
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { Subject, filter, takeUntil, tap } from 'rxjs';
+import { Subject, filter, map, switchMap, takeUntil, of } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -18,6 +18,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-wko-creation',
@@ -37,13 +38,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private workorderService: WorkorderService,
     private referentialService: ReferentialService,
     private utils: UtilsService,
+    private layerService: LayerService,
     private datePipe: DatePipe
   ) {}
 
   @ViewChild('equipmentModal', { static: true })
   public equipmentModal: IonModal;
 
-  @Input() equipments: any[];
+  public equipments: any[];
 
   public workOrderForm: FormGroup;
   public params: any;
@@ -64,16 +66,45 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
-    this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
-    this.createForm();
+    const paramMap = new Map<string, string>(
+      new URLSearchParams(window.location.search).entries()
+    );
+    const params = this.utils.transformMap(paramMap);
+    this.mapService
+      .onMapLoaded()
+      .pipe(
+        filter((isMapLoaded) => isMapLoaded),
+        takeUntil(this.ngUnsubscribe$),
+        switchMap(() => {
+          if (paramMap.has('lyr_table_name')) {
+            return of([]);
+          } else {
+            return this.layerService.getEquipmentsByLayersAndIds(params);
+          }
+        }),
+        map((eqs: any[]) =>
+          eqs.map((eq) => {
+            return {
+              ...eq,
+              lyr_table_name: this.getKeyFromId(params, eq.id),
+            };
+          })
+        )
+      )
+      .subscribe(async (equipments: any) => {
+        this.equipments = equipments;
 
-    if (this.draftId) {
-      await this.initializeFormWithDraft();
-    }
+        this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
+        this.createForm();
 
-    await this.initializeEquipments();
+        if (this.draftId) {
+          await this.initializeFormWithDraft();
+        }
 
-    this.generateMarker();
+        await this.initializeEquipments();
+
+        this.generateMarker();
+      });
   }
 
   ngAfterViewInit(): void {
@@ -95,10 +126,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.markerDestroyed = true;
-    this.mapEvent.highlighSelectedFeatures(
-      this.mapService.getMap(),
-      undefined
-    );
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), undefined);
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
     }
@@ -277,9 +305,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async initializeEquipments(): Promise<void> {
     let contractsIds: any[], cityIds: any[];
-    if (this.equipments[0] !== null) {
-      // Wko Asset
 
+    if (this.equipments.length > 0 && this.equipments[0] !== null) { // WKO Assets
+      await this.initEquipmentsLayers();
       // If mono-equipment, we need the equipment name
       if (this.equipments.length === 1) {
         this.equipmentName = await this.getEquipmentLabel();
@@ -301,12 +329,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         .filter((eq) => eq !== null)
         .map((eq) => eq.id)
         .join(', ');
-    } else {
-      // Wko XY
+    } else { // WKO XY
       this.params = { ...this.activatedRoute.snapshot.queryParams };
 
       // When in XY, we need all reasons, without duplicates
-      this.wtrs = this.utils.removeDuplicatesFromArr(await this.referentialService.getReferential('v_layer_wtr'), 'wtr_id');
+      this.wtrs = this.utils.removeDuplicatesFromArr(
+        await this.referentialService.getReferential('v_layer_wtr'),
+        'wtr_id'
+      );
 
       // Ctr and Cty are from the URL
       contractsIds = this.params.ctr_id.split(',').map((c: string) => +c);
@@ -354,9 +384,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public async getEquipmentLabel(eq?: any): Promise<string> {
     const layersRef = await this.referentialService.getReferential('layers');
     const layer = layersRef.find(
-      (l) => l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyr_table_name}`
+      (l) =>
+        l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyr_table_name}`
     );
-    return `${layer.lyrSlabel} - ${layer.domLLabel} ` ;
+    return `${layer.lyrSlabel} - ${layer.domLLabel} `;
   }
 
   /**
@@ -366,7 +397,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private async generateMarker(): Promise<void> {
     // Asset WKO
-    if (this.equipments?.[0] !== null) {
+    if (this.equipments.length > 0 && this.equipments?.[0] !== null) {
       for (let eq of this.equipments) {
         if (!this.mapService.hasEventLayer(eq.lyr_table_name)) {
           await this.mapService.addEventLayer(eq.lyr_table_name);
@@ -438,5 +469,40 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async deleteDraft(): Promise<void> {
     await this.cacheService.deleteObject('draftwko', this.draftId);
+  }
+
+  private getKeyFromId(
+    map: { lyrTableName: string; equipmentIds: string[] }[],
+    idToSearch: string
+  ): string | undefined {
+    for (const m of map) {
+      if (m.equipmentIds.includes(idToSearch)) {
+        return m.lyrTableName;
+      }
+    }
+    return undefined; // If the id is not found in any value array, return undefined.
+  }
+
+  private async initEquipmentsLayers(): Promise<void> {
+    const promises: Promise<void>[] = this.equipments.map(
+      ({ lyr_table_name }) => {
+        return this.mapService.addEventLayer(lyr_table_name);
+      }
+    );
+
+    await Promise.all(promises);
+
+    this.mapEvent.highlighSelectedFeatures(
+      this.mapService.getMap(),
+      this.equipments.map((eq: any) => {
+        return { id: eq.id, source: eq.lyr_table_name };
+      })
+    );
+
+    this.mapLayerService.fitBounds(
+      this.equipments.map((eq) => {
+        return [+eq.x, +eq.y];
+      })
+    );
   }
 }

@@ -1,4 +1,4 @@
-<ng-template #workOrderTemplate>
+<!-- <ng-template #workOrderTemplate>
   <ng-container *ngIf="workOrder && !editMode">
     <app-wko-view [workOrder]="workOrder"></app-wko-view>
   </ng-container>
@@ -51,10 +51,6 @@
   </ng-container>
 </ng-template>
 
-<app-synthesis [drawerTitle]="getTitle()" [hasFile]="true" [tabButtons]="buttons" [tabDisabled]="!workOrder && !this.equipments" [contentTemplate]="workOrderTemplate"
-  [sourceLayer]="'workorder'" [footerTemplate]="workOrderfooter" (onTabButton)="onTabButtonClicked($event)" (onInitComponent)="onInitWorkorder($event)">
-</app-synthesis>
-
 <ng-template #workOrderTemplate>
   <ng-container *ngIf="workOrder && !editMode">
     <app-wko-view [workOrder]="workOrder"></app-wko-view>
@@ -65,4 +61,6 @@
     </div>
     <app-wko-creation #wkoCreation [equipments]="equipments"></app-wko-creation>
   </ng-container>
-</ng-template>
+</ng-template> -->
+
+<router-outlet></router-outlet>

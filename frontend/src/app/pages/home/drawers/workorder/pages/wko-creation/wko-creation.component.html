@@ -1,5 +1,5 @@
 <ng-container *ngIf="equipments?.length > 0 || params">
-  <form [formGroup]="workOrderForm" id="wko_form_creation">
+  <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
     <ion-list>
       <!-- <app-wko-referential *ngIf="contractsId || params" [key]="'ctr_id'" [repository]="'contract'" [repositoryKey]="'id'"
               [repositoryValue]="'ctr_slabel'" [label]="'Contrat *'" [paramMap]="contractsId ?? params"

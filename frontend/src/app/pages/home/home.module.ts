@@ -23,7 +23,7 @@ import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
 import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
 import { FilterCardComponent } from './drawers/components/filter-card/filter-card.component';
 import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
-import { WorkOrderDrawer } from './drawers/synthesis/work-order/work-order.drawer';
+
 import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
@@ -41,9 +41,9 @@ import { ReportCreateComponent } from './drawers/report/components/report-create
 import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
 import { ReportContextComponent } from './drawers/report/components/report-context/report-context.component';
 import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
-import { WkoCreationComponent } from './drawers/synthesis/work-order/wko-creation/wko-creation.component';
-import { WkoViewComponent } from './drawers/synthesis/work-order/wko-view/wko-view.component';
-
+import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
+import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
+import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
 @NgModule({
   imports: [
     CommonModule,

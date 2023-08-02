@@ -107,7 +107,6 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private zoomToFeature(params: Map<string, string>): void {
-    console.log(params);
     this.route.params
       .pipe(
         switchMap((param: Params) => {
