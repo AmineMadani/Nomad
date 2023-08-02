@@ -1,11 +1,24 @@
 ion-input {
     height: 30px;
-    margin-bottom: 15px;
+    margin: 15px 0;
 }
 
 .select {
     margin-bottom: 15px;
     width: 100%;
+}
+
+.wko-assets {
+    ion-input {
+        margin-top: 15px;
+        margin-bottom: 0;
+    }
+}
+
+.wko-calendar {
+    ion-input {
+        margin-top: 0;
+    }
 }
 
 .wko-assets, .wko-calendar {
@@ -14,7 +27,7 @@ ion-input {
     column-gap: 10px;
 
     ion-button {
-        margin: 10px 0;
+        margin: auto 0;
     }
 }
 
@@ -37,4 +50,12 @@ ion-input {
     ion-note {
         --color: var(--ion-color-danger);
     }
+}
+
+.mono-equipment {
+    pointer-events: none;
+}
+
+.select-search {
+    padding-bottom: 15px;
 }

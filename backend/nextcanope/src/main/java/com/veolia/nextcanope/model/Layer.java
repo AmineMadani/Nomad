@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "Layer"
@@ -27,111 +29,89 @@ public class Layer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="lyr_num_order")
-	@JsonProperty("lyr_num_order")
-    private Integer lyrNumOrder ;
-
-    @Column(name="dom_id")
-	@JsonProperty("dom_id")
-    private Long domId ;
-
-    @Column(name="ast_id")
-	@JsonProperty("ast_id")
-    private Long astId ;
+    @JsonProperty("lyr_num_order")
+    private Integer lyrNumOrder;
 
     @Column(name="lyr_table_name", nullable=false, length=2147483647)
-	@JsonProperty("lyr_table_name")
-    private String lyrTableName ;
+    @JsonProperty("lyr_table_name")
+    private String lyrTableName;
 
     @Column(name="lyr_geom_column_name", nullable=false, length=2147483647)
-	@JsonProperty("lyr_geom_column_name")
-    private String lyrGeomColumnName ;
+    @JsonProperty("lyr_geom_column_name")
+    private String lyrGeomColumnName;
 
     @Column(name="lyr_uuid_column_name", nullable=false, length=2147483647)
-	@JsonProperty("lyr_uuid_column_name")
-    private String lyrUuidColumnName ;
+    @JsonProperty("lyr_uuid_column_name")
+    private String lyrUuidColumnName;
 
     @Column(name="lyr_geom_srid", nullable=false, length=2147483647)
-	@JsonProperty("lyr_geom_srid")
-    private String lyrGeomSrid ;
+    @JsonProperty("lyr_geom_srid")
+    private String lyrGeomSrid;
 
     @Column(name="lyr_slabel", length=2147483647)
-	@JsonProperty("lyr_slabel")
-    private String lyrSlabel ;
+    @JsonProperty("lyr_slabel")
+    private String lyrSlabel;
 
     @Column(name="lyr_llabel", length=2147483647)
-	@JsonProperty("lyr_llabel")
-    private String lyrLlabel ;
+    @JsonProperty("lyr_llabel")
+    private String lyrLlabel;
 
     @Column(name="lyr_valid")
-	@JsonProperty("lyr_valid")
-    private Boolean lyrValid ;
+    @JsonProperty("lyr_valid")
+    private Boolean lyrValid;
 
     @Column(name="lyr_display")
-	@JsonProperty("lyr_display")
-    private Boolean lyrDisplay ;
-
-    @Column(name="lyr_ucre_id")
-	@JsonProperty("lyr_ucre_id")
-    private Long lyrUcreId ;
-
-    @Column(name="lyr_umod_id")
-	@JsonProperty("lyr_umod_id")
-    private Long lyrUmodId ;
+    @JsonProperty("lyr_display")
+    private Boolean lyrDisplay;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lyr_dcre")
-	@JsonProperty("lyr_dcre")
-    private Date lyrDcre ;
+    @CreationTimestamp
+    @JsonProperty("lyr_dcre")
+    private Date lyrDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lyr_dmod")
-	@JsonProperty("lyr_dmod")
-    private Date lyrDmod ;
+    @UpdateTimestamp
+    @JsonProperty("lyr_dmod")
+    private Date lyrDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="dom_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Domains domains ; 
-
+    @JoinColumn(name="dom_id", referencedColumnName="id")
+    private Domains domains;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lyr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lyr_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
-
-    @OneToMany(mappedBy="layer")
-    private List<LayerStyle> listOfLayerStyle ; 
-
+    private Users modifiedBy;
 
     @OneToMany(mappedBy="layer")
-    private List<Asset> listOfAsset ; 
-
-
-    @ManyToOne
-    @JoinColumn(name="ast_id", referencedColumnName="id", insertable=false, updatable=false)
-    private AssetType assetType ; 
-
+    private List<LayerStyle> listOfLayerStyle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lyr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
+    private Users createdBy;
 
+    @ManyToOne
+    @JoinColumn(name="ast_id", referencedColumnName="id")
+    private AssetType assetType;
 
     @OneToMany(mappedBy="layer")
-    private List<LayerReferences> listOfLayerReferences ; 
+    private List<Asset> listOfAsset;
 
+    @OneToMany(mappedBy="layer")
+    private List<LayerReferences> listOfLayerReferences;
 
     /**
      * Constructor
@@ -140,162 +120,168 @@ public class Layer implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setLyrNumOrder( Integer lyrNumOrder ) {
-        this.lyrNumOrder = lyrNumOrder ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public Integer getLyrNumOrder() {
         return this.lyrNumOrder;
     }
 
-	public void setDomId( Long domId ) {
-        this.domId = domId ;
-    }
-
-    public Long getDomId() {
-        return this.domId;
-    }
-
-	public void setAstId( Long astId ) {
-        this.astId = astId ;
-    }
-
-    public Long getAstId() {
-        return this.astId;
-    }
-
-	public void setLyrTableName( String lyrTableName ) {
-        this.lyrTableName = lyrTableName ;
+	public void setLyrNumOrder( Integer lyrNumOrder ) {
+        this.lyrNumOrder = lyrNumOrder ;
     }
 
     public String getLyrTableName() {
         return this.lyrTableName;
     }
 
-	public void setLyrGeomColumnName( String lyrGeomColumnName ) {
-        this.lyrGeomColumnName = lyrGeomColumnName ;
+	public void setLyrTableName( String lyrTableName ) {
+        this.lyrTableName = lyrTableName ;
     }
 
     public String getLyrGeomColumnName() {
         return this.lyrGeomColumnName;
     }
 
-	public void setLyrUuidColumnName( String lyrUuidColumnName ) {
-        this.lyrUuidColumnName = lyrUuidColumnName ;
+	public void setLyrGeomColumnName( String lyrGeomColumnName ) {
+        this.lyrGeomColumnName = lyrGeomColumnName ;
     }
 
     public String getLyrUuidColumnName() {
         return this.lyrUuidColumnName;
     }
 
-	public void setLyrGeomSrid( String lyrGeomSrid ) {
-        this.lyrGeomSrid = lyrGeomSrid ;
+	public void setLyrUuidColumnName( String lyrUuidColumnName ) {
+        this.lyrUuidColumnName = lyrUuidColumnName ;
     }
 
     public String getLyrGeomSrid() {
         return this.lyrGeomSrid;
     }
 
-	public void setLyrSlabel( String lyrSlabel ) {
-        this.lyrSlabel = lyrSlabel ;
+	public void setLyrGeomSrid( String lyrGeomSrid ) {
+        this.lyrGeomSrid = lyrGeomSrid ;
     }
 
     public String getLyrSlabel() {
         return this.lyrSlabel;
     }
 
-	public void setLyrLlabel( String lyrLlabel ) {
-        this.lyrLlabel = lyrLlabel ;
+	public void setLyrSlabel( String lyrSlabel ) {
+        this.lyrSlabel = lyrSlabel ;
     }
 
     public String getLyrLlabel() {
         return this.lyrLlabel;
     }
 
-	public void setLyrValid( Boolean lyrValid ) {
-        this.lyrValid = lyrValid ;
+	public void setLyrLlabel( String lyrLlabel ) {
+        this.lyrLlabel = lyrLlabel ;
     }
 
     public Boolean getLyrValid() {
         return this.lyrValid;
     }
 
-	public void setLyrDisplay( Boolean lyrDisplay ) {
-        this.lyrDisplay = lyrDisplay ;
+	public void setLyrValid( Boolean lyrValid ) {
+        this.lyrValid = lyrValid ;
     }
 
     public Boolean getLyrDisplay() {
         return this.lyrDisplay;
     }
 
-	public void setLyrUcreId( Long lyrUcreId ) {
-        this.lyrUcreId = lyrUcreId ;
-    }
-
-    public Long getLyrUcreId() {
-        return this.lyrUcreId;
-    }
-
-	public void setLyrUmodId( Long lyrUmodId ) {
-        this.lyrUmodId = lyrUmodId ;
-    }
-
-    public Long getLyrUmodId() {
-        return this.lyrUmodId;
-    }
-
-	public void setLyrDcre( Date lyrDcre ) {
-        this.lyrDcre = lyrDcre ;
+	public void setLyrDisplay( Boolean lyrDisplay ) {
+        this.lyrDisplay = lyrDisplay ;
     }
 
     public Date getLyrDcre() {
         return this.lyrDcre;
     }
 
-	public void setLyrDmod( Date lyrDmod ) {
-        this.lyrDmod = lyrDmod ;
+	public void setLyrDcre( Date lyrDcre ) {
+        this.lyrDcre = lyrDcre ;
     }
 
     public Date getLyrDmod() {
         return this.lyrDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setLyrDmod( Date lyrDmod ) {
+        this.lyrDmod = lyrDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Domains getDomains() {
         return this.domains;
-    } 
+    }
+
+    public void setDomains(Domains domains) {
+        this.domains = domains;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public List<LayerStyle> getListOfLayerStyle() {
+        if (this.listOfLayerStyle != null) {
+            return this.listOfLayerStyle.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<LayerStyle> getListOfLayerStyleWithDeleted() {
         return this.listOfLayerStyle;
-    } 
+    }
 
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
-    } 
-
-    public AssetType getAssetType() {
-        return this.assetType;
-    } 
+    public void setListOfLayerStyle(List<LayerStyle> listOfLayerStyle) {
+        this.listOfLayerStyle = listOfLayerStyle;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public AssetType getAssetType() {
+        return this.assetType;
+    }
+
+    public void setAssetType(AssetType assetType) {
+        this.assetType = assetType;
+    }
+
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
+    }
+
+    public void setListOfAsset(List<Asset> listOfAsset) {
+        this.listOfAsset = listOfAsset;
+    }
 
     public List<LayerReferences> getListOfLayerReferences() {
         return this.listOfLayerReferences;
-    } 
+    }
 
+    public void setListOfLayerReferences(List<LayerReferences> listOfLayerReferences) {
+        this.listOfLayerReferences = listOfLayerReferences;
+    }
 
 }

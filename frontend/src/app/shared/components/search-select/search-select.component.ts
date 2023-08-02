@@ -46,11 +46,10 @@ export class SearchSelectComponent implements OnInit {
           return element ? this.elementLabelFunction(element) : null;
         }).join(', ');
       } else {
-        const element = this.elements.find((el) => el[this.key] === this.control.value);
+        const element = this.elements.find((el) => el[this.key]?.toString() === this.control.value?.toString());
         if (element) label = this.elementLabelFunction(element);
       }
     }
-
     return label;
   }
 
@@ -60,7 +59,7 @@ export class SearchSelectComponent implements OnInit {
    * @returns the list of options
    */
   getFilterOptions(query): any[] {
-    return this.elements.filter((element) => this.elementLabelFunction(element).toLowerCase().includes(query));
+    return this.elements?.filter((element) => this.elementLabelFunction(element)?.toLowerCase().includes(query));
   }
 
   /**

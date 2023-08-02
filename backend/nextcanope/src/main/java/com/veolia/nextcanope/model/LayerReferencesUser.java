@@ -4,16 +4,14 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import java.util.Date;
-
-import com.veolia.nextcanope.enums.LayerReferencesDisplayType;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "LayerReferencesUser"
@@ -28,84 +26,64 @@ public class LayerReferencesUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="lrf_id", nullable=false)
-	@JsonProperty("lrf_id")
-    private Long lrfId ;
-
-    @Column(name="lru_user_id", nullable=false)
-	@JsonProperty("lru_user_id")
-    private Long lruUserId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="lru_position", nullable=false)
-	@JsonProperty("lru_position")
-    private Integer lruPosition ;
+    @JsonProperty("lru_position")
+    private Integer lruPosition;
 
     @Column(name="lru_display_type", nullable=false, length=2147483647)
-	@JsonProperty("lru_display_type")
-    @Enumerated(EnumType.STRING)
-    private LayerReferencesDisplayType lruDisplayType ;
+    @JsonProperty("lru_display_type")
+    private String lruDisplayType;
 
     @Column(name="lru_section", length=2147483647)
-	@JsonProperty("lru_section")
-    private String lruSection ;
+    @JsonProperty("lru_section")
+    private String lruSection;
 
     @Column(name="lru_isvisible")
-	@JsonProperty("lru_isvisible")
-    private Boolean lruIsvisible ;
-
-    @Column(name="lru_ucre_id")
-	@JsonProperty("lru_ucre_id")
-    private Long lruUcreId ;
+    @JsonProperty("lru_isvisible")
+    private Boolean lruIsvisible;
 
     @Column(name="lru_valid")
-	@JsonProperty("lru_valid")
-    private Boolean lruValid ;
-
-    @Column(name="lru_umod_id")
-	@JsonProperty("lru_umod_id")
-    private Long lruUmodId ;
+    @JsonProperty("lru_valid")
+    private Boolean lruValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lru_dcre")
-	@JsonProperty("lru_dcre")
-    private Date lruDcre ;
+    @CreationTimestamp
+    @JsonProperty("lru_dcre")
+    private Date lruDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lru_dmod")
-	@JsonProperty("lru_dmod")
-    private Date lruDmod ;
+    @UpdateTimestamp
+    @JsonProperty("lru_dmod")
+    private Date lruDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="lrf_id", referencedColumnName="id", insertable=false, updatable=false)
-    private LayerReferences layerReferences ; 
-
+    @JoinColumn(name="lrf_id", referencedColumnName="id")
+    private LayerReferences layerReferences;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lru_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lru_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="lru_user_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Users user ; 
-
+    @JoinColumn(name="lru_user_id", referencedColumnName="id")
+    private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="lru_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="lru_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     /**
      * Constructor
@@ -114,118 +92,102 @@ public class LayerReferencesUser implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setLrfId( Long lrfId ) {
-        this.lrfId = lrfId ;
-    }
-
-    public Long getLrfId() {
-        return this.lrfId;
-    }
-
-	public void setLruUserId( Long lruUserId ) {
-        this.lruUserId = lruUserId ;
-    }
-
-    public Long getLruUserId() {
-        return this.lruUserId;
-    }
-
-	public void setLruPosition( Integer lruPosition ) {
-        this.lruPosition = lruPosition ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public Integer getLruPosition() {
         return this.lruPosition;
     }
 
-	public void setLruDisplayType( LayerReferencesDisplayType lruDisplayType ) {
-        this.lruDisplayType = lruDisplayType ;
+	public void setLruPosition( Integer lruPosition ) {
+        this.lruPosition = lruPosition ;
     }
 
-    public LayerReferencesDisplayType getLruDisplayType() {
+    public String getLruDisplayType() {
         return this.lruDisplayType;
     }
 
-	public void setLruSection( String lruSection ) {
-        this.lruSection = lruSection ;
+	public void setLruDisplayType( String lruDisplayType ) {
+        this.lruDisplayType = lruDisplayType ;
     }
 
     public String getLruSection() {
         return this.lruSection;
     }
 
-	public void setLruIsvisible( Boolean lruIsvisible ) {
-        this.lruIsvisible = lruIsvisible ;
+	public void setLruSection( String lruSection ) {
+        this.lruSection = lruSection ;
     }
 
     public Boolean getLruIsvisible() {
         return this.lruIsvisible;
     }
 
-	public void setLruUcreId( Long lruUcreId ) {
-        this.lruUcreId = lruUcreId ;
-    }
-
-    public Long getLruUcreId() {
-        return this.lruUcreId;
-    }
-
-	public void setLruValid( Boolean lruValid ) {
-        this.lruValid = lruValid ;
+	public void setLruIsvisible( Boolean lruIsvisible ) {
+        this.lruIsvisible = lruIsvisible ;
     }
 
     public Boolean getLruValid() {
         return this.lruValid;
     }
 
-	public void setLruUmodId( Long lruUmodId ) {
-        this.lruUmodId = lruUmodId ;
-    }
-
-    public Long getLruUmodId() {
-        return this.lruUmodId;
-    }
-
-	public void setLruDcre( Date lruDcre ) {
-        this.lruDcre = lruDcre ;
+	public void setLruValid( Boolean lruValid ) {
+        this.lruValid = lruValid ;
     }
 
     public Date getLruDcre() {
         return this.lruDcre;
     }
 
-	public void setLruDmod( Date lruDmod ) {
-        this.lruDmod = lruDmod ;
+	public void setLruDcre( Date lruDcre ) {
+        this.lruDcre = lruDcre ;
     }
 
     public Date getLruDmod() {
         return this.lruDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setLruDmod( Date lruDmod ) {
+        this.lruDmod = lruDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public LayerReferences getLayerReferences() {
         return this.layerReferences;
-    } 
+    }
+
+    public void setLayerReferences(LayerReferences layerReferences) {
+        this.layerReferences = layerReferences;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public Users getUser() {
         return this.user;
-    } 
+    }
+
+    public void setUser(Users user) {
+        this.user = user;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

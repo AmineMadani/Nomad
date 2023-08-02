@@ -14,7 +14,7 @@ public interface BasemapsRepository extends JpaRepository<Basemaps, Long> {
 	/**
      * Finds a list of Basemaps entities based on the display value.
      *
-     * @param display The display value to filter the Basemaps entities. True if they should be displayed, false otherwise.
+     * @param mapDisplay The display value to filter the Basemaps entities. True if they should be displayed, false otherwise.
      * @return A list of filtered Basemaps entities.
      */
     List<Basemaps> findByMapDisplay(Boolean mapDisplay);

@@ -4,12 +4,10 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import jakarta.persistence.*;
-
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+
 
 /**
  * JPA entity class for "TextSetting"
@@ -24,19 +22,18 @@ public class TextSetting implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @Column(name="name", nullable=false, length=2147483647)
-    private String name ;
+    private String name;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="value", length=2147483647)
-	@JsonProperty("value")
-    private String value ;
+    @JsonProperty("value")
+    private String value;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     /**
      * Constructor
      */
@@ -44,22 +41,22 @@ public class TextSetting implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setName( String name ) {
-        this.name = name ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public String getName() {
         return this.name;
     }
 
-	public void setValue( String value ) {
-        this.value = value ;
+    public void setName( String name ) {
+        this.name = name ;
     }
 
     public String getValue() {
         return this.value;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setValue( String value ) {
+        this.value = value ;
+    }
 
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
 }

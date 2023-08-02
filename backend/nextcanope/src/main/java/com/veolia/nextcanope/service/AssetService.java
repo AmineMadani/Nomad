@@ -1,8 +1,14 @@
 package com.veolia.nextcanope.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.Layer;
+import com.veolia.nextcanope.model.Users;
+import com.veolia.nextcanope.repository.LayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,31 +26,35 @@ public class AssetService {
     @Autowired
     AssetRepository assetRepository;
 
+	@Autowired
+	LayerService layerService;
+
+	@Autowired
+	UserService userService;
+
     /**
      * Retrieves or create the wanted asset.
      *
      * @return The asset.
      */
-    public Asset getAsset(String assetRef, String tableRef, AccountTokenDto account) {
+    public Asset getNewOrExistingAsset(String assetRef, String tableRef, Long userId) {
+		// Asset
 		Asset asset = new Asset();
+		// Layer
+		String lyrTableName = "asset."+tableRef.replace("asset.", "");
+		Layer layer = this.layerService.getLayerByLyrTableName(lyrTableName);
+		// User
+		Users user = this.userService.getUserById(userId);
 
 		asset.setAssObjRef(assetRef);
-    	asset.setAssObjTable("asset."+tableRef.replace("asset.", ""));
-		asset.setAssUcreId(account.getId());
-		asset.setAssUmodId(account.getId());
-		asset.setAssDcre(new Date());
-		asset.setAssDmod(new Date());
+    	asset.setLayer(layer);
+		asset.setCreatedBy(user);
+		asset.setModifiedBy(user);
 		asset.setAssValid(true);
 		
-		Asset assetDb = assetRepository.findByAssObjRefAndAssObjTable(asset.getAssObjRef(), asset.getAssObjTable());
-		if(assetDb != null) {
+		Asset assetDb = assetRepository.findByAssObjRefAndLayer_LyrTableName(asset.getAssObjRef(), asset.getLayer().getLyrTableName());
+		if (assetDb != null) {
 			asset = assetDb;
-		} else {
-			try {
-				asset = assetRepository.save(asset);
-			} catch (Exception e) {
-				throw new TechnicalException("Erreur lors de la sauvegarde de l'asset pour l'utilisateur avec l'id  " + account.getId() + ".");
-			}
 		}
 		
         return asset;
@@ -53,10 +63,10 @@ public class AssetService {
 	/**
 	 * Finds an Asset entity based on the provided ass_obj_ref and ass_obj_table
 	 * @param assetObjRef Id of the asset
-	 * @param assetObjTable Name of the table asset
+	 * @param lyrTableName Name of the table asset
 	 * @return the asset
 	 */
-	public Asset getAssetByIdAndTable(String assetObjRef, String assetObjTable) {
-		return assetRepository.findByAssObjRefAndAssObjTable(assetObjRef, assetObjTable);
+	public Asset getAssetByIdAndTable(String assetObjRef, String lyrTableName) {
+		return assetRepository.findByAssObjRefAndLayer_LyrTableName(assetObjRef, lyrTableName);
 	}
 }

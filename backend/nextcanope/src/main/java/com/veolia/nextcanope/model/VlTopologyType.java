@@ -4,14 +4,14 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Date;
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+
 
 /**
  * JPA entity class for "VlTopologyType"
@@ -26,57 +26,48 @@ public class VlTopologyType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="tpt_type", nullable=false, length=2147483647)
-	@JsonProperty("tpt_type")
-    private String tptType ;
+    @JsonProperty("tpt_type")
+    private String tptType;
 
     @Column(name="tpt_required_fields", length=2147483647)
-	@JsonProperty("tpt_required_fields")
-    private String tptRequiredFields ;
+    @JsonProperty("tpt_required_fields")
+    private String tptRequiredFields;
 
     @Column(name="tpt_valid")
-	@JsonProperty("tpt_valid")
-    private Boolean tptValid ;
-
-    @Column(name="tpt_ucre_id")
-	@JsonProperty("tpt_ucre_id")
-    private Long tptUcreId ;
-
-    @Column(name="tpt_umod_id")
-	@JsonProperty("tpt_umod_id")
-    private Long tptUmodId ;
+    @JsonProperty("tpt_valid")
+    private Boolean tptValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tpt_dcre")
-	@JsonProperty("tpt_dcre")
-    private Date tptDcre ;
+    @CreationTimestamp
+    @JsonProperty("tpt_dcre")
+    private Date tptDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tpt_dmod")
-	@JsonProperty("tpt_dmod")
-    private Date tptDmod ;
+    @UpdateTimestamp
+    @JsonProperty("tpt_dmod")
+    private Date tptDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="tpt_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tpt_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="tpt_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="tpt_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -85,78 +76,70 @@ public class VlTopologyType implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setTptType( String tptType ) {
-        this.tptType = tptType ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getTptType() {
         return this.tptType;
     }
 
-	public void setTptRequiredFields( String tptRequiredFields ) {
-        this.tptRequiredFields = tptRequiredFields ;
+	public void setTptType( String tptType ) {
+        this.tptType = tptType ;
     }
 
     public String getTptRequiredFields() {
         return this.tptRequiredFields;
     }
 
-	public void setTptValid( Boolean tptValid ) {
-        this.tptValid = tptValid ;
+	public void setTptRequiredFields( String tptRequiredFields ) {
+        this.tptRequiredFields = tptRequiredFields ;
     }
 
     public Boolean getTptValid() {
         return this.tptValid;
     }
 
-	public void setTptUcreId( Long tptUcreId ) {
-        this.tptUcreId = tptUcreId ;
-    }
-
-    public Long getTptUcreId() {
-        return this.tptUcreId;
-    }
-
-	public void setTptUmodId( Long tptUmodId ) {
-        this.tptUmodId = tptUmodId ;
-    }
-
-    public Long getTptUmodId() {
-        return this.tptUmodId;
-    }
-
-	public void setTptDcre( Date tptDcre ) {
-        this.tptDcre = tptDcre ;
+	public void setTptValid( Boolean tptValid ) {
+        this.tptValid = tptValid ;
     }
 
     public Date getTptDcre() {
         return this.tptDcre;
     }
 
-	public void setTptDmod( Date tptDmod ) {
-        this.tptDmod = tptDmod ;
+	public void setTptDcre( Date tptDcre ) {
+        this.tptDcre = tptDcre ;
     }
 
     public Date getTptDmod() {
         return this.tptDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setTptDmod( Date tptDmod ) {
+        this.tptDmod = tptDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

@@ -120,7 +120,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   private paramFeatures: any;
 
   ngOnInit() {
-    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['redirect'];
+    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.buttons = [
       { key: 'add', label: 'Ajouter un élement', icon: 'add' },
       {
@@ -205,12 +205,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.popover.present();
         break;
       case 'create':
-        this.router.navigate(['/home/work-order'], {
-          queryParams: {
-            ...this.generateFeatureParams(this.featuresSelected),
-            draft: this.wkoDraft,
-          },
-        });
+        this.drawerService.navigateWithEquipments(
+          DrawerRouteEnum.WORKORDER_CREATION,
+          this.featuresSelected,
+          { draft: this.wkoDraft }
+        );
         break;
       case 'showSelectedFeatures':
         this.restoreViewOnFeatureSelected();

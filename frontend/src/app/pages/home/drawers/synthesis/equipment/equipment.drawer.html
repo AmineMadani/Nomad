@@ -24,7 +24,7 @@
   </ion-list>
   <ng-container *ngIf="userReferences">
     <ng-container *ngFor="let reference of userReferences">
-      <ng-container *ngIf="equipment">
+      <ng-container *ngIf="equipment && reference.displayType === ReferenceDisplayType.SYNTHETIC">
           <ion-item lines="none" class="ion-no-margin">
             <ion-label class="label">
               <h3>{{ reference.alias }}</h3>

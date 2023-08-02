@@ -40,7 +40,7 @@
             </ng-container>
             <!-- Mono selection -->
             <ng-container *ngIf="!isMultiSelection">
-              <ion-radio-group [formControl]="control">
+              <ion-radio-group [formControl]="control" (ionChange)="onCloseModal()">
                 <ion-radio *ngFor="let element of displayedElements;" value="{{element[key]}}" labelPlacement="end" justify="start"
                   aria-label="radio">
                   {{ elementLabelFunction(element) }}

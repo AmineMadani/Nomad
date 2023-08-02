@@ -5,6 +5,7 @@ import java.util.*;
 import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.LayerStyle.StyleDefinitionDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
+import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
 
 import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
@@ -106,5 +107,11 @@ public class LayerService {
             features.addAll(layerFeatures);
         }
         return features;
+    }
+
+    public Layer getLayerByLyrTableName(String lyrTableName) {
+        return this.layerRepository
+                .findByLyrTableName(lyrTableName)
+                .orElseThrow(() -> new FunctionalException("Le Layer avec la clé  " + lyrTableName + " n'existe pas."));
     }
 }

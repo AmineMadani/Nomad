@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
 	/**
      * Finds an Users entity based on the provided email.
      *
-     * @param email The email address used to search for the corresponding AppUser entity.
+     * @param usrEmail The email address used to search for the corresponding AppUser entity.
      * @return The AppUser entity associated with the given email, or null if not found.
      */
 	Users findByUsrEmail(String usrEmail);

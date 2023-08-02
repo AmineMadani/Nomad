@@ -4,16 +4,18 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import org.locationtech.jts.geom.Geometry;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "Contract"
@@ -28,88 +30,72 @@ public class Contract implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="ctr_code", length=2147483647)
-	@JsonProperty("ctr_code")
-    private String ctrCode ;
+    @JsonProperty("ctr_code")
+    private String ctrCode;
 
     @Column(name="ctr_slabel", length=2147483647)
-	@JsonProperty("ctr_slabel")
-    private String ctrSlabel ;
+    @JsonProperty("ctr_slabel")
+    private String ctrSlabel;
 
     @Column(name="ctr_llabel", length=2147483647)
-	@JsonProperty("ctr_llabel")
-    private String ctrLlabel ;
+    @JsonProperty("ctr_llabel")
+    private String ctrLlabel;
 
     @Column(name="ctr_valid")
-	@JsonProperty("ctr_valid")
-    private Boolean ctrValid ;
+    @JsonProperty("ctr_valid")
+    private Boolean ctrValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ctr_start_date")
-	@JsonProperty("ctr_start_date")
-    private Date ctrStartDate ;
+    @JsonProperty("ctr_start_date")
+    private Date ctrStartDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ctr_end_date")
-	@JsonProperty("ctr_end_date")
-    private Date ctrEndDate ;
-
-    @Column(name="ctr_ucre_id")
-	@JsonProperty("ctr_ucre_id")
-    private Long ctrUcreId ;
-
-    @Column(name="ctr_umod_id")
-	@JsonProperty("ctr_umod_id")
-    private Long ctrUmodId ;
+    @JsonProperty("ctr_end_date")
+    private Date ctrEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ctr_dcre")
-	@JsonProperty("ctr_dcre")
-    private Date ctrDcre ;
+    @CreationTimestamp
+    @JsonProperty("ctr_dcre")
+    private Date ctrDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ctr_dmod")
-	@JsonProperty("ctr_dmod")
-    private Date ctrDmod ;
-
-    @Column(name="cta_id")
-	@JsonProperty("cta_id")
-    private Long ctaId ;
+    @UpdateTimestamp
+    @JsonProperty("ctr_dmod")
+    private Date ctrDmod;
 
     @Column(name="geom", length=2147483647)
 	@JsonProperty("geom")
-    private Geometry geom ;
+    private Geometry geom;
 
-
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="cta_id", referencedColumnName="id", insertable=false, updatable=false)
-    private ContractActivity contractActivity ; 
-
+    @JoinColumn(name="cta_id", referencedColumnName="id")
+    private ContractActivity contractActivity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ctr_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="ctr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     @OneToMany(mappedBy="contract")
-    private List<Task> listOfTask ; 
-
+    private List<Task> listOfTask;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ctr_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="ctr_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -118,126 +104,128 @@ public class Contract implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setCtrCode( String ctrCode ) {
-        this.ctrCode = ctrCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getCtrCode() {
         return this.ctrCode;
     }
 
-	public void setCtrSlabel( String ctrSlabel ) {
-        this.ctrSlabel = ctrSlabel ;
+	public void setCtrCode( String ctrCode ) {
+        this.ctrCode = ctrCode ;
     }
 
     public String getCtrSlabel() {
         return this.ctrSlabel;
     }
 
-	public void setCtrLlabel( String ctrLlabel ) {
-        this.ctrLlabel = ctrLlabel ;
+	public void setCtrSlabel( String ctrSlabel ) {
+        this.ctrSlabel = ctrSlabel ;
     }
 
     public String getCtrLlabel() {
         return this.ctrLlabel;
     }
 
-	public void setCtrValid( Boolean ctrValid ) {
-        this.ctrValid = ctrValid ;
+	public void setCtrLlabel( String ctrLlabel ) {
+        this.ctrLlabel = ctrLlabel ;
     }
 
     public Boolean getCtrValid() {
         return this.ctrValid;
     }
 
-	public void setCtrStartDate( Date ctrStartDate ) {
-        this.ctrStartDate = ctrStartDate ;
+	public void setCtrValid( Boolean ctrValid ) {
+        this.ctrValid = ctrValid ;
     }
 
     public Date getCtrStartDate() {
         return this.ctrStartDate;
     }
 
-	public void setCtrEndDate( Date ctrEndDate ) {
-        this.ctrEndDate = ctrEndDate ;
+	public void setCtrStartDate( Date ctrStartDate ) {
+        this.ctrStartDate = ctrStartDate ;
     }
 
     public Date getCtrEndDate() {
         return this.ctrEndDate;
     }
 
-	public void setCtrUcreId( Long ctrUcreId ) {
-        this.ctrUcreId = ctrUcreId ;
-    }
-
-    public Long getCtrUcreId() {
-        return this.ctrUcreId;
-    }
-
-	public void setCtrUmodId( Long ctrUmodId ) {
-        this.ctrUmodId = ctrUmodId ;
-    }
-
-    public Long getCtrUmodId() {
-        return this.ctrUmodId;
-    }
-
-	public void setCtrDcre( Date ctrDcre ) {
-        this.ctrDcre = ctrDcre ;
+	public void setCtrEndDate( Date ctrEndDate ) {
+        this.ctrEndDate = ctrEndDate ;
     }
 
     public Date getCtrDcre() {
         return this.ctrDcre;
     }
 
-	public void setCtrDmod( Date ctrDmod ) {
-        this.ctrDmod = ctrDmod ;
+	public void setCtrDcre( Date ctrDcre ) {
+        this.ctrDcre = ctrDcre ;
     }
 
     public Date getCtrDmod() {
         return this.ctrDmod;
     }
 
-	public void setCtaId( Long ctaId ) {
-        this.ctaId = ctaId ;
-    }
-
-    public Long getCtaId() {
-        return this.ctaId;
-    }
-
-	public void setGeom( Geometry geom ) {
-        this.geom = geom ;
+	public void setCtrDmod( Date ctrDmod ) {
+        this.ctrDmod = ctrDmod ;
     }
 
     public Geometry getGeom() {
         return this.geom;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setGeom( Geometry geom ) {
+        this.geom = geom ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public ContractActivity getContractActivity() {
         return this.contractActivity;
-    } 
+    }
+
+    public void setContractActivity(ContractActivity contractActivity) {
+        this.contractActivity = contractActivity;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public List<Task> getListOfTask() {
+        if (this.listOfTask != null) {
+            return this.listOfTask.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Task> getListOfTaskWithDeleted() {
         return this.listOfTask;
-    } 
+    }
+
+    public void setListOfTask(List<Task> listOfTask) {
+        this.listOfTask = listOfTask;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

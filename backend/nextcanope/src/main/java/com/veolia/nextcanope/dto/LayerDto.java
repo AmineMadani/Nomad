@@ -166,10 +166,12 @@ public class LayerDto {
 		super();
 		this.id = layer.getId();
 		this.lyrNumOrder = layer.getLyrNumOrder();
-		this.domId = layer.getDomId();
+		this.domId = layer.getDomains().getId();
         this.domLLabel = layer.getDomains().getDomLlabel();
         this.domCode = layer.getDomains().getDomType();
-		this.astId = layer.getAstId();
+        if (layer.getAssetType() != null) {
+            this.astId = layer.getAssetType().getId();
+        }
 		this.lyrTableName = layer.getLyrTableName();
 		this.lyrGeomColumnName = layer.getLyrGeomColumnName();
 		this.lyrUuidColumnName = layer.getLyrUuidColumnName();

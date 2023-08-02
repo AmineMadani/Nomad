@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "AssetType"
@@ -27,78 +29,62 @@ public class AssetType implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
-    @Column(name="dom_id")
-	@JsonProperty("dom_id")
-    private Long domId ;
-
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="ast_code", nullable=false, length=2147483647)
-	@JsonProperty("ast_code")
-    private String astCode ;
+    @JsonProperty("ast_code")
+    private String astCode;
 
     @Column(name="ast_slabel", length=2147483647)
-	@JsonProperty("ast_slabel")
-    private String astSlabel ;
+    @JsonProperty("ast_slabel")
+    private String astSlabel;
 
     @Column(name="ast_llabel", length=2147483647)
-	@JsonProperty("ast_llabel")
-    private String astLlabel ;
+    @JsonProperty("ast_llabel")
+    private String astLlabel;
 
     @Column(name="ast_valid")
-	@JsonProperty("ast_valid")
-    private Boolean astValid ;
-
-    @Column(name="ast_ucre_id")
-	@JsonProperty("ast_ucre_id")
-    private Long astUcreId ;
-
-    @Column(name="ast_umod_id")
-	@JsonProperty("ast_umod_id")
-    private Long astUmodId ;
+    @JsonProperty("ast_valid")
+    private Boolean astValid;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ast_dcre")
-	@JsonProperty("ast_dcre")
-    private Date astDcre ;
+    @CreationTimestamp
+    @JsonProperty("ast_dcre")
+    private Date astDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="ast_dmod")
-	@JsonProperty("ast_dmod")
-    private Date astDmod ;
+    @UpdateTimestamp
+    @JsonProperty("ast_dmod")
+    private Date astDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @OneToMany(mappedBy="assetType")
+    private List<Layer> listOfLayer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ast_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     @OneToMany(mappedBy="assetType")
-    private List<Layer> listOfLayer ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ast_umod_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users modifiedBy ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ast_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
-
+    private List<AstWtr> listOfAstWtr;
 
     @ManyToOne
-    @JoinColumn(name="dom_id", referencedColumnName="id", insertable=false, updatable=false)
-    private Domains domains ; 
+    @JoinColumn(name="dom_id", referencedColumnName="id")
+    private Domains domains;
 
-
-    @OneToMany(mappedBy="assetType")
-    private List<AstWtr> listOfAstWtr ; 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ast_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
 
     /**
      * Constructor
@@ -107,106 +93,102 @@ public class AssetType implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setDomId( Long domId ) {
-        this.domId = domId ;
-    }
-
-    public Long getDomId() {
-        return this.domId;
-    }
-
-	public void setAstCode( String astCode ) {
-        this.astCode = astCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getAstCode() {
         return this.astCode;
     }
 
-	public void setAstSlabel( String astSlabel ) {
-        this.astSlabel = astSlabel ;
+	public void setAstCode( String astCode ) {
+        this.astCode = astCode ;
     }
 
     public String getAstSlabel() {
         return this.astSlabel;
     }
 
-	public void setAstLlabel( String astLlabel ) {
-        this.astLlabel = astLlabel ;
+	public void setAstSlabel( String astSlabel ) {
+        this.astSlabel = astSlabel ;
     }
 
     public String getAstLlabel() {
         return this.astLlabel;
     }
 
-	public void setAstValid( Boolean astValid ) {
-        this.astValid = astValid ;
+	public void setAstLlabel( String astLlabel ) {
+        this.astLlabel = astLlabel ;
     }
 
     public Boolean getAstValid() {
         return this.astValid;
     }
 
-	public void setAstUcreId( Long astUcreId ) {
-        this.astUcreId = astUcreId ;
-    }
-
-    public Long getAstUcreId() {
-        return this.astUcreId;
-    }
-
-	public void setAstUmodId( Long astUmodId ) {
-        this.astUmodId = astUmodId ;
-    }
-
-    public Long getAstUmodId() {
-        return this.astUmodId;
-    }
-
-	public void setAstDcre( Date astDcre ) {
-        this.astDcre = astDcre ;
+	public void setAstValid( Boolean astValid ) {
+        this.astValid = astValid ;
     }
 
     public Date getAstDcre() {
         return this.astDcre;
     }
 
-	public void setAstDmod( Date astDmod ) {
-        this.astDmod = astDmod ;
+	public void setAstDcre( Date astDcre ) {
+        this.astDcre = astDcre ;
     }
 
     public Date getAstDmod() {
         return this.astDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setAstDmod( Date astDmod ) {
+        this.astDmod = astDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public List<Layer> getListOfLayer() {
         return this.listOfLayer;
-    } 
+    }
+
+    public void setListOfLayer(List<Layer> listOfLayer) {
+        this.listOfLayer = listOfLayer;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
-    } 
-
-    public Domains getDomains() {
-        return this.domains;
-    } 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
     public List<AstWtr> getListOfAstWtr() {
         return this.listOfAstWtr;
-    } 
+    }
 
+    public void setListOfAstWtr(List<AstWtr> listOfAstWtr) {
+        this.listOfAstWtr = listOfAstWtr;
+    }
+
+    public Domains getDomains() {
+        return this.domains;
+    }
+
+    public void setDomains(Domains domains) {
+        this.domains = domains;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

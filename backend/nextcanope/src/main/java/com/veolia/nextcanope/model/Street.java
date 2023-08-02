@@ -4,16 +4,18 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Geometry;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "Street"
@@ -28,82 +30,66 @@ public class Street implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="str_code", length=2147483647)
-	@JsonProperty("str_code")
-    private String strCode ;
-
-    @Column(name="cty_id")
-	@JsonProperty("cty_id")
-    private Long ctyId ;
+    @JsonProperty("str_code")
+    private String strCode;
 
     @Column(name="str_slabel", length=2147483647)
-	@JsonProperty("str_slabel")
-    private String strSlabel ;
+    @JsonProperty("str_slabel")
+    private String strSlabel;
 
     @Column(name="str_llabel", length=2147483647)
-	@JsonProperty("str_llabel")
-    private String strLlabel ;
+    @JsonProperty("str_llabel")
+    private String strLlabel;
 
     @Column(name="str_source", length=2147483647)
-	@JsonProperty("str_source")
-    private String strSource ;
+    @JsonProperty("str_source")
+    private String strSource;
 
     @Column(name="str_valid")
-	@JsonProperty("str_valid")
-    private Boolean strValid ;
+    @JsonProperty("str_valid")
+    private Boolean strValid;
 
     @Column(name="geom", length=2147483647)
 	@JsonProperty("geom")
-    private Geometry geom ;
-
-    @Column(name="str_ucre_id")
-	@JsonProperty("str_ucre_id")
-    private Long strUcreId ;
-
-    @Column(name="str_umod_id")
-	@JsonProperty("str_umod_id")
-    private Long strUmodId ;
-
+    private Geometry geom;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="str_dcre")
-	@JsonProperty("str_dcre")
-    private Date strDcre ;
+    @CreationTimestamp
+    @JsonProperty("str_dcre")
+    private Date strDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="str_dmod")
-	@JsonProperty("str_dmod")
-    private Date strDmod ;
+    @UpdateTimestamp
+    @JsonProperty("str_dmod")
+    private Date strDmod;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="cty_id", referencedColumnName="id", insertable=false, updatable=false)
-    private City city ; 
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="str_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
-	@JsonIgnore
-    private Users createdBy ; 
-
+    @JoinColumn(name="cty_id", referencedColumnName="id")
+    private City city;
 
     @OneToMany(mappedBy="street")
-    private List<Workorder> listOfWorkorder ; 
-
+    private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="str_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="str_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
+    private Users createdBy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="str_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -112,118 +98,120 @@ public class Street implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setStrCode( String strCode ) {
-        this.strCode = strCode ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getStrCode() {
         return this.strCode;
     }
 
-	public void setCtyId( Long ctyId ) {
-        this.ctyId = ctyId ;
-    }
-
-    public Long getCtyId() {
-        return this.ctyId;
-    }
-
-	public void setStrSlabel( String strSlabel ) {
-        this.strSlabel = strSlabel ;
+	public void setStrCode( String strCode ) {
+        this.strCode = strCode ;
     }
 
     public String getStrSlabel() {
         return this.strSlabel;
     }
 
-	public void setStrLlabel( String strLlabel ) {
-        this.strLlabel = strLlabel ;
+	public void setStrSlabel( String strSlabel ) {
+        this.strSlabel = strSlabel ;
     }
 
     public String getStrLlabel() {
         return this.strLlabel;
     }
 
-	public void setStrSource( String strSource ) {
-        this.strSource = strSource ;
+	public void setStrLlabel( String strLlabel ) {
+        this.strLlabel = strLlabel ;
     }
 
     public String getStrSource() {
         return this.strSource;
     }
 
-	public void setStrValid( Boolean strValid ) {
-        this.strValid = strValid ;
+	public void setStrSource( String strSource ) {
+        this.strSource = strSource ;
     }
 
     public Boolean getStrValid() {
         return this.strValid;
     }
 
-	public void setGeom( Geometry geom ) {
-        this.geom = geom ;
+	public void setStrValid( Boolean strValid ) {
+        this.strValid = strValid ;
     }
 
     public Geometry getGeom() {
         return this.geom;
     }
 
-	public void setStrUcreId( Long strUcreId ) {
-        this.strUcreId = strUcreId ;
-    }
-
-    public Long getStrUcreId() {
-        return this.strUcreId;
-    }
-
-	public void setStrUmodId( Long strUmodId ) {
-        this.strUmodId = strUmodId ;
-    }
-
-    public Long getStrUmodId() {
-        return this.strUmodId;
-    }
-
-	public void setStrDcre( Date strDcre ) {
-        this.strDcre = strDcre ;
+	public void setGeom( Geometry geom ) {
+        this.geom = geom ;
     }
 
     public Date getStrDcre() {
         return this.strDcre;
     }
 
-	public void setStrDmod( Date strDmod ) {
-        this.strDmod = strDmod ;
+	public void setStrDcre( Date strDcre ) {
+        this.strDcre = strDcre ;
     }
 
     public Date getStrDmod() {
         return this.strDmod;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setStrDmod( Date strDmod ) {
+        this.strDmod = strDmod ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public City getCity() {
         return this.city;
-    } 
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
+    public List<Workorder> getListOfWorkorder() {
+        if (this.listOfWorkorder != null) {
+            return this.listOfWorkorder.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Workorder> getListOfWorkorderWithDeleted() {
+        return this.listOfWorkorder;
+    }
+
+    public void setListOfWorkorder(List<Workorder> listOfWorkorder) {
+        this.listOfWorkorder = listOfWorkorder;
+    }
 
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
 
-    public List<Workorder> getListOfWorkorder() {
-        return this.listOfWorkorder;
-    } 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

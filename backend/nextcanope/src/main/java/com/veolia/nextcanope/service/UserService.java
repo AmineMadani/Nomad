@@ -34,6 +34,10 @@ public class UserService {
 		List<Users> users = this.userRepository.findAll();
 		return users.stream().map(AccountDto::new).collect(Collectors.toList());
 	}
+
+	public Users getUserById(Long userId) {
+		return this.userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
+	}
 	
 	/**
 	 * Update the user data
@@ -42,15 +46,11 @@ public class UserService {
 	 * @return the account dto
 	 */
 	public AccountDto updateUser(Long userId, AccountDto updateUser) {
-		Optional<Users> optUser = userRepository.findById(userId);
-		if (optUser.isEmpty()) {
-			throw new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas.");
-		}
+		Users user = userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
 
-		Users user = optUser.get();
 		user.setUsrConfiguration(updateUser.getUsrConfiguration());
 		user.setUsrDmod(new Date());
-		user.setUsrUmodId(userId);
+		user.setModifiedBy(user);
 
 		try {
 			userRepository.save(user);
@@ -61,15 +61,18 @@ public class UserService {
 		return updateUser;
 	}
 
-	public void createUser(UserCreationPayload userPayload, Long ucreId) {
+	public void createUser(UserCreationPayload userPayload, Long uCreId) {
+		Users uCreUser = new Users();
+		uCreUser.setId(uCreId);
+
 		Users user = new Users();
 		user.setUsrFirstName(userPayload.getFirstname());
 		user.setUsrLastName(userPayload.getLastname());
 		user.setUsrEmail(userPayload.getMail());
 		user.setUsrStatus(userPayload.getStatus());
 		user.setUsrCompany(userPayload.getCompany());
-		user.setUsrUcreId(ucreId);
-		user.setUsrUmodId(ucreId);
+		user.setCreatedBy(uCreUser);
+		user.setModifiedBy(uCreUser);
 		user.setUsrValid(true);
 		user.setUsrDcre(new Date());
 		user.setUsrDmod(new Date());

@@ -4,15 +4,17 @@
 package com.veolia.nextcanope.model;
 
 import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * JPA entity class for "FormDefinition"
@@ -27,66 +29,55 @@ public class FormDefinition implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY PRIMARY KEY 
+    //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id ;
+    private Long id;
 
-    //--- ENTITY DATA FIELDS 
+    //--- ENTITY DATA FIELDS ---\\
     @Column(name="fdn_definition", nullable=false, length=2147483647)
-	@JsonProperty("fdn_definition")
-    private String fdnDefinition ;
-
-    @Column(name="fdn_ucre_id")
-	@JsonProperty("fdn_ucre_id")
-    private Long fdnUcreId ;
-
-    @Column(name="fdn_umod_id")
-	@JsonProperty("fdn_umod_id")
-    private Long fdnUmodId ;
+    @JsonProperty("fdn_definition")
+    private String fdnDefinition;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="fdn_dcre")
-	@JsonProperty("fdn_dcre")
-    private Date fdnDcre ;
+    @CreationTimestamp
+    @JsonProperty("fdn_dcre")
+    private Date fdnDcre;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="fdn_dmod")
-	@JsonProperty("fdn_dmod")
-    private Date fdnDmod ;
+    @UpdateTimestamp
+    @JsonProperty("fdn_dmod")
+    private Date fdnDmod;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="fdn_ddel")
-	@JsonProperty("fdn_ddel")
-    private Date fdnDdel ;
+    @JsonProperty("fdn_ddel")
+    private Date deletedAt;
 
     @Column(name="fdn_code", nullable=false, length=2147483647)
-	@JsonProperty("fdn_code")
-    private String fdnCode ;
+    @JsonProperty("fdn_code")
+    private String fdnCode;
 
 
-    //--- ENTITY LINKS ( RELATIONSHIP )
-
+    //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
-    @JoinColumn(name="fdn_ucre_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="fdn_ucre_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users createdBy ; 
-
+    private Users createdBy;
 
     @OneToMany(mappedBy="formDefinition")
-    private List<FormTemplateCustom> listOfFormTemplateCustom ; 
-
+    private List<FormTemplateCustom> listOfFormTemplateCustom;
 
     @OneToMany(mappedBy="formDefinition")
-    private List<FormTemplate> listOfFormTemplate ; 
-
+    private List<FormTemplate> listOfFormTemplate;
 
     @ManyToOne
-    @JoinColumn(name="fdn_umod_id", referencedColumnName="id", insertable=false, updatable=false)
+    @JoinColumn(name="fdn_umod_id", referencedColumnName="id")
 	@JsonIgnore
-    private Users modifiedBy ; 
-
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -95,86 +86,111 @@ public class FormDefinition implements Serializable {
 		super();
     }
     
-    //--- GETTERS & SETTERS FOR FIELDS
-    public void setId( Long id ) {
-        this.id = id ;
-    }
+    //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Long getId() {
         return this.id;
     }
 
-	public void setFdnDefinition( String fdnDefinition ) {
-        this.fdnDefinition = fdnDefinition ;
+    public void setId( Long id ) {
+        this.id = id ;
     }
 
     public String getFdnDefinition() {
         return this.fdnDefinition;
     }
 
-	public void setFdnUcreId( Long fdnUcreId ) {
-        this.fdnUcreId = fdnUcreId ;
-    }
-
-    public Long getFdnUcreId() {
-        return this.fdnUcreId;
-    }
-
-	public void setFdnUmodId( Long fdnUmodId ) {
-        this.fdnUmodId = fdnUmodId ;
-    }
-
-    public Long getFdnUmodId() {
-        return this.fdnUmodId;
-    }
-
-	public void setFdnDcre( Date fdnDcre ) {
-        this.fdnDcre = fdnDcre ;
+	public void setFdnDefinition( String fdnDefinition ) {
+        this.fdnDefinition = fdnDefinition ;
     }
 
     public Date getFdnDcre() {
         return this.fdnDcre;
     }
 
-	public void setFdnDmod( Date fdnDmod ) {
-        this.fdnDmod = fdnDmod ;
+	public void setFdnDcre( Date fdnDcre ) {
+        this.fdnDcre = fdnDcre ;
     }
 
     public Date getFdnDmod() {
         return this.fdnDmod;
     }
 
-	public void setFdnDdel( Date fdnDdel ) {
-        this.fdnDdel = fdnDdel ;
+	public void setFdnDmod( Date fdnDmod ) {
+        this.fdnDmod = fdnDmod ;
     }
 
-    public Date getFdnDdel() {
-        return this.fdnDdel;
+    public Date getDeletedAt() {
+        return deletedAt;
     }
 
-	public void setFdnCode( String fdnCode ) {
-        this.fdnCode = fdnCode ;
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
     }
 
     public String getFdnCode() {
         return this.fdnCode;
     }
 
-    //--- GETTERS FOR LINKS
+	public void setFdnCode( String fdnCode ) {
+        this.fdnCode = fdnCode ;
+    }
+
+    //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getCreatedBy() {
         return this.createdBy;
-    } 
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
 
     public List<FormTemplateCustom> getListOfFormTemplateCustom() {
+        if (this.listOfFormTemplateCustom != null) {
+            return this.listOfFormTemplateCustom.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<FormTemplateCustom> getListOfFormTemplateCustomWithDeleted() {
         return this.listOfFormTemplateCustom;
-    } 
+    }
+
+    public void setListOfFormTemplateCustom(List<FormTemplateCustom> listOfFormTemplateCustom) {
+        this.listOfFormTemplateCustom = listOfFormTemplateCustom;
+    }
 
     public List<FormTemplate> getListOfFormTemplate() {
+        if (this.listOfFormTemplate != null) {
+            return this.listOfFormTemplate.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<FormTemplate> getListOfFormTemplateWithDeleted() {
         return this.listOfFormTemplate;
-    } 
+    }
+
+    public void setListOfFormTemplate(List<FormTemplate> listOfFormTemplate) {
+        this.listOfFormTemplate = listOfFormTemplate;
+    }
 
     public Users getModifiedBy() {
         return this.modifiedBy;
-    } 
+    }
 
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
 
 }

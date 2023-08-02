@@ -135,11 +135,11 @@ export class DrawerService {
     this.router.navigate([url], { queryParams: queryParams, replaceUrl });
   }
 
-  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], redirectionId?: string): void {
+  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], queryParams?: any): void {
     const url = this.getUrlFromDrawerName(route);
     const eqParams = this.utilsService.generateFeatureParams(equipments);
 
-    this.router.navigate([url], { queryParams: { ...eqParams, redirect: redirectionId } });
+    this.router.navigate([url], { queryParams: { ...eqParams, ...queryParams } });
   }
 
   closeDrawer() {

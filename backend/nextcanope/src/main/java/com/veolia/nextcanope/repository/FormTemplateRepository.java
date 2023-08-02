@@ -2,7 +2,7 @@ package com.veolia.nextcanope.repository;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.veolia.nextcanope.configuration.NomadRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,7 +13,7 @@ import com.veolia.nextcanope.model.FormTemplate;
  * FormTemplate is an interface for managing Form template entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
-public interface FormTemplateRepository extends JpaRepository<FormTemplate, Long> {
+public interface FormTemplateRepository extends NomadRepository<FormTemplate, Long> {
 
 	/**
      * Get the list of layer references for a specific user.

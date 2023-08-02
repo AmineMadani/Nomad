@@ -25,7 +25,6 @@ public class WorkorderRepositoryImpl {
 	/**
 	 * Retrieves the index associated with a specific key.
 	 *
-	 * @param key The key to search for in the database.
 	 * @return The index as a string, associated with the given key.
 	 */
 	public List<WorkorderDto> getWorkOrderPaginationWithCustomCriteria(Long limit, Long offset,
@@ -67,18 +66,6 @@ public class WorkorderRepositoryImpl {
         );
 
 		return lWorkOrders;
-	}
-	
-	/**
-	 * Update geom from a workorder with the longitude and latitude
-	 * @param workOrderId the workorder to update
-	 */
-	public void updateGeom(Long workOrderId) {
-		this.jdbcTemplate.update("update nomad.workorder set geom=(select st_transform(st_setsrid(st_geomfromtext('POINT('||longitude|| ' '||latitude||')'),4326),3857) from nomad.workorder where id=?) where id=?",workOrderId,workOrderId);
-	}
-
-	public void updateGeomForTask(Long taskId) {
-		this.jdbcTemplate.update("update nomad.task set geom=(select st_transform(st_setsrid(st_geomfromtext('POINT('||longitude|| ' '||latitude||')'),4326),3857) from nomad.task where id=?) where id=?",taskId,taskId);
 	}
 
 	/**

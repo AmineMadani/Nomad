@@ -163,6 +163,7 @@ export class CacheService {
     const wtrEntries = await this.db.referentials
       .where('key')
       .equals('v_layer_wtr')
+      .distinct()
       .toArray();
 
     const wtrs = wtrEntries.flatMap((entry) => entry.data);

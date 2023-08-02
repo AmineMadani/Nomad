@@ -1,10 +1,9 @@
 package com.veolia.nextcanope.enums;
 
-public enum StatusCode {
+public enum WorkOrderStatusCode {
     CREE,
     ENVOYEPLANIF,
     PLANIFIE,
-    TERMINE,
+    TERMINEE,
     ANNULE
 }
-
