@@ -21,7 +21,6 @@ export class WkoViewComponent implements OnInit {
     private workorderService: WorkorderService,
     private mapLayerService: MapLayerService,
     private mapService: MapService,
-    private mapEvent: MapEventService
   ) {}
 
   public workOrder: Workorder;
@@ -29,6 +28,8 @@ export class WkoViewComponent implements OnInit {
   public assetLabel: string;
   public status: string;
   public reason: string;
+
+  public loading: boolean = true;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -62,6 +63,8 @@ export class WkoViewComponent implements OnInit {
               refReason.id.toString() ===
               this.workOrder.tasks[0].wtrId.toString()
           ).wtr_llabel;
+
+          this.loading = false;
         });
       });
   }

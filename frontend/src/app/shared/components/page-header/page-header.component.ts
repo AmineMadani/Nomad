@@ -25,6 +25,7 @@ export class PageHeaderComponent implements OnInit {
   @Input() public headerLabel: string;
   @Input() public forceButtons: boolean;
   @Input() public template: TemplateRef<any>;
+  @Input() public loading: boolean;
 
   public isMobile: boolean;
 

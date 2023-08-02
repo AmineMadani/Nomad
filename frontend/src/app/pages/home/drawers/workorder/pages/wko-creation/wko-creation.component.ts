@@ -60,6 +60,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public equipmentName: string;
 
+  public loading: boolean = true;
+
   private markerCreation: Map<string, any> = new Map();
   private markerDestroyed: boolean;
 
@@ -104,6 +106,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.initializeEquipments();
 
         this.generateMarker();
+
+        this.loading = false;
       });
   }
 
@@ -184,7 +188,20 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  public setCheckboxValue(controlKey: string, event: Event): void {
+    this.workOrderForm.controls[controlKey].setValue(
+      (event as CustomEvent).detail.checked
+    );
+  }
+
   public onSubmit(): void {
+    console.log(this.workOrderForm);
+    return;
+    this.workOrderForm.markAllAsTouched();
+    if (!this.workOrderForm.valid) {
+      return;
+    }
+
     const { wtrId, ...form } = this.workOrderForm.value;
 
     let assets = [];
@@ -306,7 +323,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private async initializeEquipments(): Promise<void> {
     let contractsIds: any[], cityIds: any[];
 
-    if (this.equipments.length > 0 && this.equipments[0] !== null) { // WKO Assets
+    if (this.equipments.length > 0 && this.equipments[0] !== null) {
+      // WKO Assets
       await this.initEquipmentsLayers();
       // If mono-equipment, we need the equipment name
       if (this.equipments.length === 1) {
@@ -325,11 +343,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       contractsIds = this.equipments.map((eq) => eq.ctr_id);
       cityIds = this.equipments.map((eq) => eq.cty_id);
 
-      this.idList = this.equipments
-        .filter((eq) => eq !== null)
-        .map((eq) => eq.id)
-        .join(', ');
-    } else { // WKO XY
+      this.idList = this.equipments.length.toString();
+    } else {
+      // WKO XY
       this.params = { ...this.activatedRoute.snapshot.queryParams };
 
       // When in XY, we need all reasons, without duplicates

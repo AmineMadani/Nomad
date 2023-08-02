@@ -1,10 +1,13 @@
 <ion-item class="header-item" lines="none">
-  <ion-button *ngIf="!isMobile || forceButtons" fill="clear" slot="start" (click)="onBackClick()">
+  <ion-button *ngIf="!isMobile || forceButtons" fill="clear" slot="start" (click)="onBackClick()" [disabled]="loading">
     <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
   </ion-button>
-  <ion-label class="header-label">{{ headerLabel }}</ion-label>
+  <ion-label class="header-label">
+    <ng-container *ngIf="!loading; else loadingLabel">{{ headerLabel }}</ng-container>
+    <ng-template #loadingLabel><ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text></ng-template>
+  </ion-label>
   <ng-container [ngTemplateOutlet]="template"></ng-container>
-  <ion-button *ngIf="!isMobile || forceButtons" fill="clear" slot="end" (click)="onCloseClick()">
+  <ion-button *ngIf="!isMobile || forceButtons" fill="clear" slot="end" (click)="onCloseClick()" [disabled]="loading">
     <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
   </ion-button>
 </ion-item>

@@ -1,81 +1,97 @@
-<ng-container *ngIf="equipments?.length > 0 || params">
-  <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
-    <ion-list>
-      <!-- <app-wko-referential *ngIf="contractsId || params" [key]="'ctr_id'" [repository]="'contract'" [repositoryKey]="'id'"
-              [repositoryValue]="'ctr_slabel'" [label]="'Contrat *'" [paramMap]="contractsId ?? params"
-              [control]="workOrderForm.controls['ctrId']" [disabled]="!(equipments?.length > 1)"></app-wko-referential> -->
-      <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats'" [elements]="contracts"
-        [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
-      </app-search-select>
-      
-      <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes'" [elements]="cities"
-        [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
-      </app-search-select>
-      
-      <app-search-select class="select-search" [key]="'wtr_id'" [label]="'Liste des raisons'" [elements]="wtrs"
-        [control]="workOrderForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
-      </app-search-select>
+<app-page-header [headerLabel]="'Générer une interventions'" [loading]="loading"></app-page-header>
 
-      <div *ngIf="!params" class="wko-assets">
-        <ng-container *ngIf="equipments?.length === 1">
-          <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="Equipement" type="text"
-            [value]="equipmentName"></ion-input>
-          <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="ID" type="text"
-            [value]="equipments[0].id"></ion-input>
-          <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])">
-            <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+<div class="wko-creation-body">
+  <ng-container *ngIf="!loading; else loadingBody">
+    <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
+      <ion-list>
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
+          [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
+        </app-search-select>
+
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
+          [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
+        </app-search-select>
+
+        <app-search-select class="select-search" [key]="'wtr_id'" [label]="'Liste des raisons *'" [elements]="wtrs"
+          [control]="workOrderForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
+        </app-search-select>
+
+        <div *ngIf="!params" class="wko-assets">
+          <ng-container *ngIf="equipments?.length === 1">
+            <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="Equipement" type="text"
+              [value]="equipmentName"></ion-input>
+            <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="ID" type="text"
+              [value]="equipments[0].id"></ion-input>
+            <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])">
+              <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ng-container>
+          <ng-container *ngIf="equipments?.length > 1">
+            <ion-input labelPlacement="floating" fill="outline" label="Equipements" type="text" [value]="idList"
+              (click)="openEquipmentModal()" [disabled]="equipments?.[0] === null"></ion-input>
+          </ng-container>
+          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()">
+            <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
-        </ng-container>
-        <ng-container *ngIf="equipments?.length > 1">
-          <ion-input labelPlacement="floating" fill="outline" label="Equipement(s)" type="text" [value]="idList"
-            (click)="openEquipmentModal()" [disabled]="equipments?.[0] === null"></ion-input>
-        </ng-container>
-        <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()">
-          <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </div>
+        </div>
 
-      <ion-input labelPlacement="floating" fill="outline" label="Libelle" placeholder="Libelle" type="text"
-        formControlName="wkoName"></ion-input>
-      <ng-container
-        *ngTemplateOutlet="errorTemplate; context: { control: workOrderForm.controls['wkoName'] }"></ng-container>
+        <ion-input labelPlacement="floating" fill="outline" label="Libelle *" placeholder="Libelle" type="text"
+          formControlName="wkoName"></ion-input>
+        <ng-container
+          *ngTemplateOutlet="errorTemplate; context: { control: workOrderForm.controls['wkoName'] }"></ng-container>
 
-      <ion-input labelPlacement="floating" fill="outline" label="Adresse" placeholder="Adresse" type="text"
-        formControlName="wkoAddress"></ion-input>
+        <ion-input labelPlacement="floating" fill="outline" label="Adresse" placeholder="Adresse" type="text"
+          formControlName="wkoAddress"></ion-input>
 
-      <ion-select class="select" aria-label="agents" labelPlacement="floating" fill="outline" label="Nombre d'agents *"
-        placeholder="Agents" formControlName="wkoAgentNb">
-        <ion-select-option value="1">1</ion-select-option>
-        <ion-select-option value="2">2</ion-select-option>
-        <ion-select-option value="3">3</ion-select-option>
-        <ion-select-option value="4">4</ion-select-option>
-        <ion-select-option value="4">5</ion-select-option>
-      </ion-select>
+        <ion-select class="select" aria-label="agents" labelPlacement="floating" fill="outline"
+          label="Nombre d'agents *" placeholder="Agents" formControlName="wkoAgentNb">
+          <ion-select-option value="1">1</ion-select-option>
+          <ion-select-option value="2">2</ion-select-option>
+          <ion-select-option value="3">3</ion-select-option>
+          <ion-select-option value="4">4</ion-select-option>
+          <ion-select-option value="4">5</ion-select-option>
+        </ion-select>
 
-      <div class="wko-calendar">
-        <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début"
-          formControlName="wkoPlanningStartDate"></ion-input>
-        <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="Fin"
-          formControlName="wkoPlanningEndDate"></ion-input>
-        <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
-          <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </div>
+        <div class="wko-calendar">
+          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début"
+            formControlName="wkoPlanningStartDate"></ion-input>
+          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="Fin"
+            formControlName="wkoPlanningEndDate"></ion-input>
+          <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
+            <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
 
-      <div class="radio-group">
-        <ion-radio-group [allowEmptySelection]="true" formControlName="wkoEmergency">
-          <ion-radio value="true">Urgent</ion-radio>
-        </ion-radio-group>
-        <ion-radio-group [allowEmptySelection]="true" formControlName="wkoAppointment">
-          <ion-radio value="true">Rendez-vous</ion-radio>
-        </ion-radio-group>
-      </div>
+        <div class="radio-group">
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false">Urgent</ion-checkbox>
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)" [checked]="false">Rendez-vous</ion-checkbox>
+        </div>
 
-      <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
-        placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
-    </ion-list>
-  </form>
-</ng-container>
+        <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
+          placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
+      </ion-list>
+    </form>
+  </ng-container>
+</div>
+<div class="wko-footer">
+  <ion-button fill="clear">Annuler</ion-button>
+  <ion-button fill="clear" (click)="onSubmit()" [disabled]="loading || !workOrderForm.valid">Envoyer à la planification</ion-button>
+</div>
+
+<ng-template #loadingBody>
+  <ion-list>
+    <ion-item lines="none" class="ion-no-margin" *ngFor="let number of [0,1,2,3,4,5,6,7]">
+      <ion-label class="label">
+        <h3>
+          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+        </h3>
+        <p>
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ng-template>
 
 <ng-template #errorTemplate let-control="control">
   <ng-container *ngIf="control?.errors && (control?.dirty || control?.touched)">
@@ -105,7 +121,8 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <ion-item *ngFor="let eqDetail of equipmentsDetails" button (click)="openEquipmentFromDetail(eqDetail[1], eqDetail[2])">
+      <ion-item *ngFor="let eqDetail of equipmentsDetails" button
+        (click)="openEquipmentFromDetail(eqDetail[1], eqDetail[2])">
         <ion-label position="stacked">{{ eqDetail[0] }} - {{ eqDetail[1] }}</ion-label>
       </ion-item>
     </ion-content>
