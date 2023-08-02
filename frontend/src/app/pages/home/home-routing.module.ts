@@ -49,21 +49,21 @@ const routes: Routes = [
         },
       },
       {
-        path: 'work-order/:id',
+        path: 'workorder/:id',
         component: WorkOrderDrawer,
         data: {
           name: DrawerRouteEnum.WORKORDER,
         },
       },
       {
-        path: 'work-order/:id/cr',
+        path: 'workorder/:id/cr',
         component: ReportDrawer,
         data: {
           name: DrawerRouteEnum.REPORT,
         },
       },
       {
-        path: 'work-order',
+        path: 'workorder',
         component: WorkOrderDrawer,
         data: {
           name: DrawerRouteEnum.WORKORDER,

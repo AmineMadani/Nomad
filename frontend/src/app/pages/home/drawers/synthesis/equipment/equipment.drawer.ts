@@ -50,7 +50,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     if (ev.key === 'create') {
       // Mono-equipment
       const { id, ...eq } = this.equipment;
-      this.router.navigate(['/home/work-order'], {
+      this.router.navigate(['/home/workorder'], {
         queryParams: { [this.equipment.lyr_table_name]: this.equipment.id },
       });
     }

@@ -202,7 +202,7 @@ export class ReportCreateComponent implements OnInit {
         this.exploitationService.deleteStateWorkorder(this.workorder);
       });
     } else {
-      this.router.navigate(['/home/work-order/' + this.workorder.tasks[0].id], { queryParams: { 'lyr_table_name': 'workorder' } });
+      this.router.navigate(['/home/workorder/' + this.workorder.tasks[0].id], { queryParams: { 'lyr_table_name': 'workorder' } });
       this.isSubmitting = false;
       this.exploitationService.deleteStateWorkorder(this.workorder);
     }

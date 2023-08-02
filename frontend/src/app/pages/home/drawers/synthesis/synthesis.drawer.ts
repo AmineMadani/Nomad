@@ -31,7 +31,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     private mapService: MapService,
     private route: ActivatedRoute,
     private layerService: LayerService
-  ) {}
+  ) { }
 
   @ViewChild('content', { static: true }) content: ElementRef;
   @ViewChild('footer', { static: true }) footer: ElementRef;
@@ -59,19 +59,12 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     this.isMobile = this.utils.isMobilePlateform();
     const urlParams = new URLSearchParams(window.location.search);
     const paramMap = new Map(urlParams.entries());
-    if (this.mapService.getMap()) {
+    this.mapService.onMapLoaded().pipe(
+      filter((isMapLoaded) => isMapLoaded),
+      takeUntil(this.ngUnsubscribe$)
+    ).subscribe(() => {
       this.zoomToFeature(paramMap);
-    } else {
-      this.mapService
-        .onMapLoaded()
-        .pipe(
-          filter((isMapLoaded) => isMapLoaded),
-          takeUntil(this.ngUnsubscribe$)
-        )
-        .subscribe(() => {
-          this.zoomToFeature(paramMap);
-        });
-    }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -114,6 +107,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private zoomToFeature(params: Map<string, string>): void {
+    console.log(params);
     this.route.params
       .pipe(
         switchMap((param: Params) => {

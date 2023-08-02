@@ -84,7 +84,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           (e): e is NavigationStart =>
             e instanceof NavigationStart &&
             !e.url.includes('/home/selection') &&
-            !e.url.includes('/home/work-order') &&
+            !e.url.includes('/home/workorder') &&
             this.activatedRoute.snapshot.queryParams['draft']
         )
       )

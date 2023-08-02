@@ -45,15 +45,15 @@ export const drawerRoutes = [
     name: DrawerRouteEnum.EQUIPMENT_DETAILS,
   },
   {
-    path: '/home/work-order/:id',
+    path: '/home/workorder/:id',
     name: DrawerRouteEnum.WORKORDER,
   },
   {
-    path: '/home/work-order/',
+    path: '/home/workorder/',
     name: DrawerRouteEnum.WORKORDER_CREATION,
   },
   {
-    path: '/home/work-order/:id/cr',
+    path: '/home/workorder/:id/cr',
     name: DrawerRouteEnum.REPORT,
   },
   {

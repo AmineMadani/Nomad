@@ -160,7 +160,7 @@ export class KeycloakService {
         this.externalReport = res.extras.refextint;
       }
       if(this.externalReport && this.hasValidToken()){
-        this.router.navigate(["/home/work-order/"+this.externalReport+"/cr"]);
+        this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
       }
     });
 
@@ -210,7 +210,7 @@ export class KeycloakService {
                   if(this.mobileUrlState){
                     this.mobileUrlState=undefined;
                   }
-                  this.router.navigate(["/home/work-order/"+this.externalReport+"/cr"]);
+                  this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
                 }
                 this.loadUserProfile();
                 this.realmRoles = this.getRealmRoles();

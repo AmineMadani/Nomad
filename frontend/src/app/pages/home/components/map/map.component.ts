@@ -242,7 +242,7 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   public resumeReport() {
     this.router.navigate([
-      '/home/work-order/' + this.keycloakService.externalReport + '/cr',
+      '/home/workorder/' + this.keycloakService.externalReport + '/cr',
     ]);
   }
 
@@ -435,7 +435,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'];
     }
     document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.router.navigate(['/home/work-order'], {
+    this.router.navigate(['/home/workorder'], {
       queryParams: this.selectedFeature['properties'],
     });
   }

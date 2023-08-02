@@ -56,7 +56,7 @@ export class MobileHomeActionsComponent implements OnInit {
 
     this.modalCtlr.dismiss();
 
-    this.router.navigate(['/home/work-order'], {
+    this.router.navigate(['/home/workorder'], {
       queryParams: params,
     });
   }
