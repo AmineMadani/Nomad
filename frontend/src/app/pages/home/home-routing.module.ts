@@ -9,10 +9,10 @@ import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
 import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
 import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
-import { ReportDrawer } from './drawers/report/report.drawer';
 import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
 import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
+import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
 
 const routes: Routes = [
   {
@@ -73,7 +73,17 @@ const routes: Routes = [
           },
           {
             path: ':id/cr',
-            component: ReportDrawer
+            component: ReportDrawer,
+            data: {
+              name: DrawerRouteEnum.REPORT
+            },
+          },
+          {
+            path: ':id/task/:taskid',
+            component: WkoViewComponent,
+            data: {
+              name: DrawerRouteEnum.WORKORDER_VIEW
+            },
           }
         ]
       },

@@ -101,12 +101,16 @@ export class MapLayerService {
    * @param x longitude
    * @param y latitude
    */
-  public moveToXY(x: number, y: number): Promise<string> {
+  public moveToXY(x: number, y: number, zoomLevel:number = 16): Promise<string> {
+
+    if(this.mapService.getMap().getZoom() > zoomLevel) {
+      zoomLevel = this.mapService.getMap().getZoom();
+    }
     return new Promise((resolve) => {
-      if (x && y && !this.isPointInsideCurrentBoundingBox(x,y)) {
+      if (x && y) {
         this.mapService
           .getMap()
-          .easeTo({ center: [x, y], zoom: 16 })
+          .easeTo({ center: [x, y], zoom: zoomLevel })
           .once('moveend', () => {
             resolve('done');
           });

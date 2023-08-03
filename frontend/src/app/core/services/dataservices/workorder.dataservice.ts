@@ -22,7 +22,7 @@ export class WorkorderDataService {
 
   public getFeaturePagination(key: string,limit: number,offset: number,search: Map<string, string[]> | undefined): Observable<MapFeature[]> {
     return this.http
-      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/${key}/pagination/${limit}/${offset}`,
+      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/workorder/${key}/pagination/${limit}/${offset}`,
         this.utilsService.mapToJson(search),
         this.httpOptions
       )

@@ -33,7 +33,7 @@ public class WorkorderController {
     @Autowired
     public WorkorderService workOrderService;
 
-    @PostMapping(path = "pagination/{limit}/{offset}")
+    @PostMapping(path = "/task/pagination/{limit}/{offset}")
     @Operation(summary = "Get the workorders with search parameter in pagination format")
     @ApiResponses(value = {
     			@ApiResponse(description= "The workorders filtered", content =  {

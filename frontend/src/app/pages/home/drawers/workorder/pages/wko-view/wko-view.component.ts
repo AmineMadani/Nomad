@@ -1,18 +1,16 @@
-import { Component, OnInit, SimpleChanges, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelWorkOrder,
   Workorder,
 } from 'src/app/core/models/workorder.model';
-import { LayerService } from 'src/app/core/services/layer.service';
-import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
-import { CacheService } from 'src/app/core/services/cache.service';
+import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -20,22 +18,25 @@ import { CacheService } from 'src/app/core/services/cache.service';
   styleUrls: ['./wko-view.component.scss'],
 })
 export class WkoViewComponent implements OnInit {
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private referentialService: ReferentialService,
     private workorderService: WorkorderService,
     private mapLayerService: MapLayerService,
+    private mapEventService: MapEventService,
     private mapService: MapService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private cacheService: CacheService
-  ) {}
+    private router: Router
+  ) { }
 
   public workOrder: Workorder;
 
   public assetLabel: string;
   public status: string;
   public reason: string;
+  public taskid : string;
 
   public loading: boolean = true;
 
@@ -49,34 +50,36 @@ export class WkoViewComponent implements OnInit {
         takeUntil(this.ngUnsubscribe$)
       )
       .subscribe(async () => {
-        const { id } = this.activatedRoute.snapshot.params;
 
+        const { id } = this.activatedRoute.snapshot.params;
+        this.taskid = this.activatedRoute.snapshot.params['taskid']?.toString();
         this.workOrder = await this.workorderService.getWorkorderById(id);
 
-        console.log(this.workOrder);
+        this.checkTask(this.taskid);
 
-        await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
-          'workorder',
-          id
-        );
+        this.displayAndZoomTo(this.workOrder);
+
+        let wtsid = this.workOrder.wtsId.toString();
+        let lyrTableName = this.workOrder.tasks[0].assObjTable;
+
+        if(this.taskid) {
+          wtsid = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.wtsId;
+          lyrTableName = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.assObjTable;
+        }
 
         Promise.all([
           this.referentialService.getReferential('workorder_task_status'),
           this.referentialService.getReferential('workorder_task_reason'),
-          this.referentialService.getReferential('asset'),
+          this.referentialService.getReferential('layers'),
         ]).then((res) => {
-          this.status = res[0].find(
-            (refStatus) =>
-              refStatus.id.toString() === this.workOrder.wtsId.toString()
-          ).wts_llabel;
-          this.status =
-            this.status.charAt(0).toUpperCase() + this.status.slice(1);
+          this.status = res[0].find(refStatus => refStatus.id == wtsid)?.wts_llabel;
+          this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
           this.reason = res[1].find(
             (refReason) =>
-              refReason.id.toString() ===
-              this.workOrder.tasks[0].wtrId.toString()
-          ).wtr_llabel;
-
+              refReason.id.toString() === this.workOrder.tasks[0].wtrId.toString()
+          )?.wtr_llabel;
+          const layer = lyrTableName ? res[2].find(asset => asset.lyrTableName == lyrTableName) : null;
+          this.assetLabel = layer ? layer.domLLabel + ' - ' + layer.lyrSlabel : null;
           this.loading = false;
         });
       });
@@ -136,6 +139,14 @@ export class WkoViewComponent implements OnInit {
     }
   }
 
+  public onGenerateReport() {
+    this.router.navigate(['/home/workorder/'+this.workOrder.id+'/cr'])
+  }
+
+  public onDisplayWorkorder() {
+    this.router.navigate(['/home/workorder/'+this.workOrder.id]);
+  }
+
   private async getStatus(): Promise<void> {
     const statusRef = await this.referentialService.getReferential(
       'workorder_task_status'
@@ -156,5 +167,72 @@ export class WkoViewComponent implements OnInit {
       color: 'success',
     });
     await toast.present();
+  }
+
+  /**
+   * Check task if exist in the workorder
+   * @param taskid the task id
+   */
+  private async checkTask(taskid: string): Promise<void> {
+    if (taskid) {
+      if (!this.workOrder.tasks.some(task => task.id.toString() == taskid.toString())) {
+        const toast = await this.toastCtrl.create({
+          message: "Aucune tâche avec l'id " + taskid + " pour l'intervention " + this.workOrder.id,
+          duration: 4000,
+          color: 'warning'
+        });
+        await toast.present();
+        this.router.navigate(['/home/workorder/' + this.workOrder.id]);
+      }
+    }
+  }
+
+  /**
+   * Method to display and zoom to the workorder equipment
+   * @param workorder the workorder
+   */
+  private displayAndZoomTo(workorder: Workorder) {
+
+    let featuresSelection: MultiSelection[] = [];
+    let geometries = [];
+
+    let longitude = this.workOrder.longitude;
+    let latitude = this.workOrder.latitude;
+
+    if(this.taskid && this.workOrder.tasks.length > 1) {
+      longitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).longitude;
+      latitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).latitude;
+    }
+
+    this.mapService.onMapLoaded().subscribe(() => {
+      this.mapLayerService.moveToXY(longitude,latitude,18).then(() => {
+        this.mapService.addEventLayer('task').then(() => {
+          for (let task of workorder.tasks) {
+            if(!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
+              geometries.push([task.longitude,task.latitude]);
+              this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(() => {
+                let feature: any = this.mapLayerService.getFeatureById("task", task.id + '');
+                feature.geometry.coordinates = [task.longitude, task.latitude];
+                this.mapService.updateFeature("task", feature);
+                geometries.push(feature.geometry.coordinates);
+  
+                featuresSelection.push({
+                  id: task.id.toString(),
+                  source: 'task'
+                });
+                featuresSelection.push({
+                  id: task.assObjRef,
+                  source: task.assObjTable.replace('asset.', '')
+                });
+                this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+              });
+            }
+          }
+          setTimeout(() => {
+            this.mapLayerService.fitBounds(geometries, 20);
+          }, 500);
+        });
+      });
+    })
   }
 }

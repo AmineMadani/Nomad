@@ -3,9 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-report',
@@ -28,10 +27,8 @@ export class ReportDrawer implements OnInit {
   ngOnInit() {
     let id = Number.parseInt(this.router.snapshot.paramMap.get('id'));
 
-    this.layerService.getEquipmentByLayerAndId('workorder', id.toString()).then(wko => {
-      this.workorderService.getWorkorderById(wko.wko_id).then(workorder => {
-        this.workorder = workorder;
-      });
+    this.workorderService.getWorkorderById(id).then(workorder => {
+      this.workorder = workorder;
     });
   }
 

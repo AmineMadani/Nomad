@@ -35,15 +35,15 @@ import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/
 import { AssetAccordionComponent } from './drawers/asset/components/asset-accordion/asset-accordion.component';
 import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
 import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
-import { ReportDrawer } from './drawers/report/report.drawer';
-import { ReportStepperComponent } from './drawers/report/components/report-stepper/report-stepper.component';
-import { ReportCreateComponent } from './drawers/report/components/report-create/report-create.component';
-import { ReportAssetComponent } from './drawers/report/components/report-asset/report-asset.component';
-import { ReportContextComponent } from './drawers/report/components/report-context/report-context.component';
-import { ReportFormComponent } from './drawers/report/components/report-form/report-form.component';
 import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
 import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
+import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
+import { ReportStepperComponent } from './drawers/workorder/pages/report/components/report-stepper/report-stepper.component';
+import { ReportCreateComponent } from './drawers/workorder/pages/report/components/report-create/report-create.component';
+import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-context/report-context.component';
+import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
+import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
 @NgModule({
   imports: [
     CommonModule,

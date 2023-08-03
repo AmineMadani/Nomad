@@ -121,12 +121,12 @@ export class ReportContextComponent implements OnInit {
 
     this.mapService.onMapLoaded().subscribe(() => {
       this.mapLayerService.moveToXY(task.longitude, task.latitude).then(() => {
-        this.mapService.addEventLayer('workorder').then(() => {
+        this.mapService.addEventLayer('task').then(() => {
           this.mapService.addEventLayer(task.assObjTable.replace('asset.', "")).then(() => {
 
             featuresSelection.push({
               id: task.id.toString(),
-              source: 'workorder'
+              source: 'task'
             });
             featuresSelection.push({
               id: task.assObjRef,

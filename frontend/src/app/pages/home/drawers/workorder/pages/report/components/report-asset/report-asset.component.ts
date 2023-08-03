@@ -108,10 +108,10 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk the task to update
    */
   public onValidateChangeEquipment(tsk: Task) {
-    let feature: any = this.maplayerService.getFeatureById("workorder", tsk.id + '');
+    let feature: any = this.maplayerService.getFeatureById("task", tsk.id + '');
     feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
-    this.mapService.updateFeature("workorder", feature);
-    this.maplayerService.updateLocalGeometryFeatureById("workorder", tsk.id + '', feature.geometry.coordinates);
+    this.mapService.updateFeature("task", feature);
+    this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
     tsk.longitude = this.draggableMarker.getLngLat().lng;
     tsk.latitude = this.draggableMarker.getLngLat().lat;
     if (this.draggableMarker) {
@@ -147,7 +147,7 @@ export class ReportAssetComponent implements OnInit {
    * @param task 
    */
   public onItemHoverEnter(task: Task){
-    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(),[{id:task.id.toString(),source:'workorder'},{id:task.assObjRef,source:task.assObjTable.replace("asset.", "")}]);
+    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(),[{id:task.id.toString(),source:'task'},{id:task.assObjRef,source:task.assObjTable.replace("asset.", "")}]);
   }
 
   /**
@@ -169,17 +169,17 @@ export class ReportAssetComponent implements OnInit {
 
     this.mapService.onMapLoaded().subscribe(() => {
       this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
-        this.mapService.addEventLayer('workorder').then(() => {
+        this.mapService.addEventLayer('task').then(() => {
           for (let task of workorder.tasks) {
             this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(() => {
-              let feature: any = this.maplayerService.getFeatureById("workorder", task.id + '');
+              let feature: any = this.maplayerService.getFeatureById("task", task.id + '');
               feature.geometry.coordinates = [task.longitude, task.latitude];
-              this.mapService.updateFeature("workorder", feature);
+              this.mapService.updateFeature("task", feature);
               geometries.push(feature.geometry.coordinates);
 
               featuresSelection.push({
                 id: task.id.toString(),
-                source: 'workorder'
+                source: 'task'
               });
               featuresSelection.push({
                 id: task.assObjRef,

@@ -676,18 +676,21 @@ export class MapComponent implements OnInit, OnDestroy {
       properties['lyr_table_name'] = feature.source;
       let route: DrawerRouteEnum;
       let params = {};
+      let pathVariables = [];
       switch (feature.source) {
-        case 'workorder':
-          route = DrawerRouteEnum.WORKORDER_VIEW;
+        case 'task':
+          route = DrawerRouteEnum.TASK_VIEW;
+          pathVariables = [properties['wko_id'],properties['id']];
           break;
         default:
           route = DrawerRouteEnum.EQUIPMENT;
           params = {
             lyr_table_name: properties['lyr_table_name'],
           };
+          pathVariables = [properties['id']];
           break;
       }
-      this.drawerService.navigateTo(route, [properties['id']], params);
+      this.drawerService.navigateTo(route, pathVariables, params);
     }
   }
 

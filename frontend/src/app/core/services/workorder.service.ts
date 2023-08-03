@@ -42,10 +42,10 @@ export class WorkorderService {
           timeout(this.configurationService.offlineTimeout),
           catchError(async (error) => {
             if (error?.name == 'TimeoutError') {
-              let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('workorder', id.toString());
+              let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
               if (featureWorkorder) {
                 workorder = this.buildWorkorderFromGeojson(featureWorkorder);
-                let tasks = await this.cacheService.getFeatureByLayerAndProperty('workorder', 'wko_id', featureWorkorder.properties['wko_id'].toString());
+                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wko_id', featureWorkorder.properties['wko_id'].toString());
                 for (let task of tasks) {
                   workorder.tasks.push(this.buildTaskFromGeojson(task))
                 }

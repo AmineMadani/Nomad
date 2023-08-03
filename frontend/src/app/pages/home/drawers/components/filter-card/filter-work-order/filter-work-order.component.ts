@@ -42,7 +42,7 @@ export class FilterWorkOrderComponent implements OnInit {
    * obtained from the `filterService` or cached in the `workOrders` property.
    */
   public getFeatures(): any[] {
-    const res = this.filterService.getData('workorder');
+    const res = this.filterService.getData('task');
     if (this.workOrders?.length !== res?.length) {
       if (!(res[0] instanceof MapFeature)) {
         this.isFromCache = true;
@@ -76,7 +76,7 @@ export class FilterWorkOrderComponent implements OnInit {
   }
 
   public openIntervention(feature: MapFeature): void {
-    const lyr_table_name = 'workorder';
+    const lyr_table_name = 'task';
     const route = this.data.type === 'workorder' ? DrawerRouteEnum.WORKORDER_VIEW : DrawerRouteEnum.DEMANDE;
     this.drawer.navigateTo(route, [feature.id]);
   }

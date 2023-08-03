@@ -94,7 +94,7 @@ begin
   crs :=  jsonb_build_object('type', 'name', 'properties', crs);
   --
   -- Get list of fields from conf
-  if lyr_table_name != 'asset.workorder' then
+  if lyr_table_name != 'asset.task' then
     select CONCAT(string_agg("referenceKey", ', '), ', ' || (SELECT column_name 
 	  FROM information_schema.columns 
 	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 

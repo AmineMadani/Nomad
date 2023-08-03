@@ -79,7 +79,7 @@ export class FormHistoryComponent implements OnInit {
    */
   public openIntervention(feature: MapFeature): void {
     this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [feature.id], {
-      lyr_table_name: 'workorder'
+      lyr_table_name: 'task'
     });
   }
 
