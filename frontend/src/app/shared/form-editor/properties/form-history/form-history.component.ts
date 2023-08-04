@@ -57,7 +57,7 @@ export class FormHistoryComponent implements OnInit {
           the `workorders` array. It represents an individual `Workorder` object in the array. */
           wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
           wk.wtrLabel = this.reasonRef.find(
-            (reason: { id: number; }) => reason.id === wk.wtsId
+            (reason: { id: number; }) => reason.id === wk.tasks[0].wtrId
           )?.wtr_llabel;
           return wk;
         });
