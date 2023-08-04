@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.TaskDto;
+import com.veolia.nextcanope.dto.TaskSearchDto;
 import com.veolia.nextcanope.dto.WorkorderDto;
 import com.veolia.nextcanope.dto.ReportValueDto;
 import com.veolia.nextcanope.exception.TechnicalException;
@@ -69,7 +70,7 @@ public class WorkorderService {
      * @param searchParameter 
 	 * @return the workorder list
 	 */
-    public List<WorkorderDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
+    public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
     	return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
     }
 

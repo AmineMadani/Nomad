@@ -74,7 +74,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
     if (this.fromCache) {
       if (feature?.id) {
         this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(),
-        [{source: this.type,
+        [{source: 'task',
           id: feature?.id ?? undefined}]
         )
       } else {

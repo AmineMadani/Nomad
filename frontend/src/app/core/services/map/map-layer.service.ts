@@ -60,7 +60,7 @@ export class MapLayerService {
     featureId: string
   ): Promise<any | null> {
     let feature;
-    await this.cacheService.getFeatureByLayerAndFeatureId(layerKey,featureId).then(r => feature = r);
+    await this.cacheService.getFeatureByLayerAndFeatureId(layerKey, featureId).then(r => feature = r);
     return feature;
   }
 
@@ -74,7 +74,7 @@ export class MapLayerService {
     featureId: string,
     newGeometry: number[]
   ) {
-    await this.cacheService.updateCacheFeatureGeometry(featureId, layerKey,newGeometry);
+    await this.cacheService.updateCacheFeatureGeometry(featureId, layerKey, newGeometry);
   }
 
   /**
@@ -101,9 +101,9 @@ export class MapLayerService {
    * @param x longitude
    * @param y latitude
    */
-  public moveToXY(x: number, y: number, zoomLevel:number = 16): Promise<string> {
+  public moveToXY(x: number, y: number, zoomLevel: number = 16): Promise<string> {
 
-    if(this.mapService.getMap().getZoom() > zoomLevel) {
+    if (this.mapService.getMap().getZoom() > zoomLevel) {
       zoomLevel = this.mapService.getMap().getZoom();
     }
     return new Promise((resolve) => {
@@ -161,7 +161,7 @@ export class MapLayerService {
     }
 
     let currentZoom = this.mapService.getMap().getZoom();
-    if(currentZoom < 17) {
+    if (currentZoom < 17) {
       currentZoom = 17;
     }
 
@@ -171,8 +171,10 @@ export class MapLayerService {
     });
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
-      [{source: layerKey,
-       id: r.id.toString()}]
+      [{
+        source: layerKey,
+        id: r.id.toString()
+      }]
     );
   }
 
@@ -182,16 +184,18 @@ export class MapLayerService {
    */
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
     this.mapService.addEventLayer(layerKey).then(() => {
-      let newPoint: any = {
-        geometry: {
-          type: 'Point',
-          coordinates: [properties.longitude, properties.latitude],
-        },
-        id: properties.tasks[0].id,
-        properties: properties.tasks[0],
-        type: 'Feature',
-      };
-      this.mapService.addNewPoint(layerKey, newPoint);
+      for (let task of properties.tasks) {
+        let newPoint: any = {
+          geometry: {
+            type: 'Point',
+            coordinates: [properties.longitude, properties.latitude],
+          },
+          id: task.id,
+          properties: task,
+          type: 'Feature',
+        };
+        this.mapService.addNewPoint(layerKey, newPoint);
+      }
     });
   }
 
@@ -221,7 +225,7 @@ export class MapLayerService {
     return marker;
   }
 
-  public fitBounds(e: any, maxZoomLevel:number = 17): void {
+  public fitBounds(e: any, maxZoomLevel: number = 17): void {
     const bounds = e.reduce((bounds: any, coord: any) => {
       return bounds.extend(coord);
     }, new Maplibregl.LngLatBounds(e[0], e[0]));

@@ -39,7 +39,7 @@ export class WkoViewComponent implements OnInit {
   public assetLabel: string;
   public status: string;
   public reason: string;
-  public taskid : string;
+  public taskid: string;
 
   public loading: boolean = true;
 
@@ -65,7 +65,7 @@ export class WkoViewComponent implements OnInit {
         let wtsid = this.workOrder.wtsId.toString();
         let lyrTableName = this.workOrder.tasks[0].assObjTable;
 
-        if(this.taskid) {
+        if (this.taskid) {
           wtsid = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.wtsId;
           lyrTableName = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.assObjTable;
         }
@@ -153,11 +153,11 @@ export class WkoViewComponent implements OnInit {
   }
 
   public onGenerateReport() {
-    this.router.navigate(['/home/workorder/'+this.workOrder.id+'/cr'])
+    this.router.navigate(['/home/workorder/' + this.workOrder.id + '/cr'])
   }
 
   public onDisplayWorkorder() {
-    this.router.navigate(['/home/workorder/'+this.workOrder.id]);
+    this.router.navigate(['/home/workorder/' + this.workOrder.id]);
   }
 
   private async getStatus(): Promise<void> {
@@ -209,43 +209,25 @@ export class WkoViewComponent implements OnInit {
     let featuresSelection: MultiSelection[] = [];
     let geometries = [];
 
-    let longitude = this.workOrder.longitude;
-    let latitude = this.workOrder.latitude;
-
-    if(this.taskid && this.workOrder.tasks.length > 1) {
-      longitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).longitude;
-      latitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).latitude;
-    }
-
-    this.mapService.onMapLoaded().subscribe(() => {
-      this.mapLayerService.moveToXY(longitude,latitude,18).then(() => {
+    for (let task of workorder.tasks) {
+      if (!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
+        geometries.push([task.longitude, task.latitude]);
         this.mapService.addEventLayer('task').then(() => {
-          for (let task of workorder.tasks) {
-            if(!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
-              geometries.push([task.longitude,task.latitude]);
-              this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(() => {
-                let feature: any = this.mapLayerService.getFeatureById("task", task.id + '');
-                feature.geometry.coordinates = [task.longitude, task.latitude];
-                this.mapService.updateFeature("task", feature);
-                geometries.push(feature.geometry.coordinates);
-  
-                featuresSelection.push({
-                  id: task.id.toString(),
-                  source: 'task'
-                });
-                featuresSelection.push({
-                  id: task.assObjRef,
-                  source: task.assObjTable.replace('asset.', '')
-                });
-                this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
-              });
-            }
-          }
-          setTimeout(() => {
-            this.mapLayerService.fitBounds(geometries, 20);
-          }, 500);
+          featuresSelection.push({
+            id: task.id.toString(),
+            source: 'task'
+          });
+          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
         });
-      });
-    })
+        this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(async () => {
+          featuresSelection.push({
+            id: task.assObjRef,
+            source: task.assObjTable.replace('asset.', '')
+          });
+          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+        });
+      }
+    }
+    this.mapLayerService.fitBounds(geometries, 20);
   }
 }

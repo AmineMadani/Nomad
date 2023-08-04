@@ -76,9 +76,7 @@ export class FilterWorkOrderComponent implements OnInit {
   }
 
   public openIntervention(feature: MapFeature): void {
-    const lyr_table_name = 'task';
-    const route = this.data.type === 'workorder' ? DrawerRouteEnum.WORKORDER_VIEW : DrawerRouteEnum.DEMANDE;
-    this.drawer.navigateTo(route, [feature.id]);
+    this.drawer.navigateTo(DrawerRouteEnum.TASK_VIEW, [feature.wko_id,feature.id]);
   }
 
   public getStatus(id:number):Status {

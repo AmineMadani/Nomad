@@ -218,7 +218,9 @@ export class MapService {
         this.map
       );
       this.layers.set(layerKey, layer);
-      this.map.zoomTo(this.map.getZoom() + 0.0001);
+      if(!this.map.isZooming()){
+        this.map.zoomTo(this.map.getZoom() + 0.0001);
+      }
       this.map.addSource(layerKey, layer.source);
 
       for (let style of layer.style) {
