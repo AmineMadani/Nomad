@@ -9,7 +9,7 @@
     <ion-icon name="link-outline"></ion-icon>
     Ajouter à un programme
   </ion-tab-button>
-  <ion-tab-button [disabled]="loading">
+  <ion-tab-button [disabled]="loading" (click)="updateWorkorder()">
     <ion-icon name="pencil-outline"></ion-icon>
     Mettre à jour
   </ion-tab-button>

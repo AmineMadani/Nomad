@@ -4,11 +4,11 @@
   <ng-container *ngIf="!loading; else loadingBody">
     <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
       <ion-list>
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts" [disabled]="editId !== null"
           [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
         </app-search-select>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"  [disabled]="editId !== null"
           [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 

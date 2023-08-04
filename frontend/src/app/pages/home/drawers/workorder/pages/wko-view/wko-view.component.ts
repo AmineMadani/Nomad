@@ -11,6 +11,8 @@ import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-wko-view',
@@ -28,7 +30,8 @@ export class WkoViewComponent implements OnInit {
     private mapService: MapService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private router: Router
+    private router: Router,
+    private drawerService : DrawerService
   ) { }
 
   public workOrder: Workorder;
@@ -84,6 +87,16 @@ export class WkoViewComponent implements OnInit {
         });
       });
   }
+
+    /**
+    * Update workorder
+    */
+    public updateWorkorder(): void {
+      this.drawerService.navigateWithTasks(DrawerRouteEnum.WORKORDER_EDITION,
+        [this.workOrder.id],
+        this.workOrder.tasks
+      );
+    }
 
   /**
    * Displays an alert to prompt the user to enter a reason for canceling

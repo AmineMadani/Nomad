@@ -58,6 +58,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public idList: string;
   public draftId: string;
 
+  public editId: string = null;
+  public workOrder : Workorder;
+
+  public isEditMode : boolean =  this.editId != null;
+
   public equipmentName: string;
 
   public loading: boolean = true;
@@ -97,9 +102,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.equipments = equipments;
 
         this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
+        this.editId = this.activatedRoute.snapshot.params['id'];
         this.createForm();
 
-        if (this.draftId) {
+        if (this.editId){
+          this.workOrder = await this.workorderService.getWorkorderById(Number(this.editId));
+          await this.initializeFormWithWko();
+        }
+        else if (this.draftId){
           await this.initializeFormWithDraft();
         }
 
@@ -293,6 +303,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private async initializeFormWithWko() : Promise<void>{
+    Object.keys(this.workOrder).forEach((key) => {
+      const control = this.workOrderForm.get(key);
+      if (control) {
+      const test = this.workOrder[key]; //DO NOT PUSH
+        control.setValue(this.workOrder[key]);
+      }
+    });
+  }
+
+
   private async initializeFormWithDraft(): Promise<void> {
     const wkoDraft = await this.cacheService.getObjectFromCache(
       'draftwko',
@@ -361,13 +382,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     ).filter((c) => contractsIds.includes(+c.id));
 
     // We don't want to erase possible draft entries
-    if (this.workOrderForm.controls['ctyId'].value.length === 0) {
+    if (this.workOrderForm.controls['ctyId'].value?.length === 0) {
       this.workOrderForm.controls['ctyId'].setValue(
         this.utils.findMostFrequentValue(cityIds)
       );
     }
 
-    if (this.workOrderForm.controls['ctrId'].value.length === 0) {
+    if (this.workOrderForm.controls['ctrId'].value?.length === 0) {
       this.workOrderForm.controls['ctrId'].setValue(
         this.utils.findMostFrequentValue(contractsIds)
       );
