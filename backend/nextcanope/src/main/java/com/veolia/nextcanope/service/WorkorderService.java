@@ -206,10 +206,10 @@ public class WorkorderService {
 						report.setTask(task);
 						report.setCreatedBy(user);
 					}
-
 					report.setRptLabel(reportValue.getQuestion());
 					report.setRptValue(reportValue.getAnswer());
 					report.setModifiedBy(user);
+					reportRepository.save(report);
 				}
 			}
 			// Set asset

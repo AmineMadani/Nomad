@@ -36,8 +36,8 @@ export class WkoViewComponent implements OnInit {
   public assetLabel: string;
   public status: string;
   public reason: string;
-  public taskid: string;
-
+  public selectedTask: any;
+  public taskid: string;  
   public loading: boolean = true;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -53,20 +53,21 @@ export class WkoViewComponent implements OnInit {
 
         const { id } = this.activatedRoute.snapshot.params;
         this.taskid = this.activatedRoute.snapshot.params['taskid']?.toString();
-        this.workOrder = await this.workorderService.getWorkorderById(id);
-
+        this.workOrder = await this.workorderService.getWorkorderById(id);  
+          
         this.checkTask(this.taskid);
 
         this.displayAndZoomTo(this.workOrder);
 
-        let wtsid = this.workOrder.wtsId.toString();
-        let lyrTableName = this.workOrder.tasks[0].assObjTable;
+        this.selectedTask = this.workOrder.tasks[0];
 
         if (this.taskid) {
-          wtsid = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.wtsId;
-          lyrTableName = this.workOrder.tasks.find(task => task.id.toString() == this.taskid)?.assObjTable;
+          this.selectedTask = this.workOrder.tasks.find(task => task.id.toString() == this.taskid);
         }
 
+        let wtsid = this.selectedTask?.wtsId;
+        let lyrTableName = this.selectedTask?.assObjTable;
+        
         Promise.all([
           this.referentialService.getReferential('workorder_task_status'),
           this.referentialService.getReferential('workorder_task_reason'),

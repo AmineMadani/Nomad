@@ -126,6 +126,7 @@ export class WorkorderService {
       latitude: featureWorkorder.properties['y'],
       longitude: featureWorkorder.properties['x'],
       wkoAddress: featureWorkorder.properties['wko_adress'],
+      wkoCreationComment:featureWorkorder.properties['wkoCreationComment'],
       wkoAgentNb: featureWorkorder.properties['wko_agent_nb'],
       wkoEmergency: featureWorkorder.properties['wko_emergency'],
       wkoAppointment: featureWorkorder.properties['wko_appointment'],
