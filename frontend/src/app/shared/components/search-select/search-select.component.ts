@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
-import { IonModal, InfiniteScrollCustomEvent, BooleanValueAccessor } from '@ionic/angular';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { IonModal, InfiniteScrollCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-search-select',
