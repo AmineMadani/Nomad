@@ -207,52 +207,34 @@ export class WkoViewComponent implements OnInit {
     }
   }
 
-  /**
+   /**
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
-  private displayAndZoomTo(workorder: Workorder) {
+   private displayAndZoomTo(workorder: Workorder) {
 
     let featuresSelection: MultiSelection[] = [];
     let geometries = [];
 
-    let longitude = this.workOrder.longitude;
-    let latitude = this.workOrder.latitude;
-
-    if(this.taskid && this.workOrder.tasks.length > 1) {
-      longitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).longitude;
-      latitude = this.workOrder.tasks.find(task => task.id.toString() == this.taskid).latitude;
-    }
-
-    this.mapService.onMapLoaded().subscribe(() => {
-      this.mapLayerService.moveToXY(longitude,latitude,18).then(() => {
+    for (let task of workorder.tasks) {
+      if (!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
+        geometries.push([task.longitude, task.latitude]);
         this.mapService.addEventLayer('task').then(() => {
-          for (let task of workorder.tasks) {
-            if(!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
-              geometries.push([task.longitude,task.latitude]);
-              this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(() => {
-                let feature: any = this.mapLayerService.getFeatureById("task", task.id + '');
-                feature.geometry.coordinates = [task.longitude, task.latitude];
-                this.mapService.updateFeature("task", feature);
-                geometries.push(feature.geometry.coordinates);
-  
-                featuresSelection.push({
-                  id: task.id.toString(),
-                  source: 'task'
-                });
-                featuresSelection.push({
-                  id: task.assObjRef,
-                  source: task.assObjTable.replace('asset.', '')
-                });
-                this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
-              });
-            }
-          }
-          setTimeout(() => {
-            this.mapLayerService.fitBounds(geometries, 20);
-          }, 500);
+          featuresSelection.push({
+            id: task.id.toString(),
+            source: 'task'
+          });
+          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
         });
-      });
-    })
+        this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(async () => {
+          featuresSelection.push({
+            id: task.assObjRef,
+            source: task.assObjTable.replace('asset.', '')
+          });
+          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+        });
+      }
+    }
+    this.mapLayerService.fitBounds(geometries, 20);
   }
 }
