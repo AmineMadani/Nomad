@@ -237,6 +237,7 @@ public class WorkorderService {
 			task.setLongitude(taskDto.getLongitude());
 			task.setLatitude(taskDto.getLatitude());
 			// Set report
+			List<Report> reports = new ArrayList<>();
 			if (taskDto.getReport() != null) {
 				task.setTskReportDate(taskDto.getReport().getDateCompletion());
 				for (ReportValueDto reportValue: taskDto.getReport().getReportValues()) {
@@ -251,8 +252,10 @@ public class WorkorderService {
 					report.setRptLabel(reportValue.getQuestion());
 					report.setRptValue(reportValue.getAnswer());
 					report.setModifiedBy(user);
+					reports.add(report);
 				}
 			}
+			task.setListOfReport(reports);
 			// Set asset
 			Asset asset = assetService.getNewOrExistingAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), userId);
 			task.setAsset(asset);
