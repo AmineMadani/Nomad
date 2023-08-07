@@ -73,6 +73,15 @@ export class WorkorderService {
       .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
   }
 
+    /**
+   * Update data workorder
+   * @param workorder the workorder to update
+   * @returns the workorder
+   */
+    public updateDataWorkOrder(workorder: Workorder): Observable<any> {
+      return this.workorderDataService.updateDataWorkOrder(workorder);
+    }
+
   /**
    * Update a workorder
    * @param workorder the workorder to update

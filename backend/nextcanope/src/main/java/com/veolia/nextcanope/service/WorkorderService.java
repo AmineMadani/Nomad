@@ -111,6 +111,7 @@ public class WorkorderService {
     	Workorder workorder = new Workorder();
 		workorder.setWkoName(customWorkorderDto.getWkoName());
 		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
+		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
@@ -167,6 +168,46 @@ public class WorkorderService {
 		
     	return new WorkorderDto(workorder);
     }
+
+	/**
+	 * Method which permit to update data of workorder
+	 * @param customWorkorderDto the payload
+	 * @param userId the user id who update the work order
+	 * @return the work order dto
+	 */
+	public WorkorderDto updateDataWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
+		Users user = userService.getUserById(userId);
+
+		Workorder workorder = getWorkOrderById(userId);
+		/****/
+		workorder.setWkoName(customWorkorderDto.getWkoName());
+		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
+		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
+		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
+		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
+		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
+		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
+
+		/****/
+		workorder.setModifiedBy(user);
+
+		// Get the work order asset
+		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
+			Task task = getTaskById(taskDto.getId());
+			// Set reason
+			WorkorderTaskReason wtr = this.getWorkOrderTaskReasonById(taskDto.getWtrId());
+			task.setWorkorderTaskReason(wtr);
+		}
+
+		try {
+			workorder = workOrderRepository.save(workorder);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde du workorder pour l'utilisateur avec l'id  " + userId + ".", e.getMessage());
+		}
+
+		return new WorkorderDto(workorder);
+	}
 
 	/**
 	 * Method which permit to update a workorder

@@ -46,3 +46,11 @@ export interface ReportValue {
     question: string;
     answer: string;
 }
+
+export enum WkoStatus{
+    'CREE' = 1,
+    'EVOYEPLANIF' = 2,
+    'PLANIFIE' = 3,
+    'TERMINE' = 4,
+    'ANNULE' = 5
+}

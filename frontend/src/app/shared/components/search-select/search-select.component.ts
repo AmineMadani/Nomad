@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
-import { IonModal, InfiniteScrollCustomEvent } from '@ionic/angular';
+import { IonModal, InfiniteScrollCustomEvent, BooleanValueAccessor } from '@ionic/angular';
 
 @Component({
   selector: 'app-search-select',
@@ -24,6 +24,8 @@ export class SearchSelectComponent implements OnInit {
   @Input() elements: any[] = [];
   // Function which permit to print the element with the properties we wanted. Take one param which corresponds to an element of the original list.
   @Input() elementLabelFunction: Function;
+
+  @Input() disabled: boolean;
 
   public displayedElements: any[] = [];
   public querySearch: string = "";
@@ -131,8 +133,10 @@ export class SearchSelectComponent implements OnInit {
    * Method to open the modal and filter the options before
    */
   onOpenModal() {
-    this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
-    this.modal.present();
+    if (!this.disabled){
+      this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
+      this.modal.present();
+    }
   }
 
   onCloseModal() {

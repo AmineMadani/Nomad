@@ -188,7 +188,7 @@ public class WorkorderDto {
         this.wkoAgentNb = workorder.getWkoAgentNb();
         this.ctyId = workorder.getCity().getId();
         this.tasks = new ArrayList<TaskDto>();
-        
+        this.wkoCreationComment = workorder.getWkoCreationComment();
         for(Task task: workorder.getListOfTask()) {
         	this.tasks.add(new TaskDto(task));
             this.ctrId =this.tasks.get(0).getCtrId();
