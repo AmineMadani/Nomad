@@ -46,7 +46,7 @@ export class WkoViewComponent implements OnInit {
 
   public CanEdit() : boolean {
     return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE 
-                                        || this.workOrder.wtsId === WkoStatus.EVOYEPLANIF 
+                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF 
                                         || this.workOrder.wtsId === WkoStatus.TERMINE);
   }
 
