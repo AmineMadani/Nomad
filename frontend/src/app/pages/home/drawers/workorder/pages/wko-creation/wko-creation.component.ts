@@ -60,7 +60,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public title : string;
 
-public CanEdit() : boolean {
+public IsDisabled() : boolean {
   return this.workOrder != null;
 }
 
