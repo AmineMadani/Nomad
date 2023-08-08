@@ -18,6 +18,35 @@ public class AccountDto {
 	
 	private String usrConfiguration;
 
+	private String status;
+
+	private String company;
+
+	public AccountDto() {
+		super();
+	}
+
+	public AccountDto(AccountTokenDto accountTokenDto) {
+		super();
+		this.email=accountTokenDto.getEmail();
+		this.firstName=accountTokenDto.getFirstName();
+		this.id=accountTokenDto.getId();
+		this.imgUrl=accountTokenDto.getImgUrl();
+		this.isValid=accountTokenDto.getIsValid();
+		this.lastName=accountTokenDto.getLastName();
+		this.usrConfiguration = accountTokenDto.getUsrConfiguration();
+	}
+
+	public AccountDto(Users user) {
+		this.id = user.getId();
+		this.email = user.getUsrEmail();
+		this.firstName = user.getUsrFirstName();
+		this.lastName = user.getUsrLastName();
+		this.isValid = user.getUsrValid();
+		this.status = user.getUsrStatus();
+		this.company = user.getUsrCompany();
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -73,27 +102,20 @@ public class AccountDto {
 	public void setUsrConfiguration(String usrConfiguration) {
 		this.usrConfiguration = usrConfiguration;
 	}
-	
-	public AccountDto() {
-		super();
+
+	public String getStatus() {
+		return status;
 	}
 
-	public AccountDto(AccountTokenDto accountTokenDto) {
-		super();
-		this.email=accountTokenDto.getEmail();
-		this.firstName=accountTokenDto.getFirstName();
-		this.id=accountTokenDto.getId();
-		this.imgUrl=accountTokenDto.getImgUrl();
-		this.isValid=accountTokenDto.getIsValid();
-		this.lastName=accountTokenDto.getLastName();
-		this.usrConfiguration = accountTokenDto.getUsrConfiguration();
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
-	public AccountDto(Users user) {
-		this.id = user.getId();
-		this.email = user.getUsrEmail();
-		this.firstName = user.getUsrFirstName();
-		this.lastName = user.getUsrLastName();
-		this.isValid = user.getUsrValid();
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
 	}
 }

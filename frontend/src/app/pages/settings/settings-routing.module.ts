@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SettingsPage } from './settings.page';
-import { UserCreationComponent } from './user-creation/user-creation.component';
+import { UsersSettingsComponent } from './users-settings/users-settings.component';
 import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
@@ -26,28 +26,12 @@ const routes: Routes = [
         component: LayerReferencesSettingsPage,
       },
       {
-        path: 'events',
-        component: PatrimonySettingsPage,
-      },
-      {
         path: 'layer-styles',
         component: LayerStylesSettingsPage,
       },
       {
-        path: 'perimeter',
-        component: PatrimonySettingsPage,
-      },
-      {
-        path: 'workorder',
-        component: PatrimonySettingsPage,
-      },
-      {
-        path: 'report',
-        component: PatrimonySettingsPage,
-      },
-      {
-        path: 'user',
-        component: UserCreationComponent,
+        path: 'users',
+        component: UsersSettingsComponent,
       }
     ],
   }

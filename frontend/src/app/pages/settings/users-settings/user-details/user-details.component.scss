@@ -13,11 +13,12 @@
 
     .user-general {
       flex: 0;
+
       .user-creation-form {
         display: flex;
         flex-direction: column;
         gap: 10px;
-      
+
         .user-creation-row {
           display: flex;
           flex-direction: row;
@@ -32,7 +33,7 @@
 
       ion-grid {
         --ion-grid-columns: 7;
-      
+
         ion-col {
           display: flex;
           align-items: center;

@@ -20,6 +20,7 @@ export class SettingsPage implements OnInit {
         {
           url: 'patrimony',
           title: 'Affichage patrimoine',
+          disabled: true,
         },
         {
           url: 'layer-references',
@@ -28,6 +29,7 @@ export class SettingsPage implements OnInit {
         {
           url: 'events',
           title: 'Affichage des évènements',
+          disabled: true,
         },
         {
           url: 'layer-styles',
@@ -41,14 +43,17 @@ export class SettingsPage implements OnInit {
         {
           url: 'perimeter',
           title: 'Périmètre',
+          disabled: true,
         },
         {
           url: 'workorder',
           title: "Génération d'intervention",
+          disabled: true,
         },
         {
           url: 'report',
           title: 'Compte-rendu',
+          disabled: true,
         },
       ],
     },
@@ -56,17 +61,12 @@ export class SettingsPage implements OnInit {
       title: 'Gestion des droits',
       items: [
         {
+          url: 'users',
+          title: "Gestion des utilisateurs",
+        },
+        {
           url: 'profiles',
-          title: 'Consultation des profils existants',
-          disabled: true,
-        },
-        {
-          url: 'user',
-          title: "Création d'un nouvel utilisateur",
-        },
-        {
-          url: 'contracts',
-          title: 'Gestion des périmètres contractuels',
+          title: 'Gestion des profils',
           disabled: true,
         },
       ],
