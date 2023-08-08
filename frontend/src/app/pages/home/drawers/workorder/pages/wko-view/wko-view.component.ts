@@ -37,7 +37,7 @@ export class WkoViewComponent implements OnInit {
   public status: string;
   public reason: string;
   public selectedTask: any;
-  public taskid: string;  
+  public taskId: string;  
   public loading: boolean = true;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -52,17 +52,17 @@ export class WkoViewComponent implements OnInit {
       .subscribe(async () => {
 
         const { id } = this.activatedRoute.snapshot.params;
-        this.taskid = this.activatedRoute.snapshot.params['taskid']?.toString();
+        this.taskId = this.activatedRoute.snapshot.params['taskid']?.toString();
         this.workOrder = await this.workorderService.getWorkorderById(id);  
           
-        this.checkTask(this.taskid);
+        this.checkTask(this.taskId);
 
         this.displayAndZoomTo(this.workOrder);
 
         this.selectedTask = this.workOrder.tasks[0];
 
-        if (this.taskid) {
-          this.selectedTask = this.workOrder.tasks.find(task => task.id.toString() == this.taskid);
+        if (this.taskId) {
+          this.selectedTask = this.workOrder.tasks.find(task => task.id.toString() == this.taskId);
         }
 
         let wtsid = this.selectedTask?.wtsId;
@@ -198,7 +198,7 @@ export class WkoViewComponent implements OnInit {
     let geometries = [];
 
     for (let task of workorder.tasks) {
-      if (!this.taskid || (this.taskid && this.taskid == task.id.toString())) {
+      if (!this.taskId || (this.taskId && this.taskId == task.id.toString())) {
         geometries.push([task.longitude, task.latitude]);
         this.mapService.addEventLayer('task').then(() => {
           featuresSelection.push({
