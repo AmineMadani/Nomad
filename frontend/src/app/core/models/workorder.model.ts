@@ -4,6 +4,7 @@ export interface Workorder {
     wkoEmergency: boolean;
     wkoAppointment: boolean;
     wkoAddress: string;
+    wkoCreationComment: string;
     wkoPlanningStartDate: Date;
     wkoPlanningEndDate: Date;
     wtsId: number;

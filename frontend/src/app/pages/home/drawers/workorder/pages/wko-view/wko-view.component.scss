@@ -5,3 +5,18 @@ ion-item.skeleton-label {
 ion-item.skeleton-status {
     transform: translateX(35%);
 }
+
+ion-accordion-group{
+    width: 100%;
+    overflow: auto;
+    height: calc(100% - 230px);
+}
+
+
+h3.break-line > span {
+    overflow: visible;
+    white-space: normal;
+    height: auto;
+    display: inline-block;
+    max-width: 100%;
+  } 
