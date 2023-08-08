@@ -195,9 +195,21 @@ public class WorkorderService {
 		// Get the work order asset
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
 			Task task = getTaskById(taskDto.getId());
+			// Set task attributes
+			task.setWorkorder(workorder);
+			task.setTskName(workorder.getWkoName());
+			task.setWorkorderTaskStatus(workorder.getWorkorderTaskStatus());
+			task.setTskComment(workorder.getWkoCreationComment());
+			task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
+			task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+			task.setCreatedBy(user);
+			task.setModifiedBy(user);
+			task.setLongitude(taskDto.getLongitude());
+			task.setLatitude(taskDto.getLatitude());
 			// Set reason
 			WorkorderTaskReason wtr = this.getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
+
 		}
 
 		try {

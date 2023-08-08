@@ -46,8 +46,7 @@ export class WkoViewComponent implements OnInit {
 
   public CanEdit() : boolean {
     return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE 
-                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF 
-                                        || this.workOrder.wtsId === WkoStatus.TERMINE);
+                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF);
   }
 
   private ngUnsubscribe$: Subject<void> = new Subject();
