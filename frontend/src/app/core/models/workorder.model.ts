@@ -13,6 +13,7 @@ export interface Workorder {
     wkoAgentNb: number;
     tasks: Task[];
     selectedTaskId?: number;
+    wkoCreationComment : string;
 }
 
 export interface CancelWorkOrder {

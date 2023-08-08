@@ -112,6 +112,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public addToSelection: boolean = false;
   public updateUrl: boolean = false;
   public wkoDraft: string;
+  public wkoId : string;
   public featureIdSelected: string = '';
   public featuresHighlighted: any[] = [];
 
@@ -121,11 +122,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+    this.wkoId = this.activatedRoute.snapshot.queryParams?.['wkoId'];
     this.buttons = [
       { key: 'add', label: 'Ajouter un élement', icon: 'add' },
       {
         key: 'create',
-        label: this.wkoDraft
+        label: this.wkoDraft ||this.wkoId
           ? "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle',
@@ -205,11 +207,21 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.popover.present();
         break;
       case 'create':
-        this.drawerService.navigateWithEquipments(
-          DrawerRouteEnum.WORKORDER_CREATION,
-          this.featuresSelected,
-          { draft: this.wkoDraft }
-        );
+        if (this.wkoId){
+          this.drawerService.navigateWithEquipments(
+            DrawerRouteEnum.WORKORDER_EDITION,
+            this.featuresSelected,
+            { wkoId : this.wkoId }
+          );
+        }
+        else{
+          this.drawerService.navigateWithEquipments(
+            DrawerRouteEnum.WORKORDER_CREATION,
+            this.featuresSelected,
+            { draft: this.wkoDraft }
+          );
+        }
+        
         break;
       case 'showSelectedFeatures':
         this.restoreViewOnFeatureSelected();

@@ -19,6 +19,7 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { PreferenceService } from 'src/app/core/services/preference.service';
 
 @Component({
   selector: 'app-wko-creation',
@@ -39,7 +40,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private referentialService: ReferentialService,
     private utils: UtilsService,
     private layerService: LayerService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private preferenceService : PreferenceService
   ) {}
 
   @ViewChild('equipmentModal', { static: true })
@@ -106,7 +108,7 @@ public IsDisabled() : boolean {
         this.equipments = equipments;
 
         this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
-        const editId = this.activatedRoute.snapshot.params['id'];
+        const editId = this.activatedRoute.snapshot.queryParams['wkoId'];
         this.createForm();
 
       
@@ -260,7 +262,15 @@ public IsDisabled() : boolean {
         this.workOrder.wkoName = form.wkoName
         this.workOrder.wkoPlanningEndDate = form.wkoPlanningEndDate
         this.workOrder.wkoPlanningStartDate = form.wkoPlanningStartDate
-        //task ? this.workOrder = form.task
+        this.workOrder.wkoCreationComment = form.wkoCreationComment;
+        //Récupération des équipements - réassigne l'id des task existantes
+        this.workOrder.tasks.forEach(task => {
+          let findTask = form.tasks.find(newTask => newTask.assObjRef == task.assObjRef);
+          if (findTask && task.id){
+            findTask.id = task.id;
+          }
+        })
+        this.workOrder.tasks = form.tasks;
         this.workOrderService.updateDataWorkOrder(this.workOrder).subscribe((res: Workorder) => {
           this.removeMarkers();
           this.mapLayerService.addGeojsonToLayer(res, 'task');
@@ -314,19 +324,27 @@ public IsDisabled() : boolean {
   }
 
   public async editEquipmentList(): Promise<void> {
-    const uuid = this.draftId ?? uuidv4();
-
-    await this.cacheService.saveObject(
-      'draftwko',
-      uuid,
-      this.workOrderForm.value
-    );
-
-    this.drawerService.navigateWithEquipments(
-      DrawerRouteEnum.SELECTION,
-      this.equipments,
-      { draft: uuid }
-    );
+    if (this.workOrder){
+      this.drawerService.navigateWithEquipments(
+        DrawerRouteEnum.SELECTION,
+        this.equipments,
+        { wkoId: this.workOrder.id }
+      );
+    }
+    else{
+      const uuid = this.draftId ?? uuidv4();
+      await this.cacheService.saveObject(
+        'draftwko',
+        uuid,
+        this.workOrderForm.value
+      );
+  
+      this.drawerService.navigateWithEquipments(
+        DrawerRouteEnum.SELECTION,
+        this.equipments,
+        { draft: uuid }
+      );
+    }
   }
 
   public getKeys(errors: any): string[] {

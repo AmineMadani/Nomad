@@ -176,25 +176,36 @@ public class WorkorderService {
 	 * @return the work order dto
 	 */
 	public WorkorderDto updateDataWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
-		Users user = userService.getUserById(userId);
+
+		Users user = this.userService.getUserById(userId);
 
 		Workorder workorder = getWorkOrderById(userId);
-		/****/
 		workorder.setWkoName(customWorkorderDto.getWkoName());
 		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
 		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setLongitude(customWorkorderDto.getLongitude());
+		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
-
-		/****/
 		workorder.setModifiedBy(user);
 
-		// Get the work order asset
+		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
+		workorder.setWorkorderTaskStatus(status);
+
+		City city = cityService.getCityById(customWorkorderDto.getCtyId());
+		workorder.setCity(city);
+		workorder.setCtyLlabel(city.getCtyLlabel());
+
+		List<Task> tasks = new ArrayList<>();
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
-			Task task = getTaskById(taskDto.getId());
+			Task task = new Task();
+			Long taskId = taskDto.getId();
+			if (taskId  != null){
+				task = getTaskById(taskId);
+			}
 			// Set task attributes
 			task.setWorkorder(workorder);
 			task.setTskName(workorder.getWkoName());
@@ -206,11 +217,19 @@ public class WorkorderService {
 			task.setModifiedBy(user);
 			task.setLongitude(taskDto.getLongitude());
 			task.setLatitude(taskDto.getLatitude());
-			// Set reason
-			WorkorderTaskReason wtr = this.getWorkOrderTaskReasonById(taskDto.getWtrId());
+			// Get or create asset
+			Asset asset = assetService.getNewOrExistingAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), userId);
+			task.setAsset(asset);
+			// Get Reason
+			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
+			// Get Contract
+			Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+			task.setContract(contract);
 
+			tasks.add(task);
 		}
+		workorder.setListOfTask(tasks);
 
 		try {
 			workorder = workOrderRepository.save(workorder);
