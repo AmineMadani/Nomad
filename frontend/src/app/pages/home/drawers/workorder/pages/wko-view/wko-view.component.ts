@@ -99,7 +99,7 @@ export class WkoViewComponent implements OnInit {
     * Update workorder
     */
     public updateWorkorder(): void {
-      this.drawerService.navigateWithTasks(DrawerRouteEnum.WORKORDER_EDITION,
+      this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
         [this.workOrder.id],
         this.workOrder.tasks,
         {wkoId : this.workOrder.id}
