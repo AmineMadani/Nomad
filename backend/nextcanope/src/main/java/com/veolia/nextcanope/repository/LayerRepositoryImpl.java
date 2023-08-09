@@ -59,7 +59,7 @@ public class LayerRepositoryImpl {
      * @return the equipment
      */
 	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
-        String query = "SELECT DISTINCT id, ²   ²ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, * FROM asset." + layer + " WHERE id=?";
+        String query = "SELECT DISTINCT id, ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, * FROM asset." + layer + " WHERE id=?";
         //String query = "SELECT * FROM asset." + layer + " WHERE id=?";
         return jdbcTemplate.queryForList(query, id);
     }
