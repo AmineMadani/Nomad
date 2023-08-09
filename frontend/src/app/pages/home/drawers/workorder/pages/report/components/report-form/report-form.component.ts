@@ -25,8 +25,8 @@ export class ReportFormComponent implements OnInit {
   public isLoading:boolean = true;
 
   ngOnInit() {
-    this.templateService.getformsTemplate().then(forms => {
-      let formTemplate = forms.find(form => form['formCode'] == ('REPORT_' + this.task.assObjTable.replace("asset.", "") + '_' + this.task.wtrCode).toUpperCase());
+    this.templateService.getFormsTemplate().then(forms => {
+      let formTemplate = forms.find(form => form['formCode'] === 'REPORT_' + this.task.astCode + '_' + this.task.wtrCode);
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);
         if(this.task.report?.questionIndex){

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
-import { TemplateForm } from 'src/app/core/models/template.model';
+import { FormTemplate } from 'src/app/core/models/template.model';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import {
@@ -40,10 +40,10 @@ export class EquipmentDetailsComponent implements OnInit {
             this.type = type.charAt(0).toUpperCase() + type.slice(1);
           }
 
-          return this.templateService.getformsTemplate();
+          return this.templateService.getFormsTemplate();
         })
       )
-      .subscribe((forms: TemplateForm[]) => {
+      .subscribe((forms: FormTemplate[]) => {
         let form: Form = null;
         if(this.isMobile) {
           form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW_MOBILE').definition);

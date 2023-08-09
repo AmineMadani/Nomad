@@ -17,7 +17,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportValue } from 'src/app/core/models/workorder.model';
 
 export interface FormNode {
-  definition: any;
+  definition: FormDefinition;
   children?: FormNode[];
 }
 

@@ -28,6 +28,7 @@ export interface Task {
     wtsId: string;
     wtrId: string;
     ctrId: string;
+    astCode?: string;
     wtrCode?: string;
     wkoId?: string;
     longitude: number;

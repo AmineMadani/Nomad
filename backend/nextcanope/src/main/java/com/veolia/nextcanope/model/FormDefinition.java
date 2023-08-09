@@ -71,7 +71,7 @@ public class FormDefinition implements Serializable {
     @OneToMany(mappedBy="formDefinition")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
-    @OneToMany(mappedBy="formDefinition")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="formDefinition")
     private List<FormTemplate> listOfFormTemplate;
 
     @ManyToOne

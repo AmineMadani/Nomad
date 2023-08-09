@@ -15,6 +15,9 @@ import { LayerReferencesSettingsPage } from './layer-references-settings/layer-r
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 import { LayerStyleComponent } from './layer-styles-settings/layer-style/layer-style.component';
 import { UserDetailsComponent } from './users-settings/user-details/user-details.component';
+import { ReportListComponent } from './report-list/report-list.component';
+import { ReportEditComponent } from './report-list/report-edit/report-edit.component';
+import { ValueLabelComponent } from './report-list/report-edit/value-label/value-label.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -35,7 +38,10 @@ import { UserDetailsComponent } from './users-settings/user-details/user-details
     LayerReferencesSettingsPage,
     LayerStylesSettingsPage,
     LayerStyleComponent,
-    UserDetailsComponent
+    UserDetailsComponent,
+    ReportListComponent,
+    ReportEditComponent,
+    ValueLabelComponent,
   ]
 })
 export class SettingsPageModule {}

@@ -35,6 +35,10 @@ export class SettingsPage implements OnInit {
           url: 'layer-styles',
           title: 'Personnalisation des styles par défaut',
         },
+        {
+          url: 'report-list',
+          title: 'Personnalisation des formulaires',
+        },
       ]
     },
     {

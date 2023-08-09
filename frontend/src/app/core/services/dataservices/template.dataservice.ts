@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
-import { TemplateForm } from '../../models/template.model';
+import { FormTemplate, FormTemplateUpdate } from '../../models/template.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,12 +15,32 @@ export class TemplateDataService {
   ) {
   }
 
+  private httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  };
+
   /**
    * Method to get all the forms template
    * @returns list of Forms
    */
-  public getformsTemplate(): Observable<TemplateForm[]> {
-    return this.http.get<TemplateForm[]>(`${this.configurationService.apiUrl}template/forms`)
+  public getFormsTemplate(): Observable<FormTemplate[]> {
+    return this.http.get<FormTemplate[]>(`${this.configurationService.apiUrl}template/forms`)
+  }
+
+  public createFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+    return this.http.post<any>(
+      `${this.configurationService.apiUrl}template/create`,
+      formTemplate,
+      this.httpOptions
+    );
+  }
+
+  public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+    return this.http.put<any>(
+      `${this.configurationService.apiUrl}template/update`,
+      formTemplate,
+      this.httpOptions
+    );
   }
 }
 

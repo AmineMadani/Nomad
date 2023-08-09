@@ -1,0 +1,20 @@
+<form [formGroup]="form" class="settings-content-template">
+  <div class="settings-content-header-height">
+    <div class="settings-content-template-header">
+      <ion-label class="label">
+        <h2>Personnalisation des formulaires</h2>
+      </ion-label>
+    </div>
+
+    <div class="separation-line"></div>
+  </div>
+
+  <div class="settings-report-creation">
+    <app-search-select key="ast_id" label="Type" [elements]="listAssetType"
+        [control]="form.controls['astId']" [elementLabelFunction]="getAssetTypeLabel">
+    </app-search-select>
+
+    <app-generic-table [toolbar]="toolbar" [columns]="columns" [data]="listWtrReport">
+    </app-generic-table>
+  </div>
+</form>

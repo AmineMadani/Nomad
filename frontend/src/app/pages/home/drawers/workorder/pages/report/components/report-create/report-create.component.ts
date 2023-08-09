@@ -94,13 +94,49 @@ export class ReportCreateComponent implements OnInit {
    */
   public previousFormQuestion() {
     if (this.stepForm.formEditor.indexQuestion > 0) {
-      this.stepForm.formEditor.indexQuestion--;
+      this.stepForm.formEditor.indexQuestion = this.getPreviousValidQuestionIndex(this.stepForm.formEditor.indexQuestion);
+
       if (this.stepForm.formEditor.indexQuestion == 0) {
         this.hasPreviousQuestion = false
       }
       this.isSubmit = false;
     }
     this.saveWorkorderState();
+  }
+
+  /**
+   * Return the index of the previous valid question
+   * It depends of the previous answer
+   * @param currentIndex current question index
+   * @returns the index of the preivous valide question
+   */
+  getPreviousValidQuestionIndex(currentIndex: number): number {
+    let previousValidQuestionIndex = currentIndex - 1;
+
+    // Check if the previous question can be skip (depending on previous answers)
+    // If there is a previous question
+    if (previousValidQuestionIndex > 0) {
+      // Get the previous question
+      let previousChild = this.stepForm.formEditor.sections[0].children[previousValidQuestionIndex];
+      
+      // If there is a condition
+      if (previousChild.definition.displayCondition != null) {
+        // Get the answer of the question of the condition
+        const answer = this.stepForm.formEditor.form.get(previousChild.definition.displayCondition.key).value;
+
+        // List of correct answer needed to display the question
+        const listCorrectAnswer = previousChild.definition.displayCondition.value;
+
+        // And the condition is not met
+        if (!listCorrectAnswer.includes(answer)) {
+          // Skip the previous question
+          // So we search the index of the previous valid question
+          previousValidQuestionIndex = this.getPreviousValidQuestionIndex(previousValidQuestionIndex);
+        }
+      }
+    }
+
+    return previousValidQuestionIndex;
   }
 
   /**
@@ -116,13 +152,50 @@ export class ReportCreateComponent implements OnInit {
       valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
     }
     if (valid) {
-      this.stepForm.formEditor.indexQuestion++;
+      // Get the index of the next valid question
+      this.stepForm.formEditor.indexQuestion = this.getNextValidQuestionIndex(this.stepForm.formEditor.indexQuestion);
+      
       this.hasPreviousQuestion = true;
       if (this.stepForm.formEditor.indexQuestion + 1 >= this.stepForm.formEditor.sections[0].children.length) {
         this.isSubmit = true;
       }
       this.saveWorkorderState();
     }
+  }
+
+  /**
+   * Return the index of the next valid question
+   * It depends of the previous answer
+   * @param currentIndex current question index
+   * @returns the index of the next valide question
+   */
+  getNextValidQuestionIndex(currentIndex: number): number {
+    let nextValidQuestionIndex = currentIndex + 1;
+
+    // Check if the next question can be skip (depending on previous answers)
+    // If there is a next question
+    if (nextValidQuestionIndex < this.stepForm.formEditor.sections[0].children.length) {
+      // Get the next question
+      let nextChild = this.stepForm.formEditor.sections[0].children[nextValidQuestionIndex];
+      
+      // If there is a condition
+      if (nextChild.definition.displayCondition != null) {
+        // Get the answer of the question of the condition
+        const answer = this.stepForm.formEditor.form.get(nextChild.definition.displayCondition.key).value;
+
+        // List of correct answer needed to display the question
+        const listCorrectAnswer = nextChild.definition.displayCondition.value;
+
+        // And the condition is not met
+        if (!listCorrectAnswer.includes(answer)) {
+          // Skip the next question
+          // So we search the index of the next valid question
+          nextValidQuestionIndex = this.getNextValidQuestionIndex(nextValidQuestionIndex);
+        }
+      }
+    }
+
+    return nextValidQuestionIndex;
   }
 
   /**

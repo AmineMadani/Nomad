@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
 import { TemplateDataService } from './dataservices/template.dataservice';
-import { TemplateForm } from '../models/template.model';
-import { catchError, of, timeout, lastValueFrom } from 'rxjs';
+import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
+import { catchError, of, timeout, lastValueFrom, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -21,13 +21,13 @@ export class TemplateService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  async getformsTemplate(): Promise<TemplateForm[]> {
+  async getFormsTemplate(): Promise<FormTemplate[]> {
     const res = await lastValueFrom(
-      this.templateDataService.getformsTemplate()
+      this.templateDataService.getFormsTemplate()
         .pipe(
           timeout(2000),
           catchError(async () => {
-            const forms = await this.db.referentials.get('templateForms');
+            const forms = await this.db.referentials.get('formTemplate');
             if (forms) {
               return forms.data;
             }
@@ -36,14 +36,32 @@ export class TemplateService {
         )
     );
     if (!res) {
-      throw new Error(`Failed to fetch templateForms`);
+      throw new Error(`Failed to fetch formTemplate`);
     }
 
     await this.db.referentials.put(
-      { data: res, key: 'templateForms' },
-      'templateForms'
+      { data: res, key: 'formTemplate' },
+      'formTemplate'
     );
 
     return res;
+  }
+
+  /**
+   * Create a form template
+   * @param formTemplate the form template to create
+   * @returns the form template
+   */
+  public createFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+    return this.templateDataService.createFormTemplate(formTemplate);
+  }
+
+  /**
+   * Update a form template
+   * @param formTemplate the form template to update
+   * @returns the form template
+   */
+  public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+    return this.templateDataService.updateFormTemplate(formTemplate);
   }
 }

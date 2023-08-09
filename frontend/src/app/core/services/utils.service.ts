@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -189,5 +190,21 @@ export class UtilsService {
     }
   
     return mostFrequentValue;
+  }
+
+  /**
+   * Vaidate all fields of a form
+   * @param formGroup FormGroup to validate
+   */
+  public validateAllFormFields(formGroup: FormGroup | FormArray): void {
+    Object.keys(formGroup.controls).forEach(field => {
+      const control = formGroup.get(field);
+
+      if (control instanceof FormControl) {
+        control.markAsTouched({ onlySelf: true });
+      } else if (control instanceof FormGroup || control instanceof FormArray) {
+        this.validateAllFormFields(control);
+      }
+    });
   }
 }

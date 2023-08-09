@@ -2,11 +2,13 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
+import com.veolia.nextcanope.dto.FormTemplate.FormTemplateUpdateDto;
+import com.veolia.nextcanope.model.FormTemplate;
+import com.veolia.nextcanope.service.FormTemplateService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.dto.AccountTokenDto;
 import com.veolia.nextcanope.dto.FormTemplateDto;
@@ -25,6 +27,9 @@ public class TemplateController {
 	
 	@Autowired
 	FormTemplateRepository formTemplateRepository;
+
+	@Autowired
+	FormTemplateService formTemplateService;
 		
 	@GetMapping(path = "/forms")
 	@Operation(summary = "Get the forms template")
@@ -33,5 +38,27 @@ public class TemplateController {
 			})
 	public List<FormTemplateDto> getFormsTemplate(AccountTokenDto account) {
 		return formTemplateRepository.getFormsTemplate(account.getId());
+	}
+
+	@PostMapping(path = "create")
+	@Operation(summary = "Create a form")
+	@ApiResponses(value = {
+			@ApiResponse(description= "The form", content =  {
+					@Content(schema = @Schema(implementation = String.class))
+			})
+	})
+	public Long createFormTemplate(AccountTokenDto account, @RequestBody FormTemplateUpdateDto formTemplateDto) {
+		return formTemplateService.createFormTemplate(formTemplateDto, account.getId());
+	}
+
+	@PutMapping(path = "update")
+	@Operation(summary = "Update a form")
+	@ApiResponses(value = {
+			@ApiResponse(description= "The form", content =  {
+					@Content(schema = @Schema(implementation = String.class))
+			})
+	})
+	public Long updateFormTemplate(AccountTokenDto account, @RequestBody FormTemplateUpdateDto formTemplateDto) {
+		return formTemplateService.updateFormTemplate(formTemplateDto, account.getId());
 	}
 }

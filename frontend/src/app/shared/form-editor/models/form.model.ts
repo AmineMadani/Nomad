@@ -14,6 +14,7 @@ export interface FormDefinition {
   label: string;
   section?: string;
   rules: FormRule[];
+  displayCondition?: FormDisplayCondition;
 }
 
 export interface FormSection {
@@ -110,3 +111,10 @@ export enum FormPropertiesEnum {
 }
 
 export type FormComponent = FormInput | FormSelect | FormTextaera;
+
+export const PREFIX_KEY_DEFINITION = 'UUID-';
+
+export interface FormDisplayCondition {
+  key: string;
+  value: string[];
+}

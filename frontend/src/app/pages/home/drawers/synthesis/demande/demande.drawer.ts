@@ -50,7 +50,7 @@ export class DemandeDrawer implements OnInit {
   }
 
   createForm(): void {
-    this.templateService.getformsTemplate()
+    this.templateService.getFormsTemplate()
       .then(forms => {
         let demForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
         demForm.definitions.map((def: FormDefinition) => {

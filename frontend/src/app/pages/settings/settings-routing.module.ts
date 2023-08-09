@@ -6,6 +6,7 @@ import { UsersSettingsComponent } from './users-settings/users-settings.componen
 import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
+import { ReportListComponent } from './report-list/report-list.component';
 
 const routes: Routes = [
   {
@@ -32,7 +33,11 @@ const routes: Routes = [
       {
         path: 'users',
         component: UsersSettingsComponent,
-      }
+      },
+      {
+        path: 'report-list',
+        component: ReportListComponent,
+      },
     ],
   }
 ];
