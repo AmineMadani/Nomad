@@ -1,0 +1,21 @@
+<ion-content class="settings-flex">
+  <div class="settings-content-template">
+
+    <div>
+      <ion-label class="label">
+        <h2>Gestion des utilisateurs</h2>
+      </ion-label>
+
+      <div class="separation-line"></div>
+    </div>
+
+    <div class="settings-users">
+      <app-generic-table
+        [toolbar]="toolbar"
+        [columns]="columns"
+        [data]="users"
+        [selectedData]="selectedUsers"
+      ></app-generic-table>
+    </div>
+  </div>
+</ion-content>

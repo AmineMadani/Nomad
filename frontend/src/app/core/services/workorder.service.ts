@@ -26,7 +26,7 @@ export class WorkorderService {
 
   /**
    * Get the wanted workorder.
-   * If the workorder last state is not found in local storage, 
+   * If the workorder last state is not found in local storage,
    * get the workorder from the server
    * if the server no respond in the timebox then the workorder if construct from the geojson.
    * @returns A Promise that resolves to the referential

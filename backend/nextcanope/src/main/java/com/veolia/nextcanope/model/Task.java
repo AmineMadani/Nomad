@@ -113,7 +113,7 @@ public class Task implements Serializable {
 	@JsonIgnore
     private Users modifiedBy;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name="ass_id", referencedColumnName="id")
     private Asset asset;
 

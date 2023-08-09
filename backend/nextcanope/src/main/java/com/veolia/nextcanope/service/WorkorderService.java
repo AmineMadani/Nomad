@@ -249,7 +249,7 @@ public class WorkorderService {
     public WorkorderDto updateWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
 		Users user = userService.getUserById(userId);
 
-    	Workorder workorder = getWorkOrderById(userId);
+    	Workorder workorder = getWorkOrderById(customWorkorderDto.getId());
 		workorder.setWkoCompletionDate(new Date());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
@@ -279,7 +279,6 @@ public class WorkorderService {
 						report.setTask(task);
 						report.setCreatedBy(user);
 					}
-
 					report.setRptLabel(reportValue.getQuestion());
 					report.setRptValue(reportValue.getAnswer());
 					report.setModifiedBy(user);

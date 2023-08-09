@@ -2,10 +2,10 @@
   <div class="settings-content-header-height">
     <div class="settings-content-template-header">
       <ion-label class="label">
-        <h2>Création d'un nouvel utilisateur</h2>
+        <h2>{{ user ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'}}</h2>
       </ion-label>
 
-      <ion-button [disabled]="userForm.pristine || !userForm.valid" 
+      <ion-button [disabled]="userForm.pristine || !userForm.valid || user"
         class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
         Enregistrer
       </ion-button>
@@ -56,19 +56,19 @@
         <ion-row *ngFor="let contractForm of contractForms; let i = index">
           <ion-col><ion-label>Périmètre {{ i + 1 }}</ion-label></ion-col>
           <ion-col>
-            <ion-input aria-label="label" labelPlacement="floating" fill="outline" label="Libellé" />
+            <ion-input [disabled]="user" aria-label="label" labelPlacement="floating" fill="outline" label="Libellé" />
           </ion-col>
           <ion-col>
-            <ion-input aria-label="area" labelPlacement="floating" fill="outline" label="Région" />
+            <ion-input [disabled]="user" aria-label="area" labelPlacement="floating" fill="outline" label="Région" />
           </ion-col>
           <ion-col>
-            <ion-input aria-label="territory" labelPlacement="floating" fill="outline" label="Térritoire" />
+            <ion-input [disabled]="user" aria-label="territory" labelPlacement="floating" fill="outline" label="Térritoire" />
           </ion-col>
           <ion-col>
-            <ion-input aria-label="contracts" labelPlacement="floating" fill="outline" label="Contrats" />
+            <ion-input [disabled]="user" aria-label="contracts" labelPlacement="floating" fill="outline" label="Contrats" />
           </ion-col>
           <ion-col>
-            <ion-input aria-label="profile" labelPlacement="floating" fill="outline" label="Profil" />
+            <ion-input [disabled]="user" aria-label="profile" labelPlacement="floating" fill="outline" label="Profil" />
           </ion-col>
           <ion-col>
             <ion-icon name="pencil-outline"></ion-icon>
@@ -77,7 +77,7 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ion-button shape="round" (click)="addContractForm()">Ajouter un périmètre</ion-button>
+      <ion-button shape="round" (click)="addContractForm()" [disabled]="user">Ajouter un périmètre</ion-button>
     </div>
   </div>
 </form>

@@ -1,0 +1,14 @@
+.settings-flex {
+  height: 100%;
+}
+
+.settings-content-template {
+  overflow-y: auto;
+  height: 85%;
+
+  .settings-users {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 70px);
+  }
+}

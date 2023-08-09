@@ -5,9 +5,10 @@
 
     .settings-row {
       padding-top: 30px;
-      height: 100%;
+      height: 100vh;
 
       .settings-menu {
+        overflow-y: auto;
         padding-left: 30px;
 
         .ion-activated-background {

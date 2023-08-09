@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.veolia.nextcanope.dto.AccountDto;
@@ -30,7 +31,7 @@ public class UserService {
      * @return List of user account.
      */
 	public List<AccountDto> getAllUserAccount() {
-		List<Users> users = this.userRepository.findAll();
+		List<Users> users = this.userRepository.findAll(Sort.by(Sort.Order.desc("usrDcre")));
 		return users.stream().map(AccountDto::new).collect(Collectors.toList());
 	}
 

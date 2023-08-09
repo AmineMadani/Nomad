@@ -4,6 +4,7 @@ export interface Workorder {
     wkoEmergency: boolean;
     wkoAppointment: boolean;
     wkoAddress: string;
+    wkoCreationComment: string;
     wkoPlanningStartDate: Date;
     wkoPlanningEndDate: Date;
     wtsId: number;
@@ -13,7 +14,6 @@ export interface Workorder {
     wkoAgentNb: number;
     tasks: Task[];
     selectedTaskId?: number;
-    wkoCreationComment : string;
 }
 
 export interface CancelWorkOrder {

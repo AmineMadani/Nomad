@@ -179,6 +179,7 @@ public class WorkorderDto {
         this.wkoEmergency = workorder.getWkoEmergency();
         this.wkoAppointment = workorder.getWkoAppointment();
         this.wkoAddress = workorder.getWkoAddress();
+        this.wkoCreationComment = workorder.getWkoCreationComment();
         this.wkoPlanningStartDate = workorder.getWkoPlanningStartDate();
         this.wkoPlanningEndDate = workorder.getWkoPlanningEndDate();
         this.wkoCompletionDate = workorder.getWkoCompletionDate();
