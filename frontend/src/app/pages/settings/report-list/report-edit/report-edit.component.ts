@@ -12,6 +12,13 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import { SelectDuplicateReportComponent } from './select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './test-report/test-report.component';
 
+enum CustomFormPropertiesEnum {
+    TEXT = 'text',
+    NUMBER = 'number',
+    SELECT = 'select',
+}
+
+
 @Component({
   selector: 'app-report-edit',
   templateUrl: './report-edit.component.html',
@@ -32,11 +39,12 @@ export class ReportEditComponent implements OnInit {
 
   public form: FormGroup;
 
-  FormPropertiesEnum = FormPropertiesEnum;
+  CustomFormPropertiesEnum = CustomFormPropertiesEnum;
 
   listComponentType: ValueLabel[] = [
-    {value: FormPropertiesEnum.INPUT, label: 'Saisie libre'},
-    {value: FormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
+    {value: CustomFormPropertiesEnum.TEXT, label: 'Saisie libre'},
+    {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
+    {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'}
   ];
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
@@ -95,7 +103,7 @@ export class ReportEditComponent implements OnInit {
     // When changing the type of component
     lineForm.get('component').valueChanges.subscribe((component) => {
       // Empty the list of values if it is not a select
-      if (component !== FormPropertiesEnum.SELECT) {
+      if (component !== CustomFormPropertiesEnum.SELECT) {
         lineForm.get('listValue').setValue([]);
       }
     });
@@ -121,7 +129,7 @@ export class ReportEditComponent implements OnInit {
     const listAvailableQuestion = [];
     for (let i = 0; i < index; i++) {
       const lineForm = this.lines.at(i);
-      if (lineForm.get('component').value === FormPropertiesEnum.SELECT) {
+      if (lineForm.get('component').value === CustomFormPropertiesEnum.SELECT) {
         listAvailableQuestion.push({
           value: (i+1).toString(),
           label: (i+1) + ' - ' + lineForm.get('label').value,
@@ -330,21 +338,36 @@ export class ReportEditComponent implements OnInit {
         key: PREFIX_KEY_DEFINITION + (i+1),
         type: 'property',
         label: lineForm.get('label').value,
-        component: lineForm.get('component').value,
+        component: null,
         editable: true,
         attributes: {},
         rules: [],
         section: startDefinition.key,
       }
 
+      // Component
+      const component = lineForm.get('component').value;
+      if ([CustomFormPropertiesEnum.TEXT, CustomFormPropertiesEnum.NUMBER].includes(component)) {
+        definition.component = FormPropertiesEnum.INPUT;
+      }
+      if (CustomFormPropertiesEnum.SELECT === component) {
+        definition.component = FormPropertiesEnum.SELECT;
+      }
+
       // Attributes
-      if (definition.component === FormPropertiesEnum.INPUT) {
+      if (component === CustomFormPropertiesEnum.TEXT) {
         definition.attributes = {
           type: 'text',
           hiddenNull: false,
         }
       }
-      if (definition.component === FormPropertiesEnum.SELECT) {
+      if (component === CustomFormPropertiesEnum.NUMBER) {
+        definition.attributes = {
+          type: 'number',
+          hiddenNull: false,
+        }
+      }
+      if (component === CustomFormPropertiesEnum.SELECT) {
         definition.attributes = {
           value: '',
           options: lineForm.get('listValue').value.map((value) => {

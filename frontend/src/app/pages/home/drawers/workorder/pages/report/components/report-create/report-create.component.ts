@@ -212,6 +212,8 @@ export class ReportCreateComponent implements OnInit {
    * Save the state of a workorder in cache
    */
   private saveWorkorderState() {
+    if (this.isTest) return;
+
     let report: Report = {
       dateCompletion: new Date(),
       reportValues: [],
