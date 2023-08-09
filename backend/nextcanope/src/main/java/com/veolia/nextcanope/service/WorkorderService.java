@@ -179,7 +179,7 @@ public class WorkorderService {
 
 		Users user = this.userService.getUserById(userId);
 
-		Workorder workorder = getWorkOrderById(userId);
+		Workorder workorder = getWorkOrderById(customWorkorderDto.getId());
 		workorder.setWkoName(customWorkorderDto.getWkoName());
 		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
 		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
