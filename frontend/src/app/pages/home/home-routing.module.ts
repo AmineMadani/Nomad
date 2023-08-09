@@ -65,6 +65,13 @@ const routes: Routes = [
             },
           },
           {
+            path: ':id/edit',
+            component: WkoCreationComponent,
+            data: {
+              name: DrawerRouteEnum.WORKORDER_EDITION
+            },
+          },
+          {
             path: ':id',
             component: WkoViewComponent,
             data: {

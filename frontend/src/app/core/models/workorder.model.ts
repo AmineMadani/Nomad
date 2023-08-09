@@ -14,6 +14,8 @@ export interface Workorder {
     wkoAgentNb: number;
     tasks: Task[];
     selectedTaskId?: number;
+    ctyId: string;
+    ctrId: string;
 }
 
 export interface CancelWorkOrder {
@@ -47,4 +49,12 @@ export interface ReportValue {
     key: string;
     question: string;
     answer: string;
+}
+
+export enum WkoStatus{
+    'CREE' = 1,
+    'ENVOYEPLANIF' = 2,
+    'PLANIFIE' = 3,
+    'TERMINE' = 4,
+    'ANNULE' = 5
 }

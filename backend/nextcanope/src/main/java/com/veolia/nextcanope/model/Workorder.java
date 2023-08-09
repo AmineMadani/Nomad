@@ -169,7 +169,7 @@ public class Workorder implements Serializable {
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="workorder")
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="workorder")
     private List<Task> listOfTask;
 
     @ManyToOne

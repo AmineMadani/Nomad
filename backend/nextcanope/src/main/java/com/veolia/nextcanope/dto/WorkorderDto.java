@@ -127,7 +127,7 @@ public class WorkorderDto {
     public void setWkoAgentNb(Integer wkoAgentNb) {
         this.wkoAgentNb = wkoAgentNb;
     }
-    
+
 	public List<TaskDto> getTasks() {
 		return tasks;
 	}
@@ -187,10 +187,12 @@ public class WorkorderDto {
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();
+        this.ctyId = workorder.getCity().getId();
         this.tasks = new ArrayList<TaskDto>();
-        
+        this.wkoCreationComment = workorder.getWkoCreationComment();
         for(Task task: workorder.getListOfTask()) {
         	this.tasks.add(new TaskDto(task));
+            this.ctrId =this.tasks.get(0).getCtrId();
         }
     }
 }

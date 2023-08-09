@@ -106,7 +106,7 @@ public class LayerService {
             List<Map<String, Object>> layerFeatures = this.layerRepositoryImpl.getEquipmentsByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds());
             features.addAll(layerFeatures);
         }
-        return features;
+                return features;
     }
 
     public Layer getLayerByLyrTableName(String lyrTableName) {

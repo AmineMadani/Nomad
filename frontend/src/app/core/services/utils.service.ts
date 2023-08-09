@@ -164,6 +164,24 @@ export class UtilsService {
     return featureParams;
   }
 
+  public generateTaskParams(tasks: any[]): any {
+    const taskParams: any = {};
+    tasks.forEach((task) => {
+      let source = task.assObjTable;
+      if (source.startsWith('asset.'))
+      source = source.replace('asset.','');
+      if (!taskParams[source]) {
+        taskParams[source] = new Set();
+      }
+      taskParams[source].add(task.assObjRef);
+    });
+    // Convert the Sets to comma-separated strings
+    Object.keys(taskParams).forEach((source) => {
+      taskParams[source] = Array.from(taskParams[source]).join(',');
+    });
+    return taskParams;
+  }
+
   public findMostFrequentValue(arr: Array<number | string>): number | string | undefined {
     if (arr.length === 0) {
       // Handle the case of an empty array.

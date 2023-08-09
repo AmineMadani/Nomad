@@ -1,14 +1,14 @@
-<app-page-header [headerLabel]="'Générer une interventions'" [loading]="loading"></app-page-header>
+<app-page-header [headerLabel]="title" [loading]="loading"></app-page-header>
 
 <div class="wko-creation-body">
   <ng-container *ngIf="!loading; else loadingBody">
     <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
       <ion-list>
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts" 
           [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
         </app-search-select>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"  
           [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
@@ -49,11 +49,11 @@
           <ion-select-option value="2">2</ion-select-option>
           <ion-select-option value="3">3</ion-select-option>
           <ion-select-option value="4">4</ion-select-option>
-          <ion-select-option value="4">5</ion-select-option>
+          <ion-select-option value="5">5</ion-select-option>
         </ion-select>
 
         <div class="wko-calendar">
-          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début"
+          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début" 
             formControlName="wkoPlanningStartDate"></ion-input>
           <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="Fin"
             formControlName="wkoPlanningEndDate"></ion-input>
@@ -63,8 +63,8 @@
         </div>
 
         <div class="radio-group">
-          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false">Urgent</ion-checkbox>
-          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)" [checked]="false">Rendez-vous</ion-checkbox>
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false" formControlName="wkoEmergency" >Urgent</ion-checkbox>
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)" [checked]="false" formControlName="wkoAppointment">Rendez-vous</ion-checkbox>
         </div>
 
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"

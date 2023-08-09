@@ -142,6 +142,15 @@ export class DrawerService {
     this.router.navigate([url], { queryParams: { ...eqParams, ...queryParams } });
   }
 
+  navigateWithWko(route: DrawerRouteEnum, pathVariables: any[] = [], tasks: any[], queryParams?: any): void {
+    let url = this.getUrlFromDrawerName(route);
+    pathVariables?.forEach((pathVariable) => {
+      url = url.replace(/:[^\/]+/, pathVariable);
+    });
+    const eqParams = this.utilsService.generateTaskParams(tasks);
+    this.router.navigate([url], { queryParams: { ...eqParams, ...queryParams } });
+  }
+  
   closeDrawer() {
     const url: string = this.getUrlFromDrawerName(DrawerRouteEnum.HOME);
     //this.router.navigate([url]);

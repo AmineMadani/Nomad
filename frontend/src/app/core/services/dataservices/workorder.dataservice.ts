@@ -36,6 +36,14 @@ export class WorkorderDataService {
     );
   }
 
+  public updateDataWorkOrder(workorder: Workorder): Observable<any> {
+    return this.http.post<any>(
+      `${this.configurationService.apiUrl}exploitation/workorder/update-data`,
+      workorder,
+      this.httpOptions
+    );
+  }
+
   public updateWorkOrder(workorder: Workorder): Observable<any> {
     return this.http.post<any>(
       `${this.configurationService.apiUrl}exploitation/workorder/update`,

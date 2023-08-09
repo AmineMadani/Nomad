@@ -26,7 +26,7 @@ export class WorkorderService {
 
   /**
    * Get the wanted workorder.
-   * If the workorder last state is not found in local storage, 
+   * If the workorder last state is not found in local storage,
    * get the workorder from the server
    * if the server no respond in the timebox then the workorder if construct from the geojson.
    * @returns A Promise that resolves to the referential
@@ -72,6 +72,15 @@ export class WorkorderService {
     return this.workorderDataService.getFeaturePagination(key, limit, offset, search)
       .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
   }
+
+    /**
+   * Update data workorder
+   * @param workorder the workorder to update
+   * @returns the workorder
+   */
+    public updateDataWorkOrder(workorder: Workorder): Observable<any> {
+      return this.workorderDataService.updateDataWorkOrder(workorder);
+    }
 
   /**
    * Update a workorder
@@ -126,7 +135,6 @@ export class WorkorderService {
       latitude: featureWorkorder.properties['y'],
       longitude: featureWorkorder.properties['x'],
       wkoAddress: featureWorkorder.properties['wko_adress'],
-      wkoCreationComment:featureWorkorder.properties['wkoCreationComment'],
       wkoAgentNb: featureWorkorder.properties['wko_agent_nb'],
       wkoEmergency: featureWorkorder.properties['wko_emergency'],
       wkoAppointment: featureWorkorder.properties['wko_appointment'],
@@ -135,7 +143,10 @@ export class WorkorderService {
       wkoPlanningEndDate: featureWorkorder.properties['wko_planning_end_date'],
       wkoPlanningStartDate: featureWorkorder.properties['wko_planning_start_date'],
       wtsId: featureWorkorder.properties['wko_wts_id'],
-      tasks: []
+      wkoCreationComment : featureWorkorder.properties['wko_creation_comment'],
+      tasks: [],
+      ctyId: featureWorkorder.properties['cty_id'],
+      ctrId: '',
     };
   }
 

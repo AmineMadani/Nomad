@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelWorkOrder,
+  WkoStatus,
   Workorder,
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -11,6 +12,8 @@ import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-wko-view',
@@ -28,7 +31,8 @@ export class WkoViewComponent implements OnInit {
     private mapService: MapService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController,
-    private router: Router
+    private router: Router,
+    private drawerService : DrawerService
   ) { }
 
   public workOrder: Workorder;
@@ -37,8 +41,13 @@ export class WkoViewComponent implements OnInit {
   public status: string;
   public reason: string;
   public selectedTask: any;
-  public taskId: string;  
+  public taskId: string;
   public loading: boolean = true;
+
+  public CanEdit() : boolean {
+    return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
+                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF);
+  }
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -53,8 +62,8 @@ export class WkoViewComponent implements OnInit {
 
         const { id } = this.activatedRoute.snapshot.params;
         this.taskId = this.activatedRoute.snapshot.params['taskid']?.toString();
-        this.workOrder = await this.workorderService.getWorkorderById(id);  
-          
+        this.workOrder = await this.workorderService.getWorkorderById(id);
+
         this.checkTask(this.taskId);
 
         this.displayAndZoomTo(this.workOrder);
@@ -67,7 +76,7 @@ export class WkoViewComponent implements OnInit {
 
         let wtsid = this.selectedTask?.wtsId;
         let lyrTableName = this.selectedTask?.assObjTable;
-        
+
         Promise.all([
           this.referentialService.getReferential('workorder_task_status'),
           this.referentialService.getReferential('workorder_task_reason'),
@@ -85,6 +94,17 @@ export class WkoViewComponent implements OnInit {
         });
       });
   }
+
+    /**
+    * Update workorder
+    */
+    public updateWorkorder(): void {
+      this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
+        [this.workOrder.id],
+        this.workOrder.tasks,
+        {wkoId : this.workOrder.id}
+      );
+    }
 
   /**
    * Displays an alert to prompt the user to enter a reason for canceling
@@ -141,11 +161,11 @@ export class WkoViewComponent implements OnInit {
   }
 
   public onGenerateReport() {
-    this.router.navigate(['/home/workorder/' + this.workOrder.id + '/cr'])
+    this.router.navigate(['/home/workorder/'+this.workOrder.id+'/cr'])
   }
 
   public onDisplayWorkorder() {
-    this.router.navigate(['/home/workorder/' + this.workOrder.id]);
+    this.router.navigate(['/home/workorder/'+this.workOrder.id]);
   }
 
   private async getStatus(): Promise<void> {
@@ -188,11 +208,11 @@ export class WkoViewComponent implements OnInit {
     }
   }
 
-  /**
+   /**
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
-  private displayAndZoomTo(workorder: Workorder) {
+   private displayAndZoomTo(workorder: Workorder) {
 
     let featuresSelection: MultiSelection[] = [];
     let geometries = [];
