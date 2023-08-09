@@ -24,7 +24,7 @@ values
  True,
  True),
 -----------------
-('Orthophotoplan IGN',
+('Satellite',
  'WMS',
  'https://wxs.ign.fr/essentiels/geoportail/wmts',
  'ORTHOIMAGERY.ORTHOPHOTOS',
