@@ -108,7 +108,7 @@ public IsDisabled() : boolean {
         this.equipments = equipments;
 
         this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
-        const editId = this.activatedRoute.snapshot.queryParams['wkoId'];
+        const wkoId = this.activatedRoute.snapshot.queryParams['wkoId'];
         this.createForm();
 
       
@@ -120,8 +120,8 @@ public IsDisabled() : boolean {
 
         this.generateMarker();
 
-        if (editId){
-          this.workOrder = await this.workOrderService.getWorkorderById(Number(editId));
+        if (wkoId){
+          this.workOrder = await this.workOrderService.getWorkorderById(Number(wkoId));
           this.title = 'Modification de l\'intervention ' + this.workOrder.wkoName;
           await this.initializeFormWithWko();
         }
