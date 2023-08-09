@@ -120,7 +120,7 @@ export class ReportListComponent implements OnInit {
           definition: formTemplateReport?.definition,
           hasForm: formTemplateReport == null ? '' : 'X',
         }
-      })
+      });
     });
     
     this.listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');

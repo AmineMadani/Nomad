@@ -1,0 +1,15 @@
+<div class="test-report-content">
+  <div class="test-report-header">
+    <ion-label class="label">
+      <h2>
+        Test du Formulaire
+      </h2>
+    </ion-label>
+
+    <ion-button (click)="close()" fill="clear">
+      <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+  </div>
+
+  <app-report-create [reportForm]="reportForm" [isTest]="true"></app-report-create>
+</div>

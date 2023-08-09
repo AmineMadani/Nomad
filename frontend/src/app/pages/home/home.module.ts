@@ -89,6 +89,7 @@ import { ReportFormComponent } from './drawers/workorder/pages/report/components
     ReportAssetComponent,
     ReportContextComponent,
     ReportFormComponent
-  ]
+  ],
+  exports: [ReportCreateComponent]
 })
 export class HomePageModule {}

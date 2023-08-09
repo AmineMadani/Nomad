@@ -12,6 +12,16 @@
   </div>
 
   <div class="report-edit-body">
+    <div class="report-edit-actions-div">
+      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" style="margin-right: 30px">
+        Dupliquer un autre formulaire
+      </ion-button>
+
+      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()">
+        Tester
+      </ion-button>
+    </div>
+
     <form [formGroup]="form" class="report-edit-form">
       <ng-container formArrayName="lines">
         <ng-container *ngFor="let lineForm of lines.controls; let i = index">

@@ -18,6 +18,9 @@ import { UserDetailsComponent } from './users-settings/user-details/user-details
 import { ReportListComponent } from './report-list/report-list.component';
 import { ReportEditComponent } from './report-list/report-edit/report-edit.component';
 import { ValueLabelComponent } from './report-list/report-edit/value-label/value-label.component';
+import { SelectDuplicateReportComponent } from './report-list/report-edit/select-duplicate-report/select-duplicate-report.component';
+import { TestReportComponent } from './report-list/report-edit/test-report/test-report.component';
+import { HomePageModule } from '../home/home.module';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -28,6 +31,7 @@ import { ValueLabelComponent } from './report-list/report-edit/value-label/value
     IonicModule,
     SharedModule,
     SettingsPageRoutingModule,
+    HomePageModule,
   ],
   declarations: [
     SettingsPage,
@@ -42,6 +46,8 @@ import { ValueLabelComponent } from './report-list/report-edit/value-label/value
     ReportListComponent,
     ReportEditComponent,
     ValueLabelComponent,
+    SelectDuplicateReportComponent,
+    TestReportComponent,
   ]
 })
 export class SettingsPageModule {}

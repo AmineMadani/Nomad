@@ -16,6 +16,8 @@ export class ReportFormComponent implements OnInit {
   ) { }
 
   @Input() task: Task;
+  @Input() reportForm: Form = null;
+  @Input() isTest = false;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
@@ -25,6 +27,12 @@ export class ReportFormComponent implements OnInit {
   public isLoading:boolean = true;
 
   ngOnInit() {
+    if (this.isTest) {
+      this.form = this.reportForm;
+      this.isLoading = false;
+      return;
+    }
+
     this.templateService.getFormsTemplate().then(forms => {
       let formTemplate = forms.find(form => form['formCode'] === 'REPORT_' + this.task.astCode + '_' + this.task.wtrCode);
       if (formTemplate) {

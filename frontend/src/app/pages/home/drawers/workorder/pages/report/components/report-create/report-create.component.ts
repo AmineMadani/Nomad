@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { AlertController, IonModal } from '@ionic/angular';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
+import { Form } from 'src/app/shared/form-editor/models/form.model';
 
 @Component({
   selector: 'app-report-create',
@@ -29,6 +30,8 @@ export class ReportCreateComponent implements OnInit {
   ) { }
 
   @Input() workorder: Workorder;
+  @Input() reportForm: Form = null;
+  @Input() isTest = false;
 
   public isMobile: boolean;
   public step: number = 1;
@@ -41,6 +44,13 @@ export class ReportCreateComponent implements OnInit {
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+
+    if (this.isTest) {
+      this.step = 3;
+      return;
+    }
+
+
     this.referential.getReferential('workorder_task_status').then(lStatus => {
       const status = lStatus.find(sts => sts['id'] == this.workorder.wtsId);
       if (status.wts_code == 'TERMINE') {
