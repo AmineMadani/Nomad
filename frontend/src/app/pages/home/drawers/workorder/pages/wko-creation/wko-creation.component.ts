@@ -20,6 +20,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { PreferenceService } from 'src/app/core/services/preference.service';
+import { Observable } from 'dexie';
 
 @Component({
   selector: 'app-wko-creation',
@@ -251,7 +252,9 @@ public IsDisabled() : boolean {
     form.longitude =
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
 
-      if (this.workOrder){
+
+      let funct : any;
+      if(this.workOrder){
         form.id = this.workOrder.id;
         this.workOrder.latitude = form.latitude
         this.workOrder.longitude = form.longitude
@@ -271,40 +274,28 @@ public IsDisabled() : boolean {
           }
         })
         this.workOrder.tasks = form.tasks;
-        this.workOrderService.updateDataWorkOrder(this.workOrder).subscribe((res: Workorder) => {
-          this.removeMarkers();
-          this.mapLayerService.addGeojsonToLayer(res, 'task');
-          if(res.tasks.length == 1) {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.TASK_VIEW,
-              [res.id, res.tasks[0].id]
-            );
-          } else {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.WORKORDER_VIEW,
-              [res.id]
-            );
-          }
-        });
+        this.workOrder.ctrId = form.ctrId;
+        this.workOrder.ctyId = form.ctyId;
+        funct =  this.workOrderService.updateDataWorkOrder(this.workOrder);
       }
-      else
-      {
-        this.workOrderService.createWorkOrder(form).subscribe((res: Workorder) => {
-          this.removeMarkers();
-          this.mapLayerService.addGeojsonToLayer(res, 'task');
-          if(res.tasks.length == 1) {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.TASK_VIEW,
-              [res.id, res.tasks[0].id]
-            );
-          } else {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.WORKORDER_VIEW,
-              [res.id]
-            );
-          }
-        });
+      else{
+        funct = this.workOrderService.createWorkOrder(form);
       }
+      funct.subscribe((res: Workorder) => {
+        this.removeMarkers();
+        this.mapLayerService.addGeojsonToLayer(res, 'task');
+        if(res.tasks.length == 1) {
+          this.drawerService.navigateTo(
+            DrawerRouteEnum.TASK_VIEW,
+            [res.id, res.tasks[0].id]
+          );
+        } else {
+          this.drawerService.navigateTo(
+            DrawerRouteEnum.WORKORDER_VIEW,
+            [res.id]
+          );
+        }
+      });
   }
 
   public async openEquipmentModal(): Promise<void> {

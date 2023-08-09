@@ -14,6 +14,8 @@ export interface Workorder {
     wkoAgentNb: number;
     tasks: Task[];
     selectedTaskId?: number;
+    ctyId: string;
+    ctrId: string;
 }
 
 export interface CancelWorkOrder {

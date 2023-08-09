@@ -144,7 +144,9 @@ export class WorkorderService {
       wkoPlanningStartDate: featureWorkorder.properties['wko_planning_start_date'],
       wtsId: featureWorkorder.properties['wko_wts_id'],
       wkoCreationComment : featureWorkorder.properties['wko_creation_comment'],
-      tasks: []
+      tasks: [],
+      ctyId: featureWorkorder.properties['cty_id'],
+      ctrId: '',
     };
   }
 
