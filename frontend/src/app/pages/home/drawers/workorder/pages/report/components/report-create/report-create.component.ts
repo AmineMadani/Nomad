@@ -137,8 +137,21 @@ export class ReportCreateComponent implements OnInit {
         // List of correct answer needed to display the question
         const listCorrectAnswer = previousChild.definition.displayCondition.value;
 
-        // And the condition is not met
-        if (!listCorrectAnswer.includes(answer)) {
+        let conditionIsMet = false;
+
+        // If the question can have multiple value selected
+        if (answer instanceof Array) {
+          // Transform the answer into a list
+          let listAnswer: string[] = [];
+          if (answer != null) listAnswer = answer as Array<string>;
+
+          // If the condition is not met
+          conditionIsMet = listCorrectAnswer.some((correctAnswer) => listAnswer.includes(correctAnswer));
+        } else {
+          conditionIsMet = listCorrectAnswer.includes(answer);
+        }
+
+        if (!conditionIsMet) {
           // Skip the previous question
           // So we search the index of the previous valid question
           previousValidQuestionIndex = this.getPreviousValidQuestionIndex(previousValidQuestionIndex);
@@ -196,8 +209,21 @@ export class ReportCreateComponent implements OnInit {
         // List of correct answer needed to display the question
         const listCorrectAnswer = nextChild.definition.displayCondition.value;
 
-        // And the condition is not met
-        if (!listCorrectAnswer.includes(answer)) {
+        let conditionIsMet = false;
+
+        // If the question can have multiple value selected
+        if (answer instanceof Array) {
+          // Transform the answer into a list
+          let listAnswer: string[] = [];
+          if (answer != null) listAnswer = answer as Array<string>;
+
+          // If the condition is not met
+          conditionIsMet = listCorrectAnswer.some((correctAnswer) => listAnswer.includes(correctAnswer));
+        } else {
+          conditionIsMet = listCorrectAnswer.includes(answer);
+        }
+
+        if (!conditionIsMet) {
           // Skip the next question
           // So we search the index of the next valid question
           nextValidQuestionIndex = this.getNextValidQuestionIndex(nextValidQuestionIndex);
@@ -253,7 +279,9 @@ export class ReportCreateComponent implements OnInit {
           report.reportValues.push({
             key: definition.key,
             question: definition.label,
-            answer: this.stepForm.formEditor.form.value[definition.key]
+            answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ? 
+              this.stepForm.formEditor.form.value[definition.key].join('; ') 
+              : this.stepForm.formEditor.form.value[definition.key]
           });
 
           if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {

@@ -69,7 +69,7 @@
                   </ng-container>
                 </div>
 
-                <div class="line-right" *ngIf="lineForm.get('component').value === CustomFormPropertiesEnum.SELECT">
+                <div class="line-right" *ngIf="[CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)">
                   <div class="add-button-line">
                     <div>Liste des valeurs :</div>
 

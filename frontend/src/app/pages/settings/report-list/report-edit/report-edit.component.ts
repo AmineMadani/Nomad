@@ -16,6 +16,7 @@ enum CustomFormPropertiesEnum {
     TEXT = 'text',
     NUMBER = 'number',
     SELECT = 'select',
+    SELECT_MULTIPLE = 'select_multiple',
 }
 
 
@@ -45,6 +46,7 @@ export class ReportEditComponent implements OnInit {
     {value: CustomFormPropertiesEnum.TEXT, label: 'Saisie libre'},
     {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'},
     {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
+    {value: CustomFormPropertiesEnum.SELECT_MULTIPLE, label: 'Liste de valeurs avec multiples selections'},
   ];
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
@@ -91,7 +93,11 @@ export class ReportEditComponent implements OnInit {
         }
       }
       if (definition.component === FormPropertiesEnum.SELECT) {
-        component = CustomFormPropertiesEnum.SELECT;
+        if (definition.attributes?.multiple === true) {
+          component = CustomFormPropertiesEnum.SELECT_MULTIPLE;
+        } else {
+          component = CustomFormPropertiesEnum.SELECT;
+        }
       }
 
       lineForm.patchValue({
@@ -122,7 +128,7 @@ export class ReportEditComponent implements OnInit {
     // When changing the type of component
     lineForm.get('component').valueChanges.subscribe((component) => {
       // Empty the list of values if it is not a select
-      if (component !== CustomFormPropertiesEnum.SELECT) {
+      if (component !== CustomFormPropertiesEnum.SELECT && component !== CustomFormPropertiesEnum.SELECT_MULTIPLE) {
         lineForm.get('listValue').setValue([]);
       }
     });
@@ -385,7 +391,7 @@ export class ReportEditComponent implements OnInit {
     const listAvailableQuestion = [];
     for (let i = 0; i < lineIndex; i++) {
       const lineForm = this.lines.at(i);
-      if (lineForm.get('component').value === CustomFormPropertiesEnum.SELECT) {
+      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)) {
         listAvailableQuestion.push({
           value: (i+1).toString(),
           label: (i+1) + ' - ' + lineForm.get('label').value,
@@ -550,7 +556,7 @@ export class ReportEditComponent implements OnInit {
       if ([CustomFormPropertiesEnum.TEXT, CustomFormPropertiesEnum.NUMBER].includes(component)) {
         definition.component = FormPropertiesEnum.INPUT;
       }
-      if (CustomFormPropertiesEnum.SELECT === component) {
+      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(component)) {
         definition.component = FormPropertiesEnum.SELECT;
       }
 
@@ -567,7 +573,7 @@ export class ReportEditComponent implements OnInit {
           hiddenNull: false,
         }
       }
-      if (component === CustomFormPropertiesEnum.SELECT) {
+      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(component)) {
         definition.attributes = {
           value: '',
           options: lineForm.get('listValue').value.map((value) => {
@@ -575,7 +581,8 @@ export class ReportEditComponent implements OnInit {
               key: value,
               value: value,
             }
-          })
+          }),
+          multiple: component === CustomFormPropertiesEnum.SELECT_MULTIPLE,
         }
       }
 

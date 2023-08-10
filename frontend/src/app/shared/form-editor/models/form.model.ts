@@ -67,6 +67,7 @@ export interface FormSelect {
   default: string;
   placeholder: string;
   options?: FormSelectOpt[];
+  multiple?: boolean;
 }
 
 export interface FormSelectReferential {
