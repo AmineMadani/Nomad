@@ -26,7 +26,13 @@
       <ng-container formArrayName="lines">
         <ng-container *ngFor="let lineForm of lines.controls; let i = index">
           <div [formGroup]="lineForm" class="line">
-            <div class="number">{{i+1}}</div>
+            <div class="number">
+              {{i+1}}
+
+              <ion-button fill="clear" class="small-button" (click)="deleteLine(i)">
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+              </ion-button>
+            </div>
 
             <div class="line-question">
               <div class="line-top">
@@ -68,11 +74,11 @@
                       <div class="value">{{value}}</div>
 
                       <div class="buttons">
-                        <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value)">
+                        <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value, i)">
                           <ion-icon slot="icon-only" name="pencil"></ion-icon>
                         </ion-button>
 
-                        <ion-button fill="clear" class="small-button" (click)="deleteValue(lineForm, value)">
+                        <ion-button fill="clear" class="small-button" (click)="deleteValue(lineForm, value, i)">
                           <ion-icon slot="icon-only" name="trash"></ion-icon>
                         </ion-button>
                       </div>

@@ -80,8 +80,23 @@ export class ReportEditComponent implements OnInit {
       this.addLine();
       const lineForm = this.lines.at(index);
 
+      // Component
+      let component = null;
+      if (definition.component === FormPropertiesEnum.INPUT) {
+        if (definition.attributes?.type === 'number') {
+          component = CustomFormPropertiesEnum.NUMBER;
+        }
+        if (definition.attributes?.type === 'text') {
+          component = CustomFormPropertiesEnum.TEXT;
+        }
+      }
+      if (definition.component === FormPropertiesEnum.SELECT) {
+        component = CustomFormPropertiesEnum.SELECT;
+      }
+
       lineForm.patchValue({
-        ...definition,
+        component: component,
+        label: definition.label,
         isRequired: definition.rules.some((rule) => rule.key === 'required'),
         listValue: definition.attributes?.options != null ? definition.attributes.options.map((option) => option.value) : [],
         questionCondition: definition.displayCondition?.key != null ? definition.displayCondition.key.substring(PREFIX_KEY_DEFINITION.length) : null,
@@ -90,6 +105,10 @@ export class ReportEditComponent implements OnInit {
     }
   }
 
+  /*
+   * Handle lines
+   */
+  // ### ADD ### //
   addLine() {
     const lineForm = new FormGroup({
       component: new FormControl<string>(null, Validators.required),
@@ -122,6 +141,139 @@ export class ReportEditComponent implements OnInit {
     });
 
     this.lines.push(lineForm);
+  }
+
+  // ### DELETE ### //
+  deleteLine(lineIndex: number) {
+    // The index of the next lines will change so if other line has condition on them
+    // The condition will not work anymore
+    // Example : 
+    // Line 1                         --> Line 1
+    // Line 2                         --> Deleted
+    // Line 3 condition on line 2     --> Line 2 with no condition
+    // Line 4 condition on line 3     --> Line 3 with condition on line 2
+    // If the line 2 is delete, we have to :
+    // - Empty the condition of line 3
+    // - Change the index of the condition of line 4 to set 2 instead of 3
+
+    // Check if all the next lines
+    for (let i = lineIndex; i < this.lines.length; i++) {
+      const lineFormToCheck = this.lines.at(i);
+
+      // If there is a condition
+      const questionCondition = lineFormToCheck.get('questionCondition').value;
+      if (questionCondition != null) {
+        // If the condition is on the line that is about to be deleted, delete the condition and condition values
+        if (questionCondition === (lineIndex+1).toString()) {
+          lineFormToCheck.get('questionCondition').setValue(null);
+          lineFormToCheck.get('listQuestionConditionValues').setValue([]);
+        } else {
+          // Else change the index to be -1
+          // EmitEvent = false to not empty the list of values
+          lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) - 1).toString(), {emitEvent: false});
+        }
+      }
+    }
+
+    // Delete the line
+    this.lines.removeAt(lineIndex);
+  }
+
+  /*
+   * Handle Values in a List of value question
+   */
+  // ### ADD ### //
+  async addValue(lineForm: FormGroup) {
+    const listValue: string[] = lineForm.get('listValue').value;
+
+    const modal = await this.modalController.create({
+      component: ValueLabelComponent,
+      componentProps: {
+        value: null,
+      },
+      backdropDismiss: false,
+      cssClass: 'adaptive-modal stack-modal',
+      showBackdrop: true,
+    });
+
+    modal.onDidDismiss().then((result) => {
+      const newValue: string = result['data'];
+      // If some data changed
+      if (newValue != null) {
+        listValue.push(newValue);
+        lineForm.get('listValue').setValue(listValue);
+      }
+    });
+
+    await modal.present();
+  }
+
+  // ### UPDATE ### //
+  async updateValue(lineForm: FormGroup, value: string, lineIndex: number) {
+    const listValue: string[] = lineForm.get('listValue').value;
+    const index = listValue.indexOf(value);
+    
+    const modal = await this.modalController.create({
+      component: ValueLabelComponent,
+      componentProps: {
+        value: value,
+      },
+      backdropDismiss: false,
+      cssClass: 'adaptive-modal stack-modal',
+    });
+
+    modal.onDidDismiss().then((result) => {
+      const newValue: string = result['data'];
+      // If some data changed
+      if (newValue != null) {
+        // Check if the old value was used somewhere
+        for (let i = lineIndex; i < this.lines.length; i++) {
+          const lineFormToCheck = this.lines.at(i);
+
+          // Check if this lines has a condition with this line
+          if (lineFormToCheck.get('questionCondition').value === (lineIndex+1).toString()) {
+            // If that the case, check if the old value is part of the list of condition values
+            const listQuestionConditionValuesToCheck: string[] = lineFormToCheck.get('listQuestionConditionValues').value;
+            const indexOfValue = listQuestionConditionValuesToCheck.indexOf(value);
+            if (indexOfValue !== -1) {
+              // If that the case, change the old value to the new value
+              listQuestionConditionValuesToCheck[indexOfValue] = newValue;
+              lineFormToCheck.get('listQuestionConditionValues').setValue(listQuestionConditionValuesToCheck);
+            }
+          }
+        }
+
+        listValue[index] = newValue;
+        lineForm.get('listValue').setValue(listValue);
+      }
+    });
+
+    await modal.present();
+  }
+
+  // ### DELETE ### //
+  deleteValue(lineForm: FormGroup, value: string, lineIndex: number) {
+    let listValue: string[] = lineForm.get('listValue').value;
+
+    // Check if the value was used somewhere
+    for (let i = lineIndex; i < this.lines.length; i++) {
+      const lineFormToCheck = this.lines.at(i);
+
+      // Check if this lines has a condition with this line
+      if (lineFormToCheck.get('questionCondition').value === (lineIndex+1).toString()) {
+        // If that the case, check if the value is part of the list of condition values
+        let listQuestionConditionValuesToCheck: string[] = lineFormToCheck.get('listQuestionConditionValues').value;
+        const indexOfValue = listQuestionConditionValuesToCheck.indexOf(value);
+        if (indexOfValue !== -1) {
+          // If that the case, delete the value
+          listQuestionConditionValuesToCheck = listQuestionConditionValuesToCheck.filter((questionConditionValue) => questionConditionValue !== value);
+          lineFormToCheck.get('listQuestionConditionValues').setValue(listQuestionConditionValuesToCheck);
+        }
+      }
+    }
+
+    listValue = listValue.filter((v) => v !== value);
+    lineForm.get('listValue').setValue(listValue);
   }
 
   getListAvailableQuestion(index: number): ValueLabel[] {
@@ -161,68 +313,6 @@ export class ReportEditComponent implements OnInit {
     }
 
     return [];
-  }
-
-  /*
-   * Handle Values in a List of value question
-   */
-  // ### ADD ### //
-  async addValue(lineForm: FormGroup) {
-    const listValue: string[] = lineForm.get('listValue').value;
-
-    const modal = await this.modalController.create({
-      component: ValueLabelComponent,
-      componentProps: {
-        value: null,
-      },
-      backdropDismiss: false,
-      cssClass: 'adaptive-modal stack-modal',
-      showBackdrop: true,
-    });
-
-    modal.onDidDismiss().then((result) => {
-      const newValue: string = result['data'];
-      // If some data changed
-      if (newValue != null) {
-        listValue.push(newValue);
-        lineForm.get('listValue').setValue(listValue);
-      }
-    });
-
-    await modal.present();
-  }
-
-  // ### UPDATE ### //
-  async updateValue(lineForm: FormGroup, value: string) {
-    const listValue: string[] = lineForm.get('listValue').value;
-    const index = listValue.indexOf(value);
-    
-    const modal = await this.modalController.create({
-      component: ValueLabelComponent,
-      componentProps: {
-        value: listValue[index],
-      },
-      backdropDismiss: false,
-      cssClass: 'adaptive-modal stack-modal',
-    });
-
-    modal.onDidDismiss().then((result) => {
-      const newValue: string = result['data'];
-      // If some data changed
-      if (newValue != null) {
-        listValue[index] = newValue;
-        lineForm.get('listValue').setValue(listValue);
-      }
-    });
-
-    await modal.present();
-  }
-
-  // ### DELETE ### //
-  deleteValue(lineForm: FormGroup, value: string) {
-    let listValue: string[] = lineForm.get('listValue').value;
-    listValue = listValue.filter((v) => v !== value);
-    lineForm.get('listValue').setValue(listValue);
   }
 
   /**
