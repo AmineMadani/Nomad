@@ -13,12 +13,12 @@
 
   <div class="report-edit-body">
     <div class="report-edit-actions-div">
-      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" style="margin-right: 30px">
-        Dupliquer un autre formulaire
+      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" matTooltip="Dupliquer un autre formulaire">
+        <ion-icon slot="icon-only" name="copy"></ion-icon>
       </ion-button>
 
-      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()">
-        Tester
+      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" matTooltip="Test le formulaire">
+        <ion-icon slot="icon-only" name="clipboard"></ion-icon>
       </ion-button>
     </div>
 

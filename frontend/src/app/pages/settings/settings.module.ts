@@ -21,6 +21,7 @@ import { ValueLabelComponent } from './report-list/report-edit/value-label/value
 import { SelectDuplicateReportComponent } from './report-list/report-edit/select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './report-list/report-edit/test-report/test-report.component';
 import { HomePageModule } from '../home/home.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -32,6 +33,7 @@ import { HomePageModule } from '../home/home.module';
     SharedModule,
     SettingsPageRoutingModule,
     HomePageModule,
+    MatTooltipModule,
   ],
   declarations: [
     SettingsPage,
