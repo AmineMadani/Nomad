@@ -43,8 +43,8 @@ export class ReportEditComponent implements OnInit {
 
   listComponentType: ValueLabel[] = [
     {value: CustomFormPropertiesEnum.TEXT, label: 'Saisie libre'},
+    {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'},
     {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
-    {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'}
   ];
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
@@ -163,10 +163,10 @@ export class ReportEditComponent implements OnInit {
       // If there is a condition
       const questionCondition = lineFormToCheck.get('questionCondition').value;
       if (questionCondition != null) {
-        // If the condition is on the line that is about to be deleted, delete the condition and condition values
+        // If the condition is on the line that is about to be deleted
         if (questionCondition === (lineIndex+1).toString()) {
+          // Delete the condition and condition values
           lineFormToCheck.get('questionCondition').setValue(null);
-          lineFormToCheck.get('listQuestionConditionValues').setValue([]);
         } else {
           // Else change the index to be -1
           // EmitEvent = false to not empty the list of values
@@ -177,6 +177,85 @@ export class ReportEditComponent implements OnInit {
 
     // Delete the line
     this.lines.removeAt(lineIndex);
+  }
+
+  // ### ORDER ### //
+  lineDown(lineIndex: number) {
+    // Check if there is a line with condition on this line
+    for (let i = lineIndex; i < this.lines.length; i++) {
+      const lineFormToCheck = this.lines.at(i);
+
+      // If there is a condition
+      const questionCondition = lineFormToCheck.get('questionCondition').value;
+      if (questionCondition != null) {
+        // If the condition is on the line that is moving down the list
+        if (questionCondition === (lineIndex+1).toString()) {
+          // Change the index
+          // EmitEvent = false to not empty the list of values
+          lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) - 1).toString(), {emitEvent: false});
+        } 
+        
+        // If the condition is on the line that is moving up the list (by changing its place with the line moving down)
+        if (questionCondition === ((lineIndex+1) - 1).toString()) {
+          // If its the line moving down
+          if (i === lineIndex) {
+            // Delete the condition
+            lineFormToCheck.get('questionCondition').setValue(null);
+          } else {
+            // Else, change the index
+            // EmitEvent = false to not empty the list of values
+            lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) + 1).toString(), {emitEvent: false});
+          }
+        }
+      }
+    }
+
+    // Invert both lines
+    const listLine = this.lines.value;
+    const lineAtLineIndex = listLine[lineIndex];
+    const lineAtLineIndexMinusOne = listLine[lineIndex - 1];
+    listLine[lineIndex] = lineAtLineIndexMinusOne;
+    listLine[lineIndex - 1] = lineAtLineIndex;
+    this.lines.setValue(listLine);
+  }
+
+  lineUp(lineIndex: number) {
+    // Check if there is a line with condition on this line
+    for (let i = lineIndex; i < this.lines.length; i++) {
+      const lineFormToCheck = this.lines.at(i);
+
+      // If there is a condition
+      const questionCondition = lineFormToCheck.get('questionCondition').value;
+      if (questionCondition != null) {
+        // If the condition is on the line that is moving up the list
+        if (questionCondition === (lineIndex+1).toString()) {
+          // If its the line moving down
+          if (i === (lineIndex+1)) {
+            // Delete the condition
+            lineFormToCheck.get('questionCondition').setValue(null);
+          } else {
+            // Change the index
+            // EmitEvent = false to not empty the list of values
+            lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) + 1).toString(), {emitEvent: false});
+          }
+        } 
+        
+        // If the condition is on the line that is moving down the list (by changing its place with the line moving up)
+        if (questionCondition === ((lineIndex+1) + 1).toString()) {
+          // Else, change the index
+          // EmitEvent = false to not empty the list of values
+          lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) - 1).toString(), {emitEvent: false});
+        }
+      }
+    }
+
+    // Invert both lines
+    const listLine = this.lines.value;
+    const lineAtLineIndex = listLine[lineIndex];
+    const lineAtLineIndexPlusOne = listLine[lineIndex + 1];
+    listLine[lineIndex] = lineAtLineIndexPlusOne;
+    listLine[lineIndex + 1] = lineAtLineIndex;
+    this.lines.setValue(listLine);
   }
 
   /*
@@ -276,10 +355,35 @@ export class ReportEditComponent implements OnInit {
     lineForm.get('listValue').setValue(listValue);
   }
 
-  getListAvailableQuestion(index: number): ValueLabel[] {
-    // Display only questions before the index and question that are a list of values
+  // ### ORDER ### //
+  valueDown(lineForm: FormGroup, valueIndex: number) {
+    // Invert both values
+    const listValues = lineForm.get('listValue').value;
+    const valueAtIndex = listValues[valueIndex];
+    const valueAtIndexMinusOne = listValues[valueIndex - 1];
+    listValues[valueIndex] = valueAtIndexMinusOne;
+    listValues[valueIndex - 1] = valueAtIndex;
+  }
+
+  valueUp(lineForm: FormGroup, valueIndex: number) {
+    // Invert both values
+    const listValues = lineForm.get('listValue').value;
+    const valueAtIndex = listValues[valueIndex];
+    const valueAtIndexPlusOne = listValues[valueIndex + 1];
+    listValues[valueIndex] = valueAtIndexPlusOne;
+    listValues[valueIndex + 1] = valueAtIndex;
+  }
+
+  /**
+   * Get the list of available questions for this line, for the condition
+   * 
+   * @param lineIndex index of the line
+   * @returns The list of questions
+   */
+  getListAvailableQuestion(lineIndex: number): ValueLabel[] {
+    // Display only questions before the index and questions that are a list of values
     const listAvailableQuestion = [];
-    for (let i = 0; i < index; i++) {
+    for (let i = 0; i < lineIndex; i++) {
       const lineForm = this.lines.at(i);
       if (lineForm.get('component').value === CustomFormPropertiesEnum.SELECT) {
         listAvailableQuestion.push({
@@ -292,9 +396,15 @@ export class ReportEditComponent implements OnInit {
     return listAvailableQuestion;
   }
 
-  getListAvailableQuestionValues(index: number): ValueLabel[] {
+  /**
+   * Get the list of available questions values for this line, for the question condition selected
+   * 
+   * @param lineIndex index of the line
+   * @returns The list of values
+   */
+  getListAvailableQuestionValues(lineIndex: number): ValueLabel[] {
     // Display the list of values linked to the selected question condition
-    const lineForm = this.lines.at(index);
+    const lineForm = this.lines.at(lineIndex);
 
     const questionCondition = lineForm.get('questionCondition').value;
     if (questionCondition != null) {

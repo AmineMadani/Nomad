@@ -59,6 +59,25 @@
           align-items: center;
           justify-content: center;
           margin: 10px;
+
+          .up-down-div {
+            display: flex;
+            flex-direction: column;
+            
+            ion-icon {
+              --size: 12px;
+              font-size: 16px;
+            }
+  
+            .small-button {
+              --padding-start: 5px;
+              --padding-end: 5px;
+              margin-inline: unset;
+              margin-top: unset;
+              margin-bottom: unset;
+              height: unset;
+            }
+          }
         }
 
         .line-question {

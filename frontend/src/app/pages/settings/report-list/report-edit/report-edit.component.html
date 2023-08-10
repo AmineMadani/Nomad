@@ -29,9 +29,18 @@
             <div class="number">
               {{i+1}}
 
-              <ion-button fill="clear" class="small-button" (click)="deleteLine(i)">
+              <ion-button fill="clear" (click)="deleteLine(i)">
                 <ion-icon slot="icon-only" name="trash"></ion-icon>
               </ion-button>
+
+              <div class="up-down-div">
+                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0">
+                  <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1">
+                  <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+                </ion-button>
+              </div>
             </div>
 
             <div class="line-question">
@@ -70,10 +79,18 @@
                   </div>
 
                   <div class="values-div">
-                    <div *ngFor="let value of lineForm.get('listValue').value" class="value-line">
+                    <div *ngFor="let value of lineForm.get('listValue').value; let j = index" class="value-line">
                       <div class="value">{{value}}</div>
 
                       <div class="buttons">
+                        <ion-button fill="clear" class="small-button" (click)="valueDown(lineForm, j)" [disabled]="j === 0">
+                          <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+                        </ion-button>
+
+                        <ion-button fill="clear" class="small-button" (click)="valueUp(lineForm, j)" [disabled]="j === lineForm.get('listValue').value.length - 1">
+                          <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+                        </ion-button>
+
                         <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value, i)">
                           <ion-icon slot="icon-only" name="pencil"></ion-icon>
                         </ion-button>
