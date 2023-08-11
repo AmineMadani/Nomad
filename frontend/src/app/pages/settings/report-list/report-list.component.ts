@@ -62,7 +62,7 @@ export class ReportListComponent implements OnInit {
   }
 
   private listFormTemplateReport: FormTemplate[] = [];
-  
+
   public listWtrReport: WtrReport[] = [];
 
   public toolbar: TableToolbar = {
@@ -73,7 +73,9 @@ export class ReportListComponent implements OnInit {
   // Table Columns
   public columns: Column[] = [
     {
-      type: TypeColumn.ACTION,
+      format: {
+        type: TypeColumn.ACTION
+      },
       label: '',
       size: '1',
       onClick: (wtrReport: any) => {
@@ -83,17 +85,23 @@ export class ReportListComponent implements OnInit {
     {
       key: 'wtr_code',
       label: 'Code',
-      type: TypeColumn.TEXT,
+      format: {
+        type: TypeColumn.TEXT
+      }
     },
     {
       key: 'wtr_slabel',
       label: 'Libellé',
-      type: TypeColumn.TEXT,
+      format: {
+        type: TypeColumn.TEXT
+      }
     },
     {
       key: 'hasForm',
       label: 'Formulaire ?',
-      type: TypeColumn.TEXT,
+      format: {
+        type: TypeColumn.TEXT
+      }
     },
   ];
 
@@ -107,7 +115,7 @@ export class ReportListComponent implements OnInit {
     this.form.get('astId').valueChanges.subscribe((astId) => {
       // Get the corresponding wtr
       const listWtr = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.ast_id.toString() === astId), 'wtr_id');
-    
+
       this.listWtrReport = listWtr.map((wtr) => {
         // For each wtr, get the form, if it exists
         const formTemplateReport = this.listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + wtr.ast_code + '_' + wtr.wtr_code)
@@ -122,7 +130,7 @@ export class ReportListComponent implements OnInit {
         }
       });
     });
-    
+
     this.listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');
     this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'ast_id');
 

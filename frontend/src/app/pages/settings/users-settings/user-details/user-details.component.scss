@@ -4,42 +4,34 @@
   height: 100%;
   margin: 0;
 
-  .settings-user-creation {
+  .settings-header {
+    ion-icon {
+      color: black;
+    }
+  }
+
+  .settings-main-content {
     flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    gap: 20px;
+    padding: 15px 10px 20px 10px;
 
-    .user-general {
+    .settings-user-form {
       flex: 0;
-
-      .user-creation-form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-
-        .user-creation-row {
-          display: flex;
-          flex-direction: row;
-          column-gap: 20px;
-        }
-      }
     }
 
     .user-perimeter {
       flex: 1;
-      overflow: auto;
-
-      ion-grid {
-        --ion-grid-columns: 7;
-
-        ion-col {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
+      min-height: 0;
     }
+  }
+
+  .settings-footer {
+    width: 100%;
+    padding: 0px 10px 10px 0px;
+    display: flex;
+    align-items: end;
+    justify-content: end;
   }
 }

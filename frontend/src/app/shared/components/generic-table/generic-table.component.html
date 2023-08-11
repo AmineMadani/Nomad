@@ -13,20 +13,25 @@
   </ion-row>
   <div class="table">
     <!-- Table header with column names -->
-    <ion-row class="header" [ngClass]="{ 'bottom-border': data.length === 0 }">
+    <ion-row class="header" [ngClass]="{ 'bottom-border': rows.length === 0 }">
       <ng-container *ngFor="let column of columns; let columnIndex = index">
 
-        <ion-col *ngIf="column.type === TypeColumn.CHECKBOX" [size]="column.size" class="cell button-cell"
+        <ion-col *ngIf="column.format.type === TypeColumn.CHECKBOX" [size]="column.size" class="cell button-cell"
           [ngClass]="{ 'left-border': columnIndex !== 0 }">
           <ion-checkbox [checked]="isAllRowsSelected()" (ionChange)="onSelectAll()" aria-label="selection"></ion-checkbox>
         </ion-col>
 
-        <ion-col *ngIf="column.type === TypeColumn.ACTION" [size]="column.size" class="cell button-cell"
+        <ion-col *ngIf="column.format.type === TypeColumn.ACTION" [size]="column.size" class="cell button-cell"
           [ngClass]="{ 'left-border': columnIndex !== 0 }">
           {{ column.label }}
         </ion-col>
 
-        <ion-col *ngIf="column.type === TypeColumn.TEXT" [size]="column.size" class="cell text-cell"
+        <ion-col *ngIf="column.format.type === TypeColumn.TEXT" [size]="column.size" class="cell text-cell"
+          [ngClass]="{ 'left-border': columnIndex !== 0 }">
+          {{ column.label }}
+        </ion-col>
+
+        <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell text-cell"
           [ngClass]="{ 'left-border': columnIndex !== 0 }">
           {{ column.label }}
         </ion-col>
@@ -34,24 +39,31 @@
     </ion-row>
     <!-- Table rows with data values -->
     <div class="table-row">
-      <ion-row *ngFor="let row of data; let rowIndex = index">
+      <ion-row *ngFor="let row of rows; let rowIndex = index">
         <ng-container *ngFor="let column of columns; let columnIndex = index">
 
-          <ion-col *ngIf="column.type === TypeColumn.CHECKBOX" [size]="column.size" class="cell button-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (data.length - 1) }">
+          <ion-col *ngIf="column.format.type === TypeColumn.CHECKBOX" [size]="column.size" class="cell button-cell top-border"
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
             <ion-checkbox [checked]="isRowSelected(row)" (ionChange)="onRowSelect(row)" aria-label="selection"></ion-checkbox>
           </ion-col>
 
-          <ion-col *ngIf="column.type === TypeColumn.ACTION" [size]="column.size" class="cell button-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (data.length - 1) }">
+          <ion-col *ngIf="column.format.type === TypeColumn.ACTION" [size]="column.size" class="cell button-cell top-border"
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
             <ion-button (click)="column.onClick(row)" fill="clear">
               <ion-icon slot="icon-only" name="eye"></ion-icon>
             </ion-button>
           </ion-col>
 
-          <ion-col *ngIf="column.type === TypeColumn.TEXT" [size]="column.size" class="cell text-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (data.length - 1) }">
-            {{ row[column.key] }}
+          <ion-col *ngIf="column.format.type === TypeColumn.TEXT" [size]="column.size" class="cell text-cell top-border"
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            {{ row.get(column.key).value }}
+          </ion-col>
+
+          <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell button-cell top-border"
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            <app-search-select class="layer-select" [key]="column.format.selectKey" label="Couche à paramétrer" [elements]="column.format.elements"
+              [control]="row.controls[column.key]" [elementLabelFunction]="column.format.elementLabelFunction" [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
+            </app-search-select>
           </ion-col>
         </ng-container>
       </ion-row>

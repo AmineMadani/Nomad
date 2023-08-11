@@ -1,26 +1,34 @@
-.settings-content {
+.settings-page {
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+  margin: 0;
 
-  .settings-grid {
-    height: 100%;
+  .settings-menu {
+    padding-left: 20px;
 
-    .settings-row {
-      padding-top: 30px;
-      height: 100vh;
-
-      .settings-menu {
-        overflow-y: auto;
-        padding-left: 30px;
-
-        .ion-activated-background {
-          --ion-item-background: var(--ion-color-activated-menu-item);
-        }
-
-        .line-delimiter {
-          border: 1px solid var(--ion-color-neutral-variant-80);
-          margin-bottom: 30px;
-          margin-top: 10px;
-        }
-      }
+    max-height: calc(100vh - 56px - 50px);
+    overflow-y: auto;
+    &.no-scrollbar {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
+    &.no-scrollbar::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+
+    .ion-activated-background {
+      --ion-item-background: var(--ion-color-activated-menu-item);
+    }
+
+    .line-delimiter {
+      border: 1px solid var(--ion-color-neutral-variant-80);
+      margin-bottom: 30px;
+      margin-top: 10px;
+    }
+  }
+
+  .settings-content {
+    max-height: calc(100vh - 56px - 50px);
   }
 }

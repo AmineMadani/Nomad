@@ -1,0 +1,11 @@
+.settings-content-template-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.separation-line {
+  border: 1px solid var(--ion-color-neutral-variant-80);
+  margin-top: 10px;
+}

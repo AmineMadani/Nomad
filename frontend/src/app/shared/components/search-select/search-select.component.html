@@ -3,17 +3,55 @@
     <ion-label class="label" *ngIf="title">
       <h3>{{ title }}</h3>
     </ion-label>
-    <ion-input aria-label="def-input" labelPlacement="stacked" fill="outline" [label]="label"
-      [value]="displayValue" (click)="onOpenModal()" [readonly]="true" [ngClass]="{'select-invalid': control.hasError('required') && control.touched}"/>
 
-    <ng-container>
-      <ng-container>
-        <ng-container *ngIf="control.hasError('required') && control.touched">
-          <ion-label color="danger" lines="none">
-            Le champ est requis.
-          </ion-label>
-        </ng-container>
+    <!-- Classic input -->
+    <ng-container *ngIf="!isUsedInTable">
+      <ion-input
+        aria-label="def-input"
+        labelPlacement="stacked"
+        fill="outline"
+        [label]="label"
+        [value]="displayValue"
+        (click)="onOpenModal()"
+        [readonly]="true"
+        [ngClass]="{
+          'classic-select-invalid':
+            control.hasError('required') && control.touched
+        }"
+      />
+
+      <ng-container *ngIf="control.hasError('required') && control.touched">
+        <ion-label color="danger" lines="none">
+          Le champ est requis.
+        </ion-label>
       </ng-container>
+    </ng-container>
+
+    <!-- Table input -->
+    <ng-container *ngIf="isUsedInTable">
+      <ion-item
+        (click)="onOpenModal()"
+        class="table-select"
+        [ngClass]="{
+          invalid: control.hasError('required') && control.touched
+        }"
+        matTooltip="Le champ est requis."
+        [matTooltipDisabled]="
+          !(control.hasError('required') && control.touched)
+        "
+      >
+        <ion-input
+          aria-label="def-input"
+          [value]="displayValue"
+          [readonly]="true"
+        >
+        </ion-input>
+        <ion-icon
+          name="chevron-down-outline"
+          size="small"
+          slot="end"
+        ></ion-icon>
+      </ion-item>
     </ng-container>
   </div>
   <ng-container>
@@ -27,22 +65,40 @@
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
-        <ion-searchbar mode="ios" animated="true" placeholder="Recherche"
-          (ionInput)="onHandleInput($event)"></ion-searchbar>
+        <ion-searchbar
+          mode="ios"
+          animated="true"
+          placeholder="Recherche"
+          (ionInput)="onHandleInput($event)"
+        ></ion-searchbar>
         <ion-content>
           <ion-list class="search-select-list">
             <!-- Multi selection -->
             <ng-container *ngIf="isMultiSelection">
-              <ion-checkbox *ngFor="let element of displayedElements;" (ionChange)="onMultiSelectionChange($event, element)"
-                labelPlacement="end" justify="start" aria-label="checkbox" [checked]="isElementSelected(element)">
+              <ion-checkbox
+                *ngFor="let element of displayedElements"
+                (ionChange)="onMultiSelectionChange($event, element)"
+                labelPlacement="end"
+                justify="start"
+                aria-label="checkbox"
+                [checked]="isElementSelected(element)"
+              >
                 {{ elementLabelFunction(element) }}
               </ion-checkbox>
             </ng-container>
             <!-- Mono selection -->
             <ng-container *ngIf="!isMultiSelection">
-              <ion-radio-group [formControl]="control" (ionChange)="onCloseModal()">
-                <ion-radio *ngFor="let element of displayedElements;" value="{{element[key]}}" labelPlacement="end" justify="start"
-                  aria-label="radio">
+              <ion-radio-group
+                [formControl]="control"
+                (ionChange)="onCloseModal()"
+              >
+                <ion-radio
+                  *ngFor="let element of displayedElements"
+                  value="{{ element[key] }}"
+                  labelPlacement="end"
+                  justify="start"
+                  aria-label="radio"
+                >
                   {{ elementLabelFunction(element) }}
                 </ion-radio>
               </ion-radio-group>

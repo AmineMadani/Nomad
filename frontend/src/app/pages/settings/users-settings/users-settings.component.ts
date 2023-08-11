@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, Row, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { User } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { UserDetailsComponent } from './user-details/user-details.component';
+import { TableService } from 'src/app/core/services/table.service';
 
 @Component({
   selector: 'app-users-settings',
@@ -15,14 +16,15 @@ import { UserDetailsComponent } from './user-details/user-details.component';
 export class UsersSettingsComponent implements OnInit {
   constructor(
     private userService: UserService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private tableService: TableService
   ) { }
 
   public form: FormGroup;
   public modal: any;
   // Styles
-  public users: User[] = [];
-  public selectedUsers: User[] = [];
+  public usersTableRows: Row<User>[] = [];
+  public usersTableRowsSelected: Row<User>[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -34,7 +36,7 @@ export class UsersSettingsComponent implements OnInit {
           // TODO: this.deleteUsers();
         },
         disableFunction: () => {
-          return this.selectedUsers.length === 0; // TODO: Add rights
+          return this.usersTableRowsSelected.length === 0; // TODO: Add rights
         }
       },
       {
@@ -43,7 +45,7 @@ export class UsersSettingsComponent implements OnInit {
           // TODO: this.openUsersDetails();
         },
         disableFunction: () => {
-          return this.selectedUsers.length !== 1; // TODO: Add rights
+          return this.usersTableRowsSelected.length !== 1; // TODO: Add rights
         }
       },
       {
@@ -60,45 +62,59 @@ export class UsersSettingsComponent implements OnInit {
   // Table Columns
   public columns: Column[] = [
     {
-      type: TypeColumn.CHECKBOX,
+      format: {
+        type: TypeColumn.CHECKBOX,
+      },
       size: '1'
     },
     {
-      type: TypeColumn.ACTION,
+      format: {
+        type: TypeColumn.ACTION,
+      },
       label: '',
       size: '1',
-      onClick: (user: User) => {
-        this.openUserDetails(user);
+      onClick: (row: FormGroup) => {
+        this.openUserDetails(row.getRawValue());
       }
     },
     {
+      format: {
+        type: TypeColumn.TEXT,
+      },
       key: 'lastName',
       label: 'Nom',
-      type: TypeColumn.TEXT,
       size: '2'
     },
     {
+      format: {
+        type: TypeColumn.TEXT,
+      },
       key: 'firstName',
       label: 'Prénom',
-      type: TypeColumn.TEXT,
       size: '2'
     },
     {
+      format: {
+        type: TypeColumn.TEXT,
+      },
       key: 'email',
       label: 'Adresse mail',
-      type: TypeColumn.TEXT,
       size: '3'
     },
     {
+      format: {
+        type: TypeColumn.TEXT,
+      },
       key: 'status',
       label: 'Statut',
-      type: TypeColumn.TEXT,
       size: '1'
     },
     {
+      format: {
+        type: TypeColumn.TEXT,
+      },
       key: 'company',
       label: 'Société',
-      type: TypeColumn.TEXT,
       size: '2'
     },
   ];
@@ -110,7 +126,7 @@ export class UsersSettingsComponent implements OnInit {
 
   private loadUsers() {
     this.userService.getAllUserAccount().subscribe((users: User[]) => {
-      this.users = users;
+      this.usersTableRows = this.tableService.createReadOnlyRowsFromObjects(users);
     });
   }
 
@@ -120,7 +136,7 @@ export class UsersSettingsComponent implements OnInit {
       componentProps: {
         user: user
       },
-      backdropDismiss: true,
+      backdropDismiss: false,
       cssClass: 'custom-modal'
     });
 

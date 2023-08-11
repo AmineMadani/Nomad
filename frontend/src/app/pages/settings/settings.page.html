@@ -2,10 +2,10 @@
   <app-main-toolbar [title]="'Paramètres'"></app-main-toolbar>
 </ion-header>
 
-<ion-content class="settings-content">
-  <ion-grid class="settings-grid">
-    <ion-row class="settings-row">
-      <ion-col size="3" class="settings-menu">
+<ion-content class="settings-page">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="3" class="settings-menu no-scrollbar">
         <div *ngFor="let menu of menuItems; let i = index">
           <ion-label class="label">
             <h3>{{ menu.title }}</h3>
@@ -21,7 +21,7 @@
           <div *ngIf="i < (menuItems.length - 1)" class="line-delimiter"></div>
         </div>
       </ion-col>
-      <ion-col size="9">
+      <ion-col size="9" class="settings-content">
         <router-outlet id="settings-content"></router-outlet>
       </ion-col>
     </ion-row>

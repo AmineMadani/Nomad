@@ -1,30 +1,8 @@
-.settings-flex {
-  height: 100%;
-}
-
-.settings-segment-flex {
-  height: 15%;
-}
-
 .settings-content-template {
   overflow-y: auto;
   height: 85%;
 
-  .settings-content-header-height {
-    height: 70px;
-
-    &.users-settings {
-      height: 180px;
-    }
-
-    .users-multi-selection {
-      display: block;
-      height: 110px;
-      background-color: var(--ion-color-component-background);
-    }
-  }
-
-  .settings-layer-references {
+  .settings-content-main {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;

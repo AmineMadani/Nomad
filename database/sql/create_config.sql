@@ -1041,3 +1041,226 @@ comment on column layer_style_custom.lsc_umod_id is 'Last modificator Id';
 comment on column layer_style_custom.lsc_dcre is 'Creation date';
 comment on column layer_style_custom.lsc_dmod is 'Last modification date';
 comment on column layer_style_custom.lsc_ddel is 'Deletion date';
+
+-- Table organizational_unit_type
+-- This table contains the organizational hierachy of units types.
+create table if not exists organizational_unit_type
+(
+  id                bigserial primary key,
+  out_code          text unique not null,
+  out_slabel        text not null,
+  out_llabel        text,
+  out_valid         boolean default True,
+  out_ucre_id       bigint default 0,
+  out_umod_id       bigint default 0,
+  out_dcre          timestamp without time zone  default current_timestamp,
+  out_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table organizational_unit_type is 'This table contains the organizational hierachy of units types.';
+/* Comments on fields */
+comment on column organizational_unit_type.id is 'Table unique ID';
+comment on column organizational_unit_type.out_code is 'code of the unit type';
+comment on column organizational_unit_type.out_slabel is 'short label';
+comment on column organizational_unit_type.out_llabel is 'long label';
+comment on column organizational_unit_type.out_valid is 'If valid, true else false';
+comment on column organizational_unit_type.out_ucre_id is 'Creator Id';
+comment on column organizational_unit_type.out_umod_id is 'Last Modificator Id';
+comment on column organizational_unit_type.out_dcre is 'Creation date';
+comment on column organizational_unit_type.out_dmod is 'Last modification date';
+
+ALTER TABLE organizational_unit_type
+ADD CONSTRAINT fk_out_out_ucre_id
+FOREIGN KEY (out_ucre_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit_type
+ADD CONSTRAINT fk_out_out_umod_id
+FOREIGN KEY (out_umod_id)
+REFERENCES users (id);
+
+insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('REGION','Region','Région');
+insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('TERRITOIRE','Territoire','Territoire');
+
+-- Table organizational_unit
+-- This table contains the organizational hierachy of units.
+create table if not exists organizational_unit
+(
+  id                bigserial primary key,
+  org_code          text not null,
+  org_slabel        text not null,
+  org_llabel        text,
+  org_parent_id     bigint,
+  out_id            bigint,
+  -- Technical metadata
+  org_valid         boolean default True,
+  org_ucre_id       bigint default 0,
+  org_umod_id       bigint default 0,
+  org_dcre          timestamp without time zone  default current_timestamp,
+  org_dmod          timestamp without time zone  default current_timestamp,
+  unique (org_code, out_id)
+);
+
+/* Comments on table */
+comment on table organizational_unit is 'This table contains the organizational hierachy of units.';
+/* Comments on fields */
+comment on column organizational_unit.id is 'Table unique ID';
+comment on column organizational_unit.org_code is 'code of the unit';
+comment on column organizational_unit.org_slabel is 'short label';
+comment on column organizational_unit.org_llabel is 'long label';
+comment on column organizational_unit.org_valid is 'If valid, true else false';
+comment on column organizational_unit.org_ucre_id is 'Creator Id';
+comment on column organizational_unit.org_umod_id is 'Last Modificator Id';
+comment on column organizational_unit.org_dcre is 'Creation date';
+comment on column organizational_unit.org_dmod is 'Last modification date';
+comment on column organizational_unit.org_parent_id is 'If valid, true else false';
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_ucre_id
+FOREIGN KEY (org_ucre_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_umod_id
+FOREIGN KEY (org_umod_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_parent_id
+FOREIGN KEY (org_parent_id)
+REFERENCES organizational_unit (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_out_id
+FOREIGN KEY (out_id)
+REFERENCES organizational_unit_type (id);
+
+-- Table profile
+-- This table contains the profiles.
+create table if not exists profile
+(
+  id                bigserial primary key,
+  prf_code          text unique not null,
+  prf_slabel        text not null,
+  prf_llabel        text,
+  prf_valid         boolean default True,
+  prf_ucre_id       bigint default 0,
+  prf_umod_id       bigint default 0,
+  prf_dcre          timestamp without time zone  default current_timestamp,
+  prf_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table profile is 'This table contains the profiles..';
+/* Comments on fields */
+comment on column profile.id is 'Table unique ID';
+comment on column profile.prf_code is 'code of the profile';
+comment on column profile.prf_slabel is 'short label';
+comment on column profile.prf_llabel is 'long label';
+comment on column profile.prf_valid is 'If valid, true else false';
+comment on column profile.prf_ucre_id is 'Creator Id';
+comment on column profile.prf_umod_id is 'Last Modificator Id';
+comment on column profile.prf_dcre is 'Creation date';
+comment on column profile.prf_dmod is 'Last modification date';
+
+-- Table org_ctr
+-- Contains the link between organizational units and their contracts
+create table if not exists org_ctr
+(
+  org_id       bigint not null references organizational_unit(id),
+  ctr_id       bigint not null references contract(id),
+  -- Technical metadata
+  orc_ucre_id  bigint references users(id),
+  orc_umod_id  bigint references users(id),
+  orc_dcre     timestamp without time zone  default current_timestamp,
+  orc_dmod     timestamp without time zone  default current_timestamp,
+  primary key (org_id, ctr_id)
+);
+/* Comments on table */
+comment on table org_ctr is 'This table Contains the link between organizational units and their contracts';
+/* Comments on fields */
+comment on column org_ctr.org_id is 'organizational unit id';
+comment on column org_ctr.ctr_id is 'contract id';
+comment on column org_ctr.orc_ucre_id is 'creator Id';
+comment on column org_ctr.orc_umod_id is 'Last modificator Id';
+comment on column org_ctr.orc_dcre is 'Creation date';
+comment on column org_ctr.orc_dmod is 'Last modification date';
+
+-- Table usr_ctr
+-- Contains the link between users and their contracts
+create table if not exists usr_ctr_prf
+(
+  usr_id       bigint not null references users(id),
+  ctr_id       bigint not null references contract(id),
+  prf_id       bigint not null references profile(id),
+  -- Technical metadata
+  usc_ucre_id  bigint references users(id),
+  usc_umod_id  bigint references users(id),
+  usc_dcre     timestamp without time zone  default current_timestamp,
+  usc_dmod     timestamp without time zone  default current_timestamp,
+  primary key (usr_id, ctr_id)
+);
+/* Comments on table */
+comment on table usr_ctr_prf is 'This table contains the link between users and their contracts';
+/* Comments on fields */
+comment on column usr_ctr.usr_id is 'user id';
+comment on column usr_ctr.ctr_id is 'contract id';
+comment on column usr_ctr.usc_ucre_id is 'creator Id';
+comment on column usr_ctr.usc_umod_id is 'Last modificator Id';
+comment on column usr_ctr.usc_dcre is 'Creation date';
+comment on column usr_ctr.usc_dmod is 'Last modification date';
+
+-- Table permissions
+-- This table contains the permissions.
+create table if not exists permissions
+(
+  id                bigserial primary key,
+  per_code          text unique not null,
+  per_slabel        text not null,
+  per_llabel        text,
+  per_valid         boolean default True,
+  per_ucre_id       bigint default 0,
+  per_umod_id       bigint default 0,
+  per_dcre          timestamp without time zone  default current_timestamp,
+  per_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table permissions is 'This table contains the permissions..';
+/* Comments on fields */
+comment on column permissions.id is 'Table unique ID';
+comment on column permissions.per_code is 'code of the permission';
+comment on column permissions.per_slabel is 'short label';
+comment on column permissions.per_llabel is 'long label';
+comment on column permissions.per_valid is 'If valid, true else false';
+comment on column permissions.per_ucre_id is 'Creator Id';
+comment on column permissions.per_umod_id is 'Last Modificator Id';
+comment on column permissions.per_dcre is 'Creation date';
+comment on column permissions.per_dmod is 'Last modification date';
+
+-- Table prf_per
+-- Contains the link between profile and permissions
+create table if not exists prf_per
+(
+  prf_id       bigint not null references profile(id),
+  per_id       bigint not null references permissions(id),
+  -- Technical metadata
+  prp_ucre_id  bigint references users(id),
+  prp_umod_id  bigint references users(id),
+  prp_dcre     timestamp without time zone  default current_timestamp,
+  prp_dmod     timestamp without time zone  default current_timestamp,
+  primary key (prf_id, per_id)
+);
+/* Comments on table */
+comment on table prf_per is 'This table contains the link between profile and permissions';
+/* Comments on fields */
+comment on column prf_per.prf_id is 'profile id';
+comment on column prf_per.per_id is 'permission id';
+comment on column prf_per.prp_ucre_id is 'creator Id';
+comment on column prf_per.prp_umod_id is 'Last modificator Id';
+comment on column prf_per.prp_dcre is 'Creation date';
+comment on column prf_per.prp_dmod is 'Last modification date';
+
+-- set the default organization of 
+alter table users add column usr_default_org_id bigint references organizational_unit(id);

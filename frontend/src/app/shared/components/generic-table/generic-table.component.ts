@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { FormGroup } from '@angular/forms';
+import { Column, Row, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 
 @Component({
@@ -12,8 +13,8 @@ export class GenericTableComponent implements OnInit {
   @Input() columns: Column[] = [];
   @Input() toolbar?: TableToolbar;
 
-  @Input() data: any[] = [];
-  @Input() selectedData: any[] = [];
+  @Input() rows: Row<any>[] = [];
+  @Input() selectedRows: Row<any>[] = [];
 
   public TypeColumn = TypeColumn;
 
@@ -22,12 +23,12 @@ export class GenericTableComponent implements OnInit {
   ngOnInit() { }
 
   onSelectAll() {
-    if (this.selectedData.length === this.data.length) {
-      this.selectedData.splice(0, this.selectedData.length);
+    if (this.selectedRows.length === this.rows.length) {
+      this.selectedRows.splice(0, this.selectedRows.length);
     } else {
-      this.data.forEach((d) => {
-        if (!this.selectedData.some((s) => s == d)) {
-          this.selectedData.push(d);
+      this.rows.forEach((f) => {
+        if (!this.selectedRows.some((s) => s == f)) {
+          this.selectedRows.push(f);
         }
       })
     }
@@ -35,22 +36,22 @@ export class GenericTableComponent implements OnInit {
 
   isAllRowsSelected(): boolean {
     let isSelected: boolean = true;
-    if (this.data.length === 0 || this.selectedData.length !== this.data.length) {
+    if (this.rows.length === 0 || this.selectedRows.length !== this.rows.length) {
       isSelected = false;
     }
     return isSelected;
   }
 
-  onRowSelect(row: any) {
-    const index = this.selectedData.findIndex(data => data == row);
+  onRowSelect(row: Row<any>) {
+    const index = this.selectedRows.findIndex(data => data == row);
     if (index === -1) {
-      this.selectedData.push(row);
+      this.selectedRows.push(row);
     } else {
-      this.selectedData.splice(index, 1);
+      this.selectedRows.splice(index, 1);
     }
   }
 
-  isRowSelected(row: any) {
-    return this.selectedData.find((data) => data == row);
+  isRowSelected(row: FormGroup) {
+    return this.selectedRows.find((data) => data == row);
   }
 }

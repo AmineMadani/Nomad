@@ -36,6 +36,7 @@ import { SearchSelectComponent } from './components/search-select/search-select.
 import { FormHistoryComponent } from './form-editor/properties/form-history/form-history.component';
 import { FormEquipmentsComponent } from './form-editor/properties/form-equipments/form-equipments.component';
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
     ReactiveFormsModule,
     MatStepperModule,
     MatTabsModule,
-    ScrollingModule
+    ScrollingModule,
+    MatTooltipModule
   ],
   exports:[
     MainToolbarComponent,

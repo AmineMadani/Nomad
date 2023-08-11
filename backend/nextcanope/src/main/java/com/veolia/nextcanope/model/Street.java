@@ -12,9 +12,9 @@ import jakarta.persistence.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Geometry;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 /**

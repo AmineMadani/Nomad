@@ -1,20 +1,23 @@
-<ion-content class="settings-flex">
-  <form [formGroup]="form" class="settings-content-template">
+<div class="settings-content-template">
+  <app-settings-header
+      class="settings-content-header"
+      title="Personnalisation des styles de couche par défaut">
+  </app-settings-header>
 
-    <div>
-      <ion-label class="label">
-        <h2>Personnalisation des styles de couche par défaut</h2>
-      </ion-label>
+  <form form [formGroup]="form" class="settings-content-main">
+    <app-search-select class="settings-content-select"
+      key="lyrTableName"
+      label="Couche à paramétrer"
+      [elements]="layers"
+      [control]="form.controls['lyrTableName']"
+      [elementLabelFunction]="getLayerLabel">
+    </app-search-select>
 
-      <div class="separation-line"></div>
-    </div>
-
-    <div class="settings-layer-styles">
-      <app-search-select class="layer-select" key="lyrTableName" label="Couche à paramétrer" [elements]="layers"
-        [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
-      </app-search-select>
-
-      <app-generic-table *ngIf="currentLayerId" [toolbar]="toolbar" [columns]="columns" [data]="layerStyles" [selectedData]="selectedLayerStyles"></app-generic-table>
-    </div>
+    <app-generic-table *ngIf="currentLayerId" class="settings-content-table"
+      [toolbar]="toolbar"
+      [columns]="columns"
+      [data]="layerStyles"
+      [selectedData]="selectedLayerStyles">
+    </app-generic-table>
   </form>
-</ion-content>
+</div>

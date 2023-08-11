@@ -330,22 +330,34 @@ mat-tab-group.mobile-tabs {
 }
 
 .settings-content-template {
-  margin: 30px;
-  padding: 20px 30px 10px 30px; // top - right - bottom - left
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px - 70px);
+  margin: 0px 20px 0px 20px;
+  padding: 20px 30px 20px 30px; // top - right - bottom - left
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
-  overflow-y: auto;
 
-  .settings-content-template-header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  .settings-content-header {
+    flex: 0;
   }
 
-  .separation-line {
-    border: 1px solid var(--ion-color-neutral-variant-80);
-    margin-top: 15px;
+  .settings-content-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+
+    .settings-content-table {
+      margin-top: 10px;
+      flex: 1;
+    }
+
+    .settings-content-select {
+      margin-top: 30px;
+      flex: 0;
+    }
   }
 }
 

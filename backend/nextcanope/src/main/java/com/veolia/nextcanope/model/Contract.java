@@ -10,10 +10,10 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.CreationTimestamp;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.locationtech.jts.geom.Geometry;
 
 
@@ -84,6 +84,9 @@ public class Contract implements Serializable {
     @JoinColumn(name="cta_id", referencedColumnName="id")
     private ContractActivity contractActivity;
 
+    @OneToMany(mappedBy="contract")
+    private List<OrgCtr> listOfOrgCtr;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
@@ -91,6 +94,9 @@ public class Contract implements Serializable {
 
     @OneToMany(mappedBy="contract")
     private List<Task> listOfTask;
+
+    @OneToMany(mappedBy="contract")
+    private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_umod_id", referencedColumnName="id")
@@ -194,6 +200,14 @@ public class Contract implements Serializable {
         this.contractActivity = contractActivity;
     }
 
+    public List<OrgCtr> getListOfOrgCtr() {
+        return this.listOfOrgCtr;
+    }
+
+    public void setListOfOrgCtr(List<OrgCtr> listOfOrgCtr) {
+        this.listOfOrgCtr = listOfOrgCtr;
+    }
+
     public Users getCreatedBy() {
         return this.createdBy;
     }
@@ -218,6 +232,14 @@ public class Contract implements Serializable {
 
     public void setListOfTask(List<Task> listOfTask) {
         this.listOfTask = listOfTask;
+    }
+
+    public List<UsrCtrPrf> getListOfUsrCtrPrf() {
+        return this.listOfUsrCtrPrf;
+    }
+
+    public void setListOfUsrCtrPrf(List<UsrCtrPrf> listOfUsrCtrPrf) {
+        this.listOfUsrCtrPrf = listOfUsrCtrPrf;
     }
 
     public Users getModifiedBy() {

@@ -1,58 +1,35 @@
-<ion-content>
-  <div class="settings-flex">
-    <div class="settings-segments">
-      <app-settings-segment class="settings-segment-flex"
-        (settingsTypeChange)="onSettingsTypeChange($event)"></app-settings-segment>
-    </div>
+<app-settings-segment
+        (settingsTypeChange)="onSettingsTypeChange($event)">
+</app-settings-segment>
 
-    <form [formGroup]="form" (ngSubmit)="save()" class="settings-content-template">
+<div class="settings-content-template">
+  <app-settings-header
+      class="settings-content-header"
+      title="Affichage des données attributaires">
+  </app-settings-header>
 
-      <div class="settings-content-header-height"
-        [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
-        <div class="settings-content-template-header">
-          <ion-label class="label">
-            <h2>Affichage des données attributaires</h2>
-          </ion-label>
+  <form form [formGroup]="form" (ngSubmit)="save()" class="settings-content-main">
+    <app-search-select key="lyrTableName" label="Couche à paramétrer" [elements]="layers"
+      [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
+    </app-search-select>
 
-          <ion-button [disabled]="form.pristine"
-            class="actions-layer-content-button-action actions-layer-content-button-action-active" type="submit">
-            Enregistrer
-          </ion-button>
-        </div>
+    <div class="separation-line"></div>
 
-        <div class="separation-line"></div>
+    <div class="synthetic-references-selection">
+      <ion-segment value="default">
+        <ion-segment-button value="default">
+          <ion-label>Données attributaires à afficher en vue synthétique</ion-label>
+        </ion-segment-button>
+      </ion-segment>
 
-      <app-search-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" class="users-multi-selection"
-        key="id" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
-        [elements]="users" [control]="form.controls['listUserId']" [elementLabelFunction]="getUserEmail" [isMultiSelection]="true">
-      </app-search-select>
-    </div>
-
-    <div class="settings-layer-references" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
-      <app-search-select key="lyrTableName" label="Couche à paramétrer" [elements]="layers"
-        [control]="form.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
-      </app-search-select>
-
-
-        <div class="separation-line"></div>
-
-        <div class="synthetic-references-selection">
-          <ion-segment value="default">
-            <ion-segment-button value="default">
-              <ion-label>Données attributaires à afficher en vue synthétique</ion-label>
-            </ion-segment-button>
-          </ion-segment>
-
-          <div class="synthetic-references-selection-content">
-            <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
-              <ion-toggle [disabled]="isToggleDisabled(ref)" aria-label="ion-toggle"
-                [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC"
-                (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
-              <ion-label>{{ ref.alias }}</ion-label>
-            </div>
-          </div>
+      <div class="synthetic-references-selection-content">
+        <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
+          <ion-toggle [disabled]="isToggleDisabled(ref)" aria-label="ion-toggle"
+            [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC"
+            (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
+          <ion-label>{{ ref.alias }}</ion-label>
         </div>
       </div>
-    </form>
-  </div>
-</ion-content>
+    </div>
+  </form>
+</div>

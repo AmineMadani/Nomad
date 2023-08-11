@@ -12,7 +12,9 @@ export class SearchSelectComponent implements OnInit {
 
   // Permit to know the component will use multiselection or monoselection (default false)
   @Input() isMultiSelection: boolean = false;
-  // The attribute of the object contains in the original list which will be used for value and label in the form
+  // Permit to use different styles when the select is used in a table
+  @Input() isUsedInTable: boolean = false;
+  // The attribute of the object contains in the original list which will be used for value in the form
   @Input() key: string;
   // Input label
   @Input() label: string;
@@ -33,6 +35,7 @@ export class SearchSelectComponent implements OnInit {
   @ViewChild('modal') modal: IonModal;
 
   ngOnInit() {
+    console.log(this.control);
   }
 
   /**
@@ -133,7 +136,8 @@ export class SearchSelectComponent implements OnInit {
    * Method to open the modal and filter the options before
    */
   onOpenModal() {
-    if (!this.disabled){
+    if (!this.disabled) {
+      this.control.markAsTouched();
       this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
       this.modal.present();
     }

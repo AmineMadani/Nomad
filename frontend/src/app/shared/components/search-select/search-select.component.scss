@@ -1,15 +1,37 @@
 .search-select-input {
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
-  padding-top: 8px;
-  min-width: 300px;
 
   ion-label {
     margin-bottom: 5px;
   }
 
-  .select-invalid {
+  .classic-select {
+    margin-top: 10px;
+    padding-top: 8px;
+    min-width: 300px;
+  }
+
+  .table-select {
+    cursor: pointer;
+    input {
+      cursor: pointer;
+    }
+
+    border-bottom: 1px solid black;
+    margin: 5px 5px 5px 5px;
+    height: 50px;
+
+    &.invalid {
+      color: red;
+      border-color: red;
+      ion-icon {
+        color: red;
+      }
+    }
+  }
+
+  .classic-select-invalid {
     --color: var(--ion-color-danger) !important;
     --border-color: var(--ion-color-danger);
   }

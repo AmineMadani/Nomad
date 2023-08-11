@@ -22,6 +22,7 @@ import { SelectDuplicateReportComponent } from './report-list/report-edit/select
 import { TestReportComponent } from './report-list/report-edit/test-report/test-report.component';
 import { HomePageModule } from '../home/home.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { SettingsHeaderComponent } from './components/settings-header/settings-header.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -50,6 +51,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ValueLabelComponent,
     SelectDuplicateReportComponent,
     TestReportComponent,
+    SettingsHeaderComponent
   ]
 })
 export class SettingsPageModule {}

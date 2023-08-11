@@ -53,3 +53,10 @@ export enum LocalStorageUserKey {
     USER = 'user',
     USER_CONTEXT = 'userContext'
 }
+
+export interface Perimeter {
+  profileId: number;
+  regionId: number;
+  territoryId: number;
+  contractIds: number[];
+}

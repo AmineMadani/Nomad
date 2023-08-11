@@ -53,8 +53,6 @@ import $b;
 #foreach( $link in $entity.links )
 #if($link.fieldName.contains('createdBy'))
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.CreationTimestamp;
 #end
 #set($hasDeletedAt = false)
 #foreach($attribute in $link.targetEntity.attributes)
@@ -72,6 +70,12 @@ import java.util.ArrayList;
 #foreach( $attribute in $entity.nonKeyAttributes )
 #if($attribute.name.contains('geom'))
 import org.locationtech.jts.geom.Geometry;
+#end
+#if($attribute.name.contains('Dcre'))
+import org.hibernate.annotations.CreationTimestamp;
+#end
+#if($attribute.name.contains('Dmod'))
+import org.hibernate.annotations.UpdateTimestamp;
 #end
 #end
 
