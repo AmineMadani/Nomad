@@ -1,18 +1,12 @@
 <div class="layer-style-content">
-  <div class="layer-style-header">
-    <ion-label class="label">
-      <h2>
-        Définition du style {{ form.get('lseCode')?.value }}
-      </h2>
-    </ion-label>
-
-    <ion-button (click)="close()" fill="clear">
-      <ion-icon slot="icon-only" name="close"></ion-icon>
-    </ion-button>
-  </div>
-
+  <app-settings-header
+    [title]="'Définition du style ' + form.get('lseCode')?.value"
+    [isModalHeader]="true"
+    (onModalClose)="onClose()"
+  >
+  </app-settings-header>
   <div class="layer-style-body" *ngIf="layerStyle || isCreation">
-    <form [formGroup]="form" (ngSubmit)="save()" class="layer-style-form">
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="layer-style-form">
       <ion-input labelPlacement="stacked" fill="outline" label="Couche" placeholder="Couche" type="text"
         formControlName="lyrTableName"></ion-input>
 

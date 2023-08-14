@@ -1,11 +1,11 @@
-<div class="settings-content-template">
+<div class="settings-template-content">
   <app-settings-header
-      class="settings-content-header"
+      class="settings-header"
       title="Personnalisation des formulaires">
   </app-settings-header>
 
-  <form form [formGroup]="form" class="settings-content-main">
-    <app-search-select class="settings-content-select"
+  <form form [formGroup]="form" class="settings-main-content">
+    <app-search-select class="settings-select-content"
       key="ast_id"
       label="Type"
       [elements]="listAssetType"
@@ -13,10 +13,10 @@
       [elementLabelFunction]="getAssetTypeLabel">
     </app-search-select>
 
-    <app-generic-table class="settings-content-table"
+    <app-generic-table class="settings-table-content"
       [toolbar]="toolbar"
       [columns]="columns"
-      [data]="listWtrReport">
+      [rows]="listWtrReportRows">
     </app-generic-table>
   </form>
 </div>

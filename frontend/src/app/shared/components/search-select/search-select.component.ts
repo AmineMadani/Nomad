@@ -35,7 +35,6 @@ export class SearchSelectComponent implements OnInit {
   @ViewChild('modal') modal: IonModal;
 
   ngOnInit() {
-    console.log(this.control);
   }
 
   /**

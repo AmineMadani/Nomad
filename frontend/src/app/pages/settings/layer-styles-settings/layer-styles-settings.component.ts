@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { Layer, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { ModalController } from '@ionic/angular';
 import { LayerStyleComponent } from './layer-style/layer-style.component';
 import { forkJoin } from 'rxjs';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { TableService } from 'src/app/core/services/table.service';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -17,7 +18,8 @@ export class LayerStylesSettingsPage implements OnInit {
 
   constructor(
     private layerService: LayerService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private tableService: TableService
   ) { }
 
   public form: FormGroup;
@@ -28,8 +30,8 @@ export class LayerStylesSettingsPage implements OnInit {
   public currentLayerId: number;
   // Styles
   public allLayerStyles: LayerStyleSummary[] = [];
-  public layerStyles: LayerStyleSummary[] = [];
-  public selectedLayerStyles: LayerStyleSummary[] = [];
+  public layerStylesRows: TableRow<LayerStyleSummary>[] = [];
+  public selectedLayerStylesRows: TableRow<LayerStyleSummary>[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -41,7 +43,7 @@ export class LayerStylesSettingsPage implements OnInit {
           this.deleteLayerStyles();
         },
         disableFunction: () => {
-          return this.selectedLayerStyles.length === 0;
+          return this.selectedLayerStylesRows.length === 0;
         }
       },
       {
@@ -69,8 +71,8 @@ export class LayerStylesSettingsPage implements OnInit {
       },
       label: '',
       size: '1',
-      onClick: (style: LayerStyleSummary) => {
-        this.openLayerStyleDetails(style.lseId);
+      onClick: (style: TableRow<LayerStyleSummary>) => {
+        this.openLayerStyleDetails(style.get('lseId').value);
       }
     },
     {
@@ -106,9 +108,11 @@ export class LayerStylesSettingsPage implements OnInit {
       this.currentLayerId = this.layers.find((lyr) => lyr.lyrTableName === lyrTableName)?.id;
       if (this.currentLayerId) {
         // Get the styles for the selected layer
-        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId);
+        this.layerStylesRows = this.tableService.createReadOnlyRowsFromObjects(
+          this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId)
+        );
       } else {
-        this.layerStyles = [];
+        this.layerStylesRows = [];
       }
     });
   }
@@ -119,9 +123,11 @@ export class LayerStylesSettingsPage implements OnInit {
       this.allLayerStyles = styles;
       // And update the styles for the selected layer
       if (this.currentLayerId) {
-        this.layerStyles = this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId);
+        this.layerStylesRows = this.tableService.createReadOnlyRowsFromObjects(
+          this.allLayerStyles.filter((style) => style.lyrId === this.currentLayerId)
+        );
       } else {
-        this.layerStyles = [];
+        this.layerStylesRows = [];
       }
     });
   }
@@ -134,6 +140,7 @@ export class LayerStylesSettingsPage implements OnInit {
         parentLayer: this.layers.find((lyr) => lyr.lyrTableName === this.form.get('lyrTableName').value),
       },
       backdropDismiss: false,
+      cssClass: 'custom-modal'
     });
 
     modal.onDidDismiss()
@@ -149,12 +156,12 @@ export class LayerStylesSettingsPage implements OnInit {
   }
 
   private async deleteLayerStyles() {
-    const deleteRequests = this.selectedLayerStyles.map(style =>
-      this.layerService.deleteLayerStyle(style.lseId)
+    const deleteRequests = this.selectedLayerStylesRows.map((style: TableRow<LayerStyleSummary>) =>
+      this.layerService.deleteLayerStyle(style.get('lseId').value)
     );
 
     forkJoin(deleteRequests).subscribe(() => {
-      this.selectedLayerStyles = [];
+      this.selectedLayerStylesRows = [];
       this.reloadLayerStyles();
     });
   }

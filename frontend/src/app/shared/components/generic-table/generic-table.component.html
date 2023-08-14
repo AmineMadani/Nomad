@@ -62,7 +62,7 @@
           <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell button-cell top-border"
             [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
             <app-search-select class="layer-select" [key]="column.format.selectKey" label="Couche à paramétrer" [elements]="column.format.elements"
-              [control]="row.controls[column.key]" [elementLabelFunction]="column.format.elementLabelFunction" [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
+              [control]="row.get(column.key)" [elementLabelFunction]="column.format.elementLabelFunction" [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
             </app-search-select>
           </ion-col>
         </ng-container>

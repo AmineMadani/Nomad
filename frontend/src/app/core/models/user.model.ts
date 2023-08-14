@@ -60,3 +60,12 @@ export interface Perimeter {
   territoryId: number;
   contractIds: number[];
 }
+
+export interface UserDetail {
+  lastName: string;
+  firstName: string;
+  email: string;
+  status: string;
+  company: string;
+  perimeters: Perimeter[];
+}

@@ -1,7 +1,14 @@
-<div>
-  <ion-label class="label">
-    <h2>{{ title }}</h2>
-  </ion-label>
+<div class="settings-header-component">
+  <div class="settings-header-content">
+    <ion-label class="label">
+      <h2>{{ title }}</h2>
+    </ion-label>
+
+    <ion-button *ngIf="isModalHeader" (click)="onClose()" fill="clear" aria-label="Close">
+      <ion-icon name="close" slot="icon-only" aria-hidden="true" size="small"></ion-icon>
+    </ion-button>
+  </div>
+
 
   <div class="separation-line"></div>
 </div>

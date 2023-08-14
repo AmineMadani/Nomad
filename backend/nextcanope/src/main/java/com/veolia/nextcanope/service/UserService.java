@@ -66,9 +66,9 @@ public class UserService {
 		uCreUser.setId(uCreId);
 
 		Users user = new Users();
-		user.setUsrFirstName(userPayload.getFirstname());
-		user.setUsrLastName(userPayload.getLastname());
-		user.setUsrEmail(userPayload.getMail());
+		user.setUsrFirstName(userPayload.getFirstName());
+		user.setUsrLastName(userPayload.getLastName());
+		user.setUsrEmail(userPayload.getEmail());
 		user.setUsrStatus(userPayload.getStatus());
 		user.setUsrCompany(userPayload.getCompany());
 		user.setCreatedBy(uCreUser);

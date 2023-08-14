@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { Column, Row, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 
 @Component({
@@ -13,8 +12,8 @@ export class GenericTableComponent implements OnInit {
   @Input() columns: Column[] = [];
   @Input() toolbar?: TableToolbar;
 
-  @Input() rows: Row<any>[] = [];
-  @Input() selectedRows: Row<any>[] = [];
+  @Input() rows: TableRow<any>[] = [];
+  @Input() selectedRows: TableRow<any>[] = [];
 
   public TypeColumn = TypeColumn;
 
@@ -42,7 +41,7 @@ export class GenericTableComponent implements OnInit {
     return isSelected;
   }
 
-  onRowSelect(row: Row<any>) {
+  onRowSelect(row: TableRow<any>) {
     const index = this.selectedRows.findIndex(data => data == row);
     if (index === -1) {
       this.selectedRows.push(row);
@@ -51,7 +50,7 @@ export class GenericTableComponent implements OnInit {
     }
   }
 
-  isRowSelected(row: FormGroup) {
+  isRowSelected(row: TableRow<any>) {
     return this.selectedRows.find((data) => data == row);
   }
 }

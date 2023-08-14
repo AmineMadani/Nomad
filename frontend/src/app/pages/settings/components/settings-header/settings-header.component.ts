@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-settings-header',
@@ -8,8 +8,14 @@ import { Component, Input, OnInit } from '@angular/core';
 export class SettingsHeaderComponent implements OnInit {
 
   @Input() title: string = '';
+  @Input() isModalHeader: boolean = false;
+  @Output() onModalClose: EventEmitter<void> = new EventEmitter<void>();
 
   constructor() { }
 
   ngOnInit() { }
+
+  onClose() {
+    this.onModalClose.emit();
+  }
 }

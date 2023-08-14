@@ -1,15 +1,15 @@
-<div class="settings-content-template">
+<div class="settings-template-content">
   <app-settings-header
-      class="settings-content-header"
+      class="settings-header"
       title="Gestion des utilisateurs">
   </app-settings-header>
 
-  <div class="settings-content-main">
-    <app-generic-table class="settings-content-table"
+  <div class="settings-main-content">
+    <app-generic-table class="settings-table-content"
       [toolbar]="toolbar"
       [columns]="columns"
-      [rows]="usersTableRows"
-      [selectedRows]="usersTableRowsSelected"
+      [rows]="usersRows"
+      [selectedRows]="selectedUsersRows"
     ></app-generic-table>
   </div>
 </div>

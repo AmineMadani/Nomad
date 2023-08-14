@@ -1,11 +1,11 @@
-<div class="settings-content-template">
+<div class="settings-template-content">
   <app-settings-header
-      class="settings-content-header"
+      class="settings-header"
       title="Personnalisation des styles de couche par défaut">
   </app-settings-header>
 
-  <form form [formGroup]="form" class="settings-content-main">
-    <app-search-select class="settings-content-select"
+  <form form [formGroup]="form" class="settings-main-content">
+    <app-search-select class="settings-select-content"
       key="lyrTableName"
       label="Couche à paramétrer"
       [elements]="layers"
@@ -13,11 +13,11 @@
       [elementLabelFunction]="getLayerLabel">
     </app-search-select>
 
-    <app-generic-table *ngIf="currentLayerId" class="settings-content-table"
+    <app-generic-table *ngIf="currentLayerId" class="settings-table-content"
       [toolbar]="toolbar"
       [columns]="columns"
-      [data]="layerStyles"
-      [selectedData]="selectedLayerStyles">
+      [rows]="layerStylesRows"
+      [selectedRows]="selectedLayerStylesRows">
     </app-generic-table>
   </form>
 </div>

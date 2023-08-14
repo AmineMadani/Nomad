@@ -95,8 +95,7 @@ export class LayerStyleComponent implements OnInit {
     });
   }
 
-
-  save() {
+  onSave() {
     if (this.form.valid) {
       const formValues = this.form.value;
 
@@ -133,7 +132,7 @@ export class LayerStyleComponent implements OnInit {
     }
   }
 
-  close() {
+  onClose() {
     this.modalController.dismiss(this.reloadNeededInPreviousScreen);
   }
 }

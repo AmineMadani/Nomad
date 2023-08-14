@@ -1,23 +1,15 @@
-<div class="settings-content-template">
+<form [formGroup]="userForm" (ngSubmit)="save()" class="settings-template-content modal">
   <!-- Header -->
-  <div class="settings-content-header-height settings-header">
-    <div class="settings-content-template-header">
-      <ion-label class="label">
-        <h2>{{ user ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'}}</h2>
-      </ion-label>
-
-      <ion-button (click)="onClose()" fill="clear" aria-label="Close">
-        <ion-icon name="close" slot="icon-only" aria-hidden="true" size="small"></ion-icon>
-      </ion-button>
-    </div>
-
-    <div class="separation-line"></div>
-  </div>
+  <app-settings-header
+    [title]=" user ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'"
+    [isModalHeader]="true"
+    (onModalClose)="onClose()"
+  ></app-settings-header>
 
   <!-- Main content -->
-  <div class="settings-main-content">
+  <div class="settings-main-content modal">
     <!-- User fields -->
-    <form [formGroup]="userForm" (ngSubmit)="save()" class="settings-user-form">
+    <div  class="settings-user-form">
       <ion-label class="label">
         <h3>Généralité</h3>
       </ion-label>
@@ -25,15 +17,15 @@
       <ion-grid>
         <ion-row>
           <ion-col>
-            <ion-input aria-label="lastname" labelPlacement="floating" fill="outline" label="Nom *" formControlName="lastname" errorText="Le nom est obligatoire." />
+            <ion-input aria-label="lastname" labelPlacement="floating" fill="outline" label="Nom *" formControlName="lastName" errorText="Le nom est obligatoire." />
           </ion-col>
           <ion-col>
-            <ion-input aria-label="firstname" labelPlacement="floating" fill="outline" label="Prénom *" formControlName="firstname" errorText="Le prénom est obligatoire." />
+            <ion-input aria-label="firstname" labelPlacement="floating" fill="outline" label="Prénom *" formControlName="firstName" errorText="Le prénom est obligatoire." />
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col>
-              <ion-input aria-label="mail" labelPlacement="floating" fill="outline" label="E-Mail *" formControlName="mail" errorText="L'e-mail est obligatoire ou invalide." email />
+              <ion-input aria-label="mail" labelPlacement="floating" fill="outline" label="E-Mail *" formControlName="email" errorText="L'e-mail est obligatoire ou invalide." email />
           </ion-col>
         </ion-row>
         <ion-row>
@@ -48,26 +40,24 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-    </form>
+    </div>
 
     <!-- Perimeters and Profil -->
-    <app-generic-table class="user-perimeter"
+    <app-generic-table class="settings-table-content"
       [toolbar]="toolbar"
       [columns]="columns"
-      [rows]="perimetersTableRows"
-      [selectedRows]="selectedPerimetersTableRows"
+      [rows]="getPerimetersControls()"
+      [selectedRows]="selectedPerimetersRows"
     ></app-generic-table>
   </div>
 
   <div class="settings-footer">
-    <ion-button [disabled]="false"
-      class="actions-layer-content-button-action actions-layer-content-button-action-active" (click)="save()">
+    <ion-button [disabled]="false" type="submit"
+      class="actions-layer-content-button-action actions-layer-content-button-action-active">
       Enregistrer
     </ion-button>
   </div>
-
-
-</div>
+</form>
 
 
 

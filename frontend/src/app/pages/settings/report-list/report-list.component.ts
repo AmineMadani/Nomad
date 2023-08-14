@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Column, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -8,6 +8,7 @@ import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportEditComponent } from './report-edit/report-edit.component';
 import { ModalController } from '@ionic/angular';
+import { TableService } from 'src/app/core/services/table.service';
 
 export interface AssetTypeWtr {
   ast_id: number;
@@ -51,6 +52,7 @@ export class ReportListComponent implements OnInit {
     private utils: UtilsService,
     private templateService: TemplateService,
     private modalController: ModalController,
+    private tableService: TableService
   ) { }
 
   public form: FormGroup;
@@ -63,7 +65,7 @@ export class ReportListComponent implements OnInit {
 
   private listFormTemplateReport: FormTemplate[] = [];
 
-  public listWtrReport: WtrReport[] = [];
+  public listWtrReportRows: TableRow<WtrReport>[] = [];
 
   public toolbar: TableToolbar = {
     title: 'Liste des formulaires par motif',
@@ -78,8 +80,8 @@ export class ReportListComponent implements OnInit {
       },
       label: '',
       size: '1',
-      onClick: (wtrReport: any) => {
-        this.openReportFormDetails(wtrReport);
+      onClick: (wtrReport: TableRow<WtrReport>) => {
+        this.openReportFormDetails(wtrReport.getRawValue());
       }
     },
     {
@@ -116,7 +118,7 @@ export class ReportListComponent implements OnInit {
       // Get the corresponding wtr
       const listWtr = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.ast_id.toString() === astId), 'wtr_id');
 
-      this.listWtrReport = listWtr.map((wtr) => {
+      const listWtrReport = listWtr.map((wtr) => {
         // For each wtr, get the form, if it exists
         const formTemplateReport = this.listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + wtr.ast_code + '_' + wtr.wtr_code)
 
@@ -129,6 +131,7 @@ export class ReportListComponent implements OnInit {
           hasForm: formTemplateReport == null ? '' : 'X',
         }
       });
+      this.listWtrReportRows = this.tableService.createReadOnlyRowsFromObjects(listWtrReport);
     });
 
     this.listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');

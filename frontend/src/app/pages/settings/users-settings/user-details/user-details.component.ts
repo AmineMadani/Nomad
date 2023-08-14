@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
-import { Cell, Column, Row, TypeColumn } from 'src/app/core/models/table/column.model';
+import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, User } from 'src/app/core/models/user.model';
+import { Perimeter, User, UserDetail } from 'src/app/core/models/user.model';
+import { TableService } from 'src/app/core/services/table.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -15,14 +16,15 @@ export class UserDetailsComponent implements OnInit {
   constructor(
     private userService: UserService,
     private toastCtrl: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private tableService: TableService
   ) { }
 
   @Input("user") user: User;
 
   public userForm: FormGroup;
-  public perimetersTableRows: Row<Perimeter>[] = [];
-  public selectedPerimetersTableRows: Row<Perimeter>[] = [];
+
+  public selectedPerimetersRows: TableRow<Perimeter>[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -31,10 +33,10 @@ export class UserDetailsComponent implements OnInit {
       {
         name: 'trash',
         onClick: () => {
-          // TODO: this.deleteUsers();
+          // TODO: remove lines selected
         },
         disableFunction: () => {
-          return this.selectedPerimetersTableRows.length === 0; // TODO: Add rights
+          return this.selectedPerimetersRows.length === 0; // TODO: Add rights
         }
       },
       {
@@ -43,19 +45,20 @@ export class UserDetailsComponent implements OnInit {
           // TODO: this.openUsersDetails();
         },
         disableFunction: () => {
-          return this.selectedPerimetersTableRows.length !== 1; // TODO: Add rights
+          return this.selectedPerimetersRows.length !== 1; // TODO: Add rights
         }
       },
       {
         name: 'add',
         onClick: () => {
-          const row = new Row<Perimeter>({
-            profileId: new Cell(null, Validators.required),
-            regionId: new Cell(null),
-            territoryId: new Cell(null),
-            contractIds: new Cell([]),
+          const row = new TableRow<Perimeter>({
+            profileId: new TableCell(null, Validators.required),
+            regionId: new TableCell(null),
+            territoryId: new TableCell(null),
+            contractIds: new TableCell([]),
           });
-          this.perimetersTableRows.push(row);
+          const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
+          perimetersTable.push(row);
         },
         disableFunction: () => {
           return false; // TODO: Add rights
@@ -182,38 +185,46 @@ export class UserDetailsComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.userForm = new FormGroup({
-      lastname: new FormControl(this.user?.lastName, Validators.required),
-      firstname: new FormControl(this.user?.firstName, Validators.required),
-      mail: new FormControl(this.user?.email, Validators.required),
-      status: new FormControl(this.user?.status ?? 'interne', Validators.required),
-      company: new FormControl(this.user?.company)
-    });
-
-    // TODO: Push lines in adequation with user datas
-    this.perimetersTableRows.push(new Row<Perimeter>({
-      profileId: new Cell(null, Validators.required),
-      regionId: new Cell(null),
-      territoryId: new Cell(null),
-      contractIds: new Cell([]),
-    }));
-
-    // TODO: Add real rules
-    this.perimetersTableRows.forEach((row: Row<Perimeter>) => {
-      row.get('regionId').valueChanges.subscribe((newRegionId) => {
-        row.get('territoryId').setValue(newRegionId);
-      })
-    });
-
+    this.initForm();
+    this.initPerimetersTable();
     // TODO: Si utilisateur, on désactive tous les champs du formulaire
     if (this.user) {
       this.userForm.disable();
     }
   }
 
+  private initForm() {
+    this.userForm = new FormGroup({
+      lastName: new FormControl(null, Validators.required),
+      firstName: new FormControl(null, Validators.required),
+      email: new FormControl(null, Validators.required),
+      status: new FormControl('interne', Validators.required),
+      company: new FormControl(null),
+      perimeters: new TableRowArray<Perimeter>([]),
+    });
+  }
+
+  private initPerimetersTable() {
+    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
+
+    // Listen region id changes
+    this.tableService.listenToColumnChanges(
+      perimetersTable,
+      'regionId',
+      (newRegionId, row) => {
+        // Set territory id automatically if a region changed
+        row.get('territoryId').setValue(newRegionId);
+      }
+    );
+  }
+
+  public getPerimetersControls(): TableRow<Perimeter>[] {
+    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
+    return perimetersTable.controls as TableRow<Perimeter>[];
+  }
+
   public save(): void {
-    console.log(this.userForm);
-    this.perimetersTableRows.forEach((group) => console.log(group.getRawValue()));
+    console.log(this.userForm.getRawValue() as UserDetail);
 
     this.userForm.markAllAsTouched();
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Column, Row, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { User } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
@@ -20,11 +20,10 @@ export class UsersSettingsComponent implements OnInit {
     private tableService: TableService
   ) { }
 
-  public form: FormGroup;
   public modal: any;
-  // Styles
-  public usersTableRows: Row<User>[] = [];
-  public usersTableRowsSelected: Row<User>[] = [];
+
+  public usersRows: TableRow<User>[] = [];
+  public selectedUsersRows: TableRow<User>[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -36,7 +35,7 @@ export class UsersSettingsComponent implements OnInit {
           // TODO: this.deleteUsers();
         },
         disableFunction: () => {
-          return this.usersTableRowsSelected.length === 0; // TODO: Add rights
+          return this.selectedUsersRows.length === 0; // TODO: Add rights
         }
       },
       {
@@ -45,7 +44,7 @@ export class UsersSettingsComponent implements OnInit {
           // TODO: this.openUsersDetails();
         },
         disableFunction: () => {
-          return this.usersTableRowsSelected.length !== 1; // TODO: Add rights
+          return this.selectedUsersRows.length !== 1; // TODO: Add rights
         }
       },
       {
@@ -126,7 +125,7 @@ export class UsersSettingsComponent implements OnInit {
 
   private loadUsers() {
     this.userService.getAllUserAccount().subscribe((users: User[]) => {
-      this.usersTableRows = this.tableService.createReadOnlyRowsFromObjects(users);
+      this.usersRows = this.tableService.createReadOnlyRowsFromObjects(users);
     });
   }
 

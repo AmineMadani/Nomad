@@ -1,4 +1,4 @@
-import { AbstractControl, FormControl, FormGroup } from "@angular/forms";
+import { AsyncValidatorFn, FormArray, FormControl, FormGroup, ValidatorFn } from "@angular/forms";
 
 export interface Column<T = any> {
   format: ColumnFormat;
@@ -30,17 +30,30 @@ export enum TypeColumn {
   SELECT
 }
 
-export class Row<T> extends FormGroup {
-  constructor(controlsConfig: { [key in keyof T]?: AbstractControl }) {
-    super(controlsConfig);
+export class TableRowArray<T> extends FormArray {
+  constructor(controls: TableRow<T>[] = [], validator?: ValidatorFn, asyncValidator?: AsyncValidatorFn) {
+    super(controls, validator, asyncValidator);
   }
 
-  // Remplacez "get" par "getControl" pour éviter la confusion avec la méthode "get" existante de FormGroup
-  override get<K extends keyof T>(key: K): AbstractControl | null {
-    return super.get(key as string);
+  getControls() {
+    return this.controls as TableRow<T>[];
   }
 }
 
-export class Cell extends FormControl {
+export class TableRow<T> extends FormGroup {
+  constructor(controlsConfig: { [key in keyof T]?: TableCell }) {
+    super(controlsConfig);
+  }
+
+  override get<K extends keyof T>(key: K): TableCell | null {
+    return super.get(key as string) as TableCell;
+  }
+
+  override getRawValue(): T {
+    return super.getRawValue() as T;
+  }
+}
+
+export class TableCell extends FormControl {
 
 }
