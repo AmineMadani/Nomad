@@ -70,6 +70,15 @@ html, body { height: 100%; width: 100%; margin: 0; }
   src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
 }
 
+// Hides elements during printing
+@media print {
+  .no-print,
+  // Specific Maplibre classes that should be hidden during print
+  .maplibregl-ctrl, .maplibregl-ctrl-scale {
+    display: none !important;
+  }
+}
+
 .maplibregl-ctrl-top-right, .maplibregl-ctrl-top-left {
   visibility: hidden;
 }

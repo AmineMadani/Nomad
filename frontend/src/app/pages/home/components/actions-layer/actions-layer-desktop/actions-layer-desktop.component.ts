@@ -1,6 +1,12 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { MapComponent } from '../../map/map.component';
 import { IonPopover } from '@ionic/angular';
 import { MapService } from 'src/app/core/services/map/map.service';
 
@@ -10,7 +16,9 @@ import { MapService } from 'src/app/core/services/map/map.service';
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
 export class ActionsLayerDesktopComponent implements OnInit {
-  constructor(private mapService: MapService) {}
+  constructor(
+    private mapService: MapService
+  ) { }
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
 
@@ -50,5 +58,13 @@ export class ActionsLayerDesktopComponent implements OnInit {
   public displayToolbox(e: Event): void {
     this.toolboxPopover.event = e;
     this.isToolboxOpen = true;
+  }
+
+  public async onClickDisplayPrintTool(): Promise<void> {
+    // Allows waiting for the action selection toolbox to be hidden
+    this.toolboxPopover.dismiss();
+    await this.toolboxPopover.onDidDismiss();
+    // Print
+    window.print();
   }
 }
