@@ -1,5 +1,5 @@
 <div class="home-content">
-  <ion-header [translucent]="true" id="main-header">
+  <ion-header [translucent]="true" class="no-print">
     <app-main-toolbar [title]="'Accueil'" id="main-toolbar"></app-main-toolbar>
   </ion-header>
 
@@ -15,7 +15,7 @@
           </ion-fab>
           <app-map #interactiveMap
             [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? 'app-map-mobile' : '')"></app-map>
-          <app-actions-layer [currentRoute]="currentRoute"
+          <app-actions-layer class="no-print" [currentRoute]="currentRoute"
             [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
         </ion-col>
 
@@ -23,7 +23,7 @@
           <!-- Drawer -->
           <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER">
             <!-- <ng-container *ngIf="drawerTypeEnum.DRAWER"> -->
-            <ion-col class="home-main-content-interactive"
+            <ion-col class="home-main-content-interactive no-print"
               [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
               [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
               <div [ngClass]="{ 'router-container': !isMobile, 'router-container-mobile': isMobile }">
@@ -63,7 +63,7 @@
     </ion-grid>
 
     <ng-container *ngIf="isMobile && currentRoute == drawerRouteEnum.HOME">
-      <ion-tab-bar>
+      <ion-tab-bar class="no-print">
         <ion-tab-button (click)="openActionSheet('DISPLAY')">
           <ion-icon name="options-outline"></ion-icon>
           Affichage
