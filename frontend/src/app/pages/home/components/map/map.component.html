@@ -10,7 +10,7 @@
     <input *ngIf="!isMobile" #scaleInput type="text" id="scale" class="custom-scale" [(ngModel)]="scale"
       (change)="onScaleChange(scaleInput.value)" />
 
-    <ion-fab class="layers-fab" [class.mobile-layer]="isMobile">
+    <ion-fab class="layers-fab" [class.mobile-layer]="isMobile" id="map-layers-fab">
       <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
         <ion-icon name="layers-outline"></ion-icon>
       </ion-fab-button>
@@ -29,7 +29,7 @@
   </ng-container>
 
 
-  <div *ngIf="map" class="right-buttons" [class.mobile-buttons]="isMobile">
+  <div *ngIf="map" class="right-buttons" [class.mobile-buttons]="isMobile" id="map-right-buttons">
     <ion-fab (click)="onResetRotation()">
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
         <ion-icon name="compass-outline"></ion-icon>

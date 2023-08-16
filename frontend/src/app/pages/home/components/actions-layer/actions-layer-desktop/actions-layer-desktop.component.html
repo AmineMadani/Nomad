@@ -1,4 +1,4 @@
-<div class="actions-layer-desktop-content">
+<div class="actions-layer-desktop-content"  id="actions-layer-desktop-content">
   <ion-searchbar show-clear-button="always" placeholder="Recherche"
     class="actions-layer-desktop-content-button-search"></ion-searchbar>
   <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
@@ -18,6 +18,10 @@
       <ion-item lines="none" button (click)="onClickDrawingRectangle()">
         <ion-icon slot="start" name="hammer-outline"></ion-icon>
         <ion-label>Rectangle</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="onClickDisplayPrintTool()" id="print-button">
+        <ion-icon slot="start" name="print-outline"></ion-icon>
+        <ion-label>Impression</ion-label>
       </ion-item>
     </ion-content>
   </ng-template>

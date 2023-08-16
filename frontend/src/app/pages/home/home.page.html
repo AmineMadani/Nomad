@@ -1,95 +1,96 @@
-<ion-header [translucent]="true">
-  <app-main-toolbar [title]="'Accueil'"></app-main-toolbar>
-</ion-header>
+<div class="home-content">
+  <ion-header [translucent]="true" id="main-header">
+    <app-main-toolbar [title]="'Accueil'" id="main-toolbar"></app-main-toolbar>
+  </ion-header>
 
-<ion-content>
-  <ion-grid class="ion-no-margin ion-no-padding">
-    <ion-row class="home-main-content">
-  
-      <ion-col class="home-main-content-map" [class.home-main-content-map-mobile]="isMobile">
-        <ion-fab vertical="bottom" class="home-main-content-fab-loader" *ngIf="isDataLoading()">
-          <ion-fab-button class="home-main-content-fab-loader-selector" id="open-custom-dialog" (click)="openModal()">
-            <ion-spinner name="dots"></ion-spinner>
-          </ion-fab-button>
-        </ion-fab>
-        <app-map #interactiveMap
-          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? 'app-map-mobile' : '')"></app-map>
-        <app-actions-layer [currentRoute]="currentRoute"
-          [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
-      </ion-col>
-  
-      <ng-container [ngSwitch]="drawerType">
-        <!-- Drawer -->
-        <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER">
-          <!-- <ng-container *ngIf="drawerTypeEnum.DRAWER"> -->
-          <ion-col class="home-main-content-interactive"
-            [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
-            [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
-            <div [ngClass]="{ 'router-container': !isMobile, 'router-container-mobile': isMobile }">
-              <router-outlet [animation]="animationBuilder"></router-outlet>
-            </div>
-          </ion-col>
-        </ng-container>
-        <!-- Drawer Full Width -->
-        <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER_FULL">
-          <ion-col
-            [ngClass]="{ 
+  <ion-content>
+    <ion-grid class="ion-no-margin ion-no-padding">
+      <ion-row class="home-main-content">
+
+        <ion-col class="home-main-content-map" [class.home-main-content-map-mobile]="isMobile">
+          <ion-fab vertical="bottom" class="home-main-content-fab-loader" *ngIf="isDataLoading()">
+            <ion-fab-button class="home-main-content-fab-loader-selector" id="open-custom-dialog" (click)="openModal()">
+              <ion-spinner name="dots"></ion-spinner>
+            </ion-fab-button>
+          </ion-fab>
+          <app-map #interactiveMap
+            [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? 'app-map-mobile' : '')"></app-map>
+          <app-actions-layer [currentRoute]="currentRoute"
+            [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>
+        </ion-col>
+
+        <ng-container [ngSwitch]="drawerType">
+          <!-- Drawer -->
+          <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER">
+            <!-- <ng-container *ngIf="drawerTypeEnum.DRAWER"> -->
+            <ion-col class="home-main-content-interactive"
+              [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
+              [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
+              <div [ngClass]="{ 'router-container': !isMobile, 'router-container-mobile': isMobile }">
+                <router-outlet [animation]="animationBuilder"></router-outlet>
+              </div>
+            </ion-col>
+          </ng-container>
+          <!-- Drawer Full Width -->
+          <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER_FULL">
+            <ion-col [ngClass]="{
               'home-main-content-interactive-mobile': isMobile,
               'home-main-content-interactive home-main-content-interactive-full': !isMobile,
               'home-main-content-interactive-animation-full-in': drawerHasBeenOpened,
               'home-main-content-interactive-animation-full-out': !drawerHasBeenOpened
             }">
-            <div [ngClass]="{ 'router-container-full': !isMobile, 'router-container-full-mobile': isMobile }">
-              <router-outlet [animation]="animationBuilder"></router-outlet>
-            </div>
-          </ion-col>
-        </ng-container>
-        <!-- Bottom sheet -->
-        <ng-container *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET">
-          <ion-modal id="modal-bottom-sheet" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME" backdropDismiss="false"
-            show-backdrop="false" can-dismiss="false" [initialBreakpoint]="0.25"
-            [breakpoints]="[0, 0.25, 0.5, 1]" backdropBreakpoint="0.5">
-            <ng-template>
-              <div class="router-container">
+              <div [ngClass]="{ 'router-container-full': !isMobile, 'router-container-full-mobile': isMobile }">
                 <router-outlet [animation]="animationBuilder"></router-outlet>
               </div>
-            </ng-template>
-          </ion-modal>
+            </ion-col>
+          </ng-container>
+          <!-- Bottom sheet -->
+          <ng-container *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET">
+            <ion-modal id="modal-bottom-sheet" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME"
+              backdropDismiss="false" show-backdrop="false" can-dismiss="false" [initialBreakpoint]="0.25"
+              [breakpoints]="[0, 0.25, 0.5, 1]" backdropBreakpoint="0.5">
+              <ng-template>
+                <div class="router-container">
+                  <router-outlet [animation]="animationBuilder"></router-outlet>
+                </div>
+              </ng-template>
+            </ion-modal>
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+          </ng-container>
         </ng-container>
-        <ng-container *ngSwitchDefault>
-        </ng-container>
-      </ng-container>
-    </ion-row>
-  </ion-grid>
+      </ion-row>
+    </ion-grid>
 
-  <ng-container *ngIf="isMobile && currentRoute == drawerRouteEnum.HOME">
-    <ion-tab-bar>
-      <ion-tab-button (click)="openActionSheet('DISPLAY')">
-        <ion-icon name="options-outline"></ion-icon>
-        Affichage
-      </ion-tab-button>
-      <ion-tab-button (click)="openActionSheet('ACTIONS')">
-        <ion-icon name="add-outline"></ion-icon>
-        Actions
-      </ion-tab-button>
-      <ion-tab-button (click)="openActionSheet('TOOLS')">
-        <ion-icon name="build-outline"></ion-icon>
-        Outils
-      </ion-tab-button>
-    </ion-tab-bar>
-  </ng-container>
+    <ng-container *ngIf="isMobile && currentRoute == drawerRouteEnum.HOME">
+      <ion-tab-bar>
+        <ion-tab-button (click)="openActionSheet('DISPLAY')">
+          <ion-icon name="options-outline"></ion-icon>
+          Affichage
+        </ion-tab-button>
+        <ion-tab-button (click)="openActionSheet('ACTIONS')">
+          <ion-icon name="add-outline"></ion-icon>
+          Actions
+        </ion-tab-button>
+        <ion-tab-button (click)="openActionSheet('TOOLS')">
+          <ion-icon name="build-outline"></ion-icon>
+          Outils
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ng-container>
 
-  <ion-modal #modalDataLoading id="modal-map-data-loading">
-    <ng-template>
-      <div class="modal-map-data-loading-wrapper">
-        <div class="modal-map-data-loading-header">Données en cours de chargement</div>
-        <ion-list class="modal-map-data-loading-content">
-          <ion-item *ngFor="let item of listDataLoading()">
-            <ion-spinner name="lines-sharp-small"></ion-spinner>
-            <ion-label>{{ item }}</ion-label>
-          </ion-item>
-        </ion-list>
-      </div>
-    </ng-template>
-  </ion-modal>
-</ion-content>
+    <ion-modal #modalDataLoading id="modal-map-data-loading">
+      <ng-template>
+        <div class="modal-map-data-loading-wrapper">
+          <div class="modal-map-data-loading-header">Données en cours de chargement</div>
+          <ion-list class="modal-map-data-loading-content">
+            <ion-item *ngFor="let item of listDataLoading()">
+              <ion-spinner name="lines-sharp-small"></ion-spinner>
+              <ion-label>{{ item }}</ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ng-template>
+    </ion-modal>
+  </ion-content>
+</div>

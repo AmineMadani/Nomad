@@ -1,6 +1,12 @@
 $width-actions-layers-mobile: 100%;
 $width-actions-layers-left: 300px;
 
+.home-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 #modal-bottom-sheet {
     --border-radius: 28px 28px 0px 0px !important;
 }
