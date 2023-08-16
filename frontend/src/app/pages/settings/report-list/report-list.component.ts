@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -105,6 +105,12 @@ export class ReportListComponent implements OnInit {
         type: TypeColumn.TEXT
       }
     },
+  ];
+
+  listColumnSort: ColumnSort[] = [
+    {
+      key: 'wtr_code', direction: 'asc'
+    }
   ];
 
   async ngOnInit() {

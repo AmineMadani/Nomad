@@ -1,15 +1,9 @@
 <div class="report-edit-content">
-  <div class="report-edit-header">
-    <ion-label class="label">
-      <h2>
-        Formulaire pour {{ wtrReport.ast_code }} - {{ wtrReport.ast_slabel }} - {{ wtrReport.wtr_code }} - {{ wtrReport.wtr_slabel }}
-      </h2>
-    </ion-label>
-
-    <ion-button (click)="close()" fill="clear">
-      <ion-icon slot="icon-only" name="close"></ion-icon>
-    </ion-button>
-  </div>
+  <app-settings-header
+    [title]="'Formulaire pour ' + wtrReport.ast_code + ' - ' + wtrReport.ast_slabel + ' - ' + wtrReport.wtr_code + ' - ' + wtrReport.wtr_slabel"
+    [isModalHeader]="true"
+    (onModalClose)="close()"
+  ></app-settings-header>
 
   <div class="report-edit-body">
     <div class="report-edit-actions-div">
@@ -50,7 +44,7 @@
 
               <div class="line-bottom">
                 <div class="line-left">
-                  <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component">
+                  <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component" interface="popover">
                     <ion-select-option *ngFor="let componentType of listComponentType" [value]="componentType.value">{{componentType.label}}</ion-select-option>
                   </ion-select>
 
@@ -59,11 +53,11 @@
                   </ion-checkbox>
 
                   <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
-                    <ion-select aria-label="parent" label="Conditionné par la question" label-placement="floating" fill="outline" formControlName="questionCondition">
+                    <ion-select aria-label="parent" label="Conditionné par la question" label-placement="floating" fill="outline" formControlName="questionCondition" interface="popover">
                       <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
                     </ion-select>
 
-                    <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true">
+                    <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" interface="popover">
                       <ion-select-option *ngFor="let questionValue of getListAvailableQuestionValues(i)" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>
                     </ion-select>
                   </ng-container>

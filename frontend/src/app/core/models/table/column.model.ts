@@ -9,6 +9,8 @@ export interface Column<T = any> {
   elementLabelFunction?: Function;
   listDataSource?: any[];
   selectKey?: string;
+  // Options for sorting
+  sortOptions?: SortOptions;
 }
 
 export interface ColumnFormat {
@@ -21,6 +23,13 @@ export interface ColumnFormat {
   elementLabelFunction?: Function;
   // For select type - Use mono or multiselection
   isMultiSelection?: boolean;
+}
+
+export interface SortOptions {
+  // When we want to use another attribute than the displayed one to sort the column with 
+  getSortItem: Function;
+  // To indicate that this column can't be sort
+  noSort: boolean;
 }
 
 export enum TypeColumn {
@@ -56,4 +65,9 @@ export class TableRow<T> extends FormGroup {
 
 export class TableCell extends FormControl {
 
+}
+
+export interface ColumnSort {
+  key: string;
+  direction: 'asc' | 'desc';
 }

@@ -1,18 +1,7 @@
 .report-edit-content {
   height: 100%;
   width: 100%;
-
-  .report-edit-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0px 30px;
-
-    ion-icon {
-      --size: 15px;
-      font-size: 20px;
-    }
-  }
+  padding: 20px 30px;
 
   .report-edit-body {
     display: flex;
@@ -63,7 +52,7 @@
           .up-down-div {
             display: flex;
             flex-direction: column;
-            
+
             ion-icon {
               --size: 12px;
               font-size: 16px;
@@ -164,6 +153,6 @@
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    margin: 5px 30px;
+    margin: 5px 0px;
   }
 }
