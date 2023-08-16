@@ -33,7 +33,7 @@
         (click)="onOpenModal()"
         class="table-select"
         [ngClass]="{
-          invalid: control.hasError('required') && control.touched
+          invalid: !control.valid && control.touched
         }"
         matTooltip="Le champ est requis."
         [matTooltipDisabled]="

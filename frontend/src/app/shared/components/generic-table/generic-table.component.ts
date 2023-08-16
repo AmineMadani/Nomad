@@ -29,7 +29,7 @@ export class GenericTableComponent implements OnInit {
         if (!this.selectedRows.some((s) => s == f)) {
           this.selectedRows.push(f);
         }
-      })
+      });
     }
   }
 

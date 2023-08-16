@@ -51,14 +51,7 @@ export class UserDetailsComponent implements OnInit {
       {
         name: 'add',
         onClick: () => {
-          const row = new TableRow<Perimeter>({
-            profileId: new TableCell(null, Validators.required),
-            regionId: new TableCell(null),
-            territoryId: new TableCell(null),
-            contractIds: new TableCell([]),
-          });
-          const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
-          perimetersTable.push(row);
+          this.addPerimeterRow();
         },
         disableFunction: () => {
           return false; // TODO: Add rights
@@ -186,7 +179,6 @@ export class UserDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.initPerimetersTable();
     // TODO: Si utilisateur, on désactive tous les champs du formulaire
     if (this.user) {
       this.userForm.disable();
@@ -204,18 +196,20 @@ export class UserDetailsComponent implements OnInit {
     });
   }
 
-  private initPerimetersTable() {
-    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
+  private addPerimeterRow() {
+    const row = new TableRow<Perimeter>({
+      profileId: new TableCell(null, Validators.required),
+      regionId: new TableCell(null),
+      territoryId: new TableCell(null),
+      contractIds: new TableCell([]),
+    });
 
-    // Listen region id changes
-    this.tableService.listenToColumnChanges(
-      perimetersTable,
-      'regionId',
-      (newRegionId, row) => {
-        // Set territory id automatically if a region changed
-        row.get('territoryId').setValue(newRegionId);
-      }
-    );
+    row.get('regionId').valueChanges.subscribe((newRegionId) => {
+      row.get('territoryId').setValue(newRegionId);
+    });
+
+    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;
+    perimetersTable.push(row);
   }
 
   public getPerimetersControls(): TableRow<Perimeter>[] {
