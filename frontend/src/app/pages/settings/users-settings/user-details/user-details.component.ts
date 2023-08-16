@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
+import { OrganizationalUnit } from 'src/app/core/models/organizational-unit.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { Perimeter, User, UserDetail } from 'src/app/core/models/user.model';
-import { TableService } from 'src/app/core/services/table.service';
+import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -17,7 +18,7 @@ export class UserDetailsComponent implements OnInit {
     private userService: UserService,
     private toastCtrl: ToastController,
     private modalController: ModalController,
-    private tableService: TableService
+    private organizationalUnitService: OrganizationalUnitService
   ) { }
 
   @Input("user") user: User;
@@ -25,6 +26,9 @@ export class UserDetailsComponent implements OnInit {
   public userForm: FormGroup;
 
   public selectedPerimetersRows: TableRow<Perimeter>[] = [];
+
+  // References data
+  public organizationalUnits: OrganizationalUnit[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -100,23 +104,10 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: false,
-        elements: [
-          {
-            id: 1,
-            label: 'banane'
-          },
-          {
-            id: 2,
-            label: 'mangue'
-          },
-          {
-            id: 3,
-            label: 'pomme'
-          },
-        ],
+        elements: [],
         selectKey: 'id',
-        elementLabelFunction: (fruit: any) => {
-          return fruit.label;
+        elementLabelFunction: (org: OrganizationalUnit) => {
+          return org.orgLlabel;
         }
       },
       size: '3'
@@ -127,23 +118,10 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: false,
-        elements: [
-          {
-            id: 1,
-            label: 'banane'
-          },
-          {
-            id: 2,
-            label: 'mangue'
-          },
-          {
-            id: 3,
-            label: 'pomme'
-          },
-        ],
+        elements: [],
         selectKey: 'id',
-        elementLabelFunction: (fruit: any) => {
-          return fruit.label;
+        elementLabelFunction: (org: OrganizationalUnit) => {
+          return org.orgLlabel;
         }
       },
       size: '3'
@@ -179,6 +157,25 @@ export class UserDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+
+    // Get organizational units
+    this.organizationalUnitService.getAllOrganizationalUnits().subscribe((organizationalUnits: OrganizationalUnit[]) => {
+      this.organizationalUnits = organizationalUnits;
+
+      this.columns = this.columns.map((column) => {
+        if (column.key === 'regionId') {
+          column.format.elements =
+            this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'REGION');
+        } else if (column.key === 'territoryId') {
+          column.format.elements =
+            this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'TERRITOIRE');
+        }
+        return column;
+      });
+
+      console.log(this.columns);
+    });
+
     // TODO: Si utilisateur, on désactive tous les champs du formulaire
     if (this.user) {
       this.userForm.disable();
@@ -205,7 +202,7 @@ export class UserDetailsComponent implements OnInit {
     });
 
     row.get('regionId').valueChanges.subscribe((newRegionId) => {
-      row.get('territoryId').setValue(newRegionId);
+      // TODO
     });
 
     const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;

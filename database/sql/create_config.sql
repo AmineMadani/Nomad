@@ -1164,6 +1164,15 @@ comment on column profile.prf_umod_id is 'Last Modificator Id';
 comment on column profile.prf_dcre is 'Creation date';
 comment on column profile.prf_dmod is 'Last modification date';
 
+/* Profile values */
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_NAT','Administrateur national','Administrateur national');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_1','Administrateur local 1','Administrateur local 1');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_2','Administrateur local 2','Administrateur local 2');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('MANAGER','Manager / Responsable','Manager / Responsable');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('AGENT_BUREAU','Agent Bureau - Mobile','Agent Bureau - Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('AGENT_MOBILE','Agent Mobile','Agent Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('SOUS_TRAITANT','Sous-traitant','Sous-traitant');
+
 -- Table org_ctr
 -- Contains the link between organizational units and their contracts
 create table if not exists org_ctr

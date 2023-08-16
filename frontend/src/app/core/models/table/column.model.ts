@@ -6,9 +6,6 @@ export interface Column<T = any> {
   label?: string;
   size?: string;
   onClick?: Function;
-  elementLabelFunction?: Function;
-  listDataSource?: any[];
-  selectKey?: string;
   // Options for sorting
   sortOptions?: SortOptions;
 }
@@ -26,7 +23,7 @@ export interface ColumnFormat {
 }
 
 export interface SortOptions {
-  // When we want to use another attribute than the displayed one to sort the column with 
+  // When we want to use another attribute than the displayed one to sort the column with
   getSortItem: Function;
   // To indicate that this column can't be sort
   noSort: boolean;
