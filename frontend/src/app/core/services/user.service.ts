@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Context, User } from '../models/user.model';
+import { Context, Profile, User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
@@ -58,7 +58,7 @@ export class UserService {
 
   /**
    * Create UserContext on Home page
-   * @returns 
+   * @returns
    */
   public async getCurrentUserContext(): Promise<User> {
     const mapLibre: maplibregl.Map = this.mapService.getMap();
@@ -204,4 +204,13 @@ export class UserService {
       }
     }
   }
+
+  /**
+    * Method to get all the profiles from server
+    * @returns Profiles
+    */
+  getAllProfiles(): Observable<Profile[]> {
+    return this.userDataService.getAllProfiles();
+  }
+
 }

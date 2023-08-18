@@ -1,4 +1,4 @@
-import { AsyncValidatorFn, FormArray, FormControl, FormGroup, ValidatorFn } from "@angular/forms";
+import { AsyncValidatorFn, FormArray, FormControl, FormControlOptions, FormGroup, ValidatorFn } from "@angular/forms";
 
 export interface Column<T = any> {
   format: ColumnFormat;
@@ -12,8 +12,6 @@ export interface Column<T = any> {
 
 export interface ColumnFormat {
   type: TypeColumn;
-  // For select type - The list of object used for all possible elements to select
-  elements?: any[];
   // For select type - The attribute of the object contains in the original list which will be used for value in the form (eg: id)
   selectKey?: string;
   // For select type - Function which permit to print the element with the properties we want. Take one param which corresponds to an element of the original list.
@@ -61,7 +59,18 @@ export class TableRow<T> extends FormGroup {
 }
 
 export class TableCell extends FormControl {
+  selectOptions: any[];
 
+  constructor(
+    cellInfo: {
+      value: any,
+      validatorOrOpts?: FormControlOptions | ValidatorFn | ValidatorFn[],
+      selectOptions?: any[]
+    }
+  ) {
+    super(cellInfo.value, cellInfo.validatorOrOpts, undefined);
+    this.selectOptions = cellInfo.selectOptions || [];
+  }
 }
 
 export interface ColumnSort {

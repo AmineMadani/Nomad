@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.dto;
 
+import com.veolia.nextcanope.dto.Contract.ContractOrgProjectionDto;
 import com.veolia.nextcanope.model.OrganizationalUnit;
 
 public class OrganizationalUnitDto {
@@ -9,6 +10,7 @@ public class OrganizationalUnitDto {
     private String orgLlabel;
     private String outCode;
     private Boolean orgValid;
+    private Long orgParentId;
 
     public OrganizationalUnitDto(OrganizationalUnit organizationalUnit) {
         this.id = organizationalUnit.getId();
@@ -17,6 +19,19 @@ public class OrganizationalUnitDto {
         this.orgLlabel = organizationalUnit.getOrgLlabel();
         this.outCode = organizationalUnit.getOrganizationalUnitType().getOutCode();
         this.orgValid = organizationalUnit.getOrgValid();
+        if (organizationalUnit.getOrganizationalUnitParent() != null) {
+            this.orgParentId = organizationalUnit.getOrganizationalUnitParent().getId();
+        }
+    }
+
+    public OrganizationalUnitDto(ContractOrgProjectionDto projection) {
+        this.id = projection.getOrgId();
+        this.orgCode = projection.getOrgCode();
+        this.orgSlabel = projection.getOrgSlabel();
+        this.orgLlabel = projection.getOrgLlabel();
+        this.orgValid = projection.getOrgValid();
+        this.outCode = projection.getOutCode();
+        this.orgParentId = projection.getOrgParentId();
     }
 
     public Long getId() {
@@ -65,5 +80,13 @@ public class OrganizationalUnitDto {
 
     public void setOrgValid(Boolean orgValid) {
         this.orgValid = orgValid;
+    }
+
+    public Long getOrgParentId() {
+        return orgParentId;
+    }
+
+    public void setOrgParentId(Long orgParentId) {
+        this.orgParentId = orgParentId;
     }
 }

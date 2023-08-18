@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -57,7 +58,8 @@ public class PrfPer implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="prp_umod_id", referencedColumnName="id")
-    private Users users2;
+	@JsonIgnore
+    private Users modifiedBy;
 
     @ManyToOne
     @JoinColumn(name="prf_id", referencedColumnName="id")
@@ -65,7 +67,8 @@ public class PrfPer implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="prp_ucre_id", referencedColumnName="id")
-    private Users users;
+	@JsonIgnore
+    private Users createdBy;
 
     /**
      * Constructor
@@ -100,12 +103,12 @@ public class PrfPer implements Serializable {
         this.permissions = permissions;
     }
 
-    public Users getUsers2() {
-        return this.users2;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     }
 
-    public void setUsers2(Users users2) {
-        this.users2 = users2;
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public Profile getProfile() {
@@ -116,12 +119,12 @@ public class PrfPer implements Serializable {
         this.profile = profile;
     }
 
-    public Users getUsers() {
-        return this.users;
+    public Users getCreatedBy() {
+        return this.createdBy;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
 }

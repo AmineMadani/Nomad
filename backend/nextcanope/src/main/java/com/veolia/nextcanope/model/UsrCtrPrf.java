@@ -64,12 +64,12 @@ public class UsrCtrPrf implements Serializable {
     private Users users;
 
     @ManyToOne
-    @JoinColumn(name="prf_id", referencedColumnName="id")
-    private Profile profile;
-
-    @ManyToOne
     @JoinColumn(name="usr_id", referencedColumnName="id")
     private Users users3;
+
+    @ManyToOne
+    @JoinColumn(name="prf_id", referencedColumnName="id")
+    private Profile profile;
 
     /**
      * Constructor
@@ -120,20 +120,20 @@ public class UsrCtrPrf implements Serializable {
         this.users = users;
     }
 
-    public Profile getProfile() {
-        return this.profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
     public Users getUsers3() {
         return this.users3;
     }
 
     public void setUsers3(Users users3) {
         this.users3 = users3;
+    }
+
+    public Profile getProfile() {
+        return this.profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
 }

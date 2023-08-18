@@ -1,11 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
+import { forkJoin } from 'rxjs';
+import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit } from 'src/app/core/models/organizational-unit.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, User, UserDetail } from 'src/app/core/models/user.model';
+import { Perimeter, Profile, User, UserDetail } from 'src/app/core/models/user.model';
+import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
+import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -18,7 +22,9 @@ export class UserDetailsComponent implements OnInit {
     private userService: UserService,
     private toastCtrl: ToastController,
     private modalController: ModalController,
-    private organizationalUnitService: OrganizationalUnitService
+    private organizationalUnitService: OrganizationalUnitService,
+    private referentialService: ReferentialService,
+    private contractService: ContractService
   ) { }
 
   @Input("user") user: User;
@@ -28,7 +34,11 @@ export class UserDetailsComponent implements OnInit {
   public selectedPerimetersRows: TableRow<Perimeter>[] = [];
 
   // References data
+  public profiles: Profile[] = [];
   public organizationalUnits: OrganizationalUnit[] = [];
+  public regions: OrganizationalUnit[] = [];
+  public territories: OrganizationalUnit[] = [];
+  public contracts: ContractWithOrganizationalUnits[] = [];
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -78,23 +88,9 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: false,
-        elements: [
-          {
-            id: 1,
-            label: 'Administrateur'
-          },
-          {
-            id: 2,
-            label: 'Agent'
-          },
-          {
-            id: 3,
-            label: 'Sous-traitant'
-          },
-        ],
         selectKey: 'id',
-        elementLabelFunction: (fruit: any) => {
-          return fruit.label;
+        elementLabelFunction: (profile: Profile) => {
+          return profile.prfLlabel;
         }
       },
     },
@@ -104,7 +100,6 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: false,
-        elements: [],
         selectKey: 'id',
         elementLabelFunction: (org: OrganizationalUnit) => {
           return org.orgLlabel;
@@ -118,7 +113,6 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: false,
-        elements: [],
         selectKey: 'id',
         elementLabelFunction: (org: OrganizationalUnit) => {
           return org.orgLlabel;
@@ -132,23 +126,9 @@ export class UserDetailsComponent implements OnInit {
       format: {
         type: TypeColumn.SELECT,
         isMultiSelection: true,
-        elements: [
-          {
-            id: 1,
-            label: 'banane'
-          },
-          {
-            id: 2,
-            label: 'mangue'
-          },
-          {
-            id: 3,
-            label: 'pomme'
-          },
-        ],
         selectKey: 'id',
-        elementLabelFunction: (fruit: any) => {
-          return fruit.label;
+        elementLabelFunction: (contract: ContractWithOrganizationalUnits) => {
+          return contract.ctrLlabel;
         }
       },
       size: '3'
@@ -158,23 +138,7 @@ export class UserDetailsComponent implements OnInit {
   ngOnInit() {
     this.initForm();
 
-    // Get organizational units
-    this.organizationalUnitService.getAllOrganizationalUnits().subscribe((organizationalUnits: OrganizationalUnit[]) => {
-      this.organizationalUnits = organizationalUnits;
-
-      this.columns = this.columns.map((column) => {
-        if (column.key === 'regionId') {
-          column.format.elements =
-            this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'REGION');
-        } else if (column.key === 'territoryId') {
-          column.format.elements =
-            this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'TERRITOIRE');
-        }
-        return column;
-      });
-
-      console.log(this.columns);
-    });
+    this.fetchInitData();
 
     // TODO: Si utilisateur, on désactive tous les champs du formulaire
     if (this.user) {
@@ -193,16 +157,102 @@ export class UserDetailsComponent implements OnInit {
     });
   }
 
+  private fetchInitData() {
+    forkJoin({
+      organizationalUnits: this.organizationalUnitService.getAllOrganizationalUnits(),
+      profiles: this.userService.getAllProfiles(),
+      contracts: this.contractService.getAllContractsWithOrganizationalUnits()
+    }).subscribe(({ organizationalUnits, profiles, contracts }) => {
+      // OrganizationalUnits
+      this.organizationalUnits = organizationalUnits;
+      this.regions = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'REGION');
+      this.territories = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'TERRITOIRE');
+
+      // Profiles
+      this.profiles = profiles;
+
+      // Contracts
+      this.contracts = contracts;
+    });
+  }
+
   private addPerimeterRow() {
     const row = new TableRow<Perimeter>({
-      profileId: new TableCell(null, Validators.required),
-      regionId: new TableCell(null),
-      territoryId: new TableCell(null),
-      contractIds: new TableCell([]),
+      profileId: new TableCell({
+        value: null,
+        selectOptions: this.profiles,
+        validatorOrOpts: Validators.required
+      }),
+      regionId: new TableCell({
+        value: null,
+        selectOptions: this.regions,
+      }),
+      territoryId: new TableCell({
+        value: null,
+        selectOptions: this.territories,
+      }),
+      contractIds: new TableCell({
+        value: null,
+        selectOptions: this.contracts,
+        validatorOrOpts: Validators.required,
+      }),
     });
 
     row.get('regionId').valueChanges.subscribe((newRegionId) => {
-      // TODO
+      console.log('region change');
+
+      if (newRegionId) {
+        const regionTerritories = this.territories.filter((org) => org.orgParentId === newRegionId);
+        // Filter the list of territory with the region id
+        row.get('territoryId').selectOptions = regionTerritories;
+      } else {
+        row.get('territoryId').selectOptions = this.territories;
+        row.get('territoryId').setValue(null);
+      }
+    });
+
+    row.get('territoryId').valueChanges.subscribe((newTerritoryId) => {
+      console.log('territory change');
+
+      if (newTerritoryId) {
+        const territory = this.territories.find((t) => t.id === newTerritoryId);
+
+        // Filter the list of contract with territory id
+        row.get('contractIds').selectOptions =
+          this.contracts.filter((ctr) => ctr.organizationalUnits.some((org) => org.id === territory.id));
+
+        // Set automatically the region in adequacy with the territory
+        row.get('regionId').setValue(territory.orgParentId, { emitEvent: false });
+        // Set automtically all the contracts of the region if specific profils are selected
+        const profileIds = this.profiles
+          .filter((prf) => prf.prfCode === 'ADMIN_NAT' || prf.prfCode === 'ADMIN_LOC_1' || prf.prfCode === 'ADMIN_LOC_2')
+          .map((prf) => prf.id);
+        if (profileIds.includes(row.get('profileId').value)) {
+          const territoryContractIds =
+            this.contracts
+              .filter((ctr) => ctr.organizationalUnits.some((org) => org.id === territory.id))
+              .map((ctr) => ctr.id);
+          row.get('contractIds').setValue(territoryContractIds?.length > 1 ? territoryContractIds : null);
+        }
+      } else {
+        // If territory is set to null
+        // Reset list of contract
+        row.get('contractIds').selectOptions = this.contracts;
+        row.get('contractIds').setValue(null);
+      }
+    });
+
+    row.get('contractIds').valueChanges.subscribe((newContractIds) => {
+      console.log('contracts change');
+
+      if (newContractIds && newContractIds.length > 0) {
+        const selectedContracts = this.contracts.filter((ctr) => newContractIds.includes(ctr.id));
+        const contractsTerritories = this.territories.filter((territory) => selectedContracts.some((ctr) => ctr.organizationalUnits.some((org) => org.id === territory.id)));
+
+        // Set automatically by the first territory
+        row.get('territoryId').setValue(contractsTerritories[0].id, { emitEvent: false });
+        row.get('regionId').setValue(contractsTerritories[0].orgParentId, { emitEvent: false });
+      }
     });
 
     const perimetersTable = this.userForm.get('perimeters') as TableRowArray<Perimeter>;

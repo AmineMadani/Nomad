@@ -69,3 +69,11 @@ export interface UserDetail {
   company: string;
   perimeters: Perimeter[];
 }
+
+export interface Profile {
+  id: number;
+  prfCode: string;
+  prfSlabel: string;
+  prfLlabel: string;
+  prfValid: boolean;
+}

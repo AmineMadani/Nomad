@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { User } from '../../models/user.model';
+import { Profile, User } from '../../models/user.model';
 import { ConfigurationService } from '../configuration.service';
 
 @Injectable({
@@ -31,8 +31,8 @@ export class UserDataService {
 
   /**
    * Create a user
-   * @param user 
-   * @returns 
+   * @param user
+   * @returns
    */
   public createUser(user: User): Observable<any> {
     return this.http.post<any>(`${this.configurationService.apiUrl}user/`, user);
@@ -44,6 +44,14 @@ export class UserDataService {
    */
   getAllUserAccount(): Observable<User[]> {
     return this.http.get<User[]>(`${this.configurationService.apiUrl}user/all-account`);
+  }
+
+  /**
+    * Method to get all the profiles from server
+    * @returns Profiles
+    */
+  getAllProfiles(): Observable<Profile[]> {
+    return this.http.get<Profile[]>(`${this.configurationService.apiUrl}profiles`);
   }
 }
 

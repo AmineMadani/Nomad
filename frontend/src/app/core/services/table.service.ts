@@ -12,7 +12,9 @@ export class TableService {
     return objects.map(object => {
       const controls = {};
       for (const key of Object.keys(object)) {
-        controls[key] = new TableCell(object[key]);
+        controls[key] = new TableCell({
+          value: object[key],
+        });
       }
       return new TableRow(controls);
     });

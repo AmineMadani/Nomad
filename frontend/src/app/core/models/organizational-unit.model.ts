@@ -5,4 +5,5 @@ export interface OrganizationalUnit {
   orgLlabel: string;
   outCode: string;
   orgValid: boolean;
+  orgParentId: number;
 }

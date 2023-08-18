@@ -22,7 +22,7 @@
             <ng-container *ngSwitchCase="TypeColumn.CHECKBOX">
               <ion-checkbox [checked]="isAllRowsSelected()" (ionChange)="onSelectAll()" aria-label="selection"></ion-checkbox>
             </ng-container>
-  
+
             <!-- ACTION -->
             <ng-container *ngSwitchCase="TypeColumn.ACTION">
               {{ column.label }}
@@ -33,7 +33,7 @@
               <div class="column-header" [class.sortable]="column.sortOptions?.noSort !== true">
                 <!-- Label -->
                 <div (click)="column.sortOptions?.noSort !== true && onSort(column.key)">{{ column.label }}</div>
-                
+
                 <!-- Sort -->
                 <div (click)="column.sortOptions?.noSort !== true && onSort(column.key)" class="header-sort-arrow">
                   <!-- sort arrow and number -->
@@ -80,8 +80,9 @@
 
           <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell button-cell top-border"
             [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
-            <app-search-select class="layer-select" [key]="column.format.selectKey" label="Couche à paramétrer" [elements]="column.format.elements"
-              [control]="row.get(column.key)" [elementLabelFunction]="column.format.elementLabelFunction" [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
+            <app-search-select class="table-select" [key]="column.format.selectKey" [label]="column.label" [elements]="row.get(column.key).selectOptions"
+              [control]="row.get(column.key)" [elementLabelFunction]="column.format.elementLabelFunction"
+              [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
             </app-search-select>
           </ion-col>
         </ng-container>

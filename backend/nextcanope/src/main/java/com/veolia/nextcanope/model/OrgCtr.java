@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -53,19 +54,21 @@ public class OrgCtr implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
     @JoinColumn(name="orc_ucre_id", referencedColumnName="id")
-    private Users users;
+	@JsonIgnore
+    private Users createdBy;
 
     @ManyToOne
     @JoinColumn(name="ctr_id", referencedColumnName="id")
     private Contract contract;
 
     @ManyToOne
-    @JoinColumn(name="orc_umod_id", referencedColumnName="id")
-    private Users users2;
-
-    @ManyToOne
     @JoinColumn(name="org_id", referencedColumnName="id")
     private OrganizationalUnit organizationalUnit;
+
+    @ManyToOne
+    @JoinColumn(name="orc_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -92,12 +95,12 @@ public class OrgCtr implements Serializable {
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
-    public Users getUsers() {
-        return this.users;
+    public Users getCreatedBy() {
+        return this.createdBy;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Contract getContract() {
@@ -108,20 +111,20 @@ public class OrgCtr implements Serializable {
         this.contract = contract;
     }
 
-    public Users getUsers2() {
-        return this.users2;
-    }
-
-    public void setUsers2(Users users2) {
-        this.users2 = users2;
-    }
-
     public OrganizationalUnit getOrganizationalUnit() {
         return this.organizationalUnit;
     }
 
     public void setOrganizationalUnit(OrganizationalUnit organizationalUnit) {
         this.organizationalUnit = organizationalUnit;
+    }
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
 }
