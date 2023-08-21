@@ -37,6 +37,7 @@ import { FormHistoryComponent } from './form-editor/properties/form-history/form
 import { FormEquipmentsComponent } from './form-editor/properties/form-equipments/form-equipments.component';
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     PageHeaderComponent,
     SearchSelectComponent,
     GenericTableComponent,
+    FilterTableComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS

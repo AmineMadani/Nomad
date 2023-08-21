@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
-import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { PopoverController } from '@ionic/angular';
+import { Column, ColumnSort, FILTER_CONDITION, FILTER_TEXT_CONDITION, FILTER_TYPE, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
+import { FilterResult, FilterTableComponent } from './filter-table/filter-table.component';
+import { FilterService } from './filter.service';
+import { ValueLabel } from 'src/app/core/models/util.model';
 
 @Component({
   selector: 'app-generic-table',
@@ -23,7 +27,12 @@ export class GenericTableComponent implements OnInit {
 
   public TypeColumn = TypeColumn;
 
-  constructor() { }
+  constructor(
+    private popoverController: PopoverController,
+    private filterService: FilterService,
+  ) { }
+
+  displayedRows: TableRow<any>[] = [];
 
   ngOnInit() { }
 
@@ -36,16 +45,16 @@ export class GenericTableComponent implements OnInit {
 
     // When the data changes
     if (changes['rows'] != null) {
-      // Sort
-      this.sortData();
+      // Filter + Sort
+      this.filterData();
     }
   }
 
   onSelectAll() {
-    if (this.selectedRows.length === this.rows.length) {
+    if (this.selectedRows.length === this.displayedRows.length) {
       this.selectedRows.splice(0, this.selectedRows.length);
     } else {
-      this.rows.forEach((f) => {
+      this.displayedRows.forEach((f) => {
         if (!this.selectedRows.some((s) => s == f)) {
           this.selectedRows.push(f);
         }
@@ -55,7 +64,7 @@ export class GenericTableComponent implements OnInit {
 
   isAllRowsSelected(): boolean {
     let isSelected: boolean = true;
-    if (this.rows.length === 0 || this.selectedRows.length !== this.rows.length) {
+    if (this.displayedRows.length === 0 || this.selectedRows.length !== this.displayedRows.length) {
       isSelected = false;
     }
     return isSelected;
@@ -101,7 +110,7 @@ export class GenericTableComponent implements OnInit {
 
   sortData() {
     if (this.listColumnSort.length > 0) {
-      this.rows = this.rows.sort((a, b) => {
+      this.displayedRows = this.displayedRows.sort((a, b) => {
         let returnValue = 0;
 
         const objectA = a.getRawValue();
@@ -137,4 +146,195 @@ export class GenericTableComponent implements OnInit {
   }
 
   // ####### //
+
+  // ### FILTER ### //
+  async openFilter(column: Column, event: Event): Promise<void> {
+    // If there is no filter set, create it and set its type to 'text' by default
+    if (!column.filter) {
+      column.filter = {
+        type: 'text'
+      }
+    }
+
+    // For select filter type
+    let listSelectItem: ValueLabel[] = [];
+    if (column.filter.type === FILTER_TYPE.SELECT) {
+      // If no list of values to be displayed has been set
+      if (column.filter.listSelectValue == null || column.filter.listSelectValue.length === 0) {
+        // Then construct the list 
+        // Either from the liste of elements of the column
+        if (column.format.elements) {
+          listSelectItem = column.format.elements.map((element) => {
+            return {
+              value: element[column.format.selectKey],
+              label: column.format.elementLabelFunction(element),
+            }
+          })
+          .sort((a, b) => {
+            return a.label.localeCompare(b.label);
+          });
+        } else {
+          // Or from the list of rows
+          // Either only the displayed one or all the rows (if isSelectAllRow = true)
+          const listRow = column.filter.isSelectAllRow === true ? this.rows : this.displayedRows;
+
+          listSelectItem = listRow.map((row) => {
+            const isEmpty = row.getRawValue()[column.key] == null || row.getRawValue()[column.key] === '';
+            return {
+              value: row.getRawValue()[column.key],
+              label: isEmpty ? '(Vide)' : row.getRawValue()[column.key],
+            }
+          });
+
+          // Delete duplicates and sort
+          let seen = {};
+          listSelectItem = listSelectItem.filter((item) => {
+            return seen.hasOwnProperty(item.value) ? false : (seen[item.value] = true);
+          })
+          .sort((a, b) => {
+            return a.label.localeCompare(b.label);
+          });
+        }
+      } else {
+        listSelectItem = column.filter.listSelectValue;
+      }
+    }
+
+    const popover = await this.popoverController.create({
+      component: FilterTableComponent,
+      componentProps: {
+        column: column,
+        listAllItem: listSelectItem,
+      },
+      showBackdrop: false,
+      event,
+      cssClass: 'filter-popover',
+    });
+
+    popover.onDidDismiss().then((result) => {
+      const filterResult: FilterResult = result['data'];
+      if (filterResult != null) {
+        column.filter.condition = filterResult.condition;
+        column.filter.value = filterResult.value;
+
+        this.filterData();
+      }
+    });
+
+    await popover.present();
+  }
+
+  filterData() {
+    let result = this.rows;
+    this.columns.forEach((column) => {
+      if (column.filter?.value != null) {
+        if (column.filter.type === FILTER_TYPE.TEXT) {
+          result = this.filterService.filterText(result, column);
+        } else if (column.filter.type === FILTER_TYPE.SELECT) {
+          result = this.filterService.filterSelect(result, column);
+        }
+
+        /*if (column.filter.type === FILTER_TYPE.DATE) {
+          result = this.filterService.filterDate(result, column);
+        } else if (column.filter.type === FILTER_TYPE.NUMBER) {
+          result = this.filterService.filterNumber(result, column);
+        }*/
+      }
+    });
+
+    this.displayedRows = result;
+
+    // Deselect the rows that are not in the data anymore
+    this.selectedRows.forEach((selectedRow, index) => {
+      if (!this.displayedRows.some(data => data == selectedRow)) {
+        this.selectedRows.splice(index, 1);
+      }
+    });
+
+    this.sortData();
+  }
+
+  getChipValue(column: Column) {
+    let chipValue = column.label + ' ';
+    // if specific format exist for this colum
+    switch (column.filter?.value && column.filter.type) {
+      case FILTER_TYPE.SELECT:
+        const listFilterValue = column.filter.value as ValueLabel[];
+        if (listFilterValue && listFilterValue.length > 0) {
+          const textFilterValue = listFilterValue.map((v) => v.label).join(', ');
+          chipValue += ': ';
+          chipValue += textFilterValue.length > 100 ? textFilterValue.substring(0, 100).concat('...') : textFilterValue;
+        }
+        break;
+
+      case FILTER_TYPE.TEXT:
+        switch (column.filter.condition) {
+          case FILTER_CONDITION.EMPTY:
+            chipValue += 'est vide';
+            break;
+
+          case FILTER_CONDITION.NOT_EMPTY:
+            chipValue += "n'est pas vide";
+            break;
+
+          default:
+            let ftc = FILTER_TEXT_CONDITION.find((ftc) => ftc.value === column.filter.condition);
+            if (ftc) {
+              chipValue += ftc.label + ": '" + column.filter.value + "'";
+            } else {
+              chipValue += "'" + column.filter.value + "'";
+            }
+        }
+        break;
+
+      /*case 'date':
+        let searchData = column.searchData as SearchDataDate;
+        let dateStart = this.formatDate(searchData.start);
+        let dateEnd = this.formatDate(searchData.end);
+
+        // option filter
+        if (column.filterType === 'isBetween') {
+          if (!searchData.start) {
+            text = "jusqu'au " + dateEnd;
+          } else if (!searchData.end) {
+            text = 'à partir du ' + dateStart;
+          } else {
+            text = 'du ' + dateStart + ' au ' + dateEnd;
+          }
+        } else if (column.filterType === 'isDown') {
+          text = "jusqu'au " + dateEnd;
+        } else if (column.filterType === 'isUp') {
+          text = 'à partir du ' + dateStart;
+        } else {
+          text = this.getCommonChipValue(column);
+        }
+        break;
+
+      case 'number':
+        text = this.getCommonChipValue(column);
+        break;*/
+    }
+    return chipValue;
+  }
+
+  removeFilter(column: Column) {
+    column.filter.value = null;
+    column.filter.condition = null;
+    this.filterData();
+  }
+
+  resetFilters() {
+    this.columns.forEach((column) => {
+      if (column.filter) {
+        column.filter.value = null;
+        column.filter.condition = null;
+      }
+    });
+
+    this.listColumnSort = [];
+
+    this.filterData();
+  }
+  
+  // ###### //
 }

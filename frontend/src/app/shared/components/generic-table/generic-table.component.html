@@ -1,4 +1,5 @@
 <ion-grid>
+  <!-- TOOLBAR -->
   <ion-row class="toolbar-row" *ngIf="toolbar">
     <ion-label class="label">
       <h3>{{ toolbar.title }}</h3>
@@ -8,12 +9,33 @@
       <ion-button *ngFor="let button of toolbar.buttons" [disabled]="button.disableFunction()" (click)="button.onClick()" fill="clear">
         <ion-icon slot="icon-only" [name]="button.name"></ion-icon>
       </ion-button>
+
+      <div *ngIf="toolbar.buttons && toolbar.buttons.length > 0">|</div>
+      <ion-button (click)="resetFilters()" fill="clear">
+        <ion-icon slot="icon-only" name="filter" class="strike-through"></ion-icon>
+      </ion-button>
     </div>
 
   </ion-row>
+
+  <!-- FILTER CHIPS -->
+  <div class="chips-div">
+    <ng-container *ngFor="let column of columns">
+      <ng-container *ngIf="column.filter?.value">
+        <ion-chip (dblclick)="openFilter(column, $event)">
+          <ion-label>
+            {{getChipValue(column)}}
+          </ion-label>
+          <ion-icon name="close-circle" (click)="removeFilter(column)"></ion-icon>
+        </ion-chip>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <!-- TABLE -->
   <div class="table">
     <!-- Table header with column names -->
-    <ion-row class="header" [ngClass]="{ 'bottom-border': rows.length === 0 }">
+    <ion-row class="header" [ngClass]="{ 'bottom-border': displayedRows.length === 0 }">
       <ng-container *ngFor="let column of columns; let columnIndex = index">
 
         <ion-col [size]="column.size" class="cell button-cell" [ngClass]="{ 'left-border': columnIndex !== 0 }">
@@ -44,11 +66,12 @@
                   <div *ngIf="getSortNumber(column.key) !== 0" class="header-sort-arrow-number">
                     {{getSortNumber(column.key)}}
                   </div>
-
-                  <!-- div when there is no sort to fill the space of the sort -->
-                  <div *ngIf="getSortNumber(column.key) === 0" style="width: 19px">
-                  </div>
                 </div>
+
+                <!-- Filter -->
+                <ion-icon (click)="openFilter(column, $event)" slot="icon-only" name="filter" 
+                  [class.is-filtered]="column.filter?.value != null" *ngIf="column.filter?.type !== 'none'">
+                </ion-icon>
               </div>
             </ng-container>
           </ng-container>
@@ -58,28 +81,28 @@
     </ion-row>
     <!-- Table rows with data values -->
     <div class="table-row">
-      <ion-row *ngFor="let row of rows; let rowIndex = index">
+      <ion-row *ngFor="let row of displayedRows; let rowIndex = index">
         <ng-container *ngFor="let column of columns; let columnIndex = index">
 
           <ion-col *ngIf="column.format.type === TypeColumn.CHECKBOX" [size]="column.size" class="cell button-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (displayedRows.length - 1) }">
             <ion-checkbox [checked]="isRowSelected(row)" (ionChange)="onRowSelect(row)" aria-label="selection"></ion-checkbox>
           </ion-col>
 
           <ion-col *ngIf="column.format.type === TypeColumn.ACTION" [size]="column.size" class="cell button-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (displayedRows.length - 1) }">
             <ion-button (click)="column.onClick(row)" fill="clear">
               <ion-icon slot="icon-only" name="eye"></ion-icon>
             </ion-button>
           </ion-col>
 
           <ion-col *ngIf="column.format.type === TypeColumn.TEXT" [size]="column.size" class="cell text-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (displayedRows.length - 1) }">
             {{ row.get(column.key).value }}
           </ion-col>
 
           <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell button-cell top-border"
-            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
+            [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (displayedRows.length - 1) }">
             <app-search-select class="layer-select" [key]="column.format.selectKey" label="Couche à paramétrer" [elements]="column.format.elements"
               [control]="row.get(column.key)" [elementLabelFunction]="column.format.elementLabelFunction" [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
             </app-search-select>

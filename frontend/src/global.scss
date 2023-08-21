@@ -428,3 +428,35 @@ ion-segment-button {
   --backdrop-opacity: var(--ion-backdrop-opacity, 0.32) !important;
   --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
 }
+
+.filter-popover {
+  --height: unset;
+  --width: unset;
+}
+
+ion-icon.strike-through {
+  position: relative;
+  transition: none;
+
+  &:after,
+  &:before {
+    display: block;
+    position: absolute;
+    content: '';
+    top: 8px;
+    width: 22px;
+    transform: rotate(45deg);
+  }
+
+  &:after {
+    height: 2px;
+    left: -2px;
+    background: black;
+  }
+
+  &:before {
+    height: 5px;
+    left: 0px;
+    background: rgb(240, 240, 240);
+  }
+}

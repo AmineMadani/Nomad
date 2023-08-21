@@ -88,21 +88,25 @@ export class ReportListComponent implements OnInit {
       key: 'wtr_code',
       label: 'Code',
       format: {
-        type: TypeColumn.TEXT
-      }
+        type: TypeColumn.TEXT,
+      },
     },
     {
       key: 'wtr_slabel',
       label: 'Libellé',
       format: {
         type: TypeColumn.TEXT
-      }
+      },
     },
     {
       key: 'hasForm',
       label: 'Formulaire ?',
       format: {
-        type: TypeColumn.TEXT
+        type: TypeColumn.TEXT,
+      },
+      filter: {
+        type: 'select',
+        isSelectAllRow: true,
       }
     },
   ];
@@ -134,7 +138,7 @@ export class ReportListComponent implements OnInit {
           formCode: formTemplateReport?.formCode,
           fdnId: formTemplateReport?.fteId,
           definition: formTemplateReport?.definition,
-          hasForm: formTemplateReport == null ? '' : 'X',
+          hasForm: formTemplateReport == null ? null : 'X',
         }
       });
       this.listWtrReportRows = this.tableService.createReadOnlyRowsFromObjects(listWtrReport);

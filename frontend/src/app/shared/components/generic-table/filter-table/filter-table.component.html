@@ -1,0 +1,42 @@
+<div class="filter-div">
+  <ng-container [ngSwitch]="filterType">
+    <!-- TEXT -->
+    <ng-container *ngSwitchCase="FILTER_TYPE.TEXT">
+      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+        [(ngModel)]="selectedFilterTextCondition" interface="popover" class="filter-select">
+        <ion-select-option *ngFor="let ftt of FILTER_TEXT_CONDITION" [value]="ftt.value">
+          {{ftt.label}}
+        </ion-select-option>
+      </ion-select>
+
+      <ion-input #filterTextValueInput *ngIf="selectedFilterTextCondition !== FILTER_CONDITION.EMPTY && selectedFilterTextCondition !== FILTER_CONDITION.NOT_EMPTY"
+        aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
+        [(ngModel)]="filterTextValue" (keydown.enter)="ok()" />
+    </ng-container>
+
+    <!-- SELECT -->
+    <ng-container *ngSwitchCase="FILTER_TYPE.SELECT">
+      <div class="select-div">
+        <div class="select-actions-div">
+          <ion-button fill="clear" (click)="selectNone()">Réinitialiser</ion-button>
+          <ion-button fill="clear" (click)="selectAll()">Tout selectionner</ion-button>
+        </div>
+
+        <ion-input #filterSelectSearchValueInput aria-label="label" labelPlacement="floating" fill="outline" 
+          label="Rechercher" class="search-input" (ionInput)="onSelectSearchInput($event)" />
+        
+        <ion-list class="select-list" lines="full">
+          <ion-item button *ngFor="let item of listItem" (click)="addOrRemoveItem(item)" class="item">
+            <ion-icon [class.selected]="isItemSelected(item)" name="checkmark"></ion-icon>
+            <span [class.selected]="isItemSelected(item)">{{item.label}}</span>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
+
+<div class="filter-actions-div">
+  <ion-button fill="clear" (click)="cancel()">Annuler</ion-button>
+  <ion-button fill="clear" (click)="ok()">Valider</ion-button>
+</div>
