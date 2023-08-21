@@ -29,8 +29,6 @@ export class SearchSelectComponent implements OnInit {
 
   @Input() showMultiSelectionAsNumber: boolean = true;
 
-  @Input() disabled: boolean;
-
   public displayedElements: any[] = [];
   public querySearch: string = "";
 
@@ -126,11 +124,24 @@ export class SearchSelectComponent implements OnInit {
     }
   }
 
+
+  getTableSelectStyle() {
+    let className = '';
+
+    if (this.control.disabled) {
+      className = 'disabled';
+    } else if (!this.control.valid) {
+      className = 'invalid';
+    }
+
+    return className;
+  }
+
   /**
    * Method to open the modal and filter the options before
    */
   onOpenModal() {
-    if (!this.disabled) {
+    if (!this.control.disabled) {
       this.control.markAsTouched();
       this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
       this.modal.present();

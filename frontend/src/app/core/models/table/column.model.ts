@@ -18,6 +18,8 @@ export interface ColumnFormat {
   elementLabelFunction?: Function;
   // For select type - Use mono or multiselection
   isMultiSelection?: boolean;
+  // For select type
+  elementFilterFunction?: Function;
 }
 
 export interface SortOptions {
@@ -59,18 +61,6 @@ export class TableRow<T> extends FormGroup {
 }
 
 export class TableCell extends FormControl {
-  selectOptions: any[];
-
-  constructor(
-    cellInfo: {
-      value: any,
-      validatorOrOpts?: FormControlOptions | ValidatorFn | ValidatorFn[],
-      selectOptions?: any[]
-    }
-  ) {
-    super(cellInfo.value, cellInfo.validatorOrOpts, undefined);
-    this.selectOptions = cellInfo.selectOptions || [];
-  }
 }
 
 export interface ColumnSort {

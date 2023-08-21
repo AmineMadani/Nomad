@@ -189,7 +189,7 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="modifiedBy")
     private List<PrfPer> listOfModifiedPrfPer;
 
-    @OneToMany(mappedBy="users3")
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="user")
     private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @OneToMany(mappedBy="modifiedBy")
@@ -243,7 +243,7 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyle> listOfCreatedLayerStyle;
 
-    @OneToMany(mappedBy="users")
+    @OneToMany(mappedBy="createdBy")
     private List<UsrCtrPrf> listOfCreatedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
@@ -252,7 +252,7 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<ContractActivity> listOfCreatedContractActivity;
 
-    @OneToMany(mappedBy="users2")
+    @OneToMany(mappedBy="modifiedBy")
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
@@ -291,13 +291,13 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="user")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<AssetType> listOfModifiedAssetType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<AssetType> listOfModifiedAssetType;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
@@ -1161,20 +1161,20 @@ public class Users implements Serializable {
         this.listOfFormTemplateCustom = listOfFormTemplateCustom;
     }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public List<AssetType> getListOfModifiedAssetType() {
         return this.listOfModifiedAssetType;
     }
 
     public void setListOfModifiedAssetType(List<AssetType> listOfModifiedAssetType) {
         this.listOfModifiedAssetType = listOfModifiedAssetType;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<LayerStyleCustom> getListOfModifiedLayerStyleCustom() {

@@ -133,7 +133,7 @@ export class UsersSettingsComponent implements OnInit {
     const modal = await this.modalController.create({
       component: UserDetailsComponent,
       componentProps: {
-        user: user
+        userId: user?.id
       },
       backdropDismiss: false,
       cssClass: 'custom-modal'

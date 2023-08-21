@@ -1,7 +1,7 @@
 <form [formGroup]="userForm" (ngSubmit)="save()" class="settings-template-content modal">
   <!-- Header -->
   <app-settings-header
-    [title]=" user ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'"
+    [title]=" userId ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'"
     [isModalHeader]="true"
     (onModalClose)="onClose()"
   ></app-settings-header>

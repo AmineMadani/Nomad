@@ -17,9 +17,8 @@ public class UsrCtrPrfId implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY KEY ATTRIBUTES 
-    private Long       usrId ;
-    
-    private Long       ctrId ;
+    private Users user;
+    private Contract contract;
     
     /**
      * Constructor
@@ -30,30 +29,33 @@ public class UsrCtrPrfId implements Serializable {
 
     /**
      * Constructor with values
-     * @param usrId 
-     * @param ctrId 
+     * @param user
+     * @param contract
      */
-    public UsrCtrPrfId( Long usrId, Long ctrId ) {
+    public UsrCtrPrfId( Users user, Contract contract ) {
         super();
-        this.usrId = usrId ;
-        this.ctrId = ctrId ;
+        this.user = user;
+        this.contract = contract ;
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-    public void setUsrId( Long value ) {
-        this.usrId = value;
-    }
-    public Long getUsrId() {
-        return this.usrId;
+
+
+    public Users getUser() {
+        return user;
     }
 
-    public void setCtrId( Long value ) {
-        this.ctrId = value;
-    }
-    public Long getCtrId() {
-        return this.ctrId;
+    public void setUser(Users user) {
+        this.user = user;
     }
 
+    public Contract getContract() {
+        return contract;
+    }
+
+    public void setContract(Contract contract) {
+        this.contract = contract;
+    }
 
     //--- equals METHOD
 	@Override
@@ -63,16 +65,16 @@ public class UsrCtrPrfId implements Serializable {
 		if ( this.getClass() != obj.getClass() ) return false ; 
 		UsrCtrPrfId other = (UsrCtrPrfId) obj; 
 		//--- Attribute usrId
-		if ( usrId == null ) { 
-			if ( other.usrId != null ) 
+		if ( user == null ) {
+			if ( other.user != null )
 				return false ; 
-		} else if ( ! usrId.equals(other.usrId) ) 
+		} else if ( ! user.equals(other.user) )
 			return false ; 
 		//--- Attribute ctrId
-		if ( ctrId == null ) { 
-			if ( other.ctrId != null ) 
+		if ( user == null ) {
+			if ( other.user != null )
 				return false ; 
-		} else if ( ! ctrId.equals(other.ctrId) ) 
+		} else if ( ! user.equals(other.user) )
 			return false ; 
 		return true; 
 	} 
@@ -84,9 +86,9 @@ public class UsrCtrPrfId implements Serializable {
 		int result = 1; 
 		
 		//--- Attribute usrId
-		result = prime * result + ((usrId == null) ? 0 : usrId.hashCode() ) ; 
+		result = prime * result + ((user == null) ? 0 : user.hashCode() ) ;
 		//--- Attribute ctrId
-		result = prime * result + ((ctrId == null) ? 0 : ctrId.hashCode() ) ; 
+		result = prime * result + ((user == null) ? 0 : user.hashCode() ) ;
 		
 		return result; 
 	} 
@@ -95,9 +97,9 @@ public class UsrCtrPrfId implements Serializable {
 	@Override
     public String toString() { 
         StringBuilder sb = new StringBuilder(); 
-        sb.append(usrId);
+        sb.append(user.getId());
         sb.append("|");
-        sb.append(ctrId);
+        sb.append(user.getId());
         return sb.toString(); 
     } 
 

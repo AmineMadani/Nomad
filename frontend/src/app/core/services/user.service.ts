@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Context, Profile, User } from '../models/user.model';
+import { Context, Profile, User, UserDetail } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
@@ -211,6 +211,14 @@ export class UserService {
     */
   getAllProfiles(): Observable<Profile[]> {
     return this.userDataService.getAllProfiles();
+  }
+
+  /**
+    * Method to get the user detail from server
+    * @returns UserDetail
+    */
+  getUserDetailById(userId: number): Observable<UserDetail> {
+    return userId ? this.userDataService.getUserDetailById(userId) : of(null);
   }
 
 }

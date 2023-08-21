@@ -80,7 +80,7 @@
 
           <ion-col *ngIf="column.format.type === TypeColumn.SELECT" [size]="column.size" class="cell button-cell top-border"
             [ngClass]="{ 'left-border': columnIndex !== 0, 'bottom-border': rowIndex === (rows.length - 1) }">
-            <app-search-select class="table-select" [key]="column.format.selectKey" [label]="column.label" [elements]="row.get(column.key).selectOptions"
+            <app-search-select class="table-select" [key]="column.format.selectKey" [label]="column.label" [elements]="column.format.elementFilterFunction(row.getRawValue())"
               [control]="row.get(column.key)" [elementLabelFunction]="column.format.elementLabelFunction"
               [isMultiSelection]="column.format.isMultiSelection" [isUsedInTable]="true">
             </app-search-select>

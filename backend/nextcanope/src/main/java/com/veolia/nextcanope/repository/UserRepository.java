@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veolia.nextcanope.model.Users;
 
+import java.util.Optional;
+
 /**
  * UserRepository is an interface for managing Users entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
@@ -16,5 +18,5 @@ public interface UserRepository extends JpaRepository<Users, Long> {
      * @param usrEmail The email address used to search for the corresponding AppUser entity.
      * @return The AppUser entity associated with the given email, or null if not found.
      */
-	Users findByUsrEmail(String usrEmail);
+	Optional<Users> findByUsrEmail(String usrEmail);
 }
