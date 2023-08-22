@@ -10,18 +10,7 @@
 </ng-template>
 
 <ng-template #equipmentTemplate>
-  <ion-list *ngIf="!equipment">
-    <ion-item lines="none" class="ion-no-margin" *ngFor="let number of [0,1,2,3,4,5,6,7]">
-      <ion-label class="label">
-        <h3>
-          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
-        </h3>
-        <p>
-          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <app-skeleton-loading *ngIf="!equipment" [rows]="8"></app-skeleton-loading>
   <ng-container *ngIf="userReferences">
     <ng-container *ngFor="let reference of userReferences">
       <ng-container *ngIf="equipment && reference.displayType === ReferenceDisplayType.SYNTHETIC">

@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MainToolbarComponent } from './components/main-toolbar/main-toolbar.component';
 import { DatepickerComponent } from './components/datepicker/datepicker.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
+import { SkeletonLoadingComponent } from './components/skeleton-loading/skeleton-loading.component';
 // FORM EDITOR
 import { FormEditorComponent } from './form-editor/form-editor.component';
 // FORM SECTIONS
@@ -49,6 +50,7 @@ import { FilterTableComponent } from './components/generic-table/filter-table/fi
     SearchSelectComponent,
     GenericTableComponent,
     FilterTableComponent,
+    SkeletonLoadingComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -93,7 +95,8 @@ import { FilterTableComponent } from './components/generic-table/filter-table/fi
     FormEditorComponent,
     ClearDataDirective,
     SearchSelectComponent,
-    GenericTableComponent
+    GenericTableComponent,
+    SkeletonLoadingComponent,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

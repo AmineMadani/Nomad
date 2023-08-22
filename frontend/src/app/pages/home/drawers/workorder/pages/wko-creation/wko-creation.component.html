@@ -78,18 +78,7 @@
 </div>
 
 <ng-template #loadingBody>
-  <ion-list>
-    <ion-item lines="none" class="ion-no-margin" *ngFor="let number of [0,1,2,3,4,5,6,7]">
-      <ion-label class="label">
-        <h3>
-          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
-        </h3>
-        <p>
-          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
+  <app-skeleton-loading [rows]="8"></app-skeleton-loading>
 </ng-template>
 
 <ng-template #errorTemplate let-control="control">
