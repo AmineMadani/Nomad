@@ -18,13 +18,13 @@ export interface Column<T = any> {
 export interface SelectProperties {
   // The attribute of the object contains in the original list which will be used for value in the form (eg: id)
   key: string;
-  //
+  // The list of elements which will be used in select proposition.
   elements: any[];
   // Function which permit to print the element with the properties we want. Take one param which corresponds to an element of the original list.
   elementLabelFunction: Function;
   // Use mono or multiselection
   isMultiSelection?: boolean;
-  // For select type
+  // Function which permit to filter the list of elements in the select. Take one param which corresponds to the tableRow concerned.
   elementFilterFunction?: Function;
 }
 

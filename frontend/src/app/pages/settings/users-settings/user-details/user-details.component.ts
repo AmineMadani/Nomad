@@ -99,7 +99,7 @@ export class UserDetailsComponent implements OnInit {
       type: TypeColumn.SELECT,
       selectProperties: {
         key: 'id',
-        elements: this.profiles,
+        elements: [],
         elementLabelFunction: (profile: Profile) => {
           return profile.prfLlabel;
         }
@@ -112,7 +112,7 @@ export class UserDetailsComponent implements OnInit {
       selectProperties: {
         key: 'id',
         isMultiSelection: true,
-        elements: this.regions,
+        elements: [],
         elementLabelFunction: (org: OrganizationalUnit) => {
           return org.orgLlabel;
         }
@@ -126,7 +126,7 @@ export class UserDetailsComponent implements OnInit {
       selectProperties: {
         key: 'id',
         isMultiSelection: true,
-        elements: this.territories,
+        elements: [],
         elementLabelFunction: (territory: OrganizationalUnit) => {
           return territory.orgLlabel;
         },
@@ -145,7 +145,7 @@ export class UserDetailsComponent implements OnInit {
       selectProperties: {
         key: 'id',
         isMultiSelection: true,
-        elements: this.contracts,
+        elements: [],
         elementLabelFunction: (contract: ContractWithOrganizationalUnits) => {
           return contract.ctrLlabel;
         },
@@ -202,6 +202,12 @@ export class UserDetailsComponent implements OnInit {
 
       // Contracts
       this.contracts = contracts;
+
+      // Fill select data
+      this.columns.find((col) => col.key === 'profileId').selectProperties.elements = this.profiles;
+      this.columns.find((col) => col.key === 'regionIds').selectProperties.elements = this.regions;
+      this.columns.find((col) => col.key === 'territoryIds').selectProperties.elements = this.territories;
+      this.columns.find((col) => col.key === 'contractIds').selectProperties.elements = this.contracts;
 
       // User
       if (user) {
