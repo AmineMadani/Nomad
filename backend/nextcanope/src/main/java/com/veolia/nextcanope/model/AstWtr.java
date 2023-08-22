@@ -29,13 +29,7 @@ public class AstWtr implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
-    @Column(name="wtr_id", nullable=false, insertable=false, updatable=false)
-    private Long wtrId;
 
-    @Id
-    @Column(name="ast_id", nullable=false, insertable=false, updatable=false)
-    private Long astId;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="asw_valid")
@@ -58,16 +52,18 @@ public class AstWtr implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
     @JoinColumn(name="ast_id", referencedColumnName="id")
+    @Id
     private AssetType assetType;
-
-    @ManyToOne
-    @JoinColumn(name="wtr_id", referencedColumnName="id")
-    private WorkorderTaskReason workorderTaskReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="asw_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
+
+    @ManyToOne
+    @JoinColumn(name="wtr_id", referencedColumnName="id")
+    @Id
+    private WorkorderTaskReason workorderTaskReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="asw_ucre_id", referencedColumnName="id")
@@ -115,20 +111,20 @@ public class AstWtr implements Serializable {
         this.assetType = assetType;
     }
 
-    public WorkorderTaskReason getWorkorderTaskReason() {
-        return this.workorderTaskReason;
-    }
-
-    public void setWorkorderTaskReason(WorkorderTaskReason workorderTaskReason) {
-        this.workorderTaskReason = workorderTaskReason;
-    }
-
     public Users getModifiedBy() {
         return this.modifiedBy;
     }
 
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+
+    public WorkorderTaskReason getWorkorderTaskReason() {
+        return this.workorderTaskReason;
+    }
+
+    public void setWorkorderTaskReason(WorkorderTaskReason workorderTaskReason) {
+        this.workorderTaskReason = workorderTaskReason;
     }
 
     public Users getCreatedBy() {

@@ -60,15 +60,11 @@ export class LayerStylesSettingsPage implements OnInit {
   // Table Columns
   public columns: Column[] = [
     {
-      format: {
-        type: TypeColumn.CHECKBOX
-      },
+      type: TypeColumn.CHECKBOX,
       size: '1'
     },
     {
-      format: {
-        type: TypeColumn.ACTION
-      },
+      type: TypeColumn.ACTION,
       label: '',
       size: '1',
       onClick: (style: TableRow<LayerStyleSummary>) => {
@@ -78,9 +74,7 @@ export class LayerStylesSettingsPage implements OnInit {
     {
       key: 'lseCode',
       label: 'Code',
-      format: {
-        type: TypeColumn.TEXT
-      },
+      type: TypeColumn.TEXT,
       size: '10'
     },
   ];

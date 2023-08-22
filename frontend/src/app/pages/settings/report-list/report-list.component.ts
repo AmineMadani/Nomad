@@ -75,9 +75,7 @@ export class ReportListComponent implements OnInit {
   // Table Columns
   public columns: Column[] = [
     {
-      format: {
-        type: TypeColumn.ACTION
-      },
+      type: TypeColumn.ACTION,
       label: '',
       size: '1',
       onClick: (wtrReport: TableRow<WtrReport>) => {
@@ -87,23 +85,17 @@ export class ReportListComponent implements OnInit {
     {
       key: 'wtr_code',
       label: 'Code',
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
     },
     {
       key: 'wtr_slabel',
       label: 'Libellé',
-      format: {
-        type: TypeColumn.TEXT
-      },
+      type: TypeColumn.TEXT
     },
     {
       key: 'hasForm',
       label: 'Formulaire ?',
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       filter: {
         type: 'select',
         isSelectAllRow: true,

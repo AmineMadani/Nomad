@@ -27,7 +27,7 @@ export class SearchSelectComponent implements OnInit {
   // Function which permit to print the element with the properties we wanted. Take one param which corresponds to an element of the original list.
   @Input() elementLabelFunction: Function;
 
-  @Input() disabled: boolean;
+  @Input() showMultiSelectionAsNumber: boolean = true;
 
   public displayedElements: any[] = [];
   public querySearch: string = "";
@@ -45,10 +45,15 @@ export class SearchSelectComponent implements OnInit {
     let label: string = '';
     if (this.elements && this.control.value) {
       if (this.isMultiSelection) {
-        label = this.control.value.map((value: any) => {
-          const element = this.elements.find((el) => el[this.key] === value);
-          return element ? this.elementLabelFunction(element) : null;
-        }).join(', ');
+        const nbElementSelected: number = this.control.value.length;
+        if (!this.showMultiSelectionAsNumber || nbElementSelected < 2) {
+          label = this.control.value.map((value: any) => {
+            const element = this.elements.find((el) => el[this.key] === value);
+            return element ? this.elementLabelFunction(element) : null;
+          }).join(', ');
+        } else {
+          label = this.label + ' (x' + this.control.value.length + ')';
+        }
       } else {
         const element = this.elements.find((el) => el[this.key]?.toString() === this.control.value?.toString());
         if (element) label = this.elementLabelFunction(element);
@@ -90,6 +95,7 @@ export class SearchSelectComponent implements OnInit {
    */
   onMultiSelectionChange(event, element: any) {
     if (event.detail.checked) {
+      if (!this.control.value) this.control.value = [];
       this.control.setValue([...this.control.value, element[this.key]]);
     } else {
       const indexToRemove = this.control.value.indexOf(element[this.key]);
@@ -100,20 +106,7 @@ export class SearchSelectComponent implements OnInit {
         this.control.setValue([...newList]);
       }
     }
-
-    this.checkSelectionErrors();
   }
-
-  private checkSelectionErrors() {
-    if (!this.control.value || (this.isMultiSelection && this.control.value.length === 0)) {
-      this.control.setErrors({ required: true });
-    } else {
-      this.control.setErrors({ required: false });
-    }
-    this.control.markAsTouched();
-    this.control.updateValueAndValidity();
-  }
-
 
   /**
    * Permit to check if an element is selected or not.
@@ -123,7 +116,7 @@ export class SearchSelectComponent implements OnInit {
   isElementSelected(element: any) {
     // Multi selection
     if (this.isMultiSelection) {
-      return this.control.value.some((value) => value === element[this.key]);
+      return this.control.value?.some((value) => value === element[this.key]);
     }
     // Mono selection
     else {
@@ -131,11 +124,24 @@ export class SearchSelectComponent implements OnInit {
     }
   }
 
+
+  getTableSelectStyle() {
+    let className = '';
+
+    if (this.control.disabled) {
+      className = 'disabled';
+    } else if (!this.control.valid) {
+      className = 'invalid';
+    }
+
+    return className;
+  }
+
   /**
    * Method to open the modal and filter the options before
    */
   onOpenModal() {
-    if (!this.disabled) {
+    if (!this.control.disabled) {
       this.control.markAsTouched();
       this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
       this.modal.present();
@@ -143,7 +149,6 @@ export class SearchSelectComponent implements OnInit {
   }
 
   onCloseModal() {
-    this.checkSelectionErrors();
     this.modal.dismiss();
   }
 

@@ -56,8 +56,6 @@ export enum LocalStorageUserKey {
 
 export interface Perimeter {
   profileId: number;
-  regionId: number;
-  territoryId: number;
   contractIds: number[];
 }
 
@@ -68,4 +66,17 @@ export interface UserDetail {
   status: string;
   company: string;
   perimeters: Perimeter[];
+}
+
+export interface PerimeterRow extends Perimeter {
+  regionIds?: number[];
+  territoryIds?: number[];
+}
+
+export interface Profile {
+  id: number;
+  prfCode: string;
+  prfSlabel: string;
+  prfLlabel: string;
+  prfValid: boolean;
 }

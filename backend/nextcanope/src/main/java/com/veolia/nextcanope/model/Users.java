@@ -116,12 +116,12 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="users")
     private List<LayerStyleCustom> listOfLayerStyleCustom;
 
-    @OneToMany(mappedBy="users")
-    private List<OrganizationalUnitType> listOfOrganizationalUnitType;
+    @OneToMany(mappedBy="createdBy")
+    private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
 
     @ManyToOne
     @JoinColumn(name="usr_default_org_id", referencedColumnName="id")
-    private OrganizationalUnit organizationalUnit;
+    private OrganizationalUnit organizationalUnitDefault;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<WorkorderTaskReason> listOfCreatedWorkorderTaskReason;
@@ -129,11 +129,11 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="createdBy")
     private List<StyleDefinition> listOfCreatedStyleDefinition;
 
-    @OneToMany(mappedBy="users")
-    private List<OrganizationalUnit> listOfOrganizationalUnit;
+    @OneToMany(mappedBy="createdBy")
+    private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
 
-    @OneToMany(mappedBy="users2")
-    private List<OrganizationalUnit> listOfOrganizationalUnit2;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<OrganizationalUnit> listOfModifiedOrganizationalUnit;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason;
@@ -156,8 +156,8 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault;
 
-    @OneToMany(mappedBy="users2")
-    private List<OrganizationalUnitType> listOfOrganizationalUnitType2;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<StyleImage> listOfModifiedStyleImage;
@@ -186,11 +186,11 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Street> listOfCreatedStreet;
 
-    @OneToMany(mappedBy="users2")
-    private List<PrfPer> listOfPrfPer2;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<PrfPer> listOfModifiedPrfPer;
 
-    @OneToMany(mappedBy="users3")
-    private List<UsrCtrPrf> listOfUsrCtrPrf3;
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="user")
+    private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<FormDefinition> listOfModifiedForm;
@@ -198,8 +198,8 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Street> listOfModifiedStreet;
 
-    @OneToMany(mappedBy="users")
-    private List<PrfPer> listOfPrfPer;
+    @OneToMany(mappedBy="createdBy")
+    private List<PrfPer> listOfCreatedPrfPer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<City> listOfModifiedCity;
@@ -210,8 +210,8 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<City> listOfCreatedCity;
 
-    @OneToMany(mappedBy="users")
-    private List<OrgCtr> listOfOrgCtr;
+    @OneToMany(mappedBy="createdBy")
+    private List<OrgCtr> listOfCreatedOrgCtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Contract> listOfModifiedContract;
@@ -225,8 +225,8 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Report> listOfCreatedReport;
 
-    @OneToMany(mappedBy="users2")
-    private List<OrgCtr> listOfOrgCtr2;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<OrgCtr> listOfModifiedOrgCtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferencesUser> listOfModifiedLayerReferences;
@@ -243,8 +243,8 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyle> listOfCreatedLayerStyle;
 
-    @OneToMany(mappedBy="users")
-    private List<UsrCtrPrf> listOfUsrCtrPrf;
+    @OneToMany(mappedBy="createdBy")
+    private List<UsrCtrPrf> listOfCreatedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Domains> listOfCreatedDomains;
@@ -252,8 +252,8 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<ContractActivity> listOfCreatedContractActivity;
 
-    @OneToMany(mappedBy="users2")
-    private List<UsrCtrPrf> listOfUsrCtrPrf2;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Domains> listOfModifiedDomains;
@@ -527,20 +527,20 @@ public class Users implements Serializable {
         this.listOfLayerStyleCustom = listOfLayerStyleCustom;
     }
 
-    public List<OrganizationalUnitType> getListOfOrganizationalUnitType() {
-        return this.listOfOrganizationalUnitType;
+    public List<OrganizationalUnitType> getListOfCreatedOrganizationalUnitType() {
+        return this.listOfCreatedOrganizationalUnitType;
     }
 
-    public void setListOfOrganizationalUnitType(List<OrganizationalUnitType> listOfOrganizationalUnitType) {
-        this.listOfOrganizationalUnitType = listOfOrganizationalUnitType;
+    public void setListOfCreatedOrganizationalUnitType(List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType) {
+        this.listOfCreatedOrganizationalUnitType = listOfCreatedOrganizationalUnitType;
     }
 
-    public OrganizationalUnit getOrganizationalUnit() {
-        return this.organizationalUnit;
+    public OrganizationalUnit getOrganizationalUnitDefault() {
+        return this.organizationalUnitDefault;
     }
 
-    public void setOrganizationalUnit(OrganizationalUnit organizationalUnit) {
-        this.organizationalUnit = organizationalUnit;
+    public void setOrganizationalUnitDefault(OrganizationalUnit organizationalUnitDefault) {
+        this.organizationalUnitDefault = organizationalUnitDefault;
     }
 
     public List<WorkorderTaskReason> getListOfCreatedWorkorderTaskReason() {
@@ -569,20 +569,20 @@ public class Users implements Serializable {
         this.listOfCreatedStyleDefinition = listOfCreatedStyleDefinition;
     }
 
-    public List<OrganizationalUnit> getListOfOrganizationalUnit() {
-        return this.listOfOrganizationalUnit;
+    public List<OrganizationalUnit> getListOfCreatedOrganizationalUnit() {
+        return this.listOfCreatedOrganizationalUnit;
     }
 
-    public void setListOfOrganizationalUnit(List<OrganizationalUnit> listOfOrganizationalUnit) {
-        this.listOfOrganizationalUnit = listOfOrganizationalUnit;
+    public void setListOfCreatedOrganizationalUnit(List<OrganizationalUnit> listOfCreatedOrganizationalUnit) {
+        this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
     }
 
-    public List<OrganizationalUnit> getListOfOrganizationalUnit2() {
-        return this.listOfOrganizationalUnit2;
+    public List<OrganizationalUnit> getListOfModifiedOrganizationalUnit() {
+        return this.listOfModifiedOrganizationalUnit;
     }
 
-    public void setListOfOrganizationalUnit2(List<OrganizationalUnit> listOfOrganizationalUnit2) {
-        this.listOfOrganizationalUnit2 = listOfOrganizationalUnit2;
+    public void setListOfModifiedOrganizationalUnit(List<OrganizationalUnit> listOfModifiedOrganizationalUnit) {
+        this.listOfModifiedOrganizationalUnit = listOfModifiedOrganizationalUnit;
     }
 
     public List<WorkorderTaskReason> getListOfModifiedWorkorderTaskReason() {
@@ -661,12 +661,12 @@ public class Users implements Serializable {
         this.listOfCreatedLayerReferencesDefault = listOfCreatedLayerReferencesDefault;
     }
 
-    public List<OrganizationalUnitType> getListOfOrganizationalUnitType2() {
-        return this.listOfOrganizationalUnitType2;
+    public List<OrganizationalUnitType> getListOfModifiedOrganizationalUnitType() {
+        return this.listOfModifiedOrganizationalUnitType;
     }
 
-    public void setListOfOrganizationalUnitType2(List<OrganizationalUnitType> listOfOrganizationalUnitType2) {
-        this.listOfOrganizationalUnitType2 = listOfOrganizationalUnitType2;
+    public void setListOfModifiedOrganizationalUnitType(List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType) {
+        this.listOfModifiedOrganizationalUnitType = listOfModifiedOrganizationalUnitType;
     }
 
     public List<StyleImage> getListOfModifiedStyleImage() {
@@ -771,20 +771,20 @@ public class Users implements Serializable {
         this.listOfCreatedStreet = listOfCreatedStreet;
     }
 
-    public List<PrfPer> getListOfPrfPer2() {
-        return this.listOfPrfPer2;
+    public List<PrfPer> getListOfModifiedPrfPer() {
+        return this.listOfModifiedPrfPer;
     }
 
-    public void setListOfPrfPer2(List<PrfPer> listOfPrfPer2) {
-        this.listOfPrfPer2 = listOfPrfPer2;
+    public void setListOfModifiedPrfPer(List<PrfPer> listOfModifiedPrfPer) {
+        this.listOfModifiedPrfPer = listOfModifiedPrfPer;
     }
 
-    public List<UsrCtrPrf> getListOfUsrCtrPrf3() {
-        return this.listOfUsrCtrPrf3;
+    public List<UsrCtrPrf> getListOfUsrCtrPrf() {
+        return this.listOfUsrCtrPrf;
     }
 
-    public void setListOfUsrCtrPrf3(List<UsrCtrPrf> listOfUsrCtrPrf3) {
-        this.listOfUsrCtrPrf3 = listOfUsrCtrPrf3;
+    public void setListOfUsrCtrPrf(List<UsrCtrPrf> listOfUsrCtrPrf) {
+        this.listOfUsrCtrPrf = listOfUsrCtrPrf;
     }
 
     public List<FormDefinition> getListOfModifiedForm() {
@@ -813,12 +813,12 @@ public class Users implements Serializable {
         this.listOfModifiedStreet = listOfModifiedStreet;
     }
 
-    public List<PrfPer> getListOfPrfPer() {
-        return this.listOfPrfPer;
+    public List<PrfPer> getListOfCreatedPrfPer() {
+        return this.listOfCreatedPrfPer;
     }
 
-    public void setListOfPrfPer(List<PrfPer> listOfPrfPer) {
-        this.listOfPrfPer = listOfPrfPer;
+    public void setListOfCreatedPrfPer(List<PrfPer> listOfCreatedPrfPer) {
+        this.listOfCreatedPrfPer = listOfCreatedPrfPer;
     }
 
     public List<City> getListOfModifiedCity() {
@@ -845,12 +845,12 @@ public class Users implements Serializable {
         this.listOfCreatedCity = listOfCreatedCity;
     }
 
-    public List<OrgCtr> getListOfOrgCtr() {
-        return this.listOfOrgCtr;
+    public List<OrgCtr> getListOfCreatedOrgCtr() {
+        return this.listOfCreatedOrgCtr;
     }
 
-    public void setListOfOrgCtr(List<OrgCtr> listOfOrgCtr) {
-        this.listOfOrgCtr = listOfOrgCtr;
+    public void setListOfCreatedOrgCtr(List<OrgCtr> listOfCreatedOrgCtr) {
+        this.listOfCreatedOrgCtr = listOfCreatedOrgCtr;
     }
 
     public List<Contract> getListOfModifiedContract() {
@@ -895,12 +895,12 @@ public class Users implements Serializable {
         this.listOfCreatedReport = listOfCreatedReport;
     }
 
-    public List<OrgCtr> getListOfOrgCtr2() {
-        return this.listOfOrgCtr2;
+    public List<OrgCtr> getListOfModifiedOrgCtr() {
+        return this.listOfModifiedOrgCtr;
     }
 
-    public void setListOfOrgCtr2(List<OrgCtr> listOfOrgCtr2) {
-        this.listOfOrgCtr2 = listOfOrgCtr2;
+    public void setListOfModifiedOrgCtr(List<OrgCtr> listOfModifiedOrgCtr) {
+        this.listOfModifiedOrgCtr = listOfModifiedOrgCtr;
     }
 
     public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
@@ -973,12 +973,12 @@ public class Users implements Serializable {
         this.listOfCreatedLayerStyle = listOfCreatedLayerStyle;
     }
 
-    public List<UsrCtrPrf> getListOfUsrCtrPrf() {
-        return this.listOfUsrCtrPrf;
+    public List<UsrCtrPrf> getListOfCreatedUsrCtrPrf() {
+        return this.listOfCreatedUsrCtrPrf;
     }
 
-    public void setListOfUsrCtrPrf(List<UsrCtrPrf> listOfUsrCtrPrf) {
-        this.listOfUsrCtrPrf = listOfUsrCtrPrf;
+    public void setListOfCreatedUsrCtrPrf(List<UsrCtrPrf> listOfCreatedUsrCtrPrf) {
+        this.listOfCreatedUsrCtrPrf = listOfCreatedUsrCtrPrf;
     }
 
     public List<Domains> getListOfCreatedDomains() {
@@ -997,12 +997,12 @@ public class Users implements Serializable {
         this.listOfCreatedContractActivity = listOfCreatedContractActivity;
     }
 
-    public List<UsrCtrPrf> getListOfUsrCtrPrf2() {
-        return this.listOfUsrCtrPrf2;
+    public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
+        return this.listOfModifiedUsrCtrPrf;
     }
 
-    public void setListOfUsrCtrPrf2(List<UsrCtrPrf> listOfUsrCtrPrf2) {
-        this.listOfUsrCtrPrf2 = listOfUsrCtrPrf2;
+    public void setListOfModifiedUsrCtrPrf(List<UsrCtrPrf> listOfModifiedUsrCtrPrf) {
+        this.listOfModifiedUsrCtrPrf = listOfModifiedUsrCtrPrf;
     }
 
     public List<Domains> getListOfModifiedDomains() {

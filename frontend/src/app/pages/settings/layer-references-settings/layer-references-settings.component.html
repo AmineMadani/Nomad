@@ -24,7 +24,7 @@
 
       <app-search-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" class="users-multi-selection"
         key="id" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
-        [elements]="users" [control]="form.controls['listUserId']" [elementLabelFunction]="getUserEmail" [isMultiSelection]="true">
+        [elements]="users" [control]="form.controls['listUserId']" [elementLabelFunction]="getUserEmail" [showMultiSelectionAsNumber]="false" [isMultiSelection]="true">
       </app-search-select>
     </div>
 

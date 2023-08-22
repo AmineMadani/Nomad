@@ -12,7 +12,7 @@ export class ReferentialService {
 
   constructor(
     private referentialDataService: ReferentialDataService
-  ) { 
+  ) {
     this.db = new AppDB();
   }
 
@@ -21,7 +21,7 @@ export class ReferentialService {
    * If the referential is not found in local storage, get the referential from the server and store it in local storage.
    * @returns A Promise that resolves to the referential
    */
-  async getReferential(referentialName: string): Promise<any[]> {
+  async getReferential<T = any[]>(referentialName: string): Promise<T> {
     let referential = (await this.db.referentials.get(referentialName))?.data;
     if(!referential) {
       referential = await firstValueFrom(this.referentialDataService.getReferential(referentialName));

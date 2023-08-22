@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -66,27 +67,29 @@ public class OrganizationalUnit implements Serializable {
     @OneToMany(mappedBy="organizationalUnit")
     private List<OrgCtr> listOfOrgCtr;
 
-    @OneToMany(mappedBy="organizationalUnit")
+    @OneToMany(mappedBy="organizationalUnitDefault")
     private List<Users> listOfUsers;
 
-    @OneToMany(mappedBy="organizationalUnit")
-    private List<OrganizationalUnit> listOfOrganizationalUnit;
-
-    @ManyToOne
-    @JoinColumn(name="org_ucre_id", referencedColumnName="id")
-    private Users users;
+    @OneToMany(mappedBy="organizationalUnitParent")
+    private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
 
     @ManyToOne
     @JoinColumn(name="org_umod_id", referencedColumnName="id")
-    private Users users2;
+	@JsonIgnore
+    private Users modifiedBy;
 
     @ManyToOne
-    @JoinColumn(name="org_parent_id", referencedColumnName="id")
-    private OrganizationalUnit organizationalUnit;
+    @JoinColumn(name="org_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
 
     @ManyToOne
     @JoinColumn(name="out_id", referencedColumnName="id")
     private OrganizationalUnitType organizationalUnitType;
+
+    @ManyToOne
+    @JoinColumn(name="org_parent_id", referencedColumnName="id")
+    private OrganizationalUnit organizationalUnitParent;
 
     /**
      * Constructor
@@ -169,36 +172,28 @@ public class OrganizationalUnit implements Serializable {
         this.listOfUsers = listOfUsers;
     }
 
-    public List<OrganizationalUnit> getListOfOrganizationalUnit() {
-        return this.listOfOrganizationalUnit;
+    public List<OrganizationalUnit> getListOfOrganizationalUnitChildren() {
+        return this.listOfOrganizationalUnitChildren;
     }
 
-    public void setListOfOrganizationalUnit(List<OrganizationalUnit> listOfOrganizationalUnit) {
-        this.listOfOrganizationalUnit = listOfOrganizationalUnit;
+    public void setListOfOrganizationalUnitChildren(List<OrganizationalUnit> listOfOrganizationalUnitChildren) {
+        this.listOfOrganizationalUnitChildren = listOfOrganizationalUnitChildren;
     }
 
-    public Users getUsers() {
-        return this.users;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
-    public Users getUsers2() {
-        return this.users2;
+    public Users getCreatedBy() {
+        return this.createdBy;
     }
 
-    public void setUsers2(Users users2) {
-        this.users2 = users2;
-    }
-
-    public OrganizationalUnit getOrganizationalUnit() {
-        return this.organizationalUnit;
-    }
-
-    public void setOrganizationalUnit(OrganizationalUnit organizationalUnit) {
-        this.organizationalUnit = organizationalUnit;
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public OrganizationalUnitType getOrganizationalUnitType() {
@@ -207,6 +202,14 @@ public class OrganizationalUnit implements Serializable {
 
     public void setOrganizationalUnitType(OrganizationalUnitType organizationalUnitType) {
         this.organizationalUnitType = organizationalUnitType;
+    }
+
+    public OrganizationalUnit getOrganizationalUnitParent() {
+        return this.organizationalUnitParent;
+    }
+
+    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
+        this.organizationalUnitParent = organizationalUnitParent;
     }
 
 }

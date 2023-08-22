@@ -161,13 +161,13 @@ export class GenericTableComponent implements OnInit {
     if (column.filter.type === FILTER_TYPE.SELECT) {
       // If no list of values to be displayed has been set
       if (column.filter.listSelectValue == null || column.filter.listSelectValue.length === 0) {
-        // Then construct the list 
-        // Either from the liste of elements of the column
-        if (column.format.elements) {
-          listSelectItem = column.format.elements.map((element) => {
+        // Then construct the list
+        // Either from the list of elements of the column
+        if (column.selectProperties.elements) {
+          listSelectItem = column.selectProperties.elements.map((element) => {
             return {
-              value: element[column.format.selectKey],
-              label: column.format.elementLabelFunction(element),
+              value: element[column.selectProperties.key],
+              label: column.selectProperties.elementLabelFunction(element),
             }
           })
           .sort((a, b) => {
@@ -335,6 +335,6 @@ export class GenericTableComponent implements OnInit {
 
     this.filterData();
   }
-  
+
   // ###### //
 }

@@ -30,24 +30,30 @@
     <!-- Table input -->
     <ng-container *ngIf="isUsedInTable">
       <ion-item
-        (click)="onOpenModal()"
         class="table-select"
-        [ngClass]="{
-          invalid: !control.valid && control.touched
-        }"
+        [class]="getTableSelectStyle()"
         matTooltip="Le champ est requis."
-        [matTooltipDisabled]="
-          !(control.hasError('required') && control.touched)
-        "
+        [matTooltipDisabled]="!(control.hasError('required'))"
       >
-        <ion-input
-          aria-label="def-input"
-          [value]="displayValue"
-          [readonly]="true"
-        >
-        </ion-input>
+        <div class="input-table-select" (click)="onOpenModal()">
+          <ion-input
+            aria-label="def-input"
+            [value]="displayValue"
+            [readonly]="true"
+            [disabled]="control.disabled"
+          >
+          </ion-input>
+          <ion-icon
+            name="chevron-down-outline"
+            size="small"
+            slot="end"
+          ></ion-icon>
+        </div>
+
         <ion-icon
-          name="chevron-down-outline"
+          *ngIf="control.value"
+          (click)="control.setValue(null)"
+          name="close-outline"
           size="small"
           slot="end"
         ></ion-icon>
@@ -55,7 +61,7 @@
     </ng-container>
   </div>
   <ng-container>
-    <ion-modal class="search-select-modal" #modal>
+    <ion-modal class="search-select-modal stack-modal" #modal>
       <ng-template>
         <ion-header>
           <ion-toolbar>
@@ -94,7 +100,7 @@
               >
                 <ion-radio
                   *ngFor="let element of displayedElements"
-                  value="{{ element[key] }}"
+                  [value]="element[key]"
                   labelPlacement="end"
                   justify="start"
                   aria-label="radio"

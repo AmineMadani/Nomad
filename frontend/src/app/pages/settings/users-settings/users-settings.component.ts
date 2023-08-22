@@ -61,15 +61,11 @@ export class UsersSettingsComponent implements OnInit {
   // Table Columns
   public columns: Column[] = [
     {
-      format: {
-        type: TypeColumn.CHECKBOX,
-      },
+      type: TypeColumn.CHECKBOX,
       size: '1'
     },
     {
-      format: {
-        type: TypeColumn.ACTION,
-      },
+      type: TypeColumn.ACTION,
       label: '',
       size: '1',
       onClick: (row: FormGroup) => {
@@ -77,41 +73,31 @@ export class UsersSettingsComponent implements OnInit {
       }
     },
     {
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       key: 'lastName',
       label: 'Nom',
       size: '2'
     },
     {
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       key: 'firstName',
       label: 'Prénom',
       size: '2'
     },
     {
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       key: 'email',
       label: 'Adresse mail',
       size: '3'
     },
     {
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       key: 'status',
       label: 'Statut',
       size: '1'
     },
     {
-      format: {
-        type: TypeColumn.TEXT,
-      },
+      type: TypeColumn.TEXT,
       key: 'company',
       label: 'Société',
       size: '2'
@@ -133,7 +119,7 @@ export class UsersSettingsComponent implements OnInit {
     const modal = await this.modalController.create({
       component: UserDetailsComponent,
       componentProps: {
-        user: user
+        userId: user?.id
       },
       backdropDismiss: false,
       cssClass: 'custom-modal'

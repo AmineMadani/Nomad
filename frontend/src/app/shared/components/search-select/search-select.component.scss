@@ -13,14 +13,19 @@
   }
 
   .table-select {
-    cursor: pointer;
-    input {
+    border-bottom: 1px solid var(--ion-color-border-light-1);
+    margin: 0px 10px 6px 10px;
+    height: 50px;
+
+    ion-icon {
       cursor: pointer;
     }
 
-    border-bottom: 1px solid black;
-    margin: 5px 5px 5px 5px;
-    height: 50px;
+    &.disabled {
+      ion-icon {
+        cursor: default;
+      }
+    }
 
     &.invalid {
       color: red;
@@ -28,6 +33,13 @@
       ion-icon {
         color: red;
       }
+    }
+
+    .input-table-select {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
   }
 

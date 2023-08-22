@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -28,13 +29,7 @@ public class UsrCtrPrf implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
-    @Column(name="usr_id", nullable=false, insertable=false, updatable=false)
-    private Long usrId;
 
-    @Id
-    @Column(name="ctr_id", nullable=false, insertable=false, updatable=false)
-    private Long ctrId;
 
     //--- ENTITY DATA FIELDS ---\\
     @Temporal(TemporalType.TIMESTAMP)
@@ -53,23 +48,27 @@ public class UsrCtrPrf implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
     @JoinColumn(name="usc_umod_id", referencedColumnName="id")
-    private Users users2;
+	@JsonIgnore
+    private Users modifiedBy;
 
     @ManyToOne
     @JoinColumn(name="ctr_id", referencedColumnName="id")
+    @Id
     private Contract contract;
 
     @ManyToOne
     @JoinColumn(name="usc_ucre_id", referencedColumnName="id")
-    private Users users;
+	@JsonIgnore
+    private Users createdBy;
+
+    @ManyToOne
+    @JoinColumn(name="usr_id", referencedColumnName="id")
+    @Id
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name="prf_id", referencedColumnName="id")
     private Profile profile;
-
-    @ManyToOne
-    @JoinColumn(name="usr_id", referencedColumnName="id")
-    private Users users3;
 
     /**
      * Constructor
@@ -96,12 +95,12 @@ public class UsrCtrPrf implements Serializable {
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
-    public Users getUsers2() {
-        return this.users2;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     }
 
-    public void setUsers2(Users users2) {
-        this.users2 = users2;
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public Contract getContract() {
@@ -112,12 +111,20 @@ public class UsrCtrPrf implements Serializable {
         this.contract = contract;
     }
 
-    public Users getUsers() {
-        return this.users;
+    public Users getCreatedBy() {
+        return this.createdBy;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Users getUser() {
+        return this.user;
+    }
+
+    public void setUser(Users user) {
+        this.user = user;
     }
 
     public Profile getProfile() {
@@ -126,14 +133,6 @@ public class UsrCtrPrf implements Serializable {
 
     public void setProfile(Profile profile) {
         this.profile = profile;
-    }
-
-    public Users getUsers3() {
-        return this.users3;
-    }
-
-    public void setUsers3(Users users3) {
-        this.users3 = users3;
     }
 
 }
