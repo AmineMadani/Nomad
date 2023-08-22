@@ -180,7 +180,7 @@ export class UserDetailsComponent implements OnInit {
       if (newEmail?.includes('.ext')) {
         this.userForm.get('status').setValue('externe');
       }
-    })
+    });
   }
 
   private fetchInitData() {

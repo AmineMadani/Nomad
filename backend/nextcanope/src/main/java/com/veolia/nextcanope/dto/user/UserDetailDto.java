@@ -1,9 +1,5 @@
 package com.veolia.nextcanope.dto.user;
 
-import com.veolia.nextcanope.dto.Contract.ContractOrgDto;
-import com.veolia.nextcanope.dto.Contract.ContractOrgProjectionDto;
-import com.veolia.nextcanope.dto.OrganizationalUnitDto;
-import com.veolia.nextcanope.model.Contract;
 import com.veolia.nextcanope.model.Profile;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.model.UsrCtrPrf;
@@ -30,14 +26,16 @@ public class UserDetailDto {
     }
 
     public UserDetailDto(Users user) {
+        // Global info
         this.lastName = user.getUsrLastName();
         this.firstName = user.getUsrFirstName();
         this.email = user.getUsrEmail();
         this.status = user.getUsrStatus();
         this.company = user.getUsrCompany();
-
+        // Perimeter info
         List<UserPerimeterDto> userPerimeters = new ArrayList<>();
         user.getListOfUsrCtrPrf().stream()
+                // We group contracts by profile
                 .collect(Collectors.groupingBy(UsrCtrPrf::getProfile))
                 .forEach((Profile profile, List<UsrCtrPrf> usrCtrPrfList) -> {
                     UserPerimeterDto userPerimeterDto = new UserPerimeterDto();

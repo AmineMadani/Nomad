@@ -29,13 +29,7 @@ public class OrgCtr implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
-    @Column(name="org_id", nullable=false, insertable=false, updatable=false)
-    private Long orgId;
 
-    @Id
-    @Column(name="ctr_id", nullable=false, insertable=false, updatable=false)
-    private Long ctrId;
 
     //--- ENTITY DATA FIELDS ---\\
     @Temporal(TemporalType.TIMESTAMP)
@@ -59,10 +53,12 @@ public class OrgCtr implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="ctr_id", referencedColumnName="id")
+    @Id
     private Contract contract;
 
     @ManyToOne
     @JoinColumn(name="org_id", referencedColumnName="id")
+    @Id
     private OrganizationalUnit organizationalUnit;
 
     @ManyToOne

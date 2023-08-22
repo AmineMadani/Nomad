@@ -21,11 +21,13 @@ public class $jpaEntityIdClass implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY KEY ATTRIBUTES 
-#foreach( $field in $entity.keyAttributes )
-## $jpa.embeddedIdAnnotations(4, $field)
-    private $field.formattedType(10) $field.name ;
-    
+    //--- ENTITY KEY ATTRIBUTES
+#set($nbAttributes = 0)
+#foreach( $link in $entity.links )
+#if($link.hasAttributeInPrimaryKey())
+    private ${link.formattedFieldType(1)} $link.fieldName;
+#set($nbAttributes = $nbAttributes + 1)
+#end
 #end
     /**
      * Constructor
@@ -34,44 +36,35 @@ public class $jpaEntityIdClass implements Serializable {
         super();
     }
 
-    /**
-     * Constructor with values
-#foreach( $field in $entity.keyAttributes )
-     * @param $field.name 
+    public ${jpaEntityIdClass}(
+#set($index = 0)
+#foreach( $link in $entity.selectedLinks )
+#if($link.hasAttributeInPrimaryKey())
+#set($index = $index + 1)
+        ${link.formattedFieldType(0)} ${link.formattedFieldName(0)}#if($index < $nbAttributes),#end
+
 #end
-     */
-    public ${jpaEntityIdClass}( $fn.argumentsListWithWrapperType($entity.keyAttributes) ) {
+#end
+    ) {
         super();
-#foreach( $field in $entity.keyAttributes )
-        this.$field.name = $field.name ;
+#foreach( $link in $entity.selectedLinks )
+#if($link.hasAttributeInPrimaryKey())
+        this.${link.formattedFieldName(0)} = ${link.formattedFieldName(0)} ;
+#end
 #end
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-#foreach( $field in $entity.keyAttributes )
-#if ( $field.databaseName ) 
-#end
-#if ( $field.setter )    public void ${field.setter}( $field.type value ) {
-        this.$field.name = value;
+#foreach( $link in $entity.selectedLinks )
+#if($link.hasAttributeInPrimaryKey())
+    public ${link.formattedFieldType(0)} ${link.getter}() {
+        return this.${link.formattedFieldName(0)};
     }
-#end
-#if ( $field.getter )    public $field.type ${field.getter}() {
-        return this.$field.name;
+
+    public void ${link.setter}(${link.formattedFieldType(0)} ${link.fieldName}) {
+        this.${link.formattedFieldName(0)} = ${link.fieldName};
     }
+
 #end
-
-#end  
-
-    //--- equals METHOD
-	@Override
-$java.equalsMethod($jpaEntityIdClass, $entity.keyAttributes )## no EOL
-
-    //--- hashCode METHOD
-	@Override
-$java.hashCodeMethod($jpaEntityIdClass, $entity.keyAttributes )## no EOL
-
-    //--- toString METHOD
-	@Override
-$java.toStringMethod($entity.keyAttributes, 4)## no EOL
-
+#end
 }

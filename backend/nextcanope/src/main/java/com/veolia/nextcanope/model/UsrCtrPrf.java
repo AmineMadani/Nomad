@@ -28,6 +28,9 @@ public class UsrCtrPrf implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    //--- ENTITY PRIMARY KEY ---\\
+
+
     //--- ENTITY DATA FIELDS ---\\
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="usc_dcre")
@@ -43,19 +46,15 @@ public class UsrCtrPrf implements Serializable {
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @Id
+    @ManyToOne
+    @JoinColumn(name="usc_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
+
     @ManyToOne
     @JoinColumn(name="ctr_id", referencedColumnName="id")
-    private Contract contract;
-
     @Id
-    @ManyToOne
-    @JoinColumn(name="usr_id", referencedColumnName="id")
-    private Users user;
-
-    @ManyToOne
-    @JoinColumn(name="prf_id", referencedColumnName="id")
-    private Profile profile;
+    private Contract contract;
 
     @ManyToOne
     @JoinColumn(name="usc_ucre_id", referencedColumnName="id")
@@ -63,9 +62,13 @@ public class UsrCtrPrf implements Serializable {
     private Users createdBy;
 
     @ManyToOne
-    @JoinColumn(name="usc_umod_id", referencedColumnName="id")
-    @JsonIgnore
-    private Users modifiedBy;
+    @JoinColumn(name="usr_id", referencedColumnName="id")
+    @Id
+    private Users user;
+
+    @ManyToOne
+    @JoinColumn(name="prf_id", referencedColumnName="id")
+    private Profile profile;
 
     /**
      * Constructor
@@ -73,7 +76,7 @@ public class UsrCtrPrf implements Serializable {
     public UsrCtrPrf() {
 		super();
     }
-
+    
     //--- GETTERS & SETTERS FOR FIELDS ---\\
     public Date getUscDcre() {
         return this.uscDcre;
@@ -116,20 +119,20 @@ public class UsrCtrPrf implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Profile getProfile() {
-        return this.profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
     public Users getUser() {
         return this.user;
     }
 
     public void setUser(Users user) {
         this.user = user;
+    }
+
+    public Profile getProfile() {
+        return this.profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
 }

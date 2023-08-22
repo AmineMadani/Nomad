@@ -52,7 +52,7 @@ public class UserService {
 	}
 
 	public UserDetailDto getUserDetailById(Long userId) {
-		Users user = this.userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
+		Users user = getUserById(userId);
 		return new UserDetailDto(user);
 	}
 	

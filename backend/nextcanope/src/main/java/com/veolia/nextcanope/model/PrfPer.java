@@ -29,13 +29,7 @@ public class PrfPer implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
-    @Column(name="prf_id", nullable=false, insertable=false, updatable=false)
-    private Long prfId;
 
-    @Id
-    @Column(name="per_id", nullable=false, insertable=false, updatable=false)
-    private Long perId;
 
     //--- ENTITY DATA FIELDS ---\\
     @Temporal(TemporalType.TIMESTAMP)
@@ -54,6 +48,7 @@ public class PrfPer implements Serializable {
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
     @JoinColumn(name="per_id", referencedColumnName="id")
+    @Id
     private Permissions permissions;
 
     @ManyToOne
@@ -63,6 +58,7 @@ public class PrfPer implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="prf_id", referencedColumnName="id")
+    @Id
     private Profile profile;
 
     @ManyToOne

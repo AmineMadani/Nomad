@@ -16,11 +16,9 @@ public class PrfPerId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY KEY ATTRIBUTES 
-    private Long       prfId ;
-    
-    private Long       perId ;
-    
+    //--- ENTITY KEY ATTRIBUTES
+    private Permissions permissions;
+    private Profile profile;
     /**
      * Constructor
      */
@@ -28,77 +26,30 @@ public class PrfPerId implements Serializable {
         super();
     }
 
-    /**
-     * Constructor with values
-     * @param prfId 
-     * @param perId 
-     */
-    public PrfPerId( Long prfId, Long perId ) {
+    public PrfPerId(
+        Permissions permissions,
+        Profile profile
+    ) {
         super();
-        this.prfId = prfId ;
-        this.perId = perId ;
+        this.permissions = permissions ;
+        this.profile = profile ;
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-    public void setPrfId( Long value ) {
-        this.prfId = value;
-    }
-    public Long getPrfId() {
-        return this.prfId;
+    public Permissions getPermissions() {
+        return this.permissions;
     }
 
-    public void setPerId( Long value ) {
-        this.perId = value;
-    }
-    public Long getPerId() {
-        return this.perId;
+    public void setPermissions(Permissions permissions) {
+        this.permissions = permissions;
     }
 
+    public Profile getProfile() {
+        return this.profile;
+    }
 
-    //--- equals METHOD
-	@Override
-	public boolean equals(Object obj) { 
-		if ( this == obj ) return true ; 
-		if ( obj == null ) return false ;
-		if ( this.getClass() != obj.getClass() ) return false ; 
-		PrfPerId other = (PrfPerId) obj; 
-		//--- Attribute prfId
-		if ( prfId == null ) { 
-			if ( other.prfId != null ) 
-				return false ; 
-		} else if ( ! prfId.equals(other.prfId) ) 
-			return false ; 
-		//--- Attribute perId
-		if ( perId == null ) { 
-			if ( other.perId != null ) 
-				return false ; 
-		} else if ( ! perId.equals(other.perId) ) 
-			return false ; 
-		return true; 
-	} 
-
-    //--- hashCode METHOD
-	@Override
-	public int hashCode() { 
-		final int prime = 31; 
-		int result = 1; 
-		
-		//--- Attribute prfId
-		result = prime * result + ((prfId == null) ? 0 : prfId.hashCode() ) ; 
-		//--- Attribute perId
-		result = prime * result + ((perId == null) ? 0 : perId.hashCode() ) ; 
-		
-		return result; 
-	} 
-
-    //--- toString METHOD
-	@Override
-    public String toString() { 
-        StringBuilder sb = new StringBuilder(); 
-        sb.append(prfId);
-        sb.append("|");
-        sb.append(perId);
-        return sb.toString(); 
-    } 
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
 
 }

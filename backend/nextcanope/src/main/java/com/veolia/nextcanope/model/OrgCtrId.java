@@ -16,11 +16,9 @@ public class OrgCtrId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY KEY ATTRIBUTES 
-    private Long       orgId ;
-    
-    private Long       ctrId ;
-    
+    //--- ENTITY KEY ATTRIBUTES
+    private Contract contract;
+    private OrganizationalUnit organizationalUnit;
     /**
      * Constructor
      */
@@ -28,77 +26,30 @@ public class OrgCtrId implements Serializable {
         super();
     }
 
-    /**
-     * Constructor with values
-     * @param orgId 
-     * @param ctrId 
-     */
-    public OrgCtrId( Long orgId, Long ctrId ) {
+    public OrgCtrId(
+        Contract contract,
+        OrganizationalUnit organizationalUnit
+    ) {
         super();
-        this.orgId = orgId ;
-        this.ctrId = ctrId ;
+        this.contract = contract ;
+        this.organizationalUnit = organizationalUnit ;
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-    public void setOrgId( Long value ) {
-        this.orgId = value;
-    }
-    public Long getOrgId() {
-        return this.orgId;
+    public Contract getContract() {
+        return this.contract;
     }
 
-    public void setCtrId( Long value ) {
-        this.ctrId = value;
-    }
-    public Long getCtrId() {
-        return this.ctrId;
+    public void setContract(Contract contract) {
+        this.contract = contract;
     }
 
+    public OrganizationalUnit getOrganizationalUnit() {
+        return this.organizationalUnit;
+    }
 
-    //--- equals METHOD
-	@Override
-	public boolean equals(Object obj) { 
-		if ( this == obj ) return true ; 
-		if ( obj == null ) return false ;
-		if ( this.getClass() != obj.getClass() ) return false ; 
-		OrgCtrId other = (OrgCtrId) obj; 
-		//--- Attribute orgId
-		if ( orgId == null ) { 
-			if ( other.orgId != null ) 
-				return false ; 
-		} else if ( ! orgId.equals(other.orgId) ) 
-			return false ; 
-		//--- Attribute ctrId
-		if ( ctrId == null ) { 
-			if ( other.ctrId != null ) 
-				return false ; 
-		} else if ( ! ctrId.equals(other.ctrId) ) 
-			return false ; 
-		return true; 
-	} 
-
-    //--- hashCode METHOD
-	@Override
-	public int hashCode() { 
-		final int prime = 31; 
-		int result = 1; 
-		
-		//--- Attribute orgId
-		result = prime * result + ((orgId == null) ? 0 : orgId.hashCode() ) ; 
-		//--- Attribute ctrId
-		result = prime * result + ((ctrId == null) ? 0 : ctrId.hashCode() ) ; 
-		
-		return result; 
-	} 
-
-    //--- toString METHOD
-	@Override
-    public String toString() { 
-        StringBuilder sb = new StringBuilder(); 
-        sb.append(orgId);
-        sb.append("|");
-        sb.append(ctrId);
-        return sb.toString(); 
-    } 
+    public void setOrganizationalUnit(OrganizationalUnit organizationalUnit) {
+        this.organizationalUnit = organizationalUnit;
+    }
 
 }

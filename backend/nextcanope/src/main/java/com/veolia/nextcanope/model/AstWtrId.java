@@ -16,11 +16,9 @@ public class AstWtrId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY KEY ATTRIBUTES 
-    private Long       wtrId ;
-    
-    private Long       astId ;
-    
+    //--- ENTITY KEY ATTRIBUTES
+    private AssetType assetType;
+    private WorkorderTaskReason workorderTaskReason;
     /**
      * Constructor
      */
@@ -28,77 +26,30 @@ public class AstWtrId implements Serializable {
         super();
     }
 
-    /**
-     * Constructor with values
-     * @param wtrId 
-     * @param astId 
-     */
-    public AstWtrId( Long wtrId, Long astId ) {
+    public AstWtrId(
+        AssetType assetType,
+        WorkorderTaskReason workorderTaskReason
+    ) {
         super();
-        this.wtrId = wtrId ;
-        this.astId = astId ;
+        this.assetType = assetType ;
+        this.workorderTaskReason = workorderTaskReason ;
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-    public void setWtrId( Long value ) {
-        this.wtrId = value;
-    }
-    public Long getWtrId() {
-        return this.wtrId;
+    public AssetType getAssetType() {
+        return this.assetType;
     }
 
-    public void setAstId( Long value ) {
-        this.astId = value;
-    }
-    public Long getAstId() {
-        return this.astId;
+    public void setAssetType(AssetType assetType) {
+        this.assetType = assetType;
     }
 
+    public WorkorderTaskReason getWorkorderTaskReason() {
+        return this.workorderTaskReason;
+    }
 
-    //--- equals METHOD
-	@Override
-	public boolean equals(Object obj) { 
-		if ( this == obj ) return true ; 
-		if ( obj == null ) return false ;
-		if ( this.getClass() != obj.getClass() ) return false ; 
-		AstWtrId other = (AstWtrId) obj; 
-		//--- Attribute wtrId
-		if ( wtrId == null ) { 
-			if ( other.wtrId != null ) 
-				return false ; 
-		} else if ( ! wtrId.equals(other.wtrId) ) 
-			return false ; 
-		//--- Attribute astId
-		if ( astId == null ) { 
-			if ( other.astId != null ) 
-				return false ; 
-		} else if ( ! astId.equals(other.astId) ) 
-			return false ; 
-		return true; 
-	} 
-
-    //--- hashCode METHOD
-	@Override
-	public int hashCode() { 
-		final int prime = 31; 
-		int result = 1; 
-		
-		//--- Attribute wtrId
-		result = prime * result + ((wtrId == null) ? 0 : wtrId.hashCode() ) ; 
-		//--- Attribute astId
-		result = prime * result + ((astId == null) ? 0 : astId.hashCode() ) ; 
-		
-		return result; 
-	} 
-
-    //--- toString METHOD
-	@Override
-    public String toString() { 
-        StringBuilder sb = new StringBuilder(); 
-        sb.append(wtrId);
-        sb.append("|");
-        sb.append(astId);
-        return sb.toString(); 
-    } 
+    public void setWorkorderTaskReason(WorkorderTaskReason workorderTaskReason) {
+        this.workorderTaskReason = workorderTaskReason;
+    }
 
 }

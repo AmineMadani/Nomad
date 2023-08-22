@@ -98,13 +98,9 @@ public class ${entity.name} implements Serializable {
 
     //--- ENTITY PRIMARY KEY ---\\
 #foreach( $attribute in $entity.keyAttributes )
-#if($attribute.isFK())
-    @Id
-    @Column(name="$attribute.databaseName", nullable=false, insertable=false, updatable=false)
-    private $attribute.formattedType(1) $attribute.name#if($attribute.hasInitialValue()) = ${attribute.initialValue}#end;
-#else
-$jpa.fieldAnnotations(4, $attribute).replace("AUTO", "IDENTITY")
-    private $attribute.formattedType(1) $attribute.name#if($attribute.hasInitialValue()) = ${attribute.initialValue}#end;
+#if(!$attribute.isFK())
+    $jpa.fieldAnnotations(4, $attribute).replace("AUTO", "IDENTITY")
+private $attribute.formattedType(1) $attribute.name#if($attribute.hasInitialValue()) = ${attribute.initialValue}#end;
 #end
 
 #end
@@ -141,6 +137,9 @@ $jpa.fieldAnnotations(4, $attribute)
 $jpa.linkAnnotations(4, $link)
 #if($link.fieldName.contains('createdBy') ||  $link.fieldName.contains('modifiedBy')) 
 	@JsonIgnore
+#end
+#if($link.hasAttributeInPrimaryKey())
+    @Id
 #end
     private ${link.formattedFieldType(1)} $link.fieldName;
 

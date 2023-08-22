@@ -16,10 +16,9 @@ public class UsrCtrPrfId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    //--- ENTITY KEY ATTRIBUTES 
-    private Users user;
+    //--- ENTITY KEY ATTRIBUTES
     private Contract contract;
-    
+    private Users user;
     /**
      * Constructor
      */
@@ -27,80 +26,30 @@ public class UsrCtrPrfId implements Serializable {
         super();
     }
 
-    /**
-     * Constructor with values
-     * @param user
-     * @param contract
-     */
-    public UsrCtrPrfId( Users user, Contract contract ) {
+    public UsrCtrPrfId(
+        Contract contract,
+        Users user
+    ) {
         super();
-        this.user = user;
         this.contract = contract ;
+        this.user = user ;
     }
     
     //--- GETTERS & SETTERS FOR KEY FIELDS
-
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
     public Contract getContract() {
-        return contract;
+        return this.contract;
     }
 
     public void setContract(Contract contract) {
         this.contract = contract;
     }
 
-    //--- equals METHOD
-	@Override
-	public boolean equals(Object obj) { 
-		if ( this == obj ) return true ; 
-		if ( obj == null ) return false ;
-		if ( this.getClass() != obj.getClass() ) return false ; 
-		UsrCtrPrfId other = (UsrCtrPrfId) obj; 
-		//--- Attribute usrId
-		if ( user == null ) {
-			if ( other.user != null )
-				return false ; 
-		} else if ( ! user.equals(other.user) )
-			return false ; 
-		//--- Attribute ctrId
-		if ( user == null ) {
-			if ( other.user != null )
-				return false ; 
-		} else if ( ! user.equals(other.user) )
-			return false ; 
-		return true; 
-	} 
+    public Users getUser() {
+        return this.user;
+    }
 
-    //--- hashCode METHOD
-	@Override
-	public int hashCode() { 
-		final int prime = 31; 
-		int result = 1; 
-		
-		//--- Attribute usrId
-		result = prime * result + ((user == null) ? 0 : user.hashCode() ) ;
-		//--- Attribute ctrId
-		result = prime * result + ((user == null) ? 0 : user.hashCode() ) ;
-		
-		return result; 
-	} 
-
-    //--- toString METHOD
-	@Override
-    public String toString() { 
-        StringBuilder sb = new StringBuilder(); 
-        sb.append(user.getId());
-        sb.append("|");
-        sb.append(user.getId());
-        return sb.toString(); 
-    } 
+    public void setUser(Users user) {
+        this.user = user;
+    }
 
 }
