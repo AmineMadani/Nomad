@@ -5,7 +5,8 @@ export interface Column<T = any> {
   type: TypeColumn;
   key?: keyof T & string;
   label?: string;
-  size?: string;
+  width?: string;
+  centerText?: boolean;
   onClick?: Function;
   // Options for sorting
   sortOptions?: SortOptions;

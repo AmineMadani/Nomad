@@ -80,3 +80,13 @@ export interface Profile {
   prfLlabel: string;
   prfValid: boolean;
 }
+
+export interface Permission {
+  id: number;
+  perCode: string;
+  perSlabel: string;
+  perLlabel: string;
+  perValid: boolean;
+  perCategory: string;
+  profilesCodes: string[];
+}

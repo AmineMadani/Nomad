@@ -69,9 +69,8 @@ export class SettingsPage implements OnInit {
           title: "Gestion des utilisateurs",
         },
         {
-          url: 'profiles',
-          title: 'Gestion des profils',
-          disabled: true,
+          url: 'permissions',
+          title: 'Gestion des permissions',
         },
       ],
     },

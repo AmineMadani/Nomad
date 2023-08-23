@@ -10,7 +10,7 @@ import { SettingsPage } from './settings.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { SettingsSegmentComponent } from './components/settings-segment/settings-segment.component';
-import { UsersSettingsComponent } from './users-settings/users-settings.component';
+import { UsersSettingsPage } from './users-settings/users-settings.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 import { LayerStyleComponent } from './layer-styles-settings/layer-style/layer-style.component';
@@ -23,6 +23,7 @@ import { TestReportComponent } from './report-list/report-edit/test-report/test-
 import { HomePageModule } from '../home/home.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsHeaderComponent } from './components/settings-header/settings-header.component';
+import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -40,8 +41,7 @@ import { SettingsHeaderComponent } from './components/settings-header/settings-h
     SettingsPage,
     SettingsSegmentComponent,
     PatrimonySettingsPage,
-    UsersSettingsComponent,
-    PatrimonySettingsPage,
+    UsersSettingsPage,
     LayerReferencesSettingsPage,
     LayerStylesSettingsPage,
     LayerStyleComponent,
@@ -51,7 +51,8 @@ import { SettingsHeaderComponent } from './components/settings-header/settings-h
     ValueLabelComponent,
     SelectDuplicateReportComponent,
     TestReportComponent,
-    SettingsHeaderComponent
+    SettingsHeaderComponent,
+    PermissionsSettingsPage
   ]
 })
 export class SettingsPageModule {}

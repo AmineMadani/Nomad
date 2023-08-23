@@ -1,0 +1,15 @@
+<div class="settings-template-content">
+  <app-settings-header
+      class="settings-header"
+      title="Gestion des permissions">
+  </app-settings-header>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+
+  <div class="settings-main-content" *ngIf="!isLoading">
+    <app-generic-table class="settings-table-content"
+      [columns]="columns"
+      [rows]="permissionsRows"
+    ></app-generic-table>
+  </div>
+</div>

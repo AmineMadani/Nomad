@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,10 +28,10 @@ public class Profile implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="prf_code", nullable=false, length=2147483647)
@@ -49,14 +50,6 @@ public class Profile implements Serializable {
     @JsonProperty("prf_valid")
     private Boolean prfValid;
 
-    @Column(name="prf_ucre_id")
-    @JsonProperty("prf_ucre_id")
-    private Long prfUcreId;
-
-    @Column(name="prf_umod_id")
-    @JsonProperty("prf_umod_id")
-    private Long prfUmodId;
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="prf_dcre")
     @CreationTimestamp
@@ -71,11 +64,21 @@ public class Profile implements Serializable {
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne
+    @JoinColumn(name="prf_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
+
     @OneToMany(mappedBy="profile")
     private List<PrfPer> listOfPrfPer;
 
     @OneToMany(mappedBy="profile")
     private List<UsrCtrPrf> listOfUsrCtrPrf;
+
+    @ManyToOne
+    @JoinColumn(name="prf_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -125,22 +128,6 @@ public class Profile implements Serializable {
         this.prfValid = prfValid ;
     }
 
-    public Long getPrfUcreId() {
-        return this.prfUcreId;
-    }
-
-	public void setPrfUcreId( Long prfUcreId ) {
-        this.prfUcreId = prfUcreId ;
-    }
-
-    public Long getPrfUmodId() {
-        return this.prfUmodId;
-    }
-
-	public void setPrfUmodId( Long prfUmodId ) {
-        this.prfUmodId = prfUmodId ;
-    }
-
     public Date getPrfDcre() {
         return this.prfDcre;
     }
@@ -158,6 +145,14 @@ public class Profile implements Serializable {
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public List<PrfPer> getListOfPrfPer() {
         return this.listOfPrfPer;
     }
@@ -172,6 +167,14 @@ public class Profile implements Serializable {
 
     public void setListOfUsrCtrPrf(List<UsrCtrPrf> listOfUsrCtrPrf) {
         this.listOfUsrCtrPrf = listOfUsrCtrPrf;
+    }
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
 }

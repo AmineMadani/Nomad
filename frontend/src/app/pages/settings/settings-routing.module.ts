@@ -2,11 +2,12 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { SettingsPage } from './settings.page';
-import { UsersSettingsComponent } from './users-settings/users-settings.component';
+import { UsersSettingsPage } from './users-settings/users-settings.component';
 import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 import { ReportListComponent } from './report-list/report-list.component';
+import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
 
 const routes: Routes = [
   {
@@ -32,7 +33,11 @@ const routes: Routes = [
       },
       {
         path: 'users',
-        component: UsersSettingsComponent,
+        component: UsersSettingsPage,
+      },
+      {
+        path: 'permissions',
+        component: PermissionsSettingsPage,
       },
       {
         path: 'report-list',

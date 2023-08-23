@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Profile, User, UserDetail } from '../../models/user.model';
+import { Permission, Profile, User, UserDetail } from '../../models/user.model';
 import { ConfigurationService } from '../configuration.service';
 
 @Injectable({
@@ -60,6 +60,14 @@ export class UserDataService {
     */
   getUserDetailById(userId: number): Observable<UserDetail> {
     return this.http.get<UserDetail>(`${this.configurationService.apiUrl}user/${userId}`);
+  }
+
+  /**
+    * Method to get all the permissions from server
+    * @returns Permissions
+    */
+  getAllPermissions(): Observable<Permission[]> {
+    return this.http.get<Permission[]>(`${this.configurationService.apiUrl}permissions`);
   }
 }
 

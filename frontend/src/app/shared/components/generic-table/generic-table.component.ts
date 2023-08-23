@@ -83,6 +83,24 @@ export class GenericTableComponent implements OnInit {
     return this.selectedRows.find((data) => data == row);
   }
 
+  getColumnStyle(column: Column): string {
+    // It set by the width entered
+    if (column.width) {
+      return 'width:' + column.width + '; min-width: ' + column.width + '; ' + 'max-width: ' + column.width + ';';
+    }
+
+    // If no width is enter, it set automatically the width
+    if (column.type === TypeColumn.ACTION || column.type === TypeColumn.CHECKBOX) {
+      // If action or checkbox, it set to the min-width
+      return 'min-width: 60px;';
+    } else {
+      // Else, it calculates by dividing 100% with the nb of columns
+      const nbElements: number = this.columns.filter((col) => col.type !== TypeColumn.ACTION && col.type !== TypeColumn.CHECKBOX).length;
+      const width = 100 / nbElements;
+      return 'width: ' + width + '%';
+    }
+  }
+
   // ### SORT ### //
   getSortDirection(key: string): string {
     return this.listColumnSort.find((columnSort) => columnSort.key === key)?.direction;
