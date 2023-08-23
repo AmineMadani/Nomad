@@ -68,7 +68,7 @@ public class FormDefinition implements Serializable {
 	@JsonIgnore
     private Users createdBy;
 
-    @OneToMany(mappedBy="formDefinition")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="formDefinition")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy="formDefinition")

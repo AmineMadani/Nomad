@@ -15,7 +15,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'layer-references',
+        redirectTo: 'patrimony',
         pathMatch: 'full'
       },
       {

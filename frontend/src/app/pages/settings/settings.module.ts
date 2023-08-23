@@ -23,6 +23,7 @@ import { TestReportComponent } from './report-list/report-edit/test-report/test-
 import { HomePageModule } from '../home/home.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsHeaderComponent } from './components/settings-header/settings-header.component';
+import { MatTreeModule } from '@angular/material/tree';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -35,6 +36,7 @@ import { SettingsHeaderComponent } from './components/settings-header/settings-h
     SettingsPageRoutingModule,
     HomePageModule,
     MatTooltipModule,
+    MatTreeModule,
   ],
   declarations: [
     SettingsPage,

@@ -3,7 +3,7 @@ package com.veolia.nextcanope.dto;
 public interface FormTemplateDto {
 	Long getFteId();
 	String getFormCode();
-	Long getFdcId();
+	Long getFtcId();
 	Long getFdnId();
 	String getDefinition();
 }

@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
 import { TemplateDataService } from './dataservices/template.dataservice';
 import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
-import { catchError, of, timeout, lastValueFrom, Observable } from 'rxjs';
+import { catchError, of, timeout, lastValueFrom, Observable, tap } from 'rxjs';
+import { ApiSuccessResponse } from '../models/api-response.model';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +12,8 @@ import { catchError, of, timeout, lastValueFrom, Observable } from 'rxjs';
 export class TemplateService {
 
   constructor(
-    private templateDataService: TemplateDataService
+    private templateDataService: TemplateDataService,
+    private toastController: ToastController,
   ) {
     this.db = new AppDB();
   }
@@ -63,5 +66,45 @@ export class TemplateService {
    */
   public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
     return this.templateDataService.updateFormTemplate(formTemplate);
+  }
+
+  /**
+   * Save the custom form template for a list of user.
+   * A toast is automatically showed to the user when the api call is done.
+   * @param payload: formTemplate to apply and userIds concerned.
+   * @returns A response message if successfull, else return an error.
+   */
+  public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }) {
+    return this.templateDataService.saveFormTemplateCustomUser(payload)
+      .pipe(
+        tap(async (successResponse: ApiSuccessResponse) => {
+          const toast = await this.toastController.create({
+            message: successResponse.message,
+            duration: 2000,
+            color: 'success'
+          });
+          await toast.present();
+        })
+      );
+  }
+
+  /**
+   * Delete the custom form template for a list of user.
+   * A toast is automatically showed to the user when the api call is done.
+   * @param payload: id of the default template form and userIds concerned.
+   * @returns A response message if successfull, else return an error.
+   */
+  public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }) {
+    return this.templateDataService.deleteFormTemplateCustomUser(payload)
+      .pipe(
+        tap(async (successResponse: ApiSuccessResponse) => {
+          const toast = await this.toastController.create({
+            message: successResponse.message,
+            duration: 2000,
+            color: 'success'
+          });
+          await toast.present();
+        })
+      );
   }
 }

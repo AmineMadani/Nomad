@@ -3,8 +3,10 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 
 import com.veolia.nextcanope.dto.FormTemplate.FormTemplateUpdateDto;
-import com.veolia.nextcanope.model.FormTemplate;
+import com.veolia.nextcanope.dto.payload.DeleteFormTemplateCustomUserPayload;
+import com.veolia.nextcanope.dto.payload.SaveFormTemplateCustomUserPayload;
 import com.veolia.nextcanope.service.FormTemplateService;
+import com.veolia.nextcanope.utils.ResponseMessage;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +62,37 @@ public class TemplateController {
 	})
 	public Long updateFormTemplate(AccountTokenDto account, @RequestBody FormTemplateUpdateDto formTemplateDto) {
 		return formTemplateService.updateFormTemplate(formTemplateDto, account.getId());
+	}
+
+	@PostMapping(path = "custom/user")
+	@Operation(summary = "Save the user custom form template for a list of user id. Return a response message.")
+	@ApiResponses(value = {
+			@ApiResponse(description= "The form", content =  {
+					@Content(schema = @Schema(implementation = String.class))
+			})
+	})
+	public ResponseMessage saveFormTemplateCustomUser(AccountTokenDto account, @RequestBody SaveFormTemplateCustomUserPayload saveFormTemplateCustomUserPayload) {
+		formTemplateService.saveFormTemplateCustomUser(
+				saveFormTemplateCustomUserPayload.getFormTemplate(),
+				saveFormTemplateCustomUserPayload.getUserIds(),
+				account.getId()
+		);
+		return new ResponseMessage("La customisation a été enregistrée avec succès.");
+	}
+
+	@PostMapping(path = "custom/delete/user")
+	@Operation(summary = "Delete the user custom form template for a list of user id. Return a response message.")
+	@ApiResponses(value = {
+			@ApiResponse(description= "The form", content =  {
+					@Content(schema = @Schema(implementation = String.class))
+			})
+	})
+	public ResponseMessage deleteormTemplateCustomUser(AccountTokenDto account, @RequestBody DeleteFormTemplateCustomUserPayload deleteFormTemplateCustomUserPayload) {
+		formTemplateService.deleteFormTemplateCustomUser(
+				deleteFormTemplateCustomUserPayload.getId(),
+				deleteFormTemplateCustomUserPayload.getUserIds(),
+				account.getId()
+		);
+		return new ResponseMessage("La customisation a été supprimée avec succès.");
 	}
 }

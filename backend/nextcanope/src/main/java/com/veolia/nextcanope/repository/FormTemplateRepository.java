@@ -24,16 +24,17 @@ public interface FormTemplateRepository extends NomadRepository<FormTemplate, Lo
     @Query(
             value = "select ft.id as fteId, " +
 					"		ft.fte_code as formCode, " +
-					"		ftc.id as fdcId, " +
-					"		COALESCE(fd2.id, fd.id) as fdnId, " +
-					"		COALESCE(fd2.fdn_definition, fd.fdn_definition) as definition " +
+					"		ftc.id as ftcId, " +
+					"		COALESCE(fdc.id, fd.id) as fdnId, " +
+					"		COALESCE(fdc.fdn_definition, fd.fdn_definition) as definition " +
 					"from nomad.form_template ft " +
             		"join nomad.form_definition fd on fd.id = ft.fdn_id " +
             		"left join nomad.form_template_custom ftc on ftc.fte_id = ft.id " +
 					"										 and ftc.usr_id = :userId " +
-            		"left join nomad.form_definition fd2 on fd2.id = ftc.fdn_id ",
+					"										 and ftc.ftc_ddel is null " +
+            		"left join nomad.form_definition fdc on fdc.id = ftc.fdn_id " +
+					"									and fdc.fdn_ddel is null ",
             nativeQuery = true
     )
     List<FormTemplateDto> getFormsTemplate(@Param("userId") Long userId);
-    
 }

@@ -20,7 +20,6 @@ export class SettingsPage implements OnInit {
         {
           url: 'patrimony',
           title: 'Affichage patrimoine',
-          disabled: true,
         },
         {
           url: 'layer-references',
