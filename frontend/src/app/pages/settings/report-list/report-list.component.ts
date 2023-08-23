@@ -77,7 +77,6 @@ export class ReportListComponent implements OnInit {
     {
       type: TypeColumn.ACTION,
       label: '',
-      size: '1',
       onClick: (wtrReport: TableRow<WtrReport>) => {
         this.openReportFormDetails(wtrReport.getRawValue());
       }

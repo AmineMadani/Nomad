@@ -1051,8 +1051,8 @@ create table if not exists organizational_unit_type
   out_slabel        text not null,
   out_llabel        text,
   out_valid         boolean default True,
-  out_ucre_id       bigint default 0,
-  out_umod_id       bigint default 0,
+  out_ucre_id       bigint references users(id) default 0,
+  out_umod_id       bigint references users(id) default 0,
   out_dcre          timestamp without time zone  default current_timestamp,
   out_dmod          timestamp without time zone  default current_timestamp
 );
@@ -1095,8 +1095,8 @@ create table if not exists organizational_unit
   out_id            bigint,
   -- Technical metadata
   org_valid         boolean default True,
-  org_ucre_id       bigint default 0,
-  org_umod_id       bigint default 0,
+  org_ucre_id       bigint references users(id) default 0,
+  org_umod_id       bigint references users(id) default 0,
   org_dcre          timestamp without time zone  default current_timestamp,
   org_dmod          timestamp without time zone  default current_timestamp,
   unique (org_code, out_id)
@@ -1145,8 +1145,8 @@ create table if not exists profile
   prf_slabel        text not null,
   prf_llabel        text,
   prf_valid         boolean default True,
-  prf_ucre_id       bigint default 0,
-  prf_umod_id       bigint default 0,
+  prf_ucre_id       bigint references users(id) default 0,
+  prf_umod_id       bigint references users(id) default 0,
   prf_dcre          timestamp without time zone  default current_timestamp,
   prf_dmod          timestamp without time zone  default current_timestamp
 );
@@ -1169,9 +1169,9 @@ insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_NAT','Admin
 insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_1','Administrateur local 1','Administrateur local 1');
 insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_2','Administrateur local 2','Administrateur local 2');
 insert into profile(prf_code, prf_slabel, prf_llabel) values ('MANAGER','Manager / Responsable','Manager / Responsable');
-insert into profile(prf_code, prf_slabel, prf_llabel) values ('AGENT_BUREAU','Agent Bureau - Mobile','Agent Bureau - Mobile');
-insert into profile(prf_code, prf_slabel, prf_llabel) values ('AGENT_MOBILE','Agent Mobile','Agent Mobile');
-insert into profile(prf_code, prf_slabel, prf_llabel) values ('SOUS_TRAITANT','Sous-traitant','Sous-traitant');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('DESKTOP_AGENT','Agent Bureau - Mobile','Agent Bureau - Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('MOBILE_AGENT','Agent Mobile','Agent Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('SUBCONTRACTOR','Sous-traitant','Sous-traitant');
 
 -- Table org_ctr
 -- Contains the link between organizational units and their contracts
@@ -1196,7 +1196,7 @@ comment on column org_ctr.orc_umod_id is 'Last modificator Id';
 comment on column org_ctr.orc_dcre is 'Creation date';
 comment on column org_ctr.orc_dmod is 'Last modification date';
 
--- Table usr_ctr
+-- Table usr_ctr_prf
 -- Contains the link between users and their contracts
 create table if not exists usr_ctr_prf
 (
@@ -1204,8 +1204,8 @@ create table if not exists usr_ctr_prf
   ctr_id       bigint not null references contract(id),
   prf_id       bigint not null references profile(id),
   -- Technical metadata
-  usc_ucre_id  bigint references users(id),
-  usc_umod_id  bigint references users(id),
+  usc_ucre_id bigint references users(id) default 0,
+  usc_umod_id bigint references users(id) default 0,
   usc_dcre     timestamp without time zone  default current_timestamp,
   usc_dmod     timestamp without time zone  default current_timestamp,
   primary key (usr_id, ctr_id)
@@ -1213,12 +1213,12 @@ create table if not exists usr_ctr_prf
 /* Comments on table */
 comment on table usr_ctr_prf is 'This table contains the link between users and their contracts';
 /* Comments on fields */
-comment on column usr_ctr.usr_id is 'user id';
-comment on column usr_ctr.ctr_id is 'contract id';
-comment on column usr_ctr.usc_ucre_id is 'creator Id';
-comment on column usr_ctr.usc_umod_id is 'Last modificator Id';
-comment on column usr_ctr.usc_dcre is 'Creation date';
-comment on column usr_ctr.usc_dmod is 'Last modification date';
+comment on column usr_ctr_prf.usr_id is 'user id';
+comment on column usr_ctr_prf.ctr_id is 'contract id';
+comment on column usr_ctr_prf.usc_ucre_id is 'creator Id';
+comment on column usr_ctr_prf.usc_umod_id is 'Last modificator Id';
+comment on column usr_ctr_prf.usc_dcre is 'Creation date';
+comment on column usr_ctr_prf.usc_dmod is 'Last modification date';
 
 -- Table permissions
 -- This table contains the permissions.
@@ -1228,9 +1228,10 @@ create table if not exists permissions
   per_code          text unique not null,
   per_slabel        text not null,
   per_llabel        text,
+  per_category      text not null,
   per_valid         boolean default True,
-  per_ucre_id       bigint default 0,
-  per_umod_id       bigint default 0,
+  per_ucre_id       bigint references users(id) default 0,
+  per_umod_id       bigint references users(id) default 0,
   per_dcre          timestamp without time zone  default current_timestamp,
   per_dmod          timestamp without time zone  default current_timestamp
 );
@@ -1255,8 +1256,8 @@ create table if not exists prf_per
   prf_id       bigint not null references profile(id),
   per_id       bigint not null references permissions(id),
   -- Technical metadata
-  prp_ucre_id  bigint references users(id),
-  prp_umod_id  bigint references users(id),
+  prp_ucre_id  bigint references users(id) default 0,
+  prp_umod_id  bigint references users(id) default 0,
   prp_dcre     timestamp without time zone  default current_timestamp,
   prp_dmod     timestamp without time zone  default current_timestamp,
   primary key (prf_id, per_id)
@@ -1273,3 +1274,170 @@ comment on column prf_per.prp_dmod is 'Last modification date';
 
 -- set the default organization of 
 alter table users add column usr_default_org_id bigint references organizational_unit(id);
+
+-- Insertion des permissions
+INSERT INTO permissions(per_code, per_slabel, per_llabel, per_category) VALUES
+('VIEW_ASSET_DETAILLED', 'Consulter une fiche patrimoine (vue détaillée)', 'Consulter une fiche patrimoine (vue détaillée)', 'Navigation'),
+('VIEW_ALL_WORKORDERS', 'Afficher toutes les interventions sur mon périmètre', 'Afficher toutes les interventions sur mon périmètre', 'Navigation'),
+('CREATE_ASSET_WORKORDER', 'Créer une intervention sur patrimoine (mono ou multi-équipement)', 'Créer une intervention sur patrimoine (mono ou multi-équipement)', 'Génération d''intervention'),
+('CREATE_X_Y_WORKORDER', 'Créer une intervention en X;Y', 'Créer une intervention en X;Y', 'Génération d''intervention'),
+('SEND_WORKORDER', 'Envoyer une intervention (mono ou multi-équipement) à la planification / Moveo Bureau', 'Envoyer une intervention (mono ou multi-équipement) à la planification / Moveo Bureau', 'Génération d''intervention'),
+('CREATE_NO_PLAN_WORKORDER', 'Créer une intervention (mono ou multi-équipement) sans envoi à la planification (cas sous-traitance)', 'Créer une intervention (mono ou multi-équipement) sans envoi à la planification (cas sous-traitance)', 'Génération d''intervention'),
+('VIEW_ALL_CASES', 'Consulter l''ensemble des affaires sur mon périmètre', 'Consulter l''ensemble des affaires sur mon périmètre', 'Génération d''intervention'),
+('MODIFY_REPORT_MY_AREA', 'Modifier un compte-rendu sur mon périmètre', 'Modifier un compte-rendu sur mon périmètre', 'Compte-rendu d''intervention'),
+('IMPORT_MASS_REPORT', 'Réaliser un import en masse de compte-rendu', 'Réaliser un import en masse de compte-rendu', 'Compte-rendu d''intervention'),
+('REQUEST_UPDATE_ASSET', 'Faire une demande de mise à jour du patrimoine', 'Faire une demande de mise à jour du patrimoine', 'Compte-rendu d''intervention'),
+('CREATE_PROGRAM_MY_AREA', 'Créer un programme sur mon périmètre (sur n''importe quel type d''équipement)', 'Créer un programme sur mon périmètre (sur n''importe quel type d''équipement)', 'Programme'),
+('VIEW_PROGRAM_ELEMENTS', 'Consulter les éléments d''un programme', 'Consulter les éléments d''un programme', 'Programme'),
+('GENERATE_WORKORDERS_FROM_PROGRAM', 'Générer des interventions depuis un programme', 'Générer des interventions depuis un programme', 'Programme'),
+('IDENTIFY_VANNE_CLOSE', 'Identifier les vannes à fermer', 'Identifier les vannes à fermer', 'Gestion des Arrêts d''eau'),
+('VIEW_STOP_WATER', 'Visualiser les arrêts d''eau passés, en cours, à venir', 'Visualiser les arrêts d''eau passés, en cours, à venir', 'Gestion des Arrêts d''eau'),
+('EXPORT_REPORTING', 'Générer un export', 'Générer un export', 'Reporting'),
+('GENERATE_REPORT', 'Générer un rapport (ex : rapport PIBI)', 'Générer un rapport (ex : rapport PIBI)', 'Reporting'),
+('MODIFY_DATA_MASS', 'Modifier des données en masse', 'Modifier des données en masse', 'Reporting'),
+('VIEW_DASHBOARD', 'Visualiser mes indicateurs de suivi opérationnel dans un tableau de bord Nomad', 'Visualiser mes indicateurs de suivi opérationnel dans un tableau de bord Nomad', 'Tableau de bord d''exploitation'),
+('SET_USER_RIGHTS', 'Donner des droits à des utilisateurs sur un périmètre inclus ou équivalent à mon périmètre', 'Donner des droits à des utilisateurs sur un périmètre inclus ou équivalent à mon périmètre', 'Paramétrage'),
+('CUSTOMIZE_FORM_FIELDS', 'Personnaliser les champs à afficher dans les différents formulaires sur un périmètre inclus dans mon périmètre et à partir des bibliothèques disponibles dans Nomad', 'Personnaliser les champs à afficher dans les différents formulaires sur un périmètre inclus dans mon périmètre et à partir des bibliothèques disponibles dans Nomad', 'Paramétrage'),
+('CREATE_NEW_FORM_FIELDS', 'Créer de nouveaux champs pour les formulaires disponibles dans Nomad', 'Créer de nouveaux champs pour les formulaires disponibles dans Nomad', 'Paramétrage'),
+('MANAGE_USER_PROFILE', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Gestion des droits');
+
+-- Associate permissions to profiles
+WITH profile_codes AS (
+    VALUES 
+    -- VIEW_ASSET_DETAILLED
+    ('VIEW_ASSET_DETAILLED', 'ADMIN_NAT'),
+    ('VIEW_ASSET_DETAILLED', 'ADMIN_LOC_1'),
+    ('VIEW_ASSET_DETAILLED', 'ADMIN_LOC_2'),
+    ('VIEW_ASSET_DETAILLED', 'MANAGER'),
+    ('VIEW_ASSET_DETAILLED', 'DESKTOP_AGENT'),
+    ('VIEW_ASSET_DETAILLED', 'MOBILE_AGENT'),
+    -- VIEW_ALL_WORKORDERS
+    ('VIEW_ALL_WORKORDERS', 'ADMIN_NAT'),
+    ('VIEW_ALL_WORKORDERS', 'ADMIN_LOC_1'),
+    ('VIEW_ALL_WORKORDERS', 'ADMIN_LOC_2'),
+    ('VIEW_ALL_WORKORDERS', 'MANAGER'),
+    ('VIEW_ALL_WORKORDERS', 'DESKTOP_AGENT'),
+    ('VIEW_ALL_WORKORDERS', 'MOBILE_AGENT'),
+    -- CREATE_ASSET_WORKORDER
+    ('CREATE_ASSET_WORKORDER', 'ADMIN_NAT'),
+    ('CREATE_ASSET_WORKORDER', 'ADMIN_LOC_1'),
+    ('CREATE_ASSET_WORKORDER', 'ADMIN_LOC_2'),
+    ('CREATE_ASSET_WORKORDER', 'MANAGER'),
+    ('CREATE_ASSET_WORKORDER', 'DESKTOP_AGENT'),
+    -- CREATE_X_Y_WORKORDER
+    ('CREATE_X_Y_WORKORDER', 'ADMIN_NAT'),
+    ('CREATE_X_Y_WORKORDER', 'ADMIN_LOC_1'),
+    ('CREATE_X_Y_WORKORDER', 'ADMIN_LOC_2'),
+    ('CREATE_X_Y_WORKORDER', 'MANAGER'),
+    ('CREATE_X_Y_WORKORDER', 'DESKTOP_AGENT'),
+    -- SEND_WORKORDER
+    ('SEND_WORKORDER', 'ADMIN_NAT'),
+    ('SEND_WORKORDER', 'ADMIN_LOC_1'),
+    ('SEND_WORKORDER', 'ADMIN_LOC_2'),
+    ('SEND_WORKORDER', 'MANAGER'),
+    ('SEND_WORKORDER', 'DESKTOP_AGENT'),
+    -- CREATE_NO_PLAN_WORKORDER
+    ('CREATE_NO_PLAN_WORKORDER', 'ADMIN_NAT'),
+    ('CREATE_NO_PLAN_WORKORDER', 'ADMIN_LOC_1'),
+    ('CREATE_NO_PLAN_WORKORDER', 'ADMIN_LOC_2'),
+    ('CREATE_NO_PLAN_WORKORDER', 'MANAGER'),
+    ('CREATE_NO_PLAN_WORKORDER', 'DESKTOP_AGENT'),
+    -- VIEW_ALL_CASES
+    ('VIEW_ALL_CASES', 'ADMIN_NAT'),
+    ('VIEW_ALL_CASES', 'ADMIN_LOC_1'),
+    ('VIEW_ALL_CASES', 'ADMIN_LOC_2'),
+    ('VIEW_ALL_CASES', 'MANAGER'),
+    ('VIEW_ALL_CASES', 'DESKTOP_AGENT'),
+    ('VIEW_ALL_CASES', 'MOBILE_AGENT'),
+    -- MODIFY_REPORT_MY_AREA
+    ('MODIFY_REPORT_MY_AREA', 'ADMIN_NAT'),
+    ('MODIFY_REPORT_MY_AREA', 'ADMIN_LOC_1'),
+    ('MODIFY_REPORT_MY_AREA', 'ADMIN_LOC_2'),
+    ('MODIFY_REPORT_MY_AREA', 'MANAGER'),
+    ('MODIFY_REPORT_MY_AREA', 'DESKTOP_AGENT'),
+    -- IMPORT_MASS_REPORT
+    ('IMPORT_MASS_REPORT', 'ADMIN_NAT'),
+    ('IMPORT_MASS_REPORT', 'ADMIN_LOC_1'),
+    ('IMPORT_MASS_REPORT', 'ADMIN_LOC_2'),
+    ('IMPORT_MASS_REPORT', 'MANAGER'),
+    -- REQUEST_UPDATE_ASSET
+    ('REQUEST_UPDATE_ASSET', 'ADMIN_NAT'),
+    ('REQUEST_UPDATE_ASSET', 'ADMIN_LOC_1'),
+    ('REQUEST_UPDATE_ASSET', 'ADMIN_LOC_2'),
+    ('REQUEST_UPDATE_ASSET', 'MANAGER'),
+    ('REQUEST_UPDATE_ASSET', 'DESKTOP_AGENT'),
+    ('REQUEST_UPDATE_ASSET', 'MOBILE_AGENT'),
+    -- CREATE_PROGRAM_MY_AREA
+    ('CREATE_PROGRAM_MY_AREA', 'ADMIN_NAT'),
+    ('CREATE_PROGRAM_MY_AREA', 'ADMIN_LOC_1'),
+    ('CREATE_PROGRAM_MY_AREA', 'ADMIN_LOC_2'),
+    ('CREATE_PROGRAM_MY_AREA', 'MANAGER'),
+    -- VIEW_PROGRAM_ELEMENTS
+    ('VIEW_PROGRAM_ELEMENTS', 'ADMIN_NAT'),
+    ('VIEW_PROGRAM_ELEMENTS', 'ADMIN_LOC_1'),
+    ('VIEW_PROGRAM_ELEMENTS', 'ADMIN_LOC_2'),
+    ('VIEW_PROGRAM_ELEMENTS', 'MANAGER'),
+    ('VIEW_PROGRAM_ELEMENTS', 'DESKTOP_AGENT'),
+    -- GENERATE_WORKORDERS_FROM_PROGRAM
+    ('GENERATE_WORKORDERS_FROM_PROGRAM', 'ADMIN_NAT'),
+    ('GENERATE_WORKORDERS_FROM_PROGRAM', 'ADMIN_LOC_1'),
+    ('GENERATE_WORKORDERS_FROM_PROGRAM', 'ADMIN_LOC_2'),
+    ('GENERATE_WORKORDERS_FROM_PROGRAM', 'MANAGER'),
+    -- IDENTIFY_VANNE_CLOSE
+    ('IDENTIFY_VANNE_CLOSE', 'ADMIN_NAT'),
+    ('IDENTIFY_VANNE_CLOSE', 'ADMIN_LOC_1'),
+    ('IDENTIFY_VANNE_CLOSE', 'ADMIN_LOC_2'),
+    ('IDENTIFY_VANNE_CLOSE', 'MANAGER'),
+    ('IDENTIFY_VANNE_CLOSE', 'DESKTOP_AGENT'),
+    ('IDENTIFY_VANNE_CLOSE', 'MOBILE_AGENT'),
+    -- VIEW_STOP_WATER
+    ('VIEW_STOP_WATER', 'ADMIN_NAT'),
+    ('VIEW_STOP_WATER', 'ADMIN_LOC_1'),
+    ('VIEW_STOP_WATER', 'ADMIN_LOC_2'),
+    ('VIEW_STOP_WATER', 'MANAGER'),
+    ('VIEW_STOP_WATER', 'DESKTOP_AGENT'),
+    ('VIEW_STOP_WATER', 'MOBILE_AGENT'),
+    -- EXPORT_REPORTING
+    ('EXPORT_REPORTING', 'ADMIN_NAT'),
+    ('EXPORT_REPORTING', 'ADMIN_LOC_1'),
+    ('EXPORT_REPORTING', 'ADMIN_LOC_2'),
+    ('EXPORT_REPORTING', 'MANAGER'),
+    ('EXPORT_REPORTING', 'DESKTOP_AGENT'),
+    -- GENERATE_REPORT
+    ('GENERATE_REPORT', 'ADMIN_NAT'),
+    ('GENERATE_REPORT', 'ADMIN_LOC_1'),
+    ('GENERATE_REPORT', 'ADMIN_LOC_2'),
+    ('GENERATE_REPORT', 'MANAGER'),
+    ('GENERATE_REPORT', 'DESKTOP_AGENT'),
+    -- MODIFY_DATA_MASS
+    ('MODIFY_DATA_MASS', 'ADMIN_NAT'),
+    ('MODIFY_DATA_MASS', 'ADMIN_LOC_1'),
+    ('MODIFY_DATA_MASS', 'ADMIN_LOC_2'),
+    ('MODIFY_DATA_MASS', 'MANAGER'),
+    -- VIEW_DASHBOARD
+    ('VIEW_DASHBOARD', 'ADMIN_NAT'),
+    ('VIEW_DASHBOARD', 'ADMIN_LOC_1'),
+    ('VIEW_DASHBOARD', 'ADMIN_LOC_2'),
+    ('VIEW_DASHBOARD', 'MANAGER'),
+    -- SET_USER_RIGHTS
+    ('SET_USER_RIGHTS', 'ADMIN_NAT'),
+    ('SET_USER_RIGHTS', 'ADMIN_LOC_1'),
+    ('SET_USER_RIGHTS', 'ADMIN_LOC_2'),
+    -- CUSTOMIZE_FORM_FIELDS
+    ('CUSTOMIZE_FORM_FIELDS', 'ADMIN_NAT'),
+    ('CUSTOMIZE_FORM_FIELDS', 'ADMIN_LOC_1'),
+    ('CUSTOMIZE_FORM_FIELDS', 'ADMIN_LOC_2'),
+    ('CUSTOMIZE_FORM_FIELDS', 'MANAGER'),
+    -- CREATE_NEW_FORM_FIELDS
+    ('CREATE_NEW_FORM_FIELDS', 'ADMIN_NAT'),
+    -- MANAGE_USER_PROFILE
+    ('MANAGE_USER_PROFILE', 'ADMIN_NAT'),
+    ('MANAGE_USER_PROFILE', 'ADMIN_LOC_1'),
+    ('MANAGE_USER_PROFILE', 'ADMIN_LOC_2'),
+    ('MANAGE_USER_PROFILE', 'MANAGER')
+)
+INSERT INTO prf_per(prf_id, per_id)
+SELECT p.id, per.id
+FROM profile_codes AS pc
+INNER JOIN profile p ON pc.column2 = p.prf_code
+INNER JOIN permissions per ON pc.column1 = per.per_code;

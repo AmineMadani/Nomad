@@ -61,12 +61,10 @@ export class LayerStylesSettingsPage implements OnInit {
   public columns: Column[] = [
     {
       type: TypeColumn.CHECKBOX,
-      size: '1'
     },
     {
       type: TypeColumn.ACTION,
       label: '',
-      size: '1',
       onClick: (style: TableRow<LayerStyleSummary>) => {
         this.openLayerStyleDetails(style.get('lseId').value);
       }
@@ -75,7 +73,6 @@ export class LayerStylesSettingsPage implements OnInit {
       key: 'lseCode',
       label: 'Code',
       type: TypeColumn.TEXT,
-      size: '10'
     },
   ];
 

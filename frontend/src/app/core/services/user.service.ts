@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Context, Profile, User, UserDetail } from '../models/user.model';
+import { Context, Permission, Profile, User, UserDetail } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
@@ -218,7 +218,19 @@ export class UserService {
     * @returns UserDetail
     */
   getUserDetailById(userId: number): Observable<UserDetail> {
-    return userId ? this.userDataService.getUserDetailById(userId) : of(null);
+    // We check undefined and null because if id is 0 it will not passed in the condition
+    return userId !== undefined && userId !== null ?
+      this.userDataService.getUserDetailById(userId) :
+      of(null);
   }
+
+  /**
+    * Method to get all the permissions from server
+    * @returns Permissions
+    */
+  getAllPermissions(): Observable<Permission[]> {
+    return this.userDataService.getAllPermissions();
+  }
+
 
 }

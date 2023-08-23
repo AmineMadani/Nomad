@@ -30,10 +30,10 @@ public class Users implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="usr_first_name", nullable=false, length=2147483647)
@@ -95,6 +95,9 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Users> listOfModifiedUsers;
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<OrganizationalUnit> listOfOrganizationalUnit2;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Basemaps> listOfCreatedBasemaps;
 
@@ -103,6 +106,9 @@ public class Users implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferences> listOfLayerModifiedReferences;
+
+    @OneToMany(mappedBy="modifiedBy")
+    private List<Profile> listOfProfile2;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<StyleDefinition> listOfModifiedStyleDefinition;
@@ -117,7 +123,7 @@ public class Users implements Serializable {
     private List<LayerStyleCustom> listOfLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
-    private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
+    private List<Profile> listOfProfile;
 
     @ManyToOne
     @JoinColumn(name="usr_default_org_id", referencedColumnName="id")
@@ -128,12 +134,6 @@ public class Users implements Serializable {
 
     @OneToMany(mappedBy="createdBy")
     private List<StyleDefinition> listOfCreatedStyleDefinition;
-
-    @OneToMany(mappedBy="createdBy")
-    private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
-
-    @OneToMany(mappedBy="modifiedBy")
-    private List<OrganizationalUnit> listOfModifiedOrganizationalUnit;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason;
@@ -155,9 +155,6 @@ public class Users implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault;
-
-    @OneToMany(mappedBy="modifiedBy")
-    private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<StyleImage> listOfModifiedStyleImage;
@@ -240,6 +237,9 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Report> listOfModifiedReport;
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<OrganizationalUnitType> listOfOrganizationalUnitType2;
+
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyle> listOfCreatedLayerStyle;
 
@@ -251,6 +251,9 @@ public class Users implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<ContractActivity> listOfCreatedContractActivity;
+
+    @OneToMany(mappedBy="createdBy")
+    private List<OrganizationalUnitType> listOfOrganizationalUnitType;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
@@ -264,6 +267,9 @@ public class Users implements Serializable {
     @OneToMany(mappedBy="createdBy")
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom;
 
+    @OneToMany(mappedBy="createdBy")
+    private List<Permissions> listOfPermissions;
+
     @OneToMany(mappedBy="modifiedBy")
     private List<FormTemplateCustom> listOfModifiedFormTemplateCustom;
 
@@ -276,17 +282,20 @@ public class Users implements Serializable {
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<Task> listOfModifiedTask;
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<Permissions> listOfPermissions2;
+
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyleCustom> listOfCreatedLayerStyleCustom;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Layer> listOfModifiedLayer;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Task> listOfCreatedTask;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<VlTopologyType> listOfModifiedVlTopologyType;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Task> listOfCreatedTask;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<Layer> listOfModifiedLayer;
 
     @OneToMany(mappedBy="user")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
@@ -301,6 +310,9 @@ public class Users implements Serializable {
 
     @OneToMany(mappedBy="modifiedBy")
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
+
+    @OneToMany(mappedBy="createdBy")
+    private List<OrganizationalUnit> listOfOrganizationalUnit;
 
     /**
      * Constructor
@@ -431,6 +443,14 @@ public class Users implements Serializable {
         this.listOfModifiedUsers = listOfModifiedUsers;
     }
 
+    public List<OrganizationalUnit> getListOfOrganizationalUnit2() {
+        return this.listOfOrganizationalUnit2;
+    }
+
+    public void setListOfOrganizationalUnit2(List<OrganizationalUnit> listOfOrganizationalUnit2) {
+        this.listOfOrganizationalUnit2 = listOfOrganizationalUnit2;
+    }
+
     public List<Basemaps> getListOfCreatedBasemaps() {
         return this.listOfCreatedBasemaps;
     }
@@ -463,6 +483,14 @@ public class Users implements Serializable {
 
     public void setListOfLayerModifiedReferences(List<LayerReferences> listOfLayerModifiedReferences) {
         this.listOfLayerModifiedReferences = listOfLayerModifiedReferences;
+    }
+
+    public List<Profile> getListOfProfile2() {
+        return this.listOfProfile2;
+    }
+
+    public void setListOfProfile2(List<Profile> listOfProfile2) {
+        this.listOfProfile2 = listOfProfile2;
     }
 
     public List<StyleDefinition> getListOfModifiedStyleDefinition() {
@@ -527,12 +555,12 @@ public class Users implements Serializable {
         this.listOfLayerStyleCustom = listOfLayerStyleCustom;
     }
 
-    public List<OrganizationalUnitType> getListOfCreatedOrganizationalUnitType() {
-        return this.listOfCreatedOrganizationalUnitType;
+    public List<Profile> getListOfProfile() {
+        return this.listOfProfile;
     }
 
-    public void setListOfCreatedOrganizationalUnitType(List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType) {
-        this.listOfCreatedOrganizationalUnitType = listOfCreatedOrganizationalUnitType;
+    public void setListOfProfile(List<Profile> listOfProfile) {
+        this.listOfProfile = listOfProfile;
     }
 
     public OrganizationalUnit getOrganizationalUnitDefault() {
@@ -567,22 +595,6 @@ public class Users implements Serializable {
 
     public void setListOfCreatedStyleDefinition(List<StyleDefinition> listOfCreatedStyleDefinition) {
         this.listOfCreatedStyleDefinition = listOfCreatedStyleDefinition;
-    }
-
-    public List<OrganizationalUnit> getListOfCreatedOrganizationalUnit() {
-        return this.listOfCreatedOrganizationalUnit;
-    }
-
-    public void setListOfCreatedOrganizationalUnit(List<OrganizationalUnit> listOfCreatedOrganizationalUnit) {
-        this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
-    }
-
-    public List<OrganizationalUnit> getListOfModifiedOrganizationalUnit() {
-        return this.listOfModifiedOrganizationalUnit;
-    }
-
-    public void setListOfModifiedOrganizationalUnit(List<OrganizationalUnit> listOfModifiedOrganizationalUnit) {
-        this.listOfModifiedOrganizationalUnit = listOfModifiedOrganizationalUnit;
     }
 
     public List<WorkorderTaskReason> getListOfModifiedWorkorderTaskReason() {
@@ -659,14 +671,6 @@ public class Users implements Serializable {
 
     public void setListOfCreatedLayerReferencesDefault(List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault) {
         this.listOfCreatedLayerReferencesDefault = listOfCreatedLayerReferencesDefault;
-    }
-
-    public List<OrganizationalUnitType> getListOfModifiedOrganizationalUnitType() {
-        return this.listOfModifiedOrganizationalUnitType;
-    }
-
-    public void setListOfModifiedOrganizationalUnitType(List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType) {
-        this.listOfModifiedOrganizationalUnitType = listOfModifiedOrganizationalUnitType;
     }
 
     public List<StyleImage> getListOfModifiedStyleImage() {
@@ -955,6 +959,14 @@ public class Users implements Serializable {
         this.listOfModifiedReport = listOfModifiedReport;
     }
 
+    public List<OrganizationalUnitType> getListOfOrganizationalUnitType2() {
+        return this.listOfOrganizationalUnitType2;
+    }
+
+    public void setListOfOrganizationalUnitType2(List<OrganizationalUnitType> listOfOrganizationalUnitType2) {
+        this.listOfOrganizationalUnitType2 = listOfOrganizationalUnitType2;
+    }
+
     public List<LayerStyle> getListOfCreatedLayerStyle() {
         if (this.listOfCreatedLayerStyle != null) {
             return this.listOfCreatedLayerStyle.stream()
@@ -997,6 +1009,14 @@ public class Users implements Serializable {
         this.listOfCreatedContractActivity = listOfCreatedContractActivity;
     }
 
+    public List<OrganizationalUnitType> getListOfOrganizationalUnitType() {
+        return this.listOfOrganizationalUnitType;
+    }
+
+    public void setListOfOrganizationalUnitType(List<OrganizationalUnitType> listOfOrganizationalUnitType) {
+        this.listOfOrganizationalUnitType = listOfOrganizationalUnitType;
+    }
+
     public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
         return this.listOfModifiedUsrCtrPrf;
     }
@@ -1037,6 +1057,14 @@ public class Users implements Serializable {
 
     public void setListOfCreatedFormTemplateCustom(List<FormTemplateCustom> listOfCreatedFormTemplateCustom) {
         this.listOfCreatedFormTemplateCustom = listOfCreatedFormTemplateCustom;
+    }
+
+    public List<Permissions> getListOfPermissions() {
+        return this.listOfPermissions;
+    }
+
+    public void setListOfPermissions(List<Permissions> listOfPermissions) {
+        this.listOfPermissions = listOfPermissions;
     }
 
     public List<FormTemplateCustom> getListOfModifiedFormTemplateCustom() {
@@ -1091,6 +1119,14 @@ public class Users implements Serializable {
         this.listOfModifiedTask = listOfModifiedTask;
     }
 
+    public List<Permissions> getListOfPermissions2() {
+        return this.listOfPermissions2;
+    }
+
+    public void setListOfPermissions2(List<Permissions> listOfPermissions2) {
+        this.listOfPermissions2 = listOfPermissions2;
+    }
+
     public List<LayerStyleCustom> getListOfCreatedLayerStyleCustom() {
         if (this.listOfCreatedLayerStyleCustom != null) {
             return this.listOfCreatedLayerStyleCustom.stream()
@@ -1109,22 +1145,6 @@ public class Users implements Serializable {
         this.listOfCreatedLayerStyleCustom = listOfCreatedLayerStyleCustom;
     }
 
-    public List<Layer> getListOfModifiedLayer() {
-        return this.listOfModifiedLayer;
-    }
-
-    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
-        this.listOfModifiedLayer = listOfModifiedLayer;
-    }
-
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
-    }
-
-    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
-        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
-    }
-
     public List<Task> getListOfCreatedTask() {
         if (this.listOfCreatedTask != null) {
             return this.listOfCreatedTask.stream()
@@ -1141,6 +1161,22 @@ public class Users implements Serializable {
 
     public void setListOfCreatedTask(List<Task> listOfCreatedTask) {
         this.listOfCreatedTask = listOfCreatedTask;
+    }
+
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
+    }
+
+    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
+        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
+    }
+
+    public List<Layer> getListOfModifiedLayer() {
+        return this.listOfModifiedLayer;
+    }
+
+    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
+        this.listOfModifiedLayer = listOfModifiedLayer;
     }
 
     public List<FormTemplateCustom> getListOfFormTemplateCustom() {
@@ -1193,6 +1229,14 @@ public class Users implements Serializable {
 
     public void setListOfModifiedLayerStyleCustom(List<LayerStyleCustom> listOfModifiedLayerStyleCustom) {
         this.listOfModifiedLayerStyleCustom = listOfModifiedLayerStyleCustom;
+    }
+
+    public List<OrganizationalUnit> getListOfOrganizationalUnit() {
+        return this.listOfOrganizationalUnit;
+    }
+
+    public void setListOfOrganizationalUnit(List<OrganizationalUnit> listOfOrganizationalUnit) {
+        this.listOfOrganizationalUnit = listOfOrganizationalUnit;
     }
 
 }

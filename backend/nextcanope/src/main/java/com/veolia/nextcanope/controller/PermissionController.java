@@ -1,7 +1,8 @@
 package com.veolia.nextcanope.controller;
 
+import com.veolia.nextcanope.dto.PermissionDto;
 import com.veolia.nextcanope.dto.ProfileDto;
-import com.veolia.nextcanope.service.ProfileService;
+import com.veolia.nextcanope.service.PermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,19 +17,19 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/profiles")
-@Tag(name = "Profile Management System", description = "Operations pertaining to profile in the Profile Management System")
-public class ProfileController {
+@RequestMapping("/permissions")
+@Tag(name = "Permission Management System", description = "Operations pertaining to permission in the Permission Management System")
+public class PermissionController {
 
     @Autowired
-    public ProfileService profileService;
+    public PermissionService permissionService;
 
     @GetMapping()
-    @Operation(summary = "Get the list of profile")
+    @Operation(summary = "Get the list of permissions")
 	@ApiResponses(value = {
-        @ApiResponse(responseCode = "200",description= "The profile list")
+        @ApiResponse(responseCode = "200",description= "The permission list")
     })
-    public List<ProfileDto> getAllProfiles() {
-        return this.profileService.getAllProfiles();
+    public List<PermissionDto> getAllPermissions() {
+        return this.permissionService.getAllPermissions();
     }
 }

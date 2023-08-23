@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,10 +28,10 @@ public class Permissions implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="per_code", nullable=false, length=2147483647)
@@ -49,13 +50,9 @@ public class Permissions implements Serializable {
     @JsonProperty("per_valid")
     private Boolean perValid;
 
-    @Column(name="per_ucre_id")
-    @JsonProperty("per_ucre_id")
-    private Long perUcreId;
-
-    @Column(name="per_umod_id")
-    @JsonProperty("per_umod_id")
-    private Long perUmodId;
+    @Column(name="per_category", nullable=false, length=2147483647)
+    @JsonProperty("per_category")
+    private String perCategory;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="per_dcre")
@@ -71,6 +68,16 @@ public class Permissions implements Serializable {
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @ManyToOne
+    @JoinColumn(name="per_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
+
+    @ManyToOne
+    @JoinColumn(name="per_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
+
     @OneToMany(mappedBy="permissions")
     private List<PrfPer> listOfPrfPer;
 
@@ -122,20 +129,12 @@ public class Permissions implements Serializable {
         this.perValid = perValid ;
     }
 
-    public Long getPerUcreId() {
-        return this.perUcreId;
+    public String getPerCategory() {
+        return this.perCategory;
     }
 
-	public void setPerUcreId( Long perUcreId ) {
-        this.perUcreId = perUcreId ;
-    }
-
-    public Long getPerUmodId() {
-        return this.perUmodId;
-    }
-
-	public void setPerUmodId( Long perUmodId ) {
-        this.perUmodId = perUmodId ;
+	public void setPerCategory( String perCategory ) {
+        this.perCategory = perCategory ;
     }
 
     public Date getPerDcre() {
@@ -155,6 +154,22 @@ public class Permissions implements Serializable {
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public List<PrfPer> getListOfPrfPer() {
         return this.listOfPrfPer;
     }

@@ -90,12 +90,10 @@ export class UserDetailsComponent implements OnInit {
   public columns: Column<PerimeterRow>[] = [
     {
       type: TypeColumn.CHECKBOX,
-      size: '1'
     },
     {
       key: 'profileId',
       label: 'Profil',
-      size: '2',
       type: TypeColumn.SELECT,
       selectProperties: {
         key: 'id',
@@ -117,7 +115,6 @@ export class UserDetailsComponent implements OnInit {
           return org.orgLlabel;
         }
       },
-      size: '3'
     },
     {
       key: 'territoryIds',
@@ -135,8 +132,7 @@ export class UserDetailsComponent implements OnInit {
             ? this.territories.filter((org) => row.regionIds.includes(org.orgParentId))
             : this.territories;
         },
-      },
-      size: '3'
+      }
     },
     {
       key: 'contractIds',
@@ -156,8 +152,7 @@ export class UserDetailsComponent implements OnInit {
               )
             : this.contracts;
         },
-      },
-      size: '3'
+      }
     },
   ];
 

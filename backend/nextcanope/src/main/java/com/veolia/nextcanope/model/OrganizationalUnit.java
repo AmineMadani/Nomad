@@ -28,10 +28,10 @@ public class OrganizationalUnit implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="org_code", nullable=false, length=2147483647)
@@ -67,11 +67,15 @@ public class OrganizationalUnit implements Serializable {
     @OneToMany(mappedBy="organizationalUnit")
     private List<OrgCtr> listOfOrgCtr;
 
-    @OneToMany(mappedBy="organizationalUnitDefault")
-    private List<Users> listOfUsers;
+    @ManyToOne
+    @JoinColumn(name="org_parent_id", referencedColumnName="id")
+    private OrganizationalUnit organizationalUnitParent;
 
     @OneToMany(mappedBy="organizationalUnitParent")
     private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
+
+    @OneToMany(mappedBy="organizationalUnitDefault")
+    private List<Users> listOfUsers;
 
     @ManyToOne
     @JoinColumn(name="org_umod_id", referencedColumnName="id")
@@ -86,10 +90,6 @@ public class OrganizationalUnit implements Serializable {
     @ManyToOne
     @JoinColumn(name="out_id", referencedColumnName="id")
     private OrganizationalUnitType organizationalUnitType;
-
-    @ManyToOne
-    @JoinColumn(name="org_parent_id", referencedColumnName="id")
-    private OrganizationalUnit organizationalUnitParent;
 
     /**
      * Constructor
@@ -164,12 +164,12 @@ public class OrganizationalUnit implements Serializable {
         this.listOfOrgCtr = listOfOrgCtr;
     }
 
-    public List<Users> getListOfUsers() {
-        return this.listOfUsers;
+    public OrganizationalUnit getOrganizationalUnitParent() {
+        return this.organizationalUnitParent;
     }
 
-    public void setListOfUsers(List<Users> listOfUsers) {
-        this.listOfUsers = listOfUsers;
+    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
+        this.organizationalUnitParent = organizationalUnitParent;
     }
 
     public List<OrganizationalUnit> getListOfOrganizationalUnitChildren() {
@@ -178,6 +178,14 @@ public class OrganizationalUnit implements Serializable {
 
     public void setListOfOrganizationalUnitChildren(List<OrganizationalUnit> listOfOrganizationalUnitChildren) {
         this.listOfOrganizationalUnitChildren = listOfOrganizationalUnitChildren;
+    }
+
+    public List<Users> getListOfUsers() {
+        return this.listOfUsers;
+    }
+
+    public void setListOfUsers(List<Users> listOfUsers) {
+        this.listOfUsers = listOfUsers;
     }
 
     public Users getModifiedBy() {
@@ -202,14 +210,6 @@ public class OrganizationalUnit implements Serializable {
 
     public void setOrganizationalUnitType(OrganizationalUnitType organizationalUnitType) {
         this.organizationalUnitType = organizationalUnitType;
-    }
-
-    public OrganizationalUnit getOrganizationalUnitParent() {
-        return this.organizationalUnitParent;
-    }
-
-    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
-        this.organizationalUnitParent = organizationalUnitParent;
     }
 
 }

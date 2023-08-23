@@ -13,7 +13,7 @@ import { TableService } from 'src/app/core/services/table.service';
   templateUrl: './users-settings.component.html',
   styleUrls: ['./users-settings.component.scss'],
 })
-export class UsersSettingsComponent implements OnInit {
+export class UsersSettingsPage implements OnInit {
   constructor(
     private userService: UserService,
     private modalController: ModalController,
@@ -62,12 +62,10 @@ export class UsersSettingsComponent implements OnInit {
   public columns: Column[] = [
     {
       type: TypeColumn.CHECKBOX,
-      size: '1'
     },
     {
       type: TypeColumn.ACTION,
       label: '',
-      size: '1',
       onClick: (row: FormGroup) => {
         this.openUserDetails(row.getRawValue());
       }
@@ -75,32 +73,27 @@ export class UsersSettingsComponent implements OnInit {
     {
       type: TypeColumn.TEXT,
       key: 'lastName',
-      label: 'Nom',
-      size: '2'
+      label: 'Nom'
     },
     {
       type: TypeColumn.TEXT,
       key: 'firstName',
-      label: 'Prénom',
-      size: '2'
+      label: 'Prénom'
     },
     {
       type: TypeColumn.TEXT,
       key: 'email',
-      label: 'Adresse mail',
-      size: '3'
+      label: 'Adresse mail'
     },
     {
       type: TypeColumn.TEXT,
       key: 'status',
-      label: 'Statut',
-      size: '1'
+      label: 'Statut'
     },
     {
       type: TypeColumn.TEXT,
       key: 'company',
-      label: 'Société',
-      size: '2'
+      label: 'Société'
     },
   ];
 
