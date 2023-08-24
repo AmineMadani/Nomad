@@ -117,7 +117,7 @@ export class ReportListComponent implements OnInit {
     // When changing asset type, display the corresponding wtr and form
     this.form.get('astId').valueChanges.subscribe((astId) => {
       // Get the corresponding wtr
-      const listWtr = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.ast_id.toString() === astId), 'wtr_id');
+      const listWtr = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.ast_id === astId), 'wtr_id');
 
       const listWtrReport = listWtr.map((wtr) => {
         // For each wtr, get the form, if it exists

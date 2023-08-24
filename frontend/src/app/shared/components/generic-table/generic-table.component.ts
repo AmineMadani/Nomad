@@ -181,7 +181,7 @@ export class GenericTableComponent implements OnInit {
       if (column.filter.listSelectValue == null || column.filter.listSelectValue.length === 0) {
         // Then construct the list
         // Either from the list of elements of the column
-        if (column.selectProperties.elements) {
+        if (column.selectProperties?.elements) {
           listSelectItem = column.selectProperties.elements.map((element) => {
             return {
               value: element[column.selectProperties.key],
