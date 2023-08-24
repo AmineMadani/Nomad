@@ -20,6 +20,8 @@ export class FilterTableComponent implements OnInit {
 
   @ViewChild("filterTextValueInput") filterTextValueInput: IonInput;
   @ViewChild("filterSelectSearchValueInput") filterSelectSearchValueInput: IonInput;
+  @ViewChild("filterNumberStartValueInput") filterNumberStartValueInput: IonInput;
+  @ViewChild("filterNumberEndValueInput") filterNumberEndValueInput: IonInput;
 
   TypeColumn = TypeColumn;
 
@@ -44,12 +46,18 @@ export class FilterTableComponent implements OnInit {
 
   // ### NUMBER ### //
   selectedFilterNumberCondition = FILTER_CONDITION.EQUAL;
-  filterNumberValue: any = {};
+  filterValueNumber: FilterValueNumber = {
+    start: null,
+    end: null,
+  };
   // ###### //
 
   // ### DATE ### //
   selectedFilterDateCondition = FILTER_CONDITION.BETWEEN;
-  filterDateValue: any = {};
+  filterValueDate: FilterValueDate = {
+    start: null,
+    end: null,
+  };
   // ###### //
 
   constructor(
@@ -71,6 +79,13 @@ export class FilterTableComponent implements OnInit {
 
       // Timeout to wait for the page to load
       setTimeout(() => {this.filterSelectSearchValueInput.setFocus()}, 100);
+    } else if (this.filterType === FILTER_TYPE.NUMBER) {
+      this.selectedFilterNumberCondition = this.column.filter.condition ?? FILTER_CONDITION.EQUAL;
+      this.filterValueNumber.start = (this.column.filter.value as FilterValueNumber)?.start;
+      this.filterValueNumber.end = (this.column.filter.value as FilterValueNumber)?.end;
+
+      // Timeout to wait for the page to load
+      setTimeout(() => {this.filterNumberStartValueInput.setFocus()}, 100);
     }    
   }
 
@@ -127,6 +142,25 @@ export class FilterTableComponent implements OnInit {
       this.popoverController.dismiss({
         condition: null,
         value: this.listSelectedItem.length > 0 ? this.listSelectedItem : null,
+      });
+    } else if (this.filterType === FILTER_TYPE.NUMBER) {
+      // Check if, with the data set by the user, it is a correct filter
+      let isFiltering = false;
+      if (this.selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN ) {
+        isFiltering = this.filterValueNumber.start != null && this.filterValueNumber.end != null;
+      } else if (
+        this.selectedFilterNumberCondition === FILTER_CONDITION.LOWER
+        || this.selectedFilterNumberCondition === FILTER_CONDITION.LOWER_OR_EQUAL
+      ) {
+        isFiltering = this.filterValueNumber.end != null;
+      } else {
+        isFiltering = this.filterValueNumber.start != null;
+      }
+      
+
+      this.popoverController.dismiss({
+        condition: this.selectedFilterNumberCondition,
+        value: !isFiltering ? null : this.filterValueNumber,
       });
     }
   }

@@ -39,7 +39,7 @@
       <tr>
         <ng-container *ngFor="let column of columns; let columnIndex = index">
 
-          <th [style]="getColumnStyle(column)">
+          <th [style]="getColumnStyle(column)" style="z-index: 10"> <!-- z-index 1 for button, 3 for checkbox-->
             <ng-container [ngSwitch]="column.type">
               <!-- CHECKBOX -->
               <ng-container *ngSwitchCase="TypeColumn.CHECKBOX">

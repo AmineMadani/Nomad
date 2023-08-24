@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Column, ColumnSort, FILTER_CONDITION, FILTER_TEXT_CONDITION, FILTER_TYPE, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, ColumnSort, FILTER_CONDITION, FILTER_TEXT_CONDITION, FILTER_TYPE, FilterValueNumber, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FilterResult, FilterTableComponent } from './filter-table/filter-table.component';
 import { FilterService } from './filter.service';
@@ -250,13 +250,11 @@ export class GenericTableComponent implements OnInit {
           result = this.filterService.filterText(result, column);
         } else if (column.filter.type === FILTER_TYPE.SELECT) {
           result = this.filterService.filterSelect(result, column);
-        }
-
-        /*if (column.filter.type === FILTER_TYPE.DATE) {
-          result = this.filterService.filterDate(result, column);
         } else if (column.filter.type === FILTER_TYPE.NUMBER) {
           result = this.filterService.filterNumber(result, column);
-        }*/
+        } /*else if (column.filter.type === FILTER_TYPE.DATE) {
+          result = this.filterService.filterDate(result, column);
+        } */
       }
     });
 
@@ -305,6 +303,55 @@ export class GenericTableComponent implements OnInit {
         }
         break;
 
+      case 'number':
+        switch (column.filter.condition) {
+          case FILTER_CONDITION.EMPTY:
+            chipValue += 'est vide';
+            break;
+
+          case FILTER_CONDITION.NOT_EMPTY:
+            chipValue += "n'est pas vide";
+            break;
+
+          case FILTER_CONDITION.EQUAL:
+            chipValue += "Est égal à " + (column.filter.value as FilterValueNumber).start;
+            break;
+
+          case FILTER_CONDITION.NOT_EQUAL:
+            chipValue += "Est différent de " + (column.filter.value as FilterValueNumber).start;
+            break;
+
+          case FILTER_CONDITION.GREATER:
+            chipValue += "Supérieur à " + (column.filter.value as FilterValueNumber).start;
+            break;
+
+          case FILTER_CONDITION.GREATER_OR_EQUAL:
+            chipValue += "Supérieur ou égal à " + (column.filter.value as FilterValueNumber).start;
+            break;
+
+          case FILTER_CONDITION.LOWER:
+            chipValue += "Inférieur à " + (column.filter.value as FilterValueNumber).end;
+            break;
+
+          case FILTER_CONDITION.LOWER_OR_EQUAL:
+            chipValue += "Inférieur ou égal à " + (column.filter.value as FilterValueNumber).end;
+            break;
+
+          case FILTER_CONDITION.BETWEEN:
+            chipValue += "Entre " + (column.filter.value as FilterValueNumber).start + " et "
+                                   + (column.filter.value as FilterValueNumber).end;
+            break;
+
+          default:
+            let ftc = FILTER_TEXT_CONDITION.find((ftc) => ftc.value === column.filter.condition);
+            if (ftc) {
+              chipValue += ftc.label + ": '" + column.filter.value + "'";
+            } else {
+              chipValue += "'" + column.filter.value + "'";
+            }
+        }
+        break;
+
       /*case 'date':
         let searchData = column.searchData as SearchDataDate;
         let dateStart = this.formatDate(searchData.start);
@@ -326,10 +373,6 @@ export class GenericTableComponent implements OnInit {
         } else {
           text = this.getCommonChipValue(column);
         }
-        break;
-
-      case 'number':
-        text = this.getCommonChipValue(column);
         break;*/
     }
     return chipValue;

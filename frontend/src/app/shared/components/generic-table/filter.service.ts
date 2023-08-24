@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Column, FILTER_CONDITION } from "src/app/core/models/table/column.model";
+import { Column, FILTER_CONDITION, FilterValueDate, FilterValueNumber } from "src/app/core/models/table/column.model";
 import { ValueLabel } from "src/app/core/models/util.model";
 
 @Injectable({
@@ -63,107 +63,87 @@ export class FilterService {
     return list;
   }
 
-  /*filterNumber(list: any[], column: Column) {
-    if (column.filterType) {
-      let searchData = column.searchData as FilterValueNumber;
-      switch (column.filterType) {
-        case 'isBlank':
-          return list.filter(
-            data => typeof data[column.key] === 'undefined' || data[column.key] === '' || data[column.key] === null
-          );
+  filterNumber(list: any[], column: Column) {
+    const searchValue = column.filter.value as FilterValueNumber;
 
-        case 'isNotBlank':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== '' && data[column.key] !== null
-          );
+    return list.filter(data => {
+      const value = data.getRawValue()[column.key];
 
-        case 'isEqual':
-          return list.filter(data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) === searchData.start);
-
-        case 'isNotEqual':
-          return list.filter(data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) !== searchData.start);
-
-        case 'isUp':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) > searchData.start
-          );
-
-        case 'isUpOrEqual':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) >= searchData.start
-          );
-
-        case 'isDown':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) < searchData.end
-          );
-
-        case 'isDownOrEqual':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== null && Number(data[column.key]) <= searchData.end
-          );
-
-        case 'isBetween':
-          return list.filter(
-              data => typeof data[column.key] !== 'undefined' &&
-                  data[column.key] !== null &&
-                  Number(data[column.key]) >= searchData.start &&
-                  Number(data[column.key]) <= searchData.end
-          );
+      switch (column.filter.condition) {
+        case FILTER_CONDITION.EMPTY:
+          return value == null || value === '';
+        case FILTER_CONDITION.NOT_EMPTY:
+          return value != null && value !== '';
+        case FILTER_CONDITION.EQUAL:
+          return value != null && Number(value) === searchValue.start;
+        case FILTER_CONDITION.NOT_EQUAL:
+          return value != null && Number(value) !== searchValue.start;
+        case FILTER_CONDITION.GREATER:
+          return value != null && Number(value) > searchValue.start;
+        case FILTER_CONDITION.GREATER_OR_EQUAL:
+          return value != null && Number(value) >= searchValue.start;
+        case FILTER_CONDITION.LOWER:
+          return value != null && Number(value) < searchValue.end;
+        case FILTER_CONDITION.LOWER_OR_EQUAL:
+          return value != null && Number(value) <= searchValue.end;
+        case FILTER_CONDITION.BETWEEN:
+          return value != null && Number(value) >= searchValue.start && Number(value) <= searchValue.end;
+        default:
+          return false; 
       }
-    }
-    return list;
+    });
   }
 
-  filterDate(list: any[], column: Column) {
-    if (column.filterType) {
-      let searchData = column.searchData as FilterValueDate;
-      switch (column.filterType) {
-        case 'isBlank':
-          return list.filter(
-            data => typeof data[column.key] === 'undefined' || data[column.key] === '' || data[column.key] === null
-          );
+  /*filterDate(list: any[], column: Column) {
+    const searchValue = column.filter.value as FilterValueDate;
 
-        case 'isNotBlank':
-          return list.filter(
-            data => typeof data[column.key] !== 'undefined' && data[column.key] !== '' && data[column.key] !== null
-          );
+    return list.filter(data => {
+      const value = data.getRawValue()[column.key];
 
-        case 'isDown':
-          return list.filter(
-            data => (data[column.key] && moment(data[column.key]).isBefore(moment(searchData.end).startOf('day').add(1, 'day'))) || !data[column.key]
-          );
-
-        case 'isUp':
-          return list.filter(
-            data => (data[column.key] && moment(data[column.key]).isAfter(moment(searchData.start).endOf('day').add(-1, 'day'))) || !data[column.key]
-          );
-
-        case 'isBetween':
-          // no end date
-          if (!searchData.end) {
-            return list.filter(
-              data => (data[column.key] && moment(data[column.key]).isAfter(moment(searchData.start).endOf('day').add(-1, 'day'))) || !data[column.key]
-            );
+      switch (column.filter.condition) {
+        case FILTER_CONDITION.EMPTY:
+          return value == null || value === '';
+        case FILTER_CONDITION.NOT_EMPTY:
+          return value != null && value !== '';
+        case FILTER_CONDITION.LOWER:
+          return (
+            value != null 
+            && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day'))
+          )
+          || value == null;
+        case FILTER_CONDITION.GREATER:
+          return (
+            value != null 
+            && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+          )
+          || value == null;
+        case FILTER_CONDITION.BETWEEN:
+          // If no start end date, same as greater
+          if (searchValue.end == null) {
+            return (
+              value != null 
+              && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+            )
+            || value == null;
           }
 
-          // no start date
-          if (!searchData.start) {
-            return list.filter(
-              data => (data[column.key] && moment(data[column.key]).isBefore(moment(searchData.end).startOf('day').add(1, 'day'))) || !data[column.key]
-            );
+          // If no start start date, same as lower
+          if (searchValue.start == null) {
+            return (
+              value != null 
+              && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day'))
+            )
+            || value == null;
           }
-
-          // between
-          return list.filter(
-            data =>
-                  data[column.key] &&
-                  moment(data[column.key]).isBefore(moment(searchData.end).startOf('day').add(1, 'day')) &&
-                  moment(data[column.key]).isAfter(moment(searchData.start).endOf('day').add(-1, 'day'))
-          );
+          
+          // Else : between the 2 dates
+          return value != null
+            && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day')) 
+            && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+        default:
+          return false; 
       }
-    }
-    return list;
+    });
   }*/
 
   convertCaseSensitive(word) {

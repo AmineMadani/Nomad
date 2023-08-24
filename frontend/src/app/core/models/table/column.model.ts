@@ -77,7 +77,7 @@ export interface ColumnSort {
 
 // ### FILTER ### //
 export interface Filter {
-  type: 'none' | 'text' | 'select'; // | 'number' | 'date'
+  type: 'none' | 'text' | 'select' | 'number'; // | 'date'
   // Condition of the filer, null for select
   condition?: FILTER_CONDITION;
   value?: string | FilterValueNumber | FilterValueDate | ValueLabel[];
@@ -92,8 +92,8 @@ export enum FILTER_TYPE {
   NONE = 'none',
   TEXT = 'text',
   SELECT = 'select',
-  /*NUMBER = 'number',
-  DATE = 'date',*/
+  NUMBER = 'number',
+  /*DATE = 'date',*/
 }
 
 export interface FilterValueNumber {

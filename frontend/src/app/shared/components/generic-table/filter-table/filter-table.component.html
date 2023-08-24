@@ -33,6 +33,36 @@
         </ion-list>
       </div>
     </ng-container>
+
+    <!-- NUMBER -->
+    <ng-container *ngSwitchCase="FILTER_TYPE.NUMBER">
+      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+        [(ngModel)]="selectedFilterNumberCondition" interface="popover" class="filter-select">
+        <ion-select-option *ngFor="let ftt of FILTER_NUMBER_CONDITION" [value]="ftt.value">
+          {{ftt.label}}
+        </ion-select-option>
+      </ion-select>
+
+      <ion-input #filterNumberStartValueInput type="number"
+        *ngIf="selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN 
+            || selectedFilterNumberCondition === FILTER_CONDITION.EQUAL 
+            || selectedFilterNumberCondition === FILTER_CONDITION.NOT_EQUAL 
+            || selectedFilterNumberCondition === FILTER_CONDITION.GREATER 
+            || selectedFilterNumberCondition === FILTER_CONDITION.GREATER_OR_EQUAL"
+        aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
+        [(ngModel)]="filterValueNumber.start" (keydown.enter)="ok()" />
+
+      <span *ngIf="selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN">
+        &nbsp; et &nbsp;
+      </span>
+
+      <ion-input #filterNumberEndValueInput type="number"
+        *ngIf="selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN 
+            || selectedFilterNumberCondition === FILTER_CONDITION.LOWER 
+            || selectedFilterNumberCondition === FILTER_CONDITION.LOWER_OR_EQUAL"
+        aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
+        [(ngModel)]="filterValueNumber.end" (keydown.enter)="ok()" />
+    </ng-container>
   </ng-container>
 </div>
 
