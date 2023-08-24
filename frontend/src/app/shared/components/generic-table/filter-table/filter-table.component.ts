@@ -21,7 +21,7 @@ export class FilterTableComponent implements OnInit {
   @ViewChild("filterTextValueInput") filterTextValueInput: IonInput;
   @ViewChild("filterSelectSearchValueInput") filterSelectSearchValueInput: IonInput;
   @ViewChild("filterNumberStartValueInput") filterNumberStartValueInput: IonInput;
-  @ViewChild("filterNumberEndValueInput") filterNumberEndValueInput: IonInput;
+  @ViewChild("filterDateStartValueInput") filterDateStartValueInput: IonInput;
 
   TypeColumn = TypeColumn;
 
@@ -67,26 +67,43 @@ export class FilterTableComponent implements OnInit {
   ngOnInit() {
     this.filterType = this.column.filter.type;
 
+    // ### TEXT ### //
     if (this.filterType === FILTER_TYPE.TEXT) {
       this.selectedFilterTextCondition = this.column.filter.condition ?? FILTER_CONDITION.IN;
       this.filterTextValue = this.column.filter.value as string;
 
       // Timeout to wait for the page to load
       setTimeout(() => {this.filterTextValueInput.setFocus()}, 100);
-    } else if (this.filterType === FILTER_TYPE.SELECT) {
+    }
+    
+    // ### SELECT ### //
+    if (this.filterType === FILTER_TYPE.SELECT) {
       this.listItem = this.listAllItem;
       this.listSelectedItem = (this.column.filter.value as ValueLabel[] ?? []).slice();
 
       // Timeout to wait for the page to load
       setTimeout(() => {this.filterSelectSearchValueInput.setFocus()}, 100);
-    } else if (this.filterType === FILTER_TYPE.NUMBER) {
+    }
+
+    // ### NUMBER ### //
+    if (this.filterType === FILTER_TYPE.NUMBER) {
       this.selectedFilterNumberCondition = this.column.filter.condition ?? FILTER_CONDITION.EQUAL;
       this.filterValueNumber.start = (this.column.filter.value as FilterValueNumber)?.start;
       this.filterValueNumber.end = (this.column.filter.value as FilterValueNumber)?.end;
 
       // Timeout to wait for the page to load
       setTimeout(() => {this.filterNumberStartValueInput.setFocus()}, 100);
-    }    
+    }
+    
+    // ### DATE ### //
+    if (this.filterType === FILTER_TYPE.DATE) {
+      this.selectedFilterDateCondition = this.column.filter.condition ?? FILTER_CONDITION.BETWEEN;
+      this.filterValueDate.start = (this.column.filter.value as FilterValueDate)?.start;
+      this.filterValueDate.end = (this.column.filter.value as FilterValueDate)?.end;
+
+      // Timeout to wait for the page to load
+      setTimeout(() => {this.filterDateStartValueInput.setFocus()}, 100);
+    }
   }
 
   // ### SELECT ### //
@@ -133,20 +150,27 @@ export class FilterTableComponent implements OnInit {
   // ###### //
 
   ok() {
+    // ### TEXT ### //
     if (this.filterType === FILTER_TYPE.TEXT) {
       this.popoverController.dismiss({
         condition: this.selectedFilterTextCondition,
         value: this.filterTextValue === '' ? null : this.filterTextValue,
       });
-    } else if (this.filterType === FILTER_TYPE.SELECT) {
+    }
+    
+    // ### SELECT ### //
+    if (this.filterType === FILTER_TYPE.SELECT) {
       this.popoverController.dismiss({
         condition: null,
         value: this.listSelectedItem.length > 0 ? this.listSelectedItem : null,
       });
-    } else if (this.filterType === FILTER_TYPE.NUMBER) {
+    }
+    
+    // ### NUMBER ### //
+    if (this.filterType === FILTER_TYPE.NUMBER) {
       // Check if, with the data set by the user, it is a correct filter
       let isFiltering = false;
-      if (this.selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN ) {
+      if (this.selectedFilterNumberCondition === FILTER_CONDITION.BETWEEN) {
         isFiltering = this.filterValueNumber.start != null && this.filterValueNumber.end != null;
       } else if (
         this.selectedFilterNumberCondition === FILTER_CONDITION.LOWER
@@ -156,11 +180,31 @@ export class FilterTableComponent implements OnInit {
       } else {
         isFiltering = this.filterValueNumber.start != null;
       }
-      
 
       this.popoverController.dismiss({
         condition: this.selectedFilterNumberCondition,
         value: !isFiltering ? null : this.filterValueNumber,
+      });
+    }
+    
+    // ### DATE ### //
+    if (this.filterType === FILTER_TYPE.DATE) {
+      // Check if, with the data set by the user, it is a correct filter
+      if (this.filterValueDate.start === '') this.filterValueDate.start = null;
+      if (this.filterValueDate.end === '') this.filterValueDate.end = null;
+
+      let isFiltering = false;
+      if (this.selectedFilterDateCondition === FILTER_CONDITION.BETWEEN) {
+        isFiltering = this.filterValueDate.start != null || this.filterValueDate.end != null;
+      } else if (this.selectedFilterDateCondition === FILTER_CONDITION.LOWER) {
+        isFiltering = this.filterValueDate.end != null;
+      } else {
+        isFiltering = this.filterValueDate.start != null;
+      }
+      
+      this.popoverController.dismiss({
+        condition: this.selectedFilterDateCondition,
+        value: !isFiltering ? null : this.filterValueDate,
       });
     }
   }

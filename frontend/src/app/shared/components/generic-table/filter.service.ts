@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { DateTime } from "luxon";
 import { Column, FILTER_CONDITION, FilterValueDate, FilterValueNumber } from "src/app/core/models/table/column.model";
 import { ValueLabel } from "src/app/core/models/util.model";
 
@@ -94,7 +95,7 @@ export class FilterService {
     });
   }
 
-  /*filterDate(list: any[], column: Column) {
+  filterDate(list: any[], column: Column) {
     const searchValue = column.filter.value as FilterValueDate;
 
     return list.filter(data => {
@@ -108,13 +109,13 @@ export class FilterService {
         case FILTER_CONDITION.LOWER:
           return (
             value != null 
-            && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day'))
+            && DateTime.fromISO(value) < DateTime.fromFormat(searchValue.end, 'yyyy-MM-dd').startOf('day').plus({ days: 1 })
           )
           || value == null;
         case FILTER_CONDITION.GREATER:
           return (
             value != null 
-            && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+            && DateTime.fromISO(value) > DateTime.fromFormat(searchValue.start, 'yyyy-MM-dd').endOf('day').minus({ days: 1 })
           )
           || value == null;
         case FILTER_CONDITION.BETWEEN:
@@ -122,7 +123,7 @@ export class FilterService {
           if (searchValue.end == null) {
             return (
               value != null 
-              && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+              && DateTime.fromISO(value) > DateTime.fromFormat(searchValue.start, 'yyyy-MM-dd').endOf('day').minus({ days: 1 })
             )
             || value == null;
           }
@@ -131,20 +132,20 @@ export class FilterService {
           if (searchValue.start == null) {
             return (
               value != null 
-              && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day'))
+              && DateTime.fromISO(value) < DateTime.fromFormat(searchValue.end, 'yyyy-MM-dd').startOf('day').plus({ days: 1 })
             )
             || value == null;
           }
           
           // Else : between the 2 dates
           return value != null
-            && moment(value).isBefore(moment(searchValue.end).startOf('day').add(1, 'day')) 
-            && moment(value).isAfter(moment(searchValue.start).endOf('day').add(-1, 'day'))
+            && DateTime.fromISO(value) < DateTime.fromFormat(searchValue.end, 'yyyy-MM-dd').startOf('day').plus({ days: 1 })
+            && DateTime.fromISO(value) > DateTime.fromFormat(searchValue.start, 'yyyy-MM-dd').endOf('day').minus({ days: 1 })
         default:
           return false; 
       }
     });
-  }*/
+  }
 
   convertCaseSensitive(word) {
     return word.toString().toUpperCase().replace(/,/g, '.');

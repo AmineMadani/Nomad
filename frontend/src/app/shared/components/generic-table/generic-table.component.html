@@ -108,6 +108,14 @@
               [isMultiSelection]="column.selectProperties.isMultiSelection" [isUsedInTable]="true">
             </app-search-select>
           </td>
+
+          <td class="text-cell" *ngIf="column.type === TypeColumn.DATE" [style]="getColumnStyle(column)" [style.text-align]="column.centerText ? 'center' : ''">
+            {{ row.get(column.key).value | date:'dd/MM/yyyy' }}
+          </td>
+
+          <td class="text-cell" *ngIf="column.type === TypeColumn.DATE_HOUR" [style]="getColumnStyle(column)" [style.text-align]="column.centerText ? 'center' : ''">
+            {{ row.get(column.key).value | date:'dd/MM/yyyy HH:mm' }}
+          </td>
         </ng-container>
       </tr>
     </tbody>

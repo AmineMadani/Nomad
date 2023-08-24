@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Column, ColumnSort, FILTER_CONDITION, FILTER_TEXT_CONDITION, FILTER_TYPE, FilterValueNumber, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Column, ColumnSort, FILTER_CONDITION, FILTER_TEXT_CONDITION, FILTER_TYPE, FilterValueDate, FilterValueNumber, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FilterResult, FilterTableComponent } from './filter-table/filter-table.component';
 import { FilterService } from './filter.service';
 import { ValueLabel } from 'src/app/core/models/util.model';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-generic-table',
@@ -252,9 +253,9 @@ export class GenericTableComponent implements OnInit {
           result = this.filterService.filterSelect(result, column);
         } else if (column.filter.type === FILTER_TYPE.NUMBER) {
           result = this.filterService.filterNumber(result, column);
-        } /*else if (column.filter.type === FILTER_TYPE.DATE) {
+        } else if (column.filter.type === FILTER_TYPE.DATE) {
           result = this.filterService.filterDate(result, column);
-        } */
+        } 
       }
     });
 
@@ -304,6 +305,9 @@ export class GenericTableComponent implements OnInit {
         break;
 
       case 'number':
+        const start = (column.filter.value as FilterValueNumber).start;
+        const end = (column.filter.value as FilterValueNumber).end;
+
         switch (column.filter.condition) {
           case FILTER_CONDITION.EMPTY:
             chipValue += 'est vide';
@@ -314,66 +318,68 @@ export class GenericTableComponent implements OnInit {
             break;
 
           case FILTER_CONDITION.EQUAL:
-            chipValue += "Est égal à " + (column.filter.value as FilterValueNumber).start;
+            chipValue += "est égal à " + start;
             break;
 
           case FILTER_CONDITION.NOT_EQUAL:
-            chipValue += "Est différent de " + (column.filter.value as FilterValueNumber).start;
+            chipValue += "est différent de " + start;
             break;
 
           case FILTER_CONDITION.GREATER:
-            chipValue += "Supérieur à " + (column.filter.value as FilterValueNumber).start;
+            chipValue += "supérieur à " + start;
             break;
 
           case FILTER_CONDITION.GREATER_OR_EQUAL:
-            chipValue += "Supérieur ou égal à " + (column.filter.value as FilterValueNumber).start;
+            chipValue += "inférieur ou égal à " + start;
             break;
 
           case FILTER_CONDITION.LOWER:
-            chipValue += "Inférieur à " + (column.filter.value as FilterValueNumber).end;
+            chipValue += "inférieur à " + end;
             break;
 
           case FILTER_CONDITION.LOWER_OR_EQUAL:
-            chipValue += "Inférieur ou égal à " + (column.filter.value as FilterValueNumber).end;
+            chipValue += "inférieur ou égal à " + end;
             break;
 
           case FILTER_CONDITION.BETWEEN:
-            chipValue += "Entre " + (column.filter.value as FilterValueNumber).start + " et "
-                                   + (column.filter.value as FilterValueNumber).end;
+            chipValue += "entre " + start + " et " + end;
             break;
-
-          default:
-            let ftc = FILTER_TEXT_CONDITION.find((ftc) => ftc.value === column.filter.condition);
-            if (ftc) {
-              chipValue += ftc.label + ": '" + column.filter.value + "'";
-            } else {
-              chipValue += "'" + column.filter.value + "'";
-            }
         }
         break;
 
-      /*case 'date':
-        let searchData = column.searchData as SearchDataDate;
-        let dateStart = this.formatDate(searchData.start);
-        let dateEnd = this.formatDate(searchData.end);
+      case 'date':
+        const startDate = (column.filter.value as FilterValueDate).start != null ? DateTime.fromFormat((column.filter.value as FilterValueDate).start, 'yyyy-MM-dd').toFormat('dd/MM/yyyy') : null;
+        const endDate = (column.filter.value as FilterValueDate).end != null ? DateTime.fromFormat((column.filter.value as FilterValueDate).end, 'yyyy-MM-dd').toFormat('dd/MM/yyyy') : null;
 
-        // option filter
-        if (column.filterType === 'isBetween') {
-          if (!searchData.start) {
-            text = "jusqu'au " + dateEnd;
-          } else if (!searchData.end) {
-            text = 'à partir du ' + dateStart;
-          } else {
-            text = 'du ' + dateStart + ' au ' + dateEnd;
-          }
-        } else if (column.filterType === 'isDown') {
-          text = "jusqu'au " + dateEnd;
-        } else if (column.filterType === 'isUp') {
-          text = 'à partir du ' + dateStart;
-        } else {
-          text = this.getCommonChipValue(column);
+        switch (column.filter.condition) {
+          case FILTER_CONDITION.EMPTY:
+            chipValue += 'est vide';
+            break;
+
+          case FILTER_CONDITION.NOT_EMPTY:
+            chipValue += "n'est pas vide";
+            break;
+
+          case FILTER_CONDITION.LOWER:
+            chipValue += "jusqu'au " + endDate;
+            break;
+
+          case FILTER_CONDITION.GREATER:
+            chipValue += "à partir du " + startDate;
+            break;
+
+          case FILTER_CONDITION.BETWEEN:
+            if (startDate == null) {
+              chipValue += "jusqu'au " + endDate;
+            } else if (endDate == null) {
+              chipValue += "à partir du " + startDate;
+            } else {
+              chipValue += "du " + startDate + " au " + endDate;
+            }
+            break;
         }
-        break;*/
+
+        break;
     }
     return chipValue;
   }

@@ -63,6 +63,32 @@
         aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
         [(ngModel)]="filterValueNumber.end" (keydown.enter)="ok()" />
     </ng-container>
+
+    <!-- DATE -->
+    <ng-container *ngSwitchCase="FILTER_TYPE.DATE">
+      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+        [(ngModel)]="selectedFilterDateCondition" interface="popover" class="filter-select">
+        <ion-select-option *ngFor="let ftt of FILTER_DATE_CONDITION" [value]="ftt.value">
+          {{ftt.label}}
+        </ion-select-option>
+      </ion-select>
+
+      <ion-input #filterDateStartValueInput type="date"
+        *ngIf="selectedFilterDateCondition === FILTER_CONDITION.BETWEEN 
+            || selectedFilterDateCondition === FILTER_CONDITION.GREATER"
+        aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
+        [(ngModel)]="filterValueDate.start" (keydown.enter)="ok()" />
+
+      <span *ngIf="selectedFilterDateCondition === FILTER_CONDITION.BETWEEN">
+        &nbsp; et &nbsp;
+      </span>
+
+      <ion-input #filterDateEndValueInput type="date"
+        *ngIf="selectedFilterDateCondition === FILTER_CONDITION.BETWEEN 
+            || selectedFilterDateCondition === FILTER_CONDITION.LOWER"
+        aria-label="label" labelPlacement="floating" fill="outline" label="Rechercher" class="filter-input"
+        [(ngModel)]="filterValueDate.end" (keydown.enter)="ok()" />
+    </ng-container>
   </ng-container>
 </div>
 

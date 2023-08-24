@@ -40,7 +40,9 @@ export enum TypeColumn {
   TEXT,
   CHECKBOX,
   ACTION,
-  SELECT
+  SELECT,
+  DATE,
+  DATE_HOUR,
 }
 
 export class TableRowArray<T> extends FormArray {
@@ -77,7 +79,7 @@ export interface ColumnSort {
 
 // ### FILTER ### //
 export interface Filter {
-  type: 'none' | 'text' | 'select' | 'number'; // | 'date'
+  type: 'none' | 'text' | 'select' | 'number' | 'date';
   // Condition of the filer, null for select
   condition?: FILTER_CONDITION;
   value?: string | FilterValueNumber | FilterValueDate | ValueLabel[];
@@ -93,7 +95,7 @@ export enum FILTER_TYPE {
   TEXT = 'text',
   SELECT = 'select',
   NUMBER = 'number',
-  /*DATE = 'date',*/
+  DATE = 'date',
 }
 
 export interface FilterValueNumber {
@@ -102,8 +104,8 @@ export interface FilterValueNumber {
 }
 
 export interface FilterValueDate {
-  start: Date;
-  end: Date;
+  start: string;
+  end: string;
 }
 
 export enum FILTER_CONDITION {
