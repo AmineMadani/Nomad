@@ -23,7 +23,7 @@ export class AssetFavoriteComponent implements OnInit {
   public selectedFavorite: string | undefined;
 
   ngOnInit() {
-    this.userService.getUser().then(usr => {
+    this.userService.getCurrentUser().then(usr => {
       if (usr.usrConfiguration?.favorites) {
         this.user = usr;
       }

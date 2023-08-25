@@ -12,7 +12,7 @@ public class PermissionDto {
     private String perLlabel;
     private Boolean perValid;
     private String perCategory;
-    private List<String> profilesCodes;
+    private List<Long> profilesIds;
 
     public PermissionDto(Permissions permission) {
         this.id = permission.getId();
@@ -21,9 +21,9 @@ public class PermissionDto {
         this.perLlabel = permission.getPerLlabel();
         this.perValid = permission.getPerValid();
         this.perCategory = permission.getPerCategory();
-        this.profilesCodes = permission.getListOfPrfPer()
+        this.profilesIds = permission.getListOfPrfPer()
                 .stream()
-                .map((PrfPer prfPer) -> prfPer.getProfile().getPrfCode())
+                .map((PrfPer prfPer) -> prfPer.getProfile().getId())
                 .toList();
     }
 
@@ -76,11 +76,11 @@ public class PermissionDto {
         this.perCategory = perCategory;
     }
 
-    public List<String> getProfilesCodes() {
-        return profilesCodes;
+    public List<Long> getProfilesIds() {
+        return profilesIds;
     }
 
-    public void setProfilesCodes(List<String> profilesCodes) {
-        this.profilesCodes = profilesCodes;
+    public void setProfilesIds(List<Long> profilesIds) {
+        this.profilesIds = profilesIds;
     }
 }

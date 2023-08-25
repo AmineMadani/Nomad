@@ -27,6 +27,8 @@ import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-map',
@@ -44,7 +46,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private referentialService: ReferentialService,
     private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
-    private keycloakService: KeycloakService
+    private keycloakService: KeycloakService,
+    private userService: UserService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -77,6 +80,11 @@ export class MapComponent implements OnInit, OnDestroy {
   public scale: string;
   public isMobile: boolean;
 
+  // Rights
+  public userHasRightCreateXYWorkorder: boolean = false;
+  public userHasRightModifyReport: boolean = false;
+  public userHasRightRequestUpdateAsset: boolean = false;
+
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
 
@@ -88,6 +96,14 @@ export class MapComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
+
+    // Init rights
+    this.userHasRightCreateXYWorkorder =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_X_Y_WORKORDER);
+    this.userHasRightModifyReport =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.MODIFY_REPORT_MY_AREA);
+    this.userHasRightRequestUpdateAsset =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.REQUEST_UPDATE_ASSET);
 
     const loading = await this.loadingCtrl.create({
       message: 'Chargement de la carte',
@@ -659,7 +675,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
     // In certain functions like multi-eq, putting isFeatureFiredEvent to false come faster than the rest of this function
     // With firedEvent, the value stays to the original isFeatureFiredEvent, avoiding asynchronous weird things
-    const firedEvent = this.mapEvent.isFeatureFiredEvent; 
+    const firedEvent = this.mapEvent.isFeatureFiredEvent;
 
     this.mapEvent.highlighSelectedFeatures(
       this.map,
@@ -668,7 +684,7 @@ export class MapComponent implements OnInit, OnDestroy {
       firedEvent,
       e
     );
-  
+
     if (!firedEvent) {
       const properties = feature.properties;
       if (properties['geometry']) delete properties['geometry'];

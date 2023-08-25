@@ -1,11 +1,11 @@
 <app-page-header [headerLabel]="'I-' + workOrder?.id" [loading]="loading"></app-page-header>
 
 <ion-tab-bar class="action-bar" slot="top">
-  <ion-tab-button [disabled]="loading" (click)="onGenerateReport()">
+  <ion-tab-button [disabled]="loading || !userHasRightModifyReport" (click)="onGenerateReport()">
     <ion-icon name="reader-outline"></ion-icon>
     Compte-rendu
   </ion-tab-button>
-  <ion-tab-button [disabled]="loading">
+  <ion-tab-button [disabled]="loading || !userHasRightCreateProgram">
     <ion-icon name="link-outline"></ion-icon>
     Ajouter à un programme
   </ion-tab-button>
@@ -74,7 +74,7 @@
     </ion-accordion>
     <ion-accordion value="report"
       *ngIf="(taskId || workOrder.tasks.length == 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues">
-      <ion-item slot="header" color="light">
+      <ion-item slot="header" color="light" [disabled]="!userHasRightModifyReport">
         <ion-label> Compte-rendu </ion-label>
       </ion-item>
       <div slot="content">

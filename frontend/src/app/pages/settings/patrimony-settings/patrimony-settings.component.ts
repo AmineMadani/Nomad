@@ -224,7 +224,7 @@ export class PatrimonySettingsPage implements OnInit {
       // Get the list of user who will be update in adequacy with the current AssetFilter
       let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
-        const currentUser = await this.userService.getUser();
+        const currentUser = await this.userService.getCurrentUser();
         listUserId = [currentUser.id];
       }
 
@@ -240,7 +240,7 @@ export class PatrimonySettingsPage implements OnInit {
 
       this.templateService.saveFormTemplateCustomUser({ formTemplate, userIds: listUserId }).subscribe(async () => {
         // Get the saved asset filter if the current user is in the list of user to have this customisation
-        const currentUser = await this.userService.getUser();
+        const currentUser = await this.userService.getCurrentUser();
         if (listUserId.includes(currentUser.id)) await this.getListAssetFilter();
       });
     } else {
@@ -256,7 +256,7 @@ export class PatrimonySettingsPage implements OnInit {
       // Get the list of user who will be update in adequacy with the current AssetFilter
       let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
-        const currentUser = await this.userService.getUser();
+        const currentUser = await this.userService.getCurrentUser();
         listUserId = [currentUser.id];
       }
 
@@ -264,7 +264,7 @@ export class PatrimonySettingsPage implements OnInit {
       // A toast is automatically showed to the user when the api call is done.
       this.templateService.deleteFormTemplateCustomUser({ id: this.assetFilter.fteId, userIds: listUserId }).subscribe(async () => {
         // Get the default asset filter if the current user is in the list of user to have this customisation
-        const currentUser = await this.userService.getUser();
+        const currentUser = await this.userService.getCurrentUser();
         if (listUserId.includes(currentUser.id)) await this.getListAssetFilter();
       });
     } else {

@@ -4,11 +4,11 @@
   <ng-container *ngIf="!loading; else loadingBody">
     <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
       <ion-list>
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts" 
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
           [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
         </app-search-select>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"  
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
           [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
@@ -53,7 +53,7 @@
         </ion-select>
 
         <div class="wko-calendar">
-          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début" 
+          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="Début"
             formControlName="wkoPlanningStartDate"></ion-input>
           <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="Fin"
             formControlName="wkoPlanningEndDate"></ion-input>
@@ -74,7 +74,7 @@
   </ng-container>
 </div>
 <div class="wko-footer">
-  <ion-button fill="clear" (click)="onSubmit()" [disabled]="loading || !workOrderForm.valid">Envoyer à la planification</ion-button>
+  <ion-button fill="clear" (click)="onSubmit()" [disabled]="loading || !workOrderForm.valid || !userHasRightSendWorkorder">Envoyer à la planification</ion-button>
 </div>
 
 <ng-template #loadingBody>

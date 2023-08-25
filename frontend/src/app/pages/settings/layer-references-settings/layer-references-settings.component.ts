@@ -85,7 +85,7 @@ export class LayerReferencesSettingsPage implements OnInit {
       // Get the list of user who will be update in adequacy with the current SettingsType
       let listUserId: number[] = formValues.listUserId;
       if (this.settingsType === SettingsTypeEnum.PERSONNAL_SETTINGS) {
-        const currentUser = await this.userService.getUser();
+        const currentUser = await this.userService.getCurrentUser();
         listUserId = [currentUser.id];
       }
 

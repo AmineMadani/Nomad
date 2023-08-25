@@ -25,12 +25,12 @@ export class AssetDrawer implements OnInit, OnDestroy {
     private assetFilterService: AssetFilterService,
     private userService: UserService,
     private filterService: FilterService
-  ) { 
+  ) {
   }
 
   @ViewChild('scrolling') scrolling: ElementRef;
 
-  
+
   public assetFilterSegment: FilterAsset[];
   public selectedSegment?: string;
   public assetFilterTree: FilterAsset[];
@@ -52,7 +52,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
       this.isLoading = false;
     });
 
-    this.userService.getUser().then(usr => this.user = usr);
+    this.userService.getCurrentUser().then(usr => this.user = usr);
   }
 
   removeAssetNotVisible(listAssetFilter: FilterAsset[]): FilterAsset[] {
@@ -167,7 +167,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
   /**
    * Check if data selected on a segment
-   * @returns 
+   * @returns
    */
   public isSelectedDataOnSegment(): boolean {
     if (this.selectedSegment == "details") {

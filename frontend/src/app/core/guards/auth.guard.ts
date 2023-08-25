@@ -36,7 +36,7 @@ export class AuthGuardService implements CanActivate {
       }
     } else {
       // Try to get the user data
-      const user = await this.userService.getUser();
+      const user = await this.userService.getCurrentUser();
 
       if (user) {
 
