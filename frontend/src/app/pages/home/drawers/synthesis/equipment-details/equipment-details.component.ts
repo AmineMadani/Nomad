@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { FormTemplate } from 'src/app/core/models/template.model';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 import { TemplateService } from 'src/app/core/services/template.service';
+import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import {
   Form,
@@ -18,7 +20,8 @@ export class EquipmentDetailsComponent implements OnInit {
   constructor(
     private utils: UtilsService,
     private activatedRoute: ActivatedRoute,
-    private templateService: TemplateService
+    private templateService: TemplateService,
+    private userService: UserService,
   ) {}
 
   public form: Form;
@@ -28,8 +31,15 @@ export class EquipmentDetailsComponent implements OnInit {
 
   public isMobile: boolean;
 
-  ngOnInit() {
+  public userHasRightCreateAssetWorkorder: boolean = false;
+
+  async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+
+    this.userHasRightCreateAssetWorkorder =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_ASSET_WORKORDER);
+    console.log(this.userHasRightCreateAssetWorkorder);
+
     this.activatedRoute.queryParams
       .pipe(
         switchMap((equipment: any) => {

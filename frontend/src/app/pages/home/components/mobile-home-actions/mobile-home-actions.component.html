@@ -13,7 +13,7 @@
     </ng-container>
 
     <ng-container *ngSwitchCase="'ACTIONS'">
-      <ion-item button lines="none" color="none" button (click)="onGenerateWorkOrder()">
+      <ion-item button lines="none" color="none" button (click)="onGenerateWorkOrder()" [disabled]="!userHasRightCreateXYWorkorder">
         <ion-label>Générer une intervention XY</ion-label>
       </ion-item>
       <ion-item button lines="none" color="none">

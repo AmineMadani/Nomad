@@ -61,7 +61,7 @@ export class PermissionsSettingsPage implements OnInit {
           const columnProfile = profiles.find((prf) => prf.prfCode === column.key);
           if (columnProfile) {
             permissionRow[column.key] =
-              permission.profilesCodes.includes(columnProfile.prfCode) ? 'X' : '';
+              permission.profilesIds.includes(columnProfile.id) ? 'X' : '';
           } else {
             permissionRow[column.key] = permission[column.key];
           }

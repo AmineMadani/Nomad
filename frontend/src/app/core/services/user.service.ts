@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Context, Permission, Profile, User } from '../models/user.model';
+import { Context, Permission, Profile, User, UserPermissionsEnum } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
-import { Observable, catchError, lastValueFrom, of, timeout } from 'rxjs';
+import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
 
 /**
  * Enum of cache items in local storage
@@ -25,11 +25,13 @@ export class UserService {
     private preferenceService: PreferenceService
   ) { }
 
+  private permissions: Permission[];
+
   /**
    * Method to get all the user informations from server
    * @returns User information
    */
-  async getUserInformation(): Promise<Observable<User>> {
+  private async getUserInformation(): Promise<Observable<User>> {
     const res = await lastValueFrom(
       this.userDataService.getUserInformation()
         .pipe(
@@ -61,7 +63,7 @@ export class UserService {
    */
   public async getCurrentUserContext(): Promise<User> {
     const mapLibre: maplibregl.Map = this.mapService.getMap();
-    const user: User = await this.getUser();
+    const user: User = await this.getCurrentUser();
     if (!user) {
       throw new Error('failed to load user informations');
     }
@@ -89,7 +91,7 @@ export class UserService {
    * If the user is not found in local storage, get the user from the server and store it in local storage.
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
-  public async getUser(): Promise<User | undefined> {
+  public async getCurrentUser(): Promise<User | undefined> {
     const usr: any = await this.getUserInformation();
     if (usr.usrConfiguration) {
       usr.usrConfiguration = JSON.parse(usr.usrConfiguration);
@@ -185,7 +187,7 @@ export class UserService {
    * Restore te user context from base
    */
   public async restoreUserContextFromBase(): Promise<void> {
-    const usr: User = await this.getUser();
+    const usr: User = await this.getCurrentUser();
     this.restoreFilter(usr.usrConfiguration.context);
   }
 
@@ -194,7 +196,7 @@ export class UserService {
    * On le met ici sinon ca fait une dependance circulaire
    */
   public async restoreUserContextFromLocalStorage(): Promise<void> {
-    const user: User = await this.getUser();
+    const user: User = await this.getCurrentUser();
     if (user.usrConfiguration.context) {
       await this.restoreUserContextNavigation(user.usrConfiguration.context);
     }
@@ -240,12 +242,38 @@ export class UserService {
   }
 
   /**
-    * Method to get all the permissions from server
+    * Method to get all the permissions from server or cache
     * @returns Permissions
     */
   getAllPermissions(): Observable<Permission[]> {
-    return this.userDataService.getAllPermissions();
+    if (this.permissions) {
+      return of(this.permissions);
+    } else {
+      return this.userDataService.getAllPermissions().pipe(
+        tap((result: Permission[]) => {
+          this.permissions = result;
+        })
+      );
+    }
   }
 
+  /**
+   * Check if the current user has right on a specific permission
+   * @param perCode The permission code to check
+   */
+  async currentUserHasRight(perCode: UserPermissionsEnum): Promise<boolean> {
+    let hasRight: boolean = false;
 
+    const currentUser: User = await this.getCurrentUser();
+
+    if (currentUser) {
+      const permissions: Permission[] = await firstValueFrom(this.getAllPermissions());
+      const permissionProfilesIds = permissions.find((prm) => prm.perCode === perCode).profilesIds;
+      if (currentUser.perimeters.some((per) => permissionProfilesIds.includes(per.profileId))) {
+        hasRight = true;
+      }
+    }
+
+    return hasRight;
+  }
 }

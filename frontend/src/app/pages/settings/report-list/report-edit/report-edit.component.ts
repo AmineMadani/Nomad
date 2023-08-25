@@ -11,6 +11,8 @@ import { TemplateService } from 'src/app/core/services/template.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { SelectDuplicateReportComponent } from './select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './test-report/test-report.component';
+import { UserService } from 'src/app/core/services/user.service';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 
 enum CustomFormPropertiesEnum {
     TEXT = 'text',
@@ -33,12 +35,16 @@ export class ReportEditComponent implements OnInit {
     private templateService: TemplateService,
     private referentialService: ReferentialService,
     private toastController: ToastController,
+    private userService: UserService
   ) { }
 
   // Variables which must be passed at param in the modal of this component
   @Input("wtrReport") wtrReport: WtrReport;
 
   public form: FormGroup;
+
+  public userHasRightCreateNewFormField: boolean = false;
+  public userHasRightCustomizeFormField: boolean = false;
 
   CustomFormPropertiesEnum = CustomFormPropertiesEnum;
 
@@ -52,11 +58,17 @@ export class ReportEditComponent implements OnInit {
     return componentType.label;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // ### Form ### //
     this.form = new FormGroup({
       lines: new FormArray([]),
     });
+
+    // ### Rights ### //
+    this.userHasRightCreateNewFormField =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_NEW_FORM_FIELDS);
+    this.userHasRightCustomizeFormField =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CUSTOMIZE_FORM_FIELDS);
 
     // ### Data ### //
     // Check if there is already a existing form
@@ -109,6 +121,11 @@ export class ReportEditComponent implements OnInit {
         listQuestionConditionValues: definition.displayCondition?.value ?? [],
       });
     }
+
+    // Disable form if user hasn't right to customize
+    if (!this.userHasRightCustomizeFormField) {
+      this.form.disable();
+    }
   }
 
   /*
@@ -153,7 +170,7 @@ export class ReportEditComponent implements OnInit {
   deleteLine(lineIndex: number) {
     // The index of the next lines will change so if other line has condition on them
     // The condition will not work anymore
-    // Example : 
+    // Example :
     // Line 1                         --> Line 1
     // Line 2                         --> Deleted
     // Line 3 condition on line 2     --> Line 2 with no condition
@@ -199,8 +216,8 @@ export class ReportEditComponent implements OnInit {
           // Change the index
           // EmitEvent = false to not empty the list of values
           lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) - 1).toString(), {emitEvent: false});
-        } 
-        
+        }
+
         // If the condition is on the line that is moving up the list (by changing its place with the line moving down)
         if (questionCondition === ((lineIndex+1) - 1).toString()) {
           // If its the line moving down
@@ -244,8 +261,8 @@ export class ReportEditComponent implements OnInit {
             // EmitEvent = false to not empty the list of values
             lineFormToCheck.get('questionCondition').setValue((Number(questionCondition) + 1).toString(), {emitEvent: false});
           }
-        } 
-        
+        }
+
         // If the condition is on the line that is moving down the list (by changing its place with the line moving up)
         if (questionCondition === ((lineIndex+1) + 1).toString()) {
           // Else, change the index
@@ -297,7 +314,7 @@ export class ReportEditComponent implements OnInit {
   async updateValue(lineForm: FormGroup, value: string, lineIndex: number) {
     const listValue: string[] = lineForm.get('listValue').value;
     const index = listValue.indexOf(value);
-    
+
     const modal = await this.modalController.create({
       component: ValueLabelComponent,
       componentProps: {
@@ -382,7 +399,7 @@ export class ReportEditComponent implements OnInit {
 
   /**
    * Get the list of available questions for this line, for the condition
-   * 
+   *
    * @param lineIndex index of the line
    * @returns The list of questions
    */
@@ -404,7 +421,7 @@ export class ReportEditComponent implements OnInit {
 
   /**
    * Get the list of available questions values for this line, for the question condition selected
-   * 
+   *
    * @param lineIndex index of the line
    * @returns The list of values
    */
@@ -470,7 +487,7 @@ export class ReportEditComponent implements OnInit {
         backdropDismiss: false,
         cssClass: 'adaptive-modal stack-modal',
       });
-  
+
       modal.onDidDismiss().then((result) => {
         const report: string = result['data'];
         // If a report is selected
@@ -479,7 +496,7 @@ export class ReportEditComponent implements OnInit {
           this.createFormFromDefinition(formTemplate.definition);
         }
       });
-  
+
       await modal.present();
   }
 

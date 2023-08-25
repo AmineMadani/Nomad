@@ -11,6 +11,8 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { UserService } from 'src/app/core/services/user.service';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -26,7 +28,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private mapLayerService: MapLayerService,
     private drawerService: DrawerService,
     private mapEventService: MapEventService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private userService: UserService
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -120,7 +123,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private paramFeatures: any;
 
-  ngOnInit() {
+  async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.wkoId = this.activatedRoute.snapshot.queryParams?.['wkoId'];
     this.buttons = [
@@ -131,8 +134,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           ? "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle',
+        disabled: true,
       },
-      { key: 'ask', label: 'Faire une demande de MAJ', icon: 'refresh' },
+      {
+        key: 'ask',
+        label: 'Faire une demande de MAJ',
+        icon: 'refresh',
+        disabled: true,
+      },
       {
         key: 'showSelectedFeatures',
         label: 'Afficher toutes les sélections',
@@ -140,6 +149,15 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       },
     ];
     this.isMobile = this.utilsService.isMobilePlateform();
+
+    // Enable the create workorder buttons when user has right
+    const userHasRightCreateAssetWorkorder =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_ASSET_WORKORDER);
+    this.buttons.find((btn) => btn.key === 'create').disabled = !userHasRightCreateAssetWorkorder;
+    // Idem for ask button
+    const userHasRightRequestUpdateAsset =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.REQUEST_UPDATE_ASSET);
+    this.buttons.find((btn) => btn.key === 'ask').disabled = !userHasRightRequestUpdateAsset;
   }
 
   ngOnDestroy(): void {
@@ -221,7 +239,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             { draft: this.wkoDraft }
           );
         }
-        
+
         break;
       case 'showSelectedFeatures':
         this.restoreViewOnFeatureSelected();
@@ -386,7 +404,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       features = [ {...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyr_table_name: features.layerKey }];
     } else {
       features = features.map((f) => {
-        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyr_table_name: f.source} 
+        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyr_table_name: f.source}
       })
     }
 

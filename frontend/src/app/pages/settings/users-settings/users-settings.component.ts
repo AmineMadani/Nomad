@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { User } from 'src/app/core/models/user.model';
+import { User, UserPermissionsEnum } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { TableService } from 'src/app/core/services/table.service';
@@ -24,6 +24,8 @@ export class UsersSettingsPage implements OnInit {
 
   public modal: any;
 
+  public userHasRightManageUser: boolean = false;
+
   public usersRows: TableRow<User>[] = [];
   public selectedUsersRows: TableRow<User>[] = [];
 
@@ -37,7 +39,7 @@ export class UsersSettingsPage implements OnInit {
           this.deleteUsers();
         },
         disableFunction: () => {
-          return this.selectedUsersRows.length === 0; // TODO: Add rights
+          return this.selectedUsersRows.length === 0 || !this.userHasRightManageUser;
         }
       },
       {
@@ -46,7 +48,7 @@ export class UsersSettingsPage implements OnInit {
           this.openUserDetails(this.selectedUsersRows[0].get('id').value, ActionType.DUPLICATION);
         },
         disableFunction: () => {
-          return this.selectedUsersRows.length !== 1; // TODO: Add rights
+          return this.selectedUsersRows.length !== 1 || !this.userHasRightManageUser;
         }
       },
       {
@@ -55,7 +57,7 @@ export class UsersSettingsPage implements OnInit {
           this.openUserDetails(null, ActionType.CREATION);
         },
         disableFunction: () => {
-          return false; // TODO: Add rights
+          return !this.userHasRightManageUser;
         }
       }
     ],
@@ -100,6 +102,10 @@ export class UsersSettingsPage implements OnInit {
   ];
 
   async ngOnInit() {
+    // Rights
+    this.userHasRightManageUser =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.MANAGE_USER_PROFILE);
+
     // Get datas
     this.loadUsers();
   }

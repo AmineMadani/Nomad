@@ -21,6 +21,8 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { PreferenceService } from 'src/app/core/services/preference.service';
 import { Observable } from 'dexie';
+import { UserService } from 'src/app/core/services/user.service';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -42,7 +44,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private utils: UtilsService,
     private layerService: LayerService,
     private datePipe: DatePipe,
-    private preferenceService : PreferenceService
+    private userService : UserService
   ) {}
 
   @ViewChild('equipmentModal', { static: true })
@@ -68,6 +70,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public loading: boolean = true;
 
+  // Rights
+  public userHasRightSendWorkorder: boolean = false;
+
   private markerCreation: Map<string, any> = new Map();
   private markerDestroyed: boolean;
 
@@ -75,10 +80,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.title = 'Générer une interventions';
+
+    this.userHasRightSendWorkorder =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.SEND_WORKORDER);
+
     const paramMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
     );
-    
+
     const params = this.utils.transformMap(paramMap);
     this.mapService
       .onMapLoaded()
@@ -108,7 +117,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         const wkoId = this.activatedRoute.snapshot.queryParams['wkoId'];
         this.createForm();
 
-      
+
         if (this.draftId){
           await this.initializeFormWithDraft();
         }
@@ -325,7 +334,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         uuid,
         this.workOrderForm.value
       );
-  
+
       this.drawerService.navigateWithEquipments(
         DrawerRouteEnum.SELECTION,
         this.equipments,
@@ -370,7 +379,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
-    
+
     //set WTR
     this.workOrderForm.controls['wtrId'].setValue(this.workOrder.tasks[0].wtrId.toString());
   }

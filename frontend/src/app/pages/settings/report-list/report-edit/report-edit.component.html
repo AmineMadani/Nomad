@@ -7,11 +7,11 @@
 
   <div class="report-edit-body">
     <div class="report-edit-actions-div">
-      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" matTooltip="Dupliquer un autre formulaire">
+      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" [disabled]="!userHasRightCreateNewFormField" matTooltip="Dupliquer un autre formulaire">
         <ion-icon slot="icon-only" name="copy"></ion-icon>
       </ion-button>
 
-      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" matTooltip="Test le formulaire">
+      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" [disabled]="!userHasRightCustomizeFormField" matTooltip="Test le formulaire">
         <ion-icon slot="icon-only" name="clipboard"></ion-icon>
       </ion-button>
     </div>
@@ -23,15 +23,15 @@
             <div class="number">
               {{i+1}}
 
-              <ion-button fill="clear" (click)="deleteLine(i)">
+              <ion-button fill="clear" (click)="deleteLine(i)" [disabled]="!userHasRightCreateNewFormField">
                 <ion-icon slot="icon-only" name="trash"></ion-icon>
               </ion-button>
 
               <div class="up-down-div">
-                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0">
+                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0 || !userHasRightCustomizeFormField">
                   <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
                 </ion-button>
-                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1">
+                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1 || !userHasRightCustomizeFormField">
                   <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
                 </ion-button>
               </div>
@@ -67,7 +67,7 @@
                   <div class="add-button-line">
                     <div>Liste des valeurs :</div>
 
-                    <ion-button fill="clear" class="small-button" (click)="addValue(lineForm)">
+                    <ion-button fill="clear" class="small-button" (click)="addValue(lineForm)" [disabled]="!userHasRightCustomizeFormField">
                       <ion-icon slot="icon-only" name="add"></ion-icon>
                     </ion-button>
                   </div>
@@ -77,19 +77,19 @@
                       <div class="value">{{value}}</div>
 
                       <div class="buttons">
-                        <ion-button fill="clear" class="small-button" (click)="valueDown(lineForm, j)" [disabled]="j === 0">
+                        <ion-button fill="clear" class="small-button" (click)="valueDown(lineForm, j)" [disabled]="j === 0 || !userHasRightCustomizeFormField">
                           <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
                         </ion-button>
 
-                        <ion-button fill="clear" class="small-button" (click)="valueUp(lineForm, j)" [disabled]="j === lineForm.get('listValue').value.length - 1">
+                        <ion-button fill="clear" class="small-button" (click)="valueUp(lineForm, j)" [disabled]="j === lineForm.get('listValue').value.length - 1 || !userHasRightCustomizeFormField">
                           <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
                         </ion-button>
 
-                        <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value, i)">
+                        <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value, i)" [disabled]="!userHasRightCustomizeFormField">
                           <ion-icon slot="icon-only" name="pencil"></ion-icon>
                         </ion-button>
 
-                        <ion-button fill="clear" class="small-button" (click)="deleteValue(lineForm, value, i)">
+                        <ion-button fill="clear" class="small-button" (click)="deleteValue(lineForm, value, i)" [disabled]="!userHasRightCustomizeFormField">
                           <ion-icon slot="icon-only" name="trash"></ion-icon>
                         </ion-button>
                       </div>
@@ -104,7 +104,7 @@
 
       <div class="line">
         <div class="number">
-          <ion-button fill="clear" class="small-button" (click)="addLine()">
+          <ion-button fill="clear" class="small-button" (click)="addLine()" [disabled]="!userHasRightCreateNewFormField || !userHasRightCustomizeFormField">
             <ion-icon slot="icon-only" name="add"></ion-icon>
           </ion-button>
         </div>
@@ -114,7 +114,7 @@
   </div>
 
   <div class="report-edit-footer">
-    <ion-button fill="clear" (click)="save()">
+    <ion-button fill="clear" (click)="save()" [disabled]="!userHasRightCustomizeFormField">
       <ion-icon slot="icon-only" name="save"></ion-icon>
     </ion-button>
   </div>

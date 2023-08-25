@@ -77,3 +77,9 @@ ion-input {
 .select-search {
     padding-bottom: 15px;
 }
+
+ion-list {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+}

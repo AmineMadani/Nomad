@@ -8,7 +8,7 @@ import { OrganizationalUnit } from 'src/app/core/models/organizational-unit.mode
 import { ActionType } from 'src/app/core/models/settings.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, PerimeterRow, Profile, User } from 'src/app/core/models/user.model';
+import { Perimeter, PerimeterRow, Profile, User, UserPermissionsEnum } from 'src/app/core/models/user.model';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -30,8 +30,13 @@ export class UserDetailsComponent implements OnInit {
 
   @Input("userId") userId: number;
   @Input("actionType") actionType: ActionType;
+  public ActionType = ActionType;
 
   public isLoading: boolean = false;
+
+  // Rights
+  public userHasRightManageUser: boolean = false;
+  public userHasRightSetUserRights: boolean = false;
 
   // Form and table utils rows
   public userForm: FormGroup;
@@ -67,7 +72,7 @@ export class UserDetailsComponent implements OnInit {
           this.selectedPerimetersRows = [];
         },
         disableFunction: () => {
-          return this.selectedPerimetersRows.length === 0 || this.userForm.disabled; // TODO: Add rights
+          return this.selectedPerimetersRows.length === 0 || !this.userHasRightManageUser || !this.userHasRightSetUserRights;
         }
       },
       {
@@ -76,7 +81,7 @@ export class UserDetailsComponent implements OnInit {
           // TODO: this.openUsersDetails();
         },
         disableFunction: () => {
-          return true; // TODO: Add rights
+          return !this.userHasRightManageUser || !this.userHasRightSetUserRights;
         }
       },
       {
@@ -85,7 +90,7 @@ export class UserDetailsComponent implements OnInit {
           this.addPerimeterRow();
         },
         disableFunction: () => {
-          return this.userForm.disabled; // TODO: Add rights
+          return !this.userHasRightManageUser || !this.userHasRightSetUserRights;
         }
       }
     ],
@@ -160,8 +165,14 @@ export class UserDetailsComponent implements OnInit {
     },
   ];
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initForm();
+
+    // Rights
+    this.userHasRightManageUser =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.MANAGE_USER_PROFILE);
+    this.userHasRightSetUserRights =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.SET_USER_RIGHTS);
 
     this.fetchInitData();
   }
@@ -220,6 +231,14 @@ export class UserDetailsComponent implements OnInit {
         this.userForm.patchValue(this.initialUser);
         for (const perimeter of this.initialUser.perimeters) {
           this.addPerimeterRow(perimeter);
+        }
+
+        // Right
+        if (!this.userHasRightManageUser) {
+          // this.userForm.disable(); // TODO: uncomment after the administrator modification
+        } else if (!this.userHasRightSetUserRights) {
+          const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
+          perimetersTable.disable();
         }
       }
 

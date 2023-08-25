@@ -2,7 +2,7 @@
   <app-page-header [headerLabel]="'Fiche ' + type" [template]="buttonsTemplate" [forceButtons]="true"></app-page-header>
   <ng-container *ngIf="isMobile">
     <ion-tab-bar class="action-bar">
-      <ion-tab-button>
+      <ion-tab-button [disabled]="!userHasRightCreateAssetWorkorder">
         <ion-icon name="add-outline"></ion-icon>
         Générer une intervention
       </ion-tab-button>
@@ -24,7 +24,7 @@
 
 <ng-template #buttonsTemplate>
   <ng-container *ngIf="!isMobile">
-    <ion-button fill="clear" slot="end">
+    <ion-button fill="clear" slot="end" [disabled]="!userHasRightCreateAssetWorkorder">
       <ion-icon slot="start" name="add-outline"></ion-icon>
       Générer une intervention
     </ion-button>

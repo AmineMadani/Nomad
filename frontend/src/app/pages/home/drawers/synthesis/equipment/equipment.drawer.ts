@@ -9,6 +9,8 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer.model';
+import { UserService } from 'src/app/core/services/user.service';
+import { UserPermissionsEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-equipment',
@@ -21,24 +23,37 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private layerReferencesService: LayerService,
     private utils: UtilsService,
     private drawer: DrawerService,
-    private cacheService: CacheService
-  ) {}
+    private cacheService: CacheService,
+    private userService: UserService,
+  ) { }
 
   public buttons: SynthesisButton[] = [
-    { key: 'create', label: 'Générer une intervention', icon: 'person-circle' },
+    {
+      key: 'create',
+      label: 'Générer une intervention',
+      icon: 'person-circle',
+      disabled: true,
+    },
   ];
+
+  // Rights
+  public userHasRightViewAssetDetailled: boolean = false;
+  public userHasRightCreateAssetWorkorder: boolean = false;
 
   public userReferences: UserReference[] = [];
   public equipment: any;
   public isMobile: boolean;
-  public isDetailAvailabled: boolean = false;
   public assetLabel: string;
   public ReferenceDisplayType = ReferenceDisplayType;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.isMobile = this.utils.isMobilePlateform();
+    this.userHasRightViewAssetDetailled =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.VIEW_ASSET_DETAILLED);
+    this.userHasRightCreateAssetWorkorder =
+      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_ASSET_WORKORDER);
   }
 
   ngOnDestroy(): void {
@@ -74,7 +89,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
       this.equipment = feature;
-      this.isDetailAvailabled = true;
     });
   }
 }

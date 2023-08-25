@@ -47,7 +47,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
 
     if(!this.minimalist) {
-      this.userService.getUser().then(usr => {
+      this.userService.getCurrentUser().then(usr => {
         this.imgUrl = usr?.imgUrl;
       });
     }
