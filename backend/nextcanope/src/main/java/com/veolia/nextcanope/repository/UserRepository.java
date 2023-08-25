@@ -1,6 +1,6 @@
 package com.veolia.nextcanope.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.veolia.nextcanope.configuration.NomadRepository;
 
 import com.veolia.nextcanope.model.Users;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
  * UserRepository is an interface for managing Users entities in the persistence layer.
  * It extends JpaRepository, which provides generic CRUD operations.
  */
-public interface UserRepository extends JpaRepository<Users, Long> {
+public interface UserRepository extends NomadRepository<Users, Long> {
 
 	/**
      * Finds an Users entity based on the provided email.

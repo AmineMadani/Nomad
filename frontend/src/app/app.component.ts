@@ -74,7 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
     //save user context when we quit the Home Page
     if (navigatePageFrom == DrawerRouteEnum.HOME){
       let user = await this.userService.getCurrentUserContext();
-      this.userService.updateUser(user);
+      this.userService.updateCurrentUser(user);
     }
-  } 
+  }
 }

@@ -7,6 +7,8 @@ import { User } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { TableService } from 'src/app/core/services/table.service';
+import { ActionType } from 'src/app/core/models/settings.model';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-users-settings',
@@ -32,7 +34,7 @@ export class UsersSettingsPage implements OnInit {
       {
         name: 'trash',
         onClick: () => {
-          // TODO: this.deleteUsers();
+          this.deleteUsers();
         },
         disableFunction: () => {
           return this.selectedUsersRows.length === 0; // TODO: Add rights
@@ -41,7 +43,7 @@ export class UsersSettingsPage implements OnInit {
       {
         name: 'copy',
         onClick: () => {
-          // TODO: this.openUsersDetails();
+          this.openUserDetails(this.selectedUsersRows[0].get('id').value, ActionType.DUPLICATION);
         },
         disableFunction: () => {
           return this.selectedUsersRows.length !== 1; // TODO: Add rights
@@ -50,7 +52,7 @@ export class UsersSettingsPage implements OnInit {
       {
         name: 'add',
         onClick: () => {
-          this.openUserDetails(null);
+          this.openUserDetails(null, ActionType.CREATION);
         },
         disableFunction: () => {
           return false; // TODO: Add rights
@@ -67,7 +69,7 @@ export class UsersSettingsPage implements OnInit {
       type: TypeColumn.ACTION,
       label: '',
       onClick: (row: FormGroup) => {
-        this.openUserDetails(row.getRawValue());
+        this.openUserDetails(row.getRawValue(), ActionType.MODIFICATION);
       }
     },
     {
@@ -108,11 +110,12 @@ export class UsersSettingsPage implements OnInit {
     });
   }
 
-  private async openUserDetails(user: User) {
+  private async openUserDetails(user: User, actionType: ActionType) {
     const modal = await this.modalController.create({
       component: UserDetailsComponent,
       componentProps: {
-        userId: user?.id
+        userId: user?.id,
+        actionType: actionType
       },
       backdropDismiss: false,
       cssClass: 'custom-modal'
@@ -130,14 +133,14 @@ export class UsersSettingsPage implements OnInit {
     return await modal.present();
   }
 
-  // private async deleteUsers() {
-  //   const deleteRequests = this.selectedUsers.map(user =>
-  //     this.userService.deleteUser(user.id)
-  //   );
+  private async deleteUsers() {
+    const deleteRequests = this.selectedUsersRows.map(userRow =>
+      this.userService.deleteUser(userRow.get('id').value)
+    );
 
-  //   forkJoin(deleteRequests).subscribe(() => {
-  //     this.selectedUsers = [];
-  //     this.loadUsers();
-  //   });
-  // }
+    forkJoin(deleteRequests).subscribe(() => {
+      this.selectedUsersRows = [];
+      this.loadUsers();
+    });
+  }
 }

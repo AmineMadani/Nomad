@@ -5,7 +5,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
-import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.UserRepository;
 

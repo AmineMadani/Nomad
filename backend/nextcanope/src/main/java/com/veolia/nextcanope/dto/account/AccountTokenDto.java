@@ -1,4 +1,4 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.account;
 
 import java.util.Collection;
 

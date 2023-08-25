@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.FormTemplateDto;
 import com.veolia.nextcanope.repository.FormTemplateRepository;
 

@@ -2,15 +2,14 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
-import com.veolia.nextcanope.dto.user.UserDetailDto;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.veolia.nextcanope.dto.AccountDto;
-import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.account.AccountDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.repository.UserRepository;
 import com.veolia.nextcanope.service.UserService;
 
@@ -32,26 +31,17 @@ public class UserController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping(path = "/information")
-	@Operation(summary = "Get the user information")
+	@GetMapping(path = "/current")
+	@Operation(summary = "Get the current user")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "Account based on the token and the database")
 	})
 	public AccountDto getUserInformation(AccountTokenDto account) {
-		return new AccountDto(account);
-	};
-	
-	@PutMapping(path ="/update")
-	@Operation(summary = "Update the user data")
-	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200",description= "User data is updated")
-	})
-	public AccountDto updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) {
-		return userService.updateUser(account.getId(), savingAccount);
+		return this.userService.getAccountById(account.getId());
 	}
 
-	@GetMapping(path = "/all-account")
-	@Operation(summary = "Get all user account")
+	@GetMapping(path = "/all")
+	@Operation(summary = "Get all users")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "Find all user account")
 	})
@@ -62,13 +52,23 @@ public class UserController {
 	@PostMapping
 	@Operation(summary = "Create a new user.")
 	@ApiResponses(value = {
-			@ApiResponse(description= "Creation of an user", content =  {
+			@ApiResponse(description= "User creation", content =  {
 					@Content(schema = @Schema(implementation = String.class))
 			})
 	})
-	public ResponseMessage createUser(@RequestBody UserDetailDto userPayload, AccountTokenDto account) {
+	public ResponseMessage createUser(@RequestBody AccountDto userPayload, AccountTokenDto account) {
 		this.userService.createUser(userPayload, account.getId());
 		return new ResponseMessage("L'utilisateur a été créé avec succès.");
+	}
+
+	@PutMapping()
+	@Operation(summary = "Update the user data")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "User data is updated")
+	})
+	public ResponseMessage updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) {
+		userService.updateUser(savingAccount, account.getId());
+		return new ResponseMessage("L'utilisateur a été modifié avec succès.");
 	}
 
 	@GetMapping(path = "/{id}")
@@ -76,9 +76,24 @@ public class UserController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "Find all user details, includes perimeters and information.")
 	})
-	public UserDetailDto getUserDetails(
-			@PathVariable Long id
+	public AccountDto getAccountById(
+		@PathVariable Long id
 	) {
-		return this.userService.getUserDetailById(id);
-	};
+		return this.userService.getAccountById(id);
+	}
+
+	@DeleteMapping(path = "/{id}")
+	@Operation(summary = "Delete the user. Return a response message.")
+	@ApiResponses(value = {
+		@ApiResponse(description= "A response message", content =  {
+				@Content(schema = @Schema(implementation = String.class))
+		})
+	})
+	public ResponseMessage deleteUser(
+			@PathVariable Long id,
+			AccountTokenDto account
+	) {
+		this.userService.deleteUser(id, account.getId());
+		return new ResponseMessage("L'utilisateur a été supprimé avec succès.");
+	}
 }

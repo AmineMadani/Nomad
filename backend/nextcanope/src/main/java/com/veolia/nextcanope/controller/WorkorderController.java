@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.TaskSearchDto;
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.dto.WorkorderDto;

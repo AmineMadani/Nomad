@@ -6,6 +6,7 @@ import java.util.Map;
 import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleSummaryDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerStylePayload;
 import com.veolia.nextcanope.service.LayerStyleService;

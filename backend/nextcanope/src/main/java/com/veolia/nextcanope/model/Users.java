@@ -72,6 +72,11 @@ private Long id;
     @JsonProperty("usr_configuration")
     private String usrConfiguration;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="usr_ddel")
+    @JsonProperty("usr_ddel")
+    private Date deletedAt;
+
     @Column(name="usr_company", length=2147483647)
     @JsonProperty("usr_company")
     private String usrCompany;
@@ -292,10 +297,10 @@ private Long id;
     private List<Task> listOfCreatedTask;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<VlTopologyType> listOfModifiedVlTopologyType;
+    private List<Layer> listOfModifiedLayer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Layer> listOfModifiedLayer;
+    private List<VlTopologyType> listOfModifiedVlTopologyType;
 
     @OneToMany(mappedBy="user")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
@@ -394,6 +399,19 @@ private Long id;
         this.usrConfiguration = usrConfiguration ;
     }
 
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
     public String getUsrCompany() {
         return this.usrCompany;
     }
@@ -412,6 +430,16 @@ private Long id;
     }
 
     public List<Users> getListOfCreatedUsers() {
+        if (this.listOfCreatedUsers != null) {
+            return this.listOfCreatedUsers.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Users> getListOfCreatedUsersWithDeleted() {
         return this.listOfCreatedUsers;
     }
 
@@ -436,6 +464,16 @@ private Long id;
     }
 
     public List<Users> getListOfModifiedUsers() {
+        if (this.listOfModifiedUsers != null) {
+            return this.listOfModifiedUsers.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Users> getListOfModifiedUsersWithDeleted() {
         return this.listOfModifiedUsers;
     }
 
@@ -784,6 +822,16 @@ private Long id;
     }
 
     public List<UsrCtrPrf> getListOfUsrCtrPrf() {
+        if (this.listOfUsrCtrPrf != null) {
+            return this.listOfUsrCtrPrf.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UsrCtrPrf> getListOfUsrCtrPrfWithDeleted() {
         return this.listOfUsrCtrPrf;
     }
 
@@ -986,6 +1034,16 @@ private Long id;
     }
 
     public List<UsrCtrPrf> getListOfCreatedUsrCtrPrf() {
+        if (this.listOfCreatedUsrCtrPrf != null) {
+            return this.listOfCreatedUsrCtrPrf.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UsrCtrPrf> getListOfCreatedUsrCtrPrfWithDeleted() {
         return this.listOfCreatedUsrCtrPrf;
     }
 
@@ -1018,6 +1076,16 @@ private Long id;
     }
 
     public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
+        if (this.listOfModifiedUsrCtrPrf != null) {
+            return this.listOfModifiedUsrCtrPrf.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UsrCtrPrf> getListOfModifiedUsrCtrPrfWithDeleted() {
         return this.listOfModifiedUsrCtrPrf;
     }
 
@@ -1163,20 +1231,20 @@ private Long id;
         this.listOfCreatedTask = listOfCreatedTask;
     }
 
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
-    }
-
-    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
-        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
-    }
-
     public List<Layer> getListOfModifiedLayer() {
         return this.listOfModifiedLayer;
     }
 
     public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
         this.listOfModifiedLayer = listOfModifiedLayer;
+    }
+
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
+    }
+
+    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
+        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
     }
 
     public List<FormTemplateCustom> getListOfFormTemplateCustom() {

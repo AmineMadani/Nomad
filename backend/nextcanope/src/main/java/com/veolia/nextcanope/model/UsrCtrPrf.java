@@ -44,6 +44,11 @@ public class UsrCtrPrf implements Serializable {
     @JsonProperty("usc_dmod")
     private Date uscDmod;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="usc_ddel")
+    @JsonProperty("usc_ddel")
+    private Date deletedAt;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -92,6 +97,19 @@ public class UsrCtrPrf implements Serializable {
 
 	public void setUscDmod( Date uscDmod ) {
         this.uscDmod = uscDmod ;
+    }
+
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
 import com.veolia.nextcanope.constants.MessageConstants;
-import com.veolia.nextcanope.dto.AccountTokenDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

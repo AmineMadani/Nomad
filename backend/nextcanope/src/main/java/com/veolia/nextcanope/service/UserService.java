@@ -1,24 +1,18 @@
 package com.veolia.nextcanope.service;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.veolia.nextcanope.dto.user.UserPerimeterDto;
-import com.veolia.nextcanope.model.Contract;
-import com.veolia.nextcanope.model.Profile;
-import com.veolia.nextcanope.model.UsrCtrPrf;
+import com.veolia.nextcanope.dto.account.AccountPerimeterDto;
+import com.veolia.nextcanope.model.*;
 import com.veolia.nextcanope.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.veolia.nextcanope.dto.AccountDto;
-import com.veolia.nextcanope.dto.user.UserDetailDto;
+import com.veolia.nextcanope.dto.account.AccountDto;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
-import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.UserRepository;
 
 /**
@@ -37,68 +31,56 @@ public class UserService {
 	@Autowired
 	ContractService contractService;
 
+	public Users getUserById(Long userId) {
+		return this.userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
+	}
+
     /**
      * Find all user account.
      *
      * @return List of user account.
      */
 	public List<AccountDto> getAllUserAccount() {
-		List<Users> users = this.userRepository.findAll(Sort.by(Sort.Order.desc("usrDcre")));
-		return users.stream().map(AccountDto::new).collect(Collectors.toList());
+		List<Users> users = this.userRepository.findAll();
+		return users.stream()
+				.sorted(Comparator.comparing(Users::getUsrDcre))
+				.map(AccountDto::new)
+				.toList();
 	}
 
-	public Users getUserById(Long userId) {
-		return this.userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
-	}
-
-	public UserDetailDto getUserDetailById(Long userId) {
+	public AccountDto getAccountById(Long userId) {
 		Users user = getUserById(userId);
-		return new UserDetailDto(user);
+		return new AccountDto(user);
 	}
-	
+
 	/**
-	 * Update the user data
-	 * @param userId the user id to update
-	 * @param updateUser the update data
-	 * @return the account dto
+	 * Update a user
+	 * @param newAccount the creation data
+	 * @param uCreId the user who makes the operation
 	 */
-	public AccountDto updateUser(Long userId, AccountDto updateUser) {
-		Users user = userRepository.findById(userId).orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + userId + " n'existe pas."));
-
-		user.setUsrConfiguration(updateUser.getUsrConfiguration());
-		user.setUsrDmod(new Date());
-		user.setModifiedBy(user);
-
-		try {
-			userRepository.save(user);
-		} catch (Exception e) {
-			throw new TechnicalException("Erreur lors de la sauvegarde de l'utilisateur avec l'id " + userId + ".");
-		}
-
-		return updateUser;
-	}
-
-	public void createUser(UserDetailDto userPayload, Long uCreId) {
+	public void createUser(AccountDto newAccount, Long uCreId) {
 		// Check if a user already exist with the same email
-		if (this.userRepository.findByUsrEmail(userPayload.getEmail()).isPresent()) {
+		if (this.userRepository.findByUsrEmail(newAccount.getEmail()).isPresent()) {
 			throw new FunctionalException(
-				"Un utilisateur avec l'email " + userPayload.getEmail() + " existe déjà."
+				"Un utilisateur avec l'email " + newAccount.getEmail() + " existe déjà."
 			);
 		}
 
-		Users uCreUser = getUserById(uCreId);
 		Users user = new Users();
-		user.setUsrFirstName(userPayload.getFirstName());
-		user.setUsrLastName(userPayload.getLastName());
-		user.setUsrEmail(userPayload.getEmail());
-		user.setUsrStatus(userPayload.getStatus());
-		user.setUsrCompany(userPayload.getCompany());
+		// Global info
+		user.setUsrFirstName(newAccount.getFirstName());
+		user.setUsrLastName(newAccount.getLastName());
+		user.setUsrEmail(newAccount.getEmail());
+		user.setUsrStatus(newAccount.getStatus());
+		user.setUsrCompany(newAccount.getCompany());
+		user.setUsrValid(true);
+		// Created and Modified by
+		Users uCreUser = getUserById(uCreId);
 		user.setCreatedBy(uCreUser);
 		user.setModifiedBy(uCreUser);
-		user.setUsrValid(true);
-
+		// Perimeters
 		List<UsrCtrPrf> usrCtrPrfList = new ArrayList<>();
-		for (UserPerimeterDto perimeter : userPayload.getPerimeters()) {
+		for (AccountPerimeterDto perimeter : newAccount.getPerimeters()) {
 			// Get profile
 			Profile profile = this.profileRepository
 					.findById(perimeter.getProfileId())
@@ -132,4 +114,101 @@ public class UserService {
 			throw new TechnicalException("Erreur lors de la création d'un utilisateur.", e.getMessage());
 		}
 	}
+
+	/**
+	 * Update the user data
+	 * @param accountToUpdate the update data
+     * @param uModId the user who makes the operation
+	 */
+	public void updateUser(AccountDto accountToUpdate,  Long uModId) {
+		Users user = userRepository.findById(accountToUpdate.getId())
+				.orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + accountToUpdate.getId() + " n'existe pas."));
+
+		// Global info
+		user.setUsrEmail(accountToUpdate.getEmail());
+		user.setUsrFirstName(accountToUpdate.getFirstName());
+		user.setUsrLastName(accountToUpdate.getLastName());
+		user.setUsrValid(accountToUpdate.getIsValid());
+		user.setUsrStatus(accountToUpdate.getStatus());
+		user.setUsrCompany(accountToUpdate.getCompany());
+		user.setUsrConfiguration(accountToUpdate.getUsrConfiguration());
+		// Modified by
+		Users uModUser = getUserById(uModId);
+		user.setModifiedBy(uModUser);
+
+		// Perimeters
+		// We set mark as deleted the missed usrCtrPrfList in accountToUpdate
+		List<Long> contractIdsToUpdate = accountToUpdate.getPerimeters().stream()
+				.map(AccountPerimeterDto::getContractIds)
+				.flatMap(List::stream)
+				.toList();
+		for (UsrCtrPrf usrCtrPrf : user.getListOfUsrCtrPrf()) {
+			if (!contractIdsToUpdate.contains(usrCtrPrf.getContract().getId())) {
+				usrCtrPrf.markAsDeleted(user);
+			}
+		}
+		// We add or set usrCtrPrfList find in accountToUpdate
+		List<UsrCtrPrf> usrCtrPrfList = new ArrayList<>(user.getListOfUsrCtrPrf());
+		for (AccountPerimeterDto perimeter: accountToUpdate.getPerimeters()) {
+			// Get profile
+			Profile profile = this.profileRepository
+					.findById(perimeter.getProfileId())
+					.orElseThrow(() -> new FunctionalException("Le profil avec l'id " + perimeter.getProfileId() + " n'existe pas."));
+
+			for (Long contractId : perimeter.getContractIds()) {
+				Contract contract = this.contractService.getContractById(contractId);
+
+				UsrCtrPrf usrCtrPrf = user.getListOfUsrCtrPrf()
+						.stream()
+						.filter(per -> per.getContract().getId().equals(contractId))
+						.findFirst().orElse(null);
+
+				if (usrCtrPrf != null) {
+					usrCtrPrf.setDeletedAt(null);
+					usrCtrPrf.setProfile(profile);
+                } else {
+					usrCtrPrf = new UsrCtrPrf();
+					usrCtrPrf.setProfile(profile);
+					usrCtrPrf.setUser(user);
+					usrCtrPrf.setContract(contract);
+					usrCtrPrf.setCreatedBy(uModUser);
+                }
+                usrCtrPrf.setModifiedBy(uModUser);
+                usrCtrPrfList.add(usrCtrPrf);
+            }
+		}
+		user.setListOfUsrCtrPrf(usrCtrPrfList);
+
+		try {
+			userRepository.save(user);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde de l'utilisateur avec l'id " + accountToUpdate.getId() + ".", e.getMessage());
+		}
+	}
+
+	/**
+	 * Delete a user.
+	 * It's only a logical deletion.
+	 */
+	public void deleteUser(Long userId, Long uModId) {
+		// Create the current user instance
+		Users uModUser = new Users();
+		uModUser.setId(uModId);
+
+		// Check if the user already exist
+		Users user = this.getUserById(userId);
+		// Mark layer styles and children as deleted
+		user.markAsDeleted(uModUser);
+		for (UsrCtrPrf usrCtrPrf : user.getListOfUsrCtrPrf()) {
+			usrCtrPrf.markAsDeleted(user);
+		}
+
+		// It saves layer styles in the db
+		try {
+			this.userRepository.save(user);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la suppression de l'utilisateur avec l'id " + userId + ".", e.getMessage());
+		}
+	}
+
 }

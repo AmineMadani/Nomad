@@ -92,7 +92,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    */
   public async saveContext (): Promise<void>  {
     const user : User = await this.userService.getCurrentUserContext();
-    this.userService.updateUser(user);
+    this.userService.updateCurrentUser(user);
   }
 
   /**

@@ -2,11 +2,13 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { catchError, forkJoin, of } from 'rxjs';
+import { Action } from 'rxjs/internal/scheduler/Action';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit } from 'src/app/core/models/organizational-unit.model';
+import { ActionType } from 'src/app/core/models/settings.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, PerimeterRow, Profile, User, UserDetail } from 'src/app/core/models/user.model';
+import { Perimeter, PerimeterRow, Profile, User } from 'src/app/core/models/user.model';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -27,11 +29,12 @@ export class UserDetailsComponent implements OnInit {
   ) { }
 
   @Input("userId") userId: number;
+  @Input("actionType") actionType: ActionType;
 
   public isLoading: boolean = false;
 
+  // Form and table utils rows
   public userForm: FormGroup;
-
   public selectedPerimetersRows: TableRow<PerimeterRow>[] = [];
 
   // References data
@@ -40,6 +43,7 @@ export class UserDetailsComponent implements OnInit {
   public regions: OrganizationalUnit[] = [];
   public territories: OrganizationalUnit[] = [];
   public contracts: ContractWithOrganizationalUnits[] = [];
+  public initialUser: User = null;
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -206,11 +210,17 @@ export class UserDetailsComponent implements OnInit {
 
       // User
       if (user) {
-        this.userForm.patchValue(user);
-        for (const perimeter of user.perimeters) {
+        // If we are in duplication, we reset the id
+        if (this.actionType === ActionType.DUPLICATION) {
+          user.id = null;
+        }
+        this.initialUser = user;
+
+        // Add user data in fields and table
+        this.userForm.patchValue(this.initialUser);
+        for (const perimeter of this.initialUser.perimeters) {
           this.addPerimeterRow(perimeter);
         }
-        this.userForm.disable();
       }
 
       this.isLoading = false;
@@ -303,19 +313,41 @@ export class UserDetailsComponent implements OnInit {
       return;
     }
 
-    this.userService
-      .createUser(this.userForm.value)
-      .subscribe(async (res: { message: string }) => {
-        const toast = await this.toastCtrl.create({
-          message: res.message,
-          color: 'success',
-          duration: 1500,
-          position: 'bottom',
-        });
+    // Keep the initial data and complete them with formValues
+    const userToSave: User = {
+      ...this.initialUser,
+      ...this.userForm.value
+    };
 
-        toast.present();
-        this.onClose();
-      });
+    if (this.actionType === ActionType.CREATION || this.actionType === ActionType.DUPLICATION) {
+      this.userService
+        .createUser(userToSave)
+        .subscribe(async (res: { message: string }) => {
+          const toast = await this.toastCtrl.create({
+            message: res.message,
+            color: 'success',
+            duration: 1500,
+            position: 'bottom',
+          });
+
+          toast.present();
+          this.onClose();
+        });
+    } else if (this.actionType === ActionType.MODIFICATION) {
+      this.userService
+        .updateUser(userToSave)
+        .subscribe(async (res: { message: string }) => {
+          const toast = await this.toastCtrl.create({
+            message: res.message,
+            color: 'success',
+            duration: 1500,
+            position: 'bottom',
+          });
+
+          toast.present();
+          this.onClose();
+        });
+    }
   }
 
   public onClose() {

@@ -45,6 +45,7 @@ create table users
   usr_umod_id       bigint default 0,
   usr_dcre          timestamp without time zone  default current_timestamp,
   usr_dmod          timestamp without time zone  default current_timestamp,
+  usr_ddel          timestamp without time zone default null,
   usr_configuration text
 );
 /* Comments on table */
@@ -1208,6 +1209,7 @@ create table if not exists usr_ctr_prf
   usc_umod_id bigint references users(id) default 0,
   usc_dcre     timestamp without time zone  default current_timestamp,
   usc_dmod     timestamp without time zone  default current_timestamp,
+  usc_ddel     timestamp without time zone default null,
   primary key (usr_id, ctr_id)
 );
 /* Comments on table */

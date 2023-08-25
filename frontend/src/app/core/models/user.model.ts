@@ -7,6 +7,7 @@ export interface User {
     status: string;
     imgUrl: string;
     usrConfiguration: UserConfiguration;
+    perimeters: Perimeter[];
 }
 
 export function getUserEmail(user: User) {
@@ -57,15 +58,6 @@ export enum LocalStorageUserKey {
 export interface Perimeter {
   profileId: number;
   contractIds: number[];
-}
-
-export interface UserDetail {
-  lastName: string;
-  firstName: string;
-  email: string;
-  status: string;
-  company: string;
-  perimeters: Perimeter[];
 }
 
 export interface PerimeterRow extends Perimeter {

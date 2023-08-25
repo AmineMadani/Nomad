@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Context, Permission, Profile, User, UserDetail } from '../models/user.model';
+import { Context, Permission, Profile, User } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
@@ -18,7 +18,6 @@ export enum LocalStorageUserKey {
   providedIn: 'root'
 })
 export class UserService {
-
   constructor(
     private userDataService: UserDataService,
     private mapService: MapService,
@@ -111,7 +110,7 @@ export class UserService {
    */
   public setUser(user: User): void {
     this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
-    this.updateUser(user);
+    this.updateCurrentUser(user);
   }
 
   /**
@@ -122,24 +121,39 @@ export class UserService {
   }
 
   /**
-   * Update the user data
+   * Create an user
+   * @param user the user to create
+   */
+  public createUser(user: User): Observable<any> {
+    return this.userDataService.createUser(user);
+  }
+
+  /**
+   * Update an user
+   * @param user the user to update
+   */
+  public updateUser(user: User): Observable<any> {
+    return this.userDataService.updateUser(user);
+  }
+
+  /**
+   * Update the current user data
    * @param user  the user
    */
-  public updateUser(user: User): void {
+  public updateCurrentUser(user: User): void {
     const usr: any = JSON.parse(JSON.stringify(user));
     usr.usrConfiguration = JSON.stringify(user.usrConfiguration);
     this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
-    this.userDataService.updateUser(usr).subscribe({
+    this.updateUser(usr).subscribe({
       error: (err) => console.error(err),
     });
   }
 
   /**
- * Create an user
- * @param user the user to create
- */
-  public createUser(user: User): Observable<any> {
-    return this.userDataService.createUser(user);
+   * Delete a user.
+   */
+  public deleteUser(lseId: number) {
+    return this.userDataService.deleteUser(lseId);
   }
 
   /**
@@ -215,9 +229,10 @@ export class UserService {
 
   /**
     * Method to get the user detail from server
+    * If a bad id is provided it returns null
     * @returns UserDetail
     */
-  getUserDetailById(userId: number): Observable<UserDetail> {
+  getUserDetailById(userId: number): Observable<User> {
     // We check undefined and null because if id is 0 it will not passed in the condition
     return userId !== undefined && userId !== null ?
       this.userDataService.getUserDetailById(userId) :

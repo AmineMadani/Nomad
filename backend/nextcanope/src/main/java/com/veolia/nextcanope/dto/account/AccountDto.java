@@ -1,6 +1,12 @@
-package com.veolia.nextcanope.dto;
+package com.veolia.nextcanope.dto.account;
 
+import com.veolia.nextcanope.model.Profile;
 import com.veolia.nextcanope.model.Users;
+import com.veolia.nextcanope.model.UsrCtrPrf;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AccountDto {
 	
@@ -22,19 +28,10 @@ public class AccountDto {
 
 	private String company;
 
+	private List<AccountPerimeterDto> perimeters;
+
 	public AccountDto() {
 		super();
-	}
-
-	public AccountDto(AccountTokenDto accountTokenDto) {
-		super();
-		this.email=accountTokenDto.getEmail();
-		this.firstName=accountTokenDto.getFirstName();
-		this.id=accountTokenDto.getId();
-		this.imgUrl=accountTokenDto.getImgUrl();
-		this.isValid=accountTokenDto.getIsValid();
-		this.lastName=accountTokenDto.getLastName();
-		this.usrConfiguration = accountTokenDto.getUsrConfiguration();
 	}
 
 	public AccountDto(Users user) {
@@ -45,6 +42,25 @@ public class AccountDto {
 		this.isValid = user.getUsrValid();
 		this.status = user.getUsrStatus();
 		this.company = user.getUsrCompany();
+		this.usrConfiguration = user.getUsrConfiguration();
+		// Perimeter info
+		List<AccountPerimeterDto> userPerimeters = new ArrayList<>();
+		user.getListOfUsrCtrPrf().stream()
+				// We group contracts by profile
+				.collect(Collectors.groupingBy(UsrCtrPrf::getProfile))
+				.forEach((Profile profile, List<UsrCtrPrf> usrCtrPrfList) -> {
+					AccountPerimeterDto accountPerimeterDto = new AccountPerimeterDto();
+					// Profile
+					accountPerimeterDto.setProfileId(profile.getId());
+					// Contracts
+					List<Long> contractIds = usrCtrPrfList.stream()
+							.map(e -> e.getContract().getId())
+							.toList();
+					accountPerimeterDto.setContractIds(contractIds);
+
+					userPerimeters.add(accountPerimeterDto);
+				});
+		this.perimeters = userPerimeters;
 	}
 
 	public Long getId() {
@@ -117,5 +133,13 @@ public class AccountDto {
 
 	public void setCompany(String company) {
 		this.company = company;
+	}
+
+	public List<AccountPerimeterDto> getPerimeters() {
+		return perimeters;
+	}
+
+	public void setPerimeters(List<AccountPerimeterDto> perimeters) {
+		this.perimeters = perimeters;
 	}
 }
