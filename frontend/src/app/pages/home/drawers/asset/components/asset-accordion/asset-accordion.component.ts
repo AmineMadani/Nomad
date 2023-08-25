@@ -41,6 +41,7 @@ export class AssetAccordionComponent implements OnInit {
    */
   public onCheckOpeningRule(data: FilterAsset, event: MouseEvent): void {
     if (!data.child || data.child.length === 0) {
+      this.onItemSelected(data, event);
       event.stopPropagation();
     } else {
       data.closedAccordion = !data.closedAccordion;

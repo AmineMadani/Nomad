@@ -46,12 +46,12 @@
   </ion-item>
 
   <ion-accordion-group [multiple]="true" [value]="((taskId || workOrder.tasks.length == 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues) ? ['General','report'] : ['General','intervention']">
-    <ion-accordion value="General" [readonly]="true">
+    <ion-accordion value="General">
       <ion-item slot="header" color="light">
         <ion-label> Généralités </ion-label>
       </ion-item>
       <div slot="content">
-        <ion-item lines="none">
+        <ion-item lines="none" [button]="taskId || workOrder.tasks.length == 1" (click)="openEquipment()">
           <ion-label class="label">
             <h3>Patrimoine</h3>
             <p>{{ (taskId || workOrder.tasks.length == 1) ? (assetLabel?.length > 0 ? assetLabel +' - ' +

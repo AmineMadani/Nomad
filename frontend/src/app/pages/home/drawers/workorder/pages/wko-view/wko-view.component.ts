@@ -74,8 +74,8 @@ export class WkoViewComponent implements OnInit {
           this.selectedTask = this.workOrder.tasks.find(task => task.id.toString() == this.taskId);
         }
 
-        let wtsid = this.selectedTask?.wtsId;
-        let lyrTableName = this.selectedTask?.assObjTable;
+        const wtsid = this.selectedTask?.wtsId;
+        const lyrTableName = this.selectedTask?.assObjTable;
 
         Promise.all([
           this.referentialService.getReferential('workorder_task_status'),
@@ -160,12 +160,24 @@ export class WkoViewComponent implements OnInit {
     }
   }
 
-  public onGenerateReport() {
+  public onGenerateReport(): void {
     this.router.navigate(['/home/workorder/'+this.workOrder.id+'/cr'])
   }
 
-  public onDisplayWorkorder() {
+  public onDisplayWorkorder(): void {
     this.router.navigate(['/home/workorder/'+this.workOrder.id]);
+  }
+
+  public openEquipment(): void {
+    if (!(this.taskId || this.workOrder.tasks.length === 1)) {
+      return;
+    }
+
+    const lyrTableName = this.selectedTask.assObjTable.split('asset.')[1];
+
+    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [this.selectedTask.assObjRef], {
+      lyr_table_name: lyrTableName,
+    });
   }
 
   private async getStatus(): Promise<void> {

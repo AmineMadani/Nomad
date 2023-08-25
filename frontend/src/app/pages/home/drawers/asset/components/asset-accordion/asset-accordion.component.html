@@ -2,7 +2,7 @@
   <ng-container >
     <ion-accordion *ngFor="let item of filterSegment.child" [toggleIcon]="''" [value]="item.name">
       <ion-item slot="header" (click)="onCheckOpeningRule(item,$event)">
-        <ion-checkbox aria-label="checkbox" slot="start" (ionChange)="onItemSelected(item,$event,true)" (click)="$event.stopPropagation()" [checked]='item.selected' [indeterminate]="item.isIndeterminate"></ion-checkbox>
+        <ion-checkbox aria-label="checkbox" slot="start" (ionChange)="onItemSelected(item, $event, true)" (click)="$event.stopPropagation()" [checked]='item.selected' [indeterminate]="item.isIndeterminate"></ion-checkbox>
         <ion-label>{{ item.name }}</ion-label>
         <ion-icon slot="end" color="primary" [name]="(item.child && item.child.length > 0) ? (item.closedAccordion ? 'add-outline' : 'remove-outline'):''"></ion-icon>
       </ion-item>
