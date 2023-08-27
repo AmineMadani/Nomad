@@ -64,7 +64,7 @@ public class LayerService {
      * @return A list of LayerDto
      */
     public List<LayerDto> getLayers(Long userId) {
-    	List<LayerDto> layersDto = new ArrayList<LayerDto>();
+    	List<LayerDto> layersDto = new ArrayList<>();
         // Get all layers
     	List<Layer> layers = layerRepository.findAll();
     	for (Layer layer : layers) {
@@ -101,7 +101,7 @@ public class LayerService {
     }
 
     public List<Map<String, Object>> getEquipmentsByLayersAndIds(List<GetEquipmentsPayload> equipmentsPayload) {
-        List<Map<String, Object>> features = new ArrayList<Map<String,Object>>();
+        List<Map<String, Object>> features = new ArrayList<>();
         for(GetEquipmentsPayload payload : equipmentsPayload) {
             List<Map<String, Object>> layerFeatures = this.layerRepositoryImpl.getEquipmentsByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds());
             features.addAll(layerFeatures);

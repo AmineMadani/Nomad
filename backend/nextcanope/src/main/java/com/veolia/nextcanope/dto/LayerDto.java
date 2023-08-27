@@ -40,7 +40,7 @@ public class LayerDto {
 
     private Boolean lyrDisplay ;
     
-    private List<LayerStyleDetailDto> listStyle = new ArrayList<LayerStyleDetailDto>();
+    private List<LayerStyleDetailDto> listStyle = new ArrayList<>();
 
     //--- GETTERS & SETTERS FOR FIELDS
     public void setId( Long id ) {

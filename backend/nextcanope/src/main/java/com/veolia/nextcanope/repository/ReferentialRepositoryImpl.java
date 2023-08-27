@@ -27,8 +27,7 @@ public class ReferentialRepositoryImpl {
 		String getColumns = "SELECT string_agg(quote_ident(attname), ', ' ORDER BY attnum) as res FROM pg_attribute WHERE  attrelid = 'nomad."+referential+"'::regclass AND NOT attisdropped AND attnum > 0 and attname <> 'geom'";
 		List<String> columns = jdbcTemplate.queryForList(getColumns, String.class);
 		
-		final List<Map<String, Object>> rows = jdbcTemplate.queryForList("select "+columns.get(0)+" from nomad."+referential);
-		return rows;
+		return jdbcTemplate.queryForList("select "+columns.get(0)+" from nomad."+referential);
     }
 	
 	/**
@@ -43,7 +42,6 @@ public class ReferentialRepositoryImpl {
 		String query = "SELECT id "
 				+ "FROM nomad."+referential+" c "
 				+ "WHERE ST_Intersects(c.geom, st_transform(st_setsrid(st_geomfromtext('POINT('||'"+longitude+"'|| ' '||'"+latitude+"'||')'),4326),3857))";
-		final List<Long> rows = jdbcTemplate.queryForList(query, Long.class);
-		return rows;
-    }
+		return jdbcTemplate.queryForList(query, Long.class);
+	}
 }

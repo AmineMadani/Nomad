@@ -4,7 +4,9 @@
       title="Gestion des utilisateurs">
   </app-settings-header>
 
-  <div class="settings-main-content">
+  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+
+  <div class="settings-main-content" *ngIf="!isLoading">
     <app-generic-table class="settings-table-content"
       [toolbar]="toolbar"
       [columns]="columns"

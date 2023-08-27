@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
@@ -7,7 +7,10 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
   providedIn: 'root',
 })
 export class UtilsService {
-  constructor(private platform: Platform) {}
+  constructor(
+    private platform: Platform,
+    private toastCtrl: ToastController,
+  ) { }
 
   /**
    * Check if the current platform is Android.
@@ -187,16 +190,16 @@ export class UtilsService {
       // Handle the case of an empty array.
       return undefined;
     }
-  
+
     // Create an object to store the frequency of each value.
     const frequencyMap: { [key: string]: number } = {};
-  
+
     // Loop through the array and populate the frequencyMap.
     arr.forEach((value) => {
       const key = String(value); // Convert the value to a string to use it as the key.
       frequencyMap[key] = (frequencyMap[key] || 0) + 1;
     });
-  
+
     // Find the maximum frequency and corresponding value.
     let mostFrequentValue: number | string | undefined;
     let maxFrequency = 0;
@@ -206,7 +209,7 @@ export class UtilsService {
         mostFrequentValue = value;
       }
     }
-  
+
     return mostFrequentValue;
   }
 
@@ -224,5 +227,20 @@ export class UtilsService {
         this.validateAllFormFields(control);
       }
     });
+  }
+
+  /**
+   * Permit to show a success toast
+   * @param message
+   */
+  public async showSuccessMessage(message: string) {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      color: 'success',
+      duration: 1500,
+      position: 'bottom',
+    });
+
+    toast.present();
   }
 }

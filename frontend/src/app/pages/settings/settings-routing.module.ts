@@ -3,10 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SettingsPage } from './settings.page';
 import { UsersSettingsPage } from './users-settings/users-settings.component';
-import { PatrimonySettingsPage } from './patrimony-settings/patrimony-settings.component';
+import { AssetSettingsPage } from './asset-settings/asset-settings.component';
 import { LayerReferencesSettingsPage } from './layer-references-settings/layer-references-settings.component';
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
-import { ReportListComponent } from './report-list/report-list.component';
+import { ReportSettingsPage } from './report-settings/report-settings.component';
 import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
 
 const routes: Routes = [
@@ -16,12 +16,12 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'patrimony',
+        redirectTo: 'asset',
         pathMatch: 'full'
       },
       {
-        path: 'patrimony',
-        component: PatrimonySettingsPage,
+        path: 'asset',
+        component: AssetSettingsPage,
       },
       {
         path: 'layer-references',
@@ -40,8 +40,8 @@ const routes: Routes = [
         component: PermissionsSettingsPage,
       },
       {
-        path: 'report-list',
-        component: ReportListComponent,
+        path: 'reports',
+        component: ReportSettingsPage,
       },
     ],
   }

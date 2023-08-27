@@ -188,7 +188,7 @@ public class WorkorderDto {
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();
         this.ctyId = workorder.getCity().getId();
-        this.tasks = new ArrayList<TaskDto>();
+        this.tasks = new ArrayList<>();
         this.wkoCreationComment = workorder.getWkoCreationComment();
         for(Task task: workorder.getListOfTask()) {
         	this.tasks.add(new TaskDto(task));

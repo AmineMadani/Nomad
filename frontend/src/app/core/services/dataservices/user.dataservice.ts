@@ -18,8 +18,8 @@ export class UserDataService {
    * Method to get all the user informations from server
    * @returns User information
    */
-  getUserInformation(): Observable<User> {
-    return this.http.get<User>(`${this.configurationService.apiUrl}user/current`);
+  getCurrentUserInformation(): Observable<User> {
+    return this.http.get<User>(`${this.configurationService.apiUrl}users/current`);
   }
 
   /**
@@ -28,7 +28,7 @@ export class UserDataService {
    * @returns
    */
   public createUser(user: User): Observable<ApiSuccessResponse> {
-    return this.http.post<any>(`${this.configurationService.apiUrl}user`, user);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}users`, user);
   }
 
   /**
@@ -36,14 +36,14 @@ export class UserDataService {
    * @param userContext : user's preferences
    */
   public updateUser(user: User): Observable<ApiSuccessResponse> {
-    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}user`, user);
+    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}users/${user.id}/update`, user);
   }
 
   /**
-   * Delete user.
+   * Delete a list of users.
    */
-  public deleteUser(id: number): Observable<ApiSuccessResponse> {
-    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}user/${id}`);
+  public deleteUsers(userIds: number[]): Observable<ApiSuccessResponse> {
+    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}users/delete?userIds=${userIds}`);
   }
 
   /**
@@ -51,7 +51,7 @@ export class UserDataService {
    * @returns Users
    */
   getAllUserAccount(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.configurationService.apiUrl}user/all`);
+    return this.http.get<User[]>(`${this.configurationService.apiUrl}users`);
   }
 
   /**
@@ -59,7 +59,7 @@ export class UserDataService {
     * @returns Profiles
     */
   getAllProfiles(): Observable<Profile[]> {
-    return this.http.get<Profile[]>(`${this.configurationService.apiUrl}profiles`);
+    return this.http.get<Profile[]>(`${this.configurationService.apiUrl}users/profiles`);
   }
 
   /**
@@ -67,7 +67,7 @@ export class UserDataService {
     * @returns Profiles
     */
   getUserDetailById(userId: number): Observable<User> {
-    return this.http.get<User>(`${this.configurationService.apiUrl}user/${userId}`);
+    return this.http.get<User>(`${this.configurationService.apiUrl}users/${userId}`);
   }
 
   /**
@@ -75,7 +75,7 @@ export class UserDataService {
     * @returns Permissions
     */
   getAllPermissions(): Observable<Permission[]> {
-    return this.http.get<Permission[]>(`${this.configurationService.apiUrl}permissions`);
+    return this.http.get<Permission[]>(`${this.configurationService.apiUrl}users/permissions`);
   }
 }
 

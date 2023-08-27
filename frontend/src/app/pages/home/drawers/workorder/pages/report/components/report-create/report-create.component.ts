@@ -7,7 +7,7 @@ import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
-import { AlertController, IonModal } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 
@@ -128,7 +128,7 @@ export class ReportCreateComponent implements OnInit {
     if (previousValidQuestionIndex > 0) {
       // Get the previous question
       let previousChild = this.stepForm.formEditor.sections[0].children[previousValidQuestionIndex];
-      
+
       // If there is a condition
       if (previousChild.definition.displayCondition != null) {
         // Get the answer of the question of the condition
@@ -177,7 +177,7 @@ export class ReportCreateComponent implements OnInit {
     if (valid) {
       // Get the index of the next valid question
       this.stepForm.formEditor.indexQuestion = this.getNextValidQuestionIndex(this.stepForm.formEditor.indexQuestion);
-      
+
       this.hasPreviousQuestion = true;
       if (this.stepForm.formEditor.indexQuestion + 1 >= this.stepForm.formEditor.sections[0].children.length) {
         this.isSubmit = true;
@@ -200,7 +200,7 @@ export class ReportCreateComponent implements OnInit {
     if (nextValidQuestionIndex < this.stepForm.formEditor.sections[0].children.length) {
       // Get the next question
       let nextChild = this.stepForm.formEditor.sections[0].children[nextValidQuestionIndex];
-      
+
       // If there is a condition
       if (nextChild.definition.displayCondition != null) {
         // Get the answer of the question of the condition
@@ -279,8 +279,8 @@ export class ReportCreateComponent implements OnInit {
           report.reportValues.push({
             key: definition.key,
             question: definition.label,
-            answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ? 
-              this.stepForm.formEditor.form.value[definition.key].join('; ') 
+            answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
+              this.stepForm.formEditor.form.value[definition.key].join('; ')
               : this.stepForm.formEditor.form.value[definition.key]
           });
 
@@ -291,7 +291,7 @@ export class ReportCreateComponent implements OnInit {
       }
       this.selectedTask.report = report;
       this.onSaveWorkOrderState();
-      this.workorderService.updateWorkOrder(this.workorder).subscribe(res => {
+      this.workorderService.terminateWorkOrder(this.workorder).subscribe(res => {
         this.closeReport();
       });
     }

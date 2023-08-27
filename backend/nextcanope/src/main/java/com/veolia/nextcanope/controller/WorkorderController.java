@@ -5,13 +5,7 @@ import java.util.List;
 
 import com.veolia.nextcanope.service.WorkorderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.TaskSearchDto;
@@ -27,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/exploitation/workorder")
+@RequestMapping("/exploitation/workorders")
 @Tag(name = "Exploitation - WorkOrder Management System", description = "Operations pertaining to workOrder in the WorkOrder Management System")
 public class WorkorderController {
 
@@ -44,59 +38,83 @@ public class WorkorderController {
     public List<TaskSearchDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
         return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
     }
+
+    @GetMapping(path = "/{id}")
+    @Operation(summary = "Get a workorder")
+    @ApiResponses(value = {
+        @ApiResponse(description= "The workorder", content =  {
+            @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public WorkorderDto getWorkOrderById(@PathVariable Long id) {
+        return this.workOrderService.getWorkOrderDtoById(id);
+    }
     
     @PostMapping(path = "create")
     @Operation(summary = "Create a workorder")
     @ApiResponses(value = {
-    			@ApiResponse(description= "The workorder", content =  {
-    						@Content(schema = @Schema(implementation = String.class))
-    					})
-    			})
+        @ApiResponse(description= "The workorder", content =  {
+            @Content(schema = @Schema(implementation = String.class))
+        })
+    })
     public WorkorderDto createWorkOrder(AccountTokenDto account, @RequestBody WorkorderDto workorderDto) {
     	return this.workOrderService.createWorkOrder(workorderDto, account.getId());
     }
 
-    @PostMapping(path = "update-data")
-    @Operation(summary = "Update a workorder data")
-    @ApiResponses(value = {
-            @ApiResponse(description= "The workorder", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public WorkorderDto updateDataWorkOrder(AccountTokenDto account, @RequestBody WorkorderDto workorderDto) {
-        return this.workOrderService.updateDataWorkOrder(workorderDto, account.getId());
-    }
-
-    @PostMapping(path = "update")
+    @PutMapping(path="/{wkoId}/update")
     @Operation(summary = "Update a workorder")
     @ApiResponses(value = {
-    			@ApiResponse(description= "The workorder", content =  {
-    						@Content(schema = @Schema(implementation = String.class))
-    					})
-    			})
-    public WorkorderDto updateWorkOrder(AccountTokenDto account, @RequestBody WorkorderDto workorderDto) {
-    	return this.workOrderService.updateWorkOrder(workorderDto, account.getId());
+        @ApiResponse(description= "The workorder", content =  {
+            @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public WorkorderDto updateWorkOrder(
+        @PathVariable Long wkoId,
+        @RequestBody WorkorderDto workorderDto,
+        AccountTokenDto account
+    ) {
+        return this.workOrderService.updateWorkOrder(
+                wkoId,
+                workorderDto,
+                account.getId()
+        );
     }
-    
-    @GetMapping(path = "/{id}")
-    @Operation(summary = "Get a workorder")
+
+    @PutMapping(path = "/{wkoId}/terminate")
+    @Operation(summary = "Terminate a workorder")
     @ApiResponses(value = {
     			@ApiResponse(description= "The workorder", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public WorkorderDto getWorkOrderById(@PathVariable Long id) {
-    	return this.workOrderService.getWorkOrderDtoById(id);
+    public WorkorderDto terminateWorkOrder(
+        @PathVariable Long wkoId,
+        @RequestBody WorkorderDto workorderDto,
+        AccountTokenDto account
+    ) {
+    	return this.workOrderService.terminateWorkOrder(
+                wkoId,
+                workorderDto,
+                account.getId()
+        );
     }
 
-    @PostMapping(path = "cancel")
+    @PutMapping(path = "/{wkoId}/cancel")
     @Operation(summary = "Cancel a workorder")
     @ApiResponses(value = {
             @ApiResponse(description= "The workorder", content =  {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public WorkorderDto cancelWorkOrder(@RequestBody CancelWorkorderPayload cancelWorkorderPayload) {
-        return this.workOrderService.cancelWorkOrder(cancelWorkorderPayload);
+    public WorkorderDto cancelWorkOrder(
+        @PathVariable Long wkoId,
+        @RequestBody CancelWorkorderPayload cancelWorkorderPayload,
+        AccountTokenDto account
+    ) {
+        return this.workOrderService.cancelWorkOrder(
+                wkoId,
+                cancelWorkorderPayload,
+                account.getId()
+        );
     }
 }

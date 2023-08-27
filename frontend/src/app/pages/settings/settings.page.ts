@@ -18,7 +18,7 @@ export class SettingsPage implements OnInit {
       title: 'Généralités',
       items: [
         {
-          url: 'patrimony',
+          url: 'asset',
           title: 'Affichage patrimoine',
         },
         {
@@ -35,7 +35,7 @@ export class SettingsPage implements OnInit {
           title: 'Personnalisation des styles par défaut',
         },
         {
-          url: 'report-list',
+          url: 'reports',
           title: 'Personnalisation des formulaires',
         },
       ]
@@ -44,17 +44,17 @@ export class SettingsPage implements OnInit {
       title: 'Paramétrage par contact',
       items: [
         {
-          url: 'perimeter',
+          url: 'perimeters',
           title: 'Périmètre',
           disabled: true,
         },
         {
-          url: 'workorder',
+          url: 'workorders',
           title: "Génération d'intervention",
           disabled: true,
         },
         {
-          url: 'report',
+          url: 'reports',
           title: 'Compte-rendu',
           disabled: true,
         },

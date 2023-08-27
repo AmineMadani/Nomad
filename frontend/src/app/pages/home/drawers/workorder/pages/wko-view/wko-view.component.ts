@@ -15,7 +15,8 @@ import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-e
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -35,7 +36,8 @@ export class WkoViewComponent implements OnInit {
     private toastCtrl: ToastController,
     private router: Router,
     private drawerService: DrawerService,
-    private userService: UserService
+    private userService: UserService,
+    private utilsService: UtilsService
   ) { }
 
   public workOrder: Workorder;
@@ -47,8 +49,8 @@ export class WkoViewComponent implements OnInit {
   public taskId: string;
   public loading: boolean = true;
 
-  public userHasRightModifyReport: boolean = false;
-  public userHasRightCreateProgram: boolean = false;
+  public userHasPermissionModifyReport: boolean = false;
+  public userHasPermissionCreateProgram: boolean = false;
 
   public CanEdit() : boolean {
     return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
@@ -58,10 +60,10 @@ export class WkoViewComponent implements OnInit {
   private ngUnsubscribe$: Subject<void> = new Subject();
 
   async ngOnInit(): Promise<void> {
-    this.userHasRightModifyReport =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.MODIFY_REPORT_MY_AREA);
-    this.userHasRightCreateProgram =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_PROGRAM_MY_AREA);
+    this.userHasPermissionModifyReport =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.MODIFY_REPORT_MY_AREA);
+    this.userHasPermissionCreateProgram =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_PROGRAM_MY_AREA);
 
     this.mapService
       .onMapLoaded()
@@ -205,12 +207,7 @@ export class WkoViewComponent implements OnInit {
    * Display a success message after cancel a workorder
    */
   private async displayCancelToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message: message,
-      duration: 2000,
-      color: 'success',
-    });
-    await toast.present();
+    this.utilsService.showSuccessMessage(message);
   }
 
   /**

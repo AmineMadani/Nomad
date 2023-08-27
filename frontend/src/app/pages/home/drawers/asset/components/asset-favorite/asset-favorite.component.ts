@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AlertController, IonAccordion, IonAccordionGroup } from '@ionic/angular';
+import { AlertController, IonAccordionGroup } from '@ionic/angular';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { UserService } from 'src/app/core/services/user.service';

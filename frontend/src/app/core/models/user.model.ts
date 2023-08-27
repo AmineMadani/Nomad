@@ -67,7 +67,7 @@ export interface PerimeterRow extends Perimeter {
 
 export interface Profile {
   id: number;
-  prfCode: string;
+  prfCode: ProfileCodeEnum;
   prfSlabel: string;
   prfLlabel: string;
   prfValid: boolean;
@@ -75,7 +75,7 @@ export interface Profile {
 
 export interface Permission {
   id: number;
-  perCode: UserPermissionsEnum;
+  perCode: PermissionCodeEnum;
   perSlabel: string;
   perLlabel: string;
   perValid: boolean;
@@ -83,7 +83,17 @@ export interface Permission {
   profilesIds: number[];
 }
 
-export enum UserPermissionsEnum {
+export enum ProfileCodeEnum {
+  ADMIN_NAT = 'ADMIN_NAT',
+  ADMIN_LOC_1 = 'ADMIN_LOC_1',
+  ADMIN_LOC_2 = 'ADMIN_LOC_2',
+  MANAGER = 'MANAGER',
+  DESKTOP_AGENT = 'DESKTOP_AGENT',
+  MOBILE_AGENT = 'MOBILE_AGENT',
+  SUBCONTRACTOR = 'SUBCONTRACTOR',
+}
+
+export enum PermissionCodeEnum {
   VIEW_ASSET_DETAILLED = 'VIEW_ASSET_DETAILLED',
   VIEW_ALL_WORKORDERS = 'VIEW_ALL_WORKORDERS',
   CREATE_ASSET_WORKORDER = 'CREATE_ASSET_WORKORDER',

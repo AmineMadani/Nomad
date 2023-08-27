@@ -1,11 +1,11 @@
 <app-page-header [headerLabel]="'I-' + workOrder?.id" [loading]="loading"></app-page-header>
 
 <ion-tab-bar class="action-bar" slot="top">
-  <ion-tab-button [disabled]="loading || !userHasRightModifyReport" (click)="onGenerateReport()">
+  <ion-tab-button [disabled]="loading || !userHasPermissionModifyReport" (click)="onGenerateReport()">
     <ion-icon name="reader-outline"></ion-icon>
     Compte-rendu
   </ion-tab-button>
-  <ion-tab-button [disabled]="loading || !userHasRightCreateProgram">
+  <ion-tab-button [disabled]="loading || !userHasPermissionCreateProgram">
     <ion-icon name="link-outline"></ion-icon>
     Ajouter à un programme
   </ion-tab-button>
@@ -45,16 +45,16 @@
     </ion-label>
   </ion-item>
 
-  <ion-accordion-group [multiple]="true" [value]="((taskId || workOrder.tasks.length == 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues) ? ['General','report'] : ['General','intervention']">
+  <ion-accordion-group [multiple]="true" [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues) ? ['General','report'] : ['General','intervention']">
     <ion-accordion value="General">
       <ion-item slot="header" color="light">
         <ion-label> Généralités </ion-label>
       </ion-item>
       <div slot="content">
-        <ion-item lines="none" [button]="taskId || workOrder.tasks.length == 1" (click)="openEquipment()">
+        <ion-item lines="none" [button]="taskId || workOrder.tasks.length === 1" (click)="openEquipment()">
           <ion-label class="label">
             <h3>Patrimoine</h3>
-            <p>{{ (taskId || workOrder.tasks.length == 1) ? (assetLabel?.length > 0 ? assetLabel +' - ' +
+            <p>{{ (taskId || workOrder.tasks.length === 1) ? (assetLabel?.length > 0 ? assetLabel +' - ' +
               selectedTask.assObjRef : 'Non défini') : 'Multi-equipement' }}</p>
           </ion-label>
         </ion-item>
@@ -73,8 +73,8 @@
       </div>
     </ion-accordion>
     <ion-accordion value="report"
-      *ngIf="(taskId || workOrder.tasks.length == 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues">
-      <ion-item slot="header" color="light" [disabled]="!userHasRightModifyReport">
+      *ngIf="(taskId || workOrder.tasks.length === 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues">
+      <ion-item slot="header" color="light" [disabled]="!userHasPermissionModifyReport">
         <ion-label> Compte-rendu </ion-label>
       </ion-item>
       <div slot="content">

@@ -21,8 +21,16 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(IonRouterOutlet, { static: true }) routerOutlet: IonRouterOutlet;
 
   public appPages = [
-    { title: 'Accueil', url: '/home', icon: 'home' },
-    { title: 'Paramètres', url: '/settings', icon: 'settings' },
+    {
+      title: 'Accueil',
+      url: '/home',
+      icon: 'home',
+    },
+    {
+      title: 'Paramètres',
+      url: '/settings',
+      icon: 'settings',
+    },
   ];
   constructor(
     private keycloakService: KeycloakService,
@@ -47,6 +55,11 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.isMobile = this.utils.isMobilePlateform();
+    // Don't show the settings page if mobile plateform
+    if (this.isMobile) {
+      this.appPages = this.appPages.filter((page) => page.title !== 'Paramètres');
+    }
+
     this.keycloakService.initialisation();
 
     this.sub.add(

@@ -29,43 +29,40 @@ public class WorkorderRepositoryImpl {
 	 */
 	public List<TaskSearchDto> getWorkOrderPaginationWithCustomCriteria(Long limit, Long offset,
 			HashMap<String, String[]> searchParameter) {
-		String clauseWhere = "";
-		String clauseDate = "";
-		if (searchParameter != null && searchParameter.size() > 0) {
-			clauseWhere += "where ";
+		StringBuilder clauseWhere = new StringBuilder();
+		StringBuilder clauseDate = new StringBuilder();
+		if (searchParameter != null && !searchParameter.isEmpty()) {
+			clauseWhere.append("where ");
 			for (Map.Entry<String, String[]> entry : searchParameter.entrySet()) {
-				if (!clauseWhere.equals("where ")) {
-					clauseWhere += " and ";
+				if (!clauseWhere.toString().equals("where ")) {
+					clauseWhere.append(" and ");
 				}
 				if (entry.getKey().contains("date")) {
-					if (clauseDate.equals("")) {
-						clauseDate += " (";
+					if (clauseDate.toString().isEmpty()) {
+						clauseDate.append(" (");
 					} else {
-						clauseDate += " or ";
+						clauseDate.append(" or ");
 					}
-					clauseDate += " " + entry.getKey() + " between '" + entry.getValue()[0] + "' and '"
-							+ entry.getValue()[1] + "'";
+					clauseDate.append(" ").append(entry.getKey()).append(" between '").append(entry.getValue()[0]).append("' and '").append(entry.getValue()[1]).append("'");
 				} else {
-					clauseWhere += " " + entry.getKey() + " in (" + arrayToStringClause(entry.getValue()) + ")";
+					clauseWhere.append(" ").append(entry.getKey()).append(" in (").append(arrayToStringClause(entry.getValue())).append(")");
 				}
 			}
-			if (!clauseDate.equals("")) {
-				clauseDate += ")";
-				if (!clauseWhere.equals("where ")) {
-					clauseWhere += " and " + clauseDate;
+			if (!clauseDate.toString().isEmpty()) {
+				clauseDate.append(")");
+				if (!clauseWhere.toString().equals("where ")) {
+					clauseWhere.append(" and ").append(clauseDate);
 				} else {
-					clauseWhere += clauseDate;
+					clauseWhere.append(clauseDate);
 				}
 			}
 		}
 
-		List<TaskSearchDto> lWorkOrders = this.jdbcTemplate.query(
+        return this.jdbcTemplate.query(
                 "select distinct CAST(t.id AS text) as id, wko_name, wko_creation_cell, wko_creation_comment, wko_emergency, wko_appointment, wko_address, wko_street_number, wko_planning_start_date, wko_planning_end_date, wko_completion_date, wko_realization_user, wko_realization_cell, wko_realization_comment, cty_id, cty_llabel, w.wts_id, str_id, str_llabel, wko_ucre_id, wko_umod_id, wko_dmod, wko_dcre, wko_ddel, w.id as wko_id, t.longitude, t.latitude, wko_agent_nb from nomad.workorder w "
                 + " inner join nomad.task t on t.wko_id=w.id "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
                 new BeanPropertyRowMapper<TaskSearchDto>(TaskSearchDto.class)
         );
-
-		return lWorkOrders;
 	}
 
 	/**
@@ -74,11 +71,11 @@ public class WorkorderRepositoryImpl {
 	 * @return the string
 	 */
 	private String arrayToStringClause(String[] in) {
-		String out = "";
+		StringBuilder out = new StringBuilder();
 		for (String str : in) {
-			out += "'" + str + "',";
+			out.append("'").append(str).append("',");
 		}
-		out = out.substring(0, out.length() - 1);
-		return out;
+		out = new StringBuilder(out.substring(0, out.length() - 1));
+		return out.toString();
 	}
 }

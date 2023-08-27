@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Layer, LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 import { Navigation } from 'swiper';
 
 @Component({
@@ -14,7 +15,8 @@ export class LayerStyleComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private layerService: LayerService
+    private layerService: LayerService,
+    private utilsService: UtilsService
   ) { }
 
   // Variables which must be passed at param in the modal of this component

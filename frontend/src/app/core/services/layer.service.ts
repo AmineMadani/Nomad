@@ -6,8 +6,8 @@ import { AppDB, layerReferencesKey } from '../models/app-db.model';
 import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
 import { CacheService } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
-import { ToastController } from '@ionic/angular';
 import { ConfigurationService } from './configuration.service';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,8 @@ export class LayerService {
   constructor(
     private layerDataService: LayerDataService,
     private cacheService: CacheService,
-    private toastController: ToastController,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private utilsService: UtilsService
   ) {
     this.db = new AppDB();
   }
@@ -206,52 +206,34 @@ export class LayerService {
   /**
    * Create a layer style.
    */
-  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number) {
-    return this.layerDataService.createLayerStyle(layerStyle, lyrId)
-      .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
-        })
-      );
+  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<ApiSuccessResponse> {
+    return this.layerDataService.createLayerStyle(layerStyle, lyrId).pipe(
+      tap((successResponse: ApiSuccessResponse) => {
+        this.utilsService.showSuccessMessage(successResponse.message);
+      })
+    );
   }
 
   /**
    * Update a layer style.
    */
-  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number) {
-    return this.layerDataService.updateLayerStyle(layerStyle, lseId)
-      .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
-        })
-      );
+  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<ApiSuccessResponse> {
+    return this.layerDataService.updateLayerStyle(layerStyle, lseId).pipe(
+      tap((successResponse: ApiSuccessResponse) => {
+        this.utilsService.showSuccessMessage(successResponse.message);
+      })
+    );
   }
 
   /**
    * Delete a layer style.
    */
-  public deleteLayerStyle(lseId: number) {
-    return this.layerDataService.deleteLayerStyle(lseId)
-      .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
-        })
-      );
+  public deleteLayerStyle(lseIds: number[]): Observable<ApiSuccessResponse> {
+    return this.layerDataService.deleteLayerStyle(lseIds).pipe(
+      tap((successResponse: ApiSuccessResponse) => {
+        this.utilsService.showSuccessMessage(successResponse.message);
+      })
+    );
   }
 
   /**
@@ -297,13 +279,8 @@ export class LayerService {
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }) {
     return this.layerDataService.saveLayerReferencesUser(payload)
       .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
+        tap((successResponse: ApiSuccessResponse) => {
+          this.utilsService.showSuccessMessage(successResponse.message);
         })
       );
   }

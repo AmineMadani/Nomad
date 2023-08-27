@@ -120,8 +120,8 @@ public class UserService {
 	 * @param accountToUpdate the update data
      * @param uModId the user who makes the operation
 	 */
-	public void updateUser(AccountDto accountToUpdate,  Long uModId) {
-		Users user = userRepository.findById(accountToUpdate.getId())
+	public void updateUser(Long userIdToUpdate, AccountDto accountToUpdate,  Long uModId) {
+		Users user = userRepository.findById(userIdToUpdate)
 				.orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + accountToUpdate.getId() + " n'existe pas."));
 
 		// Global info
@@ -187,27 +187,31 @@ public class UserService {
 	}
 
 	/**
-	 * Delete a user.
+	 * Delete a list of user.
 	 * It's only a logical deletion.
 	 */
-	public void deleteUser(Long userId, Long uModId) {
+	public void deleteUsers(List<Long> userIds, Long uModId) {
 		// Create the current user instance
 		Users uModUser = new Users();
 		uModUser.setId(uModId);
 
-		// Check if the user already exist
-		Users user = this.getUserById(userId);
-		// Mark layer styles and children as deleted
-		user.markAsDeleted(uModUser);
-		for (UsrCtrPrf usrCtrPrf : user.getListOfUsrCtrPrf()) {
-			usrCtrPrf.markAsDeleted(user);
+		List<Users> usersToDelete = new ArrayList<>();
+		for (Long userId : userIds) {
+			// Check if the user already exist
+			Users user = this.getUserById(userId);
+			// Mark layer styles and children as deleted
+			user.markAsDeleted(uModUser);
+			for (UsrCtrPrf usrCtrPrf : user.getListOfUsrCtrPrf()) {
+				usrCtrPrf.markAsDeleted(user);
+			}
+			usersToDelete.add(user);
 		}
 
-		// It saves layer styles in the db
+		// It saves users in the db
 		try {
-			this.userRepository.save(user);
+			this.userRepository.saveAll(usersToDelete);
 		} catch (Exception e) {
-			throw new TechnicalException("Erreur lors de la suppression de l'utilisateur avec l'id " + userId + ".", e.getMessage());
+			throw new TechnicalException("Erreur lors de la suppression des utilisateurs.", e.getMessage());
 		}
 	}
 

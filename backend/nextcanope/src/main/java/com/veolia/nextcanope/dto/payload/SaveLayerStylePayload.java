@@ -8,7 +8,7 @@ import java.util.List;
 public class SaveLayerStylePayload {
     private String lseCode;
     private String sydDefinition;
-    private List<StyleImageDto> listImage = new ArrayList<StyleImageDto>();
+    private List<StyleImageDto> listImage = new ArrayList<>();
 
     public SaveLayerStylePayload() {
     }

@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/layer")
+@RequestMapping("/layers")
 @Tag(name = "Layer Management System", description = "Operations pertaining to layer in the Layer Management System")
 public class LayerController {
 
@@ -91,7 +91,7 @@ public class LayerController {
         }
     }
 
-    @GetMapping(path = "/default/definitions")
+    @GetMapping(path = "/defaults/definitions")
     @Operation(summary = "Get all the layer ")
     @ApiResponses(value = {
             @ApiResponse(description= "All layers description", content =  {
@@ -102,7 +102,7 @@ public class LayerController {
         return  layerService.getLayers(account.getId());
     }
 
-    @PostMapping(path = "/equipment")
+    @PostMapping(path = "/equipments")
     @Operation(summary = "Get the equipment by layer and id")
     @ApiResponses(value = {
             @ApiResponse(description= "The equipment", content =  {
@@ -117,7 +117,7 @@ public class LayerController {
         }
     }
     
-    @GetMapping(path = "/{key}/equipment/{id}")
+    @GetMapping(path = "/{key}/equipments/{id}")
     @Operation(summary = "Get the equipment by layer and id")
     @ApiResponses(value = {
     			@ApiResponse(description= "The equipment", content =  {
@@ -131,7 +131,7 @@ public class LayerController {
         return this.layerService.getEquipmentByLayerAndId(key, id);
     }
     
-    @GetMapping(path = "/{key}/equipment/{id}/history")
+    @GetMapping(path = "/{key}/equipments/{id}/history")
     @Operation(summary = "Get the equipment by layer and id")
     @ApiResponses(value = {
     			@ApiResponse(description= "The equipment", content =  {
@@ -145,7 +145,7 @@ public class LayerController {
         return this.workOrderService.getEquipmentWorkOrderHistory(key, id);
     }
 
-    @PostMapping(path = "/references/user")
+    @PostMapping(path = "/references/users/save")
     @Operation(summary = "Save the user custom layer references. Return a response message.")
     @ApiResponses(value = {
             @ApiResponse(description= "All layer references with customization", content =  {
@@ -179,7 +179,7 @@ public class LayerController {
         return this.layerStyleService.getLayerStyleDetailById(id);
     }
 
-    @PostMapping(path = "/{lyrId}/styles")
+    @PostMapping(path = "/{lyrId}/styles/create")
     @Operation(summary = "Create the layer style. Return a response message.")
     @ApiResponses(value = {
             @ApiResponse(description= "A response message", content =  {
@@ -194,7 +194,7 @@ public class LayerController {
         return new ResponseMessage("Les styles de couche ont été enregistrés avec succès.");
     }
 
-    @PutMapping(path = "/styles/{lseId}")
+    @PutMapping(path = "/styles/{lseId}/update")
     @Operation(summary = "Update the layer styles. Return a response message.")
     @ApiResponses(value = {
             @ApiResponse(description= "A response message", content =  {
@@ -210,18 +210,18 @@ public class LayerController {
         return new ResponseMessage("Les styles de couche ont été enregistrés avec succès.");
     }
 
-    @DeleteMapping(path = "/styles/{lseId}")
-    @Operation(summary = "Delete the layer styles. Return a response message.")
+    @DeleteMapping(path = "/styles/delete")
+    @Operation(summary = "Delete a list of layer styles. Return a response message.")
     @ApiResponses(value = {
             @ApiResponse(description= "A response message", content =  {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public ResponseMessage deleteLayerStyle(
-            @PathVariable Long lseId,
+    public ResponseMessage deleteLayerStyles(
+            @RequestParam List<Long> lseIds,
             AccountTokenDto account
     ) {
-        this.layerStyleService.deleteLayerStyle(lseId, account.getId());
+        this.layerStyleService.deleteLayerStyles(lseIds, account.getId());
         return new ResponseMessage("Les styles de couche ont été supprimés avec succès.");
     }
 }

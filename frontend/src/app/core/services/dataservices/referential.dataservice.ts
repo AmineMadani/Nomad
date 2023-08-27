@@ -10,7 +10,7 @@ export class ReferentialDataService {
 
   constructor(
     private http: HttpClient,
-    private configurationService: ConfigurationService  
+    private configurationService: ConfigurationService
   ) {}
 
   /**
@@ -18,7 +18,7 @@ export class ReferentialDataService {
    * @returns List referential data
    */
   getReferential(referential:string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.configurationService.apiUrl}referential/`+referential);
+    return this.http.get<any[]>(`${this.configurationService.apiUrl}referentials/`+referential);
   }
 
   /**
@@ -26,6 +26,6 @@ export class ReferentialDataService {
    * @returns List referential data
    */
   getReferentialIdByLongitudeLatitude(referential:string,longitude:string,latitude:string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.configurationService.apiUrl}referential/${referential}/${longitude}/${latitude}`);
+    return this.http.get<any[]>(`${this.configurationService.apiUrl}referentials/${referential}/${longitude}/${latitude}`);
   }
 }

@@ -1082,7 +1082,7 @@ FOREIGN KEY (out_umod_id)
 REFERENCES users (id);
 
 insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('REGION','Region','Région');
-insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('TERRITOIRE','Territoire','Territoire');
+insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('TERRITORY','Territoire','Territoire');
 
 -- Table organizational_unit
 -- This table contains the organizational hierachy of units.

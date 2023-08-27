@@ -23,7 +23,7 @@ export class LayerDataService {
    * @returns The geojson of the index of the layer.
    */
   public getLayerIndex(layerKey: string): Observable<GeoJSONObject> {
-    return this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layer/${layerKey}`);
+    return this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layers/${layerKey}`);
   }
 
   /**
@@ -33,7 +33,7 @@ export class LayerDataService {
    * @returns The GeoJSON file for the current tile.
    */
   public getLayerFile(layerKey: string, featureNumber: number): Observable<NomadGeoJson> {
-    return this.http.get<NomadGeoJson>(`${this.configurationService.apiUrl}layer/${layerKey}/${featureNumber}`);
+    return this.http.get<NomadGeoJson>(`${this.configurationService.apiUrl}layers/${layerKey}/${featureNumber}`);
   }
 
   /**
@@ -41,7 +41,7 @@ export class LayerDataService {
    * @returns all available layers
    */
   public getLayers(): Observable<Layer[]> {
-    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layer/default/definitions`);
+    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layers/defaults/definitions`);
   }
 
   /**
@@ -51,11 +51,11 @@ export class LayerDataService {
    * @returns the equipment
    */
   public getEquipmentByLayerAndId(layer: string, id: string): Observable<any> {
-    return this.http.get<any>(`${this.configurationService.apiUrl}layer/` + layer + `/equipment/` + id)
+    return this.http.get<any>(`${this.configurationService.apiUrl}layers/` + layer + `/equipments/` + id)
   }
 
   public getEquipmentsByLayersAndIds(idsLayers: any): Observable<any> {
-    return this.http.post(`${this.configurationService.apiUrl}layer/equipment`,idsLayers);
+    return this.http.post(`${this.configurationService.apiUrl}layers/equipments`,idsLayers);
   }
 
   /**
@@ -63,7 +63,7 @@ export class LayerDataService {
   * @returns A promise that resolves to the list of layer styles.
   */
   public getAllLayerStyles(): Observable<LayerStyleSummary[]> {
-    return this.http.get<LayerStyleSummary[]>(`${this.configurationService.apiUrl}layer/styles`);
+    return this.http.get<LayerStyleSummary[]>(`${this.configurationService.apiUrl}layers/styles`);
   }
 
   /**
@@ -71,28 +71,28 @@ export class LayerDataService {
   * @returns A promise that resolves to the list of layer styles.
   */
   public getLayerStyleById(layerStyleId: number): Observable<LayerStyleDetail> {
-    return this.http.get<LayerStyleDetail>(`${this.configurationService.apiUrl}layer/styles/${layerStyleId}`);
+    return this.http.get<LayerStyleDetail>(`${this.configurationService.apiUrl}layers/styles/${layerStyleId}`);
   }
 
   /**
    * Create a layer style.
    */
-  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/${lyrId}/styles`, layerStyle);
+  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<ApiSuccessResponse> {
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/${lyrId}/styles`, layerStyle);
   }
 
   /**
    * Update a layer style.
    */
-  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<any> {
-    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/styles/${lseId}`, layerStyle);
+  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<ApiSuccessResponse> {
+    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles/${lseId}`, layerStyle);
   }
 
   /**
    * Delete a layer style.
    */
-  public deleteLayerStyle(lseId: number): Observable<any> {
-    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/styles/${lseId}`);
+  public deleteLayerStyle(lseIds: number[]): Observable<ApiSuccessResponse> {
+    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles?lseIds=${lseIds}`);
   }
 
   /**
@@ -101,7 +101,7 @@ export class LayerDataService {
  * @returns A promise that resolves to the layer references.
  */
   public getUserLayerReferences(): Observable<LayerReferences[]> {
-    return this.http.get<LayerReferences[]>(`${this.configurationService.apiUrl}layer/references/user`);
+    return this.http.get<LayerReferences[]>(`${this.configurationService.apiUrl}layers/references/users`);
   }
 
   /**
@@ -111,6 +111,6 @@ export class LayerDataService {
    * @returns A response message if successfull, else return an error.
    */
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layer/references/user`, payload);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/references/users/save`, payload);
   }
 }

@@ -74,7 +74,7 @@
   </ng-container>
 </div>
 <div class="wko-footer">
-  <ion-button fill="clear" (click)="onSubmit()" [disabled]="loading || !workOrderForm.valid || !userHasRightSendWorkorder">Envoyer à la planification</ion-button>
+  <ion-button fill="clear" (click)="onSubmit()" [disabled]="loading || !workOrderForm.valid || !userHasPermissionSendWorkorder">Envoyer à la planification</ion-button>
 </div>
 
 <ng-template #loadingBody>

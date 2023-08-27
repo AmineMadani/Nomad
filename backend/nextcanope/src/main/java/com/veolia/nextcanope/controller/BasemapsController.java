@@ -25,7 +25,7 @@ public class BasemapsController {
     @Autowired
     public BasemapsService basemapsService;
 
-    @GetMapping(path = "/")
+    @GetMapping()
     @Operation(summary = "Get the list of basemap")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "The basemap list")

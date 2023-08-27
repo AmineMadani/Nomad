@@ -10,11 +10,11 @@ import { TemplateService } from 'src/app/core/services/template.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
-  selector: 'app-patrimony-settings',
-  templateUrl: './patrimony-settings.component.html',
-  styleUrls: ['./patrimony-settings.component.scss'],
+  selector: 'app-asset-settings',
+  templateUrl: './asset-settings.component.html',
+  styleUrls: ['./asset-settings.component.scss'],
 })
-export class PatrimonySettingsPage implements OnInit {
+export class AssetSettingsPage implements OnInit {
 
   constructor(
     private userService: UserService,

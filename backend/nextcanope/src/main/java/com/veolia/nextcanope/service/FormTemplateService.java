@@ -116,7 +116,7 @@ public class FormTemplateService {
             // Check if there is already a custom template
             FormTemplateCustom formTemplateCustom = formTemplateCustomRepository.findByFormTemplate_IdAndUser_IdAndDeletedAtIsNull(formTemplateDto.getFteId(), userId).orElse(null);
 
-            FormDefinition formDefinition = null;
+            FormDefinition formDefinition;
 
             // If there is no custom template, create it
             if (formTemplateCustom == null) {
@@ -182,11 +182,11 @@ public class FormTemplateService {
             // If there is a custom template
             if (formTemplateCustom != null) {
                 // Delete the form template custom
-                formTemplateCustom.setDeletedAt(new Date());
+                formTemplateCustom.markAsDeleted(currentUser);
 
                 // Delete the associated definition
                 FormDefinition formDefinition = formTemplateCustom.getFormDefinition();
-                formDefinition.setDeletedAt(new Date());
+                formDefinition.markAsDeleted(currentUser);
 
                 try {
                     formDefinitionRepository.save(formDefinition);

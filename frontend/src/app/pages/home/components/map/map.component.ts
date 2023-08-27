@@ -9,7 +9,7 @@ import {
 import {
   LoadingController,
 } from '@ionic/angular';
-import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -28,7 +28,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-map',
@@ -80,10 +80,10 @@ export class MapComponent implements OnInit, OnDestroy {
   public scale: string;
   public isMobile: boolean;
 
-  // Rights
-  public userHasRightCreateXYWorkorder: boolean = false;
-  public userHasRightModifyReport: boolean = false;
-  public userHasRightRequestUpdateAsset: boolean = false;
+  // Pmrissions
+  public userHasPermissionCreateXYWorkorder: boolean = false;
+  public userHasPermissionModifyReport: boolean = false;
+  public userHasPermissionRequestUpdateAsset: boolean = false;
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
@@ -97,13 +97,13 @@ export class MapComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
 
-    // Init rights
-    this.userHasRightCreateXYWorkorder =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_X_Y_WORKORDER);
-    this.userHasRightModifyReport =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.MODIFY_REPORT_MY_AREA);
-    this.userHasRightRequestUpdateAsset =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.REQUEST_UPDATE_ASSET);
+    // Init permissions
+    this.userHasPermissionCreateXYWorkorder =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_X_Y_WORKORDER);
+    this.userHasPermissionModifyReport =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.MODIFY_REPORT_MY_AREA);
+    this.userHasPermissionRequestUpdateAsset =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.REQUEST_UPDATE_ASSET);
 
     const loading = await this.loadingCtrl.create({
       message: 'Chargement de la carte',

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
-import { WtrReport } from '../report-list.component';
+import { WtrReport } from '../report-settings.component';
 import { Form, FormDefinition, FormPropertiesEnum, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -12,7 +12,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import { SelectDuplicateReportComponent } from './select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './test-report/test-report.component';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 
 enum CustomFormPropertiesEnum {
     TEXT = 'text',
@@ -43,8 +43,8 @@ export class ReportEditComponent implements OnInit {
 
   public form: FormGroup;
 
-  public userHasRightCreateNewFormField: boolean = false;
-  public userHasRightCustomizeFormField: boolean = false;
+  public userHasPermissionCreateNewFormField: boolean = false;
+  public userHasPermissionCustomizeFormField: boolean = false;
 
   CustomFormPropertiesEnum = CustomFormPropertiesEnum;
 
@@ -64,11 +64,11 @@ export class ReportEditComponent implements OnInit {
       lines: new FormArray([]),
     });
 
-    // ### Rights ### //
-    this.userHasRightCreateNewFormField =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_NEW_FORM_FIELDS);
-    this.userHasRightCustomizeFormField =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CUSTOMIZE_FORM_FIELDS);
+    // ### Permissions ### //
+    this.userHasPermissionCreateNewFormField =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
+    this.userHasPermissionCustomizeFormField =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CUSTOMIZE_FORM_FIELDS);
 
     // ### Data ### //
     // Check if there is already a existing form
@@ -123,7 +123,7 @@ export class ReportEditComponent implements OnInit {
     }
 
     // Disable form if user hasn't right to customize
-    if (!this.userHasRightCustomizeFormField) {
+    if (!this.userHasPermissionCustomizeFormField) {
       this.form.disable();
     }
   }

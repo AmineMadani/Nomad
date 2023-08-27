@@ -41,11 +41,11 @@ export interface WtrReport extends AssetType {
 }
 
 @Component({
-  selector: 'app-report-list',
-  templateUrl: './report-list.component.html',
-  styleUrls: ['./report-list.component.scss'],
+  selector: 'app-report-settings',
+  templateUrl: './report-settings.component.html',
+  styleUrls: ['./report-settings.component.scss'],
 })
-export class ReportListComponent implements OnInit {
+export class ReportSettingsPage implements OnInit {
 
   constructor(
     private referentialService: ReferentialService,

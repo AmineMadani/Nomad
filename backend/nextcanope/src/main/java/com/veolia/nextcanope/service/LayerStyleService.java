@@ -2,7 +2,6 @@ package com.veolia.nextcanope.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -136,7 +135,7 @@ public class LayerStyleService {
         // We set mark as deleted the missed images in payload
         List<String> payloadImageCodes = payload.getListImage().stream()
                 .map(StyleImageDto::getCode)
-                .collect(Collectors.toList());
+                .toList();
         for (StyleImage existingImage : layerStyle.getStyleDefinition().getListOfStyleImage()) {
             if (!payloadImageCodes.contains(existingImage.getSyiCode())) {
                 existingImage.markAsDeleted(user);
@@ -172,24 +171,29 @@ public class LayerStyleService {
     /**
      * Delete a layer style. It's only a logical deletion. The ddel date is set to the current date.
      */
-    public void deleteLayerStyle(Long lseId, Long userId) {
+    public void deleteLayerStyles(List<Long> lseIds, Long userId) {
         // Create the current user instance
         Users user = new Users();
         user.setId(userId);
 
-        // Check if the layer style already exist
-        LayerStyle layerStyle = this.layerStyleRepository
-                .findById(lseId)
-                .orElseThrow(() -> new FunctionalException("Le style de couche " + lseId + " n'existe pas."));
+        List<LayerStyle> layerStyles = new ArrayList<>();
+        for (Long lseId : lseIds) {
+            // Check if the layer style already exist
+            LayerStyle layerStyle = this.layerStyleRepository
+                    .findById(lseId)
+                    .orElseThrow(() -> new FunctionalException("Le style de couche " + lseId + " n'existe pas."));
 
-        // Mark layer styles and children as deleted
-        layerStyle.markAsDeleted(user);
-        layerStyle.getStyleDefinition().markAsDeleted(user);
-        layerStyle.getStyleDefinition().getListOfStyleImage().forEach(image -> image.markAsDeleted(user));
+            // Mark layer styles and children as deleted
+            layerStyle.markAsDeleted(user);
+            layerStyle.getStyleDefinition().markAsDeleted(user);
+            layerStyle.getStyleDefinition().getListOfStyleImage().forEach(image -> image.markAsDeleted(user));
+
+            layerStyles.add(layerStyle);
+        }
 
         // It saves layer styles in the db
         try {
-            this.layerStyleRepository.save(layerStyle);
+            this.layerStyleRepository.saveAll(layerStyles);
         } catch (Exception e) {
             throw new TechnicalException("Erreur lors de la suppression des styles de couche.", e.getMessage());
         }

@@ -8,6 +8,7 @@ import { LayerStyleComponent } from './layer-style/layer-style.component';
 import { forkJoin } from 'rxjs';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { TableService } from 'src/app/core/services/table.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -19,7 +20,8 @@ export class LayerStylesSettingsPage implements OnInit {
   constructor(
     private layerService: LayerService,
     private modalController: ModalController,
-    private tableService: TableService
+    private tableService: TableService,
+    private utilsService: UtilsService
   ) { }
 
   public form: FormGroup;
@@ -131,7 +133,7 @@ export class LayerStylesSettingsPage implements OnInit {
         parentLayer: this.layers.find((lyr) => lyr.lyrTableName === this.form.get('lyrTableName').value),
       },
       backdropDismiss: false,
-      cssClass: 'custom-modal'
+      cssClass: 'large-modal'
     });
 
     modal.onDidDismiss()
@@ -147,11 +149,10 @@ export class LayerStylesSettingsPage implements OnInit {
   }
 
   private async deleteLayerStyles() {
-    const deleteRequests = this.selectedLayerStylesRows.map((style: TableRow<LayerStyleSummary>) =>
-      this.layerService.deleteLayerStyle(style.get('lseId').value)
-    );
+    const lseIds: number[] =
+      this.selectedLayerStylesRows.map((row) => row.getRawValue().lseId);
 
-    forkJoin(deleteRequests).subscribe(() => {
+    this.layerService.deleteLayerStyle(lseIds).subscribe(() => {
       this.selectedLayerStylesRows = [];
       this.reloadLayerStyles();
     });

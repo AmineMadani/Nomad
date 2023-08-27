@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Context, Permission, Profile, User, UserPermissionsEnum } from '../models/user.model';
+import { Context, Permission, Profile, User, PermissionCodeEnum } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
 import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
+import { ApiSuccessResponse } from '../models/api-response.model';
+import { UtilsService } from './utils.service';
 
 /**
  * Enum of cache items in local storage
@@ -22,40 +24,12 @@ export class UserService {
     private userDataService: UserDataService,
     private mapService: MapService,
     private router: Router,
-    private preferenceService: PreferenceService
+    private preferenceService: PreferenceService,
+    private utilsService: UtilsService
   ) { }
 
+  private currentUser: User;
   private permissions: Permission[];
-
-  /**
-   * Method to get all the user informations from server
-   * @returns User information
-   */
-  private async getUserInformation(): Promise<Observable<User>> {
-    const res = await lastValueFrom(
-      this.userDataService.getUserInformation()
-        .pipe(
-          timeout(2000),
-          catchError(async () => {
-            const forms = await this.preferenceService.getPreference(
-              LocalStorageUserKey.USER
-            );
-            if (forms) {
-              return forms.data;
-            }
-            return of(null);
-          })
-        )
-    );
-
-    if (!res) {
-      this.router.navigate(['/error']);
-    }
-
-    this.preferenceService.setPreference(LocalStorageUserKey.USER, res);
-
-    return res;
-  }
 
   /**
    * Create UserContext on Home page
@@ -92,18 +66,56 @@ export class UserService {
    * @returns A Promise that resolves to the current user, or undefined if the user is not found.
    */
   public async getCurrentUser(): Promise<User | undefined> {
-    const usr: any = await this.getUserInformation();
-    if (usr.usrConfiguration) {
-      usr.usrConfiguration = JSON.parse(usr.usrConfiguration);
-      if (!usr.usrConfiguration.favorites) {
-        usr.usrConfiguration.favorites = []
+    // If the current user is not already set
+    if (!this.currentUser) {
+      // It gets the user info from the server
+      const usr: User = await this.getCurrentUserInformation();
+      if (usr.usrConfiguration) {
+        usr.usrConfiguration = JSON.parse(usr.usrConfiguration.toString());
+        if (!usr.usrConfiguration.favorites) {
+          usr.usrConfiguration.favorites = []
+        }
+      } else {
+        usr.usrConfiguration = {
+          favorites: []
+        }
       }
-    } else {
-      usr.usrConfiguration = {
-        favorites: []
-      }
+
+      // Set the current user
+      this.currentUser = usr;
     }
-    return usr;
+
+    return this.currentUser;
+  }
+
+  /**
+   * Method to get all the user informations from server
+   * @returns User information
+   */
+  private async getCurrentUserInformation(): Promise<User> {
+    const res = await lastValueFrom(
+      this.userDataService.getCurrentUserInformation()
+        .pipe(
+          timeout(2000),
+          catchError(async () => {
+            const forms = await this.preferenceService.getPreference(
+              LocalStorageUserKey.USER
+            );
+            if (forms) {
+              return forms.data;
+            }
+            return of(null);
+          })
+        )
+    );
+
+    if (!res) {
+      this.router.navigate(['/error']);
+    }
+
+    this.preferenceService.setPreference(LocalStorageUserKey.USER, res);
+
+    return res;
   }
 
   /**
@@ -126,7 +138,7 @@ export class UserService {
    * Create an user
    * @param user the user to create
    */
-  public createUser(user: User): Observable<any> {
+  public createUser(user: User): Observable<ApiSuccessResponse> {
     return this.userDataService.createUser(user);
   }
 
@@ -134,13 +146,18 @@ export class UserService {
    * Update an user
    * @param user the user to update
    */
-  public updateUser(user: User): Observable<any> {
+  public updateUser(user: User): Observable<ApiSuccessResponse> {
+    if (this.currentUser && user.id === this.currentUser.id) {
+      // Reset the current user to get updated information next time
+      this.currentUser = undefined;
+    }
+
     return this.userDataService.updateUser(user);
   }
 
   /**
    * Update the current user data
-   * @param user  the user
+   * @param user New user data
    */
   public updateCurrentUser(user: User): void {
     const usr: any = JSON.parse(JSON.stringify(user));
@@ -154,8 +171,12 @@ export class UserService {
   /**
    * Delete a user.
    */
-  public deleteUser(lseId: number) {
-    return this.userDataService.deleteUser(lseId);
+  public deleteUsers(usersIds: number[]): Observable<ApiSuccessResponse> {
+    return this.userDataService.deleteUsers(usersIds).pipe(
+      tap((successResponse: ApiSuccessResponse) => {
+        this.utilsService.showSuccessMessage(successResponse.message);
+      })
+    );
   }
 
   /**
@@ -258,11 +279,11 @@ export class UserService {
   }
 
   /**
-   * Check if the current user has right on a specific permission
+   * Check if the current user has a specific permission
    * @param perCode The permission code to check
    */
-  async currentUserHasRight(perCode: UserPermissionsEnum): Promise<boolean> {
-    let hasRight: boolean = false;
+  async currentUserHasPermission(perCode: PermissionCodeEnum): Promise<boolean> {
+    let hasPermission: boolean = false;
 
     const currentUser: User = await this.getCurrentUser();
 
@@ -270,10 +291,10 @@ export class UserService {
       const permissions: Permission[] = await firstValueFrom(this.getAllPermissions());
       const permissionProfilesIds = permissions.find((prm) => prm.perCode === perCode).profilesIds;
       if (currentUser.perimeters.some((per) => permissionProfilesIds.includes(per.profileId))) {
-        hasRight = true;
+        hasPermission = true;
       }
     }
 
-    return hasRight;
+    return hasPermission;
   }
 }

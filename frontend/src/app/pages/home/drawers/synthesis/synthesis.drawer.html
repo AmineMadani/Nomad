@@ -22,7 +22,7 @@
     <!-- BUTTONS -->
     <ng-template #defaultBar>
         <ion-tab-bar class="action-bar" slot="top" *ngIf="tabButtons && tabButtons.length > 0">
-            <ion-tab-button *ngFor="let tb of tabButtons" (click)="onTabButtonClicked(tb)" [disabled]="tabDisabled || tb.disabled">
+            <ion-tab-button *ngFor="let tb of tabButtons" (click)="onTabButtonClicked(tb)" [disabled]="tabDisabled || tb.disabledFunction()">
                 <ion-icon [name]="tb.icon + '-outline'"></ion-icon>
                 {{ tb.label }}
             </ion-tab-button>

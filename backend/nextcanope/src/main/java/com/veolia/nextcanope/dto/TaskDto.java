@@ -128,8 +128,8 @@ public class TaskDto {
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
         
-        if(task.getListOfReport().size() > 0) {
-        	List<ReportValueDto> reportValues = new ArrayList<ReportValueDto>();
+        if(!task.getListOfReport().isEmpty()) {
+        	List<ReportValueDto> reportValues = new ArrayList<>();
         	for(Report report: task.getListOfReport()) {
         		ReportValueDto reportValue = new ReportValueDto();
         		reportValue.setKey(report.getRptKey());

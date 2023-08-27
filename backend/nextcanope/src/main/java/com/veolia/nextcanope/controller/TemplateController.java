@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/template")
+@RequestMapping("/templates")
 @Tag(name = "Template Management System", description = "Operations pertaining to template in the template Management System")
 public class TemplateController {
 	
@@ -64,7 +64,7 @@ public class TemplateController {
 		return formTemplateService.updateFormTemplate(formTemplateDto, account.getId());
 	}
 
-	@PostMapping(path = "custom/user")
+	@PostMapping(path = "custom/users/save")
 	@Operation(summary = "Save the user custom form template for a list of user id. Return a response message.")
 	@ApiResponses(value = {
 			@ApiResponse(description= "The form", content =  {
@@ -80,14 +80,14 @@ public class TemplateController {
 		return new ResponseMessage("La customisation a été enregistrée avec succès.");
 	}
 
-	@PostMapping(path = "custom/delete/user")
+	@DeleteMapping(path = "custom/users/delete")
 	@Operation(summary = "Delete the user custom form template for a list of user id. Return a response message.")
 	@ApiResponses(value = {
 			@ApiResponse(description= "The form", content =  {
 					@Content(schema = @Schema(implementation = String.class))
 			})
 	})
-	public ResponseMessage deleteormTemplateCustomUser(AccountTokenDto account, @RequestBody DeleteFormTemplateCustomUserPayload deleteFormTemplateCustomUserPayload) {
+	public ResponseMessage deleteFormTemplateCustomUser(AccountTokenDto account, @RequestBody DeleteFormTemplateCustomUserPayload deleteFormTemplateCustomUserPayload) {
 		formTemplateService.deleteFormTemplateCustomUser(
 				deleteFormTemplateCustomUserPayload.getId(),
 				deleteFormTemplateCustomUserPayload.getUserIds(),

@@ -1,7 +1,6 @@
 package com.veolia.nextcanope.service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.enums.WorkOrderStatusCode;
@@ -68,7 +67,7 @@ public class WorkorderService {
 	 * Retrieve the list of workorders by most recent date planned limited in number with offset for pagination
 	 * @param limit The number of workorder to get
 	 * @param offset The pagination offset to set
-     * @param searchParameter
+     * @param searchParameter The search parameters
 	 * @return the workorder list
 	 */
     public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
@@ -176,11 +175,15 @@ public class WorkorderService {
 	 * @param userId the user id who update the work order
 	 * @return the work order dto
 	 */
-	public WorkorderDto updateDataWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
+	public WorkorderDto updateWorkOrder(
+			Long wkoId,
+			WorkorderDto customWorkorderDto,
+			Long userId
+	) {
 
 		Users user = this.userService.getUserById(userId);
 
-		Workorder workorder = getWorkOrderById(customWorkorderDto.getId());
+		Workorder workorder = getWorkOrderById(wkoId);
 		workorder.setWkoName(customWorkorderDto.getWkoName());
 		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
 		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
@@ -234,7 +237,7 @@ public class WorkorderService {
 		//Gestion des task à supprimer
 		List<String> objRef = customWorkorderDto.getTasks().stream()
 				.map(TaskDto::getAssObjRef)
-				.collect(Collectors.toList());
+				.toList();
 		for(Task existingTask : existingTasks){
 			if (!objRef.contains(existingTask.getAsset().getAssObjRef())){
 				existingTask.markAsDeleted(user);
@@ -253,15 +256,19 @@ public class WorkorderService {
 	}
 
 	/**
-	 * Method which permit to update a workorder
+	 * Method which permit to terminate a workorder
 	 * @param customWorkorderDto the payload
 	 * @param userId the user id who update the work order
 	 * @return the work order dto
 	 */
-    public WorkorderDto updateWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
+    public WorkorderDto terminateWorkOrder(
+			Long wkoId,
+			WorkorderDto customWorkorderDto,
+			Long userId
+	) {
 		Users user = userService.getUserById(userId);
 
-		Workorder workorder = getWorkOrderById(customWorkorderDto.getId());
+		Workorder workorder = getWorkOrderById(wkoId);
 		workorder.setWkoCompletionDate(new Date());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
@@ -319,13 +326,20 @@ public class WorkorderService {
 	 * Method to cancel a workorder and all associated tasks
 	 * @return message returned to front
 	 */
-	public WorkorderDto cancelWorkOrder(CancelWorkorderPayload cancelWorkorderPayload) {
-		Workorder workorder = getWorkOrderById(cancelWorkorderPayload.getId());
+	public WorkorderDto cancelWorkOrder(
+			Long wkoId,
+			CancelWorkorderPayload cancelWorkorderPayload,
+			Long userId
+	) {
+		Users user = userService.getUserById(userId);
+
+		Workorder workorder = getWorkOrderById(wkoId);
 
 		WorkorderTaskStatus oldStatus = statusService.getStatus(workorder.getWorkorderTaskStatus().getId());
 		WorkorderTaskStatus newStatus = statusService.getStatus(WorkOrderStatusCode.ANNULE.toString());
 		workorder.setWorkorderTaskStatus(newStatus);
 		workorder.setWkoCancelComment(cancelWorkorderPayload.getCancelComment());
+		workorder.setModifiedBy(user);
 
 		for (Task task : workorder.getListOfTask()) {
 			task.setWorkorderTaskStatus(newStatus);

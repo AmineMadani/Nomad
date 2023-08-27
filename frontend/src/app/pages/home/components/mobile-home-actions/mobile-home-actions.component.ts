@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
@@ -27,12 +27,12 @@ export class MobileHomeActionsComponent implements OnInit {
   public type: 'DISPLAY' | 'ACTIONS' | 'TOOLS';
   public drawerRouteEnum = DrawerRouteEnum;
 
-  // Rights
-  public userHasRightCreateXYWorkorder: boolean = false;
+  // Permissions
+  public userHasPermissionCreateXYWorkorder: boolean = false;
 
   async ngOnInit(): Promise<void> {
-    this.userHasRightCreateXYWorkorder =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_X_Y_WORKORDER);
+    this.userHasPermissionCreateXYWorkorder =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_X_Y_WORKORDER);
   }
 
   public navigateTo(location: DrawerRouteEnum): void {

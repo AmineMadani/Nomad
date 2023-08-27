@@ -1,18 +1,17 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController, ToastController } from '@ionic/angular';
-import { catchError, forkJoin, of } from 'rxjs';
-import { Action } from 'rxjs/internal/scheduler/Action';
+import { ModalController } from '@ionic/angular';
+import { forkJoin } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
-import { OrganizationalUnit } from 'src/app/core/models/organizational-unit.model';
+import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, PerimeterRow, Profile, User, UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { Perimeter, PerimeterRow, Profile, User, PermissionCodeEnum, ProfileCodeEnum } from 'src/app/core/models/user.model';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UserService } from 'src/app/core/services/user.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-user-details',
@@ -22,10 +21,10 @@ import { UserService } from 'src/app/core/services/user.service';
 export class UserDetailsComponent implements OnInit {
   constructor(
     private userService: UserService,
-    private toastCtrl: ToastController,
     private modalController: ModalController,
     private organizationalUnitService: OrganizationalUnitService,
-    private contractService: ContractService
+    private contractService: ContractService,
+    private utilsService: UtilsService
   ) { }
 
   @Input("userId") userId: number;
@@ -34,9 +33,9 @@ export class UserDetailsComponent implements OnInit {
 
   public isLoading: boolean = false;
 
-  // Rights
-  public userHasRightManageUser: boolean = false;
-  public userHasRightSetUserRights: boolean = false;
+  // Permissions
+  public userHasPermissionManageUser: boolean = false;
+  public userHasPermissionSetUserRights: boolean = false;
 
   // Form and table utils rows
   public userForm: FormGroup;
@@ -72,16 +71,7 @@ export class UserDetailsComponent implements OnInit {
           this.selectedPerimetersRows = [];
         },
         disableFunction: () => {
-          return this.selectedPerimetersRows.length === 0 || !this.userHasRightManageUser || !this.userHasRightSetUserRights;
-        }
-      },
-      {
-        name: 'copy',
-        onClick: () => {
-          // TODO: this.openUsersDetails();
-        },
-        disableFunction: () => {
-          return !this.userHasRightManageUser || !this.userHasRightSetUserRights;
+          return this.selectedPerimetersRows.length === 0 || !this.userHasPermissionManageUser || !this.userHasPermissionSetUserRights;
         }
       },
       {
@@ -90,7 +80,7 @@ export class UserDetailsComponent implements OnInit {
           this.addPerimeterRow();
         },
         disableFunction: () => {
-          return !this.userHasRightManageUser || !this.userHasRightSetUserRights;
+          return !this.userHasPermissionManageUser || !this.userHasPermissionSetUserRights;
         }
       }
     ],
@@ -168,11 +158,11 @@ export class UserDetailsComponent implements OnInit {
   async ngOnInit() {
     this.initForm();
 
-    // Rights
-    this.userHasRightManageUser =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.MANAGE_USER_PROFILE);
-    this.userHasRightSetUserRights =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.SET_USER_RIGHTS);
+    // Permissions
+    this.userHasPermissionManageUser =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.MANAGE_USER_PROFILE);
+    this.userHasPermissionSetUserRights =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.SET_USER_RIGHTS);
 
     this.fetchInitData();
   }
@@ -204,8 +194,8 @@ export class UserDetailsComponent implements OnInit {
     }).subscribe(({ organizationalUnits, profiles, contracts, user }) => {
       // OrganizationalUnits
       this.organizationalUnits = organizationalUnits;
-      this.regions = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'REGION');
-      this.territories = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === 'TERRITOIRE');
+      this.regions = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === OutCodeEnum.REGION);
+      this.territories = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === OutCodeEnum.TERRITORY);
 
       // Profiles
       this.profiles = profiles;
@@ -233,10 +223,10 @@ export class UserDetailsComponent implements OnInit {
           this.addPerimeterRow(perimeter);
         }
 
-        // Right
-        if (!this.userHasRightManageUser) {
+        // Permissions
+        if (!this.userHasPermissionManageUser) {
           // this.userForm.disable(); // TODO: uncomment after the administrator modification
-        } else if (!this.userHasRightSetUserRights) {
+        } else if (!this.userHasPermissionSetUserRights) {
           const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
           perimetersTable.disable();
         }
@@ -282,7 +272,7 @@ export class UserDetailsComponent implements OnInit {
 
         // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
         const profileIds = this.profiles
-          .filter((prf) => ['ADMIN_NAT', 'ADMIN_LOC_1', 'ADMIN_LOC_2'].includes(prf.prfCode))
+          .filter((prf) => [ProfileCodeEnum.ADMIN_NAT, ProfileCodeEnum.ADMIN_LOC_1, ProfileCodeEnum.ADMIN_LOC_2].includes(prf.prfCode))
           .map((prf) => prf.id);
 
         if (profileIds.includes(row.get('profileId').value)) {
@@ -341,29 +331,17 @@ export class UserDetailsComponent implements OnInit {
     if (this.actionType === ActionType.CREATION || this.actionType === ActionType.DUPLICATION) {
       this.userService
         .createUser(userToSave)
-        .subscribe(async (res: { message: string }) => {
-          const toast = await this.toastCtrl.create({
-            message: res.message,
-            color: 'success',
-            duration: 1500,
-            position: 'bottom',
-          });
+        .subscribe((res: { message: string }) => {
+          this.utilsService.showSuccessMessage(res.message);
 
-          toast.present();
           this.onClose();
         });
     } else if (this.actionType === ActionType.MODIFICATION) {
       this.userService
         .updateUser(userToSave)
-        .subscribe(async (res: { message: string }) => {
-          const toast = await this.toastCtrl.create({
-            message: res.message,
-            color: 'success',
-            duration: 1500,
-            position: 'bottom',
-          });
+        .subscribe((res: { message: string }) => {
+          this.utilsService.showSuccessMessage(res.message);
 
-          toast.present();
           this.onClose();
         });
     }

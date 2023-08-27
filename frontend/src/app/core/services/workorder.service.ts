@@ -74,21 +74,21 @@ export class WorkorderService {
   }
 
     /**
-   * Update data workorder
+   * Update workorder
    * @param workorder the workorder to update
    * @returns the workorder
    */
-    public updateDataWorkOrder(workorder: Workorder): Observable<any> {
-      return this.workorderDataService.updateDataWorkOrder(workorder);
+  public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
+      return this.workorderDataService.updateWorkOrder(workorder);
     }
 
   /**
-   * Update a workorder
-   * @param workorder the workorder to update
+   * Terminate a workorder
+   * @param workorder the workorder to terminate
    * @returns the workorder
    */
-  public updateWorkOrder(workorder: Workorder): Observable<any> {
-    return this.workorderDataService.updateWorkOrder(workorder);
+  public terminateWorkOrder(workorder: Workorder): Observable<Workorder> {
+    return this.workorderDataService.terminateWorkOrder(workorder);
   }
 
   /**
@@ -96,7 +96,7 @@ export class WorkorderService {
    * @param workorder the workorder to create
    * @returns the workorder
    */
-  public createWorkOrder(workorder: Workorder): Observable<any> {
+  public createWorkOrder(workorder: Workorder): Observable<Workorder> {
     return this.workorderDataService.createWorkOrder(workorder);
   }
 
@@ -125,7 +125,7 @@ export class WorkorderService {
     return this.workorderDataService.getEquipmentWorkOrderHistory(assetTable, assetId);
   }
 
-  public cancelWorkorder(cancelPayload: CancelWorkOrder): Observable<any> {
+  public cancelWorkorder(cancelPayload: CancelWorkOrder): Observable<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
 

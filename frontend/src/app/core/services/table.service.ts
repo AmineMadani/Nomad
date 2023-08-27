@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TableCell, TableRow, TableRowArray } from '../models/table/column.model';
+import { TableCell, TableRow } from '../models/table/column.model';
 
 @Injectable({
   providedIn: 'root'

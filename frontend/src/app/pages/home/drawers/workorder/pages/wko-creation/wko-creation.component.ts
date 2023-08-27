@@ -19,10 +19,8 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { PreferenceService } from 'src/app/core/services/preference.service';
-import { Observable } from 'dexie';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -70,8 +68,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public loading: boolean = true;
 
-  // Rights
-  public userHasRightSendWorkorder: boolean = false;
+  // Permissions
+  public userHasPermissionSendWorkorder: boolean = false;
 
   private markerCreation: Map<string, any> = new Map();
   private markerDestroyed: boolean;
@@ -81,8 +79,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.title = 'Générer une interventions';
 
-    this.userHasRightSendWorkorder =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.SEND_WORKORDER);
+    this.userHasPermissionSendWorkorder =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.SEND_WORKORDER);
 
     const paramMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
@@ -281,7 +279,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.workOrder.tasks = form.tasks;
         this.workOrder.ctrId = form.ctrId;
         this.workOrder.ctyId = form.ctyId;
-        funct =  this.workOrderService.updateDataWorkOrder(this.workOrder);
+        funct =  this.workOrderService.updateWorkOrder(this.workOrder);
       }
       else{
         funct = this.workOrderService.createWorkOrder(form);

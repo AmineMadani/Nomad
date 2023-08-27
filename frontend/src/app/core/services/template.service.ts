@@ -4,7 +4,7 @@ import { TemplateDataService } from './dataservices/template.dataservice';
 import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
 import { catchError, of, timeout, lastValueFrom, Observable, tap } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
-import { ToastController } from '@ionic/angular';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class TemplateService {
 
   constructor(
     private templateDataService: TemplateDataService,
-    private toastController: ToastController,
+    private utilsService: UtilsService
   ) {
     this.db = new AppDB();
   }
@@ -77,13 +77,8 @@ export class TemplateService {
   public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }) {
     return this.templateDataService.saveFormTemplateCustomUser(payload)
       .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
+        tap((successResponse: ApiSuccessResponse) => {
+          this.utilsService.showSuccessMessage(successResponse.message);
         })
       );
   }
@@ -97,13 +92,8 @@ export class TemplateService {
   public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }) {
     return this.templateDataService.deleteFormTemplateCustomUser(payload)
       .pipe(
-        tap(async (successResponse: ApiSuccessResponse) => {
-          const toast = await this.toastController.create({
-            message: successResponse.message,
-            duration: 2000,
-            color: 'success'
-          });
-          await toast.present();
+        tap((successResponse: ApiSuccessResponse) => {
+          this.utilsService.showSuccessMessage(successResponse.message);
         })
       );
   }

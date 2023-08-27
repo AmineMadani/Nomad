@@ -11,7 +11,7 @@ export class BaseMapsDataService {
 
   constructor(
     private http: HttpClient,
-    private configurationService: ConfigurationService  
+    private configurationService: ConfigurationService
   ) {}
 
   /**
@@ -19,6 +19,6 @@ export class BaseMapsDataService {
    * @returns User information
    */
   getBaseMaps(): Observable<Basemap[]> {
-    return this.http.get<Basemap[]>(`${this.configurationService.apiUrl}basemaps/`);
+    return this.http.get<Basemap[]>(`${this.configurationService.apiUrl}basemaps`);
   }
 }

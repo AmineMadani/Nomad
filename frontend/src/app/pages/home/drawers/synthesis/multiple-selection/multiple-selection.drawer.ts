@@ -12,7 +12,7 @@ import { IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -118,6 +118,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public wkoId : string;
   public featureIdSelected: string = '';
   public featuresHighlighted: any[] = [];
+  public userHasPermissionCreateAssetWorkorder: boolean = false;
+  public userHasPermissionRequestUpdateAsset: boolean = false;
 
   private layersConf: Layer[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -134,13 +136,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           ? "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle',
-        disabled: true,
+        disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
       },
       {
         key: 'ask',
         label: 'Faire une demande de MAJ',
         icon: 'refresh',
-        disabled: true,
+        disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
       },
       {
         key: 'showSelectedFeatures',
@@ -150,14 +152,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     ];
     this.isMobile = this.utilsService.isMobilePlateform();
 
-    // Enable the create workorder buttons when user has right
-    const userHasRightCreateAssetWorkorder =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_ASSET_WORKORDER);
-    this.buttons.find((btn) => btn.key === 'create').disabled = !userHasRightCreateAssetWorkorder;
-    // Idem for ask button
-    const userHasRightRequestUpdateAsset =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.REQUEST_UPDATE_ASSET);
-    this.buttons.find((btn) => btn.key === 'ask').disabled = !userHasRightRequestUpdateAsset;
+    // Permissions
+    this.userHasPermissionCreateAssetWorkorder =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_ASSET_WORKORDER);
+    this.userHasPermissionRequestUpdateAsset =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.REQUEST_UPDATE_ASSET);
   }
 
   ngOnDestroy(): void {

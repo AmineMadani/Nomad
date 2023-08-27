@@ -10,7 +10,7 @@ import { CacheService } from 'src/app/core/services/cache.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer.model';
 import { UserService } from 'src/app/core/services/user.service';
-import { UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-equipment',
@@ -32,13 +32,13 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       key: 'create',
       label: 'Générer une intervention',
       icon: 'person-circle',
-      disabled: true,
+      disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
     },
   ];
 
-  // Rights
-  public userHasRightViewAssetDetailled: boolean = false;
-  public userHasRightCreateAssetWorkorder: boolean = false;
+  // Permissions
+  public userHasPermissionViewAssetDetailled: boolean = false;
+  public userHasPermissionCreateAssetWorkorder: boolean = false;
 
   public userReferences: UserReference[] = [];
   public equipment: any;
@@ -50,10 +50,10 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.isMobile = this.utils.isMobilePlateform();
-    this.userHasRightViewAssetDetailled =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.VIEW_ASSET_DETAILLED);
-    this.userHasRightCreateAssetWorkorder =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.CREATE_ASSET_WORKORDER);
+    this.userHasPermissionViewAssetDetailled =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.VIEW_ASSET_DETAILLED);
+    this.userHasPermissionCreateAssetWorkorder =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_ASSET_WORKORDER);
   }
 
   ngOnDestroy(): void {

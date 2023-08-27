@@ -1,7 +1,6 @@
 package com.veolia.nextcanope.service;
 
 import com.veolia.nextcanope.dto.OrganizationalUnitDto;
-import com.veolia.nextcanope.model.Contract;
 import com.veolia.nextcanope.model.OrganizationalUnit;
 import com.veolia.nextcanope.repository.OrganizationalUnitRepository;
 import org.springframework.beans.factory.annotation.Autowired;

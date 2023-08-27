@@ -2,6 +2,10 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
+import com.veolia.nextcanope.dto.PermissionDto;
+import com.veolia.nextcanope.dto.ProfileDto;
+import com.veolia.nextcanope.service.PermissionService;
+import com.veolia.nextcanope.service.ProfileService;
 import com.veolia.nextcanope.utils.ResponseMessage;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,7 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @Tag(name = "User Management System", description = "Operations pertaining to user in the User Management System")
 public class UserController {
 
@@ -30,6 +34,12 @@ public class UserController {
 
 	@Autowired
 	UserService userService;
+
+	@Autowired
+	public PermissionService permissionService;
+
+	@Autowired
+	public ProfileService profileService;
 
 	@GetMapping(path = "/current")
 	@Operation(summary = "Get the current user")
@@ -40,7 +50,7 @@ public class UserController {
 		return this.userService.getAccountById(account.getId());
 	}
 
-	@GetMapping(path = "/all")
+	@GetMapping()
 	@Operation(summary = "Get all users")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200",description= "Find all user account")
@@ -49,25 +59,29 @@ public class UserController {
 		return this.userService.getAllUserAccount();
 	}
 
-	@PostMapping
+	@PostMapping(path = "create")
 	@Operation(summary = "Create a new user.")
 	@ApiResponses(value = {
-			@ApiResponse(description= "User creation", content =  {
-					@Content(schema = @Schema(implementation = String.class))
-			})
+		@ApiResponse(description= "User creation", content =  {
+			@Content(schema = @Schema(implementation = String.class))
+		})
 	})
 	public ResponseMessage createUser(@RequestBody AccountDto userPayload, AccountTokenDto account) {
 		this.userService.createUser(userPayload, account.getId());
 		return new ResponseMessage("L'utilisateur a été créé avec succès.");
 	}
 
-	@PutMapping()
+	@PutMapping(path = "{userId}/update")
 	@Operation(summary = "Update the user data")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200",description= "User data is updated")
+		@ApiResponse(responseCode = "200",description= "User data is updated")
 	})
-	public ResponseMessage updateUser(AccountTokenDto account, @RequestBody AccountDto savingAccount) {
-		userService.updateUser(savingAccount, account.getId());
+	public ResponseMessage updateUser(
+			AccountTokenDto account,
+			@RequestBody AccountDto savingAccount,
+			@PathVariable Long userId
+	) {
+		userService.updateUser(userId, savingAccount, account.getId());
 		return new ResponseMessage("L'utilisateur a été modifié avec succès.");
 	}
 
@@ -82,18 +96,36 @@ public class UserController {
 		return this.userService.getAccountById(id);
 	}
 
-	@DeleteMapping(path = "/{id}")
-	@Operation(summary = "Delete the user. Return a response message.")
+	@DeleteMapping("delete")
+	@Operation(summary = "Delete a list of user. Return a response message.")
 	@ApiResponses(value = {
 		@ApiResponse(description= "A response message", content =  {
 				@Content(schema = @Schema(implementation = String.class))
 		})
 	})
-	public ResponseMessage deleteUser(
-			@PathVariable Long id,
+	public ResponseMessage deleteUsers(
+			@RequestParam List<Long> userIds,
 			AccountTokenDto account
 	) {
-		this.userService.deleteUser(id, account.getId());
-		return new ResponseMessage("L'utilisateur a été supprimé avec succès.");
+		this.userService.deleteUsers(userIds, account.getId());
+		return new ResponseMessage("Le ou les utilisateurs ont été supprimé(s) avec succès.");
+	}
+
+	@GetMapping(path= "/permissions")
+	@Operation(summary = "Get the list of permissions")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "The permission list")
+	})
+	public List<PermissionDto> getAllPermissions() {
+		return this.permissionService.getAllPermissions();
+	}
+
+	@GetMapping(path= "/profiles")
+	@Operation(summary = "Get the list of profile")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "The profile list")
+	})
+	public List<ProfileDto> getAllProfiles() {
+		return this.profileService.getAllProfiles();
 	}
 }

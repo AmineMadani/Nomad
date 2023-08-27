@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { MapFeature } from '../../models/map-feature.model';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
@@ -20,33 +20,56 @@ export class WorkorderDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
+  /**
+   * Get list of workorders on MapFeature format
+   * @param key
+   * @param limit
+   * @param offset
+   * @param search
+   * @returns an observable of the list of map features
+   */
   public getFeaturePagination(key: string,limit: number,offset: number,search: Map<string, string[]> | undefined): Observable<MapFeature[]> {
     return this.http
-      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/workorder/${key}/pagination/${limit}/${offset}`,
+      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/workorders/${key}/pagination/${limit}/${offset}`,
         this.utilsService.mapToJson(search),
         this.httpOptions
       )
   }
 
-  public createWorkOrder(workorder: Workorder): Observable<any> {
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}exploitation/workorder/create`,
+  /**
+   * Create a workorder
+   * @param workorder The workorder to create
+   * @returns
+   */
+  public createWorkOrder(workorder: Workorder): Observable<Workorder> {
+    return this.http.post<Workorder>(
+      `${this.configurationService.apiUrl}exploitation/workorders/create`,
       workorder,
       this.httpOptions
     );
   }
 
-  public updateDataWorkOrder(workorder: Workorder): Observable<any> {
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}exploitation/workorder/update-data`,
+  /**
+   * Update a workorder
+   * @param workorder The workorder to update
+   * @returns
+   */
+  public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
+    return this.http.put<Workorder>(
+      `${this.configurationService.apiUrl}exploitation/workorders/${workorder.id}/update`,
       workorder,
       this.httpOptions
     );
   }
 
-  public updateWorkOrder(workorder: Workorder): Observable<any> {
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}exploitation/workorder/update`,
+  /**
+   * Terminate a workorder
+   * @param workorder The workorder to terminate
+   * @returns
+   */
+  public terminateWorkOrder(workorder: Workorder): Observable<Workorder> {
+    return this.http.put<Workorder>(
+      `${this.configurationService.apiUrl}exploitation/workorders/${workorder.id}/terminate`,
       workorder,
       this.httpOptions
     );
@@ -55,11 +78,11 @@ export class WorkorderDataService {
   /**
    * Cancel a workorder
    * @param cancelWko : input with workorder id and cancelation reason
-   * @returns 
+   * @returns
    */
-  public cancelWorkOrder(cancelWko: CancelWorkOrder): Observable<any> {
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}exploitation/workorder/cancel`,
+  public cancelWorkOrder(cancelWko: CancelWorkOrder): Observable<Workorder> {
+    return this.http.put<Workorder>(
+      `${this.configurationService.apiUrl}exploitation/workorders/${cancelWko.id}/cancel`,
       cancelWko,
       this.httpOptions
     );
@@ -71,7 +94,7 @@ export class WorkorderDataService {
    */
   public getWorkorderById(id: number): Observable<Workorder> {
     return this.http.get<Workorder>(
-      `${this.configurationService.apiUrl}exploitation/workorder/${id}`
+      `${this.configurationService.apiUrl}exploitation/workorders/${id}`
     );
   }
 
@@ -81,7 +104,7 @@ export class WorkorderDataService {
    */
   public getEquipmentWorkOrderHistory(assetTable: string, assetId: string): Observable<Workorder[]> {
     return this.http.get<Workorder[]>(
-      `${this.configurationService.apiUrl}layer/${assetTable}/equipment/${assetId}/history`
+      `${this.configurationService.apiUrl}layers/${assetTable}/equipments/${assetId}/history`
     );
   }
 }

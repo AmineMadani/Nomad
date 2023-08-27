@@ -25,12 +25,12 @@ export class TemplateDataService {
    * @returns list of Forms
    */
   public getFormsTemplate(): Observable<FormTemplate[]> {
-    return this.http.get<FormTemplate[]>(`${this.configurationService.apiUrl}template/forms`)
+    return this.http.get<FormTemplate[]>(`${this.configurationService.apiUrl}templates/forms`)
   }
 
   public createFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
     return this.http.post<any>(
-      `${this.configurationService.apiUrl}template/create`,
+      `${this.configurationService.apiUrl}templates/create`,
       formTemplate,
       this.httpOptions
     );
@@ -38,7 +38,7 @@ export class TemplateDataService {
 
   public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
     return this.http.put<any>(
-      `${this.configurationService.apiUrl}template/update`,
+      `${this.configurationService.apiUrl}templates/update`,
       formTemplate,
       this.httpOptions
     );
@@ -51,7 +51,7 @@ export class TemplateDataService {
    * @returns A response message if successfull, else return an error.
    */
   public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}template/custom/user`, payload);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users`, payload);
   }
 
   /**
@@ -61,7 +61,7 @@ export class TemplateDataService {
    * @returns A response message if successfull, else return an error.
    */
   public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}template/custom/delete/user`, payload);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/delete`, payload);
   }
 }
 

@@ -16,7 +16,7 @@ public class LayerStyleDetailDto {
 	private Long sydId;
 	private String sydDefinition;
 
-	private List<StyleImageDto> listImage = new ArrayList<StyleImageDto>();
+	private List<StyleImageDto> listImage = new ArrayList<>();
 
 	public LayerStyleDetailDto() {
 	}

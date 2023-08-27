@@ -3,12 +3,11 @@ import { FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { User, UserPermissionsEnum } from 'src/app/core/models/user.model';
+import { User, PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { TableService } from 'src/app/core/services/table.service';
 import { ActionType } from 'src/app/core/models/settings.model';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-users-settings',
@@ -19,12 +18,11 @@ export class UsersSettingsPage implements OnInit {
   constructor(
     private userService: UserService,
     private modalController: ModalController,
-    private tableService: TableService
+    private tableService: TableService,
   ) { }
 
-  public modal: any;
-
-  public userHasRightManageUser: boolean = false;
+  public isLoading: boolean = true;
+  public userHasPermissionManageUser: boolean = false;
 
   public usersRows: TableRow<User>[] = [];
   public selectedUsersRows: TableRow<User>[] = [];
@@ -39,16 +37,16 @@ export class UsersSettingsPage implements OnInit {
           this.deleteUsers();
         },
         disableFunction: () => {
-          return this.selectedUsersRows.length === 0 || !this.userHasRightManageUser;
+          return this.selectedUsersRows.length === 0 || !this.userHasPermissionManageUser;
         }
       },
       {
         name: 'copy',
         onClick: () => {
-          this.openUserDetails(this.selectedUsersRows[0].get('id').value, ActionType.DUPLICATION);
+          this.openUserDetails(this.selectedUsersRows[0].getRawValue(), ActionType.DUPLICATION);
         },
         disableFunction: () => {
-          return this.selectedUsersRows.length !== 1 || !this.userHasRightManageUser;
+          return this.selectedUsersRows.length !== 1 || !this.userHasPermissionManageUser;
         }
       },
       {
@@ -57,7 +55,7 @@ export class UsersSettingsPage implements OnInit {
           this.openUserDetails(null, ActionType.CREATION);
         },
         disableFunction: () => {
-          return !this.userHasRightManageUser;
+          return !this.userHasPermissionManageUser;
         }
       }
     ],
@@ -102,17 +100,19 @@ export class UsersSettingsPage implements OnInit {
   ];
 
   async ngOnInit() {
-    // Rights
-    this.userHasRightManageUser =
-      await this.userService.currentUserHasRight(UserPermissionsEnum.MANAGE_USER_PROFILE);
+    // Permissions
+    this.userHasPermissionManageUser =
+      await this.userService.currentUserHasPermission(PermissionCodeEnum.MANAGE_USER_PROFILE);
 
     // Get datas
     this.loadUsers();
   }
 
   private loadUsers() {
+    this.isLoading = true;
     this.userService.getAllUserAccount().subscribe((users: User[]) => {
       this.usersRows = this.tableService.createReadOnlyRowsFromObjects(users);
+      this.isLoading = false;
     });
   }
 
@@ -124,7 +124,7 @@ export class UsersSettingsPage implements OnInit {
         actionType: actionType
       },
       backdropDismiss: false,
-      cssClass: 'custom-modal'
+      cssClass: 'large-modal'
     });
 
     modal.onDidDismiss()
@@ -140,11 +140,10 @@ export class UsersSettingsPage implements OnInit {
   }
 
   private async deleteUsers() {
-    const deleteRequests = this.selectedUsersRows.map(userRow =>
-      this.userService.deleteUser(userRow.get('id').value)
-    );
+    const userIds: number[] =
+      this.selectedUsersRows.map((userRow) => userRow.getRawValue().id);
 
-    forkJoin(deleteRequests).subscribe(() => {
+    this.userService.deleteUsers(userIds).subscribe(() => {
       this.selectedUsersRows = [];
       this.loadUsers();
     });
