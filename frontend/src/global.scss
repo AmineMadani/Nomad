@@ -429,6 +429,13 @@ ion-segment-button {
   --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
 }
 
+.alert-modal {
+  .alert-message {
+    color: black;
+    font-size: 14px;
+  }
+}
+
 .filter-popover {
   --height: unset;
   --width: unset;

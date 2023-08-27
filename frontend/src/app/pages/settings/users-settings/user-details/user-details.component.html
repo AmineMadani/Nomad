@@ -3,7 +3,7 @@
   <app-settings-header
     [title]="actionType === ActionType.MODIFICATION ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'"
     [isModalHeader]="true"
-    (onModalClose)="onClose()"
+    (onModalClose)="onClose(false, true)"
   ></app-settings-header>
 
   <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>

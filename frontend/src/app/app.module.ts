@@ -24,12 +24,12 @@ import { customOAuthStorageService } from './core/services/customOAuthStorage.se
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    IonicModule.forRoot(),
+    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
     AppRoutingModule,
     HttpClientModule,
     OAuthModule.forRoot(),
     ClipboardModule,
-    
+
   ],
   providers: [
     DatePipe,

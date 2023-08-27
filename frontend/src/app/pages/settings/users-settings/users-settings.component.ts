@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { User, PermissionCodeEnum } from 'src/app/core/models/user.model';
@@ -19,6 +19,7 @@ export class UsersSettingsPage implements OnInit {
     private userService: UserService,
     private modalController: ModalController,
     private tableService: TableService,
+    private alertController: AlertController,
   ) { }
 
   public isLoading: boolean = true;
@@ -140,12 +141,39 @@ export class UsersSettingsPage implements OnInit {
   }
 
   private async deleteUsers() {
-    const userIds: number[] =
-      this.selectedUsersRows.map((userRow) => userRow.getRawValue().id);
+    let message: string = '';
+    for (const userRow of this.selectedUsersRows) {
+      message += "- " + userRow.getRawValue().firstName + ' ' + userRow.getRawValue().lastName + "<br/>";
+    }
 
-    this.userService.deleteUsers(userIds).subscribe(() => {
-      this.selectedUsersRows = [];
-      this.loadUsers();
+    const alert = await this.alertController.create({
+      header: 'Voulez-vous supprimer le ou les utilisateurs suivants ?',
+      message: message,
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+        },
+        {
+          text: 'Confirmer',
+          role: 'confirm',
+        },
+      ],
+      cssClass: 'alert-modal'
     });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      const userIds: number[] =
+        this.selectedUsersRows.map((userRow) => userRow.getRawValue().id);
+
+      this.userService.deleteUsers(userIds).subscribe(() => {
+        this.selectedUsersRows = [];
+        this.loadUsers();
+      });
+    }
   }
 }

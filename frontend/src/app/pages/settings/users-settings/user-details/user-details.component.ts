@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { forkJoin } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
@@ -24,7 +24,8 @@ export class UserDetailsComponent implements OnInit {
     private modalController: ModalController,
     private organizationalUnitService: OrganizationalUnitService,
     private contractService: ContractService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private alertController: AlertController
   ) { }
 
   @Input("userId") userId: number;
@@ -169,17 +170,21 @@ export class UserDetailsComponent implements OnInit {
 
   private initForm() {
     this.userForm = new FormGroup({
-      lastName: new FormControl(null, Validators.required),
-      firstName: new FormControl(null, Validators.required),
-      email: new FormControl(null, Validators.required),
-      status: new FormControl('interne', Validators.required),
-      company: new FormControl(null),
+      lastName: new FormControl<string>(null, Validators.required),
+      firstName: new FormControl<string>(null, Validators.required),
+      email: new FormControl<string>(null, Validators.required),
+      status: new FormControl<string>(null, Validators.required),
+      company: new FormControl<string>(null),
       perimeters: new TableRowArray<PerimeterRow>([]),
     });
 
     this.userForm.get('email').valueChanges.subscribe((newEmail: string) => {
-      if (newEmail?.includes('.ext')) {
-        this.userForm.get('status').setValue('externe');
+      if (this.userForm.dirty) {
+        if (newEmail?.includes('.ext')) {
+          this.userForm.get('status').setValue('externe');
+        } else {
+          this.userForm.get('status').setValue('interne');
+        }
       }
     });
   }
@@ -334,7 +339,7 @@ export class UserDetailsComponent implements OnInit {
         .subscribe((res: { message: string }) => {
           this.utilsService.showSuccessMessage(res.message);
 
-          this.onClose();
+          this.onClose(true, false);
         });
     } else if (this.actionType === ActionType.MODIFICATION) {
       this.userService
@@ -342,12 +347,37 @@ export class UserDetailsComponent implements OnInit {
         .subscribe((res: { message: string }) => {
           this.utilsService.showSuccessMessage(res.message);
 
-          this.onClose();
+          this.onClose(true, false);
         });
     }
   }
 
-  public onClose() {
-    this.modalController.dismiss(true);
+  public async onClose(reloadNeeded: boolean, askConfirmation: boolean) {
+    if (askConfirmation && this.userForm.dirty) {
+      const alert = await this.alertController.create({
+        header: 'Quitter la page sans enregistrer les modifications ?',
+        buttons: [
+          {
+            text: 'Non',
+            role: 'cancel',
+          },
+          {
+            text: 'Oui',
+            role: 'confirm',
+          },
+        ],
+        cssClass: 'alert-modal'
+      });
+
+      await alert.present();
+
+      const { role } = await alert.onDidDismiss();
+
+      if (role === 'confirm') {
+        this.modalController.dismiss(reloadNeeded);
+      }
+    } else {
+      this.modalController.dismiss(reloadNeeded);
+    }
   }
 }
