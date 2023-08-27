@@ -78,21 +78,21 @@ export class LayerDataService {
    * Create a layer style.
    */
   public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<ApiSuccessResponse> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/${lyrId}/styles`, layerStyle);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/${lyrId}/styles/create`, layerStyle);
   }
 
   /**
    * Update a layer style.
    */
   public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<ApiSuccessResponse> {
-    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles/${lseId}`, layerStyle);
+    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles/${lseId}/update`, layerStyle);
   }
 
   /**
    * Delete a layer style.
    */
   public deleteLayerStyle(lseIds: number[]): Observable<ApiSuccessResponse> {
-    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles?lseIds=${lseIds}`);
+    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/styles/delete?lseIds=${lseIds}`);
   }
 
   /**

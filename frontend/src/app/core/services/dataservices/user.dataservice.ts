@@ -28,7 +28,7 @@ export class UserDataService {
    * @returns
    */
   public createUser(user: User): Observable<ApiSuccessResponse> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}users`, user);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}users/create`, user);
   }
 
   /**
