@@ -50,6 +50,8 @@
         [columns]="columns"
         [rows]="getPerimetersControls()"
         [selectedRows]="selectedPerimetersRows"
+        [moreInfoBtn]="true"
+        (onMoreInfoBtnPressed)="openPermissions()"
       ></app-generic-table>
     </div>
 

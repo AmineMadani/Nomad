@@ -1,9 +1,14 @@
 <div class="table-component">
   <!-- TOOLBAR -->
   <div class="toolbar-row" *ngIf="toolbar">
-    <ion-label class="label">
-      <h3>{{ toolbar.title }}</h3>
-    </ion-label>
+    <div class="toolbar-title">
+      <ion-label class="label">
+        <h3>{{ toolbar.title }}</h3>
+      </ion-label>
+      <ion-button *ngIf="moreInfoBtn" (click)="onMoreInfoBtnClicked()" fill="clear">
+        <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </div>
 
     <div class="toolbar-buttons">
       <ion-button *ngFor="let button of toolbar.buttons" [disabled]="button.disableFunction()" (click)="button.onClick()" fill="clear">
@@ -71,7 +76,7 @@
 
                   <!-- Filter -->
                   <ion-icon (click)="openFilter(column, $event)" slot="icon-only" name="filter"
-                    [class.is-filtered]="column.filter?.value != null" *ngIf="column.filter?.type !== 'none'">
+                    [class.is-filtered]="column.filter?.value !== null" *ngIf="column.filter?.type !== 'none'">
                   </ion-icon>
                 </div>
               </ng-container>

@@ -12,6 +12,7 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { PermissionsSettingsPage } from '../../permissions-settings/permissions-settings.component';
 
 @Component({
   selector: 'app-user-details',
@@ -379,5 +380,18 @@ export class UserDetailsComponent implements OnInit {
     } else {
       this.modalController.dismiss(reloadNeeded);
     }
+  }
+
+  public async openPermissions() {
+    const modal = await this.modalController.create({
+      component: PermissionsSettingsPage,
+      componentProps: {
+        showCloseBtn: true
+      },
+      backdropDismiss: false,
+      cssClass: 'large-modal'
+    });
+
+    return await modal.present();
   }
 }
