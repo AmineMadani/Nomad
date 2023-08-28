@@ -28,7 +28,6 @@ import { FormSliderComponent } from './form-editor/properties/form-slider/form-s
 import { ImageReaderComponent } from './components/image-reader/image-reader.component';
 import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
-import { FormSelectReferentialComponent } from './form-editor/properties/form-select-referential/form-select-referential.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
 import { FormLayerReferenceComponent } from './form-editor/properties/form-layer-reference/form-layer-reference.component';
@@ -63,7 +62,6 @@ import { FilterTableComponent } from './components/generic-table/filter-table/fi
     FormDatepickerComponent,
     FormInputComponent,
     FormSelectComponent,
-    FormSelectReferentialComponent,
     FormTextaeraComponent,
     FormLabelComponent,
     FormAttachmentComponent,

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
-import { Layer, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
+import { LayerWithStyles, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { ModalController } from '@ionic/angular';
 import { LayerStyleComponent } from './layer-style/layer-style.component';
@@ -27,7 +27,7 @@ export class LayerStylesSettingsPage implements OnInit {
   public form: FormGroup;
   public modal: any;
   // Layers
-  public layers: Layer[];
+  public layers: LayerWithStyles[];
   public getLayerLabel = getLayerLabel;
   public currentLayerId: number;
   // Styles

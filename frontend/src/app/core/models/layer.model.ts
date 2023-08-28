@@ -5,6 +5,7 @@ export interface Layer {
   domLLabel: string;
   domCode: string;
   astId: number;
+  astCode: string;
   lyrTableName: string;
   lyrGeomColumnName: string;
   lyrUuidColumnName: string;
@@ -12,14 +13,35 @@ export interface Layer {
   lyrStyle: string;
   lyrSlabel: string;
   lyrLlabel: string;
-  lyrValid: Boolean;
-  lyrDisplay: Boolean;
+  lyrValid: boolean;
+  lyrDisplay: boolean;
+}
+
+export interface LayerWithStyles extends Layer {
   listStyle: LayerStyleDetail[];
 }
 
-export function getLayerLabel(layer: Layer) {
+export function getLayerLabel(layer: LayerWithStyles) {
   return layer.lyrSlabel + ' - ' + layer.domLLabel;
 }
+
+export interface VLayerWtr {
+  astCode: string;
+  astSlabel: string;
+  astLlabel: string;
+  lyrTableName: string;
+  wtrSlabel: string;
+  wtrLlabel: string;
+  wtrCode: string;
+  wtrId: number;
+  astId: number;
+  aswValid: boolean;
+  aswUcreId: number;
+  aswUmodId: number;
+  aswDcre: string; // Date
+  aswDmod: string; // Date
+}
+
 
 export enum  localisationExportMode  {
   nomadLink = 'NOMADLINK',

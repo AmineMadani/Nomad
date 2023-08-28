@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ContractWithOrganizationalUnits } from '../models/contract.model';
+import { Contract, ContractWithOrganizationalUnits } from '../models/contract.model';
 import { ContractDataService } from './dataservices/contract.dataservice';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContractService {
-
   constructor(
     private contractDataService: ContractDataService
   ) { }
+
+  getAllContracts(): Observable<Contract[]> {
+    return this.contractDataService.getAllContracts();
+  }
 
   /**
     * Method to get all the contract with organizational units associated from server
@@ -20,4 +23,13 @@ export class ContractService {
     return this.contractDataService.getAllContractsWithOrganizationalUnits();
   }
 
+  /**
+   * Get a list of contract ids by latitude and longitude
+   * @param latitude The latitude
+   * @param longitude The longitude
+   * @returns A list of contract id
+   */
+  getContractIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
+    return this.contractDataService.getContractIdsByLatitudeLongitude(latitude, longitude);
+  }
 }

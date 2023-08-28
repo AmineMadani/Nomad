@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { firstValueFrom } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { CityService } from 'src/app/core/services/city.service';
+import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -19,7 +20,8 @@ export class MobileHomeActionsComponent implements OnInit {
     private modalCtlr: ModalController,
     private drawerService: DrawerService,
     private mapService: MapService,
-    private referentialService: ReferentialService,
+    private contractService: ContractService,
+    private cityService: CityService,
     private router: Router,
     private userService: UserService
     ) {}
@@ -42,31 +44,23 @@ export class MobileHomeActionsComponent implements OnInit {
 
   public async onGenerateWorkOrder() {
     const centerMapPosition = this.mapService.getMap().getCenter();
-    let l_ctr_id = await firstValueFrom(
-      this.referentialService.getReferentialIdByLongitudeLatitude(
-        'contract',
-        centerMapPosition.lng.toString(),
-        centerMapPosition.lat.toString()
-      )
-    );
-    let l_cty_id = await firstValueFrom(
-      this.referentialService.getReferentialIdByLongitudeLatitude(
-        'city',
-        centerMapPosition.lng.toString(),
-        centerMapPosition.lat.toString()
-      )
-    );
-    let params: any = {};
-    params.x = centerMapPosition.lng;
-    params.y = centerMapPosition.lat;
-    params.lyr_table_name = 'xy';
-    if (l_ctr_id && l_ctr_id.length > 0) params.ctr_id = l_ctr_id.join(',');
-    if (l_cty_id && l_cty_id.length > 0) params.cty_id = l_cty_id.join(',');
 
-    this.modalCtlr.dismiss();
+    forkJoin({
+      contractIds: this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+      cityIds: this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+    }).subscribe(({ contractIds, cityIds }) => {
+      let params: any = {};
+      params.x = centerMapPosition.lng;
+      params.y = centerMapPosition.lat;
+      params.lyr_table_name = 'xy';
+      if (contractIds && contractIds.length > 0) params.ctr_id = contractIds.join(',');
+      if (cityIds && cityIds.length > 0) params.cty_id = cityIds.join(',');
 
-    this.router.navigate(['/home/workorder'], {
-      queryParams: params,
+      this.modalCtlr.dismiss();
+
+      this.router.navigate(['/home/workorder'], {
+        queryParams: params,
+      });
     });
   }
 

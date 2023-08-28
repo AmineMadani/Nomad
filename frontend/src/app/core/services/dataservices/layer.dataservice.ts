@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference } from '../../models/layer.model';
+import { Layer, LayerWithStyles, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 
 @Injectable({
@@ -40,8 +40,8 @@ export class LayerDataService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public getLayers(): Observable<Layer[]> {
-    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layers/defaults/definitions`);
+  public getLayers(): Observable<LayerWithStyles[]> {
+    return this.http.get<LayerWithStyles[]>(`${this.configurationService.apiUrl}layers/defaults/definitions`);
   }
 
   /**
@@ -67,7 +67,7 @@ export class LayerDataService {
   }
 
   /**
-  * Get all layer styles.
+  * Get a layer style by id.
   * @returns A promise that resolves to the list of layer styles.
   */
   public getLayerStyleById(layerStyleId: number): Observable<LayerStyleDetail> {
@@ -112,5 +112,21 @@ export class LayerDataService {
    */
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }):Observable<any> {
     return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/references/users/save`, payload);
+  }
+
+  /**
+  * Get all layer styles.
+  * @returns A promise that resolves to the list of layer styles.
+  */
+  public getAllLayers(): Observable<Layer[]> {
+    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layers`);
+  }
+
+  /**
+    * Get all VLayerWtr.
+    * @returns A promise that resolves to the list of VLayerWtr.
+    */
+  public getAllVLayerWtr(): Observable<VLayerWtr[]> {
+    return this.http.get<VLayerWtr[]>(`${this.configurationService.apiUrl}layers/v-layer-wtr`);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, firstValueFrom, map, timeout } from 'rxjs';
 import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelWorkOrder, Task, Workorder } from '../models/workorder.model';
+import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
 import { CacheService } from './cache.service';
 import { UtilsService } from './utils.service';
@@ -127,6 +127,22 @@ export class WorkorderService {
 
   public cancelWorkorder(cancelPayload: CancelWorkOrder): Observable<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
+  }
+
+  /**
+   * Get list of workorders task status
+   * @returns an observable of the list of status
+   */
+  public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
+    return this.workorderDataService.getAllWorkorderTaskStatus();
+  }
+
+  /**
+   * Get list of workorders task reasons
+   * @returns an observable of the list of reasons
+   */
+  public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
+    return this.workorderDataService.getAllWorkorderTaskReasons();
   }
 
   private buildWorkorderFromGeojson(featureWorkorder: any): Workorder {

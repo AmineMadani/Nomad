@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
 import { Task } from 'src/app/core/models/workorder.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-report-context',
@@ -14,7 +14,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class ReportContextComponent implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private mapService: MapService,
     private mapLayerService: MapLayerService,
     private mapEventService: MapEventService
@@ -31,7 +31,7 @@ export class ReportContextComponent implements OnInit {
   public querySearch: string = "";
 
   ngOnInit() {
-    this.referentialService.getReferential("v_layer_wtr").then(res => {
+    this.layerService.getAllVLayerWtr().subscribe((res) => {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a['wtr_llabel'].localeCompare(b['wtr_llabel']));
 

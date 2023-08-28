@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserReference, ReferenceDisplayType, Layer, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences } from '../models/layer.model';
+import { UserReference, ReferenceDisplayType, LayerWithStyles, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB, layerReferencesKey } from '../models/app-db.model';
@@ -8,6 +8,7 @@ import { CacheService } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
+import { FavoriteLayer } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -148,7 +149,7 @@ export class LayerService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public async getLayers(): Promise<Layer[]> {
+  public async getLayers(): Promise<LayerWithStyles[]> {
     const layers = await this.db.referentials.get('layers');
     if (layers) {
       return layers.data;
@@ -283,6 +284,22 @@ export class LayerService {
           this.utilsService.showSuccessMessage(successResponse.message);
         })
       );
+  }
+
+  /**
+  * Get all layers.
+  * @returns A promise that resolves to the list of layers.
+  */
+  public getAllLayers(): Observable<Layer[]> {
+    return this.layerDataService.getAllLayers();
+  }
+
+  /**
+  * Get all VLayerWtr.
+  * @returns A promise that resolves to the list of VLayerWtr.
+  */
+  public getAllVLayerWtr(): Observable<VLayerWtr[]> {
+    return this.layerDataService.getAllVLayerWtr();
   }
 
 }

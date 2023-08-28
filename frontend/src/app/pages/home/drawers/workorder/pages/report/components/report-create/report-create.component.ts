@@ -1,15 +1,15 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Task, Workorder, Report } from 'src/app/core/models/workorder.model';
+import { Task, Workorder, Report, WorkorderTaskStatus, WkoStatus } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { AlertController } from '@ionic/angular';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
+import { ContractService } from 'src/app/core/services/contract.service';
 
 @Component({
   selector: 'app-report-create',
@@ -24,7 +24,7 @@ export class ReportCreateComponent implements OnInit {
     private exploitationService: WorkorderService,
     private workorderService: WorkorderService,
     private router: Router,
-    private referential: ReferentialService,
+    private contractService: ContractService,
     private alertController: AlertController,
     private keycloakService: KeycloakService
   ) { }
@@ -51,9 +51,9 @@ export class ReportCreateComponent implements OnInit {
     }
 
 
-    this.referential.getReferential('workorder_task_status').then(lStatus => {
-      const status = lStatus.find(sts => sts['id'] == this.workorder.wtsId);
-      if (status.wts_code == 'TERMINE') {
+    this.workorderService.getAllWorkorderTaskStatus().subscribe((workorderTaskStatus: WorkorderTaskStatus[]) => {
+      const status = workorderTaskStatus.find(sts => sts.id === this.workorder.wtsId);
+      if (status.wtsCode === WkoStatus[WkoStatus.TERMINE]) {
         this.presentAlert();
       }
     });
@@ -302,15 +302,15 @@ export class ReportCreateComponent implements OnInit {
    */
   private closeReport() {
     if (this.keycloakService.externalReport) {
-      this.referential.getReferential('contract').then(contracts => {
-        let contract = contracts.find(ctr => ctr['id'] == this.workorder.tasks[0].ctrId);
+      this.contractService.getAllContracts().subscribe(contracts => {
+        let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
         let comment = "";
         for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
           if (reportValue.key == 'COMMENT') {
             comment = reportValue.answer;
           }
         }
-        IntentAction.closeIntent({ value: { 'RETOUR': 'ok', 'CONTRAT': (contract ? contract['ctr_code'] : ''), 'COMMENTAIRE': comment } });
+        IntentAction.closeIntent({ value: { 'RETOUR': 'ok', 'CONTRAT': (contract ? contract.ctrCode : ''), 'COMMENTAIRE': comment } });
         this.isSubmitting = false;
         this.exploitationService.deleteStateWorkorder(this.workorder);
       });

@@ -6,7 +6,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FormDefinition } from '../../models/form.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-form-history',
@@ -16,7 +15,6 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class FormHistoryComponent implements OnInit {
   constructor(
     private drawer: DrawerService,
-    private referentialService: ReferentialService,
     private workorderService: WorkorderService
   ) {}
 
@@ -41,8 +39,8 @@ export class FormHistoryComponent implements OnInit {
         switchMap((wks: Workorder[]) => {
           this.workorders = wks;
           return forkJoin([
-            this.referentialService.getReferential('workorder_task_status'),
-            this.referentialService.getReferential('workorder_task_reason'),
+            this.workorderService.getAllWorkorderTaskStatus(),
+            this.workorderService.getAllWorkorderTaskReasons(),
           ]);
         }),
         finalize(() => (this.isLoading = false))

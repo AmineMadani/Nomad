@@ -6,9 +6,8 @@ import {
   Workorder,
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, takeUntil } from 'rxjs';
+import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
@@ -17,6 +16,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -27,7 +27,6 @@ export class WkoViewComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private referentialService: ReferentialService,
     private workorderService: WorkorderService,
     private mapLayerService: MapLayerService,
     private mapEventService: MapEventService,
@@ -37,7 +36,8 @@ export class WkoViewComponent implements OnInit {
     private router: Router,
     private drawerService: DrawerService,
     private userService: UserService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private layerService: LayerService
   ) { }
 
   public workOrder: Workorder;
@@ -90,19 +90,22 @@ export class WkoViewComponent implements OnInit {
         const wtsid = this.selectedTask?.wtsId;
         const lyrTableName = this.selectedTask?.assObjTable;
 
-        Promise.all([
-          this.referentialService.getReferential('workorder_task_status'),
-          this.referentialService.getReferential('workorder_task_reason'),
-          this.referentialService.getReferential('layers'),
-        ]).then((res) => {
-          this.status = res[0].find(refStatus => refStatus.id == wtsid)?.wts_llabel;
+        forkJoin({
+          workorderTaskStatus: this.workorderService.getAllWorkorderTaskStatus(),
+          workorderTaskReasons: this.workorderService.getAllWorkorderTaskReasons(),
+          layers: this.layerService.getAllLayers(),
+        }).subscribe(({ workorderTaskStatus, workorderTaskReasons, layers }) => {
+          this.status = workorderTaskStatus.find(refStatus => refStatus.id == wtsid)?.wtsLlabel;
           this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
-          this.reason = res[1].find(
+
+          this.reason = workorderTaskReasons.find(
             (refReason) =>
-              refReason.id.toString() === this.workOrder.tasks[0].wtrId.toString()
-          )?.wtr_llabel;
-          const layer = lyrTableName ? res[2].find(asset => asset.lyrTableName == lyrTableName) : null;
+              refReason.id === this.workOrder.tasks[0].wtrId
+          )?.wtrLlabel;
+
+          const layer = lyrTableName ? layers.find(asset => asset.lyrTableName == lyrTableName) : null;
           this.assetLabel = layer ? layer.domLLabel + ' - ' + layer.lyrSlabel : null;
+
           this.loading = false;
         });
       });
@@ -193,14 +196,13 @@ export class WkoViewComponent implements OnInit {
     });
   }
 
-  private async getStatus(): Promise<void> {
-    const statusRef = await this.referentialService.getReferential(
-      'workorder_task_status'
-    );
-    this.status = statusRef.find(
-      (refStatus) => refStatus.id.toString() === this.workOrder.wtsId.toString()
-    ).wts_llabel;
-    this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+  private getStatus(): void {
+    this.workorderService.getAllWorkorderTaskStatus().subscribe((statusList) => {
+      this.status = statusList.find(
+        (refStatus) => refStatus.id.toString() === this.workOrder.wtsId.toString()
+      ).wtsLlabel;
+      this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+    });
   }
 
   /**

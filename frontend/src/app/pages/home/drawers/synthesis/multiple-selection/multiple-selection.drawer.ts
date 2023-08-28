@@ -6,7 +6,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, switchMap, EMPTY, debounceTime } from 'rxjs';
-import { Layer } from 'src/app/core/models/layer.model';
+import { LayerWithStyles } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -121,7 +121,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public userHasPermissionCreateAssetWorkorder: boolean = false;
   public userHasPermissionRequestUpdateAsset: boolean = false;
 
-  private layersConf: Layer[] = [];
+  private layersConf: LayerWithStyles[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private paramFeatures: any;
 
@@ -318,12 +318,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public getLyrLabel(layerKey: string): string {
-    return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
+    return this.layersConf.find((l: LayerWithStyles) => l.lyrTableName.includes(layerKey))
       .lyrSlabel;
   }
 
   public getDomLabel(layerKey: string): string {
-    return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
+    return this.layersConf.find((l: LayerWithStyles) => l.lyrTableName.includes(layerKey))
       .domLLabel;
   }
 

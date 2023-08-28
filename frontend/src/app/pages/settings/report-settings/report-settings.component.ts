@@ -3,12 +3,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportEditComponent } from './report-edit/report-edit.component';
 import { ModalController } from '@ionic/angular';
 import { TableService } from 'src/app/core/services/table.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 export interface AssetTypeWtr {
   ast_id: number;
@@ -48,7 +48,7 @@ export interface WtrReport extends AssetType {
 export class ReportSettingsPage implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private utils: UtilsService,
     private templateService: TemplateService,
     private modalController: ModalController,
@@ -135,8 +135,10 @@ export class ReportSettingsPage implements OnInit {
       this.listWtrReportRows = this.tableService.createReadOnlyRowsFromObjects(listWtrReport);
     });
 
-    this.listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');
-    this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'ast_id');
+    this.layerService.getAllVLayerWtr().subscribe((vLayerWtrList) => {
+      this.listAssetTypeWtr = vLayerWtrList;
+      this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'ast_id');
+    });
 
     const listFormTemplateReport = await this.templateService.getFormsTemplate();
     this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));

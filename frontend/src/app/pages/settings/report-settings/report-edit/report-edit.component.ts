@@ -8,11 +8,11 @@ import { ValueLabelComponent } from './value-label/value-label.component';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { FormTemplateUpdate } from 'src/app/core/models/template.model';
 import { TemplateService } from 'src/app/core/services/template.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { SelectDuplicateReportComponent } from './select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './test-report/test-report.component';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 enum CustomFormPropertiesEnum {
     TEXT = 'text',
@@ -33,7 +33,7 @@ export class ReportEditComponent implements OnInit {
     private modalController: ModalController,
     private utilsService: UtilsService,
     private templateService: TemplateService,
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private toastController: ToastController,
     private userService: UserService
   ) { }
@@ -454,27 +454,26 @@ export class ReportEditComponent implements OnInit {
   async duplicateFromReport() {
     // Select the type-motif from which to duplicate
     // Only display the ones with report
-    const listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');
+    this.layerService.getAllVLayerWtr().subscribe(async (listAssetTypeWtr) => {
+      const listFormTemplateReport = await this.templateService.getFormsTemplate();
 
-    const listFormTemplateReport = await this.templateService.getFormsTemplate();
+      let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
+        .filter((assetTypeWtr) => {
+          return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
+        })
+        .sort((a, b) => {
+          if (a.astCode === b.astCode) return a.wtrCode.localeCompare(b.wtrCode);
+          return a.astCode.localeCompare(b.astCode);
+        })
+        .map((assetTypeWtr) => {
+          // For each wtr, get the form, if it exists
+          const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
 
-    let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
-      .filter((assetTypeWtr) => {
-        return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.ast_code + '_' + assetTypeWtr.wtr_code);
-      })
-      .sort((a, b) => {
-        if (a.ast_code === b.ast_code) return a.wtr_code.localeCompare(b.wtr_code);
-        return a.ast_code.localeCompare(b.ast_code);
-      })
-      .map((assetTypeWtr) => {
-        // For each wtr, get the form, if it exists
-        const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.ast_code + '_' + assetTypeWtr.wtr_code);
-
-        return {
-          value: formTemplateReport.formCode,
-          label: assetTypeWtr.ast_code + ' - ' + assetTypeWtr.ast_slabel + ' - ' + assetTypeWtr.wtr_code + ' - ' + assetTypeWtr.wtr_slabel,
-        }
-      });
+          return {
+            value: formTemplateReport.formCode,
+            label: assetTypeWtr.astCode + ' - ' + assetTypeWtr.astSlabel + ' - ' + assetTypeWtr.wtrCode + ' - ' + assetTypeWtr.wtrSlabel,
+          }
+        });
 
       // Remove duplicates
       listAssetTypeWtrWithReport = this.utilsService.removeDuplicatesFromArr(listAssetTypeWtrWithReport, 'value');
@@ -498,6 +497,7 @@ export class ReportEditComponent implements OnInit {
       });
 
       await modal.present();
+    });
   }
 
   /**

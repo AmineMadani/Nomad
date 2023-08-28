@@ -17,9 +17,8 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, firstValueFrom, switchMap } from 'rxjs';
+import { debounceTime, first, forkJoin, switchMap } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
 import * as turf from '@turf/turf';
@@ -29,6 +28,8 @@ import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { ContractService } from 'src/app/core/services/contract.service';
+import { CityService } from 'src/app/core/services/city.service';
 
 @Component({
   selector: 'app-map',
@@ -43,7 +44,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private loadingCtrl: LoadingController,
     private router: Router,
     private elem: ElementRef,
-    private referentialService: ReferentialService,
+    private contractService: ContractService,
+    private cityService: CityService,
     private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
     private keycloakService: KeycloakService,
@@ -404,42 +406,32 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklongitute = e.lngLat.lng;
 
     if (!feature) {
-      let l_ctr_id = await firstValueFrom(
-        this.referentialService.getReferentialIdByLongitudeLatitude(
-          'contract',
-          e.lngLat.lng.toString(),
-          e.lngLat.lat.toString()
-        )
-      );
-      let l_cty_id = await firstValueFrom(
-        this.referentialService.getReferentialIdByLongitudeLatitude(
-          'city',
-          e.lngLat.lng.toString(),
-          e.lngLat.lat.toString()
-        )
-      );
-      const params: any = {};
-      params.x = e.lngLat.lng;
-      params.y = e.lngLat.lat;
-      params.lyr_table_name = 'xy';
-      if (l_ctr_id && l_ctr_id.length > 0) params.ctr_id = l_ctr_id.join(',');
-      if (l_cty_id && l_cty_id.length > 0) params.cty_id = l_cty_id.join(',');
+      forkJoin({
+        contractIds: this.contractService.getContractIdsByLatitudeLongitude(e.lngLat.lat, e.lngLat.lng),
+        cityIds: this.cityService.getCityIdsByLatitudeLongitude(e.lngLat.lat, e.lngLat.lng),
+      }).subscribe(({ contractIds, cityIds }) => {
+        const params: any = {};
+        params.x = e.lngLat.lng;
+        params.y = e.lngLat.lat;
+        params.lyr_table_name = 'xy';
+        if (contractIds && contractIds.length > 0) params.ctr_id = contractIds.join(',');
+        if (cityIds && cityIds.length > 0) params.cty_id = cityIds.join(',');
+        this.selectedFeature = {
+          properties: params,
+        };
+        contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      });
+    } else {
+      contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
       this.selectedFeature = {
-        properties: params,
+        ...feature,
+        properties: {
+          ...feature.properties,
+          x: e.lngLat.lng,
+          y: e.lngLat.lat,
+        },
       };
-      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-      return;
     }
-
-    contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
-    this.selectedFeature = {
-      ...feature,
-      properties: {
-        ...feature.properties,
-        x: e.lngLat.lng,
-        y: e.lngLat.lat,
-      },
-    };
   }
 
   /**

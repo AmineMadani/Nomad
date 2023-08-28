@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { MapFeature } from '../../models/map-feature.model';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
-import { CancelWorkOrder, Workorder } from '../../models/workorder.model';
+import { CancelWorkOrder, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -106,5 +106,21 @@ export class WorkorderDataService {
     return this.http.get<Workorder[]>(
       `${this.configurationService.apiUrl}layers/${assetTable}/equipments/${assetId}/history`
     );
+  }
+
+  /**
+   * Get list of workorders task status
+   * @returns an observable of the list of status
+   */
+  public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
+    return this.http.get<WorkorderTaskStatus[]>(`${this.configurationService.apiUrl}exploitation/workorders/tasks/status`)
+  }
+
+  /**
+   * Get list of workorders task reasons
+   * @returns an observable of the list of reasons
+   */
+  public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
+    return this.http.get<WorkorderTaskReason[]>(`${this.configurationService.apiUrl}exploitation/workorders/tasks/reasons`)
   }
 }
