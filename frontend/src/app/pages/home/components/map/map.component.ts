@@ -421,7 +421,7 @@ export class MapComponent implements OnInit, OnDestroy {
       const params: any = {};
       params.x = e.lngLat.lng;
       params.y = e.lngLat.lat;
-      params.lyr_table_name = 'xy';
+      params.lyr_table_name = 'aep_xy';
       if (l_ctr_id && l_ctr_id.length > 0) params.ctr_id = l_ctr_id.join(',');
       if (l_cty_id && l_cty_id.length > 0) params.cty_id = l_cty_id.join(',');
       this.selectedFeature = {

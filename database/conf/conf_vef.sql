@@ -118,6 +118,7 @@ values
 , ((select id from domains where dom_type = 'dw') , 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
 , ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
 , ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'asset.aep_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '29'))
 ----
 , ((select id from domains where dom_type = 'ww') , 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
 , ((select id from domains where dom_type = 'ww') , 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
@@ -130,7 +131,7 @@ values
 , ((select id from domains where dom_type = 'ww') , 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
 , ((select id from domains where dom_type = 'ww') , 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
 , ((select id from domains where dom_type = 'ww') , 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
-, ((select id from domains where dom_type = 'asset'), 'asset.xy', 'geom', 'uuid', '3857', 'XY', null)
+, ((select id from domains where dom_type = 'ww') , 'asset.ass_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '39'))
 , ((select id from domains where dom_type = 'asset'), 'asset.task', 'geom', 'uuid', '3857', 'Tâche', null)
 ---
 ;
