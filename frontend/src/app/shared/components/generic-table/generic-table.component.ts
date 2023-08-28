@@ -23,6 +23,10 @@ export class GenericTableComponent implements OnInit {
   // List of column sort to sort the table with - Optional
   @Input() listColumnSort: ColumnSort[] = [];
 
+  // Show a more info button
+  @Input() moreInfoBtn: boolean = false;
+  @Output() onMoreInfoBtnPressed: EventEmitter<void> = new EventEmitter();
+
   // Called when the sort change, return the list of column sort
   @Output() onSortChange: EventEmitter<ColumnSort[]> = new EventEmitter();
 
@@ -100,6 +104,10 @@ export class GenericTableComponent implements OnInit {
       const width = 100 / nbElements;
       return 'width: ' + width + '%';
     }
+  }
+
+  onMoreInfoBtnClicked() {
+    this.onMoreInfoBtnPressed.emit();
   }
 
   // ### SORT ### //
@@ -255,7 +263,7 @@ export class GenericTableComponent implements OnInit {
           result = this.filterService.filterNumber(result, column);
         } else if (column.filter.type === FILTER_TYPE.DATE) {
           result = this.filterService.filterDate(result, column);
-        } 
+        }
       }
     });
 

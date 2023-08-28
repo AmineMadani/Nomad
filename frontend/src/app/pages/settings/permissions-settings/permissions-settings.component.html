@@ -1,7 +1,9 @@
 <div class="settings-template-content">
   <app-settings-header
       class="settings-header"
-      title="Gestion des permissions">
+      title="Gestion des permissions"
+      [isModalHeader]="showCloseBtn"
+      (onModalClose)="onClose()">
   </app-settings-header>
 
   <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>

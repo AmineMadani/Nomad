@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { forkJoin } from 'rxjs';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { Permission } from 'src/app/core/models/user.model';
 import { TableService } from 'src/app/core/services/table.service';
 import { UserService } from 'src/app/core/services/user.service';
 
@@ -12,16 +14,23 @@ import { UserService } from 'src/app/core/services/user.service';
 export class PermissionsSettingsPage implements OnInit {
   constructor(
     private userService: UserService,
-    private tableService: TableService
+    private tableService: TableService,
+    private modalController: ModalController
   ) { }
 
-  public modal: any;
+  @Input("showCloseBtn") showCloseBtn: boolean;
+
   public isLoading: boolean = false;
 
-  public permissionsRows: TableRow<any>[] = [];
+  public permissionsRows: TableRow<Permission>[] = [];
 
   // Table Columns
   public columns: Column[] = [
+    {
+      type: TypeColumn.TEXT,
+      key: 'perCategory',
+      label: 'Catégorie',
+    },
     {
       type: TypeColumn.TEXT,
       key: 'perLlabel',
@@ -74,5 +83,9 @@ export class PermissionsSettingsPage implements OnInit {
 
       this.isLoading = false;
     });
+  }
+
+  onClose() {
+    this.modalController.dismiss();
   }
 }
