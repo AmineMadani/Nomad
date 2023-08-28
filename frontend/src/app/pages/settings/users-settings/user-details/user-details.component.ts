@@ -230,7 +230,7 @@ export class UserDetailsComponent implements OnInit {
 
         // Permissions
         if (!this.userHasPermissionManageUser) {
-          // this.userForm.disable(); // TODO: uncomment after the administrator modification
+          this.userForm.disable();
         } else if (!this.userHasPermissionSetUserRights) {
           const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
           perimetersTable.disable();
@@ -273,7 +273,7 @@ export class UserDetailsComponent implements OnInit {
         const territories = this.territories.filter((t) => newTerritoriesIds.includes(t.id));
 
         // Set automatically the region by orgParentId of the territory
-        row.get('regionIds').setValue(territories.map((t) => t.orgParentId));
+        row.get('regionIds').setValue([...new Set(territories.map(t => t.orgParentId))]);
 
         // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
         const profileIds = this.profiles
