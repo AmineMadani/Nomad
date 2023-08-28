@@ -18,7 +18,7 @@ export class SearchSelectComponent implements OnInit {
   @Input() key: string;
   // Input label
   @Input() label: string;
-  //
+  // The title of the search select
   @Input() title: string;
   // The form control to use in the input. Permit to manage errors and get updated values.
   @Input() control: any;
@@ -26,7 +26,7 @@ export class SearchSelectComponent implements OnInit {
   @Input() elements: any[] = [];
   // Function which permit to print the element with the properties we wanted. Take one param which corresponds to an element of the original list.
   @Input() elementLabelFunction: Function;
-
+  // Permit to show the multiselection as a number with the title (eg: Title (x2))
   @Input() showMultiSelectionAsNumber: boolean = true;
 
   public displayedElements: any[] = [];

@@ -51,7 +51,7 @@ export class TemplateDataService {
    * @returns A response message if successfull, else return an error.
    */
   public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users`, payload);
+    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/save`, payload);
   }
 
   /**
