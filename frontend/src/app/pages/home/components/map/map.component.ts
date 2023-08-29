@@ -84,6 +84,7 @@ export class MapComponent implements OnInit, OnDestroy {
   public userHasPermissionCreateXYWorkorder: boolean = false;
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionRequestUpdateAsset: boolean = false;
+  public mesure: string[];
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
@@ -276,7 +277,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private addEvents(): void {
     fromEvent(this.map, 'mousemove')
       .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
+      .subscribe((e) => {
         const mapElement = document.getElementById('map');
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
@@ -286,8 +287,16 @@ export class MapComponent implements OnInit, OnDestroy {
           mapElement.classList.contains('mode-draw_rectangle')
         ) {
           canvasElement.classList.add('cursor-pointer');
-        } else if (canvasElement.classList.contains('cursor-pointer')) {
-          canvasElement.classList.remove('cursor-pointer');
+          //for the area calculation box move
+          const resumeBox = document.getElementById('calculation-box');
+          if (resumeBox) {
+            const x = e.originalEvent.offsetX;
+            const y = e.originalEvent.offsetY;
+            resumeBox.style.transform = `translate(${x}px, ${y}px)`;
+          }
+          if (this.mapService.isMeasuring) {
+            canvasElement.classList.add('cursor-mesure');
+          }
         }
       });
 
@@ -310,8 +319,15 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'click')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
+
+        if (this.mapService.getMeasureEnded()) {
+          this.mapService.cleanMesure();
+          this.mesure = undefined;
+        }
+        if (!this.mapService.isMeasuring ) {
           const nearestFeature = this.queryNearestFeature(e);
           this.onFeatureSelected(nearestFeature, e);
+        }
       });
 
     fromEvent(this.map, 'touchend')
@@ -324,6 +340,16 @@ export class MapComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.preventTouchMoveClicked = false;
           }, 500);
+        }
+      });
+
+    fromEvent(this.map, 'dblclick')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: Maplibregl.MapMouseEvent) => {
+        if (this.mapService.isMeasuring) {
+          this.mapService.setMeasureEnded(true);
+          this.mapService.endMesure();
+          this.mesure = this.mapService.measureMessage;
         }
       });
 
@@ -347,12 +373,17 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.preventTouchMoveClicked = true;
         this.scale = this.calculateScale();
+        if (!this.mapService.isMeasuring && this.mapService.getMeasureEnded()) {
+          this.mapService.cleanMesure();
+          this.mesure = undefined;
+        }
       });
 
     // Ending zoom event
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
+        if (!this.mapService.isMeasuring) {
         this.mapService.deleteDrawing();
         const fireEvent = this.mapEvent.isFeatureFiredEvent;
 
@@ -376,6 +407,25 @@ export class MapComponent implements OnInit, OnDestroy {
               features
             );
           }
+        }
+        } else {
+         // this.mapService.endMesure();
+          this.mesure = this.mapService.measureMessage;
+          const canvasElement =
+            document.getElementsByClassName('maplibregl-canvas')[0];
+          if (canvasElement.classList.contains('cursor-mesure')) {
+            canvasElement.classList.remove('cursor-mesure');
+          }
+        }
+      });
+
+    // updating draw
+    fromEvent(this.map, 'draw.render')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: any) => {
+        if (this.mapService.isMeasuring) {
+          this.mapService.calculateMeasure(this.mapService.getDraws());
+          this.mesure = this.mapService.measureMessage;
         }
       });
   }
@@ -748,5 +798,11 @@ export class MapComponent implements OnInit, OnDestroy {
           resolutionAtLatitudeAndZoom
       ) / Math.log(2)
     );
+  }
+
+  public changeCursor(cursor: string): void {
+    const canvasElement =
+      document.getElementsByClassName('maplibregl-canvas')[0];
+    canvasElement.classList.add(cursor);
   }
 }

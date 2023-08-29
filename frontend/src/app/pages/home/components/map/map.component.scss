@@ -101,3 +101,29 @@
 .cursor-draw {
     cursor: crosshair;
 }
+
+.calculation-box{
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  width: 200px;
+  height: auto;
+  background-color: whitesmoke;
+  opacity: 70%;
+  border-radius: 5%;
+  border-width: 1px;
+  pointer-events: none; /* Empêche la div de bloquer les interactions du curseur */
+  transition: transform 0.1s ease; /* Animation fluide de suivi */
+  display: inline-block;
+  border: 2px;
+  border-style: solid;
+  border-color: black;
+}
+
+.calculation-box-header{
+  font-weight: bold;
+}
+
+.calculation-box-tip{
+  font-style: italic;
+}
