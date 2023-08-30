@@ -4,7 +4,7 @@ import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
 import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
-import { CacheService } from './cache.service';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 import { UtilsService } from './utils.service';
 import { MapFeature } from '../models/map-feature.model';
 
@@ -134,7 +134,10 @@ export class WorkorderService {
    * @returns an observable of the list of status
    */
   public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
-    return this.workorderDataService.getAllWorkorderTaskStatus();
+    return this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
+      ReferentialCacheKey.WORKORDER_TASK_STATUS,
+      () => this.workorderDataService.getAllWorkorderTaskStatus()
+    );
   }
 
   /**
@@ -142,7 +145,10 @@ export class WorkorderService {
    * @returns an observable of the list of reasons
    */
   public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
-    return this.workorderDataService.getAllWorkorderTaskReasons();
+    return this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
+      ReferentialCacheKey.WORKORDER_TASK_REASON,
+      () => this.workorderDataService.getAllWorkorderTaskReasons()
+    );
   }
 
   private buildWorkorderFromGeojson(featureWorkorder: any): Workorder {

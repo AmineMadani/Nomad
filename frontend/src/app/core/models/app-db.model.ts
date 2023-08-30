@@ -2,6 +2,7 @@
 import Dexie from 'dexie';
 import { GeoJSONObject, NomadGeoJson } from './geojson.model';
 import { LayerReferences } from './layer.model';
+import { Observable, from, of, switchMap, tap } from 'rxjs';
 
 export interface IIndexes {
   key: string;

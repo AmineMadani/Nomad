@@ -3,9 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
-import { feature } from '@turf/turf';
 import { VLayerWtr } from '../models/layer.model';
+import { from, of, switchMap, tap } from 'rxjs';
 
+export enum ReferentialCacheKey {
+  CITIES = 'cities',
+  CONTRACTS = 'contracts',
+  LAYERS = 'layers',
+  V_LAYER_WTR = 'v_layer_wtr',
+  WORKORDER_TASK_STATUS = 'workorder_task_status',
+  WORKORDER_TASK_REASON = 'workorder_task_reason'
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -163,7 +171,7 @@ export class CacheService {
   public async getWtrByLyrTables(lyrs: string[]): Promise<VLayerWtr[]> {
     const wtrEntries = await this.db.referentials
       .where('key')
-      .equals('v_layer_wtr')
+      .equals(ReferentialCacheKey.V_LAYER_WTR)
       .distinct()
       .toArray();
 
@@ -197,5 +205,27 @@ export class CacheService {
 
   public async deleteObject(table: string, id: string): Promise<void> {
     await this.db.table(table).delete(id);
+  }
+
+  /**
+   *
+   * @param referentialCacheKey
+   * @param serviceCall
+   * @returns
+   */
+  public fetchReferentialsData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
+    return from(this.db.referentials.get(referentialCacheKey)).pipe(
+      switchMap(referential => {
+        if (referential?.data) {
+          return of(referential.data);
+        } else {
+          return serviceCall().pipe(
+            tap(async data => {
+              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
+            })
+          );
+        }
+      })
+    );
   }
 }

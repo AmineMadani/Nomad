@@ -2,17 +2,23 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Contract, ContractWithOrganizationalUnits } from '../models/contract.model';
 import { ContractDataService } from './dataservices/contract.dataservice';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContractService {
   constructor(
-    private contractDataService: ContractDataService
-  ) { }
+    private contractDataService: ContractDataService,
+    private cacheService: CacheService
+  ) {
+  }
 
   getAllContracts(): Observable<Contract[]> {
-    return this.contractDataService.getAllContracts();
+    return this.cacheService.fetchReferentialsData<Contract[]>(
+      ReferentialCacheKey.CONTRACTS,
+      () => this.contractDataService.getAllContracts()
+    );
   }
 
   /**

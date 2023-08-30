@@ -4,11 +4,10 @@ import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB, layerReferencesKey } from '../models/app-db.model';
 import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
-import { CacheService } from './cache.service';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
-import { FavoriteLayer } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -291,7 +290,10 @@ export class LayerService {
   * @returns A promise that resolves to the list of layers.
   */
   public getAllLayers(): Observable<Layer[]> {
-    return this.layerDataService.getAllLayers();
+    return this.cacheService.fetchReferentialsData<Layer[]>(
+      ReferentialCacheKey.LAYERS,
+      () => this.layerDataService.getAllLayers()
+    );
   }
 
   /**
@@ -299,7 +301,10 @@ export class LayerService {
   * @returns A promise that resolves to the list of VLayerWtr.
   */
   public getAllVLayerWtr(): Observable<VLayerWtr[]> {
-    return this.layerDataService.getAllVLayerWtr();
+    return this.cacheService.fetchReferentialsData<VLayerWtr[]>(
+      ReferentialCacheKey.V_LAYER_WTR,
+      () => this.layerDataService.getAllVLayerWtr()
+    );
   }
 
 }

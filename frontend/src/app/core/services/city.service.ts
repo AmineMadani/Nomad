@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, from, of, switchMap, tap } from 'rxjs';
 import { CityDataService } from './dataservices/city.dataservice';
 import { City } from '../models/city.model';
+import { AppDB } from '../models/app-db.model';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CityService {
   constructor(
-    private cityDataService: CityDataService
-  ) { }
+    private cityDataService: CityDataService,
+    private cacheService: CacheService
+  ) {
+  }
 
   getAllCities(): Observable<City[]> {
-    return this.cityDataService.getAllCities();
+    return this.cacheService.fetchReferentialsData<City[]>(
+      ReferentialCacheKey.CITIES,
+      () => this.cityDataService.getAllCities()
+    );
   }
 
   /**
