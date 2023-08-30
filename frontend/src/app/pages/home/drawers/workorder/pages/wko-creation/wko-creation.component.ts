@@ -22,6 +22,9 @@ import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
+import { Contract } from 'src/app/core/models/contract.model';
+import { City } from 'src/app/core/models/city.model';
+import { VLayerWtr } from 'src/app/core/models/layer.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -55,12 +58,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public workOrderForm: FormGroup;
   public params: any;
 
-  public contracts: any[];
-  public cities: any[];
-  public wtrs: any[];
+  public contracts: Contract[];
+  public cities: City[];
+  public wtrs: VLayerWtr[];
   public equipmentsDetails: any[] = [];
 
-  public idList: string;
+  public nbEquipments: string;
   public draftId: string;
 
   public title : string;
@@ -68,7 +71,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public workOrder : Workorder;
   public equipmentName: string;
 
-  public loading: boolean = true;
+  public isLoading: boolean = true;
 
   // Permissions
   public userHasPermissionSendWorkorder: boolean = false;
@@ -131,8 +134,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.title = 'Modification de l\'intervention ' + this.workOrder.wkoName;
           await this.initializeFormWithWko();
         }
-
-        this.loading = false;
       });
   }
 
@@ -424,6 +425,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async initializeEquipments(): Promise<void> {
     if (this.equipments.length > 0 && this.equipments[0] !== null) {
+      this.nbEquipments = this.equipments.length.toString();
+
       // WKO Assets
       await this.initEquipmentsLayers();
       // If mono-equipment, we need the equipment name
@@ -433,44 +436,32 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
 
-      // Get reasons for all equipments, then remove duplicates
-      this.layerService.getAllVLayerWtr().subscribe(wtrs => {
-        this.wtrs = this.utils.removeDuplicatesFromArr(wtrs, 'wtrId');
+      // Ctr and Cty are on the equipments
+      const contractsIds: number[] = this.equipments.map((eq) => eq.ctrId);
+      const cityIds: number[] = this.equipments.map((eq) => eq.ctyId);
 
-        // Ctr and Cty are on the equipments
-        const contractsIds: number[] = this.equipments.map((eq) => eq.ctrId);
-        const cityIds: number[] = this.equipments.map((eq) => eq.ctyId);
-
-        console.log(this.equipments);
-        console.log(contractsIds);
-        console.log(cityIds);
-
-        this.idList = this.equipments.length.toString();
-
-        this.fetchContractsAndCities(contractsIds, cityIds);
-      });
+      // Get referentials data
+      this.fetchReferentialsData(contractsIds, cityIds);
     } else {
       // WKO XY
       this.params = { ...this.activatedRoute.snapshot.queryParams };
 
-      // When in XY, we need all reasons, without duplicates
-      this.layerService.getAllVLayerWtr().subscribe(wtrs => {
-        this.wtrs = this.utils.removeDuplicatesFromArr(wtrs, 'wtrId');
+      // Ctr and Cty are from the URL
+      const contractsIds: number[] = this.params.ctrId.split(',').map((c: string) => +c);
+      const cityIds: number[] = this.params.ctyId.split(',').map((c: string) => +c);
 
-        // Ctr and Cty are from the URL
-        const contractsIds: number[] = this.params.ctrId.split(',').map((c: string) => +c);
-        const cityIds: number[] = this.params.ctyId.split(',').map((c: string) => +c);
-
-        this.fetchContractsAndCities(contractsIds, cityIds);
-      });
+      // Get referentials data
+      this.fetchReferentialsData(contractsIds, cityIds);
     }
   }
 
-  private fetchContractsAndCities(contractsIds: number[], cityIds: number[]): void {
+  private fetchReferentialsData(contractsIds: number[], cityIds: number[]): void {
     forkJoin({
+      reasons: this.layerService.getAllVLayerWtr(),
       contracts: this.contractService.getAllContracts(),
       cities: this.cityService.getAllCities(),
-    }).subscribe(({ contracts, cities }) => {
+    }).subscribe(({ reasons, contracts, cities }) => {
+      this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
       this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
       this.cities = cities.filter((c) => cityIds.includes(c.id));
 
@@ -486,6 +477,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.utils.findMostFrequentValue(contractsIds)
         );
       }
+
+      this.isLoading = false;
     });
   }
 

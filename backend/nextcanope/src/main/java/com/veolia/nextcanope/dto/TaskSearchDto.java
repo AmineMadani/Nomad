@@ -7,6 +7,8 @@ public class TaskSearchDto {
 
     private Long id;
 
+    private Long wkoId;
+
     private String wkoName;
 
     private Boolean wkoEmergency;
@@ -34,8 +36,6 @@ public class TaskSearchDto {
     private Integer wkoAgentNb;
 
     private String wkoCreationComment;
-    
-    private Long wko_id;
 
     public Long getId() {
         return id;
@@ -159,11 +159,11 @@ public class TaskSearchDto {
         this.ctyId = ctyId;
     }
 
-	public Long getWko_id() {
-		return wko_id;
+	public Long getWkoId() {
+		return wkoId;
 	}
 
-	public void setWko_id(Long wko_id) {
-		this.wko_id = wko_id;
+	public void setWkoId(Long wkoId) {
+		this.wkoId = wkoId;
 	}
 }

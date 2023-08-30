@@ -4,7 +4,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FormDefinition } from '../../models/form.model';
-import { Workorder } from 'src/app/core/models/workorder.model';
+import { Workorder, WorkorderTaskReason, WorkorderTaskStatus } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
@@ -24,8 +24,8 @@ export class FormHistoryComponent implements OnInit {
   public workorders: any[];
   public isLoading: boolean;
 
-  private statusRef: any;
-  private reasonRef: any;
+  private statusRef: WorkorderTaskStatus[];
+  private reasonRef: WorkorderTaskReason[];
 
   ngOnInit() {
     this.isLoading = true;

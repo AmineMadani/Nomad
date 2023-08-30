@@ -208,11 +208,14 @@ export class CacheService {
   }
 
   /**
-   *
-   * @param referentialCacheKey
-   * @param serviceCall
-   * @returns
-   */
+  * Fetches referential data either from a local cache or from a service call.
+  * If the data is not available in the cache, it will be fetched using the provided service call
+  * and then saved to the cache for future access.
+  *
+  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
+  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
+  * @returns An Observable of the fetched data, either from the local cache or from the service call.
+  */
   public fetchReferentialsData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
     return from(this.db.referentials.get(referentialCacheKey)).pipe(
       switchMap(referential => {

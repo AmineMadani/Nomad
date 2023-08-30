@@ -86,7 +86,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       const currentLayer = (
         await this.cacheService.getObjectFromCache('referentials', 'layers')
       ).data.find((l) => l.lyrTableName === `asset.${feature.lyrTableName}`);
-      console.log(currentLayer);
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
       this.equipment = feature;

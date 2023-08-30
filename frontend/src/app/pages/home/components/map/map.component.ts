@@ -688,7 +688,7 @@ export class MapComponent implements OnInit, OnDestroy {
       switch (feature.source) {
         case 'task':
           route = DrawerRouteEnum.TASK_VIEW;
-          pathVariables = [properties['wko_id'],properties['id']];
+          pathVariables = [properties['wkoId'],properties['id']];
           break;
         default:
           route = DrawerRouteEnum.EQUIPMENT;

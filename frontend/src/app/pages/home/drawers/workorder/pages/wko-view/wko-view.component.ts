@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelWorkOrder,
+  Task,
   WkoStatus,
   Workorder,
 } from 'src/app/core/models/workorder.model';
@@ -45,7 +46,7 @@ export class WkoViewComponent implements OnInit {
   public assetLabel: string;
   public status: string;
   public reason: string;
-  public selectedTask: any;
+  public selectedTask: Task;
   public taskId: string;
   public loading: boolean = true;
 
