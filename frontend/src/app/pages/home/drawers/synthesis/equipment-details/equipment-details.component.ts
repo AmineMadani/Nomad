@@ -43,8 +43,8 @@ export class EquipmentDetailsComponent implements OnInit {
       .pipe(
         switchMap((equipment: any) => {
           this.equipment = equipment;
-          this.tableName = 'asset.' + equipment.lyr_table_name;
-          const type = equipment.lyr_table_name.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
+          this.tableName = 'asset.' + equipment.lyrTableName;
+          const type = equipment.lyrTableName.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
           if (type) {
             this.type = type.charAt(0).toUpperCase() + type.slice(1);
           }

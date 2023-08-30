@@ -535,7 +535,7 @@ export class ReportEditComponent implements OnInit {
   getReportFormFromForm(): Form {
     // Convert the form into report form
     const reportForm: Form = {
-      key: 'FORM_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      key: 'FORM_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       editable: true,
       definitions: [],
       relations: [],
@@ -640,9 +640,9 @@ export class ReportEditComponent implements OnInit {
     // Form template update
     const formTemplate: FormTemplateUpdate = {
       fteId: this.wtrReport.fteId,
-      fteCode: 'REPORT_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      fteCode: 'REPORT_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       fdnId: this.wtrReport.fdnId,
-      fdnCode: 'DEFAULT_REPORT_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      fdnCode: 'DEFAULT_REPORT_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       fdnDefinition: JSON.stringify(reportForm),
     }
 

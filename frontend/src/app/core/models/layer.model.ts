@@ -42,6 +42,10 @@ export interface VLayerWtr {
   aswDmod: string; // Date
 }
 
+export function getAssetTypeLabel(assetType: VLayerWtr): string {
+  return assetType.astCode + ' - ' + assetType.astSlabel;
+}
+
 
 export enum  localisationExportMode  {
   nomadLink = 'NOMADLINK',

@@ -4,6 +4,7 @@ import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
 import { feature } from '@turf/turf';
+import { VLayerWtr } from '../models/layer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -59,7 +60,7 @@ export class CacheService {
 
   /**
    * Return all the feature from a specific layer which have the wanted property
-   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation 
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
    * @param property the property use has a key to search
    * @param value  the value to search
    * @returns List of match feature
@@ -159,16 +160,16 @@ export class CacheService {
    * @returns The function `getWtrByLyrTables` returns an array of objects that match the filter
    * condition.
    */
-  public async getWtrByLyrTables(lyrs: string[]): Promise<any[]> {
+  public async getWtrByLyrTables(lyrs: string[]): Promise<VLayerWtr[]> {
     const wtrEntries = await this.db.referentials
       .where('key')
       .equals('v_layer_wtr')
       .distinct()
       .toArray();
 
-    const wtrs = wtrEntries.flatMap((entry) => entry.data);
+    const wtrs: VLayerWtr[] = wtrEntries.flatMap((entry) => entry.data);
     const filteredWtrs = wtrs.filter((wtr) =>
-      lyrs.includes(wtr.lyr_table_name)
+      lyrs.includes(wtr.lyrTableName)
     );
 
     return filteredWtrs;

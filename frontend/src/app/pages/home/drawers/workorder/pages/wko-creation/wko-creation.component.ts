@@ -95,7 +95,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
         switchMap(() => {
-          if (paramMap.has('lyr_table_name')) {
+          if (paramMap.has('lyrTableName')) {
             return of([]);
           } else {
             return this.layerService.getEquipmentsByLayersAndIds(params);
@@ -105,7 +105,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           eqs.map((eq) => {
             return {
               ...eq,
-              lyr_table_name: this.getKeyFromId(params, eq.id),
+              lyrTableName: this.getKeyFromId(params, eq.id),
             };
           })
         )
@@ -233,7 +233,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       assets = this.equipments?.map((eq) => {
         return {
           assObjRef: eq.id,
-          assObjTable: eq.lyr_table_name,
+          assObjTable: eq.lyrTableName,
           wtrId: wtrId,
           latitude: this.markerCreation.get(eq.id).getLngLat().lat,
           longitude: this.markerCreation.get(eq.id).getLngLat().lng,
@@ -309,7 +309,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       const observablesArray = this.equipments.map(eq =>
         this.getEquipmentLabel(eq).pipe(
           tap(equipmentLabel => {
-            this.equipmentsDetails.push([equipmentLabel, eq.id, eq.lyr_table_name]);
+            this.equipmentsDetails.push([equipmentLabel, eq.id, eq.lyrTableName]);
           })
         )
       );
@@ -364,7 +364,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openEquipmentFromDetail(id: string, lyrTableName: string): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [id], {
-      lyr_table_name: lyrTableName,
+      lyrTableName: lyrTableName,
     });
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
@@ -373,7 +373,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openEquipment(asset: any): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [asset.id], {
-      lyr_table_name: asset.lyr_table_name,
+      lyrTableName: asset.lyrTableName,
     });
   }
 
@@ -438,8 +438,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.wtrs = this.utils.removeDuplicatesFromArr(wtrs, 'wtrId');
 
         // Ctr and Cty are on the equipments
-        const contractsIds: number[] = this.equipments.map((eq) => eq.ctr_id);
-        const cityIds: number[] = this.equipments.map((eq) => eq.cty_id);
+        const contractsIds: number[] = this.equipments.map((eq) => eq.ctrId);
+        const cityIds: number[] = this.equipments.map((eq) => eq.ctyId);
+
+        console.log(this.equipments);
+        console.log(contractsIds);
+        console.log(cityIds);
 
         this.idList = this.equipments.length.toString();
 
@@ -454,8 +458,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.wtrs = this.utils.removeDuplicatesFromArr(wtrs, 'wtrId');
 
         // Ctr and Cty are from the URL
-        const contractsIds: number[] = this.params.ctr_id.split(',').map((c: string) => +c);
-        const cityIds: number[] = this.params.cty_id.split(',').map((c: string) => +c);
+        const contractsIds: number[] = this.params.ctrId.split(',').map((c: string) => +c);
+        const cityIds: number[] = this.params.ctyId.split(',').map((c: string) => +c);
 
         this.fetchContractsAndCities(contractsIds, cityIds);
       });
@@ -501,7 +505,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.layerService.getAllLayers().pipe(
       map(layersRef => {
         const layer = layersRef.find(
-          l => l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyr_table_name}`
+          l => l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyrTableName}`
         );
         return `${layer.lyrSlabel} - ${layer.domLLabel} `;
       })
@@ -517,12 +521,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     // Asset WKO
     if (this.equipments.length > 0 && this.equipments?.[0] !== null) {
       for (let eq of this.equipments) {
-        if (!this.mapService.hasEventLayer(eq.lyr_table_name)) {
-          await this.mapService.addEventLayer(eq.lyr_table_name);
+        if (!this.mapService.hasEventLayer(eq.lyrTableName)) {
+          await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
           const geom = await this.mapLayerService.getCoordinateFeaturesById(
-            eq.lyr_table_name,
+            eq.lyrTableName,
             eq.id
           );
           this.markerCreation.set(
@@ -534,7 +538,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapEvent.highlighSelectedFeatures(
         this.mapService.getMap(),
         this.equipments.map((f) => {
-          return { source: f.lyr_table_name, id: f.id };
+          return { source: f.lyrTableName, id: f.id };
         })
       );
       // XY WKO
@@ -580,8 +584,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async initEquipmentsLayers(): Promise<void> {
     const promises: Promise<void>[] = this.equipments.map(
-      ({ lyr_table_name }) => {
-        return this.mapService.addEventLayer(lyr_table_name);
+      ({ lyrTableName }) => {
+        return this.mapService.addEventLayer(lyrTableName);
       }
     );
 
@@ -590,7 +594,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.equipments.map((eq: any) => {
-        return { id: eq.id, source: eq.lyr_table_name };
+        return { id: eq.id, source: eq.lyrTableName };
       })
     );
 

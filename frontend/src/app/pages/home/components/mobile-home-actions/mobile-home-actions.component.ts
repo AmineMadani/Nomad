@@ -52,9 +52,9 @@ export class MobileHomeActionsComponent implements OnInit {
       let params: any = {};
       params.x = centerMapPosition.lng;
       params.y = centerMapPosition.lat;
-      params.lyr_table_name = 'xy';
-      if (contractIds && contractIds.length > 0) params.ctr_id = contractIds.join(',');
-      if (cityIds && cityIds.length > 0) params.cty_id = cityIds.join(',');
+      params.lyrTableName = 'xy';
+      if (contractIds && contractIds.length > 0) params.ctrId = contractIds.join(',');
+      if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
 
       this.modalCtlr.dismiss();
 

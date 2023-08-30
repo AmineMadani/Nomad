@@ -45,7 +45,7 @@ export class WorkorderService {
               let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
               if (featureWorkorder) {
                 workorder = this.buildWorkorderFromGeojson(featureWorkorder);
-                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wko_id', featureWorkorder.properties['wko_id'].toString());
+                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
                 for (let task of tasks) {
                   workorder.tasks.push(this.buildTaskFromGeojson(task))
                 }
@@ -150,34 +150,34 @@ export class WorkorderService {
       id: featureWorkorder.properties['id'],
       latitude: featureWorkorder.properties['y'],
       longitude: featureWorkorder.properties['x'],
-      wkoAddress: featureWorkorder.properties['wko_adress'],
-      wkoAgentNb: featureWorkorder.properties['wko_agent_nb'],
-      wkoEmergency: featureWorkorder.properties['wko_emergency'],
-      wkoAppointment: featureWorkorder.properties['wko_appointment'],
-      wkoName: featureWorkorder.properties['wko_name'],
-      wkoCompletionDate: featureWorkorder.properties['wko_completion_date'],
-      wkoPlanningEndDate: featureWorkorder.properties['wko_planning_end_date'],
-      wkoPlanningStartDate: featureWorkorder.properties['wko_planning_start_date'],
-      wtsId: featureWorkorder.properties['wko_wts_id'],
-      wkoCreationComment : featureWorkorder.properties['wko_creation_comment'],
+      wkoAddress: featureWorkorder.properties['wkoAddress'],
+      wkoAgentNb: featureWorkorder.properties['wkoAgentNb'],
+      wkoEmergency: featureWorkorder.properties['wkoEmergency'],
+      wkoAppointment: featureWorkorder.properties['wkoAppointment'],
+      wkoName: featureWorkorder.properties['wkoName'],
+      wkoCompletionDate: featureWorkorder.properties['wkoCompletionDate'],
+      wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+      wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
+      wtsId: featureWorkorder.properties['wkoWtsId'],
+      wkoCreationComment : featureWorkorder.properties['wkoCreationComment'],
       tasks: [],
-      ctyId: featureWorkorder.properties['cty_id'],
+      ctyId: featureWorkorder.properties['ctyId'],
       ctrId: '',
     };
   }
 
   private buildTaskFromGeojson(task: any): Task {
     return {
-      assObjRef: task.properties['ass_obj_ref'],
-      assObjTable: task.properties['ass_obj_table'],
+      assObjRef: task.properties['assObjRef'],
+      assObjTable: task.properties['assObjTable'],
       id: task.properties['id'],
-      ctrId: task.properties['ctr_id'],
+      ctrId: task.properties['ctrId'],
       latitude: task.properties['y'],
       longitude: task.properties['x'],
-      tskReportDate: task.properties['tsk_report_date'],
-      wtrId: task.properties['wtr_id'],
-      wtsId: task.properties['wts_id'],
-      wkoId: task.properties['wko_id']
+      tskReportDate: task.properties['tskReportDate'],
+      wtrId: task.properties['wtrId'],
+      wtsId: task.properties['wtsId'],
+      wkoId: task.properties['wkoId']
     };
   }
 }

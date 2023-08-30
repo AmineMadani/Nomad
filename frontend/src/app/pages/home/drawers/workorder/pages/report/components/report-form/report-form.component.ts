@@ -34,7 +34,7 @@ export class ReportFormComponent implements OnInit {
     }
 
     this.templateService.getFormsTemplate().then(forms => {
-      let formTemplate = forms.find(form => form['formCode'] === 'REPORT_' + this.task.astCode + '_' + this.task.wtrCode);
+      let formTemplate = forms.find(form => form.formCode === 'REPORT_' + this.task.astCode + '_' + this.task.wtrCode);
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);
         if(this.task.report?.questionIndex){

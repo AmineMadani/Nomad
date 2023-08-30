@@ -84,7 +84,7 @@ export class MapEventService {
       if (this.selectedFeatureId) {
         this.highlightHoveredFeatures(mapLibre, undefined);
       }
-      
+
       features.forEach((f: MultiSelection) => {
         this.multiHover.push(f);
         mapLibre.setFeatureState(
@@ -113,7 +113,7 @@ export class MapEventService {
       if (this.selectedFeatureId) {
         this.highlighSelectedFeatures(mapLibre, undefined);
       }
-      
+
       features.forEach((f: MultiSelection) => {
         this.multiSelection.push(f);
         mapLibre.setFeatureState(

@@ -32,7 +32,7 @@ export class FormHistoryComponent implements OnInit {
 
     this.workorderService
       .getEquipmentWorkOrderHistory(
-        `asset.${this.paramMap.get('lyr_table_name')}`,
+        `asset.${this.paramMap.get('lyrTableName')}`,
         this.paramMap.get('id')
       )
       .pipe(
@@ -56,7 +56,7 @@ export class FormHistoryComponent implements OnInit {
           wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
           wk.wtrLabel = this.reasonRef.find(
             (reason: { id: number; }) => reason.id === wk.tasks[0].wtrId
-          )?.wtr_llabel;
+          )?.wtrLlabel;
           return wk;
         });
       });
@@ -77,7 +77,7 @@ export class FormHistoryComponent implements OnInit {
    */
   public openIntervention(feature: MapFeature): void {
     this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [feature.id], {
-      lyr_table_name: 'task'
+      lyrTableName: 'task'
     });
   }
 

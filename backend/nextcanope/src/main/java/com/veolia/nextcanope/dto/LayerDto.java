@@ -22,7 +22,12 @@ public class LayerDto {
     public LayerDto(Layer layer) {
         this.id = layer.getId();
         this.lyrNumOrder = layer.getLyrNumOrder();
-        this.domId = layer.getDomains().getId();
+        if (layer.getDomains() != null) {
+            this.domId = layer.getDomains().getId();
+            this.domCode = layer.getDomains().getDomType();
+            this.domLLabel = layer.getDomains().getDomLlabel();
+        }
+
         if (layer.getAssetType() != null) {
             this.astId = layer.getAssetType().getId();
             this.astCode = layer.getAssetType().getAstCode();

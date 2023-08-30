@@ -413,9 +413,9 @@ export class MapComponent implements OnInit, OnDestroy {
         const params: any = {};
         params.x = e.lngLat.lng;
         params.y = e.lngLat.lat;
-        params.lyr_table_name = 'xy';
-        if (contractIds && contractIds.length > 0) params.ctr_id = contractIds.join(',');
-        if (cityIds && cityIds.length > 0) params.cty_id = cityIds.join(',');
+        params.lyrTableName = 'xy';
+        if (contractIds && contractIds.length > 0) params.ctrId = contractIds.join(',');
+        if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
         this.selectedFeature = {
           properties: params,
         };
@@ -438,8 +438,8 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    if (!this.selectedFeature['properties']['lyr_table_name']) {
-      this.selectedFeature['properties']['lyr_table_name'] =
+    if (!this.selectedFeature['properties']['lyrTableName']) {
+      this.selectedFeature['properties']['lyrTableName'] =
         this.selectedFeature['source'];
     }
     document.getElementById('map-nomad-context-menu').className = 'hide';
@@ -681,7 +681,7 @@ export class MapComponent implements OnInit, OnDestroy {
       const properties = feature.properties;
       if (properties['geometry']) delete properties['geometry'];
       // We pass the layerKey to the drawer to be able to select the equipment on the layer
-      properties['lyr_table_name'] = feature.source;
+      properties['lyrTableName'] = feature.source;
       let route: DrawerRouteEnum;
       let params = {};
       let pathVariables = [];
@@ -693,7 +693,7 @@ export class MapComponent implements OnInit, OnDestroy {
         default:
           route = DrawerRouteEnum.EQUIPMENT;
           params = {
-            lyr_table_name: properties['lyr_table_name'],
+            lyrTableName: properties['lyrTableName'],
           };
           pathVariables = [properties['id']];
           break;

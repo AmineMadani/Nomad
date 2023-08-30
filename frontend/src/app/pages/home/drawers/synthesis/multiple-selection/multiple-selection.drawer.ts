@@ -65,7 +65,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         const equipments = features.map((f) => {
           return {
             ...f,
-            lyr_table_name: this.paramFeatures.find((map) =>
+            lyrTableName: this.paramFeatures.find((map) =>
               map.equipmentIds.includes(f.id)
             ).lyrTableName,
           };
@@ -175,8 +175,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
     const promises: Promise<void>[] = abstractFeatures.map(
-      ({ lyr_table_name }) => {
-        return this.mapService.addEventLayer(lyr_table_name);
+      ({ lyrTableName }) => {
+        return this.mapService.addEventLayer(lyrTableName);
       }
     );
 
@@ -184,7 +184,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
 
     this.sources = [
-      ...new Set(abstractFeatures.map(({ lyr_table_name }) => lyr_table_name)),
+      ...new Set(abstractFeatures.map(({ lyrTableName }) => lyrTableName)),
     ].map((lyrName: string) => {
       const conf = this.mapService.getLayer(lyrName).configurations;
       this.layersConf.push(conf);
@@ -193,9 +193,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     this.featuresSelected = abstractFeatures.map((absF: any) => {
       return {
-        ...this.mapLayerService.getFeatureById(absF.lyr_table_name, absF.id)
+        ...this.mapLayerService.getFeatureById(absF.lyrTableName, absF.id)
           .properties,
-        lyr_table_name: absF.lyr_table_name,
+        lyrTableName: absF.lyrTableName,
       };
     });
 
@@ -204,7 +204,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.featuresSelected.map((f: any) => {
-        return { id: f.id, source: f.lyr_table_name };
+        return { id: f.id, source: f.lyrTableName };
       })
     );
 
@@ -277,7 +277,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     const event: CustomEvent = e as CustomEvent;
     if (event?.detail.value?.length > 0) {
       this.filteredFeatures = this.featuresSelected.filter((f) =>
-        event.detail.value.includes(f.lyr_table_name)
+        event.detail.value.includes(f.lyrTableName)
       );
     } else {
       this.selectedSource = undefined;
@@ -287,7 +287,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public openFeature(feature: any): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [feature.id], {
-      lyr_table_name: feature.lyr_table_name,
+      lyrTableName: feature.lyrTableName,
     });
   }
 
@@ -331,7 +331,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     const featureParams: any = {};
 
     features.forEach((feature) => {
-      const source = feature.lyr_table_name || feature.source;
+      const source = feature.lyrTableName || feature.source;
 
       if (!featureParams[source]) {
         featureParams[source] = new Set();
@@ -393,17 +393,17 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
       (features ?? this.featuresSelected).map((f: any) => {
-        return { id: f.id, source: f.lyr_table_name };
+        return { id: f.id, source: f.lyrTableName };
       })
     );
   }
 
   private addNewFeatures(features: any | any[]): void {
     if (!Array.isArray(features)) {
-      features = [ {...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyr_table_name: features.layerKey }];
+      features = [{ ...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyrTableName: features.layerKey }];
     } else {
       features = features.map((f) => {
-        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyr_table_name: f.source}
+        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyrTableName: f.source}
       })
     }
 

@@ -131,7 +131,7 @@ export class DrawerService {
     if (Array.isArray(queryParams)) {
       queryParams = this.generateFeatureParams(queryParams);
     }
-    
+
     this.router.navigate([url], { queryParams: queryParams, replaceUrl });
   }
 
@@ -150,7 +150,7 @@ export class DrawerService {
     const eqParams = this.utilsService.generateTaskParams(tasks);
     this.router.navigate([url], { queryParams: { ...eqParams, ...queryParams } });
   }
-  
+
   closeDrawer() {
     const url: string = this.getUrlFromDrawerName(DrawerRouteEnum.HOME);
     //this.router.navigate([url]);
@@ -183,20 +183,20 @@ export class DrawerService {
     const featureParams: any = {};
 
     features.forEach(feature => {
-      const source = feature.lyr_table_name || feature.source;
-      
+      const source = feature.lyrTableName || feature.source;
+
       if (!featureParams[source]) {
         featureParams[source] = new Set();
       }
-      
+
       featureParams[source].add(feature.id);
     });
-  
+
     // Convert the Sets to comma-separated strings
     Object.keys(featureParams).forEach(source => {
       featureParams[source] = Array.from(featureParams[source]).join(',');
     });
-  
+
     return featureParams;
   }
 }

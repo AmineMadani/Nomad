@@ -66,7 +66,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       // Mono-equipment
       const { id, ...eq } = this.equipment;
       this.router.navigate(['/home/workorder'], {
-        queryParams: { [this.equipment.lyr_table_name]: this.equipment.id },
+        queryParams: { [this.equipment.lyrTableName]: this.equipment.id },
       });
     }
   }
@@ -81,11 +81,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   public onInitEquipment(feature: any) {
     from(
-      this.layerReferencesService.getUserReferences(feature.lyr_table_name)
+      this.layerReferencesService.getUserReferences(feature.lyrTableName)
     ).subscribe(async (refs: UserReference[]) => {
       const currentLayer = (
         await this.cacheService.getObjectFromCache('referentials', 'layers')
-      ).data.find((l) => l.lyrTableName === `asset.${feature.lyr_table_name}`);
+      ).data.find((l) => l.lyrTableName === `asset.${feature.lyrTableName}`);
+      console.log(currentLayer);
       this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
       this.userReferences = refs;
       this.equipment = feature;

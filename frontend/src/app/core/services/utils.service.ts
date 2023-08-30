@@ -150,7 +150,7 @@ export class UtilsService {
     const featureParams: any = {};
 
     features.forEach((feature) => {
-      const source = feature.lyr_table_name || feature.source;
+      const source = feature.lyrTableName || feature.source;
 
       if (!featureParams[source]) {
         featureParams[source] = new Set();

@@ -192,7 +192,7 @@ export class WkoViewComponent implements OnInit {
     const lyrTableName = this.selectedTask.assObjTable.split('asset.')[1];
 
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [this.selectedTask.assObjRef], {
-      lyr_table_name: lyrTableName,
+      lyrTableName: lyrTableName,
     });
   }
 
