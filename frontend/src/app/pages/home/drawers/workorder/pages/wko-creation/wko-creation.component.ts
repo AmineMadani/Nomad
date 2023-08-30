@@ -254,7 +254,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
     form.longitude =
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
-
+    form.wkoAttachment = false;
 
       let funct : any;
       if(this.workOrder){

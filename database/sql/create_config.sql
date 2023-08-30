@@ -700,7 +700,8 @@ create table if not exists workorder
   wko_ext_ref                  text,
   wko_ext_date_sync            timestamp without time zone default null,
   wko_ext_error                text,
-  wko_ext_to_sync              boolean default False
+  wko_ext_to_sync              boolean default False,
+  wko_attachment               boolean default False
 );
 create index on workorder using gist(geom);
 /* Comments on table */

@@ -120,6 +120,7 @@ public class WorkorderService {
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
+		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
 		workorder.setWkoExtToSync(true);
@@ -194,6 +195,7 @@ public class WorkorderService {
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
+		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setModifiedBy(user);
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());

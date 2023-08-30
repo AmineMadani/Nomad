@@ -1,5 +1,6 @@
 {
   "apiUrl": "[urlApiNomad]",
+  "externalApiUrl": "[urlExternalApiNomad]",
   "keycloak": {
     "active": true,
     "issuer": "[keycloakIssuer]",

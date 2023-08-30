@@ -79,8 +79,8 @@ export class WorkorderService {
    * @returns the workorder
    */
   public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
-      return this.workorderDataService.updateWorkOrder(workorder);
-    }
+    return this.workorderDataService.updateWorkOrder(workorder);
+  }
 
   /**
    * Terminate a workorder
@@ -147,6 +147,7 @@ export class WorkorderService {
       tasks: [],
       ctyId: featureWorkorder.properties['cty_id'],
       ctrId: '',
+      wkoAttachment: featureWorkorder.properties['wko_attachment'],
     };
   }
 

@@ -21,8 +21,9 @@ export class TokenInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     const isApiUrl = request.url.startsWith(this.configurationService.apiUrl);
+    const isExternalApiUrl = request.url.startsWith(this.configurationService.externalApiUrl);
     const token = this.keycloakService.getAccessToken();
-    if (isApiUrl && token) {
+    if ((isApiUrl || isExternalApiUrl) && token) {
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,

@@ -16,6 +16,7 @@ export interface Workorder {
     selectedTaskId?: number;
     ctyId: string;
     ctrId: string;
+    wkoAttachment: boolean;
 }
 
 export interface CancelWorkOrder {

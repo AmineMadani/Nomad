@@ -1,4 +1,4 @@
-<app-page-header [headerLabel]="title" [loading]="loading"></app-page-header>
+<app-page-header [headerLabel]="title" [loading]="loading" [template]="buttonsTemplate"></app-page-header>
 
 <div class="wko-creation-body">
   <ng-container *ngIf="!loading; else loadingBody">
@@ -116,3 +116,7 @@
     </ion-content>
   </ng-template>
 </ion-modal>
+
+<ng-template #buttonsTemplate>
+  <ion-icon *ngIf="workOrder?.wkoAttachment" name="attach-outline"></ion-icon>
+</ng-template>

@@ -10,10 +10,6 @@
         <ion-label class="header-label" *ngIf="drawerTitle">
             {{ drawerTitle }}
         </ion-label>
-        <ion-button [ngClass]="{ 'attach-file': !isMobile }" *ngIf="hasFile && !isMobile" fill="clear" slot="end"
-            (click)="onAttachFileClicked()">
-            <ion-icon size="small" slot="icon-only" name="attach-outline"></ion-icon>
-        </ion-button>
         <ion-button fill="clear" slot="end" (click)="onDrawerClose()">
             <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
         </ion-button>

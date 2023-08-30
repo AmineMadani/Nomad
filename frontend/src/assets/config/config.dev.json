@@ -1,5 +1,6 @@
 {
   "apiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/nomad/v1/",
+  "externalApiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/external-veolia-api/v1/",
   "keycloak": {
     "active": true,
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",

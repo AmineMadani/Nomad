@@ -39,6 +39,8 @@ public class WorkorderDto {
     private Integer wkoAgentNb;
 
     private String wkoCreationComment;
+
+    private Boolean wkoAttachment;
     
     private List<TaskDto> tasks;
 
@@ -172,7 +174,15 @@ public class WorkorderDto {
         this.ctyId = ctyId;
     }
 
-	public WorkorderDto(Workorder workorder) {
+    public Boolean getWkoAttachment() {
+        return wkoAttachment;
+    }
+
+    public void setWkoAttachment(Boolean wkoAttachment) {
+        this.wkoAttachment = wkoAttachment;
+    }
+
+    public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
         this.wkoName = workorder.getWkoName();
@@ -190,6 +200,7 @@ public class WorkorderDto {
         this.ctyId = workorder.getCity().getId();
         this.tasks = new ArrayList<>();
         this.wkoCreationComment = workorder.getWkoCreationComment();
+        this.wkoAttachment = workorder.getWkoAttachment();
         for(Task task: workorder.getListOfTask()) {
         	this.tasks.add(new TaskDto(task));
             this.ctrId =this.tasks.get(0).getCtrId();

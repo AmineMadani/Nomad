@@ -17,6 +17,8 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { Attachment } from 'src/app/core/models/attachment.model';
+import { AttachmentService } from 'src/app/core/services/attachment.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -37,10 +39,13 @@ export class WkoViewComponent implements OnInit {
     private router: Router,
     private drawerService: DrawerService,
     private userService: UserService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private attachmentService: AttachmentService,
   ) { }
 
   public workOrder: Workorder;
+
+  public listAttachment: Attachment[] = [];
 
   public assetLabel: string;
   public status: string;
@@ -77,6 +82,10 @@ export class WkoViewComponent implements OnInit {
         this.taskId = this.activatedRoute.snapshot.params['taskid']?.toString();
         this.workOrder = await this.workorderService.getWorkorderById(id);
 
+        // Get the list of attachment
+        this.getListAttachment();
+        
+
         this.checkTask(this.taskId);
 
         this.displayAndZoomTo(this.workOrder);
@@ -108,16 +117,16 @@ export class WkoViewComponent implements OnInit {
       });
   }
 
-    /**
-    * Update workorder
-    */
-    public updateWorkorder(): void {
-      this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
-        [this.workOrder.id],
-        this.workOrder.tasks,
-        {wkoId : this.workOrder.id}
-      );
-    }
+  /**
+  * Update workorder
+  */
+  public updateWorkorder(): void {
+    this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
+      [this.workOrder.id],
+      this.workOrder.tasks,
+      {wkoId : this.workOrder.id}
+    );
+  }
 
   /**
    * Displays an alert to prompt the user to enter a reason for canceling
@@ -257,5 +266,61 @@ export class WkoViewComponent implements OnInit {
       }
     }
     this.mapLayerService.fitBounds(geometries, 20);
+  }
+
+  // ### Attachement ### //
+  getListAttachment() {
+    // Get the list of attachment
+    this.attachmentService.getListAttachmentByWorkorderId(this.workOrder.id).then((listAttachment) => {
+      this.listAttachment = listAttachment;
+    })
+    .catch((error) => {
+      // If there is an error (because the user is offline or anything else)
+      // keep it going
+      console.log(error);
+    });
+  }
+
+  async addAttachment(event) {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
+    }
+
+    for (const file of Array.from(event.target.files) as File[]) {
+      await this.attachmentService.addAttachment(this.workOrder.id, file);
+    };
+
+    // Reload the list of attachment
+    // We wait a bit because the creation is not immediate
+    // Otherwise the picture displayed would be broken
+    setTimeout(() => {
+      this.getListAttachment();
+    }, 1000);
+
+    // If there was no attachment before, set the flag of the workorder to true
+    if (!this.workOrder.wkoAttachment) {
+      this.workOrder.wkoAttachment = true;
+      this.workorderService.updateWorkOrder(this.workOrder).subscribe();
+    }
+    
+    // Empty this field to allow the user to select the same file again
+    // else if the same file is selected, fileupdload ignore it
+    event.target.value = null;
+  }
+
+  convertBitsToBytes(x) {
+    let l = 0, n = parseInt(x, 10) || 0;
+
+    const units = ['o', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+
+    while(n >= 1024 && ++l){
+        n = n/1024;
+    }
+    
+    return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+  }
+
+  getFileExtension(filename: string): string {
+    return filename.split(".").pop();
   }
 }

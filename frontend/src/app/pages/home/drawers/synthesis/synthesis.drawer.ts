@@ -46,7 +46,6 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   @Input() footerTemplate: TemplateRef<any>;
   @Input() sourceLayer: string;
 
-  @Output() onAttachFile: EventEmitter<void> = new EventEmitter();
   @Output() onTabButton: EventEmitter<SynthesisButton> = new EventEmitter();
   @Output() onDetails: EventEmitter<void> = new EventEmitter();
   @Output() onInitComponent: EventEmitter<any> = new EventEmitter();
@@ -96,10 +95,6 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
 
   public onTabButtonClicked(button: SynthesisButton): void {
     this.onTabButton.emit(button);
-  }
-
-  public onAttachFileClicked(): void {
-    this.onAttachFile.emit();
   }
 
   public onDetailsClicked(): void {
