@@ -1,21 +1,21 @@
 export interface Workorder {
-    id: number;
-    wkoName: number;
-    wkoEmergency: boolean;
-    wkoAppointment: boolean;
-    wkoAddress: string;
-    wkoCreationComment: string;
-    wkoPlanningStartDate: Date;
-    wkoPlanningEndDate: Date;
-    wtsId: number;
-    wkoCompletionDate: Date;
+    id?: number;
+    wkoName?: number;
+    wkoEmergency?: boolean;
+    wkoAppointment?: boolean;
+    wkoAddress?: string;
+    wkoCreationComment?: string;
+    wkoPlanningStartDate?: Date;
+    wkoPlanningEndDate?: Date;
+    wtsId?: number;
+    wkoCompletionDate?: Date;
     longitude: number;
     latitude: number;
-    wkoAgentNb: number;
-    tasks: Task[];
+    wkoAgentNb?: number;
+    tasks?: Task[];
     selectedTaskId?: number;
-    ctyId: string;
-    ctrId: string;
+    ctyId?: string;
+    ctrId?: string;
 }
 
 export interface CancelWorkOrder {
@@ -24,18 +24,18 @@ export interface CancelWorkOrder {
 }
 
 export interface Task {
-    id:number;
-    assObjRef: string;
+    id?:number;
+    assObjRef?: string;
     assObjTable: string;
-    wtsId: string;
-    wtrId: string;
-    ctrId: string;
+    wtsId?: string;
+    wtrId?: string;
+    ctrId?: string;
     astCode?: string;
     wtrCode?: string;
     wkoId?: string;
     longitude: number;
     latitude: number;
-    tskReportDate: Date;
+    tskReportDate?: Date;
     report?: Report;
 }
 

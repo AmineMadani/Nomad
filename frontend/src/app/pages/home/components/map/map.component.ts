@@ -26,9 +26,9 @@ import * as turf from '@turf/turf';
 import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
-import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { PraxedoService } from 'src/app/core/services/praxedo.service';
 
 @Component({
   selector: 'app-map',
@@ -46,7 +46,7 @@ export class MapComponent implements OnInit, OnDestroy {
     private referentialService: ReferentialService,
     private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
-    private keycloakService: KeycloakService,
+    private praxedoService: PraxedoService,
     private userService: UserService
   ) {
     this.drawerService
@@ -250,7 +250,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * @returns True if there is a external report in progress
    */
   public hasResumeReport(): boolean {
-    return this.keycloakService.externalReport ? true : false;
+    return this.praxedoService.externalReport ? true : false;
   }
 
   /**
@@ -258,7 +258,7 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   public resumeReport() {
     this.router.navigate([
-      '/home/workorder/' + this.keycloakService.externalReport + '/cr',
+      '/home/workorder/' + this.praxedoService.externalReport + '/cr',
     ]);
   }
 
@@ -695,8 +695,13 @@ export class MapComponent implements OnInit, OnDestroy {
       let pathVariables = [];
       switch (feature.source) {
         case 'task':
-          route = DrawerRouteEnum.TASK_VIEW;
-          pathVariables = [properties['wko_id'],properties['id']];
+          if(Number(properties['wko_id']) > 0) {
+            route = DrawerRouteEnum.TASK_VIEW;
+            pathVariables = [properties['wko_id'],properties['id']];
+          } else {
+            route = DrawerRouteEnum.REPORT;
+            pathVariables = [properties['wko_id']];
+          }
           break;
         default:
           route = DrawerRouteEnum.EQUIPMENT;

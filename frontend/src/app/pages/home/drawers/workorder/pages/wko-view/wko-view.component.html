@@ -45,7 +45,7 @@
     </ion-label>
   </ion-item>
 
-  <ion-accordion-group [multiple]="true" [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues) ? ['General','report'] : ['General','intervention']">
+  <ion-accordion-group [multiple]="true" [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report?.dateCompletion && selectedTask?.report.reportValues) ? ['General','report'] : ['General','intervention']">
     <ion-accordion value="General">
       <ion-item slot="header" color="light">
         <ion-label> Généralités </ion-label>
@@ -73,7 +73,7 @@
       </div>
     </ion-accordion>
     <ion-accordion value="report"
-      *ngIf="(taskId || workOrder.tasks.length === 1) && selectedTask?.report.dateCompletion && selectedTask?.report.reportValues">
+      *ngIf="(taskId || workOrder.tasks.length === 1) && selectedTask?.report?.dateCompletion && selectedTask?.report.reportValues">
       <ion-item slot="header" color="light" [disabled]="!userHasPermissionModifyReport">
         <ion-label> Compte-rendu </ion-label>
       </ion-item>

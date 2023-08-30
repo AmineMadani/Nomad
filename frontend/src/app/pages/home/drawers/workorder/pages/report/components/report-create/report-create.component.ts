@@ -8,8 +8,8 @@ import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
 import { ReferentialService } from 'src/app/core/services/referential.service';
 import { AlertController } from '@ionic/angular';
-import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
+import { PraxedoService } from 'src/app/core/services/praxedo.service';
 
 @Component({
   selector: 'app-report-create',
@@ -26,7 +26,7 @@ export class ReportCreateComponent implements OnInit {
     private router: Router,
     private referential: ReferentialService,
     private alertController: AlertController,
-    private keycloakService: KeycloakService
+    private praxedoService: PraxedoService
   ) { }
 
   @Input() workorder: Workorder;
@@ -45,6 +45,7 @@ export class ReportCreateComponent implements OnInit {
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
+    // Case on admin screen to test forms
     if (this.isTest) {
       this.step = 3;
       return;
@@ -301,7 +302,7 @@ export class ReportCreateComponent implements OnInit {
    * List of action after the workorder is send
    */
   private closeReport() {
-    if (this.keycloakService.externalReport) {
+    if (this.praxedoService.externalReport) {
       this.referential.getReferential('contract').then(contracts => {
         let contract = contracts.find(ctr => ctr['id'] == this.workorder.tasks[0].ctrId);
         let comment = "";

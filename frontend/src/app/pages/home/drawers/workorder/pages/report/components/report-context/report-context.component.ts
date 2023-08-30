@@ -134,7 +134,9 @@ export class ReportContextComponent implements OnInit {
               source: task.assObjTable.replace('asset.', '')
             });
 
-            this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+            if (!task.assObjTable.includes('_xy')) {
+              this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+            }
             this.mapLayerService.fitBounds([[task.longitude, task.latitude]], 21);
           });
         });

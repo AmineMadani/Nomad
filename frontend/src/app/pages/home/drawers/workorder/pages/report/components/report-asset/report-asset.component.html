@@ -23,6 +23,9 @@
       <ion-button slot="end" fill="clear" (click)="onRemoveChangeEquipment(tsk)">
         <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
       </ion-button>
+      <ion-button *ngIf="tsk.assObjRef" slot="end" fill="clear" (click)="onXyEquipment(tsk)">
+        <ion-icon slot="icon-only" color="secondary" name="pin-sharp" class="strike-through"></ion-icon>
+      </ion-button>
     </ng-container>
   </ion-item>
 </div>

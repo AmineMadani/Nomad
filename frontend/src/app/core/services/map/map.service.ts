@@ -15,6 +15,8 @@ import { DrawerRouteEnum } from '../../models/drawer.model';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Clipboard } from '@capacitor/clipboard';
 import { LayerService } from '../layer.service';
+import { WorkorderService } from '../workorder.service';
+import { Workorder } from '../../models/workorder.model';
 
 export interface Box {
   x1: number;
@@ -35,6 +37,7 @@ export class MapService {
     private mapEventService: MapEventService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
+    private workorderService: WorkorderService
   ) {
   }
 
@@ -180,7 +183,7 @@ export class MapService {
    */
   public async addEventLayer(layerKey: string, styleKey?: string): Promise<void> {
 
-    if (!layerKey) {
+    if (!layerKey || layerKey.includes("_xy")) {
       return;
     }
 
@@ -532,8 +535,47 @@ export class MapService {
       };
       setTimeout(() => {
         source.updateData(addData);
+        if(layerKey == 'task') {
+          this.loadLocalTask();
+        }
       });
     }
+  }
+
+  private loadLocalTask(){
+    this.workorderService.getLocalWorkorders().then(workorders => {
+      for(let workorder of workorders){
+        if(workorder.id < 0) {
+          this.addGeojsonToLayer(workorder,'task');
+        }
+      }
+    })
+  }
+  
+  /**
+   * Add new workorder to the geojson source
+   * @param workOrder the workorder
+   */
+  public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
+    this.addEventLayer(layerKey).then(() => {
+      for (let task of properties.tasks) {
+        let taskProperties:any = task;
+        taskProperties.id = task.id.toString();
+        taskProperties.x = task.longitude;
+        taskProperties.y = task.latitude;
+        taskProperties.wkoName = 'Intervention opportuniste';
+        taskProperties.wko_id = properties.id.toString();
+        let newPoint: any = {
+          geometry: {
+            type: 'Point',
+            coordinates: [properties.longitude, properties.latitude],
+          },
+          properties: taskProperties,
+          type: 'Feature',
+        };
+        this.addNewPoint(layerKey, newPoint);
+      }
+    });
   }
 
   /**
