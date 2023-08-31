@@ -187,12 +187,17 @@ public class WorkorderDto {
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();
-        this.ctyId = workorder.getCity().getId();
+        if(workorder.getCity() != null) {
+        	this.ctyId = workorder.getCity().getId();
+        }
         this.tasks = new ArrayList<>();
         this.wkoCreationComment = workorder.getWkoCreationComment();
         for(Task task: workorder.getListOfTask()) {
-        	this.tasks.add(new TaskDto(task));
-            this.ctrId =this.tasks.get(0).getCtrId();
+        	TaskDto taskDto = new TaskDto(task);
+        	this.tasks.add(taskDto);
+        	if(taskDto.getCtrId() != null) {
+        		this.ctrId = taskDto.getCtrId();
+        	}
         }
     }
 }

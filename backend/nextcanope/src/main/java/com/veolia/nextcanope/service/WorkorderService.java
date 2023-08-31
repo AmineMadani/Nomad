@@ -122,14 +122,22 @@ public class WorkorderService {
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
-		workorder.setWkoExtToSync(true);
+		
+		if(customWorkorderDto.getId() > 0) {
+			workorder.setWkoExtToSync(true);
+		}
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
+		if(customWorkorderDto.getId() < 0) {
+			status = statusService.getStatus(WorkOrderStatusCode.TERMINE.toString());
+		}
 		workorder.setWorkorderTaskStatus(status);
 
-		City city = cityService.getCityById(customWorkorderDto.getCtyId());
-		workorder.setCity(city);
-		workorder.setCtyLlabel(city.getCtyLlabel());
+		if(customWorkorderDto.getCtyId() != null) {
+			City city = cityService.getCityById(customWorkorderDto.getCtyId());
+			workorder.setCity(city);
+			workorder.setCtyLlabel(city.getCtyLlabel());
+		}
 
 		List<Task> tasks = new ArrayList<>();
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
@@ -153,8 +161,30 @@ public class WorkorderService {
 			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
 			// Get Contract
-			Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
-			task.setContract(contract);
+			if(customWorkorderDto.getCtrId() != null) {
+				Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+				task.setContract(contract);
+			}
+			
+			// Set report
+			List<Report> reports = new ArrayList<>();
+			if (taskDto.getReport() != null) {
+				task.setTskReportDate(taskDto.getReport().getDateCompletion());
+				for (ReportValueDto reportValue : taskDto.getReport().getReportValues()) {
+					Report report = reportRepository.findByTask_IdAndRptKey(taskDto.getId(), reportValue.getKey());
+					if (report == null) {
+						report = new Report();
+						report.setRptKey(reportValue.getKey());
+						report.setTask(task);
+						report.setCreatedBy(user);
+					}
+					report.setRptLabel(reportValue.getQuestion());
+					report.setRptValue(reportValue.getAnswer());
+					report.setModifiedBy(user);
+					reports.add(report);
+				}
+			}
+			task.setListOfReport(reports);
 
 			tasks.add(task);
 		}

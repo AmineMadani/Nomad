@@ -202,26 +202,8 @@ export class ReportAssetComponent implements OnInit {
             this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(async () => {
 
               if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
-                let feature = await this.maplayerService.findNearestFeatureFromCoords(task.longitude, task.latitude, task.assObjTable.replace('asset.', ''));
-
-                if (feature) {
-                  task.assObjRef = feature.properties['id'];
-                  task.ctrId = feature.properties['ctr_id'];
-
-                  featuresSelection.push({
-                    id: task.assObjRef,
-                    source: task.assObjTable.replace('asset.', '')
-                  });
-                } else {
-                  task.assObjTable = 'asset.aep_xy';
-                }
-
+                task.assObjTable = 'asset.aep_xy';
                 this.onEditEquipment(task);
-                setTimeout(() => {
-                  let featureToUpdate: any = this.maplayerService.getFeatureById('task', task.id + '');
-                  featureToUpdate.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
-                  this.mapService.updateFeature("task", featureToUpdate);
-                }, 500);
               }
 
               this.mapService.addGeojsonToLayer(this.workorder, 'task');

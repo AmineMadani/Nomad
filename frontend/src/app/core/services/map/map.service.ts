@@ -421,6 +421,18 @@ export class MapService {
   }
 
   /**
+   * Remove a point data for a specific layerkey
+   * @param layerKey the layer key
+   */
+  public removePoint(layerKey: string, id: string) {
+    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    const addData: Maplibregl.GeoJSONSourceDiff = {
+      remove: [id]
+    };
+    source.updateData(addData);
+  }
+
+  /**
    * add a point data for a specific layerkey
    * @param layerKey the layer key
    */

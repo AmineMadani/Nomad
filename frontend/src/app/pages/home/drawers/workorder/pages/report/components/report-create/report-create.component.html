@@ -3,13 +3,14 @@
     <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
   </ion-button>
   <ion-label class="header-label">Compte-rendu</ion-label>
+  <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
   <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
 </ion-item>
 
 <div class="filter-content">
   <app-report-stepper [step]="step" *ngIf="!isTest"></app-report-stepper>
   <ng-container *ngIf="step == 1">
-    <app-report-asset [workorder]="workorder" [selectedTask]="selectedTask" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-asset>
+    <app-report-asset [workorder]="workorder" [selectedTask]="selectedTask" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepAsset></app-report-asset>
   </ng-container>
   <ng-container *ngIf="step == 2">
     <app-report-context [task]="selectedTask" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>

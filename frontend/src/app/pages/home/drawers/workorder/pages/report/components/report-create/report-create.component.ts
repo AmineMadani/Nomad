@@ -10,6 +10,8 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 import { AlertController } from '@ionic/angular';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
+import { ReportAssetComponent } from '../report-asset/report-asset.component';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-report-create',
@@ -26,7 +28,8 @@ export class ReportCreateComponent implements OnInit {
     private router: Router,
     private referential: ReferentialService,
     private alertController: AlertController,
-    private praxedoService: PraxedoService
+    private praxedoService: PraxedoService,
+    private mapService: MapService
   ) { }
 
   @Input() workorder: Workorder;
@@ -41,6 +44,7 @@ export class ReportCreateComponent implements OnInit {
   public isSubmitting: boolean = false;
 
   @ViewChild('stepForm') stepForm: ReportFormComponent;
+  @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
@@ -268,7 +272,6 @@ export class ReportCreateComponent implements OnInit {
 
     if (this.stepForm.formEditor.form.valid) {
       this.isSubmitting = true;
-      let comment = "";
 
       let report: Report = {
         dateCompletion: new Date(),
@@ -284,24 +287,27 @@ export class ReportCreateComponent implements OnInit {
               this.stepForm.formEditor.form.value[definition.key].join('; ')
               : this.stepForm.formEditor.form.value[definition.key]
           });
-
-          if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
-            comment = this.stepForm.formEditor.form.value[definition.key];
-          }
         }
       }
       this.selectedTask.report = report;
       this.onSaveWorkOrderState();
-      this.workorderService.terminateWorkOrder(this.workorder).subscribe(res => {
-        this.closeReport();
-      });
+      
+      if(this.workorder.id > 0) {
+        this.workorderService.terminateWorkOrder(this.workorder).subscribe(() => {
+          this.closeReport();
+        });
+      } else {
+        this.workorderService.createWorkOrder(this.workorder).subscribe(res => {
+          this.closeReport(res);
+        });
+      }
     }
   }
 
   /**
    * List of action after the workorder is send
    */
-  private closeReport() {
+  private closeReport(unplanedWko: Workorder = null) {
     if (this.praxedoService.externalReport) {
       this.referential.getReferential('contract').then(contracts => {
         let contract = contracts.find(ctr => ctr['id'] == this.workorder.tasks[0].ctrId);
@@ -316,7 +322,8 @@ export class ReportCreateComponent implements OnInit {
         this.exploitationService.deleteStateWorkorder(this.workorder);
       });
     } else {
-      this.router.navigate(['/home/workorder/' + this.workorder.id + '/task/' + this.workorder.tasks[0].id]);
+      this.mapService.removeEventLayer('task');
+      this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
       this.exploitationService.deleteStateWorkorder(this.workorder);
     }
@@ -385,6 +392,39 @@ export class ReportCreateComponent implements OnInit {
 
     if (role === 'confirm') {
       this.closeReport();
+    }
+  }
+
+  /**
+   * Delete unplanned workorder
+   */
+  public async onDelete() {
+    const alert = await this.alertController.create({
+      backdropDismiss: false,
+      header: 'Souhaitez-vous supprimer cette intervention opportuniste ?',
+      buttons: [{
+        text: 'Oui',
+        role: 'confirm',
+      },
+      {
+        text: 'Non',
+        role: 'stop',
+      }]
+    });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      if(this.stepAsset?.draggableMarker) {
+        this.stepAsset.draggableMarker.remove();
+      }
+      this.exploitationService.deleteStateWorkorder(this.workorder);
+      for(let task of this.workorder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+      this.router.navigate(['/home']);
     }
   }
 }

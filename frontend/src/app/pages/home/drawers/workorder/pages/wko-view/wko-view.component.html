@@ -93,7 +93,7 @@
 
       </div>
     </ion-accordion>
-    <ion-accordion value="intervention">
+    <ion-accordion value="intervention" *ngIf="workOrder.wkoPlanningStartDate">
       <ion-item slot="header" color="light">
         <ion-label> Interventions </ion-label>
       </ion-item>
