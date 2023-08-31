@@ -142,7 +142,7 @@ begin
             'id', id,
             'geometry', ST_AsGeoJSON(ST_Transform( geom, 4326 ))::jsonb,
             -- Transform underscore to camelcase permit to use the same standards in all the app  
-            'properties', jsonb_object_agg(underscore_to_camelcase(key), value)
+            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
         ) as feature
     from records r
     JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
