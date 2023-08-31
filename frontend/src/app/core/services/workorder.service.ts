@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, firstValueFrom, map, timeout } from 'rxjs';
 import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelWorkOrder, Task, Workorder } from '../models/workorder.model';
+import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
-import { CacheService } from './cache.service';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 import { UtilsService } from './utils.service';
 import { MapFeature } from '../models/map-feature.model';
 
@@ -45,7 +45,7 @@ export class WorkorderService {
               let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
               if (featureWorkorder) {
                 workorder = this.buildWorkorderFromGeojson(featureWorkorder);
-                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wko_id', featureWorkorder.properties['wko_id'].toString());
+                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
                 for (let task of tasks) {
                   workorder.tasks.push(this.buildTaskFromGeojson(task))
                 }
@@ -84,8 +84,8 @@ export class WorkorderService {
    * @returns the workorder
    */
   public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
-      return this.workorderDataService.updateWorkOrder(workorder);
-    }
+    return this.workorderDataService.updateWorkOrder(workorder);
+  }
 
   /**
    * Terminate a workorder
@@ -134,39 +134,62 @@ export class WorkorderService {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
 
+  /**
+   * Get list of workorders task status
+   * @returns an observable of the list of status
+   */
+  public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
+    return this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
+      ReferentialCacheKey.WORKORDER_TASK_STATUS,
+      () => this.workorderDataService.getAllWorkorderTaskStatus()
+    );
+  }
+
+  /**
+   * Get list of workorders task reasons
+   * @returns an observable of the list of reasons
+   */
+  public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
+    return this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
+      ReferentialCacheKey.WORKORDER_TASK_REASON,
+      () => this.workorderDataService.getAllWorkorderTaskReasons()
+    );
+  }
+
   private buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     return {
       id: featureWorkorder.properties['id'],
       latitude: featureWorkorder.properties['y'],
       longitude: featureWorkorder.properties['x'],
-      wkoAddress: featureWorkorder.properties['wko_adress'],
-      wkoAgentNb: featureWorkorder.properties['wko_agent_nb'],
-      wkoEmergency: featureWorkorder.properties['wko_emergency'],
-      wkoAppointment: featureWorkorder.properties['wko_appointment'],
-      wkoName: featureWorkorder.properties['wko_name'],
-      wkoCompletionDate: featureWorkorder.properties['wko_completion_date'],
-      wkoPlanningEndDate: featureWorkorder.properties['wko_planning_end_date'],
-      wkoPlanningStartDate: featureWorkorder.properties['wko_planning_start_date'],
-      wtsId: featureWorkorder.properties['wko_wts_id'],
-      wkoCreationComment : featureWorkorder.properties['wko_creation_comment'],
+      wkoAddress: featureWorkorder.properties['wkoAddress'],
+      wkoAgentNb: featureWorkorder.properties['wkoAgentNb'],
+      wkoEmergency: featureWorkorder.properties['wkoEmergency'],
+      wkoAppointment: featureWorkorder.properties['wkoAppointment'],
+      wkoName: featureWorkorder.properties['wkoName'],
+      wkoCompletionDate: featureWorkorder.properties['wkoCompletionDate'],
+      wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+      wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
+      wtsId: featureWorkorder.properties['wkoWtsId'],
+      wkoCreationComment : featureWorkorder.properties['wkoCreationComment'],
       tasks: [],
-      ctyId: featureWorkorder.properties['cty_id'],
+      ctyId: featureWorkorder.properties['ctyId'],
       ctrId: '',
+      wkoAttachment: featureWorkorder.properties['wkoAttachment'],
     };
   }
 
   private buildTaskFromGeojson(task: any): Task {
     return {
-      assObjRef: task.properties['ass_obj_ref'],
-      assObjTable: task.properties['ass_obj_table'],
+      assObjRef: task.properties['assObjRef'],
+      assObjTable: task.properties['assObjTable'],
       id: task.properties['id'],
-      ctrId: task.properties['ctr_id'],
+      ctrId: task.properties['ctrId'],
       latitude: task.properties['y'],
       longitude: task.properties['x'],
-      tskReportDate: task.properties['tsk_report_date'],
-      wtrId: task.properties['wtr_id'],
-      wtsId: task.properties['wts_id'],
-      wkoId: task.properties['wko_id']
+      tskReportDate: task.properties['tskReportDate'],
+      wtrId: task.properties['wtrId'],
+      wtsId: task.properties['wtsId'],
+      wkoId: task.properties['wkoId']
     };
   }
 }

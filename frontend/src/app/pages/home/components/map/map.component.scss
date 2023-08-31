@@ -82,7 +82,7 @@
     border: 2px;
     border-top: 0px;
     transform: translate(50%, -50%);
-    background-color: hsla(0, 0%, 100%, .75);
+    background-color: var(--ion-color-primary-contrast);
     font-size: 15px;
     padding-right: 5px;
     padding-left: 5px;
@@ -100,4 +100,30 @@
 }
 .cursor-draw {
     cursor: crosshair;
+}
+
+.calculation-box{
+  position: fixed;
+  top: 90px;
+  left: 20px;
+  width: 200px;
+  height: auto;
+  background-color: whitesmoke;
+  opacity: 70%;
+  border-radius: 5%;
+  border-width: 1px;
+  pointer-events: none; /* Emp�che la div de bloquer les interactions du curseur */
+  transition: transform 0.1s ease; /* Animation fluide de suivi */
+  display: inline-block;
+  border: 2px;
+  border-style: solid;
+  border-color: black;
+}
+
+.calculation-box-header{
+  font-weight: bold;
+}
+
+.calculation-box-tip{
+  font-style: italic;
 }

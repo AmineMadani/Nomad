@@ -8,17 +8,18 @@ import { ValueLabelComponent } from './value-label/value-label.component';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { FormTemplateUpdate } from 'src/app/core/models/template.model';
 import { TemplateService } from 'src/app/core/services/template.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { SelectDuplicateReportComponent } from './select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './test-report/test-report.component';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 enum CustomFormPropertiesEnum {
     TEXT = 'text',
     NUMBER = 'number',
     SELECT = 'select',
     SELECT_MULTIPLE = 'select_multiple',
+    COMMENT = 'comment'
 }
 
 
@@ -33,7 +34,7 @@ export class ReportEditComponent implements OnInit {
     private modalController: ModalController,
     private utilsService: UtilsService,
     private templateService: TemplateService,
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private toastController: ToastController,
     private userService: UserService
   ) { }
@@ -53,6 +54,7 @@ export class ReportEditComponent implements OnInit {
     {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'},
     {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
     {value: CustomFormPropertiesEnum.SELECT_MULTIPLE, label: 'Liste de valeurs avec multiples selections'},
+    {value: CustomFormPropertiesEnum.COMMENT, label: 'Commentaire'},
   ];
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
@@ -95,7 +97,7 @@ export class ReportEditComponent implements OnInit {
       const lineForm = this.lines.at(index);
 
       // Component
-      let component = null;
+      let component = definition.component;
       if (definition.component === FormPropertiesEnum.INPUT) {
         if (definition.attributes?.type === 'number') {
           component = CustomFormPropertiesEnum.NUMBER;
@@ -147,6 +149,16 @@ export class ReportEditComponent implements OnInit {
       // Empty the list of values if it is not a select
       if (component !== CustomFormPropertiesEnum.SELECT && component !== CustomFormPropertiesEnum.SELECT_MULTIPLE) {
         lineForm.get('listValue').setValue([]);
+      }
+
+      // If it is COMMENT, check if another line of type COMMENT already exist
+      if (component === CustomFormPropertiesEnum.COMMENT) {
+        for (let i = 0; i < this.lines.length; i++) {
+          const lineFormToCheck = this.lines.at(i);
+          if (lineFormToCheck.get('component').value === CustomFormPropertiesEnum.COMMENT && lineForm !== lineFormToCheck) {
+            lineForm.get('component').setValue(null);
+          }
+        }
       }
     });
 
@@ -454,27 +466,26 @@ export class ReportEditComponent implements OnInit {
   async duplicateFromReport() {
     // Select the type-motif from which to duplicate
     // Only display the ones with report
-    const listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');
+    this.layerService.getAllVLayerWtr().subscribe(async (listAssetTypeWtr) => {
+      const listFormTemplateReport = await this.templateService.getFormsTemplate();
 
-    const listFormTemplateReport = await this.templateService.getFormsTemplate();
+      let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
+        .filter((assetTypeWtr) => {
+          return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
+        })
+        .sort((a, b) => {
+          if (a.astCode === b.astCode) return a.wtrCode.localeCompare(b.wtrCode);
+          return a.astCode.localeCompare(b.astCode);
+        })
+        .map((assetTypeWtr) => {
+          // For each wtr, get the form, if it exists
+          const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
 
-    let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
-      .filter((assetTypeWtr) => {
-        return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.ast_code + '_' + assetTypeWtr.wtr_code);
-      })
-      .sort((a, b) => {
-        if (a.ast_code === b.ast_code) return a.wtr_code.localeCompare(b.wtr_code);
-        return a.ast_code.localeCompare(b.ast_code);
-      })
-      .map((assetTypeWtr) => {
-        // For each wtr, get the form, if it exists
-        const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.ast_code + '_' + assetTypeWtr.wtr_code);
-
-        return {
-          value: formTemplateReport.formCode,
-          label: assetTypeWtr.ast_code + ' - ' + assetTypeWtr.ast_slabel + ' - ' + assetTypeWtr.wtr_code + ' - ' + assetTypeWtr.wtr_slabel,
-        }
-      });
+          return {
+            value: formTemplateReport.formCode,
+            label: assetTypeWtr.astCode + ' - ' + assetTypeWtr.astSlabel + ' - ' + assetTypeWtr.wtrCode + ' - ' + assetTypeWtr.wtrSlabel,
+          }
+        });
 
       // Remove duplicates
       listAssetTypeWtrWithReport = this.utilsService.removeDuplicatesFromArr(listAssetTypeWtrWithReport, 'value');
@@ -498,6 +509,7 @@ export class ReportEditComponent implements OnInit {
       });
 
       await modal.present();
+    });
   }
 
   /**
@@ -535,7 +547,7 @@ export class ReportEditComponent implements OnInit {
   getReportFormFromForm(): Form {
     // Convert the form into report form
     const reportForm: Form = {
-      key: 'FORM_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      key: 'FORM_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       editable: true,
       definitions: [],
       relations: [],
@@ -561,15 +573,20 @@ export class ReportEditComponent implements OnInit {
         key: PREFIX_KEY_DEFINITION + (i+1),
         type: 'property',
         label: lineForm.get('label').value,
-        component: null,
+        component: lineForm.get('component').value,
         editable: true,
         attributes: {},
         rules: [],
         section: startDefinition.key,
       }
 
-      // Component
       const component = lineForm.get('component').value;
+
+      if (component === CustomFormPropertiesEnum.COMMENT) {
+        definition.key = 'COMMENT';
+      }
+
+      // Component
       if ([CustomFormPropertiesEnum.TEXT, CustomFormPropertiesEnum.NUMBER].includes(component)) {
         definition.component = FormPropertiesEnum.INPUT;
       }
@@ -640,9 +657,9 @@ export class ReportEditComponent implements OnInit {
     // Form template update
     const formTemplate: FormTemplateUpdate = {
       fteId: this.wtrReport.fteId,
-      fteCode: 'REPORT_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      fteCode: 'REPORT_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       fdnId: this.wtrReport.fdnId,
-      fdnCode: 'DEFAULT_REPORT_' + this.wtrReport.ast_code + '_' + this.wtrReport.wtr_code,
+      fdnCode: 'DEFAULT_REPORT_' + this.wtrReport.astCode + '_' + this.wtrReport.wtrCode,
       fdnDefinition: JSON.stringify(reportForm),
     }
 

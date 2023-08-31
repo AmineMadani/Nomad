@@ -1,9 +1,9 @@
 <div style="margin:25px auto;width: 90%;">
   <app-form-editor *ngIf="form && !isLoading" [nomadForm]="form" [editMode]="true" [indexQuestion]="indexQuestion" [resumeQuestions]="task?.report?.reportValues" #formEditor></app-form-editor>
-  <ng-containe  *ngIf="!form && !isLoading">
+  <ng-container *ngIf="!form && !isLoading">
     Pas de formulaire disponible.
     Veuillez contacter votre responsable.
-  </ng-containe>
+  </ng-container>
   <ng-container *ngIf="isLoading">
     <ion-spinner color="primary" name="circular" style="margin-top: 20%;margin-left: calc(50% - 20px);"></ion-spinner>
   </ng-container>

@@ -3,8 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
-import { feature } from '@turf/turf';
+import { VLayerWtr } from '../models/layer.model';
+import { from, of, switchMap, tap } from 'rxjs';
 
+export enum ReferentialCacheKey {
+  CITIES = 'cities',
+  CONTRACTS = 'contracts',
+  LAYERS = 'layers',
+  V_LAYER_WTR = 'v_layer_wtr',
+  WORKORDER_TASK_STATUS = 'workorder_task_status',
+  WORKORDER_TASK_REASON = 'workorder_task_reason'
+}
 @Injectable({
   providedIn: 'root',
 })
@@ -59,7 +68,7 @@ export class CacheService {
 
   /**
    * Return all the feature from a specific layer which have the wanted property
-   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation 
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
    * @param property the property use has a key to search
    * @param value  the value to search
    * @returns List of match feature
@@ -159,16 +168,16 @@ export class CacheService {
    * @returns The function `getWtrByLyrTables` returns an array of objects that match the filter
    * condition.
    */
-  public async getWtrByLyrTables(lyrs: string[]): Promise<any[]> {
+  public async getWtrByLyrTables(lyrs: string[]): Promise<VLayerWtr[]> {
     const wtrEntries = await this.db.referentials
       .where('key')
-      .equals('v_layer_wtr')
+      .equals(ReferentialCacheKey.V_LAYER_WTR)
       .distinct()
       .toArray();
 
-    const wtrs = wtrEntries.flatMap((entry) => entry.data);
+    const wtrs: VLayerWtr[] = wtrEntries.flatMap((entry) => entry.data);
     const filteredWtrs = wtrs.filter((wtr) =>
-      lyrs.includes(wtr.lyr_table_name)
+      lyrs.includes(wtr.lyrTableName)
     );
 
     return filteredWtrs;
@@ -196,5 +205,30 @@ export class CacheService {
 
   public async deleteObject(table: string, id: string): Promise<void> {
     await this.db.table(table).delete(id);
+  }
+
+  /**
+  * Fetches referential data either from a local cache or from a service call.
+  * If the data is not available in the cache, it will be fetched using the provided service call
+  * and then saved to the cache for future access.
+  *
+  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
+  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
+  * @returns An Observable of the fetched data, either from the local cache or from the service call.
+  */
+  public fetchReferentialsData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
+    return from(this.db.referentials.get(referentialCacheKey)).pipe(
+      switchMap(referential => {
+        if (referential?.data) {
+          return of(referential.data);
+        } else {
+          return serviceCall().pipe(
+            tap(async data => {
+              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
+            })
+          );
+        }
+      })
+    );
   }
 }

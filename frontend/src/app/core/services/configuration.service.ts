@@ -16,6 +16,7 @@ export interface Keycloak {
 export class ConfigurationService {
 
   apiUrl: string;
+  externalApiUrl: string;
   host: string;
   keycloak: Keycloak;
   offlineTimeout: number;
@@ -35,6 +36,7 @@ export class ConfigurationService {
       this.httpClient.get("./assets/config/config"+environment.env+".json", {observe: 'response'}).subscribe({
         next: (response: any) => { 
           this.apiUrl = response.body.apiUrl;
+          this.externalApiUrl = response.body.externalApiUrl;
           this.keycloak= response.body.keycloak;
           this.host = response.body.host;
           this.offlineTimeout = response.body.offlineTimeout;

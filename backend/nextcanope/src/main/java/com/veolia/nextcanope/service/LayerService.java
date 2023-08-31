@@ -38,6 +38,24 @@ public class LayerService {
     private StyleDefinitionRepository styleDefinitionRepository;
 
     /**
+     * Get all Layers.
+     * @return A list of LayerDto
+     */
+    public List<LayerDto> getAllLayers() {
+        List<LayerDto> layersDto = new ArrayList<>();
+        // Get all layers
+        List<Layer> layers = layerRepository.findAll();
+        for (Layer layer : layers) {
+            LayerDto layerDto = new LayerDto(layer);
+            // Add the layer to the list
+            layersDto.add(layerDto);
+        }
+
+        // Return the list of layers
+        return layersDto;
+    }
+
+    /**
      * Retrieves the index associated with a specific key.
      *
      * @param key The key to search for in the database.
@@ -61,16 +79,16 @@ public class LayerService {
     /**
      * Get all Layers. For each layer, get the styles of the layer and the user.
      * @param userId The user id
-     * @return A list of LayerDto
+     * @return A list of LayerDefinitionDto
      */
-    public List<LayerDto> getLayers(Long userId) {
-    	List<LayerDto> layersDto = new ArrayList<>();
+    public List<LayerWithStylesDto> getLayerDefinitions(Long userId) {
+    	List<LayerWithStylesDto> layersDto = new ArrayList<>();
         // Get all layers
     	List<Layer> layers = layerRepository.findAll();
     	for (Layer layer : layers) {
-    		LayerDto layerDto = new LayerDto(layer);
+    		LayerWithStylesDto layerWithStylesDto = new LayerWithStylesDto(layer);
             // Get the styles of the layer and the user
-    		List<StyleDefinitionDto> layerDefinitionsDto = layerStyleRepository.getLayerStyleByLayerAndUser(layerDto.getId(), userId);
+    		List<StyleDefinitionDto> layerDefinitionsDto = layerStyleRepository.getLayerStyleByLayerAndUser(layerWithStylesDto.getId(), userId);
             // Build the LayerStyleDetailDto list
             for (StyleDefinitionDto styleDefinitionDto : layerDefinitionsDto) {
                 // Get the style definition, if it doesn't exist, throw an exception
@@ -80,10 +98,10 @@ public class LayerService {
                 // Get the first layer style of the style definition (there is only one for sure)
                 LayerStyle layerStyleOfDefinition = styleDefinition.getListOfLayerStyle().get(0);
                 // Add the layer style to the list
-                layerDto.getListStyle().add(new LayerStyleDetailDto(layerStyleOfDefinition));
+                layerWithStylesDto.getListStyle().add(new LayerStyleDetailDto(layerStyleOfDefinition));
     		}
             // Add the layer to the list
-    		layersDto.add(layerDto);
+    		layersDto.add(layerWithStylesDto);
     	}
         // Return the list of layers with their styles
         return layersDto;
@@ -113,5 +131,9 @@ public class LayerService {
         return this.layerRepository
                 .findByLyrTableName(lyrTableName)
                 .orElseThrow(() -> new FunctionalException("Le Layer avec la clé  " + lyrTableName + " n'existe pas."));
+    }
+
+    public List<VLayerWtrDto> getAllVLayerWtr() {
+        return this.layerRepository.getAllVLayerWtr();
     }
 }

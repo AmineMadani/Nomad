@@ -22,7 +22,7 @@ export class FormLayerReferenceComponent implements OnInit {
     this.equipment = Object.fromEntries(this.paramMap);
     this.userReferences = (
       await this.layerReferencesService.getUserReferences(
-        this.paramMap.get('lyr_table_name')
+        this.paramMap.get('lyrTableName')
       )
     ).filter(
       (ref: UserReference) =>

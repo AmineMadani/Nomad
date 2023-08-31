@@ -16,6 +16,7 @@ export interface Workorder {
     selectedTaskId?: number;
     ctyId?: string;
     ctrId?: string;
+    wkoAttachment: boolean;
 }
 
 export interface CancelWorkOrder {
@@ -24,15 +25,15 @@ export interface CancelWorkOrder {
 }
 
 export interface Task {
-    id?:number;
+    id?: number;
     assObjRef?: string;
     assObjTable: string;
-    wtsId?: string;
-    wtrId?: string;
-    ctrId?: string;
+    wtsId?: number;
+    wtrId?: number;
+    ctrId?: number;
     astCode?: string;
     wtrCode?: string;
-    wkoId?: string;
+    wkoId?: number;
     longitude: number;
     latitude: number;
     tskReportDate?: Date;
@@ -57,4 +58,20 @@ export enum WkoStatus{
     'PLANIFIE' = 3,
     'TERMINE' = 4,
     'ANNULE' = 5
+}
+
+export interface WorkorderTaskStatus {
+  id: number;
+  wtsCode: string;
+  wtsSlabel: string;
+  wtsLlabel: string;
+  wtsValid: boolean;
+}
+
+export interface WorkorderTaskReason {
+  id: number;
+  wtrCode: string;
+  wtrSlabel: string;
+  wtrLlabel: string;
+  wtrValid: boolean;
 }

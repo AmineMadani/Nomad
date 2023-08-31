@@ -2,6 +2,7 @@ package com.veolia.nextcanope.service;
 
 import java.util.*;
 
+import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.enums.WorkOrderStatusCode;
 import com.veolia.nextcanope.exception.FunctionalException;
@@ -10,10 +11,6 @@ import com.veolia.nextcanope.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.veolia.nextcanope.dto.TaskDto;
-import com.veolia.nextcanope.dto.TaskSearchDto;
-import com.veolia.nextcanope.dto.WorkorderDto;
-import com.veolia.nextcanope.dto.ReportValueDto;
 import com.veolia.nextcanope.exception.TechnicalException;
 
 /**
@@ -52,6 +49,9 @@ public class WorkorderService {
 
 	@Autowired
 	private ContractService contractService;
+
+	@Autowired
+	private WorkOrderTaskStatusRepository workOrderTaskStatusRepository;
 
 
 	public Workorder getWorkOrderById(Long id) {
@@ -120,6 +120,7 @@ public class WorkorderService {
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
+		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
 		
@@ -224,6 +225,7 @@ public class WorkorderService {
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
+		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setModifiedBy(user);
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
@@ -382,5 +384,13 @@ public class WorkorderService {
 		workorder = workOrderRepository.save(workorder);
 
 		return new WorkorderDto(workorder);
+	}
+
+    public List<WorkorderTaskStatusDto> getAllWorkorderTaskStatus() {
+		return this.workOrderTaskStatusRepository.getAllWorkorderTaskStatus();
+    }
+
+	public List<WorkorderTaskReasonDto> getAllWorkorderTaskReasons() {
+		return this.workOrderTaskReasonRepository.getAllWorkorderTaskReasons();
 	}
 }

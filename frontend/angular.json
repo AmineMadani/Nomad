@@ -48,7 +48,8 @@
               "deep-equal",
               "earcut",
               "maplibre-gl",
-              "@mapbox/mapbox-gl-draw"
+              "@mapbox/mapbox-gl-draw",
+              "mapbox-gl-draw-rectangle-mode"
             ]
           },
           "configurations": {

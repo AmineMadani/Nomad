@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
+import { Layer } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-report-asset',
@@ -14,10 +15,10 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class ReportAssetComponent implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
     private maplayerService: MapLayerService,
     private mapService: MapService,
     private mapEventService: MapEventService,
+    private layerService: LayerService
   ) { }
 
   @Input() workorder: Workorder;
@@ -29,7 +30,7 @@ export class ReportAssetComponent implements OnInit {
   public editTaskEquipment: Task;
   public draggableMarker: any;
 
-  private refLayers: any[];
+  private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private oldEquipment: any;
 
@@ -37,7 +38,7 @@ export class ReportAssetComponent implements OnInit {
 
     this.displayAndZoomToPlannedWko(this.workorder);
 
-    this.referentialService.getReferential('layers').then(layers => {
+    this.layerService.getAllLayers().subscribe((layers: Layer[]) => {
       this.refLayers = layers;
     });
 
@@ -170,7 +171,7 @@ export class ReportAssetComponent implements OnInit {
 
   /**
    * Method to highligh feature when enter hover
-   * @param task 
+   * @param task
    */
   public onItemHoverEnter(task: Task) {
     if (!task.assObjTable.includes('_xy')) {
@@ -180,7 +181,7 @@ export class ReportAssetComponent implements OnInit {
 
   /**
    * Method to unhighligh feature when leave hover
-   * @param task 
+   * @param task
    */
   public onItemHoverLeave(task: Task) {
     this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), [])

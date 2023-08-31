@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelWorkOrder,
+  Task,
   WkoStatus,
   Workorder,
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, takeUntil } from 'rxjs';
+import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
@@ -17,6 +17,9 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { Attachment } from 'src/app/core/models/attachment.model';
+import { AttachmentService } from 'src/app/core/services/attachment.service';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-wko-view',
@@ -27,7 +30,6 @@ export class WkoViewComponent implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private referentialService: ReferentialService,
     private workorderService: WorkorderService,
     private mapLayerService: MapLayerService,
     private mapEventService: MapEventService,
@@ -37,15 +39,19 @@ export class WkoViewComponent implements OnInit {
     private router: Router,
     private drawerService: DrawerService,
     private userService: UserService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private attachmentService: AttachmentService,
+    private layerService: LayerService
   ) { }
 
   public workOrder: Workorder;
 
+  public listAttachment: Attachment[] = [];
+
   public assetLabel: string;
   public status: string;
   public reason: string;
-  public selectedTask: any;
+  public selectedTask: Task;
   public taskId: string;
   public loading: boolean = true;
 
@@ -77,6 +83,10 @@ export class WkoViewComponent implements OnInit {
         this.taskId = this.activatedRoute.snapshot.params['taskid']?.toString();
         this.workOrder = await this.workorderService.getWorkorderById(id);
 
+        // Get the list of attachment
+        this.getListAttachment();
+
+
         this.checkTask(this.taskId);
 
         this.displayAndZoomTo(this.workOrder);
@@ -90,34 +100,37 @@ export class WkoViewComponent implements OnInit {
         const wtsid = this.selectedTask?.wtsId;
         const lyrTableName = this.selectedTask?.assObjTable;
 
-        Promise.all([
-          this.referentialService.getReferential('workorder_task_status'),
-          this.referentialService.getReferential('workorder_task_reason'),
-          this.referentialService.getReferential('layers'),
-        ]).then((res) => {
-          this.status = res[0].find(refStatus => refStatus.id == wtsid)?.wts_llabel;
+        forkJoin({
+          workorderTaskStatus: this.workorderService.getAllWorkorderTaskStatus(),
+          workorderTaskReasons: this.workorderService.getAllWorkorderTaskReasons(),
+          layers: this.layerService.getAllLayers(),
+        }).subscribe(({ workorderTaskStatus, workorderTaskReasons, layers }) => {
+          this.status = workorderTaskStatus.find(refStatus => refStatus.id == wtsid)?.wtsLlabel;
           this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
-          this.reason = res[1].find(
+
+          this.reason = workorderTaskReasons.find(
             (refReason) =>
-              refReason.id.toString() === this.workOrder.tasks[0].wtrId.toString()
-          )?.wtr_llabel;
-          const layer = lyrTableName ? res[2].find(asset => asset.lyrTableName == lyrTableName) : null;
+              refReason.id === this.workOrder.tasks[0].wtrId
+          )?.wtrLlabel;
+
+          const layer = lyrTableName ? layers.find(asset => asset.lyrTableName == lyrTableName) : null;
           this.assetLabel = layer ? layer.domLLabel + ' - ' + layer.lyrSlabel : null;
+
           this.loading = false;
         });
       });
   }
 
-    /**
-    * Update workorder
-    */
-    public updateWorkorder(): void {
-      this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
-        [this.workOrder.id],
-        this.workOrder.tasks,
-        {wkoId : this.workOrder.id}
-      );
-    }
+  /**
+  * Update workorder
+  */
+  public updateWorkorder(): void {
+    this.drawerService.navigateWithWko(DrawerRouteEnum.WORKORDER_EDITION,
+      [this.workOrder.id],
+      this.workOrder.tasks,
+      {wkoId : this.workOrder.id}
+    );
+  }
 
   /**
    * Displays an alert to prompt the user to enter a reason for canceling
@@ -189,18 +202,17 @@ export class WkoViewComponent implements OnInit {
     const lyrTableName = this.selectedTask.assObjTable.split('asset.')[1];
 
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [this.selectedTask.assObjRef], {
-      lyr_table_name: lyrTableName,
+      lyrTableName: lyrTableName,
     });
   }
 
-  private async getStatus(): Promise<void> {
-    const statusRef = await this.referentialService.getReferential(
-      'workorder_task_status'
-    );
-    this.status = statusRef.find(
-      (refStatus) => refStatus.id.toString() === this.workOrder.wtsId.toString()
-    ).wts_llabel;
-    this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+  private getStatus(): void {
+    this.workorderService.getAllWorkorderTaskStatus().subscribe((statusList) => {
+      this.status = statusList.find(
+        (refStatus) => refStatus.id.toString() === this.workOrder.wtsId.toString()
+      ).wtsLlabel;
+      this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+    });
   }
 
   /**
@@ -257,5 +269,61 @@ export class WkoViewComponent implements OnInit {
       }
     }
     this.mapLayerService.fitBounds(geometries, 20);
+  }
+
+  // ### Attachement ### //
+  getListAttachment() {
+    // Get the list of attachment
+    this.attachmentService.getListAttachmentByWorkorderId(this.workOrder.id).then((listAttachment) => {
+      this.listAttachment = listAttachment;
+    })
+    .catch((error) => {
+      // If there is an error (because the user is offline or anything else)
+      // keep it going
+      console.log(error);
+    });
+  }
+
+  async addAttachment(event) {
+    if (!event.target.files || event.target.files.length === 0) {
+      return;
+    }
+
+    for (const file of Array.from(event.target.files) as File[]) {
+      await this.attachmentService.addAttachment(this.workOrder.id, file);
+    };
+
+    // Reload the list of attachment
+    // We wait a bit because the creation is not immediate
+    // Otherwise the picture displayed would be broken
+    setTimeout(() => {
+      this.getListAttachment();
+    }, 1000);
+
+    // If there was no attachment before, set the flag of the workorder to true
+    if (!this.workOrder.wkoAttachment) {
+      this.workOrder.wkoAttachment = true;
+      this.workorderService.updateWorkOrder(this.workOrder).subscribe();
+    }
+
+    // Empty this field to allow the user to select the same file again
+    // else if the same file is selected, fileupdload ignore it
+    event.target.value = null;
+  }
+
+  convertBitsToBytes(x) {
+    let l = 0, n = parseInt(x, 10) || 0;
+
+    const units = ['o', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+
+    while(n >= 1024 && ++l){
+        n = n/1024;
+    }
+
+    return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+  }
+
+  getFileExtension(filename: string): string {
+    return filename.split(".").pop();
   }
 }

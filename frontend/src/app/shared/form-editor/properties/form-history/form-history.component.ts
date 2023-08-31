@@ -4,9 +4,8 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapFeature } from 'src/app/core/models/map-feature.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { FormDefinition } from '../../models/form.model';
-import { Workorder } from 'src/app/core/models/workorder.model';
+import { Workorder, WorkorderTaskReason, WorkorderTaskStatus } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-form-history',
@@ -16,7 +15,6 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class FormHistoryComponent implements OnInit {
   constructor(
     private drawer: DrawerService,
-    private referentialService: ReferentialService,
     private workorderService: WorkorderService
   ) {}
 
@@ -26,23 +24,23 @@ export class FormHistoryComponent implements OnInit {
   public workorders: any[];
   public isLoading: boolean;
 
-  private statusRef: any;
-  private reasonRef: any;
+  private statusRef: WorkorderTaskStatus[];
+  private reasonRef: WorkorderTaskReason[];
 
   ngOnInit() {
     this.isLoading = true;
 
     this.workorderService
       .getEquipmentWorkOrderHistory(
-        `asset.${this.paramMap.get('lyr_table_name')}`,
+        `asset.${this.paramMap.get('lyrTableName')}`,
         this.paramMap.get('id')
       )
       .pipe(
         switchMap((wks: Workorder[]) => {
           this.workorders = wks;
           return forkJoin([
-            this.referentialService.getReferential('workorder_task_status'),
-            this.referentialService.getReferential('workorder_task_reason'),
+            this.workorderService.getAllWorkorderTaskStatus(),
+            this.workorderService.getAllWorkorderTaskReasons(),
           ]);
         }),
         finalize(() => (this.isLoading = false))
@@ -58,7 +56,7 @@ export class FormHistoryComponent implements OnInit {
           wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
           wk.wtrLabel = this.reasonRef.find(
             (reason: { id: number; }) => reason.id === wk.tasks[0].wtrId
-          )?.wtr_llabel;
+          )?.wtrLlabel;
           return wk;
         });
       });
@@ -79,7 +77,7 @@ export class FormHistoryComponent implements OnInit {
    */
   public openIntervention(feature: MapFeature): void {
     this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [feature.id], {
-      lyr_table_name: 'task'
+      lyrTableName: 'task'
     });
   }
 

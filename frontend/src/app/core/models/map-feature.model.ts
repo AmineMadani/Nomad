@@ -7,8 +7,8 @@ export class MapFeature {
   public urgent: boolean;
   public appointment: boolean;
   public equipmentId: string;
-  public lyr_table_name: string;
-  public wko_id: string;
+  public lyrTableName: string;
+  public wkoId: string;
   public x: number;
   public y: number;
 
@@ -17,15 +17,15 @@ export class MapFeature {
   public static from(obj: any): any {
     const mFeature: MapFeature = obj instanceof MapFeature ? obj : Object.assign(new MapFeature(), obj);
     mFeature.id = obj['id']?.toString();
-    mFeature.reason = obj['wko_name'];
-    mFeature.status = obj['wts_id'];
-    mFeature.datebegin = obj['wko_planning_start_date'];
-    mFeature.dateend = obj['wko_planning_end_date'];
-    mFeature.urgent = obj['wko_emergency'];
-    mFeature.appointment = obj['wko_appointment'];
+    mFeature.reason = obj['wkoName'];
+    mFeature.status = obj['wtsId'];
+    mFeature.datebegin = obj['wkoPlanningStartDate'];
+    mFeature.dateend = obj['wkoPlanningEndDate'];
+    mFeature.urgent = obj['wkoEmergency'];
+    mFeature.appointment = obj['wkoAppointment'];
     mFeature.x = obj['longitude'] ? obj['longitude'] : obj['x'];
     mFeature.y = obj['latitude'] ? obj['latitude'] : obj['y'];
-    mFeature.wko_id = obj['wko_id'];
+    mFeature.wkoId = obj['wkoId'];
     mFeature.equipmentId = mFeature.id?.toString();
     mFeature.id = mFeature.id?.toString();
 

@@ -162,6 +162,10 @@ public class Workorder implements Serializable {
     @JsonProperty("wko_ext_error")
     private String wkoExtError;
 
+    @Column(name="wko_attachment")
+    @JsonProperty("wko_attachment")
+    private Boolean wkoAttachment;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
@@ -440,6 +444,14 @@ public class Workorder implements Serializable {
 
 	public void setWkoExtError( String wkoExtError ) {
         this.wkoExtError = wkoExtError ;
+    }
+
+    public Boolean getWkoAttachment() {
+        return wkoAttachment;
+    }
+
+    public void setWkoAttachment(Boolean wkoAttachment) {
+        this.wkoAttachment = wkoAttachment;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

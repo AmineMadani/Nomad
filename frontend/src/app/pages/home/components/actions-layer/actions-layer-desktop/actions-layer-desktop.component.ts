@@ -67,4 +67,10 @@ export class ActionsLayerDesktopComponent implements OnInit {
     // Print
     window.print();
   }
+
+  public async onClickDisplayMesureTool(): Promise<void> {
+    this.toolboxPopover.dismiss();
+    await this.toolboxPopover.onDidDismiss();
+    this.mapService.addMapBoxDrow();
+  }
 }

@@ -404,6 +404,10 @@ ion-segment-button {
   cursor: crosshair;
 }
 
+.cursor-mesure {
+  cursor: url('/assets/icon/rule.svg'), auto;
+}
+
 .alert-message.sc-ion-alert-md {
   font-size: 12px;
   color:red;
