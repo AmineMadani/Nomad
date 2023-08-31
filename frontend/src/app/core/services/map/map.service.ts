@@ -6,7 +6,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
 import { Basemap } from '../../models/basemap.model';
-import { Layer, localisationExportMode  } from '../../models/layer.model';
+import { LayerWithStyles, localisationExportMode  } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -44,7 +44,7 @@ export class MapService {
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
-  private layersConfiguration: Layer[];
+  private layersConfiguration: LayerWithStyles[];
 
   private draw: MapboxDraw;
   private drawActive: boolean;

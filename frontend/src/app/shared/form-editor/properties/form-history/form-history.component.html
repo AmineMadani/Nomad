@@ -12,13 +12,13 @@
       </ion-note>
     </ion-item>
     <ion-item lines="none">
-      <ion-chip *ngIf="w.wtsId" [ngClass]="'status-' + w.status.wts_code" [outline]="false">
-        <span class="status">{{ w.status.wts_llabel }}</span>
+      <ion-chip *ngIf="w.wtsId" [ngClass]="'status-' + w.status.wtsCode" [outline]="false">
+        <span class="status">{{ w.status.wtsLlabel }}</span>
       </ion-chip>
     </ion-item>
     <ion-item lines="none">
       I - {{ w.id }}
-      <ion-button *ngIf="w.status.wts_code === 'TERMINE'" slot="end" fill="clear" (click)="openReport(w)">Consulter le
+      <ion-button *ngIf="w.status.wtsCode === 'TERMINE'" slot="end" fill="clear" (click)="openReport(w)">Consulter le
         compte rendu</ion-button>
     </ion-item>
   </ion-item-group>

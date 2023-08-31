@@ -50,6 +50,17 @@ public class LayerController {
     @Autowired
     public LayerStyleService layerStyleService;
 
+    @GetMapping()
+    @Operation(summary = "Get all layers")
+    @ApiResponses(value = {
+        @ApiResponse(description= "Get all layers", content =  {
+            @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<LayerDto> getLayers() {
+        return this.layerService.getAllLayers();
+    }
+
     @GetMapping(path = "/{key}")
     @Operation(summary = "Get the index by key")
     @ApiResponses(value = {
@@ -98,8 +109,8 @@ public class LayerController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public List<LayerDto> getAllLayers(AccountTokenDto account) {
-        return  layerService.getLayers(account.getId());
+    public List<LayerWithStylesDto> getAllLayerDefinitions(AccountTokenDto account) {
+        return  layerService.getLayerDefinitions(account.getId());
     }
 
     @PostMapping(path = "/equipments")
@@ -223,5 +234,16 @@ public class LayerController {
     ) {
         this.layerStyleService.deleteLayerStyles(lseIds, account.getId());
         return new ResponseMessage("Les styles de couche ont été supprimés avec succès.");
+    }
+
+    @GetMapping(path = "/v-layer-wtr")
+    @Operation(summary = "Get the result of the v_layer_wtr")
+    @ApiResponses(value = {
+            @ApiResponse(description= "Get all v_layer_wtr", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<VLayerWtrDto> getVLayerWtr() {
+        return this.layerService.getAllVLayerWtr();
     }
 }

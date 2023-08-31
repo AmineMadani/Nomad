@@ -3,36 +3,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportEditComponent } from './report-edit/report-edit.component';
 import { ModalController } from '@ionic/angular';
 import { TableService } from 'src/app/core/services/table.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { VLayerWtr, getAssetTypeLabel } from 'src/app/core/models/layer.model';
 
-export interface AssetTypeWtr {
-  ast_id: number;
-  ast_code: string;
-  ast_slabel: string;
-  ast_llabel: string;
-  wtr_id: number;
-  wtr_code: string;
-  wtr_slabel: string;
-  wtr_llabel: string;
-}
-
-export interface AssetType {
-  ast_id: number;
-  ast_code: string;
-  ast_slabel: string;
-  ast_llabel: string;
-}
-
-export interface WtrReport extends AssetType {
-  wtr_id: number;
-  wtr_code: string;
-  wtr_slabel: string;
-  wtr_llabel: string;
+export interface WtrReport extends VLayerWtr {
   fteId: number;
   formCode: string;
   fdnId: number;
@@ -48,7 +27,7 @@ export interface WtrReport extends AssetType {
 export class ReportSettingsPage implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private utils: UtilsService,
     private templateService: TemplateService,
     private modalController: ModalController,
@@ -57,11 +36,9 @@ export class ReportSettingsPage implements OnInit {
 
   public form: FormGroup;
 
-  private listAssetTypeWtr: any[] = [];
-  public listAssetType: AssetType[] = [];
-  getAssetTypeLabel = (assetType: AssetType) => {
-    return assetType.ast_code + ' - ' + assetType.ast_slabel;
-  }
+  private listAssetTypeWtr: VLayerWtr[] = [];
+  public listAssetType: VLayerWtr[] = [];
+  getAssetTypeLabel = getAssetTypeLabel;
 
   private listFormTemplateReport: FormTemplate[] = [];
 
@@ -82,12 +59,12 @@ export class ReportSettingsPage implements OnInit {
       }
     },
     {
-      key: 'wtr_code',
+      key: 'wtrCode',
       label: 'Code',
       type: TypeColumn.TEXT,
     },
     {
-      key: 'wtr_slabel',
+      key: 'wtrSlabel',
       label: 'Libellé',
       type: TypeColumn.TEXT
     },
@@ -104,7 +81,7 @@ export class ReportSettingsPage implements OnInit {
 
   listColumnSort: ColumnSort[] = [
     {
-      key: 'wtr_code', direction: 'asc'
+      key: 'wtrCode', direction: 'asc'
     }
   ];
 
@@ -117,11 +94,11 @@ export class ReportSettingsPage implements OnInit {
     // When changing asset type, display the corresponding wtr and form
     this.form.get('astId').valueChanges.subscribe((astId) => {
       // Get the corresponding wtr
-      const listWtr = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.ast_id === astId), 'wtr_id');
+      const listWtr: VLayerWtr[] = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr.filter((assetTypeWtr) => assetTypeWtr.astId === astId), 'wtrId');
 
       const listWtrReport = listWtr.map((wtr) => {
         // For each wtr, get the form, if it exists
-        const formTemplateReport = this.listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + wtr.ast_code + '_' + wtr.wtr_code)
+        const formTemplateReport = this.listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + wtr.astCode + '_' + wtr.wtrCode)
 
         return {
           ...wtr,
@@ -135,8 +112,10 @@ export class ReportSettingsPage implements OnInit {
       this.listWtrReportRows = this.tableService.createReadOnlyRowsFromObjects(listWtrReport);
     });
 
-    this.listAssetTypeWtr = await this.referentialService.getReferential('v_layer_wtr');
-    this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'ast_id');
+    this.layerService.getAllVLayerWtr().subscribe((vLayerWtrList) => {
+      this.listAssetTypeWtr = vLayerWtrList;
+      this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId');
+    });
 
     const listFormTemplateReport = await this.templateService.getFormsTemplate();
     this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));

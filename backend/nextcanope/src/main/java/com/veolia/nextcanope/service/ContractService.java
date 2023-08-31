@@ -2,6 +2,7 @@ package com.veolia.nextcanope.service;
 
 import com.veolia.nextcanope.dto.Contract.ContractOrgDto;
 import com.veolia.nextcanope.dto.Contract.ContractOrgProjectionDto;
+import com.veolia.nextcanope.dto.Contract.ContractDto;
 import com.veolia.nextcanope.dto.OrganizationalUnitDto;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.model.Contract;
@@ -24,6 +25,10 @@ public class ContractService {
 
 	public Contract getContractById(Long contractId) {
 		return this.contractRepository.findById(contractId).orElseThrow(() -> new FunctionalException("Le contrat avec l'id " + contractId + " n'existe pas."));
+	}
+
+	public List<ContractDto> getAllContracts() {
+		return this.contractRepository.getAllContracts();
 	}
 
 	/**
@@ -56,5 +61,9 @@ public class ContractService {
 				});
 
 		return contractOrgDtos;
+	}
+
+	public List<Long> getContractIdsByLatitudeLongitude(Double latitude, Double longitude) {
+		return this.contractRepository.getContractIdsByLatitudeLongitude(latitude, longitude);
 	}
 }

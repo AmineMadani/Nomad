@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
+import { VLayerWtr } from 'src/app/core/models/layer.model';
 import { Task } from 'src/app/core/models/workorder.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-report-context',
@@ -14,7 +15,7 @@ import { ReferentialService } from 'src/app/core/services/referential.service';
 export class ReportContextComponent implements OnInit {
 
   constructor(
-    private referentialService: ReferentialService,
+    private layerService: LayerService,
     private mapService: MapService,
     private mapLayerService: MapLayerService,
     private mapEventService: MapEventService
@@ -25,24 +26,24 @@ export class ReportContextComponent implements OnInit {
 
   @ViewChild('modalReportContext') modal: IonModal;
 
-  public originalOptions: any[] = [];
-  public displayOptions: any[] = [];
-  public valueKey: string;
+  public originalOptions: VLayerWtr[] = [];
+  public displayOptions: VLayerWtr[] = [];
+  public valueKey: number;
   public querySearch: string = "";
 
   ngOnInit() {
-    this.referentialService.getReferential("v_layer_wtr").then(res => {
+    this.layerService.getAllVLayerWtr().subscribe((res: VLayerWtr[]) => {
       //Keep all the original options for the user before any filter
-      this.originalOptions = res.sort((a, b) => a['wtr_llabel'].localeCompare(b['wtr_llabel']));
+      this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
 
-      if (!this.originalOptions.find(option => this.task.assObjTable.replace("asset.", "") == option['lyr_table_name'] && option["wtr_id"].toString() == this.task.wtrId)) {
+      if (!this.originalOptions.find(option => this.task.assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrId === this.task.wtrId)) {
         this.task.wtrId = null;
       } else {
         //In case if the attribute value exist, it take the priority
-        const obj = this.originalOptions.find(val => val['wtr_id'].toString() == this.task.wtrId.toString());
-        this.valueKey = obj['wtr_id'].toString();
-        this.task.wtrCode = obj['wtr_code'].toString();
-        this.task.astCode = obj['ast_code'].toString();
+        const obj = this.originalOptions.find(val => val.wtrId === this.task.wtrId);
+        this.valueKey = obj.wtrId;
+        this.task.wtrCode = obj.wtrCode;
+        this.task.astCode = obj.wtrCode;
       }
 
       //Check if the label is editable
@@ -76,7 +77,7 @@ export class ReportContextComponent implements OnInit {
    * @returns the list of options
    */
   public getFilterOptions(querySearch: string): any[] {
-    let options = this.originalOptions?.filter(option => this.task.assObjTable.replace("asset.", "") == option['lyr_table_name'] && option["wtr_llabel"].toLowerCase().indexOf(querySearch) > -1);
+    let options = this.originalOptions?.filter(option => this.task.assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
     return options;
   }
 
@@ -94,10 +95,10 @@ export class ReportContextComponent implements OnInit {
    * @param event the ion radio event
    */
   public onRadioChange(event) {
-    const obj = this.originalOptions.find(val => val['wtr_id'].toString() == event.detail.value);
-    this.valueKey = obj['wtr_id'].toString();
-    this.task.wtrId = obj['wtr_id'].toString();
-    this.task.wtrCode = obj['wtr_code'].toString();
+    const obj = this.originalOptions.find(val => val.wtrId === event.detail.value);
+    this.valueKey = obj.wtrId;
+    this.task.wtrId = obj.wtrId;
+    this.task.wtrCode = obj.wtrCode;
     this.onSaveWorkOrderState.emit();
   }
 
@@ -107,7 +108,7 @@ export class ReportContextComponent implements OnInit {
    */
   public getValueLabel(): string {
     if (this.task.wtrId && this.originalOptions?.length > 0) {
-      return this.originalOptions.find(opt => opt['wtr_id'] == this.task.wtrId)['wtr_llabel'];
+      return this.originalOptions.find(opt => opt.wtrId === this.task.wtrId).wtrLlabel;
     }
     return "";
   }

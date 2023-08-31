@@ -97,9 +97,6 @@
     <ng-container *ngSwitchCase="'select'">
       <app-form-select [definition]="definition" [control]="form.controls[definition.key]" [edit]="editMode" [paramMap]="paramMap"></app-form-select>
     </ng-container>
-    <ng-container *ngSwitchCase="'referential'">
-      <app-form-select-referential [definition]="definition" [control]="form.controls[definition.key]" [paramMap]="paramMap" [edit]="editMode"></app-form-select-referential>
-    </ng-container>
     <ng-container *ngSwitchCase="'radio'">
       <app-form-radio [definition]="definition" [control]="form.controls[definition.key]"></app-form-radio>
     </ng-container>

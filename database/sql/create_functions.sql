@@ -76,6 +76,25 @@ SELECT ('POLYGON((0 0, 0 '||$4||', '||$3||' '||$4||', '||$3||' 0,0 0))')::geomet
 ) AS foo;
 $$ LANGUAGE sql IMMUTABLE STRICT;
 
+-- Function to transform underscore formatted strings to camelCase
+CREATE OR REPLACE FUNCTION underscore_to_camelcase(input_text text) RETURNS text AS $$
+DECLARE
+    parts text[];
+    result text;
+    i integer;
+BEGIN
+    parts := string_to_array(input_text, '_');
+    result := parts[1];
+
+    FOR i IN 2..array_length(parts, 1)
+        LOOP
+            result := result || initcap(parts[i]);
+        END LOOP;
+
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
 create or replace function f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
@@ -100,7 +119,7 @@ begin
 	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 
 	  FROM information_schema.columns 
 	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='ctr_id'))  into list_fields
-      from nomad.f_get_layer_references_user(user_ident) f
+      from nomad.f_get_layer_references_user(user_ident, false) f
       where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
   end if;
   --
@@ -117,12 +136,17 @@ begin
   (select %1$s, ST_X(ST_Transform( ST_Centroid(geom), 4326 )) as x, ST_Y(ST_Transform( ST_Centroid(geom), 4326 )) as y from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
-	select jsonb_build_object(
-	'type',       'Feature',
-	'id',         id,
-	'geometry',   ST_AsGeoJSON(ST_Transform( geom, 4326 ))::jsonb,
-  'properties', to_jsonb(r.*) - 'geom') as feature
-  from records r
+    select 
+        jsonb_build_object(
+            'type', 'Feature',
+            'id', id,
+            'geometry', ST_AsGeoJSON(ST_Transform( geom, 4326 ))::jsonb,
+            -- Transform underscore to camelcase permit to use the same standards in all the app  
+            'properties', jsonb_object_agg(underscore_to_camelcase(key), value)
+        ) as feature
+    from records r
+    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
+    GROUP BY id, r.geom, x, y
   )
   SELECT jsonb_build_object(
   'crs', '%4s'::jsonb,
@@ -173,7 +197,7 @@ end;
 $$;
 
 -- Function to get the list of layers of a user
-CREATE OR REPLACE FUNCTION f_get_layer_references_user(searched_user_id BIGINT = NULL)
+CREATE OR REPLACE FUNCTION f_get_layer_references_user(searched_user_id BIGINT = NULL, camelCase boolean = true)
     RETURNS TABLE(
          layer text,
          "referenceId" BIGINT,
@@ -188,7 +212,11 @@ BEGIN
     RETURN QUERY
     SELECT lyr_table_name::text as _layer,
            r.id as _id,
-           r.lrf_reference_key as _referenceKey,
+           -- Transform underscore to camelcase permit to use the same standards in all the app  
+           CASE WHEN camelCase 
+              THEN underscore_to_camelcase(r.lrf_reference_key) 
+              ELSE r.lrf_reference_key 
+           END as _referenceKey,
            r.lrf_llabel as _alias,
            --- if specific conf for user, get the conf
            COALESCE(u.lru_position, d.lrd_position) AS _position,

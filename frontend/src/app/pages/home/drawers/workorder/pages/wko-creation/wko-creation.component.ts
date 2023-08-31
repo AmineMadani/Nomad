@@ -3,7 +3,7 @@ import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { Subject, filter, map, switchMap, takeUntil, of } from 'rxjs';
+import { Subject, filter, map, switchMap, takeUntil, of, forkJoin, Observable, tap } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -16,11 +16,15 @@ import { CacheService } from 'src/app/core/services/cache.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { CityService } from 'src/app/core/services/city.service';
+import { ContractService } from 'src/app/core/services/contract.service';
+import { Contract } from 'src/app/core/models/contract.model';
+import { City } from 'src/app/core/models/city.model';
+import { VLayerWtr } from 'src/app/core/models/layer.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -38,11 +42,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private mapEvent: MapEventService,
     private cacheService: CacheService,
     private workOrderService: WorkorderService,
-    private referentialService: ReferentialService,
     private utils: UtilsService,
     private layerService: LayerService,
     private datePipe: DatePipe,
-    private userService : UserService
+    private userService: UserService,
+    private cityService: CityService,
+    private contractService: ContractService
   ) {}
 
   @ViewChild('equipmentModal', { static: true })
@@ -53,12 +58,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public workOrderForm: FormGroup;
   public params: any;
 
-  public contracts: any[];
-  public cities: any[];
-  public wtrs: any[];
+  public contracts: Contract[];
+  public cities: City[];
+  public wtrs: VLayerWtr[];
   public equipmentsDetails: any[] = [];
 
-  public idList: string;
+  public nbEquipments: string;
   public draftId: string;
 
   public title : string;
@@ -66,7 +71,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public workOrder : Workorder;
   public equipmentName: string;
 
-  public loading: boolean = true;
+  public isLoading: boolean = true;
 
   // Permissions
   public userHasPermissionSendWorkorder: boolean = false;
@@ -77,7 +82,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
-    this.title = 'Générer une interventions';
+    this.title = 'Générer une intervention';
 
     this.userHasPermissionSendWorkorder =
       await this.userService.currentUserHasPermission(PermissionCodeEnum.SEND_WORKORDER);
@@ -93,7 +98,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
         switchMap(() => {
-          if (paramMap.has('lyr_table_name')) {
+          if (paramMap.has('lyrTableName')) {
             return of([]);
           } else {
             return this.layerService.getEquipmentsByLayersAndIds(params);
@@ -103,7 +108,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           eqs.map((eq) => {
             return {
               ...eq,
-              lyr_table_name: this.getKeyFromId(params, eq.id),
+              lyrTableName: this.getKeyFromId(params, eq.id),
             };
           })
         )
@@ -129,8 +134,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.title = 'Modification de l\'intervention ' + this.workOrder.wkoName;
           await this.initializeFormWithWko();
         }
-
-        this.loading = false;
       });
   }
 
@@ -231,7 +234,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       assets = this.equipments?.map((eq) => {
         return {
           assObjRef: eq.id,
-          assObjTable: eq.lyr_table_name,
+          assObjTable: eq.lyrTableName,
           wtrId: wtrId,
           latitude: this.markerCreation.get(eq.id).getLngLat().lat,
           longitude: this.markerCreation.get(eq.id).getLngLat().lng,
@@ -303,17 +306,32 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public async openEquipmentModal(): Promise<void> {
     if (this.equipmentsDetails.length === 0) {
-      for (const eq of this.equipments) {
-        const equipmentLabel = await this.getEquipmentLabel(eq);
-        this.equipmentsDetails.push([equipmentLabel, eq.id, eq.lyr_table_name]);
-      }
-    }
+      // Create an array of observables for each call to getEquipmentLabel
+      const observablesArray = this.equipments.map(eq =>
+        this.getEquipmentLabel(eq).pipe(
+          tap(equipmentLabel => {
+            this.equipmentsDetails.push([equipmentLabel, eq.id, eq.lyrTableName]);
+          })
+        )
+      );
 
-    if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
-      this.equipmentModal.present();
-    }
-    if (this.equipmentModal.isOpen) {
-      this.equipmentModal.dismiss();
+      // Use forkJoin to run all observables in parallel
+      forkJoin(observablesArray).subscribe(() => {
+        if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
+          this.equipmentModal.present();
+        }
+        if (this.equipmentModal.isOpen) {
+          this.equipmentModal.dismiss();
+        }
+      });
+    } else {
+      // If equipmentsDetails is not empty, just open the modal
+      if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
+        this.equipmentModal.present();
+      }
+      if (this.equipmentModal.isOpen) {
+        this.equipmentModal.dismiss();
+      }
     }
   }
 
@@ -347,7 +365,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openEquipmentFromDetail(id: string, lyrTableName: string): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [id], {
-      lyr_table_name: lyrTableName,
+      lyrTableName: lyrTableName,
     });
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
@@ -356,7 +374,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public openEquipment(asset: any): void {
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [asset.id], {
-      lyr_table_name: asset.lyr_table_name,
+      lyrTableName: asset.lyrTableName,
     });
   }
 
@@ -406,87 +424,85 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async initializeEquipments(): Promise<void> {
-    let contractsIds: any[], cityIds: any[];
-
     if (this.equipments.length > 0 && this.equipments[0] !== null) {
+      this.nbEquipments = this.equipments.length.toString();
+
       // WKO Assets
       await this.initEquipmentsLayers();
       // If mono-equipment, we need the equipment name
       if (this.equipments.length === 1) {
-        this.equipmentName = await this.getEquipmentLabel();
+        this.getEquipmentLabel().subscribe(label => {
+          this.equipmentName = label;
+        });
       }
 
-      // Get reasons for all equipments, then remove duplicates
-      this.wtrs = this.utils.removeDuplicatesFromArr(
-        await this.referentialService.getReferential('v_layer_wtr'),
-        'wtr_id'
-      );
-
       // Ctr and Cty are on the equipments
-      contractsIds = this.equipments.map((eq) => eq.ctr_id);
-      cityIds = this.equipments.map((eq) => eq.cty_id);
+      const contractsIds: number[] = this.equipments.map((eq) => eq.ctrId);
+      const cityIds: number[] = this.equipments.map((eq) => eq.ctyId);
 
-      this.idList = this.equipments.length.toString();
+      // Get referentials data
+      this.fetchReferentialsData(contractsIds, cityIds);
     } else {
       // WKO XY
       this.params = { ...this.activatedRoute.snapshot.queryParams };
 
-      // When in XY, we need all reasons, without duplicates
-      this.wtrs = this.utils.removeDuplicatesFromArr(
-        await this.referentialService.getReferential('v_layer_wtr'),
-        'wtr_id'
-      );
-
       // Ctr and Cty are from the URL
-      contractsIds = this.params.ctr_id.split(',').map((c: string) => +c);
-      cityIds = this.params.cty_id.split(',').map((c: string) => +c);
-    }
+      const contractsIds: number[] = this.params.ctrId.split(',').map((c: string) => +c);
+      const cityIds: number[] = this.params.ctyId.split(',').map((c: string) => +c);
 
-    this.cities = (await this.referentialService.getReferential('city')).filter(
-      (c) => cityIds.includes(c.id)
-    );
-
-    this.contracts = (
-      await this.referentialService.getReferential('contract')
-    ).filter((c) => contractsIds.includes(+c.id));
-
-    // We don't want to erase possible draft entries
-    if (this.workOrderForm.controls['ctyId'].value?.length === 0) {
-      this.workOrderForm.controls['ctyId'].setValue(
-        this.utils.findMostFrequentValue(cityIds)
-      );
-    }
-
-    if (this.workOrderForm.controls['ctrId'].value?.length === 0) {
-      this.workOrderForm.controls['ctrId'].setValue(
-        this.utils.findMostFrequentValue(contractsIds)
-      );
+      // Get referentials data
+      this.fetchReferentialsData(contractsIds, cityIds);
     }
   }
 
-  public simplifyEquipmentLabel(asset: any): string {
-    return this.utils.simplifyAssetLabel(asset.lyr_table_name);
+  private fetchReferentialsData(contractsIds: number[], cityIds: number[]): void {
+    forkJoin({
+      reasons: this.layerService.getAllVLayerWtr(),
+      contracts: this.contractService.getAllContracts(),
+      cities: this.cityService.getAllCities(),
+    }).subscribe(({ reasons, contracts, cities }) => {
+      this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+      this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
+      this.cities = cities.filter((c) => cityIds.includes(c.id));
+
+      // We don't want to erase possible draft entries
+      if (this.workOrderForm.controls['ctyId'].value?.length === 0) {
+        this.workOrderForm.controls['ctyId'].setValue(
+          this.utils.findMostFrequentValue(cityIds)
+        );
+      }
+
+      if (this.workOrderForm.controls['ctrId'].value?.length === 0) {
+        this.workOrderForm.controls['ctrId'].setValue(
+          this.utils.findMostFrequentValue(contractsIds)
+        );
+      }
+
+      this.isLoading = false;
+    });
   }
 
   public getContractLabel(contract: any): string {
-    return contract.ctr_llabel;
+    return contract.ctrLlabel;
   }
 
   public getCityLabel(city: any): string {
-    return city.cty_llabel;
+    return city.ctyLlabel;
   }
 
   public getWtrLabel(reason: any): void {
-    return reason.wtr_llabel;
+    return reason.wtrLlabel;
   }
 
-  public async getEquipmentLabel(eq?: any): Promise<string> {
-    const layersRef = await this.referentialService.getReferential('layers');
-    const layer = layersRef.find(
-      (l) =>
-        l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyr_table_name}`
+  public getEquipmentLabel(eq?: any): Observable<string> {
+    return this.layerService.getAllLayers().pipe(
+      map(layersRef => {
+        const layer = layersRef.find(
+          l => l.lyrTableName === `asset.${(eq ?? this.equipments[0]).lyrTableName}`
+        );
+        return `${layer.lyrSlabel} - ${layer.domLLabel} `;
+      })
     );
-    return `${layer.lyrSlabel} - ${layer.domLLabel} `;
   }
 
   /**
@@ -498,12 +514,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     // Asset WKO
     if (this.equipments.length > 0 && this.equipments?.[0] !== null) {
       for (let eq of this.equipments) {
-        if (!this.mapService.hasEventLayer(eq.lyr_table_name)) {
-          await this.mapService.addEventLayer(eq.lyr_table_name);
+        if (!this.mapService.hasEventLayer(eq.lyrTableName)) {
+          await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
           const geom = await this.mapLayerService.getCoordinateFeaturesById(
-            eq.lyr_table_name,
+            eq.lyrTableName,
             eq.id
           );
           this.markerCreation.set(
@@ -515,7 +531,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapEvent.highlighSelectedFeatures(
         this.mapService.getMap(),
         this.equipments.map((f) => {
-          return { source: f.lyr_table_name, id: f.id };
+          return { source: f.lyrTableName, id: f.id };
         })
       );
       // XY WKO
@@ -535,29 +551,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.removeMarkers();
       }
     }
-
-    // Does not work anymore with the new version without Form Editor, need to be repaired or fixed in a bug report
-    // this.markerCreation.on('dragend', (e) => {
-    //   this.referentialService
-    //     .getReferentialIdByLongitudeLatitude(
-    //       'contract',
-    //       this.markerCreation.getLngLat().lng,
-    //       this.markerCreation.getLngLat().lat
-    //     )
-    //     .subscribe((l_ctr_id) => {
-    //       this.workOrder.ctr_id = l_ctr_id;
-    //     });
-    //   this.referentialService
-    //     .getReferentialIdByLongitudeLatitude(
-    //       'city',
-    //       this.markerCreation.getLngLat().lng,
-    //       this.markerCreation.getLngLat().lat
-    //     )
-    //     .subscribe((l_cty_id) => {
-    //       this.workOrder.cty_id = l_cty_id;
-    //     });
-    // });
-    // }
   }
 
   private removeMarkers(): void {
@@ -584,8 +577,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async initEquipmentsLayers(): Promise<void> {
     const promises: Promise<void>[] = this.equipments.map(
-      ({ lyr_table_name }) => {
-        return this.mapService.addEventLayer(lyr_table_name);
+      ({ lyrTableName }) => {
+        return this.mapService.addEventLayer(lyrTableName);
       }
     );
 
@@ -594,7 +587,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.equipments.map((eq: any) => {
-        return { id: eq.id, source: eq.lyr_table_name };
+        return { id: eq.id, source: eq.lyrTableName };
       })
     );
 

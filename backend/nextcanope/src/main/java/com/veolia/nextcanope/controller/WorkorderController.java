@@ -3,6 +3,8 @@ package com.veolia.nextcanope.controller;
 import java.util.HashMap;
 import java.util.List;
 
+import com.veolia.nextcanope.dto.WorkorderTaskReasonDto;
+import com.veolia.nextcanope.dto.WorkorderTaskStatusDto;
 import com.veolia.nextcanope.service.WorkorderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -116,5 +118,27 @@ public class WorkorderController {
                 cancelWorkorderPayload,
                 account.getId()
         );
+    }
+
+    @GetMapping(path = "tasks/status")
+    @Operation(summary = "Get all workorders task status")
+    @ApiResponses(value = {
+        @ApiResponse(description= "The workorders task status", content =  {
+                @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<WorkorderTaskStatusDto> getAllWorkorderTaskStatus() {
+        return this.workOrderService.getAllWorkorderTaskStatus();
+    }
+
+    @GetMapping(path = "tasks/reasons")
+    @Operation(summary = "Get all workorders task reasons")
+    @ApiResponses(value = {
+        @ApiResponse(description= "The workorders task reasons", content =  {
+            @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<WorkorderTaskReasonDto> getAllWorkorderTaskReasons() {
+        return this.workOrderService.getAllWorkorderTaskReasons();
     }
 }

@@ -105,10 +105,10 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
     this.route.params
       .pipe(
         switchMap((param: Params) => {
-          if (params.has('lyr_table_name') && params.size === 1) {
+          if (params.has('lyrTableName') && params.size === 1) {
             return from(
               this.layerService.getEquipmentByLayerAndId(
-                params.get('lyr_table_name'),
+                params.get('lyrTableName'),
                 param['id']
               )
             );
@@ -129,12 +129,12 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
         if (!Array.isArray(feature)) {
           await this.mapLayerService.moveToXY(feature.x, feature.y);
           await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
-            params.get('lyr_table_name'),
+            params.get('lyrTableName'),
             feature.id
           );
           this.onInitComponent.emit({
             ...feature,
-            lyr_table_name: params.get('lyr_table_name'),
+            lyrTableName: params.get('lyrTableName'),
           });
 
           // Multi-Equipment
@@ -148,7 +148,7 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
             feature.map((f) => {
               return {
                 ...f,
-                lyr_table_name: this.utils
+                lyrTableName: this.utils
                   .transformMap(params)
                   .find((map) => map.equipmentIds.includes(f.id)).lyrTableName,
               };

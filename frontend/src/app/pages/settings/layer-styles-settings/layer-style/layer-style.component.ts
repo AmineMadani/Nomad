@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Layer, LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer.model';
+import { LayerWithStyles, LayerStyleDetail, SaveLayerStylePayload } from 'src/app/core/models/layer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { Navigation } from 'swiper';
@@ -21,7 +21,7 @@ export class LayerStyleComponent implements OnInit {
 
   // Variables which must be passed at param in the modal of this component
   @Input("lseId") lseId;
-  @Input("parentLayer") parentLayer: Layer;
+  @Input("parentLayer") parentLayer: LayerWithStyles;
 
   public isCreation: boolean = true;
   public form: FormGroup;

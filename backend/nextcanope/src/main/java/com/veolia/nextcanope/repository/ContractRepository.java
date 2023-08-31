@@ -1,9 +1,11 @@
 package com.veolia.nextcanope.repository;
 
 import com.veolia.nextcanope.dto.Contract.ContractOrgProjectionDto;
+import com.veolia.nextcanope.dto.Contract.ContractDto;
 import com.veolia.nextcanope.model.Contract;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -35,4 +37,17 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
             nativeQuery = true
     )
     List<ContractOrgProjectionDto> getAllContractWithOrganizationalUnits();
+
+    @Query(value = "SELECT id " +
+            "FROM nomad.contract ctr " +
+            "WHERE ST_Intersects(ctr.geom, st_transform(st_setsrid(st_geomfromtext('POINT('||':longitude'|| ' '||':latitude'||')'),4326),3857))",
+            nativeQuery = true
+    )
+    List<Long> getContractIdsByLatitudeLongitude(
+            @Param("latitude") Double latitude,
+            @Param("longitude") Double longitude
+    );
+
+    @Query("select c from Contract c ")
+    List<ContractDto> getAllContracts();
 }

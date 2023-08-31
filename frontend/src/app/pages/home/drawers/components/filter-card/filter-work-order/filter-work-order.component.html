@@ -13,7 +13,7 @@
 <ng-template #chipTemplateRef let-feature>
   <ion-chip class="status" *ngIf="feature?.status" [ngClass]="'status-PLANIFIE'" [outline]="false">
     <ion-icon [name]="'close-outline'"></ion-icon>
-    <ion-label>{{ getStatus(feature?.status)?.wts_slabel }}</ion-label>
+    <ion-label>{{ getStatus(feature?.status)?.wtsLlabel }}</ion-label>
   </ion-chip>
   <ion-chip *ngIf="feature?.urgent" [outline]="true" class="status">
     <ion-icon name="calendar-outline"></ion-icon>

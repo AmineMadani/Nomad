@@ -4,8 +4,8 @@ import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { FilterService } from 'src/app/core/services/filter.service';
-import { ReferentialService } from 'src/app/core/services/referential.service';
-import { Status } from 'src/app/core/models/status.model';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { WorkorderTaskStatus } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-filter-work-order',
@@ -16,22 +16,22 @@ export class FilterWorkOrderComponent implements OnInit {
   constructor(
     private filterService: FilterService,
     private drawer: DrawerService,
-    private referentialService: ReferentialService
+    private workorderService: WorkorderService
   ) {}
 
   @Input() data: any;
 
   public workOrders: MapFeature[] = [];
   public isFromCache: boolean = false;
-  public lStatus: Status[] = [];
+  public status: WorkorderTaskStatus[] = [];
   public isLoading = () => {
     return this.filterService.isLoading;
   };
-  
+
 
   ngOnInit() {
-    this.referentialService.getReferential('workorder_task_status').then(res => {
-      this.lStatus = res;
+    this.workorderService.getAllWorkorderTaskStatus().subscribe(res => {
+      this.status = res;
     })
   }
 
@@ -76,10 +76,10 @@ export class FilterWorkOrderComponent implements OnInit {
   }
 
   public openIntervention(feature: MapFeature): void {
-    this.drawer.navigateTo(DrawerRouteEnum.TASK_VIEW, [feature.wko_id,feature.id]);
+    this.drawer.navigateTo(DrawerRouteEnum.TASK_VIEW, [feature.wkoId,feature.id]);
   }
 
-  public getStatus(id:number):Status {
-    return this.lStatus.find(status => status.id===id)
+  public getStatus(id:number): WorkorderTaskStatus {
+    return this.status.find(status => status.id===id)
   }
 }

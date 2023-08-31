@@ -31,11 +31,11 @@ export interface Context {
 export interface Favorite {
     name: string;
     segment: string;
-    layers: Layer[];
+    layers: FavoriteLayer[];
     filter?: Filter[];
 }
 
-export interface Layer {
+export interface FavoriteLayer {
     layerKey: string;
     styleKey: string;
 }
