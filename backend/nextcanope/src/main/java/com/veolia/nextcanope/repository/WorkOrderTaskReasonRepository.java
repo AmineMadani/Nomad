@@ -1,12 +1,12 @@
 package com.veolia.nextcanope.repository;
 
-import com.veolia.nextcanope.dto.WorkorderTaskReasonDto;
-import com.veolia.nextcanope.dto.WorkorderTaskStatusDto;
-import com.veolia.nextcanope.model.WorkorderTaskReason;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+import com.veolia.nextcanope.dto.WorkorderTaskReasonDto;
+import com.veolia.nextcanope.model.WorkorderTaskReason;
 
 /**
  * WorkOrderTaskReasonRepository is an interface for managing WorkOrderTaskReasonRepository entities in the persistence layer.

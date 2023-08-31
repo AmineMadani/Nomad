@@ -5,7 +5,6 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Geolocation } from '@capacitor/geolocation';
-import { ReferentialService } from 'src/app/core/services/referential.service';
 
 @Component({
   selector: 'app-report',
@@ -19,8 +18,7 @@ export class ReportDrawer implements OnInit {
     private mapService: MapService,
     private mapEvent: MapEventService,
     private workorderService: WorkorderService,
-    private activatedRoute: ActivatedRoute,
-    private referentialService: ReferentialService
+    private activatedRoute: ActivatedRoute
   ) {
   }
 
@@ -38,7 +36,7 @@ export class ReportDrawer implements OnInit {
       // ### UNPLANNED CASE ### //
 
       this.activatedRoute.queryParams.subscribe(params => {
-        this.referentialService.getReferential('workorder_task_status').then(async lStatus => {
+        this.workorderService.getAllWorkorderTaskStatus().subscribe(async lStatus => {
 
           //Define the position 
           let longitude = params['latitude'];
@@ -60,7 +58,7 @@ export class ReportDrawer implements OnInit {
           this.workorder = {
             latitude: latitude,
             longitude: longitude,
-            wtsId: lStatus.find(status => status.wts_code == 'CREE')?.id,
+            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
             id: (Date.now() + Math.floor(Math.random() * 150000)) * -1,
             tasks: [
               {
@@ -69,7 +67,7 @@ export class ReportDrawer implements OnInit {
                 longitude: longitude,
                 assObjTable: layer,
                 wtrId: reasonId,
-                wtsId: lStatus.find(status => status.wts_code == 'CREE')?.id
+                wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id
               }
             ]
           };

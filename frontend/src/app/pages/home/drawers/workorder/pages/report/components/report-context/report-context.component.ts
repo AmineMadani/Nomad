@@ -40,10 +40,9 @@ export class ReportContextComponent implements OnInit {
         this.task.wtrId = null;
       } else {
         //In case if the attribute value exist, it take the priority
-        const obj = this.originalOptions.find(val => val.wtrId === this.task.wtrId);
-        this.valueKey = obj.wtrId;
-        this.task.wtrCode = obj.wtrCode;
-        this.task.astCode = obj.astCode;
+        this.valueKey = this.task.wtrId;
+        this.task.wtrCode = this.originalOptions.find(val => val.wtrId === this.task.wtrId).wtrCode;
+        this.task.astCode = this.originalOptions.find(val => val.lyrTableName === this.task.assObjTable).astCode;
       }
 
       //Check if the label is editable
@@ -98,7 +97,8 @@ export class ReportContextComponent implements OnInit {
     const obj = this.originalOptions.find(val => val.wtrId === event.detail.value);
     this.valueKey = obj.wtrId;
     this.task.wtrId = obj.wtrId;
-    this.task.wtrCode = obj.wtrCode;
+    this.task.wtrCode = this.originalOptions.find(val => val.wtrId === this.task.wtrId).wtrCode;
+    this.task.astCode = this.originalOptions.find(val => val.lyrTableName === this.task.assObjTable.replace('asset.','')).astCode;
     this.onSaveWorkOrderState.emit();
   }
 
