@@ -169,7 +169,7 @@ export class WorkorderService {
       tasks: [],
       ctyId: featureWorkorder.properties['ctyId'],
       ctrId: '',
-      wkoAttachment: featureWorkorder.properties['wko_attachment'],
+      wkoAttachment: featureWorkorder.properties['wkoAttachment'],
     };
   }
 
