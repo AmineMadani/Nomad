@@ -74,7 +74,7 @@ public class LayerRepositoryImpl {
     }
 
     private String getColumnMappingForLayer(String layer) {
-        String query = "SELECT string_agg(column_name || ' AS \"' || underscore_to_camelcase(column_name) || '\"', ', ') FROM information_schema.columns WHERE table_schema = 'asset' AND table_name = ?";
+        String query = "SELECT string_agg(column_name || ' AS \"' || nomad.underscore_to_camelcase(column_name) || '\"', ', ') FROM information_schema.columns WHERE table_schema = 'asset' AND table_name = ?";
         return jdbcTemplate.queryForObject(query, String.class, layer);
     }
 }

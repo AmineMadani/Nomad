@@ -214,7 +214,7 @@ BEGIN
            r.id as _id,
            -- Transform underscore to camelcase permit to use the same standards in all the app  
            CASE WHEN camelCase 
-              THEN underscore_to_camelcase(r.lrf_reference_key) 
+              THEN nomad.underscore_to_camelcase(r.lrf_reference_key) 
               ELSE r.lrf_reference_key 
            END as _referenceKey,
            r.lrf_llabel as _alias,
