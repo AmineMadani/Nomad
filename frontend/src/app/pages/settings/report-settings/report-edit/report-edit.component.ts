@@ -19,6 +19,7 @@ enum CustomFormPropertiesEnum {
     NUMBER = 'number',
     SELECT = 'select',
     SELECT_MULTIPLE = 'select_multiple',
+    COMMENT = 'comment'
 }
 
 
@@ -53,6 +54,7 @@ export class ReportEditComponent implements OnInit {
     {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'},
     {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
     {value: CustomFormPropertiesEnum.SELECT_MULTIPLE, label: 'Liste de valeurs avec multiples selections'},
+    {value: CustomFormPropertiesEnum.COMMENT, label: 'Commentaire'},
   ];
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
@@ -95,7 +97,7 @@ export class ReportEditComponent implements OnInit {
       const lineForm = this.lines.at(index);
 
       // Component
-      let component = null;
+      let component = definition.component;
       if (definition.component === FormPropertiesEnum.INPUT) {
         if (definition.attributes?.type === 'number') {
           component = CustomFormPropertiesEnum.NUMBER;
@@ -147,6 +149,16 @@ export class ReportEditComponent implements OnInit {
       // Empty the list of values if it is not a select
       if (component !== CustomFormPropertiesEnum.SELECT && component !== CustomFormPropertiesEnum.SELECT_MULTIPLE) {
         lineForm.get('listValue').setValue([]);
+      }
+
+      // If it is COMMENT, check if another line of type COMMENT already exist
+      if (component === CustomFormPropertiesEnum.COMMENT) {
+        for (let i = 0; i < this.lines.length; i++) {
+          const lineFormToCheck = this.lines.at(i);
+          if (lineFormToCheck.get('component').value === CustomFormPropertiesEnum.COMMENT && lineForm !== lineFormToCheck) {
+            lineForm.get('component').setValue(null);
+          }
+        }
       }
     });
 
@@ -561,15 +573,20 @@ export class ReportEditComponent implements OnInit {
         key: PREFIX_KEY_DEFINITION + (i+1),
         type: 'property',
         label: lineForm.get('label').value,
-        component: null,
+        component: lineForm.get('component').value,
         editable: true,
         attributes: {},
         rules: [],
         section: startDefinition.key,
       }
 
-      // Component
       const component = lineForm.get('component').value;
+
+      if (component === CustomFormPropertiesEnum.COMMENT) {
+        definition.key = 'COMMENT';
+      }
+
+      // Component
       if ([CustomFormPropertiesEnum.TEXT, CustomFormPropertiesEnum.NUMBER].includes(component)) {
         definition.component = FormPropertiesEnum.INPUT;
       }

@@ -38,6 +38,7 @@ import { FormEquipmentsComponent } from './form-editor/properties/form-equipment
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
+import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +73,7 @@ import { FilterTableComponent } from './components/generic-table/filter-table/fi
     FormLifeCycleComponent,
     FormLayerReferenceComponent,
     FormEquipmentsComponent,
+    FormCommentComponent,
     // DIRECTIVES
     ClearDataDirective,
   ],

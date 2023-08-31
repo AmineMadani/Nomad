@@ -4,8 +4,8 @@ import java.util.Date;
 
 public interface VLayerWtrDto {
     String getAstCode();
-    String astSlabel();
-    String astLlabel();
+    String getAstSlabel();
+    String getAstLlabel();
     String getLyrTableName();
     String getWtrSlabel();
     String getWtrLlabel();

@@ -76,6 +76,7 @@
         <ng-container *ngTemplateOutlet="childTemplate; context: { children: node.children }"></ng-container>
       </div>
     </ng-container>
+    <!-- REPORT -->
     <ng-container *ngSwitchCase="'question'">
       <div class="form-question">
         <ng-container *ngTemplateOutlet="questionTemplate; context: { node: node }"></ng-container>
@@ -129,6 +130,10 @@
     </ng-container>
     <ng-container *ngSwitchCase="'bottom-attachment'">
       <app-form-bottom-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-bottom-attachment>
+    </ng-container>
+    <ng-container *ngSwitchCase="'comment'">
+      <app-form-comment [definition]="definition" [control]="form.controls[definition.key]"
+        [edit]="editMode"></app-form-comment>
     </ng-container>
   </ng-container>
 </ng-template>

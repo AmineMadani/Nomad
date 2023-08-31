@@ -43,7 +43,7 @@ export class ReportContextComponent implements OnInit {
         const obj = this.originalOptions.find(val => val.wtrId === this.task.wtrId);
         this.valueKey = obj.wtrId;
         this.task.wtrCode = obj.wtrCode;
-        this.task.astCode = obj.wtrCode;
+        this.task.astCode = obj.astCode;
       }
 
       //Check if the label is editable

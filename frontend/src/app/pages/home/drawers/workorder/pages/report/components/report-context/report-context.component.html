@@ -20,7 +20,7 @@
         <ion-radio-group aria-label="def-radio" [value]="valueKey" (ionChange)="onRadioChange($event)">
           <ng-container *ngFor="let item of displayOptions; let index">
             <ion-radio aria-label="Option Label" class="report-context-modal-radio"
-              [value]="item.wtrId.toString()" labelPlacement="end" (click)="modal.dismiss()">{{
+              [value]="item.wtrId" labelPlacement="end" (click)="modal.dismiss()">{{
               item.wtrLlabel }}</ion-radio>
             <br />
           </ng-container>
