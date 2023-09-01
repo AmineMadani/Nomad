@@ -108,6 +108,18 @@ export class SearchSelectComponent implements OnInit {
     }
   }
 
+  onAllSelectedChange(event) {
+    if (this.isAllElementSelected()) {
+      this.control.setValue([]);
+    } else {
+      this.control.setValue(this.elements.map((el) => el[this.key]));
+    }
+  }
+
+  isAllElementSelected() {
+    return this.control.value?.length === this.elements.length;
+  }
+
   /**
    * Permit to check if an element is selected or not.
    * @param element

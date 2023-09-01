@@ -51,8 +51,8 @@
         </div>
 
         <ion-icon
-          *ngIf="control.value"
-          (click)="control.setValue(null)"
+          *ngIf="isMultiSelection ? control.value && control.value.length > 0 : control.value"
+          (click)="isMultiSelection ? control.setValue([]) : control.setValue(null)"
           name="close-outline"
           size="small"
           slot="end"
@@ -81,6 +81,15 @@
           <ion-list class="search-select-list">
             <!-- Multi selection -->
             <ng-container *ngIf="isMultiSelection">
+              <ion-checkbox
+                (ionChange)="onAllSelectedChange($event)"
+                labelPlacement="end"
+                justify="start"
+                aria-label="checkbox"
+                [checked]="isAllElementSelected()"
+              >
+              </ion-checkbox>
+
               <ion-checkbox
                 *ngFor="let element of displayedElements"
                 (ionChange)="onMultiSelectionChange($event, element)"

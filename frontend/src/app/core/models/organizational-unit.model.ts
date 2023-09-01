@@ -6,6 +6,7 @@ export interface OrganizationalUnit {
   outCode: OutCodeEnum;
   orgValid: boolean;
   orgParentId: number;
+  orgParentLlabel: string;
 }
 
 export enum OutCodeEnum {

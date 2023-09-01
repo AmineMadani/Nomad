@@ -11,6 +11,7 @@ public class OrganizationalUnitDto {
     private String outCode;
     private Boolean orgValid;
     private Long orgParentId;
+    private String orgParentLlabel;
 
     public OrganizationalUnitDto(OrganizationalUnit organizationalUnit) {
         this.id = organizationalUnit.getId();
@@ -21,6 +22,7 @@ public class OrganizationalUnitDto {
         this.orgValid = organizationalUnit.getOrgValid();
         if (organizationalUnit.getOrganizationalUnitParent() != null) {
             this.orgParentId = organizationalUnit.getOrganizationalUnitParent().getId();
+            this.orgParentLlabel = organizationalUnit.getOrganizationalUnitParent().getOrgLlabel();
         }
     }
 
@@ -32,6 +34,7 @@ public class OrganizationalUnitDto {
         this.orgValid = projection.getOrgValid();
         this.outCode = projection.getOutCode();
         this.orgParentId = projection.getOrgParentId();
+        this.orgParentLlabel = projection.getOrgParentLlabel();
     }
 
     public Long getId() {
@@ -88,5 +91,13 @@ public class OrganizationalUnitDto {
 
     public void setOrgParentId(Long orgParentId) {
         this.orgParentId = orgParentId;
+    }
+
+    public String getOrgParentLlabel() {
+        return orgParentLlabel;
+    }
+
+    public void setOrgParentLlabel(String orgParentLlabel) {
+        this.orgParentLlabel = orgParentLlabel;
     }
 }

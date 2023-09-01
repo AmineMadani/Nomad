@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AlertController, ModalController } from '@ionic/angular';
-import { forkJoin } from 'rxjs';
+import { forkJoin, pairwise, startWith } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
@@ -126,7 +126,7 @@ export class UserDetailsComponent implements OnInit {
         isMultiSelection: true,
         elements: [],
         elementLabelFunction: (territory: OrganizationalUnit) => {
-          return territory.orgLlabel;
+          return territory.orgLlabel + ' (' + territory.orgParentLlabel + ')';
         },
         elementFilterFunction: (row: PerimeterRow) => {
           return row.regionIds && row.regionIds.length > 0
@@ -254,6 +254,7 @@ export class UserDetailsComponent implements OnInit {
     const row = this.createTableRow();
     // Subscribe to changes in different rows
     this.subscribeToProfileValueChanges(row);
+    this.subscribeToRegionValueChanges(row);
     this.subscribeToTerritoryValueChanges(row);
     this.subscribeToContractValueChanges(row);
     // If a perimeter, it adds it's data in the row
@@ -287,11 +288,43 @@ export class UserDetailsComponent implements OnInit {
     });
   }
 
+  private subscribeToRegionValueChanges(row: TableRow<PerimeterRow>): void {
+    row.get('regionIds').valueChanges.pipe(
+      startWith(row.get('regionIds').value),
+      pairwise()
+    ).subscribe(([previousRegionsIds, currentRegionsIds]) => {
+      // Find removed (deselected) item(s)
+      const removedItems = previousRegionsIds?.filter(id => !currentRegionsIds?.includes(id));
+
+      // Handle a deselection
+      if (removedItems?.length > 0) {
+        // Get territories of the regions
+        const removedTerritoriesId = this.territories
+          .filter((ter) => removedItems.includes(ter.orgParentId))
+          .map((ter) => ter.id);
+        // Unselect them
+        const currentTerritoriesIds = row.get('territoryIds').value;
+        if (currentTerritoriesIds) {
+          const regionsTerritoriesIds = currentTerritoriesIds.filter((terId) => !removedTerritoriesId.includes(terId));
+          row.get('territoryIds').setValue(regionsTerritoriesIds);
+        }
+      }
+    });
+  }
+
   private subscribeToTerritoryValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('territoryIds').valueChanges.subscribe((newTerritoriesIds) => {
-      // If territories are selected
-      if (newTerritoriesIds && newTerritoriesIds.length > 0) {
-        const territories = this.territories.filter((t) => newTerritoriesIds.includes(t.id));
+    row.get('territoryIds').valueChanges.pipe(
+      startWith(row.get('territoryIds').value),
+      pairwise()
+    ).subscribe(([previousTerritoriesIds, currentTerritoriesIds]) => {
+      // Find added (selected) item(s)
+      const addedItems = currentTerritoriesIds?.filter(id => !previousTerritoriesIds?.includes(id));
+      // Find removed (deselected) item(s)
+      const removedItems = previousTerritoriesIds?.filter(id => !currentTerritoriesIds?.includes(id));
+
+      // Handle a selection
+      if (addedItems?.length > 0) {
+        const territories = this.territories.filter((t) => currentTerritoriesIds.includes(t.id));
 
         // Set automatically the region by orgParentId of the territory
         row.get('regionIds').setValue([...new Set(territories.map(t => t.orgParentId))]);
@@ -304,35 +337,52 @@ export class UserDetailsComponent implements OnInit {
         if (profileIds.includes(row.get('profileId').value)) {
           // Set automatically all contracts contains in the territory
           const territoryContractIds = this.contracts
-            .filter((ctr) => ctr.organizationalUnits.some((org) => newTerritoriesIds.includes(org.id)))
+            .filter((ctr) => ctr.organizationalUnits.some((org) => currentTerritoriesIds.includes(org.id)))
             .map((ctr) => ctr.id);
 
           row.get('contractIds').setValue(territoryContractIds.length > 0 ? territoryContractIds : null);
+        }
+      }
+
+      // Handle a deselection
+      if (removedItems?.length > 0) {
+        // Get contracts of the territories
+        const removeContractsIds =
+          this.contracts
+            .filter((ctr) => removedItems.some((territoryId) => ctr.organizationalUnits.map((org) => org.id).includes(territoryId)))
+            .map((ctr) => ctr.id);
+        // Unselect them
+        const currentContractsIds = row.get('contractIds').value;
+        if (currentContractsIds) {
+          const territoriesContractIds = currentContractsIds.filter((ctrId) => !removeContractsIds.includes(ctrId));
+          row.get('contractIds').setValue(territoriesContractIds);
         }
       }
     });
   }
 
   private subscribeToContractValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('contractIds').valueChanges.subscribe((newContractIds) => {
-      // If contracts are selected
-      if (newContractIds && newContractIds.length > 0) {
-        // Set automaticaly the territories and regions of contracts selected
-        const selectedContracts = this.contracts.filter((ctr) => newContractIds.includes(ctr.id));
+    row.get('contractIds').valueChanges.pipe(
+      startWith(row.get('contractIds').value),
+      pairwise()
+    ).subscribe(([previousContractsIds, currentContractsIds]) => {
+      // Find added (selected) item(s)
+      const addedItems = currentContractsIds?.filter(id => !previousContractsIds?.includes(id));
+
+      // Handle a selection
+      if (addedItems?.length > 0) {
+        // Set automaticaly the territories of contracts selected
+        const selectedContracts = this.contracts.filter((ctr) => currentContractsIds.includes(ctr.id));
         const contractsTerritories = this.territories.filter((territory) =>
           selectedContracts.some((ctr) => ctr.organizationalUnits.some((org) => org.id === territory.id))
         );
-
-        // It uses a Set to remove duplicate region, because it can have multiple territories with the same region
-        row.get('regionIds').setValue([...new Set(contractsTerritories.map(t => t.orgParentId))]);
-        // Emit event false to prevent infinite loop with territories changes listening
-        row.get('territoryIds').setValue(contractsTerritories.map(t => t.id), { emitEvent: false });
+        row.get('territoryIds').setValue(contractsTerritories.map(t => t.id));
       }
     });
   }
 
   private setPerimeterValues(row: TableRow<PerimeterRow>, perimeter: Perimeter): void {
-    row.get('profileId').setValue(perimeter.profileId);
+    row.get('profileId').setValue(perimeter.profileId, { emitEvent: false });
     row.get('contractIds').setValue(perimeter.contractIds);
   }
 

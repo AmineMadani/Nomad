@@ -5,6 +5,7 @@ export interface TableToolbar {
 
 export interface ToolbarButton {
   name: string;
+  tooltip?: string;
   onClick: Function;
   disableFunction: Function;
 }

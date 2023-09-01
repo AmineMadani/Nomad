@@ -11,7 +11,9 @@
     </div>
 
     <div class="toolbar-buttons">
-      <ion-button *ngFor="let button of toolbar.buttons" [disabled]="button.disableFunction()" (click)="button.onClick()" fill="clear">
+      <ion-button *ngFor="let button of toolbar.buttons"
+        [disabled]="button.disableFunction()" (click)="button.onClick()" fill="clear"
+        [matTooltip]="button.tooltip" [matTooltipDisabled]="!button.tooltip">
         <ion-icon slot="icon-only" [name]="button.name"></ion-icon>
       </ion-button>
 

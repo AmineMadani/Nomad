@@ -34,6 +34,7 @@ export class UsersSettingsPage implements OnInit {
     buttons: [
       {
         name: 'trash',
+        tooltip: 'Supprimer',
         onClick: () => {
           this.deleteUsers();
         },
@@ -43,6 +44,7 @@ export class UsersSettingsPage implements OnInit {
       },
       {
         name: 'copy',
+        tooltip: 'Dupliquer',
         onClick: () => {
           this.openUserDetails(this.selectedUsersRows[0].getRawValue(), ActionType.DUPLICATION);
         },
@@ -52,6 +54,7 @@ export class UsersSettingsPage implements OnInit {
       },
       {
         name: 'add',
+        tooltip: 'Créer',
         onClick: () => {
           this.openUserDetails(null, ActionType.CREATION);
         },

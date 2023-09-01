@@ -28,11 +28,13 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
             "    org.org_llabel as orgLlabel, " +
             "    out.out_code as outCode, " +
             "    org.org_valid as orgValid, " +
-            "    org.org_parent_id as orgParentId " +
+            "    org_parent.id as orgParentId, " +
+            "    org_parent.org_llabel as orgParentLlabel " +
             "from nomad.contract ctr " +
             "    inner join nomad.org_ctr on ctr.id = org_ctr.ctr_id " +
             "    inner join nomad.organizational_unit org on org_ctr.org_id = org.id " +
             "    inner join nomad.organizational_unit_type out on org.out_id = out.id " +
+            "    inner join nomad.organizational_unit org_parent on org.org_parent_id = org_parent.id " +
             "order by ctr.ctr_llabel;",
             nativeQuery = true
     )

@@ -13,4 +13,5 @@ public interface ContractOrgProjectionDto {
     String getOutCode();
     Boolean getOrgValid();
     Long getOrgParentId();
+    String getOrgParentLlabel();
 }
