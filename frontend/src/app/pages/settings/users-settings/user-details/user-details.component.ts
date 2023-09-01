@@ -253,6 +253,7 @@ export class UserDetailsComponent implements OnInit {
     // Create the row to add in the table
     const row = this.createTableRow();
     // Subscribe to changes in different rows
+    this.subscribeToProfileValueChanges(row);
     this.subscribeToTerritoryValueChanges(row);
     this.subscribeToContractValueChanges(row);
     // If a perimeter, it adds it's data in the row
@@ -269,6 +270,20 @@ export class UserDetailsComponent implements OnInit {
       regionIds: new TableCell(null),
       territoryIds: new TableCell(null),
       contractIds: new TableCell(null, Validators.required),
+    });
+  }
+
+  private subscribeToProfileValueChanges(row: TableRow<PerimeterRow>): void {
+    row.get('profileId').valueChanges.subscribe((newProfileId) => {
+      // If a profile is selected
+      if (newProfileId) {
+        // If it's admin nat
+        const adminNatProfile = this.profiles.find((prf) => prf.prfCode === ProfileCodeEnum.ADMIN_NAT);
+        if (newProfileId === adminNatProfile.id) {
+          // We set to all contracts
+          row.get('contractIds').setValue(this.contracts.map((ctr) => ctr.id));
+        }
+      }
     });
   }
 
