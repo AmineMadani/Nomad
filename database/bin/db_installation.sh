@@ -11,7 +11,7 @@ ORGA=vef
 #pgservicename=NEXT_CANOPE
 . database.ini
 
-CONNINFO="postgresql://${user}:${password}@${host}:${port}/${dbname}?sslmode=disable"
+CONNINFO="postgresql://${user}:${password}@${host}:${port}/${dbname}?sslmode=require"
 echo "--->CONNINFO: $CONNINFO"
 
 function install_all() {
@@ -22,8 +22,8 @@ function install_all() {
     SQL_SOURCES="$ROOT_DIR/sql/drop_schemas.sql \
                $ROOT_DIR/sql/create_schemas.sql \
                $ROOT_DIR/sql/create_functions.sql \
-               $ROOT_DIR/sql/create_triggers.sql \
                $ROOT_DIR/sql/create_config.sql \
+	       $ROOT_DIR/sql/create_triggers.sql \
                $ROOT_DIR/sql/create_views.sql "               
 
     for s in ${SQL_SOURCES}
