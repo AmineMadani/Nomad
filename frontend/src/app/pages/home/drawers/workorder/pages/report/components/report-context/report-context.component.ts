@@ -21,7 +21,7 @@ export class ReportContextComponent implements OnInit {
     private mapEventService: MapEventService
   ) { }
 
-  @Input() task: Task;
+  @Input() tasks: Task[];
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('modalReportContext') modal: IonModal;
@@ -36,20 +36,20 @@ export class ReportContextComponent implements OnInit {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
 
-      if (!this.originalOptions.find(option => this.task.assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrId === this.task.wtrId)) {
-        this.task.wtrId = null;
+      if (!this.originalOptions.find(option => this.tasks[0].assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrId === this.tasks[0].wtrId)) {
+        this.tasks[0].wtrId = null;
       } else {
         //In case if the attribute value exist, it take the priority
-        this.valueKey = this.task.wtrId;
-        this.task.wtrCode = this.originalOptions.find(val => val.wtrId === this.task.wtrId).wtrCode;
-        this.task.astCode = this.originalOptions.find(val => val.lyrTableName === this.task.assObjTable).astCode;
+        this.valueKey = this.tasks[0].wtrId;
+        this.tasks[0].wtrCode = this.originalOptions.find(val => val.wtrId === this.tasks[0].wtrId).wtrCode;
+        this.tasks[0].astCode = this.originalOptions.find(val => val.lyrTableName === this.tasks[0].assObjTable.replace("asset.", "")).astCode;
       }
 
       //Check if the label is editable
       this.getValueLabel();
     });
 
-    this.displayAndZoomTo(this.task);
+    this.displayAndZoomTo(this.tasks[0]);
   }
 
   /**
@@ -76,7 +76,7 @@ export class ReportContextComponent implements OnInit {
    * @returns the list of options
    */
   public getFilterOptions(querySearch: string): any[] {
-    let options = this.originalOptions?.filter(option => this.task.assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
+    let options = this.originalOptions?.filter(option => this.tasks[0].assObjTable.replace("asset.", "") == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
     return options;
   }
 
@@ -96,9 +96,11 @@ export class ReportContextComponent implements OnInit {
   public onRadioChange(event) {
     const obj = this.originalOptions.find(val => val.wtrId === event.detail.value);
     this.valueKey = obj.wtrId;
-    this.task.wtrId = obj.wtrId;
-    this.task.wtrCode = this.originalOptions.find(val => val.wtrId === this.task.wtrId).wtrCode;
-    this.task.astCode = this.originalOptions.find(val => val.lyrTableName === this.task.assObjTable.replace('asset.','')).astCode;
+    for(let task of this.tasks) {
+      task.wtrId = obj.wtrId;
+      task.wtrCode = this.originalOptions.find(val => val.wtrId === task.wtrId).wtrCode;
+      task.astCode = this.originalOptions.find(val => val.lyrTableName === task.assObjTable.replace('asset.','')).astCode;
+    }
     this.onSaveWorkOrderState.emit();
   }
 
@@ -107,8 +109,8 @@ export class ReportContextComponent implements OnInit {
    * @returns the label
    */
   public getValueLabel(): string {
-    if (this.task.wtrId && this.originalOptions?.length > 0) {
-      return this.originalOptions.find(opt => opt.wtrId === this.task.wtrId).wtrLlabel;
+    if (this.tasks[0].wtrId && this.originalOptions?.length > 0) {
+      return this.originalOptions.find(opt => opt.wtrId === this.tasks[0].wtrId).wtrLlabel;
     }
     return "";
   }

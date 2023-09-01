@@ -38,7 +38,7 @@ export class ReportCreateComponent implements OnInit {
 
   public isMobile: boolean;
   public step: number = 1;
-  public selectedTask: Task;
+  public selectedTasks: Task[];
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
@@ -62,15 +62,15 @@ export class ReportCreateComponent implements OnInit {
         this.presentAlert();
       }
     });
-    if (this.workorder.selectedTaskId) {
-      this.selectedTask = this.workorder.tasks.find(task => task.id == this.workorder.selectedTaskId);
+    this.selectedTasks = this.workorder.tasks.filter(task => task.isSelectedTask);
+    if (this.selectedTasks && this.selectedTasks.length > 0) {
       this.step = 2;
-      if (this.selectedTask.report?.questionIndex) {
+      if (this.selectedTasks[0].report?.questionIndex) {
         this.step = 3;
-        if (this.selectedTask.report.questionIndex > 0) {
+        if (this.selectedTasks[0].report.questionIndex > 0) {
           this.hasPreviousQuestion = true;
         }
-        if (this.selectedTask.report.questionIndex == this.selectedTask.report.reportValues.length - 1) {
+        if (this.selectedTasks[0].report.questionIndex == this.selectedTasks[0].report.reportValues.length - 1) {
           this.isSubmit = true;
         }
       }
@@ -98,10 +98,20 @@ export class ReportCreateComponent implements OnInit {
     if (this.step <= 3) {
       this.step++;
       if (this.step == 2) {
-        this.workorder.selectedTaskId = this.selectedTask.id;
+        for(let task of this.selectedTasks){
+          task.isSelectedTask = true;
+        }
       }
       this.onSaveWorkOrderState();
     }
+  }
+
+  /**
+   * Go to first step
+   */
+  public onGoToFirstStep() {
+    this.isSubmit=false;
+    this.step=1;
   }
 
   /**
@@ -246,7 +256,7 @@ export class ReportCreateComponent implements OnInit {
     if (this.isTest) return;
 
     let report: Report = {
-      dateCompletion: new Date(),
+      dateCompletion: null,
       reportValues: [],
       questionIndex: this.stepForm.formEditor.indexQuestion
     };
@@ -259,7 +269,9 @@ export class ReportCreateComponent implements OnInit {
         });
       }
     }
-    this.selectedTask.report = report;
+    for(let task of this.selectedTasks) {
+      task.report = report;
+    }
     this.onSaveWorkOrderState();
   }
 
@@ -289,9 +301,29 @@ export class ReportCreateComponent implements OnInit {
           });
         }
       }
-      this.selectedTask.report = report;
+      for(let task of this.selectedTasks) {
+        task.report = report;
+        task.isSelectedTask = false;
+      }
       this.onSaveWorkOrderState();
-      
+      this.onClosedWko();
+    }
+  }
+
+  /**
+   * Closed the wko -> status to terminate
+   * Sync with the server
+   */
+  public onClosedWko(forced:boolean=false) {
+
+    //Remove partial report
+    for(let task of this.workorder.tasks){
+      if(!task.report?.dateCompletion) {
+        task.report = null;
+      }
+    }
+
+    if(this.workorder.tasks.length == 1 || forced) {
       if(this.workorder.id > 0) {
         this.workorderService.terminateWorkOrder(this.workorder).subscribe(() => {
           this.closeReport();
@@ -301,6 +333,11 @@ export class ReportCreateComponent implements OnInit {
           this.closeReport(res);
         });
       }
+    } else {
+      this.step = 1;
+      this.selectedTasks = [];
+      this.isSubmitting = false;
+      this.isSubmit = false;
     }
   }
 
@@ -333,9 +370,6 @@ export class ReportCreateComponent implements OnInit {
    * Previous step
    */
   public onBack() {
-    if (this.step == 1) {
-      this.workorder.selectedTaskId = undefined;
-    }
     if (this.step >= 2) {
       this.step--;
     }
@@ -345,8 +379,8 @@ export class ReportCreateComponent implements OnInit {
    * Selected task
    * @param task selected task
    */
-  public onSelectedTaskChange(task: Task) {
-    this.selectedTask = task;
+  public onSelectedTaskChange(tasks: Task[]) {
+    this.selectedTasks = tasks;
   }
 
   /**
@@ -357,14 +391,22 @@ export class ReportCreateComponent implements OnInit {
   }
 
   /**
+   * Check terminated report
+   * @returns True if a task has a terminated report
+   */
+  public hasReportClosed() {
+    return this.workorder.tasks.some(tsk => tsk.report?.dateCompletion);
+  }
+
+  /**
    * count form question label
    * @return the label
    */
   public getFormQuestionLabel(): string {
     if (this.stepForm?.formEditor?.sections[0]?.children) {
-      if (this.selectedTask?.report?.questionIndex) {
-        return (this.selectedTask.report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
-      } else if (this.selectedTask && this.step == 3) {
+      if (this.selectedTasks[0]?.report?.questionIndex) {
+        return (this.selectedTasks[0].report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
+      } else if (this.selectedTasks && this.selectedTasks.length > 0 && this.step == 3) {
         return '1 sur ' + this.stepForm.formEditor.sections[0].children.length;
       }
     }

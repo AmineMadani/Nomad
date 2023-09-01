@@ -13,7 +13,6 @@ export interface Workorder {
     latitude: number;
     wkoAgentNb?: number;
     tasks?: Task[];
-    selectedTaskId?: number;
     ctyId?: string;
     ctrId?: string;
     wkoAttachment?: boolean;
@@ -38,6 +37,7 @@ export interface Task {
     latitude: number;
     tskReportDate?: Date;
     report?: Report;
+    isSelectedTask?: boolean;
 }
 
 export interface Report {

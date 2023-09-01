@@ -22,13 +22,14 @@ export class ReportAssetComponent implements OnInit {
   ) { }
 
   @Input() workorder: Workorder;
-  @Input() selectedTask: Task;
-  @Output() onSelectedTaskChange: EventEmitter<Task> = new EventEmitter();
+  @Input() selectedTasks: Task[];
+  @Output() onSelectedTaskChange: EventEmitter<Task[]> = new EventEmitter();
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
-  public currentTaskSelected: Task;
+  public currentTasksSelected: Task[];
   public editTaskEquipment: Task;
   public draggableMarker: any;
+  public layerSelected: string;
 
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -56,7 +57,8 @@ export class ReportAssetComponent implements OnInit {
       }
     });
 
-    this.currentTaskSelected = this.selectedTask;
+    this.currentTasksSelected = this.selectedTasks;
+    this.layerSelected = this.selectedTasks[0]?.assObjTable;
   }
 
   /**
@@ -65,12 +67,17 @@ export class ReportAssetComponent implements OnInit {
    * @param task selected task
    */
   public onSelectTask(e: Event, task: Task) {
-    if (this.currentTaskSelected && this.currentTaskSelected.id == task.id) {
-      this.currentTaskSelected = null;
+    if (this.currentTasksSelected && this.currentTasksSelected.find(tsk => tsk.id == task.id)) {
+      this.currentTasksSelected.find(tsk => tsk.id == task.id).isSelectedTask = false;
+      this.currentTasksSelected = this.currentTasksSelected.filter(tsk => tsk.id != task.id);
+      if(this.currentTasksSelected && this.currentTasksSelected.length == 0){
+        this.layerSelected = null;
+      }
     } else {
-      this.currentTaskSelected = task;
+      this.currentTasksSelected.push(task);
+      this.layerSelected = task.assObjTable;
     }
-    this.onSelectedTaskChange.emit(this.currentTaskSelected);
+    this.onSelectedTaskChange.emit(this.currentTasksSelected);
   }
 
   /**

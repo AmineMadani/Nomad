@@ -124,12 +124,12 @@ public class WorkorderService {
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
 		
-		if(customWorkorderDto.getId() > 0) {
+		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() > 0) {
 			workorder.setWkoExtToSync(true);
 		}
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
-		if(customWorkorderDto.getId() < 0) {
+		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() < 0) {
 			status = statusService.getStatus(WorkOrderStatusCode.TERMINE.toString());
 		}
 		workorder.setWorkorderTaskStatus(status);
@@ -227,6 +227,7 @@ public class WorkorderService {
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setModifiedBy(user);
+		workorder.setWkoExtToSync(true);
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
 		workorder.setWorkorderTaskStatus(status);

@@ -15,7 +15,7 @@ export class ReportFormComponent implements OnInit {
     private templateService: TemplateService
   ) { }
 
-  @Input() task: Task;
+  @Input() tasks: Task[];
   @Input() reportForm: Form = null;
   @Input() isTest = false;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
@@ -34,11 +34,11 @@ export class ReportFormComponent implements OnInit {
     }
 
     this.templateService.getFormsTemplate().then(forms => {
-      let formTemplate = forms.find(form => form.formCode === 'REPORT_' + this.task.astCode + '_' + this.task.wtrCode);
+      let formTemplate = forms.find(form => form.formCode === 'REPORT_' + this.tasks[0].astCode + '_' + this.tasks[0].wtrCode);
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);
-        if(this.task.report?.questionIndex){
-          this.indexQuestion = this.task.report?.questionIndex;
+        if(this.tasks[0].report?.questionIndex){
+          this.indexQuestion = this.tasks[0].report?.questionIndex;
         }
       }
       this.isLoading = false;
