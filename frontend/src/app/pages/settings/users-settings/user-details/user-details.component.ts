@@ -217,9 +217,14 @@ export class UserDetailsComponent implements OnInit {
 
       // User
       if (user) {
-        // If we are in duplication, we reset the id
+        // If we are in duplication, we reset some values
         if (this.actionType === ActionType.DUPLICATION) {
           user.id = null;
+          user.email = null;
+          user.lastName = null;
+          user.firstName = null;
+          user.status = null;
+          user.company = null;
         }
         this.initialUser = user;
 
