@@ -14,7 +14,7 @@
   </ion-label>
   <ion-radio-group aria-label="def-radio" [id]="definition.key" [value]="attributes.value" [(ngModel)]="attributes.value" (ionChange)="control.setValue(attributes.value);control.touched=true">
     <ng-container *ngFor="let opt of attributes.options">
-      <ion-radio [disabled]="!definition.editable" [value]="opt.key">{{ opt.value }}</ion-radio><br/>
+      <ion-radio aria-label="radio" [disabled]="!definition.editable" [value]="opt.key">{{ opt.value }}</ion-radio><br/>
     </ng-container>
   </ion-radio-group>
   <ng-container *ngIf="definition.rules">

@@ -7,8 +7,10 @@ import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { KeycloakService } from 'src/app/core/services/keycloak.service';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
+import { PraxedoService } from 'src/app/core/services/praxedo.service';
+import { ReportAssetComponent } from '../report-asset/report-asset.component';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 
 @Component({
@@ -26,7 +28,8 @@ export class ReportCreateComponent implements OnInit {
     private router: Router,
     private contractService: ContractService,
     private alertController: AlertController,
-    private keycloakService: KeycloakService
+    private praxedoService: PraxedoService,
+    private mapService: MapService
   ) { }
 
   @Input() workorder: Workorder;
@@ -35,16 +38,18 @@ export class ReportCreateComponent implements OnInit {
 
   public isMobile: boolean;
   public step: number = 1;
-  public selectedTask: Task;
+  public selectedTasks: Task[];
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
 
   @ViewChild('stepForm') stepForm: ReportFormComponent;
+  @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
+    // Case on admin screen to test forms
     if (this.isTest) {
       this.step = 3;
       return;
@@ -57,15 +62,15 @@ export class ReportCreateComponent implements OnInit {
         this.presentAlert();
       }
     });
-    if (this.workorder.selectedTaskId) {
-      this.selectedTask = this.workorder.tasks.find(task => task.id == this.workorder.selectedTaskId);
+    this.selectedTasks = this.workorder.tasks.filter(task => task.isSelectedTask);
+    if (this.selectedTasks && this.selectedTasks.length > 0) {
       this.step = 2;
-      if (this.selectedTask.report?.questionIndex) {
+      if (this.selectedTasks[0].report?.questionIndex) {
         this.step = 3;
-        if (this.selectedTask.report.questionIndex > 0) {
+        if (this.selectedTasks[0].report.questionIndex > 0) {
           this.hasPreviousQuestion = true;
         }
-        if (this.selectedTask.report.questionIndex == this.selectedTask.report.reportValues.length - 1) {
+        if (this.selectedTasks[0].report.questionIndex == this.selectedTasks[0].report.reportValues.length - 1) {
           this.isSubmit = true;
         }
       }
@@ -93,10 +98,20 @@ export class ReportCreateComponent implements OnInit {
     if (this.step <= 3) {
       this.step++;
       if (this.step == 2) {
-        this.workorder.selectedTaskId = this.selectedTask.id;
+        for(let task of this.selectedTasks){
+          task.isSelectedTask = true;
+        }
       }
       this.onSaveWorkOrderState();
     }
+  }
+
+  /**
+   * Go to first step
+   */
+  public onGoToFirstStep() {
+    this.isSubmit=false;
+    this.step=1;
   }
 
   /**
@@ -241,7 +256,7 @@ export class ReportCreateComponent implements OnInit {
     if (this.isTest) return;
 
     let report: Report = {
-      dateCompletion: new Date(),
+      dateCompletion: null,
       reportValues: [],
       questionIndex: this.stepForm.formEditor.indexQuestion
     };
@@ -254,7 +269,9 @@ export class ReportCreateComponent implements OnInit {
         });
       }
     }
-    this.selectedTask.report = report;
+    for(let task of this.selectedTasks) {
+      task.report = report;
+    }
     this.onSaveWorkOrderState();
   }
 
@@ -267,7 +284,6 @@ export class ReportCreateComponent implements OnInit {
 
     if (this.stepForm.formEditor.form.valid) {
       this.isSubmitting = true;
-      let comment = "";
 
       let report: Report = {
         dateCompletion: new Date(),
@@ -283,25 +299,53 @@ export class ReportCreateComponent implements OnInit {
               this.stepForm.formEditor.form.value[definition.key].join('; ')
               : this.stepForm.formEditor.form.value[definition.key]
           });
-
-          if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
-            comment = this.stepForm.formEditor.form.value[definition.key];
-          }
         }
       }
-      this.selectedTask.report = report;
+      for(let task of this.selectedTasks) {
+        task.report = report;
+        task.isSelectedTask = false;
+      }
       this.onSaveWorkOrderState();
-      this.workorderService.terminateWorkOrder(this.workorder).subscribe(res => {
-        this.closeReport();
-      });
+      this.onClosedWko();
+    }
+  }
+
+  /**
+   * Closed the wko -> status to terminate
+   * Sync with the server
+   */
+  public onClosedWko(forced:boolean=false) {
+
+    //Remove partial report
+    for(let task of this.workorder.tasks){
+      if(!task.report?.dateCompletion) {
+        task.report = null;
+      }
+    }
+
+    if(this.workorder.tasks.length == 1 || forced) {
+      if(this.workorder.id > 0) {
+        this.workorderService.terminateWorkOrder(this.workorder).subscribe(() => {
+          this.closeReport();
+        });
+      } else {
+        this.workorderService.createWorkOrder(this.workorder).subscribe(res => {
+          this.closeReport(res);
+        });
+      }
+    } else {
+      this.step = 1;
+      this.selectedTasks = [];
+      this.isSubmitting = false;
+      this.isSubmit = false;
     }
   }
 
   /**
    * List of action after the workorder is send
    */
-  private closeReport() {
-    if (this.keycloakService.externalReport) {
+  private closeReport(unplanedWko: Workorder = null) {
+    if (this.praxedoService.externalReport) {
       this.contractService.getAllContracts().subscribe(contracts => {
         let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
         let comment = "";
@@ -315,7 +359,8 @@ export class ReportCreateComponent implements OnInit {
         this.exploitationService.deleteStateWorkorder(this.workorder);
       });
     } else {
-      this.router.navigate(['/home/workorder/' + this.workorder.id + '/task/' + this.workorder.tasks[0].id]);
+      this.mapService.removeEventLayer('task');
+      this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
       this.exploitationService.deleteStateWorkorder(this.workorder);
     }
@@ -325,9 +370,6 @@ export class ReportCreateComponent implements OnInit {
    * Previous step
    */
   public onBack() {
-    if (this.step == 1) {
-      this.workorder.selectedTaskId = undefined;
-    }
     if (this.step >= 2) {
       this.step--;
     }
@@ -337,8 +379,8 @@ export class ReportCreateComponent implements OnInit {
    * Selected task
    * @param task selected task
    */
-  public onSelectedTaskChange(task: Task) {
-    this.selectedTask = task;
+  public onSelectedTaskChange(tasks: Task[]) {
+    this.selectedTasks = tasks;
   }
 
   /**
@@ -349,14 +391,22 @@ export class ReportCreateComponent implements OnInit {
   }
 
   /**
+   * Check terminated report
+   * @returns True if a task has a terminated report
+   */
+  public hasReportClosed() {
+    return this.workorder.tasks.some(tsk => tsk.report?.dateCompletion);
+  }
+
+  /**
    * count form question label
    * @return the label
    */
   public getFormQuestionLabel(): string {
     if (this.stepForm?.formEditor?.sections[0]?.children) {
-      if (this.selectedTask?.report?.questionIndex) {
-        return (this.selectedTask.report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
-      } else if (this.selectedTask && this.step == 3) {
+      if (this.selectedTasks[0]?.report?.questionIndex) {
+        return (this.selectedTasks[0].report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
+      } else if (this.selectedTasks && this.selectedTasks.length > 0 && this.step == 3) {
         return '1 sur ' + this.stepForm.formEditor.sections[0].children.length;
       }
     }
@@ -384,6 +434,39 @@ export class ReportCreateComponent implements OnInit {
 
     if (role === 'confirm') {
       this.closeReport();
+    }
+  }
+
+  /**
+   * Delete unplanned workorder
+   */
+  public async onDelete() {
+    const alert = await this.alertController.create({
+      backdropDismiss: false,
+      header: 'Souhaitez-vous supprimer cette intervention opportuniste ?',
+      buttons: [{
+        text: 'Oui',
+        role: 'confirm',
+      },
+      {
+        text: 'Non',
+        role: 'stop',
+      }]
+    });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    if (role === 'confirm') {
+      if(this.stepAsset?.draggableMarker) {
+        this.stepAsset.draggableMarker.remove();
+      }
+      this.exploitationService.deleteStateWorkorder(this.workorder);
+      for(let task of this.workorder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+      this.router.navigate(['/home']);
     }
   }
 }

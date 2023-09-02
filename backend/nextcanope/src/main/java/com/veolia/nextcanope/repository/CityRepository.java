@@ -1,13 +1,13 @@
 package com.veolia.nextcanope.repository;
 
-import com.veolia.nextcanope.dto.CityDto;
-import com.veolia.nextcanope.dto.Contract.ContractDto;
-import com.veolia.nextcanope.model.City;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import com.veolia.nextcanope.dto.CityDto;
+import com.veolia.nextcanope.model.City;
 
 /**
  * CityRepository is an interface for managing City entities in the persistence layer.

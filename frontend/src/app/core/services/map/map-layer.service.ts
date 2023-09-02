@@ -97,6 +97,87 @@ export class MapLayerService {
   }
 
   /**
+   * Finds the nearest feature to a given set of coordinates from a list of features.
+   * @param longitude - longitude
+   * @param latitude - latitude
+   * @param layers - Key of a layer in the map.
+   * @returns the closest feature from the coords in the area.
+   */
+  public async findNearestFeatureFromCoords(
+    longitude: number,
+    latitude: number,
+    layerKey: string
+  ): Promise<Maplibregl.MapGeoJSONFeature | null> {
+
+    let features = this.getFeaturesInView(layerKey);
+    
+    if (features.length === 0) {
+      return null;
+    }
+
+    let nearestPoint: any | null = null;
+    let shortestDistance = Infinity;
+
+    for (const feature of features) {
+      const distance = await this.calculateDistance(layerKey,longitude, latitude, feature);
+
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestPoint = feature;
+      }
+    }
+
+    return nearestPoint;
+  }
+
+  /**
+   * Calculates the distance between two points on a map using their longitude and latitude.
+   * @param longitude - longitude
+   * @param latitude - latitude
+   * @param feature - A MapGeoJSONFeature from the map.
+   * @returns Returns the calculated distance the coordinates.
+   */
+  private async calculateDistance(
+    layerkey: string,
+    longitude: number,
+    latitude: number,
+    feature: Maplibregl.MapGeoJSONFeature
+  ): Promise<number> {
+    let localFeature = await this.getLocalFeatureById(layerkey,feature.id.toString());
+    let nearestPoint = this.nearestPointOnLineString([longitude,latitude],localFeature.geometry.coordinates);
+    const dx = nearestPoint[0] - longitude;
+    const dy = nearestPoint[1] - latitude;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  private distanceSquared(p1, p2) {
+    const dx = p1[0] - p2[0];
+    const dy = p1[1] - p2[1];
+    return dx * dx + dy * dy;
+  }
+  
+  private nearestPointOnLineString(referencePoint, lineString) {
+    if (lineString.length === 0) {
+      return null;
+    }
+  
+    let nearestPoint = lineString[0];
+    let minDistance = this.distanceSquared(referencePoint, nearestPoint);
+  
+    for (let i = 1; i < lineString.length; i++) {
+      const currentPoint = lineString[i];
+      const currentDistance = this.distanceSquared(referencePoint, currentPoint);
+  
+      if (currentDistance < minDistance) {
+        nearestPoint = currentPoint;
+        minDistance = currentDistance;
+      }
+    }
+  
+    return nearestPoint;
+  }
+
+  /**
    * Jump to a specific point
    * @param x longitude
    * @param y latitude
@@ -118,20 +199,6 @@ export class MapLayerService {
         resolve('done');
       }
     });
-  }
-
-  /**
-   * Check if coordinate is in the current bounding box
-   * @param x longitutde
-   * @param y latitude
-   * @returns true if is in the current bounding box
-   */
-  private isPointInsideCurrentBoundingBox(x: number, y: number): boolean {
-    let boundingBox = this.mapService.getMap().getBounds();
-    return (
-      x >= boundingBox._sw.lng && x <= boundingBox._ne.lng &&
-      y >= boundingBox._sw.lat && y <= boundingBox._ne.lat
-    );
   }
 
   /**
@@ -176,27 +243,6 @@ export class MapLayerService {
         id: r.id.toString()
       }]
     );
-  }
-
-  /**
-   * Add new workorder to the geojson source
-   * @param workOrder the workorder
-   */
-  public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
-    this.mapService.addEventLayer(layerKey).then(() => {
-      for (let task of properties.tasks) {
-        let newPoint: any = {
-          geometry: {
-            type: 'Point',
-            coordinates: [properties.longitude, properties.latitude],
-          },
-          id: task.id,
-          properties: task,
-          type: 'Feature',
-        };
-        this.mapService.addNewPoint(layerKey, newPoint);
-      }
-    });
   }
 
   /**
@@ -249,13 +295,14 @@ export class MapLayerService {
     const res = this.findNearestPoint(geometry, [lngLat.lng, lngLat.lat]);
     marker.setLngLat([res[0], res[1]]);
   }
+
   /**
    * Calcul the nearest position of a point to a polygon line
    * @param geometry the asset geometry
    * @param point the point
    * @returns the nearest point
    */
-  private findNearestPoint(
+  public findNearestPoint(
     geometry: Array<number[]>,
     point: number[]
   ): number[] {

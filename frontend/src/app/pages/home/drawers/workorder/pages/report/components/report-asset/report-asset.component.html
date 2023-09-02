@@ -1,6 +1,6 @@
 <div style="margin-top: 25px;" *ngIf="workorder">
   <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)" (mouseleave)="onItemHoverLeave(tsk)">
-    <ion-checkbox aria-label="check" slot="start" mode="md" [checked]="tsk.id == currentTaskSelected?.id" (ionChange)="onSelectTask($event,tsk)"></ion-checkbox>
+    <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion" [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask($event,tsk)" [disabled]="(layerSelected ? (tsk.assObjTable != layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
     <div style="display: inline-block;">
       <ion-label>
         <ion-label class="ion-no-margin">
@@ -22,6 +22,9 @@
       </ion-button>
       <ion-button slot="end" fill="clear" (click)="onRemoveChangeEquipment(tsk)">
         <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="tsk.assObjRef" slot="end" fill="clear" (click)="onXyEquipment(tsk)">
+        <ion-icon slot="icon-only" color="secondary" name="pin-sharp" class="strike-through"></ion-icon>
       </ion-button>
     </ng-container>
   </ion-item>

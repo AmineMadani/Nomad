@@ -60,6 +60,11 @@ export class WorkorderService {
     return workorder;
   }
 
+  public async getLocalWorkorders(): Promise<Workorder[]> {
+    let workorders: Workorder[] = (await this.db.workorders.toArray()).map(elem => elem.data);
+    return workorders; 
+  }
+
   /**
    * Get workorder with pagination
    * @param key The layer key

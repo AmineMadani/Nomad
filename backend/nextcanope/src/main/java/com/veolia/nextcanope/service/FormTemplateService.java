@@ -1,5 +1,11 @@
 package com.veolia.nextcanope.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.veolia.nextcanope.dto.FormTemplate.FormTemplateUpdateDto;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
@@ -10,12 +16,6 @@ import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.FormDefinitionRepository;
 import com.veolia.nextcanope.repository.FormTemplateCustomRepository;
 import com.veolia.nextcanope.repository.FormTemplateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class FormTemplateService {

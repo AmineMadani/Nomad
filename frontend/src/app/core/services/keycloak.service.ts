@@ -5,7 +5,7 @@ import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { ConfigurationService } from './configuration.service';
 import { UserService } from './user.service';
-import { IntentAction } from 'plugins/intent-action/src';
+import { PraxedoService } from './praxedo.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,15 +19,14 @@ export class KeycloakService {
     private configurationService: ConfigurationService,
     private userService: UserService,
     private platform: Platform,
-    private router: Router) 
+    private router: Router,
+    private praxedoService: PraxedoService) 
   {}
 
   public userProfile: any;
   public realmRoles: string[] = [];
   public initialState: string | undefined;
   private mobileUrlState: string | undefined;
-
-  public externalReport: string | undefined;
 
   configure(){
     if(this.configurationService.keycloak.active) {
@@ -155,14 +154,7 @@ export class KeycloakService {
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
-    IntentAction.addListener('appActionIntent', res => {
-      if(res.extras.refextint) {
-        this.externalReport = res.extras.refextint;
-      }
-      if(this.externalReport && this.hasValidToken()){
-        this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
-      }
-    });
+    this.praxedoService.praxedoListener();
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);
@@ -197,7 +189,7 @@ export class KeycloakService {
             // After updating the route, trigger login in oauthlib and
             this.oauthService.tryLogin().then(tryLoginResult => {
               if (this.oauthService.hasValidAccessToken()) {
-                if(!this.externalReport) {
+                if(!this.praxedoService.externalReport) {
                   if(!url.href.replace(url.origin,'').includes('/login')) {
                     this.router.navigateByUrl(url.href.replace(url.origin,''));
                   } else {
@@ -210,7 +202,7 @@ export class KeycloakService {
                   if(this.mobileUrlState){
                     this.mobileUrlState=undefined;
                   }
-                  this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
+                  this.router.navigate(["/home/workorder/"+this.praxedoService.externalReport+"/cr"]);
                 }
                 this.loadUserProfile();
                 this.realmRoles = this.getRealmRoles();

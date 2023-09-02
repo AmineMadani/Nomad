@@ -124,7 +124,9 @@ public class TaskDto {
         this.tskReportDate = task.getTskReportDate();
         this.assObjTable = task.getAsset().getLayer().getLyrTableName();
         this.wtrId = task.getWorkorderTaskReason().getId();
-        this.ctrId = task.getContract().getId();
+        if(task.getContract() != null) {
+        	this.ctrId = task.getContract().getId();
+        }
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
         
