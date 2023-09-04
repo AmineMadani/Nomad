@@ -9,10 +9,9 @@ import { UtilsService } from './utils.service';
 import { MapFeature } from '../models/map-feature.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WorkorderService {
-
   private db: AppDB;
 
   constructor(
@@ -32,22 +31,27 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
-    let workorder: Workorder = (await this.db.workorders.get(id.toString()))?.data;
+    let workorder: Workorder = (await this.db.workorders.get(id.toString()))
+      ?.data;
     if (!workorder) {
       if (!this.utilsService.isMobilePlateform()) {
         return firstValueFrom(this.workorderDataService.getWorkorderById(id));
       }
-      return firstValueFrom(this.workorderDataService.getWorkorderById(id)
-        .pipe(
+      return firstValueFrom(
+        this.workorderDataService.getWorkorderById(id).pipe(
           timeout(this.configurationService.offlineTimeout),
           catchError(async (error) => {
             if (error?.name == 'TimeoutError') {
-              let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
+              let featureWorkorder =
+                await this.cacheService.getFeatureByLayerAndFeatureId(
+                  'task',
+                  id.toString()
+                );
               if (featureWorkorder) {
                 workorder = this.buildWorkorderFromGeojson(featureWorkorder);
                 let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
                 for (let task of tasks) {
-                  workorder.tasks.push(this.buildTaskFromGeojson(task))
+                  workorder.tasks.push(this.buildTaskFromGeojson(task));
                 }
                 return workorder;
               }
@@ -55,8 +59,8 @@ export class WorkorderService {
             throw error;
           })
         )
-      )
-    };
+      );
+    }
     return workorder;
   }
 
@@ -73,12 +77,18 @@ export class WorkorderService {
    * @param search The search parameters
    * @returns the list of features
    */
-  public getFeaturePagination(key: string, limit: number, offset: number, search: Map<string, string[]> | undefined): Observable<MapFeature[]> {
-    return this.workorderDataService.getFeaturePagination(key, limit, offset, search)
+  public getFeaturePagination(
+    key: string,
+    limit: number,
+    offset: number,
+    search: Map<string, string[]> | undefined
+  ): Observable<MapFeature[]> {
+    return this.workorderDataService
+      .getFeaturePagination(key, limit, offset, search)
       .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
   }
 
-    /**
+  /**
    * Update workorder
    * @param workorder the workorder to update
    * @returns the workorder
@@ -110,7 +120,10 @@ export class WorkorderService {
    * @param workorder the workorder state
    */
   public async saveStateWorkorder(workorder: Workorder) {
-    await this.db.workorders.put({ data: workorder, key: workorder.id.toString() }, workorder.id.toString());
+    await this.db.workorders.put(
+      { data: workorder, key: workorder.id.toString() },
+      workorder.id.toString()
+    );
   }
 
   /**
@@ -125,12 +138,19 @@ export class WorkorderService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkOrderHistory(assetTable: string, assetId: string
+  public getEquipmentWorkOrderHistory(
+    assetTable: string,
+    assetId: string
   ): Observable<Workorder[]> {
-    return this.workorderDataService.getEquipmentWorkOrderHistory(assetTable, assetId);
+    return this.workorderDataService.getEquipmentWorkOrderHistory(
+      assetTable,
+      assetId
+    );
   }
 
-  public cancelWorkorder(cancelPayload: CancelWorkOrder): Observable<Workorder> {
+  public cancelWorkorder(
+    cancelPayload: CancelWorkOrder
+  ): Observable<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
 
@@ -175,6 +195,7 @@ export class WorkorderService {
       ctyId: featureWorkorder.properties['ctyId'],
       ctrId: '',
       wkoAttachment: featureWorkorder.properties['wkoAttachment'],
+      wkoExtToSync: featureWorkorder.properties['wkoExtSoSync'],
     };
   }
 

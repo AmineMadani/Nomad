@@ -63,8 +63,10 @@
         </div>
 
         <div class="radio-group">
-          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false" formControlName="wkoEmergency" >Urgent</ion-checkbox>
-          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)" [checked]="false" formControlName="wkoAppointment">Rendez-vous</ion-checkbox>
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false"
+            formControlName="wkoEmergency">Urgent</ion-checkbox>
+          <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)"
+            [checked]="false" formControlName="wkoAppointment">Rendez-vous</ion-checkbox>
         </div>
 
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
@@ -74,7 +76,20 @@
   </ng-container>
 </div>
 <div class="wko-footer">
-  <ion-button fill="clear" (click)="onSubmit()" [disabled]="isLoading || !workOrderForm.valid || !userHasPermissionSendWorkorder">Envoyer à la planification</ion-button>
+  <ion-item [disabled]="isLoading || !workOrderForm.valid">
+    <ion-button fill="clear" (click)="onSubmit()" class="save-mode"
+      [disabled]="isLoading || !workOrderForm.valid || !userHasPermissionSendWorkorder">{{creationButonLabel}}</ion-button>
+
+    <ion-select aria-label="Sélectionner une action" label-placement="fixed" justify="start" interface="popover" with="500px"
+      (ionChange)="onCreationModeChange($event)" value="avec envoye à la planification">
+      <ion-select-option value="CREEAVECENVOIE" aria-label="" fill="clear"
+        label=" ">{{defaultCreationLabel}}</ion-select-option>
+      <ion-select-option value="CREE" aria-label="" fill="clear" label="" with="500px">
+        <span>{{createWithoutSendToPlanning}}</span></ion-select-option>
+    </ion-select>
+
+
+  </ion-item>
 </div>
 
 <ng-template #loadingBody>

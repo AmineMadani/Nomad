@@ -1,81 +1,82 @@
 :host {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .wko-creation-body {
-    flex: 1;
-    overflow: auto;
-    margin: 0 12px;
+  flex: 1;
+  overflow: auto;
+  margin: 0 12px;
 }
 
 .wko-footer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 ion-input {
-    height: 30px;
-    margin: 15px 0;
+  height: 30px;
+  margin: 15px 0;
 }
 
 .select {
-    margin-bottom: 15px;
-    width: 100%;
+  margin-bottom: 15px;
+  width: 100%;
 }
 
 .wko-assets {
-    ion-input {
-        margin-top: 15px;
-        margin-bottom: 0;
-    }
+  ion-input {
+    margin-top: 15px;
+    margin-bottom: 0;
+  }
 }
 
 .wko-calendar {
-    ion-input {
-        margin-top: 0;
-    }
+  ion-input {
+    margin-top: 0;
+  }
 }
 
-.wko-assets, .wko-calendar {
-    display: flex;
-    flex-direction: row;
-    column-gap: 10px;
+.wko-assets,
+.wko-calendar {
+  display: flex;
+  flex-direction: row;
+  column-gap: 10px;
 
-    ion-button {
-        margin: auto 0;
-    }
+  ion-button {
+    margin: auto 0;
+  }
 }
 
 .radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+
+  ion-radio-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 15px;
-
-    ion-radio-group {
-        display: flex;
-        flex-direction: column;
-    }
+  }
 }
 
 .error-message {
-    margin-top: -15px;
-    margin-bottom: 15px;
+  margin-top: -15px;
+  margin-bottom: 15px;
 
-    ion-note {
-        --color: var(--ion-color-danger);
-    }
+  ion-note {
+    --color: var(--ion-color-danger);
+  }
 }
 
 .mono-equipment {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .select-search {
-    padding-bottom: 15px;
+  padding-bottom: 15px;
 }
 
 ion-list {
@@ -83,3 +84,4 @@ ion-list {
   flex-direction: column;
   margin-right: 10px;
 }
+

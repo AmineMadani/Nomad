@@ -235,7 +235,7 @@ public class WorkorderService {
 		City city = cityService.getCityById(customWorkorderDto.getCtyId());
 		workorder.setCity(city);
 		workorder.setCtyLlabel(city.getCtyLlabel());
-		
+		workorder.setWkoExtToSync(customWorkorderDto.getWkoExtToSync());
 		List<Task> existingTasks = workorder.getListOfTask();
 		List<Task> newTasks = new ArrayList<>();
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {

@@ -16,6 +16,7 @@ export interface Workorder {
     ctyId?: string;
     ctrId?: string;
     wkoAttachment?: boolean;
+    wkoExtToSync?: boolean;
 }
 
 export interface CancelWorkOrder {

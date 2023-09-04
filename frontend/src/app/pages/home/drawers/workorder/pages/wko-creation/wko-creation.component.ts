@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  AfterViewInit,
+} from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'src/app/core/services/dialog.service';
@@ -13,7 +19,7 @@ import { IonModal } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from 'src/app/core/services/cache.service';
-import { Workorder } from 'src/app/core/models/workorder.model';
+import { WkoStatus, Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -66,26 +72,35 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public nbEquipments: string;
   public draftId: string;
 
-  public title : string;
+  public title: string;
 
-  public workOrder : Workorder;
+  public workOrder: Workorder;
   public equipmentName: string;
 
   public isLoading: boolean = true;
 
+  public creationButonLabel: string;
+
   // Permissions
   public userHasPermissionSendWorkorder: boolean = false;
+
+  public defaultCreationLabel: string = 'Envoyer à la planification';
+  //label à mettre à jours dès la création d'une ion-list custom
+  public createWithoutSendToPlanning = 'Ne pas envoyer à la planification';
 
   private markerCreation: Map<string, any> = new Map();
   private markerDestroyed: boolean;
 
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
+  private wkoExtToSyncValue: boolean = true;
 
   async ngOnInit(): Promise<void> {
-    this.title = 'Générer une intervention';
-
+    this.title = 'Générer une interventions';
+    this.creationButonLabel = this.defaultCreationLabel;
     this.userHasPermissionSendWorkorder =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.SEND_WORKORDER);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.SEND_WORKORDER
+      );
 
     const paramMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
@@ -119,9 +134,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.draftId = this.activatedRoute.snapshot.queryParams['draft'];
         const wkoId = this.activatedRoute.snapshot.queryParams['wkoId'];
         this.createForm();
-
-
-        if (this.draftId){
+        if (this.draftId) {
           await this.initializeFormWithDraft();
         }
 
@@ -129,9 +142,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.generateMarker();
 
-        if (wkoId){
-          this.workOrder = await this.workOrderService.getWorkorderById(Number(wkoId));
-          this.title = 'Modification de l\'intervention ' + this.workOrder.wkoName;
+        if (wkoId) {
+          this.workOrder = await this.workOrderService.getWorkorderById(
+            Number(wkoId)
+          );
+          this.wkoExtToSyncValue = this.workOrder.wkoExtToSync;
+          this.title =
+            "Modification de l'intervention " + this.workOrder.wkoName;
+          this.createWithoutSendToPlanning =
+            'Sans envoyer pour planification';
+            this.creationButonLabel ="Modifer";
           await this.initializeFormWithWko();
         }
       });
@@ -258,50 +278,60 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     form.longitude =
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
     form.wkoAttachment = false;
-
-      let funct : any;
-      if(this.workOrder){
-        form.id = this.workOrder.id;
-        this.workOrder.latitude = form.latitude
-        this.workOrder.longitude = form.longitude
-        this.workOrder.wkoAddress = form.wkoAddress
-        this.workOrder.wkoAgentNb = form.wkoAgentNb
-        this.workOrder.wkoAppointment = form.wkoAppointment
-        this.workOrder.wkoEmergency = form.wkoEmergency
-        this.workOrder.wkoName = form.wkoName
-        this.workOrder.wkoPlanningEndDate = form.wkoPlanningEndDate
-        this.workOrder.wkoPlanningStartDate = form.wkoPlanningStartDate
-        this.workOrder.wkoCreationComment = form.wkoCreationComment;
-        //Récupération des équipements - réassigne l'id des task existantes
-        this.workOrder.tasks.forEach(task => {
-          let findTask = form.tasks.find(newTask => newTask.assObjRef == task.assObjRef);
-          if (findTask && task.id){
-            findTask.id = task.id;
-          }
-        })
-        this.workOrder.tasks = form.tasks;
-        this.workOrder.ctrId = form.ctrId;
-        this.workOrder.ctyId = form.ctyId;
-        funct =  this.workOrderService.updateWorkOrder(this.workOrder);
-      }
-      else{
-        funct = this.workOrderService.createWorkOrder(form);
-      }
-      funct.subscribe((res: Workorder) => {
-        this.removeMarkers();
-        this.mapService.addGeojsonToLayer(res, 'task');
-        if(res.tasks.length == 1) {
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.TASK_VIEW,
-            [res.id, res.tasks[0].id]
-          );
-        } else {
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.WORKORDER_VIEW,
-            [res.id]
-          );
+    let funct: any;
+    if (this.workOrder) {
+      form.id = this.workOrder.id;
+      this.workOrder.latitude = form.latitude;
+      this.workOrder.longitude = form.longitude;
+      this.workOrder.wkoAddress = form.wkoAddress;
+      this.workOrder.wkoAgentNb = form.wkoAgentNb;
+      this.workOrder.wkoAppointment = form.wkoAppointment;
+      this.workOrder.wkoEmergency = form.wkoEmergency;
+      this.workOrder.wkoName = form.wkoName;
+      this.workOrder.wkoPlanningEndDate = form.wkoPlanningEndDate;
+      this.workOrder.wkoPlanningStartDate = form.wkoPlanningStartDate;
+      this.workOrder.wkoCreationComment = form.wkoCreationComment;
+      //Récupération des équipements - réassigne l'id des task existantes
+      this.workOrder.tasks.forEach((task) => {
+        let findTask = form.tasks.find(
+          (newTask) => newTask.assObjRef == task.assObjRef
+        );
+        if (findTask && task.id) {
+          findTask.id = task.id;
         }
       });
+      this.workOrder.tasks = form.tasks;
+      this.workOrder.ctrId = form.ctrId;
+      this.workOrder.ctyId = form.ctyId;
+      this.workOrder.wkoExtToSync = this.wkoExtToSyncValue;
+      funct = this.workOrderService.updateWorkOrder(this.workOrder);
+    } else {
+      form.wkoExtToSync = this.wkoExtToSyncValue;
+      funct = this.workOrderService.createWorkOrder(form);
+    }
+    funct.subscribe((res: Workorder) => {
+      this.removeMarkers();
+      this.mapService.addGeojsonToLayer(res, 'task');
+      if (res.tasks.length == 1) {
+        this.drawerService.navigateTo(DrawerRouteEnum.TASK_VIEW, [
+          res.id,
+          res.tasks[0].id,
+        ]);
+      } else {
+        this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
+      }
+    });
+  }
+
+  public onCreationModeChange(event: any): void {
+    if (event.target.value === 'CREE') {
+      this.wkoExtToSyncValue = false;
+      this.creationButonLabel = this.createWithoutSendToPlanning;
+    } else if (event.target.value === 'CREEAVECENVOIE') {
+      this.creationButonLabel = this.defaultCreationLabel;
+      this.wkoExtToSyncValue = true;
+    }
+    this.onSubmit();
   }
 
   public async openEquipmentModal(): Promise<void> {
@@ -336,14 +366,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public async editEquipmentList(): Promise<void> {
-    if (this.workOrder){
+    if (this.workOrder) {
       this.drawerService.navigateWithEquipments(
         DrawerRouteEnum.SELECTION,
         this.equipments,
         { wkoId: this.workOrder.id }
       );
-    }
-    else{
+    } else {
       const uuid = this.draftId ?? uuidv4();
       await this.cacheService.saveObject(
         'draftwko',
@@ -378,28 +407,29 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private async initializeFormWithWko() : Promise<void>{
+  private async initializeFormWithWko(): Promise<void> {
     Object.keys(this.workOrder).forEach((key) => {
       const control = this.workOrderForm.get(key);
       if (control) {
-        if (this.workOrder[key] != null){
-          if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate'){
-            control.setValue(this.datePipe.transform(this.workOrder[key], 'dd-MM-yyyy'));
-          }
-          else{
+        if (this.workOrder[key] != null) {
+          if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
+            control.setValue(
+              this.datePipe.transform(this.workOrder[key], 'dd-MM-yyyy')
+            );
+          } else {
             control.setValue(this.workOrder[key].toString());
           }
-        }
-        else{
+        } else {
           control.setValue(this.workOrder[key]);
         }
       }
     });
 
     //set WTR
-    this.workOrderForm.controls['wtrId'].setValue(this.workOrder.tasks[0].wtrId.toString());
+    this.workOrderForm.controls['wtrId'].setValue(
+      this.workOrder.tasks[0].wtrId.toString()
+    );
   }
-
 
   private async initializeFormWithDraft(): Promise<void> {
     const wkoDraft = await this.cacheService.getObjectFromCache(

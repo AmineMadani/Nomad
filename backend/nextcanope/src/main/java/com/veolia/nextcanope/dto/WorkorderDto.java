@@ -44,6 +44,8 @@ public class WorkorderDto {
     
     private List<TaskDto> tasks;
 
+    private boolean wkoExtToSync;
+
     public Long getId() {
         return id;
     }
@@ -134,6 +136,8 @@ public class WorkorderDto {
 		return tasks;
 	}
 
+    public boolean getWkoExtToSync() { return  wkoExtToSync;}
+
 	public void setTasks(List<TaskDto> tasks) {
 		this.tasks = tasks;
 	}
@@ -182,6 +186,10 @@ public class WorkorderDto {
         this.wkoAttachment = wkoAttachment;
     }
 
+    public void setwkoExtToSync(boolean  wkoExtToSync) {
+        this.wkoExtToSync = wkoExtToSync;
+    }
+
     public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
@@ -210,5 +218,6 @@ public class WorkorderDto {
         		this.ctrId = taskDto.getCtrId();
         	}
         }
+        this.wkoExtToSync=workorder.getWkoExtToSync();
     }
 }
