@@ -20,8 +20,6 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { Attachment } from 'src/app/core/models/attachment.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { Camera, CameraResultType } from '@capacitor/camera';
-import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-wko-view',
