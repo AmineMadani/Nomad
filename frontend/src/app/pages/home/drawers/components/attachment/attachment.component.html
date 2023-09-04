@@ -1,0 +1,8 @@
+<ion-button fill="clear" (click)="fileUpload.click()">
+  <ion-icon slot="icon-only" name="attach"></ion-icon>
+</ion-button>
+<input #fileUpload type="file" value="Upload" (change)="addAttachment($event)" style="display:none" accept="*" multiple />
+
+<ion-button *ngIf="isMobile" fill="clear" (click)="addPicture()">
+  <ion-icon slot="icon-only" name="camera"></ion-icon>
+</ion-button>

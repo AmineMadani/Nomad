@@ -47,6 +47,7 @@ export class WkoViewComponent implements OnInit {
   public workOrder: Workorder;
 
   public listAttachment: Attachment[] = [];
+  public isAttachmentLoaded: boolean = true;
 
   public assetLabel: string;
   public status: string;
@@ -273,42 +274,19 @@ export class WkoViewComponent implements OnInit {
 
   // ### Attachement ### //
   getListAttachment() {
+    this.isAttachmentLoaded = false;
+
     // Get the list of attachment
     this.attachmentService.getListAttachmentByWorkorderId(this.workOrder.id).then((listAttachment) => {
       this.listAttachment = listAttachment;
+      this.isAttachmentLoaded = true;
     })
     .catch((error) => {
       // If there is an error (because the user is offline or anything else)
       // keep it going
       console.log(error);
+      this.isAttachmentLoaded = true;
     });
-  }
-
-  async addAttachment(event) {
-    if (!event.target.files || event.target.files.length === 0) {
-      return;
-    }
-
-    for (const file of Array.from(event.target.files) as File[]) {
-      await this.attachmentService.addAttachment(this.workOrder.id, file);
-    };
-
-    // Reload the list of attachment
-    // We wait a bit because the creation is not immediate
-    // Otherwise the picture displayed would be broken
-    setTimeout(() => {
-      this.getListAttachment();
-    }, 1000);
-
-    // If there was no attachment before, set the flag of the workorder to true
-    if (!this.workOrder.wkoAttachment) {
-      this.workOrder.wkoAttachment = true;
-      this.workorderService.updateWorkOrder(this.workOrder).subscribe();
-    }
-
-    // Empty this field to allow the user to select the same file again
-    // else if the same file is selected, fileupdload ignore it
-    event.target.value = null;
   }
 
   convertBitsToBytes(x) {
@@ -325,5 +303,11 @@ export class WkoViewComponent implements OnInit {
 
   getFileExtension(filename: string): string {
     return filename.split(".").pop();
+  }
+
+  onSaveAttachment() {
+    setTimeout(() => {
+      this.getListAttachment();
+    }, 1000);
   }
 }

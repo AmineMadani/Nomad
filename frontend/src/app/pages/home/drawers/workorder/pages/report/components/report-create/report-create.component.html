@@ -4,6 +4,9 @@
   </ion-button>
   <ion-label class="header-label">Compte-rendu</ion-label>
   <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
+
+  <app-attachment [workorder]="workorder"></app-attachment>
+
   <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
 </ion-item>
 
