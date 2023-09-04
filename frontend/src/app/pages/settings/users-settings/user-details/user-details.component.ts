@@ -424,6 +424,8 @@ export class UserDetailsComponent implements OnInit {
   }
 
   public async onClose(reloadNeeded: boolean, askConfirmation: boolean) {
+    this.utilsService.validateAllFormFields(this.userForm);
+
     if (askConfirmation && this.userForm.dirty) {
       const alert = await this.alertController.create({
         header: 'Quitter la page sans enregistrer les modifications ?',

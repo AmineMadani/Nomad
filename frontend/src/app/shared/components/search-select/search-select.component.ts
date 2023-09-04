@@ -106,6 +106,7 @@ export class SearchSelectComponent implements OnInit {
         this.control.setValue([...newList]);
       }
     }
+    this.control.markAsDirty();
   }
 
   onAllSelectedChange(event) {
@@ -114,6 +115,7 @@ export class SearchSelectComponent implements OnInit {
     } else {
       this.control.setValue(this.elements.map((el) => el[this.key]));
     }
+    this.control.markAsDirty();
   }
 
   isAllElementSelected() {
