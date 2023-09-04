@@ -44,6 +44,7 @@ import { ReportCreateComponent } from './drawers/workorder/pages/report/componen
 import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-context/report-context.component';
 import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
 import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
+import { AttachmentComponent } from './drawers/components/attachment/attachment.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -88,7 +89,8 @@ import { ReportFormComponent } from './drawers/workorder/pages/report/components
     ReportCreateComponent,
     ReportAssetComponent,
     ReportContextComponent,
-    ReportFormComponent
+    ReportFormComponent,
+    AttachmentComponent,
   ],
   exports: [ReportCreateComponent]
 })

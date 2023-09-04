@@ -9,6 +9,7 @@ import { UtilsService } from './core/services/utils.service';
 import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserService } from './core/services/user.service';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 register();
 
@@ -41,7 +42,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private userService : UserService,
     private router: Router
   ) {
-    this.keycloakService.configure()
+    this.keycloakService.configure();
+    defineCustomElements(window);
   }
 
   public userProfile: any;
