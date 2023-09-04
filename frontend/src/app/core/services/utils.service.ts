@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform, ToastController } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -242,5 +243,15 @@ export class UtilsService {
     });
 
     toast.present();
+  }
+
+  /**
+   * convert a date from dd/MM/yyyy to yyyy-MM-dd ISO format
+   * @param dateStr : date with dd/MM/yyyy format
+   * @returns date ISO
+   */
+  public convertToDateISO(dateStr: string): string {
+    const dateLuxon: DateTime = DateTime.fromFormat(dateStr, "dd/MM/yyyy");
+    return dateLuxon.toISO();
   }
 }

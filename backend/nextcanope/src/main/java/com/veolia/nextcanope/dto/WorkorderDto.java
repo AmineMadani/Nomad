@@ -29,6 +29,8 @@ public class WorkorderDto {
     private Date wkoPlanningEndDate;
 
     private Long wtsId;
+
+    private Date wkoCompletionStartDate;
     
     private Date wkoCompletionDate;
     
@@ -98,6 +100,14 @@ public class WorkorderDto {
 
     public void setWtsId(Long wtsId) {
         this.wtsId = wtsId;
+    }
+
+    public Date getWkoCompletionStartDate() {
+        return wkoCompletionStartDate;
+    }
+
+    public void setWkoCompletionStartDate(Date wkoCompletionStartDate) {
+        this.wkoCompletionStartDate = wkoCompletionStartDate;
     }
 
     public Date getWkoCompletionDate() {
@@ -200,6 +210,7 @@ public class WorkorderDto {
         this.wkoCreationComment = workorder.getWkoCreationComment();
         this.wkoPlanningStartDate = workorder.getWkoPlanningStartDate();
         this.wkoPlanningEndDate = workorder.getWkoPlanningEndDate();
+        this.wkoCompletionStartDate = workorder.getWkoCompletionStartDate();
         this.wkoCompletionDate = workorder.getWkoCompletionDate();
         this.wtsId = workorder.getWorkorderTaskStatus().getId();
         this.longitude = workorder.getLongitude();

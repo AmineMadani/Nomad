@@ -57,6 +57,11 @@ public class Task implements Serializable {
     private Date tskPlanningEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_completion_start_date")
+    @JsonProperty("tsk_completion_start_date")
+    private Date tskCompletionStartDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_completion_date")
     @JsonProperty("tsk_completion_date")
     private Date tskCompletionDate;

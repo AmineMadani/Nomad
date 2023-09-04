@@ -6,7 +6,14 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, IonModal } from '@ionic/angular';
+import { DialogService } from 'src/app/core/services/dialog.service';
+import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
+import { filter } from 'rxjs';
+import { DateTime } from 'luxon';
+import { DatePipe } from '@angular/common';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
 import { ReportAssetComponent } from '../report-asset/report-asset.component';
@@ -28,6 +35,8 @@ export class ReportCreateComponent implements OnInit {
     private router: Router,
     private contractService: ContractService,
     private alertController: AlertController,
+    private dialogService: DialogService,
+    private datePipe: DatePipe,
     private praxedoService: PraxedoService,
     private mapService: MapService
   ) { }
@@ -46,6 +55,10 @@ export class ReportCreateComponent implements OnInit {
   @ViewChild('stepForm') stepForm: ReportFormComponent;
   @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
 
+  @ViewChild('completeModal', { static: true })
+  public completeModal: IonModal;
+  public completeModalForm: FormGroup;
+
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
@@ -55,13 +68,20 @@ export class ReportCreateComponent implements OnInit {
       return;
     }
 
-
     this.workorderService.getAllWorkorderTaskStatus().subscribe((workorderTaskStatus: WorkorderTaskStatus[]) => {
       const status = workorderTaskStatus.find(sts => sts.id === this.workorder.wtsId);
-      if (status.wtsCode === WkoStatus[WkoStatus.TERMINE]) {
-        this.presentAlert();
+      switch (status.wtsCode) {
+        case WkoStatus[WkoStatus.TERMINE]:
+          this.presentAlert();
+          break;
+        case WkoStatus[WkoStatus.CREE]:
+          this.createCompleteForm();
+          break;
+        default:
+          break;
       }
     });
+
     this.selectedTasks = this.workorder.tasks.filter(task => task.isSelectedTask);
     if (this.selectedTasks && this.selectedTasks.length > 0) {
       this.step = 2;
@@ -284,30 +304,58 @@ export class ReportCreateComponent implements OnInit {
 
     if (this.stepForm.formEditor.form.valid) {
       this.isSubmitting = true;
+      if (this.completeModalForm !== undefined) {
+        this.openCompleteModal();
+      }
+      else {
+        this.completeForm();
+      }
+    }
+  }
 
-      let report: Report = {
-        dateCompletion: new Date(),
-        reportValues: [],
-        questionIndex: this.stepForm.formEditor.indexQuestion
-      };
-      for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-        if (definition.type == 'property') {
-          report.reportValues.push({
-            key: definition.key,
-            question: definition.label,
-            answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
-              this.stepForm.formEditor.form.value[definition.key].join('; ')
-              : this.stepForm.formEditor.form.value[definition.key]
-          });
+  /**
+   * Popup to validate the completion with start and end completion date
+   */
+  public createCompleteForm(): void {
+    this.completeModalForm = new FormGroup({
+      realisationStartDate : new FormControl(false, Validators.compose([Validators.required, DateValidator.isDateValid])),
+      realisationEndDate : new FormControl(false, Validators.compose([Validators.required, DateValidator.isDateValid]))
+    });
+    this.completeModalForm.addValidators(DateValidator.compareDateValidator('realisationStartDate', 'realisationEndDate'));
+  }
+
+  /**
+   * Complete the workorder with report validation
+   */
+  private completeForm(): void {
+    let comment = "";
+
+    let report: Report = {
+      dateCompletion: new Date(),
+      reportValues: [],
+      questionIndex: this.stepForm.formEditor.indexQuestion
+    };
+    for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
+      if (definition.type == 'property') {
+        report.reportValues.push({
+          key: definition.key,
+          question: definition.label,
+          answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
+            this.stepForm.formEditor.form.value[definition.key].join('; ')
+            : this.stepForm.formEditor.form.value[definition.key]
+        });
+        if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
+          comment = this.stepForm.formEditor.form.value[definition.key];
         }
       }
-      for(let task of this.selectedTasks) {
-        task.report = report;
-        task.isSelectedTask = false;
-      }
-      this.onSaveWorkOrderState();
-      this.onClosedWko();
     }
+    for(let task of this.selectedTasks) {
+      task.report = report;
+      task.isSelectedTask = false;
+    }
+    this.onSaveWorkOrderState();
+    this.onClosedWko();
+      
   }
 
   /**
@@ -438,6 +486,65 @@ export class ReportCreateComponent implements OnInit {
   }
 
   /**
+   * Open the complete modal to enter start/end realization date
+   */
+  public async openCompleteModal(): Promise<void> {
+    this.completeModal.present();
+  }
+  /**
+   * Open a calendar to select realization start and end date
+   */
+  public openCalendar(): void {
+    this.dialogService
+      .open(DatepickerComponent, {
+        backdrop: false,
+        data: {
+          multiple: true,
+        },
+      })
+      .afterClosed()
+      .pipe(
+        filter(
+          (dts: DateTime[]) => dts && (dts.length === 1 || dts.length === 2)
+        )
+      )
+      .subscribe((result: DateTime[]) => {
+        this.completeModalForm.patchValue({
+          realisationStartDate: this.datePipe.transform(
+            result[0].toJSDate(),
+            'dd/MM/yyyy'
+          ),
+        });
+        this.completeModalForm.patchValue({
+          realisationEndDate: this.datePipe.transform(
+            // if only one day is clicked, end date and start date fields get the same value
+            result[1] ? result[1].toJSDate() : result[0].toJSDate(),
+            'dd/MM/yyyy'
+          ),
+        });
+      });
+  }
+  /**
+   * Cancel the completion
+   */
+  public cancelCompleteModal(): void {
+    this.completeModal.dismiss();
+  }
+  /**
+   * Validate the completion popup
+   */
+  public validCompleteModal(): void {
+    this.workorder.wkoCompletionStartDate = DateTime.fromFormat(this.completeModalForm.controls["realisationStartDate"].value, "dd/MM/yyyy").toJSDate();
+    this.workorder.wkoCompletionDate = DateTime.fromFormat(this.completeModalForm.controls["realisationEndDate"].value, "dd/MM/yyyy").toJSDate();
+    for(let task of this.selectedTasks) {
+      task.tskCompletionStartDate = this.workorder.wkoCompletionStartDate;
+      task.tskCompletionDate = this.workorder.wkoCompletionDate;
+    }
+    this.completeForm();
+    this.completeModal.dismiss();
+  }
+  
+  /*
    * Delete unplanned workorder
    */
   public async onDelete() {
@@ -469,4 +576,5 @@ export class ReportCreateComponent implements OnInit {
       this.router.navigate(['/home']);
     }
   }
+
 }

@@ -85,6 +85,11 @@ public class Workorder implements Serializable {
     private Date wkoPlanningEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="wko_completion_start_date")
+    @JsonProperty("wko_completion_start_date")
+    private Date wkoCompletionStartDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_completion_date")
     @JsonProperty("wko_completion_date")
     private Date wkoCompletionDate;
@@ -296,6 +301,10 @@ public class Workorder implements Serializable {
 	public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
     }
+
+    public Date getWkoCompletionStartDate() { return this.wkoCompletionStartDate; }
+
+    public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) { this.wkoCompletionStartDate = wkoCompletionStartDate ; }
 
     public Date getWkoCompletionDate() {
         return this.wkoCompletionDate;

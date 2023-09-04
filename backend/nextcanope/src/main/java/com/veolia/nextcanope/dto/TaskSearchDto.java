@@ -26,6 +26,8 @@ public class TaskSearchDto {
     private Date wkoPlanningEndDate;
 
     private Long wtsId;
+
+    private Date wkoCompletionStartDate;
     
     private Date wkoCompletionDate;
     
@@ -89,6 +91,14 @@ public class TaskSearchDto {
 
     public void setWtsId(Long wtsId) {
         this.wtsId = wtsId;
+    }
+
+    public Date getWkoCompletionStartDate() {
+        return wkoCompletionStartDate;
+    }
+
+    public void setWkoCompletionStartDate(Date wkoCompletionStartDate) {
+        this.wkoCompletionStartDate = wkoCompletionStartDate;
     }
 
     public Date getWkoCompletionDate() {

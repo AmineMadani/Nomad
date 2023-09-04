@@ -24,6 +24,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';
@@ -204,7 +205,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.workOrderForm.patchValue({
           wkoPlanningStartDate: this.datePipe.transform(
             result[0].toJSDate(),
-            'dd-MM-yyyy'
+            'dd/MM/yyyy'
           ),
         });
 
@@ -212,7 +213,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           wkoPlanningEndDate: this.datePipe.transform(
             // if only one day is clicked, end date and start date fields get the same value
             result[1] ? result[1].toJSDate() : result[0].toJSDate(),
-            'dd-MM-yyyy'
+            'dd/MM/yyyy'
           ),
         });
       });
@@ -226,12 +227,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       wkoName: new FormControl('', Validators.required),
       wkoAddress: new FormControl(''),
       wkoAgentNb: new FormControl('1', Validators.required),
-      wkoPlanningStartDate: new FormControl(false, Validators.required),
-      wkoPlanningEndDate: new FormControl(false, Validators.required),
+      wkoPlanningStartDate: new FormControl(false, Validators.compose([Validators.required, DateValidator.isDateValid])),
+      wkoPlanningEndDate: new FormControl(false, Validators.compose([Validators.required, DateValidator.isDateValid])),
       wkoEmergency: new FormControl(false),
       wkoAppointment: new FormControl(false),
       wkoCreationComment: new FormControl(''),
     });
+    this.workOrderForm.addValidators(DateValidator.compareDateValidator('wkoPlanningStartDate', 'wkoPlanningEndDate'));
   }
 
   public setCheckboxValue(controlKey: string, event: Event): void {
@@ -262,16 +264,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    let [day, month, year] = form.wkoPlanningStartDate.split('-');
-    form.wkoPlanningStartDate = this.datePipe.transform(
-      new Date(year, month - 1, day),
-      'yyyy-MM-dd'
-    );
-    [day, month, year] = form.wkoPlanningEndDate.split('-');
-    form.wkoPlanningEndDate = this.datePipe.transform(
-      new Date(year, month - 1, day),
-      'yyyy-MM-dd'
-    );
+    form.wkoPlanningStartDate = this.utils.convertToDateISO(form.wkoPlanningStartDate);
+    form.wkoPlanningEndDate = this.utils.convertToDateISO(form.wkoPlanningEndDate);
+    
     form.tasks = assets;
     form.latitude =
       assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;

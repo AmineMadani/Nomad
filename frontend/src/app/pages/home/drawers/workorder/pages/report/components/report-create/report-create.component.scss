@@ -39,6 +39,19 @@ app-report-form {
     color: grey;
 }
 
+#modal-complete {
+    --height: 300px;
+}
+.modal-footer-buttons {
+    display: flex; 
+    justify-content: flex-end;
+}
+.error-message {
+    ion-note {
+        --color: var(--ion-color-danger);
+    }
+}
+
 .fab-return {
     margin-top: -56px;
     margin-left: 15px;

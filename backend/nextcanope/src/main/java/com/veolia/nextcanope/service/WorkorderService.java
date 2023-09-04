@@ -302,7 +302,12 @@ public class WorkorderService {
 		Users user = userService.getUserById(userId);
 
 		Workorder workorder = getWorkOrderById(wkoId);
-		workorder.setWkoCompletionDate(new Date());
+		if (customWorkorderDto.getWkoCompletionDate() != null) {
+			workorder.setWkoCompletionDate(customWorkorderDto.getWkoCompletionDate());
+		} else {
+			workorder.setWkoCompletionDate(new Date());
+		}
+		workorder.setWkoCompletionStartDate(customWorkorderDto.getWkoCompletionStartDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setModifiedBy(user);

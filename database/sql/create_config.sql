@@ -663,6 +663,7 @@ create table if not exists workorder
   wko_street_number            text,
   wko_planning_start_date	     timestamp without time zone,
   wko_planning_end_date	       timestamp without time zone,
+  wko_completion_start_date	         timestamp without time zone,
   wko_completion_date	         timestamp without time zone,
   wko_realization_user         text,
   wko_realization_cell         text,
@@ -719,6 +720,7 @@ comment on column workorder.wko_address is 'Address of the workorder';
 comment on column workorder.wko_street_number is 'Street number of the workorder';
 comment on column workorder.wko_planning_start_date is 'Planning start date of the workorder';
 comment on column workorder.wko_planning_end_date is 'Planning end date of the workorder';
+comment on column workorder.wko_completion_start_date is 'Completion start date of the workorder';
 comment on column workorder.wko_completion_date is 'Completion date of the workorder';
 comment on column workorder.wko_realization_user is 'Realization user of the workorder';
 comment on column workorder.wko_realization_cell is 'Realization cell of the workorder';
@@ -729,6 +731,7 @@ comment on column workorder.wts_id is 'Workorder status ';
 comment on column workorder.str_id is 'Street';
 comment on column workorder.str_llabel is 'Long label of the street';
 COMMENT ON COLUMN workorder.wko_agent_nb IS 'Number of agent';
+comment on column workorder.wko_cancel_comment is 'Cancellation comment of the workorder';
 comment on column workorder.wko_ucre_id is 'creator Id';
 comment on column workorder.wko_umod_id is 'Last modificator Id';
 comment on column workorder.wko_dmod is 'Last modification date';
@@ -756,6 +759,7 @@ create table if not exists task
   ass_id                   bigint references  asset(id), 
   tsk_planning_start_date  timestamp without time zone,
   tsk_planning_end_date	   timestamp without time zone,
+  tsk_completion_start_date	     timestamp without time zone,
   tsk_completion_date	     timestamp without time zone,
   tsk_realization_user     bigint,
   tsk_report_date          timestamp without time zone,
@@ -784,6 +788,7 @@ comment on column task.ctr_id is 'Contract';
 comment on column task.ass_id is 'Asset';
 comment on column task.tsk_planning_start_date is 'Planning start date of the task';
 comment on column task.tsk_planning_end_date is 'Planning end date of the task';
+comment on column task.tsk_completion_start_date is 'Completion start date of the task';
 comment on column task.tsk_completion_date is 'Completion date of the task';
 comment on column task.tsk_realization_user is 'Realization user of the task';
 comment on column task.tsk_report_date is 'Date of the report';
