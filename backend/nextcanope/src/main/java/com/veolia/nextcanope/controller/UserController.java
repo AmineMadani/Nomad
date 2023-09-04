@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.veolia.nextcanope.dto.PermissionDto;
 import com.veolia.nextcanope.dto.ProfileDto;
+import com.veolia.nextcanope.dto.UserStatusDto;
 import com.veolia.nextcanope.service.PermissionService;
 import com.veolia.nextcanope.service.ProfileService;
 import com.veolia.nextcanope.utils.ResponseMessage;
@@ -127,5 +128,14 @@ public class UserController {
 	})
 	public List<ProfileDto> getAllProfiles() {
 		return this.profileService.getAllProfiles();
+	}
+
+	@GetMapping(path = "/status")
+	@Operation(summary = "Get the current user status by email (deleted or not)")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",description= "The current user status by email (deleted or not)")
+	})
+	public UserStatusDto getUserStatusByEmail(@RequestParam String email) {
+		return this.userService.getUserStatusByEmail(email);
 	}
 }

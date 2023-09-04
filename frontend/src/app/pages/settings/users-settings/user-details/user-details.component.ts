@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AlertController, ModalController } from '@ionic/angular';
-import { forkJoin, pairwise, startWith } from 'rxjs';
+import { catchError, forkJoin, of, pairwise, startWith } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
 import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, PerimeterRow, Profile, User, PermissionCodeEnum, ProfileCodeEnum } from 'src/app/core/models/user.model';
+import { Perimeter, PerimeterRow, Profile, User, PermissionCodeEnum, ProfileCodeEnum, UserStatus } from 'src/app/core/models/user.model';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -391,7 +391,7 @@ export class UserDetailsComponent implements OnInit {
     return perimetersTable.controls as TableRow<PerimeterRow>[];
   }
 
-  public save(): void {
+  public async save(): Promise<void> {
     this.userForm.markAllAsTouched();
 
     if (!this.userForm.valid) {
@@ -404,23 +404,73 @@ export class UserDetailsComponent implements OnInit {
       ...this.userForm.value
     };
 
-    if (this.actionType === ActionType.CREATION || this.actionType === ActionType.DUPLICATION) {
-      this.userService
-        .createUser(userToSave)
-        .subscribe((res: { message: string }) => {
-          this.utilsService.showSuccessMessage(res.message);
+    // Check the user status by email.
+    this.userService.getUserStatusByEmail(userToSave.email)
+      .subscribe(async (userStatus) => {
+        // If user exists and he deleted, alert info.
+        if (userStatus && userStatus.deleted) {
+          const role = await this.showActivationAlert(userToSave);
 
-          this.onClose(true, false);
-        });
-    } else if (this.actionType === ActionType.MODIFICATION) {
-      this.userService
-        .updateUser(userToSave)
-        .subscribe((res: { message: string }) => {
-          this.utilsService.showSuccessMessage(res.message);
+          // If confirm, we can update and activate the user
+          if (role === 'confirm') {
+            userToSave.id = userStatus.userId;
+            userToSave.deleted = false;
 
-          this.onClose(true, false);
-        });
-    }
+            // Set as deleted the initial user when it's a modification
+            if (this.actionType === ActionType.MODIFICATION) {
+              const userToDelete = { ...this.initialUser, deleted: true };
+              this.userService.updateUser(userToDelete).subscribe();
+            }
+            // Activate the user with the new email
+            this.userService
+              .updateUser(userToSave)
+              .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+          }
+        }
+        // If user exists and he not deleted and modification mode.
+        else if (userStatus && !userStatus.deleted && this.actionType === ActionType.MODIFICATION) {
+          // We launch an update
+          this.userService
+            .updateUser(userToSave)
+            .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+        }
+        // Else the user doesn't exist
+        else {
+          // We launch a creation
+          this.userService
+            .createUser(userToSave)
+            .subscribe((res: { message: string }) => this.showSuccessMessageAndClose(res));
+        }
+      });
+  }
+
+  private async showActivationAlert(userToSave: User): Promise<string> {
+    const alert = await this.alertController.create({
+      header: 'Un utilisateur supprimé existe déjà avec l\'email "' + userToSave.email + ' ", voulez-vous le réactiver ?',
+      buttons: [
+        {
+          text: 'Non',
+          role: 'cancel',
+        },
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+      ],
+      cssClass: 'alert-modal'
+    });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    return role;
+  }
+
+  private showSuccessMessageAndClose(res: { message: string; }) {
+    this.utilsService.showSuccessMessage(res.message);
+
+    this.onClose(true, false);
   }
 
   public async onClose(reloadNeeded: boolean, askConfirmation: boolean) {

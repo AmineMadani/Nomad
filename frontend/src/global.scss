@@ -434,6 +434,9 @@ ion-segment-button {
 }
 
 .alert-modal {
+  --width: 350px;
+  --max-width: 350px;
+
   .alert-message {
     color: black;
     font-size: 14px;

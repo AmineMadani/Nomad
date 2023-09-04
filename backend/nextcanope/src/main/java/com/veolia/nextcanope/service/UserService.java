@@ -1,10 +1,9 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import com.veolia.nextcanope.dto.account.AccountPerimeterDto;
+import com.veolia.nextcanope.dto.UserStatusDto;
 import com.veolia.nextcanope.model.*;
 import com.veolia.nextcanope.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,8 +120,19 @@ public class UserService {
      * @param uModId the user who makes the operation
 	 */
 	public void updateUser(Long userIdToUpdate, AccountDto accountToUpdate,  Long uModId) {
+		// Check if the user to update exist
 		Users user = userRepository.findById(userIdToUpdate)
 				.orElseThrow(() -> new FunctionalException("L'utilisateur avec l'id " + accountToUpdate.getId() + " n'existe pas."));
+
+		// If the email has changed
+		if (!user.getUsrEmail().equals(accountToUpdate.getEmail())) {
+			// Check if a user already exists with it
+			Optional<Users> existingUser = this.userRepository.findByUsrEmail(accountToUpdate.getEmail());
+
+			if (existingUser.isPresent()) {
+				throw new FunctionalException("Un utilisateur avec l'email " + accountToUpdate.getEmail() + " existe déjà.");
+			}
+		}
 
 		// Global info
 		user.setUsrEmail(accountToUpdate.getEmail());
@@ -135,6 +145,12 @@ public class UserService {
 		// Modified by
 		Users uModUser = getUserById(uModId);
 		user.setModifiedBy(uModUser);
+		// We remove the deletion date
+		if (accountToUpdate.getDeleted()) {
+			user.markAsDeleted(uModUser);
+		} else {
+			user.setDeletedAt(null);
+		}
 
 		// Perimeters
 		// We set mark as deleted the missed usrCtrPrfList in accountToUpdate
@@ -199,7 +215,7 @@ public class UserService {
 		for (Long userId : userIds) {
 			// Check if the user already exist
 			Users user = this.getUserById(userId);
-			// Mark layer styles and children as deleted
+			// Mark user and children as deleted
 			user.markAsDeleted(uModUser);
 			for (UsrCtrPrf usrCtrPrf : user.getListOfUsrCtrPrf()) {
 				usrCtrPrf.markAsDeleted(user);
@@ -215,4 +231,21 @@ public class UserService {
 		}
 	}
 
+	/**
+	 * Method to get the user status by email
+	 * @returns UserStatusDto or null if the user not exists 
+	 */
+    public UserStatusDto getUserStatusByEmail(String email) {
+		Users user = this.userRepository.findByUsrEmail(email)
+				.orElse(null);
+
+		UserStatusDto userStatus = null;
+		if (user != null) {
+			userStatus = new UserStatusDto();
+			userStatus.setUserId(user.getId());
+			userStatus.setDeleted(user.getDeletedAt() != null);
+		}
+
+		return userStatus;
+    }
 }
