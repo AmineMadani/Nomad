@@ -70,9 +70,14 @@ public class WorkorderService {
      * @param searchParameter The search parameters
 	 * @return the workorder list
 	 */
-    public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, HashMap<String, String[]> searchParameter) {
-		return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter);
-    }
+	public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(
+			Long limit,
+			Long offset,
+			HashMap<String, String[]> searchParameter,
+			Long userId
+	) {
+		return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter, userId);
+	}
 
 	/**
 	 * Retrieve the workorders associated with an asset given by his id and his table

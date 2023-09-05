@@ -37,8 +37,12 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<TaskSearchDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) HashMap<String, String[]> searchParameter) {
-        return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter);
+    public List<TaskSearchDto> getWorkOrders(
+            @PathVariable Long limit,
+            @PathVariable Long offset,
+            @RequestBody(required = false) HashMap<String, String[]> searchParameter,
+            AccountTokenDto account) {
+        return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter, account.getId());
     }
 
     @GetMapping(path = "/{id}")

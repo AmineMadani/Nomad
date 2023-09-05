@@ -43,7 +43,7 @@ public class LayerRepositoryImpl {
     public String getLayerTile(String key, Long tileNumber, Long userId) {
     	String schema = ConfigConstants.SCHEMA;
 
-		String param = ",'" + userId.toString() + "'";
+		String param = "," + userId.toString();
     	
         return this.jdbcTemplate.queryForObject(
                 "select nomad.f_get_geojson_from_tile('"+schema+"."+ key + "'," + tileNumber + param + ")",

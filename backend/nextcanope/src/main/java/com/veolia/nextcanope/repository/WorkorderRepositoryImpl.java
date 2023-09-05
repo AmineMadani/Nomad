@@ -27,8 +27,12 @@ public class WorkorderRepositoryImpl {
 	 *
 	 * @return The index as a string, associated with the given key.
 	 */
-	public List<TaskSearchDto> getWorkOrderPaginationWithCustomCriteria(Long limit, Long offset,
-			HashMap<String, String[]> searchParameter) {
+	public List<TaskSearchDto> getWorkOrderPaginationWithCustomCriteria(
+			Long limit,
+			Long offset,
+			HashMap<String, String[]> searchParameter,
+			Long userId
+	) {
 		StringBuilder clauseWhere = new StringBuilder();
 		StringBuilder clauseDate = new StringBuilder();
 		if (searchParameter != null && !searchParameter.isEmpty()) {
@@ -59,8 +63,12 @@ public class WorkorderRepositoryImpl {
 		}
 
         return this.jdbcTemplate.query(
-                "select distinct CAST(t.id AS text) as id, wko_name, wko_creation_cell, wko_creation_comment, wko_emergency, wko_appointment, wko_address, wko_street_number, wko_planning_start_date, wko_planning_end_date, wko_completion_date, wko_realization_user, wko_realization_cell, wko_realization_comment, cty_id, cty_llabel, w.wts_id, str_id, str_llabel, wko_ucre_id, wko_umod_id, wko_dmod, wko_dcre, wko_ddel, w.id as wko_id, t.longitude, t.latitude, wko_agent_nb from nomad.workorder w "
-                + " inner join nomad.task t on t.wko_id=w.id "+clauseWhere+" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
+                "select distinct CAST(t.id AS text) as id, wko_name, wko_creation_cell, wko_creation_comment, wko_emergency, wko_appointment, wko_address, wko_street_number, wko_planning_start_date, wko_planning_end_date, wko_completion_date, wko_realization_user, wko_realization_cell, wko_realization_comment, cty_id, cty_llabel, w.wts_id, str_id, str_llabel, wko_ucre_id, wko_umod_id, wko_dmod, wko_dcre, wko_ddel, w.id as wko_id, t.longitude, t.latitude, wko_agent_nb " +
+					"from nomad.workorder w " +
+					"inner join nomad.task t on t.wko_id=w.id " +
+					"inner join nomad.usr_ctr_prf ucp on ucp.usr_id = " + userId + " and ucp.usc_ddel is null and ucp.ctr_id = t.ctr_id " +
+					clauseWhere +
+					" order by wko_planning_start_date desc limit "+limit+" offset "+offset,
                 new BeanPropertyRowMapper<TaskSearchDto>(TaskSearchDto.class)
         );
 	}
