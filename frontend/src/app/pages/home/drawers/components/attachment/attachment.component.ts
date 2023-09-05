@@ -44,7 +44,10 @@ export class AttachmentComponent implements OnInit {
   async addPicture() {
     const image = await Camera.getPhoto({
       quality: 90,
-      allowEditing: true,
+      saveToGallery: true,
+      allowEditing: false,
+      promptLabelPhoto: 'Depuis la gallerie',
+      promptLabelPicture: 'Prendre une photo',
       resultType: CameraResultType.Base64
     });
 
