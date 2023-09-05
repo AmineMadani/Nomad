@@ -251,7 +251,11 @@ export class UtilsService {
    * @returns date ISO
    */
   public convertToDateISO(dateStr: string): string {
-    const dateLuxon: DateTime = DateTime.fromFormat(dateStr, "dd/MM/yyyy");
+    const dateLuxon: DateTime = DateTime.fromFormat(dateStr, 'dd/MM/yyyy');
     return dateLuxon.toISO();
+  }
+
+  public createNegativeId(): number {
+    return (Date.now() + Math.floor(Math.random() * 150000)) * -1;
   }
 }

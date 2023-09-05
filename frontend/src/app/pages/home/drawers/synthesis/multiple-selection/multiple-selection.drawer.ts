@@ -13,6 +13,8 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { CacheService } from 'src/app/core/services/cache.service';
+import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -29,7 +31,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private drawerService: DrawerService,
     private mapEventService: MapEventService,
     private utilsService: UtilsService,
-    private userService: UserService
+    private userService: UserService,
+    private cacheService: CacheService
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -90,15 +93,15 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.mapEventService
       .onFeatureSelected()
       .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((feature) => {
-        this.addNewFeatures(feature);
+      .subscribe(async (feature) => {
+        await this.addNewFeatures(feature);
       });
 
     this.mapEventService
       .onMultiFeaturesSelected()
       .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((features) => {
-        this.addNewFeatures(features);
+      .subscribe(async (features) => {
+        await this.addNewFeatures(features);
       });
   }
 
@@ -115,7 +118,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public addToSelection: boolean = false;
   public updateUrl: boolean = false;
   public wkoDraft: string;
-  public wkoId : string;
   public featureIdSelected: string = '';
   public featuresHighlighted: any[] = [];
   public userHasPermissionCreateAssetWorkorder: boolean = false;
@@ -127,12 +129,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
-    this.wkoId = this.activatedRoute.snapshot.queryParams?.['wkoId'];
     this.buttons = [
       { key: 'add', label: 'Ajouter un élement', icon: 'add' },
       {
         key: 'create',
-        label: this.wkoDraft ||this.wkoId
+        label: this.wkoDraft
           ? "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle',
@@ -224,18 +225,16 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.popover.present();
         break;
       case 'create':
-        if (this.wkoId){
-          this.drawerService.navigateWithEquipments(
+        if (this.wkoDraft){
+          this.drawerService.navigateTo(
             DrawerRouteEnum.WORKORDER_EDITION,
-            this.featuresSelected,
-            { wkoId : this.wkoId }
+            [ this.wkoDraft ],
           );
         }
         else{
           this.drawerService.navigateWithEquipments(
             DrawerRouteEnum.WORKORDER_CREATION,
             this.featuresSelected,
-            { draft: this.wkoDraft }
           );
         }
 
@@ -291,7 +290,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     });
   }
 
-  public removeFeature(e: Event, feature: any): void {
+  public async removeFeature(e: Event, feature: any): Promise<void> {
     e.stopPropagation();
 
     if (this.featuresHighlighted.includes(feature)) {
@@ -305,12 +304,20 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       this.featuresSelected.findIndex((f) => f.id === feature.id),
       1
     );
+
     if (this.filteredFeatures.includes(feature)) {
       this.filteredFeatures.splice(
         this.featuresSelected.findIndex((f) => f.id === feature.id),
         1
       );
     }
+
+    if (this.wkoDraft) {
+      const wko: Workorder = (await this.cacheService.getObjectFromCache('workorders', this.wkoDraft)).data;
+      wko.tasks = wko.tasks.filter((t) => t.assObjRef !== feature.id);
+      await this.cacheService.saveObject('workorders', this.wkoDraft, wko);
+    }
+
     this.mapEventService.removeFeatureFromSelected(
       this.mapService.getMap(),
       feature.id
@@ -398,7 +405,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     );
   }
 
-  private addNewFeatures(features: any | any[]): void {
+  private async addNewFeatures(features: any | any[]): Promise<void> {
     if (!Array.isArray(features)) {
       features = [{ ...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyrTableName: features.layerKey }];
     } else {
@@ -409,6 +416,22 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
 
     features = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...features], 'id');
+
+    if (this.wkoDraft) {
+      const wko: Workorder = (await this.cacheService.getObjectFromCache('workorders', this.wkoDraft)).data;
+      for (let f of features) {
+        if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
+          wko.tasks.push({
+            assObjTable: f.lyrTableName,
+            assObjRef: f.id,
+            latitude: f.y,
+            longitude: f.x,
+            wtrId: wko.tasks[0]?.wtrId ?? null
+          })
+        }
+      }
+      await this.cacheService.saveObject('workorders', this.wkoDraft, wko);
+    }
 
     this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features);
   }

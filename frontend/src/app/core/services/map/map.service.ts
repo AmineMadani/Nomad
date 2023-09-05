@@ -215,8 +215,7 @@ export class MapService {
     layerKey: string,
     styleKey?: string
   ): Promise<void> {
-    
-    if (!layerKey || layerKey.includes("_xy")) {
+    if (!layerKey || layerKey.includes('_xy')) {
       return;
     }
 
@@ -482,7 +481,7 @@ export class MapService {
   public removePoint(layerKey: string, id: string) {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     const addData: Maplibregl.GeoJSONSourceDiff = {
-      remove: [id]
+      remove: [id],
     };
     source.updateData(addData);
   }
@@ -615,23 +614,23 @@ export class MapService {
       };
       setTimeout(() => {
         source.updateData(addData);
-        if(layerKey == 'task') {
+        if (layerKey == 'task') {
           this.loadLocalTask();
         }
       });
     }
   }
 
-  private loadLocalTask(){
-    this.workorderService.getLocalWorkorders().then(workorders => {
-      for(let workorder of workorders){
-        if(workorder.id < 0) {
-          this.addGeojsonToLayer(workorder,'task');
+  private loadLocalTask() {
+    this.workorderService.getLocalWorkorders().then((workorders) => {
+      for (let workorder of workorders) {
+        if (workorder.id < 0) {
+          this.addGeojsonToLayer(workorder, 'task');
         }
       }
-    })
+    });
   }
-  
+
   /**
    * Add new workorder to the geojson source
    * @param workOrder the workorder
@@ -639,13 +638,13 @@ export class MapService {
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
     this.addEventLayer(layerKey).then(() => {
       for (let task of properties.tasks) {
-        let taskProperties:any = task;
+        const taskProperties: any = task;
         taskProperties.id = task.id.toString();
         taskProperties.x = task.longitude;
         taskProperties.y = task.latitude;
         taskProperties.wkoName = 'Intervention opportuniste';
         taskProperties.wkoId = properties.id.toString();
-        let newPoint: any = {
+        const newPoint: any = {
           geometry: {
             type: 'Point',
             coordinates: [properties.longitude, properties.latitude],
@@ -775,7 +774,7 @@ export class MapService {
 
     const convertedArea: string = this.convertArea(turf.area(feature));
     const coordinates = turf.coordAll(feature);
-    
+
     if (coordinates.length > 2) {
       const indexToRemove = coordinates.length - 1;
       coordinates.splice(indexToRemove, 1);
