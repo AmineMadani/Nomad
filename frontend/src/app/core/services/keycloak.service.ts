@@ -158,7 +158,7 @@ export class KeycloakService {
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);
-      if (url.host != "nomad-dev.hp.m-ve.com") {
+      if (url.host != this.configurationService.host.replace('https://','').slice(0, -1)) {
         // Only interested in redirects to myschema://login
         return;
       } else {
