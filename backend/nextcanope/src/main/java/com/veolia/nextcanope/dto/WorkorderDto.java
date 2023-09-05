@@ -196,7 +196,7 @@ public class WorkorderDto {
         this.wkoAttachment = wkoAttachment;
     }
 
-    public void setwkoExtToSync(boolean  wkoExtToSync) {
+    public void setWkoExtToSync(boolean  wkoExtToSync) {
         this.wkoExtToSync = wkoExtToSync;
     }
 

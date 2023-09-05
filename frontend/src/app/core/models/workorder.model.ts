@@ -10,8 +10,8 @@ export interface Workorder {
     wtsId?: number;
     wkoCompletionStartDate?: Date;
     wkoCompletionDate?: Date;
-    longitude: number;
-    latitude: number;
+    longitude?: number;
+    latitude?: number;
     wkoAgentNb?: number;
     tasks?: Task[];
     ctyId?: string;

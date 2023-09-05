@@ -1,13 +1,14 @@
 export interface User {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    company: string;
-    status: string;
-    imgUrl: string;
-    usrConfiguration: UserConfiguration;
-    perimeters: Perimeter[];
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string;
+  status: string;
+  imgUrl: string;
+  usrConfiguration: UserConfiguration;
+  perimeters: Perimeter[];
+  deleted: boolean;
 }
 
 export function getUserEmail(user: User) {
@@ -118,3 +119,9 @@ export enum PermissionCodeEnum {
   CREATE_NEW_FORM_FIELDS = 'CREATE_NEW_FORM_FIELDS',
   MANAGE_USER_PROFILE = 'MANAGE_USER_PROFILE',
 }
+
+export interface UserStatus {
+  userId: number;
+  deleted: boolean;
+}
+

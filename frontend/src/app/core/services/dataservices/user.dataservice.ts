@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Permission, Profile, User } from '../../models/user.model';
+import { Permission, Profile, User, UserStatus } from '../../models/user.model';
 import { ConfigurationService } from '../configuration.service';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 
@@ -76,6 +76,14 @@ export class UserDataService {
     */
   getAllPermissions(): Observable<Permission[]> {
     return this.http.get<Permission[]>(`${this.configurationService.apiUrl}users/permissions`);
+  }
+
+  /**
+    * Method to get the user status from server
+    * @returns User status
+    */
+  getUserStatusByEmail(email: string): Observable<UserStatus> {
+    return this.http.get<UserStatus>(`${this.configurationService.apiUrl}users/status?email=${email}`);
   }
 }
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Context, Permission, Profile, User, PermissionCodeEnum } from '../models/user.model';
+import { Context, Permission, Profile, User, PermissionCodeEnum, UserStatus } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
 import { MapService } from './map/map.service';
 import { Router } from '@angular/router';
@@ -296,5 +296,13 @@ export class UserService {
     }
 
     return hasPermission;
+  }
+
+  /**
+    * Method to get the user status from server
+    * @returns UserStatusDto
+    */
+  getUserStatusByEmail(email: string): Observable<UserStatus> {
+    return this.userDataService.getUserStatusByEmail(email);
   }
 }

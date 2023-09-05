@@ -2,18 +2,18 @@
 
 <div class="wko-creation-body">
   <ng-container *ngIf="!isLoading; else loadingBody">
-    <form *ngIf="workOrderForm" [formGroup]="workOrderForm" id="wko_form_creation">
+    <form *ngIf="creationWkoForm" [formGroup]="creationWkoForm" id="wko_form_creation">
       <ion-list>
         <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
-          [control]="workOrderForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
+          [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
         </app-search-select>
 
         <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
-          [control]="workOrderForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
+          [control]="creationWkoForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
         <app-search-select class="select-search" [key]="'wtrId'" [label]="'Liste des raisons *'" [elements]="wtrs"
-          [control]="workOrderForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
+          [control]="creationWkoForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
         </app-search-select>
 
         <div *ngIf="!params" class="wko-assets">
@@ -38,7 +38,7 @@
         <ion-input labelPlacement="floating" fill="outline" label="Libelle *" placeholder="Libelle" type="text"
           formControlName="wkoName"></ion-input>
         <ng-container
-          *ngTemplateOutlet="errorTemplate; context: { control: workOrderForm.controls['wkoName'] }"></ng-container>
+          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoName'] }"></ng-container>
 
         <ion-input labelPlacement="floating" fill="outline" label="Adresse" placeholder="Adresse" type="text"
           formControlName="wkoAddress"></ion-input>
@@ -61,7 +61,7 @@
             <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
-        <div *ngIf="workOrderForm.hasError('dateCompareInvalid')" class="error-message">
+        <div *ngIf="creationWkoForm.hasError('dateCompareInvalid')" class="error-message">
           <ion-note>La date de fin ne peut être inférieure à la date de début</ion-note>
         </div>
 
@@ -79,9 +79,9 @@
   </ng-container>
 </div>
 <div class="wko-footer">
-  <ion-item [disabled]="isLoading || !workOrderForm.valid">
+  <ion-item [disabled]="isLoading || !creationWkoForm.valid">
     <ion-button fill="clear" (click)="onSubmit()" class="save-mode"
-      [disabled]="isLoading || !workOrderForm.valid || !userHasPermissionSendWorkorder">{{creationButonLabel}}</ion-button>
+      [disabled]="isLoading || !creationWkoForm.valid || !userHasPermissionSendWorkorder">{{creationButonLabel}}</ion-button>
 
     <ion-select aria-label="Sélectionner une action" label-placement="fixed" justify="start" interface="popover" with="500px"
       (ionChange)="onCreationModeChange($event)" value="avec envoye à la planification">
@@ -136,5 +136,5 @@
 </ion-modal>
 
 <ng-template #buttonsTemplate>
-  <ion-icon *ngIf="workOrder?.wkoAttachment" name="attach-outline"></ion-icon>
+  <ion-icon *ngIf="workorder?.wkoAttachment" name="attach-outline"></ion-icon>
 </ng-template>

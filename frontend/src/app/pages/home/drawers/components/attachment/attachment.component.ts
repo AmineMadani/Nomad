@@ -3,6 +3,7 @@ import { Camera, CameraResultType } from '@capacitor/camera';
 import { DateTime } from 'luxon';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
@@ -15,13 +16,18 @@ export class AttachmentComponent implements OnInit {
   constructor(
     private attachmentService: AttachmentService,
     private workorderService: WorkorderService,
+    private utils: UtilsService,
   ) { }
 
   @Input("workorder") workorder: Workorder;
 
   @Output() onSaveAttachment: EventEmitter<void> = new EventEmitter();
 
-  ngOnInit() {}
+  public isMobile: boolean;
+
+  ngOnInit() {
+    this.isMobile = this.utils.isMobilePlateform();
+  }
 
   async addAttachment(event) {
     if (!event.target.files || event.target.files.length === 0) {

@@ -1,6 +1,6 @@
-import {Injectable} from "@angular/core";
-import {FormControl} from "@angular/forms";
-import { DateTime } from "luxon";
+import {Injectable} from '@angular/core';
+import {FormControl} from '@angular/forms';
+import { DateTime } from 'luxon';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 @Injectable()
 export class DateValidator {
@@ -12,7 +12,7 @@ export class DateValidator {
    */
   static isDateValid(c: FormControl) {
     if (!c.value) return null;
-    const date = DateTime.fromFormat(c.value, "dd/MM/yyyy")
+    const date = DateTime.fromFormat(c.value, 'dd/MM/yyyy')
     return date.isValid ? null : { isDateInvalid : true}
   }
   /**
@@ -30,8 +30,8 @@ export class DateValidator {
         if (!ctrl.get(dateDbt).value || !ctrl.get(dateFin).value) {
           return null;
         }
-        const dateTimeDbt = DateTime.fromFormat(ctrl.get(dateDbt).value, "dd/MM/yyyy");
-        const dateTimeFin = DateTime.fromFormat(ctrl.get(dateFin).value, "dd/MM/yyyy");
+        const dateTimeDbt = DateTime.fromFormat(ctrl.get(dateDbt).value, 'dd/MM/yyyy');
+        const dateTimeFin = DateTime.fromFormat(ctrl.get(dateFin).value, 'dd/MM/yyyy');
         if (!dateTimeDbt.isValid || !dateTimeFin.isValid) {
           return null;
         }

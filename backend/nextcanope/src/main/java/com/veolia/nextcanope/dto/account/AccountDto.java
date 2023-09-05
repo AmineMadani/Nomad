@@ -30,6 +30,8 @@ public class AccountDto {
 
 	private List<AccountPerimeterDto> perimeters;
 
+	private Boolean deleted;
+
 	public AccountDto() {
 		super();
 	}
@@ -61,6 +63,7 @@ public class AccountDto {
 					userPerimeters.add(accountPerimeterDto);
 				});
 		this.perimeters = userPerimeters;
+		this.deleted = user.getDeletedAt() != null;
 	}
 
 	public Long getId() {
@@ -141,5 +144,13 @@ public class AccountDto {
 
 	public void setPerimeters(List<AccountPerimeterDto> perimeters) {
 		this.perimeters = perimeters;
+	}
+
+	public Boolean getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Boolean deleted) {
+		this.deleted = deleted;
 	}
 }

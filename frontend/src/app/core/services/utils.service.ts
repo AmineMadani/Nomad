@@ -250,8 +250,12 @@ export class UtilsService {
    * @param dateStr : date with dd/MM/yyyy format
    * @returns date ISO
    */
-  public convertToDateISO(dateStr: string): string {
-    const dateLuxon: DateTime = DateTime.fromFormat(dateStr, "dd/MM/yyyy");
-    return dateLuxon.toISO();
+  public convertToDateISO(dateStr: string): Date {
+    const dateLuxon: DateTime = DateTime.fromFormat(dateStr, 'dd/MM/yyyy');
+    return dateLuxon.toJSDate();
+  }
+
+  public createNegativeId(): number {
+    return (Date.now() + Math.floor(Math.random() * 150000)) * -1;
   }
 }

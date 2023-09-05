@@ -124,12 +124,14 @@ public class WorkorderService {
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
 		
-		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() > 0) {
+		if(customWorkorderDto.getId() != null && customWorkorderDto.getTasks().get(0).getReport() == null) {
 			workorder.setWkoExtToSync(true);
+		} else {
+			workorder.setWkoExtToSync(customWorkorderDto.getWkoExtToSync());
 		}
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
-		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() < 0) {
+		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() < 0 && customWorkorderDto.getTasks().get(0).getReport() != null) {
 			status = statusService.getStatus(WorkOrderStatusCode.TERMINE.toString());
 		}
 		workorder.setWorkorderTaskStatus(status);
