@@ -338,16 +338,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    this.workorder.wkoPlanningStartDate = new Date(
-      this.utils.convertToDateISO(form.wkoPlanningStartDate)
-    );
-    this.workorder.wkoPlanningEndDate = new Date(
-      this.utils.convertToDateISO(form.wkoPlanningEndDate)
-    );
+    this.workorder = { id: this.workorder.id, ...form };
+
+    this.workorder.wkoPlanningStartDate = this.utils.convertToDateISO(form.wkoPlanningStartDate);
+    this.workorder.wkoPlanningEndDate = this.utils.convertToDateISO(form.wkoPlanningEndDate);
 
     let funct: any;
 
-    this.workorder = { ...form };
     this.workorder.latitude =
       assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
     this.workorder.longitude =
@@ -357,7 +354,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workorder.tasks = assets;
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
-    if (this.workorder.id > 0) {
+    if (this.workorder?.id > 0) {
       funct = this.workOrderService.updateWorkOrder(this.workorder);
     } else {
       form.wkoExtToSync = this.wkoExtToSyncValue;

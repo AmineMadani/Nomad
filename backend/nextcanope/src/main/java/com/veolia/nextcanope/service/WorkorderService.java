@@ -126,6 +126,8 @@ public class WorkorderService {
 		
 		if(customWorkorderDto.getId() != null && customWorkorderDto.getTasks().get(0).getReport() == null) {
 			workorder.setWkoExtToSync(true);
+		} else {
+			workorder.setWkoExtToSync(customWorkorderDto.getWkoExtToSync());
 		}
 
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
