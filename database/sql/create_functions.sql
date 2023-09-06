@@ -146,15 +146,20 @@ begin
         ) as feature
     from records r
     JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
+    where r.ctr_id in (
+      select ucp.ctr_id
+      from nomad.usr_ctr_prf ucp
+        where ucp.usr_id = %5$s::int and ucp.usc_ddel is null
+    )
     GROUP BY id, r.geom, x, y
   )
   SELECT jsonb_build_object(
-  'crs', '%4s'::jsonb,
+  'crs', '%4$s'::jsonb,
   'name',  '%2$s',
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), lyr_table_name::text, tile_geom::text, crs) into geojson;
+  $sql$, coalesce(list_fields, '*'), lyr_table_name::text, tile_geom::text, crs, user_ident) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
