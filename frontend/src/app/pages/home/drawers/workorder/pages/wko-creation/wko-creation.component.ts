@@ -150,7 +150,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.equipments = this.workorder.tasks.map((t) => {
             return {
               id: t.assObjRef,
-              lyrTableName: t.assObjTable,
+              lyrTableName: t.assObjTable.includes('asset.') ? t.assObjTable.split('asset.')[1] : t.assObjTable,
               x: t.longitude,
               y: t.latitude,
             };
@@ -646,6 +646,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   ): string | undefined {
     for (const m of map) {
       if (m.equipmentIds.includes(idToSearch)) {
+        if (m.lyrTableName.includes('asset.')) {
+          return m.lyrTableName.split('asset.')[1];
+        }
         return m.lyrTableName;
       }
     }
