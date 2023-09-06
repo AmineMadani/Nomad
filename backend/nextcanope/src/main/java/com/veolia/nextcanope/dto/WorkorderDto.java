@@ -11,6 +11,8 @@ import com.veolia.nextcanope.model.Workorder;
 public class WorkorderDto {
 
     private Long id;
+    
+    private Long wkoCacheId;
 
     private String wkoName;
 
@@ -47,6 +49,8 @@ public class WorkorderDto {
     private List<TaskDto> tasks;
 
     private boolean wkoExtToSync;
+    
+    private Date wkoDmod; 
 
     public Long getId() {
         return id;
@@ -200,7 +204,23 @@ public class WorkorderDto {
         this.wkoExtToSync = wkoExtToSync;
     }
 
-    public WorkorderDto(Workorder workorder) {
+    public Date getWkoDmod() {
+		return wkoDmod;
+	}
+
+	public void setWkoDmod(Date wkoDmod) {
+		this.wkoDmod = wkoDmod;
+	}
+	
+	public Long getWkoCacheId() {
+		return wkoCacheId;
+	}
+
+	public void setWkoCacheId(Long wkoCacheId) {
+		this.wkoCacheId = wkoCacheId;
+	}
+
+	public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
         this.wkoName = workorder.getWkoName();
@@ -216,6 +236,8 @@ public class WorkorderDto {
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
         this.wkoAgentNb = workorder.getWkoAgentNb();
+        this.wkoDmod = workorder.getWkoDmod();
+        this.wkoCacheId = workorder.getWkoCacheId();
         if(workorder.getCity() != null) {
         	this.ctyId = workorder.getCity().getId();
         }

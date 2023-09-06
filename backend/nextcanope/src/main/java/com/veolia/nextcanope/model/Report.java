@@ -27,10 +27,10 @@ public class Report implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="rpt_key", length=2147483647)

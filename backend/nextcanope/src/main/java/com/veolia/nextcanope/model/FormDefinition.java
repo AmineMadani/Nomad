@@ -30,10 +30,10 @@ public class FormDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="fdn_definition", nullable=false, length=2147483647)
@@ -68,7 +68,7 @@ public class FormDefinition implements Serializable {
 	@JsonIgnore
     private Users createdBy;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="formDefinition")
+    @OneToMany(mappedBy="formDefinition")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy="formDefinition")

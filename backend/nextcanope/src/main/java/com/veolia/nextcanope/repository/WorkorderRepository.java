@@ -2,10 +2,10 @@ package com.veolia.nextcanope.repository;
 
 import java.util.List;
 
-import com.veolia.nextcanope.configuration.NomadRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.veolia.nextcanope.configuration.NomadRepository;
 import com.veolia.nextcanope.model.Workorder;
 
 /**
@@ -13,6 +13,14 @@ import com.veolia.nextcanope.model.Workorder;
  * It extends JpaRepository, which provides generic CRUD operations.
  */
 public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
+	
+	/**
+     * Find a workorder based on the cache id
+     *
+     * @param wkoCacheId The unique cache id
+     * @return A workorder.
+     */
+    Workorder findByWkoCacheId(Long wkoCacheId);
 
 	/**
 	 * Get the list of WorkOrder by most recent date planned limited in number with offset for pagination
@@ -36,4 +44,5 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 			+ "order by w.wko_planning_start_date DESC",
 			nativeQuery = true)
 	List<Workorder> getWorkordersLinkToEquipment(@Param("layer") String layer, @Param("ref") String ref);
+	
 }

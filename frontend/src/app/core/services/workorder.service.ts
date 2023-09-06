@@ -94,7 +94,18 @@ export class WorkorderService {
    * @returns the workorder
    */
   public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
-    return this.workorderDataService.updateWorkOrder(workorder);
+    workorder.resync = false;
+    return this.workorderDataService.updateWorkOrder(workorder).pipe(
+      timeout(this.configurationService.offlineTimeout),
+      catchError(async (error) => {
+        if (error?.name == 'TimeoutError') {
+          workorder.resync = true;
+          this.saveCacheWorkorder(workorder);
+          return workorder;
+        }
+        throw error
+      })
+    );
   }
 
   /**
@@ -112,14 +123,34 @@ export class WorkorderService {
    * @returns the workorder
    */
   public createWorkOrder(workorder: Workorder): Observable<Workorder> {
-    return this.workorderDataService.createWorkOrder(workorder);
+    //Case of desktop, we remove all temporary id
+    if(!this.utilsService.isMobilePlateform()){
+      workorder.id=null;
+      if(workorder.tasks?.length > 0) {
+        for(let task of workorder.tasks) {
+          task.id=null;
+        }
+      }
+    }
+    workorder.resync = false;
+    return this.workorderDataService.createWorkOrder(workorder).pipe(
+      timeout(this.configurationService.offlineTimeout),
+      catchError(async (error) => {
+        if (error?.name == 'TimeoutError') {
+          workorder.resync = true;
+          this.saveCacheWorkorder(workorder);
+          return workorder;
+        }
+        throw error
+      }),
+    );
   }
 
   /**
    * Save last state of a workorder
    * @param workorder the workorder state
    */
-  public async saveStateWorkorder(workorder: Workorder) {
+  public async saveCacheWorkorder(workorder: Workorder) {
     await this.db.workorders.put(
       { data: workorder, key: workorder.id.toString() },
       workorder.id.toString()
@@ -130,7 +161,7 @@ export class WorkorderService {
    * Delete state of a workorder
    * @param workorder the workorder state
    */
-  public async deleteStateWorkorder(workorder: Workorder) {
+  public async deleteCacheWorkorder(workorder: Workorder) {
     await this.db.workorders.delete(workorder.id.toString());
   }
 

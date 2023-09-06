@@ -32,10 +32,10 @@ public class Task implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="tsk_name", length=2147483647)
@@ -55,11 +55,6 @@ public class Task implements Serializable {
     @Column(name="tsk_planning_end_date")
     @JsonProperty("tsk_planning_end_date")
     private Date tskPlanningEndDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="tsk_completion_start_date")
-    @JsonProperty("tsk_completion_start_date")
-    private Date tskCompletionStartDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_completion_date")
@@ -103,6 +98,10 @@ public class Task implements Serializable {
     @Column(name="geom", length=2147483647)
 	@JsonProperty("geom")
     private Geometry geom;
+    @Column(name="tsk_cache_id")
+    @JsonProperty("tsk_cache_id")
+    private Long tskCacheId;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -261,6 +260,14 @@ public class Task implements Serializable {
 
 	public void setGeom( Geometry geom ) {
         this.geom = geom ;
+    }
+
+    public Long getTskCacheId() {
+        return this.tskCacheId;
+    }
+
+	public void setTskCacheId( Long tskCacheId ) {
+        this.tskCacheId = tskCacheId ;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

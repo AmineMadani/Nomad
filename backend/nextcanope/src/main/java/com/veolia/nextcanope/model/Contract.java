@@ -31,10 +31,10 @@ public class Contract implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="ctr_code", length=2147483647)
@@ -235,6 +235,16 @@ public class Contract implements Serializable {
     }
 
     public List<UsrCtrPrf> getListOfUsrCtrPrf() {
+        if (this.listOfUsrCtrPrf != null) {
+            return this.listOfUsrCtrPrf.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UsrCtrPrf> getListOfUsrCtrPrfWithDeleted() {
         return this.listOfUsrCtrPrf;
     }
 

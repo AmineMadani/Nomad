@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -162,6 +164,16 @@ private Long id;
     }
 
     public List<UsrCtrPrf> getListOfUsrCtrPrf() {
+        if (this.listOfUsrCtrPrf != null) {
+            return this.listOfUsrCtrPrf.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<UsrCtrPrf> getListOfUsrCtrPrfWithDeleted() {
         return this.listOfUsrCtrPrf;
     }
 

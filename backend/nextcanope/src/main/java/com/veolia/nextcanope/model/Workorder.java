@@ -32,10 +32,10 @@ public class Workorder implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="id", nullable=false)
-    private Long id;
+private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="wko_name", length=2147483647)
@@ -83,11 +83,6 @@ public class Workorder implements Serializable {
     @Column(name="wko_planning_end_date")
     @JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="wko_completion_start_date")
-    @JsonProperty("wko_completion_start_date")
-    private Date wkoCompletionStartDate;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wko_completion_date")
@@ -163,13 +158,22 @@ public class Workorder implements Serializable {
     @JsonProperty("wko_ext_to_sync")
     private Boolean wkoExtToSync;
 
-    @Column(name="wko_ext_error", length=2147483647)
-    @JsonProperty("wko_ext_error")
-    private String wkoExtError;
+    @Column(name="wko_cache_id")
+    @JsonProperty("wko_cache_id")
+    private Long wkoCacheId;
 
     @Column(name="wko_attachment")
     @JsonProperty("wko_attachment")
     private Boolean wkoAttachment;
+
+    @Column(name="wko_ext_error", length=2147483647)
+    @JsonProperty("wko_ext_error")
+    private String wkoExtError;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="wko_completion_start_date")
+    @JsonProperty("wko_completion_start_date")
+    private Date wkoCompletionStartDate;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
@@ -301,10 +305,6 @@ public class Workorder implements Serializable {
 	public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
     }
-
-    public Date getWkoCompletionStartDate() { return this.wkoCompletionStartDate; }
-
-    public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) { this.wkoCompletionStartDate = wkoCompletionStartDate ; }
 
     public Date getWkoCompletionDate() {
         return this.wkoCompletionDate;
@@ -447,6 +447,22 @@ public class Workorder implements Serializable {
         this.wkoExtToSync = wkoExtToSync ;
     }
 
+    public Long getWkoCacheId() {
+        return this.wkoCacheId;
+    }
+
+	public void setWkoCacheId( Long wkoCacheId ) {
+        this.wkoCacheId = wkoCacheId ;
+    }
+
+    public Boolean getWkoAttachment() {
+        return this.wkoAttachment;
+    }
+
+	public void setWkoAttachment( Boolean wkoAttachment ) {
+        this.wkoAttachment = wkoAttachment ;
+    }
+
     public String getWkoExtError() {
         return this.wkoExtError;
     }
@@ -455,12 +471,12 @@ public class Workorder implements Serializable {
         this.wkoExtError = wkoExtError ;
     }
 
-    public Boolean getWkoAttachment() {
-        return wkoAttachment;
+    public Date getWkoCompletionStartDate() {
+        return this.wkoCompletionStartDate;
     }
 
-    public void setWkoAttachment(Boolean wkoAttachment) {
-        this.wkoAttachment = wkoAttachment;
+	public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) {
+        this.wkoCompletionStartDate = wkoCompletionStartDate ;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

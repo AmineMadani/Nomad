@@ -18,6 +18,8 @@ export interface Workorder {
     ctrId?: string;
     wkoAttachment?: boolean;
     wkoExtToSync?: boolean;
+    wkoDmod?: Date;
+    resync?: boolean;
 }
 
 export interface CancelWorkOrder {

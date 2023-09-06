@@ -9,4 +9,11 @@ import com.veolia.nextcanope.model.Task;
  */
 public interface TaskRepository extends NomadRepository<Task, Long> {
 
+	/**
+     * Find a task based on the cache id
+     *
+     * @param tskCacheId The unique cache id
+     * @return A workorder.
+     */
+    Task findByTskCacheId(Long tskCacheId);
 }

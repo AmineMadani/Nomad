@@ -255,7 +255,7 @@ export class UtilsService {
     return dateLuxon.toJSDate();
   }
 
-  public createNegativeId(): number {
-    return (Date.now() + Math.floor(Math.random() * 150000)) * -1;
+  public createCacheId(): number {
+    return Number(Date.now().toString() + Math.floor(Math.random() * 1000000).toString()) * -1;
   }
 }

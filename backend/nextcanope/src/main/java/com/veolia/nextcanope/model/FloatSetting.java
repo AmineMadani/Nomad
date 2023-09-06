@@ -23,9 +23,9 @@ public class FloatSetting implements Serializable {
     private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
-    @Id
+        @Id
     @Column(name="name", nullable=false, length=2147483647)
-    private String name;
+private String name;
 
     //--- ENTITY DATA FIELDS ---\\
     @Column(name="value")

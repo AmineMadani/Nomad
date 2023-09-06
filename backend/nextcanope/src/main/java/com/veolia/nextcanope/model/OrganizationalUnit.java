@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -64,28 +66,28 @@ private Long id;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @OneToMany(mappedBy="organizationalUnit")
-    private List<OrgCtr> listOfOrgCtr;
-
-    @ManyToOne
-    @JoinColumn(name="org_parent_id", referencedColumnName="id")
-    private OrganizationalUnit organizationalUnitParent;
-
-    @OneToMany(mappedBy="organizationalUnitParent")
-    private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
-
-    @OneToMany(mappedBy="organizationalUnitDefault")
-    private List<Users> listOfUsers;
-
     @ManyToOne
     @JoinColumn(name="org_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
 
+    @OneToMany(mappedBy="organizationalUnit")
+    private List<OrgCtr> listOfOrgCtr;
+
+    @OneToMany(mappedBy="organizationalUnitDefault")
+    private List<Users> listOfUsers;
+
     @ManyToOne
     @JoinColumn(name="org_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
+
+    @OneToMany(mappedBy="organizationalUnitParent")
+    private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
+
+    @ManyToOne
+    @JoinColumn(name="org_parent_id", referencedColumnName="id")
+    private OrganizationalUnit organizationalUnitParent;
 
     @ManyToOne
     @JoinColumn(name="out_id", referencedColumnName="id")
@@ -156,6 +158,14 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
     public List<OrgCtr> getListOfOrgCtr() {
         return this.listOfOrgCtr;
     }
@@ -164,12 +174,30 @@ private Long id;
         this.listOfOrgCtr = listOfOrgCtr;
     }
 
-    public OrganizationalUnit getOrganizationalUnitParent() {
-        return this.organizationalUnitParent;
+    public List<Users> getListOfUsers() {
+        if (this.listOfUsers != null) {
+            return this.listOfUsers.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
-    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
-        this.organizationalUnitParent = organizationalUnitParent;
+    public List<Users> getListOfUsersWithDeleted() {
+        return this.listOfUsers;
+    }
+
+    public void setListOfUsers(List<Users> listOfUsers) {
+        this.listOfUsers = listOfUsers;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<OrganizationalUnit> getListOfOrganizationalUnitChildren() {
@@ -180,28 +208,12 @@ private Long id;
         this.listOfOrganizationalUnitChildren = listOfOrganizationalUnitChildren;
     }
 
-    public List<Users> getListOfUsers() {
-        return this.listOfUsers;
+    public OrganizationalUnit getOrganizationalUnitParent() {
+        return this.organizationalUnitParent;
     }
 
-    public void setListOfUsers(List<Users> listOfUsers) {
-        this.listOfUsers = listOfUsers;
-    }
-
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
-    public Users getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
+    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
+        this.organizationalUnitParent = organizationalUnitParent;
     }
 
     public OrganizationalUnitType getOrganizationalUnitType() {

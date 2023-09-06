@@ -180,7 +180,7 @@ export class WkoViewComponent implements OnInit {
       this.workorderService.cancelWorkorder(cancelWko).subscribe(async (res) => {
         this.workOrder.wtsId = 5;
         this.getStatus();
-        await this.workorderService.deleteStateWorkorder(this.workOrder)
+        await this.workorderService.deleteCacheWorkorder(this.workOrder)
         this.displayCancelToast('Modification enregistré avec succès.');
       });
     }

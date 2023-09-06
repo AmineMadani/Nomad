@@ -107,8 +107,22 @@ public class WorkorderService {
      */
     public WorkorderDto createWorkOrder(WorkorderDto customWorkorderDto, Long userId) {
 		Users user = this.userService.getUserById(userId);
-
+		
 		Workorder workorder = new Workorder();
+		
+		//If we received a negative id, we are in the case of a workorder that was already send by the mobile 
+		//but not sync with it maybe cause by a network issue
+		if(customWorkorderDto.getId() != null && customWorkorderDto.getId() < 0) {
+			Workorder localWorkorder = workOrderRepository.findByWkoCacheId(customWorkorderDto.getId());
+			//If the workorder is find we return it
+			if(localWorkorder != null) {
+				return new WorkorderDto(localWorkorder);
+			} else {
+				//if not we set the negative id on the creation
+				workorder.setWkoCacheId(customWorkorderDto.getId());
+			}
+		}
+
 		workorder.setWkoName(customWorkorderDto.getWkoName());
 		workorder.setWkoEmergency(customWorkorderDto.getWkoEmergency());
 		workorder.setWkoAppointment(customWorkorderDto.getWkoAppointment());
@@ -215,6 +229,19 @@ public class WorkorderService {
 	) {
 
 		Users user = this.userService.getUserById(userId);
+		
+		//If we received a negative id, we are in the case of a workorder that was already send by the mobile 
+		//but not sync with it maybe cause by a network issue
+		if(customWorkorderDto.getId() < 0) {
+			Workorder localWorkorder = workOrderRepository.findByWkoCacheId(customWorkorderDto.getId());
+			if(localWorkorder != null) {
+				if(localWorkorder.getWkoDmod() != null && localWorkorder.getWkoDmod().compareTo(customWorkorderDto.getWkoDmod()) > 0) {
+					return new WorkorderDto(localWorkorder);
+				} else {
+					customWorkorderDto.setId(localWorkorder.getId());
+				}
+			}
+		}
 
 		Workorder workorder = getWorkOrderById(wkoId);
 		workorder.setWkoName(customWorkorderDto.getWkoName());
@@ -229,8 +256,6 @@ public class WorkorderService {
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setModifiedBy(user);
-		workorder.setWkoExtToSync(true);
-
 		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
 		workorder.setWorkorderTaskStatus(status);
 
@@ -244,7 +269,14 @@ public class WorkorderService {
 			Task task = new Task();
 			Long taskId = taskDto.getId();
 			if (taskId  != null){
-				task = getTaskById(taskId);
+				if(taskId < 0) {
+					task = taskRepository.findByTskCacheId(taskId);
+					if(task == null) {
+						task = new Task();
+					}
+				} else {
+					task = getTaskById(taskId);
+				}
 			}
 			// Set task attributes
 			task.setWorkorder(workorder);

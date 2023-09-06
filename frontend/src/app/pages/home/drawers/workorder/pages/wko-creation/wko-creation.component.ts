@@ -155,7 +155,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               y: t.latitude,
             };
           });
-          this.wkoExtToSyncValue = this.workorder.wkoExtToSync;
 
           if (this.workorder.id > 0) {
             this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
@@ -166,7 +165,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           await this.initializeFormWithWko();
         } else {
-          this.workorder = { id: this.utils.createNegativeId() };
+          this.workorder = { id: this.utils.createCacheId() };
         }
 
         await this.generateMarker();
@@ -177,7 +176,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.equipments?.[0] !== null) {
           assets = this.equipments?.map((eq) => {
             return {
-              id: this.utils.createNegativeId(),
+              id: this.utils.createCacheId(),
               assObjRef: eq.id,
               assObjTable: eq.lyrTableName,
               wtrId: wtrId,
@@ -343,6 +342,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workorder.wkoPlanningStartDate = this.utils.convertToDateISO(form.wkoPlanningStartDate);
     this.workorder.wkoPlanningEndDate = this.utils.convertToDateISO(form.wkoPlanningEndDate);
 
+    this.workorder.wkoDmod = new Date();
+    if(this.workorder.id) {
+      this.workorder.id=this.utils.createCacheId();
+    }
+
     let funct: any;
 
     this.workorder.latitude =
@@ -372,10 +376,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
-      await this.cacheService.deleteObject(
-        'workorders',
-        this.workorder.id.toString()
-      );
+      if(!res.resync) {
+        await this.cacheService.deleteObject(
+          'workorders',
+          this.workorder.id.toString()
+        );
+      }
     });
   }
 

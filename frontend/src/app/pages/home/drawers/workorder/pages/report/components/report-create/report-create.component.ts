@@ -404,13 +404,17 @@ export class ReportCreateComponent implements OnInit {
         }
         IntentAction.closeIntent({ value: { 'RETOUR': 'ok', 'CONTRAT': (contract ? contract.ctrCode : ''), 'COMMENTAIRE': comment } });
         this.isSubmitting = false;
-        this.exploitationService.deleteStateWorkorder(this.workorder);
+        if(!this.workorder.resync) {
+          this.exploitationService.deleteCacheWorkorder(this.workorder);
+        }
       });
     } else {
       this.mapService.removeEventLayer('task');
       this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
-      this.exploitationService.deleteStateWorkorder(this.workorder);
+      if(!this.workorder.resync) {
+        this.exploitationService.deleteCacheWorkorder(this.workorder);
+      }
     }
   }
 
@@ -435,7 +439,7 @@ export class ReportCreateComponent implements OnInit {
    * save work order state
    */
   public onSaveWorkOrderState() {
-    this.exploitationService.saveStateWorkorder(this.workorder);
+    this.exploitationService.saveCacheWorkorder(this.workorder);
   }
 
   /**
@@ -569,7 +573,7 @@ export class ReportCreateComponent implements OnInit {
       if(this.stepAsset?.draggableMarker) {
         this.stepAsset.draggableMarker.remove();
       }
-      this.exploitationService.deleteStateWorkorder(this.workorder);
+      this.exploitationService.deleteCacheWorkorder(this.workorder);
       for(let task of this.workorder.tasks) {
         this.mapService.removePoint('task',task.id.toString());
       }
