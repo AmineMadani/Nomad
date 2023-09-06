@@ -651,6 +651,7 @@ comment on column asset.ass_dmod is 'Last modification date';
 create table if not exists workorder
 (
   id                           bigserial primary key,
+  wko_cache_id                 bigint unique,
   -- Work order properties
   wko_name                     text,
   wko_external_app		         text,
@@ -663,7 +664,7 @@ create table if not exists workorder
   wko_street_number            text,
   wko_planning_start_date	     timestamp without time zone,
   wko_planning_end_date	       timestamp without time zone,
-  wko_completion_start_date	         timestamp without time zone,
+  wko_completion_start_date	   timestamp without time zone,
   wko_completion_date	         timestamp without time zone,
   wko_realization_user         text,
   wko_realization_cell         text,
@@ -709,6 +710,7 @@ create index on workorder using gist(geom);
 comment on table workorder is 'This table contains the workorders';
 /* Comments on fields */
 comment on column workorder.id is 'Table unique ID';
+comment on column workorder.wko_cache_id is 'Table unique cache ID';
 comment on column workorder.wko_name is 'Name of the workorder';
 comment on column workorder.wko_external_app is 'External application';
 comment on column workorder.wko_external_id is 'External id of the workorder';
@@ -750,6 +752,7 @@ COMMENT ON COLUMN workorder.wko_ext_error IS 'Error message during synchronisati
 create table if not exists task
 (
   id                       bigserial primary key,
+  tsk_cache_id             bigint unique,
   wko_id		               bigint references workorder(id),
   tsk_name                 text,
   wts_id                   bigint references workorder_task_status(id), -- status
@@ -779,6 +782,7 @@ create index on task using gist(geom);
 comment on table workorder is 'This table contains the workorders';
 /* Comments on fields */
 comment on column task.id is 'Table unique ID';
+comment on column task.tsk_cache_id is 'Table unique cache ID';
 comment on column task.wko_id is 'Workorder';
 comment on column task.tsk_name is 'Name of the task';
 comment on column task.wts_id is 'Task status';
