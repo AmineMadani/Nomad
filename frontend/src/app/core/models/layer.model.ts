@@ -98,3 +98,5 @@ export enum ReferenceDisplayType {
   SYNTHETIC = 'SYNTHETIC',
   DETAILED = 'DETAILED',
 }
+
+export const layerReferencesKey = 'layerReferences';

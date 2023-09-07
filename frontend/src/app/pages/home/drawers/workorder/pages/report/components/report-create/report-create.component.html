@@ -27,6 +27,7 @@
 </div>
 <div class="report-footer-actions" lines="none">
   <ng-container *ngIf="!isSubmitting">
+    <ion-button *ngIf="step ==1 && !workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onEditTask()" [class.font-mobile]="isMobile">Editer les équipements</ion-button>
     <ion-button *ngIf="step >= 2 && !hasPreviousQuestion && !isTest" fill="clear" style="float: left;" (click)="onBack()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
     <div *ngIf="step >= 2 && !hasPreviousQuestion && isTest"></div>
     <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile">Etape suivante</ion-button>

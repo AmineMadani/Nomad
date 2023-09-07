@@ -566,7 +566,7 @@ export class MapService {
       y2: Math.max(val._sw.lng, val._ne.lng),
     };
 
-    const res = await this.layerService.getLayerIndex(key);
+    const res = await this.layerService.getLayerIndex();
     const index: any[] = (res as any)['features'];
 
     if (index && index.length > 0) {
@@ -624,7 +624,7 @@ export class MapService {
   private loadLocalTask() {
     this.workorderService.getLocalWorkorders().then((workorders) => {
       for (let workorder of workorders) {
-        if (workorder.id < 0) {
+        if (workorder.id < 0 && !workorder.isDraft) {
           this.addGeojsonToLayer(workorder, 'task');
         }
       }

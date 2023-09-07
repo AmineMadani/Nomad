@@ -13,7 +13,7 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
-import { CacheService } from 'src/app/core/services/cache.service';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
@@ -32,7 +32,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private mapEventService: MapEventService,
     private utilsService: UtilsService,
     private userService: UserService,
-    private cacheService: CacheService
+    private workorderService: WorkorderService
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -117,7 +117,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public isMobile: boolean;
   public addToSelection: boolean = false;
   public updateUrl: boolean = false;
-  public wkoDraft: string;
+  public wkoDraft: number;
   public featureIdSelected: string = '';
   public featuresHighlighted: any[] = [];
   public userHasPermissionCreateAssetWorkorder: boolean = false;
@@ -126,15 +126,17 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   private layersConf: LayerWithStyles[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private paramFeatures: any;
+  private step: string;
 
   async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+    this.step = this.activatedRoute.snapshot.queryParams?.['step'];
     this.buttons = [
       { key: 'add', label: 'Ajouter un élement', icon: 'add' },
       {
         key: 'create',
         label: this.wkoDraft
-          ? "Reprendre l'intervention"
+          ? (this.step == 'report' ? "Reprendre le CR" : "Reprendre l'intervention")
           : 'Générer une intervention',
         icon: 'person-circle',
         disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
@@ -226,10 +228,17 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         break;
       case 'create':
         if (this.wkoDraft){
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.WORKORDER_EDITION,
-            [ this.wkoDraft ],
-          );
+          if(this.step == 'report') {
+            this.drawerService.navigateTo(
+              DrawerRouteEnum.REPORT,
+              [this.wkoDraft]
+            );
+          } else {
+            this.drawerService.navigateTo(
+              DrawerRouteEnum.WORKORDER_EDITION,
+              [ this.wkoDraft ],
+            );
+          }
         }
         else{
           this.drawerService.navigateWithEquipments(
@@ -313,9 +322,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
 
     if (this.wkoDraft) {
-      const wko: Workorder = (await this.cacheService.getObjectFromCache('workorders', this.wkoDraft)).data;
+      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
       wko.tasks = wko.tasks.filter((t) => t.assObjRef !== feature.id);
-      await this.cacheService.saveObject('workorders', this.wkoDraft, wko);
+      await this.workorderService.saveCacheWorkorder(wko);
     }
 
     this.mapEventService.removeFeatureFromSelected(
@@ -418,19 +427,23 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     features = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...features], 'id');
 
     if (this.wkoDraft) {
-      const wko: Workorder = (await this.cacheService.getObjectFromCache('workorders', this.wkoDraft)).data;
-      for (let f of features) {
-        if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
-          wko.tasks.push({
-            assObjTable: f.lyrTableName,
-            assObjRef: f.id,
-            latitude: f.y,
-            longitude: f.x,
-            wtrId: wko.tasks[0]?.wtrId ?? null
-          })
+      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      this.workorderService.getAllWorkorderTaskStatus().subscribe(async lStatus => {
+        for (let f of features) {
+          if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
+            wko.tasks.push({
+              id: this.utilsService.createCacheId(),
+              assObjTable: 'asset.'+f.lyrTableName,
+              assObjRef: f.id,
+              latitude: f.y,
+              longitude: f.x,
+              wtrId: wko.tasks[0]?.wtrId ?? null,
+              wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id
+            })
+          }
         }
-      }
-      await this.cacheService.saveObject('workorders', this.wkoDraft, wko);
+        await this.workorderService.saveCacheWorkorder(wko);
+      });
     }
 
     this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features);

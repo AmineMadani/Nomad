@@ -66,7 +66,7 @@ export class WorkorderService {
 
   public async getLocalWorkorders(): Promise<Workorder[]> {
     let workorders: Workorder[] = (await this.db.workorders.toArray()).map(elem => elem.data);
-    return workorders; 
+    return workorders;
   }
 
   /**
@@ -124,11 +124,11 @@ export class WorkorderService {
    */
   public createWorkOrder(workorder: Workorder): Observable<Workorder> {
     //Case of desktop, we remove all temporary id
-    if(!this.utilsService.isMobilePlateform()){
-      workorder.id=null;
-      if(workorder.tasks?.length > 0) {
-        for(let task of workorder.tasks) {
-          task.id=null;
+    if (!this.utilsService.isMobilePlateform()) {
+      workorder.id = null;
+      if (workorder.tasks?.length > 0) {
+        for (let task of workorder.tasks) {
+          task.id = null;
         }
       }
     }
@@ -222,7 +222,7 @@ export class WorkorderService {
       wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
       wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
       wtsId: featureWorkorder.properties['wkoWtsId'],
-      wkoCreationComment : featureWorkorder.properties['wkoCreationComment'],
+      wkoCreationComment: featureWorkorder.properties['wkoCreationComment'],
       tasks: [],
       ctyId: featureWorkorder.properties['ctyId'],
       ctrId: '',
@@ -246,5 +246,19 @@ export class WorkorderService {
       wtsId: task.properties['wtsId'],
       wkoId: task.properties['wkoId']
     };
+  }
+
+  /**
+   * This method remove the drafts workorders if not exist in url
+   * @param url url
+   */
+  public removeLocalUnusedWorkorderFromUrl(url: string) {
+    this.getLocalWorkorders().then(workorders => {
+      for (let workorder of workorders) {
+        if (workorder.isDraft && !url.includes(workorder.id.toString())) {
+          this.deleteCacheWorkorder(workorder);
+        }
+      }
+    });
   }
 }

@@ -5,6 +5,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Geolocation } from '@capacitor/geolocation';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-report',
@@ -18,7 +19,8 @@ export class ReportDrawer implements OnInit {
     private mapService: MapService,
     private mapEvent: MapEventService,
     private workorderService: WorkorderService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private utilsService: UtilsService
   ) {
   }
 
@@ -59,10 +61,10 @@ export class ReportDrawer implements OnInit {
             latitude: latitude,
             longitude: longitude,
             wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
-            id: (Date.now() + Math.floor(Math.random() * 150000)) * -1,
+            id: this.utilsService.createCacheId(),
             tasks: [
               {
-                id: (Date.now() + Math.floor(Math.random() * 150000)) * -1,
+                id: this.utilsService.createCacheId(),
                 latitude: latitude,
                 longitude: longitude,
                 assObjTable: layer,
@@ -71,6 +73,8 @@ export class ReportDrawer implements OnInit {
               }
             ]
           };
+
+          this.workorderService.saveCacheWorkorder(this.workorder);
         });
       });
     }

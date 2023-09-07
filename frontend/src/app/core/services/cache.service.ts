@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { AppDB, ITiles } from '../models/app-db.model';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { Observable } from 'rxjs/internal/Observable';
@@ -11,6 +10,7 @@ export enum ReferentialCacheKey {
   CONTRACTS = 'contracts',
   LAYERS = 'layers',
   V_LAYER_WTR = 'v_layer_wtr',
+  INDEX = 'layerIndex',
   WORKORDER_TASK_STATUS = 'workorder_task_status',
   WORKORDER_TASK_REASON = 'workorder_task_reason'
 }
@@ -18,7 +18,7 @@ export enum ReferentialCacheKey {
   providedIn: 'root',
 })
 export class CacheService {
-  constructor(private http: HttpClient) {
+  constructor() {
     this.db = new AppDB();
   }
 

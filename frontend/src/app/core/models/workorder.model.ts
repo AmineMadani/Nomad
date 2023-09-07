@@ -19,7 +19,8 @@ export interface Workorder {
     wkoAttachment?: boolean;
     wkoExtToSync?: boolean;
     wkoDmod?: Date;
-    resync?: boolean;
+    resync?: boolean; //Param to indicate if the workorder have to be resync with the server
+    isDraft?: boolean;
 }
 
 export interface CancelWorkOrder {
@@ -58,7 +59,7 @@ export interface ReportValue {
     answer: string;
 }
 
-export enum WkoStatus{
+export enum WkoStatus {
     'CREE' = 1,
     'ENVOYEPLANIF' = 2,
     'PLANIFIE' = 3,
@@ -67,17 +68,23 @@ export enum WkoStatus{
 }
 
 export interface WorkorderTaskStatus {
-  id: number;
-  wtsCode: string;
-  wtsSlabel: string;
-  wtsLlabel: string;
-  wtsValid: boolean;
+    id: number;
+    wtsCode: string;
+    wtsSlabel: string;
+    wtsLlabel: string;
+    wtsValid: boolean;
 }
 
 export interface WorkorderTaskReason {
-  id: number;
-  wtrCode: string;
-  wtrSlabel: string;
-  wtrLlabel: string;
-  wtrValid: boolean;
+    id: number;
+    wtrCode: string;
+    wtrSlabel: string;
+    wtrLlabel: string;
+    wtrValid: boolean;
+}
+
+export enum WorkorderType {
+    DRAFT = 'DRAFT',
+    UNPLANNED = 'UNPLANNED',
+    PLANNED = 'PLANNED'
 }

@@ -28,7 +28,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheService } from 'src/app/core/services/cache.service';
-import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { Task, Workorder, WorkorderType } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -165,7 +165,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           await this.initializeFormWithWko();
         } else {
-          this.workorder = { id: this.utils.createCacheId() };
+          this.workorder = { id: this.utils.createCacheId(), isDraft: true };
         }
 
         await this.generateMarker();
@@ -194,11 +194,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.markerCreation.get('xy').getLngLat().lng;
         this.workorder.wkoAttachment = false;
 
-        await this.cacheService.saveObject(
-          'workorders',
-          this.workorder.id.toString(),
-          this.workorder
-        );
+        await this.workOrderService.saveCacheWorkorder(this.workorder);
 
         await this.initializeEquipments();
       });
@@ -217,11 +213,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         });
 
-        await this.cacheService.saveObject(
-          'workorders',
-          this.workorder.id.toString(),
-          this.workorder
-        );
+        this.workOrderService.saveCacheWorkorder(this.workorder);
       });
   }
 
@@ -367,6 +359,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     funct.subscribe(async (res: Workorder) => {
       this.removeMarkers();
+      this.workorder.isDraft = false;
       this.mapService.addGeojsonToLayer(res, 'task');
       if (res.tasks.length == 1) {
         this.drawerService.navigateTo(DrawerRouteEnum.TASK_VIEW, [
@@ -377,10 +370,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
       if(!res.resync) {
-        await this.cacheService.deleteObject(
-          'workorders',
-          this.workorder.id.toString()
-        );
+        this.workOrderService.deleteCacheWorkorder(this.workorder);
       }
     });
   }
@@ -432,25 +422,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public async editEquipmentList(): Promise<void> {
-    if (this.workorder) {
-      this.drawerService.navigateWithEquipments(
-        DrawerRouteEnum.SELECTION,
-        this.equipments,
-        { draft: this.workorder.id }
-      );
-    } else {
-      await this.cacheService.saveObject(
-        'workorders',
-        this.workorder.id.toString(),
-        this.workorder
-      );
-
-      this.drawerService.navigateWithEquipments(
-        DrawerRouteEnum.SELECTION,
-        this.equipments,
-        { draft: this.workorder.id.toString() }
-      );
-    }
+    this.workOrderService.saveCacheWorkorder(this.workorder);
+    this.drawerService.navigateWithEquipments(
+      DrawerRouteEnum.SELECTION,
+      this.equipments,
+      { draft: this.workorder.id }
+    );
   }
 
   public getKeys(errors: any): string[] {

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { UserReference, ReferenceDisplayType, LayerWithStyles, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr } from '../models/layer.model';
+import { UserReference, ReferenceDisplayType, LayerWithStyles, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, layerReferencesKey } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
-import { AppDB, layerReferencesKey } from '../models/app-db.model';
+import { AppDB } from '../models/app-db.model';
 import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
@@ -25,7 +25,6 @@ export class LayerService {
 
   private db: AppDB;
 
-  private listIndexOnLoad: Map<string, string> = new Map<string, string>();
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
   /**
@@ -61,26 +60,18 @@ export class LayerService {
    * @param {string} layerKey - string - key of the layer
    * @returns The geojson of the index of the layer.
    */
-  public async getLayerIndex(layerKey: string): Promise<GeoJSONObject> {
-    const index = await this.db.indexes.get(layerKey);
+  public async getLayerIndex(): Promise<GeoJSONObject> {
+    const index = await this.db.referentials.get(ReferentialCacheKey.INDEX);
     if (index) {
       return index.data;
     }
-    if (!this.listIndexOnLoad.has(layerKey)) {
-      this.listIndexOnLoad.set(
-        layerKey,
-        'Chargement des indexes de la couche ' + layerKey
-      );
-      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-      const req = await firstValueFrom(this.layerDataService.getLayerIndex(layerKey));
-      if (!req) {
-        throw new Error(`Failed to fetch index for ${layerKey}`);
-      }
-      await this.db.indexes.put({ data: req, key: layerKey }, layerKey);
-      this.listIndexOnLoad.delete(layerKey);
-      return req;
+    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
+    const req = await firstValueFrom(this.layerDataService.getLayerIndex('index'));
+    if (!req) {
+      throw new Error(`Failed to fetch index`);
     }
-    return {};
+    await this.db.referentials.put({ data: req, key: ReferentialCacheKey.INDEX }, ReferentialCacheKey.INDEX);
+    return req;
   }
 
   /**
@@ -97,9 +88,8 @@ export class LayerService {
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
     /* It's getting the number from the file name. */
-    const featureNumber: number = +file.match(
-      new RegExp(`${layerKey}_(\\d+)\\.geojson`)
-    )![1];
+    const featureNumber: number = Number(file.replace('index_','').replace('.geojson',''));
+    file = file.replace('index',layerKey);
     /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
     const req: NomadGeoJson = await lastValueFrom(
       this.layerDataService.getLayerFile(layerKey, featureNumber)
@@ -130,7 +120,7 @@ export class LayerService {
    * @returns true is data is currently loading
    */
   public isDataLoading(): boolean {
-    return this.listTileOnLoad.size > 0 || this.listIndexOnLoad.size > 0;
+    return this.listTileOnLoad.size > 0;
   }
 
   /**
@@ -139,8 +129,7 @@ export class LayerService {
    */
   public getListLoadingData(): string[] {
     return [
-      ...Array.from(this.listIndexOnLoad.values()),
-      ...Array.from(this.listTileOnLoad.values()),
+      ...Array.from(this.listTileOnLoad.values())
     ];
   }
 
@@ -248,7 +237,7 @@ export class LayerService {
         timeout(2000),
         catchError(async () => {
           // Get the layer references data from IndexedDB cache
-          const layerReferences = await this.db.layerReferences.get(layerReferencesKey);
+          const layerReferences = await this.db.referentials.get(layerReferencesKey);
           // If layer references data exists, return it
           if (layerReferences) {
             return layerReferences.data;
@@ -264,7 +253,7 @@ export class LayerService {
     }
 
     // Store layer references data in IndexedDB
-    await this.db.layerReferences.put({ data: layerReferencesData, key: layerReferencesKey }, layerReferencesKey);
+    await this.db.referentials.put({ data: layerReferencesData, key: layerReferencesKey }, layerReferencesKey);
 
     // Return the layer references data fetched from the API
     return layerReferencesData;

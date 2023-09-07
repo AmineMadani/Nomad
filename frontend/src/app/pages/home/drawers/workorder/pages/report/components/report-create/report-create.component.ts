@@ -19,6 +19,7 @@ import { PraxedoService } from 'src/app/core/services/praxedo.service';
 import { ReportAssetComponent } from '../report-asset/report-asset.component';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-report-create',
@@ -534,6 +535,7 @@ export class ReportCreateComponent implements OnInit {
   public cancelCompleteModal(): void {
     this.completeModal.dismiss();
   }
+
   /**
    * Validate the completion popup
    */
@@ -579,6 +581,24 @@ export class ReportCreateComponent implements OnInit {
       }
       this.router.navigate(['/home']);
     }
+  }
+
+  public onEditTask() {
+    let equipments = this.workorder.tasks.map((t) => {
+      return {
+        id: t.assObjRef,
+        lyrTableName: t.assObjTable.includes('asset.') ? t.assObjTable.split('asset.')[1] : t.assObjTable,
+      };
+    });
+
+    this.drawerService.navigateWithEquipments(
+      DrawerRouteEnum.SELECTION,
+      equipments,
+      { 
+        draft: this.workorder.id, 
+        step: 'report'
+      }
+    );
   }
 
 }

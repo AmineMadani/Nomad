@@ -5,6 +5,7 @@ import { NavController } from '@ionic/angular';
 import { BehaviorSubject, filter, map, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { WorkorderService } from './workorder.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,8 @@ export class DrawerService {
     private router: Router,
     private location: LocationStrategy,
     private utilsService: UtilsService,
-    private nav: NavController
+    private nav: NavController,
+    private workorderService: WorkorderService
   ) {}
   private routerEventsSubscription: Subscription;
 
@@ -72,6 +74,7 @@ export class DrawerService {
         })
       )
       .subscribe((currentRoute: any) => {
+        this.workorderService.removeLocalUnusedWorkorderFromUrl(currentRoute.url);
         const currentRouteName: DrawerRouteEnum = currentRoute.name;
         // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
         if (

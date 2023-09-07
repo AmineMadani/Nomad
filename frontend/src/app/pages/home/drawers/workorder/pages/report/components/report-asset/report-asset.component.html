@@ -11,12 +11,12 @@
         </ion-note>
       </ion-label>
     </div>
-    <ng-container *ngIf="!draggableMarker && !editTaskEquipment && workorder.tasks.length == 1">
+    <ng-container *ngIf="!draggableMarker && !editTaskEquipment && (workorder.tasks.length == 1 || !workorder.wkoPlanningStartDate)">
       <ion-button slot="end" fill="clear" (click)="onEditEquipment(tsk)">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
     </ng-container>
-    <ng-container *ngIf="editTaskEquipment">
+    <ng-container *ngIf="editTaskEquipment && editTaskEquipment.id == tsk.id">
       <ion-button slot="end" fill="clear" (click)="onValidateChangeEquipment(tsk)">
         <ion-icon slot="icon-only" color="success" name="checkmark-circle-outline"></ion-icon>
       </ion-button>
