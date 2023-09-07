@@ -85,9 +85,15 @@ private Long id;
     private Date wkoPlanningEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="wko_completion_date")
-    @JsonProperty("wko_completion_date")
-    private Date wkoCompletionDate;
+
+    @Column(name="wko_completion_start_date")
+    @JsonProperty("wko_completion_start_date")
+    private Date wkoCompletionStartDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="wko_completion_end_date")
+    @JsonProperty("wko_completion_end_date")
+    private Date wkoCompletionEndDate;
 
     @Column(name="wko_realization_user", length=2147483647)
     @JsonProperty("wko_realization_user")
@@ -169,12 +175,6 @@ private Long id;
     @Column(name="wko_ext_error", length=2147483647)
     @JsonProperty("wko_ext_error")
     private String wkoExtError;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="wko_completion_start_date")
-    @JsonProperty("wko_completion_start_date")
-    private Date wkoCompletionStartDate;
-
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
@@ -306,12 +306,17 @@ private Long id;
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
     }
 
-    public Date getWkoCompletionDate() {
-        return this.wkoCompletionDate;
+    public Date getWkoCompletionStartDate() { return this.wkoCompletionStartDate; }
+
+    public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) { this.wkoCompletionStartDate = wkoCompletionStartDate ; }
+
+    public Date getWkoCompletionEndDate() {
+        return this.wkoCompletionEndDate;
+
     }
 
-	public void setWkoCompletionDate( Date wkoCompletionDate ) {
-        this.wkoCompletionDate = wkoCompletionDate ;
+	public void setWkoCompletionEndDate( Date wkoCompletionEndDate ) {
+        this.wkoCompletionEndDate = wkoCompletionEndDate ;
     }
 
     public String getWkoRealizationUser() {
@@ -469,14 +474,6 @@ private Long id;
 
 	public void setWkoExtError( String wkoExtError ) {
         this.wkoExtError = wkoExtError ;
-    }
-
-    public Date getWkoCompletionStartDate() {
-        return this.wkoCompletionStartDate;
-    }
-
-	public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) {
-        this.wkoCompletionStartDate = wkoCompletionStartDate ;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

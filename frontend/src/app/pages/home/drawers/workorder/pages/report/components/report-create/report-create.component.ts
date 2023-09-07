@@ -541,10 +541,10 @@ export class ReportCreateComponent implements OnInit {
    */
   public validCompleteModal(): void {
     this.workorder.wkoCompletionStartDate = DateTime.fromFormat(this.completeModalForm.controls["realisationStartDate"].value, "dd/MM/yyyy").toJSDate();
-    this.workorder.wkoCompletionDate = DateTime.fromFormat(this.completeModalForm.controls["realisationEndDate"].value, "dd/MM/yyyy").toJSDate();
+    this.workorder.wkoCompletionEndDate = DateTime.fromFormat(this.completeModalForm.controls["realisationEndDate"].value, "dd/MM/yyyy").toJSDate();
     for(let task of this.selectedTasks) {
       task.tskCompletionStartDate = this.workorder.wkoCompletionStartDate;
-      task.tskCompletionDate = this.workorder.wkoCompletionDate;
+      task.tskCompletionEndDate = this.workorder.wkoCompletionEndDate;
     }
     this.completeForm();
     this.completeModal.dismiss();

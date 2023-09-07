@@ -59,9 +59,18 @@ export class WkoViewComponent implements OnInit {
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
 
-  public CanEdit() : boolean {
+  public canEdit(): boolean {
     return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
                                         || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF);
+  }
+
+  public canCancel(): boolean {
+    return  !this.loading && this.workOrder  && this.workOrder.wtsId !== WkoStatus.TERMINE
+                                        && this.workOrder.wtsId !== WkoStatus.ANNULE;
+  }
+
+  public isCancelled(): boolean {
+    return this.workOrder.wtsId === WkoStatus.ANNULE;
   }
 
   private ngUnsubscribe$: Subject<void> = new Subject();

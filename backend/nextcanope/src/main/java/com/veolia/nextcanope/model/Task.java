@@ -57,9 +57,14 @@ private Long id;
     private Date tskPlanningEndDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="tsk_completion_date")
-    @JsonProperty("tsk_completion_date")
-    private Date tskCompletionDate;
+    @Column(name="tsk_completion_start_date")
+    @JsonProperty("tsk_completion_start_date")
+    private Date tskCompletionStartDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="tsk_completion_end_date")
+    @JsonProperty("tsk_completion_end_date")
+    private Date tskCompletionEndDate;
 
     @Column(name="tsk_realization_user")
     @JsonProperty("tsk_realization_user")
@@ -185,12 +190,12 @@ private Long id;
         this.tskPlanningEndDate = tskPlanningEndDate ;
     }
 
-    public Date getTskCompletionDate() {
-        return this.tskCompletionDate;
+    public Date getTskCompletionEndDate() {
+        return this.tskCompletionEndDate;
     }
 
-	public void setTskCompletionDate( Date tskCompletionDate ) {
-        this.tskCompletionDate = tskCompletionDate ;
+	public void setTskCompletionEndDate( Date tskCompletionEndDate ) {
+        this.tskCompletionEndDate = tskCompletionEndDate ;
     }
 
     public Long getTskRealizationUser() {
