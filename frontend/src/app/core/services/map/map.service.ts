@@ -250,7 +250,7 @@ export class MapService {
       //else create the layer
       const layer: MaplibreLayer = new MaplibreLayer(
         this.layersConfiguration.find(
-          (element) => element.lyrTableName == 'asset.' + layerKey
+          (element) => element.lyrTableName == layerKey
         ),
         this.map
       );
@@ -301,7 +301,7 @@ export class MapService {
   private reorderMapStyleDisplay() {
     let layerSorted = this.layersConfiguration
       .filter((layer) =>
-        this.loadedLayer.includes(layer.lyrTableName.replace('asset.', ''))
+        this.loadedLayer.includes(layer.lyrTableName)
       )
       .sort((a, b) => a.lyrNumOrder - b.lyrNumOrder);
     for (let lyr of layerSorted) {

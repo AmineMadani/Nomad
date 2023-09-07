@@ -113,12 +113,12 @@ begin
   crs :=  jsonb_build_object('type', 'name', 'properties', crs);
   --
   -- Get list of fields from conf
-  if lyr_table_name != 'asset.task' then
+  if lyr_table_name != 'task' then
     select CONCAT(string_agg("referenceKey", ', '), ', ' || (SELECT column_name 
 	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 
+	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 
 	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name=lyr_table_name and column_name='ctr_id'))  into list_fields
+	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='ctr_id'))  into list_fields
       from nomad.f_get_layer_references_user(user_ident, false) f
       where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
   end if;
@@ -127,7 +127,7 @@ begin
     -- Get list of fields from postgres
     select string_agg(column_name, ', ')  into list_fields
       from information_schema.columns
-     where table_schema||'.'||table_name = lyr_table_name;
+     where table_schema||'.'||table_name = 'asset.'||lyr_table_name;
   end if;
   --
   execute format($sql$
@@ -159,7 +159,7 @@ begin
   'type',     'FeatureCollection',
   'features', jsonb_agg(feature))
   from features f
-  $sql$, coalesce(list_fields, '*'), lyr_table_name::text, tile_geom::text, crs, user_ident) into geojson;
+  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;

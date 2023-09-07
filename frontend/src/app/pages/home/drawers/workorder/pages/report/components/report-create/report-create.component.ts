@@ -587,7 +587,7 @@ export class ReportCreateComponent implements OnInit {
     let equipments = this.workorder.tasks.map((t) => {
       return {
         id: t.assObjRef,
-        lyrTableName: t.assObjTable.includes('asset.') ? t.assObjTable.split('asset.')[1] : t.assObjTable,
+        lyrTableName: t.assObjTable,
       };
     });
 

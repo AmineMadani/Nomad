@@ -105,34 +105,34 @@ insert into layer
 )
 values
 
-  ((select id from domains where dom_type = 'dw') , 'asset.aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '22'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_vanne', 'geom', 'uuid', '3857', 'Vanne', (select id from asset_type where ast_code = '23'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_compteur', 'geom', 'uuid', '3857', 'Compteur', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_regulation', 'geom', 'uuid', '3857', 'Regulateur', (select id from asset_type where ast_code = '27'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie', (select id from asset_type where ast_code = '24'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte', (select id from asset_type where ast_code = '21'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
-, ((select id from domains where dom_type = 'dw') , 'asset.aep_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '29'))
+  ((select id from domains where dom_type = 'dw') , 'aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '22'))
+, ((select id from domains where dom_type = 'dw') , 'aep_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'aep_vanne', 'geom', 'uuid', '3857', 'Vanne', (select id from asset_type where ast_code = '23'))
+, ((select id from domains where dom_type = 'dw') , 'aep_compteur', 'geom', 'uuid', '3857', 'Compteur', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_regulation', 'geom', 'uuid', '3857', 'Regulateur', (select id from asset_type where ast_code = '27'))
+, ((select id from domains where dom_type = 'dw') , 'aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie', (select id from asset_type where ast_code = '24'))
+, ((select id from domains where dom_type = 'dw') , 'aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte', (select id from asset_type where ast_code = '21'))
+, ((select id from domains where dom_type = 'dw') , 'aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'aep_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '29'))
 ----
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_regard', 'geom', 'uuid', '3857', 'Regard', (select id from asset_type where ast_code = '34'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
-, ((select id from domains where dom_type = 'ww') , 'asset.ass_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '39'))
-, ((select id from domains where dom_type = 'asset'), 'asset.task', 'geom', 'uuid', '3857', 'Tâche', null)
+, ((select id from domains where dom_type = 'ww') , 'ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
+, ((select id from domains where dom_type = 'ww') , 'ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
+, ((select id from domains where dom_type = 'ww') , 'ass_regard', 'geom', 'uuid', '3857', 'Regard', (select id from asset_type where ast_code = '34'))
+, ((select id from domains where dom_type = 'ww') , 'ass_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
+, ((select id from domains where dom_type = 'ww') , 'ass_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '39'))
+, ((select id from domains where dom_type = 'asset'), 'task', 'geom', 'uuid', '3857', 'Tâche', null)
 ---
 ;
 
@@ -446,23 +446,23 @@ INSERT INTO nomad.style_image (syd_id, syi_code, syi_source) VALUES
 
 
 INSERT INTO nomad.layer_style (lse_code,syd_id,lyr_id) VALUES
-	 ('AEP_DEFENSE_INCENDIE',(select id from nomad.style_definition where syd_code='AEP_DEFENSE_INCENDIE_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_defense_incendie')),
-	 ('AEP_VANNE_FERME_ROBINET',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_ROBINET_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_VANNE_FERME_TOUR',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_TOUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_VANNE_FERME_ELECTRO',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_ELECTRO_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_VANNE_OUVERT_ROBINET',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_ROBINET_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_VANNE_OUVERT_TOUR',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_TOUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_VANNE_OUVERT_ELECTRO',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_ELECTRO_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_vanne')),
-	 ('AEP_CANALISATION',(select id from nomad.style_definition where syd_code='AEP_CANALISATION_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_canalisation')),
-	 ('AEP_OUVRAGE',(select id from nomad.style_definition where syd_code='AEP_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_ouvrage')),
-	 ('ASS_COLLECTEUR',(select id from nomad.style_definition where syd_code='ASS_COLLECTEUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_collecteur'));
+	 ('AEP_DEFENSE_INCENDIE',(select id from nomad.style_definition where syd_code='AEP_DEFENSE_INCENDIE_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_defense_incendie')),
+	 ('AEP_VANNE_FERME_ROBINET',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_ROBINET_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_VANNE_FERME_TOUR',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_TOUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_VANNE_FERME_ELECTRO',(select id from nomad.style_definition where syd_code='AEP_VANNE_FERME_ELECTRO_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_VANNE_OUVERT_ROBINET',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_ROBINET_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_VANNE_OUVERT_TOUR',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_TOUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_VANNE_OUVERT_ELECTRO',(select id from nomad.style_definition where syd_code='AEP_VANNE_OUVERT_ELECTRO_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_vanne')),
+	 ('AEP_CANALISATION',(select id from nomad.style_definition where syd_code='AEP_CANALISATION_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_canalisation')),
+	 ('AEP_OUVRAGE',(select id from nomad.style_definition where syd_code='AEP_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_ouvrage')),
+	 ('ASS_COLLECTEUR',(select id from nomad.style_definition where syd_code='ASS_COLLECTEUR_DEFAULT'),(select id from nomad.layer where lyr_table_name='ass_collecteur'));
 INSERT INTO nomad.layer_style (lse_code,syd_id,lyr_id) VALUES
-	 ('ASS_OUVRAGE',(select id from nomad.style_definition where syd_code='ASS_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_ouvrage')),
-	 ('ASS_AVALOIR',(select id from nomad.style_definition where syd_code='ASS_AVALOIR_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_avaloir')),
-	 ('ASS_REGARD',(select id from nomad.style_definition where syd_code='ASS_REGARD_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_regard')),
-	 ('AEP_BRANCHE',(select id from nomad.style_definition where syd_code='AEP_BRANCHEMENT_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.aep_branche')),
-	 ('ASS_BRANCHE',(select id from nomad.style_definition where syd_code='ASS_BRANCHEMENT_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.ass_branche')),
-	 ('TASK',(select id from nomad.style_definition where syd_code='TASK_DEFAULT'),(select id from nomad.layer where lyr_table_name='asset.task'));
+	 ('ASS_OUVRAGE',(select id from nomad.style_definition where syd_code='ASS_OUVRAGE_DEFAULT'),(select id from nomad.layer where lyr_table_name='ass_ouvrage')),
+	 ('ASS_AVALOIR',(select id from nomad.style_definition where syd_code='ASS_AVALOIR_DEFAULT'),(select id from nomad.layer where lyr_table_name='ass_avaloir')),
+	 ('ASS_REGARD',(select id from nomad.style_definition where syd_code='ASS_REGARD_DEFAULT'),(select id from nomad.layer where lyr_table_name='ass_regard')),
+	 ('AEP_BRANCHE',(select id from nomad.style_definition where syd_code='AEP_BRANCHEMENT_DEFAULT'),(select id from nomad.layer where lyr_table_name='aep_branche')),
+	 ('ASS_BRANCHE',(select id from nomad.style_definition where syd_code='ASS_BRANCHEMENT_DEFAULT'),(select id from nomad.layer where lyr_table_name='ass_branche')),
+	 ('TASK',(select id from nomad.style_definition where syd_code='TASK_DEFAULT'),(select id from nomad.layer where lyr_table_name='task'));
 
 -- Insert default usr_ctr_pf for the administrator 
 INSERT INTO nomad.usr_ctr_prf (usr_id, ctr_id, prf_id, usc_ucre_id, usc_umod_id, usc_dcre, usc_dmod, usc_ddel)

@@ -76,7 +76,7 @@ public class BatchConfiguration {
                 + "	ctr.ctr_code as contractCode, "
                 + "	null as worksiteCode, "
                 + "	w.wko_name as name, "
-                + "	replace(ass.ass_obj_table, 'asset.', '') as lyrTableName, "
+                + "	ass.ass_obj_table as lyrTableName, "
                 + "	ass.ass_obj_ref as assetId, "
                 + "	w.latitude, "
                 + "	w.longitude, "

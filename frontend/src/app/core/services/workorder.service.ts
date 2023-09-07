@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, firstValueFrom, map, timeout } from 'rxjs';
+import { Observable, catchError, finalize, firstValueFrom, map, timeout } from 'rxjs';
 import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
 import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
@@ -123,15 +123,6 @@ export class WorkorderService {
    * @returns the workorder
    */
   public createWorkOrder(workorder: Workorder): Observable<Workorder> {
-    //Case of desktop, we remove all temporary id
-    if (!this.utilsService.isMobilePlateform()) {
-      workorder.id = null;
-      if (workorder.tasks?.length > 0) {
-        for (let task of workorder.tasks) {
-          task.id = null;
-        }
-      }
-    }
     workorder.resync = false;
     return this.workorderDataService.createWorkOrder(workorder).pipe(
       timeout(this.configurationService.offlineTimeout),
@@ -142,7 +133,7 @@ export class WorkorderService {
           return workorder;
         }
         throw error
-      }),
+      })
     );
   }
 
@@ -162,7 +153,9 @@ export class WorkorderService {
    * @param workorder the workorder state
    */
   public async deleteCacheWorkorder(workorder: Workorder) {
-    await this.db.workorders.delete(workorder.id.toString());
+    if(workorder.id) {
+      
+    }
   }
 
   /**

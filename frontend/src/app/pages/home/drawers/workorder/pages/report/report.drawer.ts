@@ -51,7 +51,7 @@ export class ReportDrawer implements OnInit {
 
           let layer = params['layer'];
           if (!layer) {
-            layer = 'asset.aep_xy'
+            layer = 'aep_xy'
           }
 
           let reasonId = params['wtrid'];

@@ -32,7 +32,7 @@ export class FormHistoryComponent implements OnInit {
 
     this.workorderService
       .getEquipmentWorkOrderHistory(
-        `asset.${this.paramMap.get('lyrTableName')}`,
+        `${this.paramMap.get('lyrTableName')}`,
         this.paramMap.get('id')
       )
       .pipe(

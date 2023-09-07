@@ -199,7 +199,7 @@ export class WkoViewComponent implements OnInit {
       return;
     }
 
-    const lyrTableName = this.selectedTask.assObjTable.split('asset.')[1];
+    const lyrTableName = this.selectedTask.assObjTable;
 
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [this.selectedTask.assObjRef], {
       lyrTableName: lyrTableName,
@@ -259,10 +259,10 @@ export class WkoViewComponent implements OnInit {
           });
           this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
         });
-        this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(async () => {
+        this.mapService.addEventLayer(task.assObjTable).then(async () => {
           featuresSelection.push({
             id: task.assObjRef,
-            source: task.assObjTable.replace('asset.', '')
+            source: task.assObjTable
           });
           this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
         });

@@ -46,7 +46,7 @@ export class ReportAssetComponent implements OnInit {
     this.mapEventService.onFeatureSelected().pipe(takeUntil(this.ngUnsubscribe$)).subscribe(res => {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
-        this.editTaskEquipment.assObjTable = "asset." + res.layerKey;
+        this.editTaskEquipment.assObjTable = res.layerKey;
         this.maplayerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
           if (this.draggableMarker) {
             this.draggableMarker.remove();
@@ -100,7 +100,7 @@ export class ReportAssetComponent implements OnInit {
   public onEditEquipment(tsk: Task) {
 
     if (!tsk.assObjTable.includes('_xy')) {
-      this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable.replace("asset.", ""), tsk.assObjRef).then(result => {
+      this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable, tsk.assObjRef).then(result => {
         this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result);
       })
     } else {
@@ -147,7 +147,7 @@ export class ReportAssetComponent implements OnInit {
   public onRemoveChangeEquipment(tsk: Task) {
     if (!tsk.assObjTable.includes('_xy')) {
       this.mapService.getMap().setFeatureState(
-        { source: tsk.assObjTable.replace("asset.", ""), id: tsk.assObjRef },
+        { source: tsk.assObjTable, id: tsk.assObjRef },
         { selected: false }
       );
     }
@@ -169,10 +169,10 @@ export class ReportAssetComponent implements OnInit {
     this.draggableMarker.remove();
     this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, [tsk.longitude as any, tsk.latitude as any], true);
     this.mapService.getMap().setFeatureState(
-      { source: tsk.assObjTable.replace("asset.", ""), id: tsk.assObjRef },
+      { source: tsk.assObjTable, id: tsk.assObjRef },
       { selected: false }
     );
-    tsk.assObjTable = 'asset.aep_xy';
+    tsk.assObjTable = 'aep_xy';
     tsk.assObjRef = null;
   }
 
@@ -182,7 +182,7 @@ export class ReportAssetComponent implements OnInit {
    */
   public onItemHoverEnter(task: Task) {
     if (!task.assObjTable.includes('_xy')) {
-      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), [{ id: task.id.toString(), source: 'task' }, { id: task.assObjRef, source: task.assObjTable.replace("asset.", "") }]);
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), [{ id: task.id.toString(), source: 'task' }, { id: task.assObjRef, source: task.assObjTable }]);
     }
   }
 
@@ -207,10 +207,10 @@ export class ReportAssetComponent implements OnInit {
       this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
         this.mapService.addEventLayer('task').then(() => {
           for (let task of workorder.tasks) {
-            this.mapService.addEventLayer(task.assObjTable.replace('asset.', '')).then(async () => {
+            this.mapService.addEventLayer(task.assObjTable).then(async () => {
 
               if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
-                task.assObjTable = 'asset.aep_xy';
+                task.assObjTable = 'aep_xy';
                 this.onEditEquipment(task);
               }
 
@@ -230,7 +230,7 @@ export class ReportAssetComponent implements OnInit {
               if (!task.assObjTable.includes('_xy')) {
                 featuresSelection.push({
                   id: task.assObjRef,
-                  source: task.assObjTable.replace('asset.', '')
+                  source: task.assObjTable
                 });
               }
 

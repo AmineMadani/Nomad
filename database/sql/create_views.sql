@@ -9,7 +9,7 @@ select
     t1.ast_code as astCode,
     t1.ast_slabel as astSlabel,
     t1.ast_llabel as astLlabel,
-    replace(lyr_table_name, 'asset.', '') as lyrTableName,
+    lyr_table_name as lyrTableName,
     wtr.wtr_slabel as wtrSlabel,
     wtr.wtr_llabel as wtrLlabel,
     wtr.wtr_code as wtrCode,

@@ -65,7 +65,7 @@ public class LayerReferencesService {
                 .collect(Collectors.groupingBy(LayerReferencesFlatDto::getLayer))
                 .forEach((String layerKey, List<LayerReferencesFlatDto> group) -> {
                     LayerReferencesDto resultLayer = new LayerReferencesDto();
-                    resultLayer.setLayerKey(layerKey.split("\\.")[1]);
+                    resultLayer.setLayerKey(layerKey);
 
                     List<LayerReferenceUserDto> references = group.stream().map(LayerReferenceUserDto::new).collect(Collectors.toList());
 

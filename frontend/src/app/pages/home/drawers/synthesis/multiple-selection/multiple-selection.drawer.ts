@@ -433,7 +433,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
             wko.tasks.push({
               id: this.utilsService.createCacheId(),
-              assObjTable: 'asset.'+f.lyrTableName,
+              assObjTable: f.lyrTableName,
               assObjRef: f.id,
               latitude: f.y,
               longitude: f.x,

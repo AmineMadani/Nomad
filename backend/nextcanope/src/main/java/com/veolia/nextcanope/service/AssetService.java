@@ -33,7 +33,7 @@ public class AssetService {
 		// Asset
 		Asset asset = new Asset();
 		// Layer
-		String lyrTableName = "asset."+tableRef.replace("asset.", "");
+		String lyrTableName = tableRef;
 		Layer layer = this.layerService.getLayerByLyrTableName(lyrTableName);
 		// User
 		Users user = this.userService.getUserById(userId);

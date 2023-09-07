@@ -172,8 +172,6 @@ export class UtilsService {
     const taskParams: any = {};
     tasks.forEach((task) => {
       let source = task.assObjTable;
-      if (source.startsWith('asset.'))
-      source = source.replace('asset.','');
       if (!taskParams[source]) {
         taskParams[source] = new Set();
       }
