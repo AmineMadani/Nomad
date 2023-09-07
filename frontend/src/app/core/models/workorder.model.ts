@@ -9,7 +9,8 @@ export interface Workorder {
     wkoPlanningEndDate?: Date;
     wtsId?: number;
     wkoCompletionStartDate?: Date;
-    wkoCompletionDate?: Date;
+    wkoCompletionEndDate?: Date;
+    wkoCancelComment?: string;
     longitude?: number;
     latitude?: number;
     wkoAgentNb?: number;
@@ -38,10 +39,10 @@ export interface Task {
     astCode?: string;
     wtrCode?: string;
     wkoId?: number;
-    longitude: number;
-    latitude: number;
+    longitude?: number;
+    latitude?: number;
     tskCompletionStartDate?: Date;
-    tskCompletionDate?: Date;
+    tskCompletionEndDate?: Date;
     tskReportDate?: Date;
     report?: Report;
     isSelectedTask?: boolean;

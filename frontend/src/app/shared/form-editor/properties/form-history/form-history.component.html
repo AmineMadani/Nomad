@@ -3,8 +3,8 @@
     <ion-item lines="none">
       <ion-label>{{ w.wtrLabel }}</ion-label>
       <ion-note slot="end">
-        <ng-container *ngIf="w.wkoCompletionDate !== null; else noDate">
-          {{ w.wkoCompletionDate | date:
+        <ng-container *ngIf="w.wkoCompletionEndDate !== null; else noDate">
+          {{ w.wkoCompletionEndDate | date:
           'dd/MM/yyyy'
           }}
         </ng-container>

@@ -664,8 +664,8 @@ create table if not exists workorder
   wko_street_number            text,
   wko_planning_start_date	     timestamp without time zone,
   wko_planning_end_date	       timestamp without time zone,
-  wko_completion_start_date	   timestamp without time zone,
-  wko_completion_date	         timestamp without time zone,
+  wko_completion_start_date	         timestamp without time zone,
+  wko_completion_end_date	         timestamp without time zone,
   wko_realization_user         text,
   wko_realization_cell         text,
   wko_realization_comment      text,
@@ -723,7 +723,7 @@ comment on column workorder.wko_street_number is 'Street number of the workorder
 comment on column workorder.wko_planning_start_date is 'Planning start date of the workorder';
 comment on column workorder.wko_planning_end_date is 'Planning end date of the workorder';
 comment on column workorder.wko_completion_start_date is 'Completion start date of the workorder';
-comment on column workorder.wko_completion_date is 'Completion date of the workorder';
+comment on column workorder.wko_completion_end_date is 'Completion end date of the workorder';
 comment on column workorder.wko_realization_user is 'Realization user of the workorder';
 comment on column workorder.wko_realization_cell is 'Realization cell of the workorder';
 comment on column workorder.wko_realization_comment is 'Realization comment of the workorder';
@@ -763,7 +763,7 @@ create table if not exists task
   tsk_planning_start_date  timestamp without time zone,
   tsk_planning_end_date	   timestamp without time zone,
   tsk_completion_start_date	     timestamp without time zone,
-  tsk_completion_date	     timestamp without time zone,
+  tsk_completion_end_date	     timestamp without time zone,
   tsk_realization_user     bigint,
   tsk_report_date          timestamp without time zone,
   -- Technical metadata
@@ -793,7 +793,7 @@ comment on column task.ass_id is 'Asset';
 comment on column task.tsk_planning_start_date is 'Planning start date of the task';
 comment on column task.tsk_planning_end_date is 'Planning end date of the task';
 comment on column task.tsk_completion_start_date is 'Completion start date of the task';
-comment on column task.tsk_completion_date is 'Completion date of the task';
+comment on column task.tsk_completion_end_date is 'Completion end date of the task';
 comment on column task.tsk_realization_user is 'Realization user of the task';
 comment on column task.tsk_report_date is 'Date of the report';
 comment on column task.tsk_ucre_id is 'creator Id';

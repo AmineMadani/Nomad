@@ -22,6 +22,7 @@ import {
   debounceTime,
 } from 'rxjs';
 import { DateTime } from 'luxon';
+import { DatePipe } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -62,7 +63,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private layerService: LayerService,
     private userService: UserService,
     private cityService: CityService,
-    private contractService: ContractService
+    private contractService: ContractService,
+    private datePipe: DatePipe
   ) {}
 
   @ViewChild('equipmentModal', { static: true })
@@ -150,7 +152,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.equipments = this.workorder.tasks.map((t) => {
             return {
               id: t.assObjRef,
-              lyrTableName: t.assObjTable.includes('asset.') ? t.assObjTable.split('asset.')[1] : t.assObjTable,
+              lyrTableName: t.assObjTable.includes('asset.')
+                ? t.assObjTable.split('asset.')[1]
+                : t.assObjTable,
               x: t.longitude,
               y: t.latitude,
             };
@@ -186,7 +190,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }
 
-        this.workorder.tasks = assets;
+        if (this.workorder.tasks === undefined || this.workorder.tasks?.length == 0) {
+          this.workorder.tasks = assets;
+        } else {
+          assets.forEach((asset) => {
+            if (
+              !this.workorder.tasks.some((t) => t.assObjRef == asset.assObjRef)
+            ) {
+              this.workorder.tasks.push(asset);
+            }
+          });
+        }
         this.workorder.latitude =
           assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
         this.workorder.longitude =
@@ -329,13 +343,21 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    this.workorder = { id: this.workorder.id, ...form };
+    this.workorder = {
+      id: this.workorder.id,
+      tasks: this.workorder.tasks,
+      ...form,
+    };
 
-    this.workorder.wkoPlanningStartDate = this.utils.convertToDateISO(form.wkoPlanningStartDate);
-    this.workorder.wkoPlanningEndDate = this.utils.convertToDateISO(form.wkoPlanningEndDate);
+    this.workorder.wkoPlanningStartDate = this.utils.convertToDateISO(
+      form.wkoPlanningStartDate
+    );
+    this.workorder.wkoPlanningEndDate = this.utils.convertToDateISO(
+      form.wkoPlanningEndDate
+    );
 
     this.workorder.wkoDmod = new Date();
-    if(this.workorder.id) {
+    if(!this.workorder.id) {
       this.workorder.id=this.utils.createCacheId();
     }
 
@@ -347,7 +369,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
     this.workorder.wkoAttachment = false;
 
-    this.workorder.tasks = assets;
+    if (this.workorder.tasks?.length == 0) {
+      this.workorder.tasks = assets;
+    } else {
+      assets.forEach((asset) => {
+        if (!this.workorder.tasks.some((t) => t.assObjRef == asset.assObjRef)) {
+          this.workorder.tasks.push(asset);
+        }
+      });
+    }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
     if (this.workorder?.id > 0) {
@@ -454,6 +484,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       const control = this.creationWkoForm.get(key);
       if (control) {
         if (this.workorder[key] != null) {
+          if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
+            control.setValue(
+              this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
+            );
+          } else {
+            control.setValue(this.workorder[key].toString());
+          }
+        } else {
           control.setValue(this.workorder[key]);
         }
       }

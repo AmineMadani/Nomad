@@ -9,11 +9,11 @@
     <ion-icon name="link-outline"></ion-icon>
     Ajouter à un programme
   </ion-tab-button>
-  <ion-tab-button [disabled]="!CanEdit()" (click)="updateWorkorder()">
+  <ion-tab-button [disabled]="!canEdit()" (click)="updateWorkorder()">
     <ion-icon name="pencil-outline"></ion-icon>
     Modifier
   </ion-tab-button>
-  <ion-tab-button [disabled]="loading" (click)="cancelWorkorder()">
+  <ion-tab-button [disabled]="!canCancel()" (click)="cancelWorkorder()">
     <ion-icon name="trash-bin-outline"></ion-icon>
     Annuler
   </ion-tab-button>
@@ -52,6 +52,12 @@
         <ion-label> Généralités </ion-label>
       </ion-item>
       <div slot="content">
+        <ion-item lines="none" *ngIf="isCancelled()">
+          <ion-label class="label">
+            <h3>Motif d'annulation</h3>
+            <p>{{ workOrder.wkoCancelComment }}</p>
+          </ion-label>
+        </ion-item>
         <ion-item lines="none" [button]="taskId || workOrder.tasks.length === 1" (click)="openEquipment()">
           <ion-label class="label">
             <h3>Patrimoine</h3>

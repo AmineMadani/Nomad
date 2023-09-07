@@ -34,7 +34,7 @@ public class WorkorderDto {
 
     private Date wkoCompletionStartDate;
     
-    private Date wkoCompletionDate;
+    private Date wkoCompletionEndDate;
     
     private BigDecimal longitude;
     
@@ -43,6 +43,8 @@ public class WorkorderDto {
     private Integer wkoAgentNb;
 
     private String wkoCreationComment;
+
+    private String wkoCancelComment;
 
     private Boolean wkoAttachment;
     
@@ -114,12 +116,12 @@ public class WorkorderDto {
         this.wkoCompletionStartDate = wkoCompletionStartDate;
     }
 
-    public Date getWkoCompletionDate() {
-        return wkoCompletionDate;
+    public Date getWkoCompletionEndDate() {
+        return wkoCompletionEndDate;
     }
 
-    public void setWkoCompletionDate(Date wkoCompletionDate) {
-        this.wkoCompletionDate = wkoCompletionDate;
+    public void setWkoCompletionEndDate(Date wkoCompletionEndDate) {
+        this.wkoCompletionEndDate = wkoCompletionEndDate;
     }
 
     public BigDecimal getLongitude() {
@@ -180,6 +182,14 @@ public class WorkorderDto {
         this.wkoCreationComment = wkoCreationComment;
     }
 
+    public String getWkoCancelComment() {
+        return wkoCancelComment;
+    }
+
+    public void setWkoCancelComment(String wkoCancelComment) {
+        this.wkoCancelComment = wkoCancelComment;
+    }
+
 	public WorkorderDto() {
 		super();
 	}
@@ -231,7 +241,7 @@ public class WorkorderDto {
         this.wkoPlanningStartDate = workorder.getWkoPlanningStartDate();
         this.wkoPlanningEndDate = workorder.getWkoPlanningEndDate();
         this.wkoCompletionStartDate = workorder.getWkoCompletionStartDate();
-        this.wkoCompletionDate = workorder.getWkoCompletionDate();
+        this.wkoCompletionEndDate = workorder.getWkoCompletionEndDate();
         this.wtsId = workorder.getWorkorderTaskStatus().getId();
         this.longitude = workorder.getLongitude();
         this.latitude = workorder.getLatitude();
@@ -243,6 +253,7 @@ public class WorkorderDto {
         }
         this.tasks = new ArrayList<>();
         this.wkoCreationComment = workorder.getWkoCreationComment();
+        this.wkoCancelComment = workorder.getWkoCancelComment();
         this.wkoAttachment = workorder.getWkoAttachment();
         for(Task task: workorder.getListOfTask()) {
         	TaskDto taskDto = new TaskDto(task);

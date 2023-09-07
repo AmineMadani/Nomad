@@ -29,7 +29,7 @@ public class TaskSearchDto {
 
     private Date wkoCompletionStartDate;
     
-    private Date wkoCompletionDate;
+    private Date wkoCompletionEndDate;
     
     private BigDecimal longitude;
     
@@ -101,12 +101,12 @@ public class TaskSearchDto {
         this.wkoCompletionStartDate = wkoCompletionStartDate;
     }
 
-    public Date getWkoCompletionDate() {
-        return wkoCompletionDate;
+    public Date getWkoCompletionEndDate() {
+        return wkoCompletionEndDate;
     }
 
-    public void setWkoCompletionDate(Date wkoCompletionDate) {
-        this.wkoCompletionDate = wkoCompletionDate;
+    public void setWkoCompletionEndDate(Date wkoCompletionDate) {
+        this.wkoCompletionEndDate = wkoCompletionDate;
     }
 
     public BigDecimal getLongitude() {

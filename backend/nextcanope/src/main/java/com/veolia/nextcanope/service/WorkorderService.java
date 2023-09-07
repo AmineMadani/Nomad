@@ -134,7 +134,7 @@ public class WorkorderService {
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
-		workorder.setWkoCompletionDate(customWorkorderDto.getWkoCompletionDate());
+		workorder.setWkoCompletionEndDate(customWorkorderDto.getWkoCompletionEndDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
@@ -142,7 +142,7 @@ public class WorkorderService {
 		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
-		
+
 		if(customWorkorderDto.getId() != null && customWorkorderDto.getTasks().get(0).getReport() == null) {
 			workorder.setWkoExtToSync(true);
 		} else {
@@ -341,10 +341,10 @@ public class WorkorderService {
 		Users user = userService.getUserById(userId);
 
 		Workorder workorder = getWorkOrderById(wkoId);
-		if (customWorkorderDto.getWkoCompletionDate() != null) {
-			workorder.setWkoCompletionDate(customWorkorderDto.getWkoCompletionDate());
+		if (customWorkorderDto.getWkoCompletionEndDate() != null) {
+			workorder.setWkoCompletionEndDate(customWorkorderDto.getWkoCompletionEndDate());
 		} else {
-			workorder.setWkoCompletionDate(new Date());
+			workorder.setWkoCompletionEndDate(new Date());
 		}
 		workorder.setWkoCompletionStartDate(customWorkorderDto.getWkoCompletionStartDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
