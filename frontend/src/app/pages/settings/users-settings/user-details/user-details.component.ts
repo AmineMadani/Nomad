@@ -35,6 +35,7 @@ export class UserDetailsComponent implements OnInit {
   public ActionType = ActionType;
 
   public isLoading: boolean = false;
+  public isSaving: boolean = false;
 
   // Permissions
   public userHasPermissionManageUser: boolean = false;
@@ -402,6 +403,7 @@ export class UserDetailsComponent implements OnInit {
     }
 
     // Show a toast to the user
+    this.isSaving = true;
     this.savingToast = await this.toastCtrl.create({
       message: 'Sauvegarde en cours...',
       color: 'primary',
@@ -479,6 +481,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private showSuccessMessageAndClose(res: { message: string; }) {
+    this.isSaving = false;
     this.savingToast.dismiss();
     this.utilsService.showSuccessMessage(res.message);
 
