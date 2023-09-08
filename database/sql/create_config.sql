@@ -284,7 +284,7 @@ create table app_grid
     agr_dcre          timestamp without time zone  default current_timestamp,
     agr_dmod          timestamp without time zone  default current_timestamp,
     -- Geometry
-    geom              geometry('Polygon', 3857)
+    geom              geometry('Polygon', 4326)
 );
 
 create index on app_grid using gist(geom);
@@ -439,7 +439,7 @@ create table if not exists contract(
   ctr_dcre                     timestamp without time zone  default current_timestamp,
   ctr_dmod                     timestamp without time zone  default current_timestamp,
   -- Geometry
-  geom                         geometry('MULTIPOLYGON', 3857)
+  geom                         geometry('MULTIPOLYGON', 4326)
 );
 create index on contract using gist(geom);
 /* Comments on table */
@@ -473,7 +473,7 @@ create table if not exists city(
   cty_dcre     timestamp without time zone  default current_timestamp,
   cty_dmod     timestamp without time zone  default current_timestamp,
   -- Geometry
-  geom         geometry('MULTIPOLYGON', 3857)
+  geom         geometry('MULTIPOLYGON', 4326)
 );
 create index on city using gist(geom);
 
@@ -697,7 +697,7 @@ create table if not exists workorder
   -- Geometry
   longitude                    numeric,
   latitude                     numeric,
-  geom                         geometry('POINT', 3857),
+  geom                         geometry('POINT', 4326),
   -- external app
   wko_ext_ref                  text,
   wko_ext_date_sync            timestamp without time zone default null,
@@ -775,7 +775,7 @@ create table if not exists task
   --------
   longitude                numeric,
   latitude                 numeric,
-  geom                     geometry('POINT', 3857)
+  geom                     geometry('POINT', 4326)
 );
 create index on task using gist(geom);
 /* Comments on table */

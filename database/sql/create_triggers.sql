@@ -4,7 +4,7 @@
 CREATE OR REPLACE FUNCTION update_geom_trigger() RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.longitude IS NOT NULL AND NEW.latitude IS NOT NULL THEN
-    NEW.geom = ST_Transform(ST_SetSRID(ST_GeomFromText('POINT(' || NEW.longitude || ' ' || NEW.latitude || ')'), 4326), 3857);
+    NEW.geom = ST_SetSRID(ST_GeomFromText('POINT(' || NEW.longitude || ' ' || NEW.latitude || ')'), 4326);
   END IF;
   RETURN NEW;
 END;

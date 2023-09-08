@@ -7,6 +7,7 @@ import { PreferenceService } from './preference.service';
 import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
+import { ConfigurationService } from './configuration.service';
 
 /**
  * Enum of cache items in local storage
@@ -25,7 +26,8 @@ export class UserService {
     private mapService: MapService,
     private router: Router,
     private preferenceService: PreferenceService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private configurationService: ConfigurationService
   ) { }
 
   private currentUser: User;
@@ -96,7 +98,7 @@ export class UserService {
     const res = await lastValueFrom(
       this.userDataService.getCurrentUserInformation()
         .pipe(
-          timeout(2000),
+          timeout(this.configurationService.offlineTimeout),
           catchError(async () => {
             const forms = await this.preferenceService.getPreference(
               LocalStorageUserKey.USER

@@ -57,7 +57,7 @@ public class LayerRepositoryImpl {
      */
     public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
         String columnMapping = getColumnMappingForLayer(layer);
-        String query = "SELECT DISTINCT id, ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id=?";
+        String query = "SELECT DISTINCT id, ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id=?";
         return jdbcTemplate.queryForList(query, id);
     }
 
@@ -65,7 +65,7 @@ public class LayerRepositoryImpl {
         String columnMapping = getColumnMappingForLayer(layer);
         String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
         // Create the SQL query with the IN clause, placeholders, and transformed column names
-        String query = "SELECT DISTINCT id, ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS x, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id IN (" + placeholders + ")";
+        String query = "SELECT DISTINCT id, ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id IN (" + placeholders + ")";
         // Pass the IDs as arguments to the query
         return jdbcTemplate.queryForList(query, ids.toArray());
     }

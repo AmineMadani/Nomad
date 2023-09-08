@@ -6,7 +6,7 @@ set search_path to nomad, public;
 insert into float_setting values ('topo.snap_tolerance', 0.05 );
 
 -- Set SRID
-insert into text_setting values ('srid', 3857::integer);
+insert into text_setting values ('srid', 4326::integer);
 
 -- insert raster Layer
 insert into basemaps (map_slabel, map_type, map_url, map_layer, map_matrixset, map_format, map_projection, map_tilegrid, map_style, map_attributions, map_default, map_display)
@@ -17,7 +17,7 @@ values
  'OSM',
  null,
  null,
- null, --'EPSG:3857
+ null, --'EPSG:4326
  null,
  null,
  null,
@@ -89,7 +89,7 @@ insert into asset_type(dom_id, ast_code, ast_slabel ) values
 , ((select id from domains where dom_type = 'ww'),'33', 'Avaloir')
 , ((select id from domains where dom_type = 'ww'),'34', 'Regard')
 , ((select id from domains where dom_type = 'ww'),'35', 'Autre équipement ASST')
-, ((select id from domains where dom_type = 'dw'),'38', 'Multi-patrimoine ASST') -- FIXME
+, ((select id from domains where dom_type = 'ww'),'38', 'Multi-patrimoine ASST') -- FIXME
 , ((select id from domains where dom_type = 'ww'),'39', 'X, Y, Adresse ASST')
 ;
 
@@ -105,34 +105,34 @@ insert into layer
 )
 values
 
-  ((select id from domains where dom_type = 'dw') , 'aep_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '22'))
-, ((select id from domains where dom_type = 'dw') , 'aep_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') , 'aep_vanne_de_branche', 'geom', 'uuid', '3857', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
-, ((select id from domains where dom_type = 'dw') , 'aep_vanne', 'geom', 'uuid', '3857', 'Vanne', (select id from asset_type where ast_code = '23'))
-, ((select id from domains where dom_type = 'dw') , 'aep_compteur', 'geom', 'uuid', '3857', 'Compteur', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'aep_regulation', 'geom', 'uuid', '3857', 'Regulateur', (select id from asset_type where ast_code = '27'))
-, ((select id from domains where dom_type = 'dw') , 'aep_purge', 'geom', 'uuid', '3857', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'aep_equipement_public', 'geom', 'uuid', '3857', 'Equipement public', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'aep_defense_incendie', 'geom', 'uuid', '3857', 'Défense incendie', (select id from asset_type where ast_code = '24'))
-, ((select id from domains where dom_type = 'dw') , 'aep_point_desserte', 'geom', 'uuid', '3857', 'Point désserte', (select id from asset_type where ast_code = '21'))
-, ((select id from domains where dom_type = 'dw') , 'aep_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '25'))
-, ((select id from domains where dom_type = 'dw') , 'aep_canalisation', 'geom', 'uuid', '3857', 'Canalisation', (select id from asset_type where ast_code = '20'))
-, ((select id from domains where dom_type = 'dw') , 'aep_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
-, ((select id from domains where dom_type = 'dw') , 'aep_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '29'))
+  ((select id from domains where dom_type = 'dw') , 'aep_ouvrage', 'geom', 'uuid', '4326', 'Ouvrage', (select id from asset_type where ast_code = '22'))
+, ((select id from domains where dom_type = 'dw') , 'aep_equipement', 'geom', 'uuid', '4326', 'Equipement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'aep_vanne_de_branche', 'geom', 'uuid', '4326', 'Vanne de branchement', (select id from asset_type where ast_code = '26'))
+, ((select id from domains where dom_type = 'dw') , 'aep_vanne', 'geom', 'uuid', '4326', 'Vanne', (select id from asset_type where ast_code = '23'))
+, ((select id from domains where dom_type = 'dw') , 'aep_compteur', 'geom', 'uuid', '4326', 'Compteur', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_regulation', 'geom', 'uuid', '4326', 'Regulateur', (select id from asset_type where ast_code = '27'))
+, ((select id from domains where dom_type = 'dw') , 'aep_purge', 'geom', 'uuid', '4326', 'Purge/Vidange', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_equipement_public', 'geom', 'uuid', '4326', 'Equipement public', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_defense_incendie', 'geom', 'uuid', '4326', 'Défense incendie', (select id from asset_type where ast_code = '24'))
+, ((select id from domains where dom_type = 'dw') , 'aep_point_desserte', 'geom', 'uuid', '4326', 'Point désserte', (select id from asset_type where ast_code = '21'))
+, ((select id from domains where dom_type = 'dw') , 'aep_branche', 'geom', 'uuid', '4326', 'Branchement', (select id from asset_type where ast_code = '25'))
+, ((select id from domains where dom_type = 'dw') , 'aep_canalisation', 'geom', 'uuid', '4326', 'Canalisation', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'aep_canalisation_abandonnee', 'geom', 'uuid', '4326', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'))
+, ((select id from domains where dom_type = 'dw') , 'aep_xy', 'geom', 'uuid', '4326', 'XY', (select id from asset_type where ast_code = '29'))
 ----
-, ((select id from domains where dom_type = 'ww') , 'ass_ouvrage', 'geom', 'uuid', '3857', 'Ouvrage', (select id from asset_type where ast_code = '32'))
-, ((select id from domains where dom_type = 'ww') , 'ass_equipement', 'geom', 'uuid', '3857', 'Equipement', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'ass_boite_de_branchement', 'geom', 'uuid', '3857', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww') , 'ass_avaloir', 'geom', 'uuid', '3857', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
-, ((select id from domains where dom_type = 'ww') , 'ass_regard', 'geom', 'uuid', '3857', 'Regard', (select id from asset_type where ast_code = '34'))
-, ((select id from domains where dom_type = 'ww') , 'ass_branche', 'geom', 'uuid', '3857', 'Branchement', (select id from asset_type where ast_code = '31'))
-, ((select id from domains where dom_type = 'ww') , 'ass_collecteur', 'geom', 'uuid', '3857', 'Collecteur', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_abandonnee', 'geom', 'uuid', '3857', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
-, ((select id from domains where dom_type = 'ww') , 'ass_surface_hydraulique', 'geom', 'uuid', '3857', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'ass_drain', 'geom', 'uuid', '3857', 'Drain', (select id from asset_type where ast_code = '35'))
-, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_fictive', 'geom', 'uuid', '3857', 'Canalisation fictive', null)
-, ((select id from domains where dom_type = 'ww') , 'ass_xy', 'geom', 'uuid', '3857', 'XY', (select id from asset_type where ast_code = '39'))
-, ((select id from domains where dom_type = 'asset'), 'task', 'geom', 'uuid', '3857', 'Tâche', null)
+, ((select id from domains where dom_type = 'ww') , 'ass_ouvrage', 'geom', 'uuid', '4326', 'Ouvrage', (select id from asset_type where ast_code = '32'))
+, ((select id from domains where dom_type = 'ww') , 'ass_equipement', 'geom', 'uuid', '4326', 'Equipement', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_boite_de_branchement', 'geom', 'uuid', '4326', 'Boite de branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'ass_avaloir', 'geom', 'uuid', '4326', 'Avaloir / Grille', (select id from asset_type where ast_code = '33'))
+, ((select id from domains where dom_type = 'ww') , 'ass_regard', 'geom', 'uuid', '4326', 'Regard', (select id from asset_type where ast_code = '34'))
+, ((select id from domains where dom_type = 'ww') , 'ass_branche', 'geom', 'uuid', '4326', 'Branchement', (select id from asset_type where ast_code = '31'))
+, ((select id from domains where dom_type = 'ww') , 'ass_collecteur', 'geom', 'uuid', '4326', 'Collecteur', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_abandonnee', 'geom', 'uuid', '4326', 'Collecteur Abandonné', (select id from asset_type where ast_code = '30'))
+, ((select id from domains where dom_type = 'ww') , 'ass_surface_hydraulique', 'geom', 'uuid', '4326', 'Cours d''eau / fossé', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_drain', 'geom', 'uuid', '4326', 'Drain', (select id from asset_type where ast_code = '35'))
+, ((select id from domains where dom_type = 'ww') , 'ass_canalisation_fictive', 'geom', 'uuid', '4326', 'Canalisation fictive', null)
+, ((select id from domains where dom_type = 'ww') , 'ass_xy', 'geom', 'uuid', '4326', 'XY', (select id from asset_type where ast_code = '39'))
+, ((select id from domains where dom_type = 'asset'), 'task', 'geom', 'uuid', '4326', 'Tâche', null)
 ---
 ;
 
@@ -165,9 +165,9 @@ select (st_setsrid((g.res).geom, 2975)) as geom
 from reunion_grid g
 )
 insert into app_grid(geom)
-select st_transform(geom, 3857) as geom from temp_metro_grid
+select st_transform(geom, 4326) as geom from temp_metro_grid
 union all
-select st_transform(geom, 3857) as geom from temp_reunion_grid
+select st_transform(geom, 4326) as geom from temp_reunion_grid
 ;
 
 -- Insert contracts
@@ -194,7 +194,7 @@ code
 , date_debut
 , date_fin
 , a.id
-, st_transform(geom, 3857)
+, st_transform(geom, 4326)
 from asset.config_contrat cc
 join contract_activity a
 on
@@ -214,7 +214,7 @@ select
 cde_insee
 , libelle
 , lib_maj
-, st_transform(geom, 3857)
+, st_transform(geom, 4326)
 from asset.config_commune
 on conflict do nothing;
 

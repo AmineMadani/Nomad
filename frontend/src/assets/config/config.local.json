@@ -11,5 +11,5 @@
     "revocationEndpoint": "http://localhost:9191/realms/veolia/protocol/openid-connect/revoke"
   },
   "host":"http://localhost:8100/",
-  "offlineTimeout":5000
+  "offlineTimeout":10000
 }

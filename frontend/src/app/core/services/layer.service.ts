@@ -94,7 +94,7 @@ export class LayerService {
     const req: NomadGeoJson = await lastValueFrom(
       this.layerDataService.getLayerFile(layerKey, featureNumber)
         .pipe(
-          timeout(5000),
+          timeout(this.configurationService.offlineTimeout),
           catchError(async () => {
             const tile = await this.db.tiles.get(file);
             if (tile) {
@@ -234,7 +234,7 @@ export class LayerService {
     // Fetch the layer references from API
     const layerReferencesData: LayerReferences[] = await lastValueFrom(
       this.layerDataService.getUserLayerReferences().pipe(
-        timeout(2000),
+        timeout(this.configurationService.offlineTimeout),
         catchError(async () => {
           // Get the layer references data from IndexedDB cache
           const layerReferences = await this.db.referentials.get(layerReferencesKey);

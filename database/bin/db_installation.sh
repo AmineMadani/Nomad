@@ -11,7 +11,7 @@ ORGA=vef
 #pgservicename=NEXT_CANOPE
 . database.ini
 
-CONNINFO="postgresql://${user}:${password}@${host}:${port}/${dbname}?sslmode=require"
+CONNINFO="postgresql://${user}:${password}@${host}:${port}/${dbname}?sslmode=disable"
 echo "--->CONNINFO: $CONNINFO"
 
 function install_all() {

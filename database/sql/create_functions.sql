@@ -114,12 +114,12 @@ begin
   --
   -- Get list of fields from conf
   if lyr_table_name != 'task' then
-    select CONCAT(string_agg("referenceKey", ', '), ', ' || (SELECT column_name 
+  	select CONCAT(string_agg('t.'||"referenceKey", ', '), ', ' || (SELECT 'cty.id as cty_id'
 	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='cty_id'), ', ' || (SELECT column_name 
+	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'), ', ' || (SELECT 'ctr.id as ctr_id' 
 	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='ctr_id'))  into list_fields
-      from nomad.f_get_layer_references_user(user_ident, false) f
+	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat')) into list_fields
+      from nomad.f_get_layer_references_user(0, false) f
       where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
   end if;
   --
@@ -133,24 +133,19 @@ begin
   execute format($sql$
   with
   records as
-  (select %1$s, ST_X(ST_Transform( ST_Centroid(geom), 4326 )) as x, ST_Y(ST_Transform( ST_Centroid(geom), 4326 )) as y from %2$s t where st_intersects(t.geom, '%3$s'::geometry)),
+  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.contract ctr on ctr.ctr_code =t.code_contrat join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null left join nomad.city cty on cty.cty_code = t.insee_code where st_intersects(t.geom, '%3$s'::geometry)),
   features as
   (
     select 
         jsonb_build_object(
             'type', 'Feature',
             'id', id,
-            'geometry', ST_AsGeoJSON(ST_Transform( geom, 4326 ))::jsonb,
+            'geometry', ST_AsGeoJSON(geom)::jsonb,
             -- Transform underscore to camelcase permit to use the same standards in all the app  
             'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
         ) as feature
     from records r
     JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
-    where r.ctr_id in (
-      select ucp.ctr_id
-      from nomad.usr_ctr_prf ucp
-        where ucp.usr_id = %5$s::int and ucp.usc_ddel is null
-    )
     GROUP BY id, r.geom, x, y
   )
   SELECT jsonb_build_object(
@@ -179,7 +174,7 @@ declare
 begin
   with
   records as
-  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(ST_Transform( geom, 4326 )))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(

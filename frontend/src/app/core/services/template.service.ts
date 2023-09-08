@@ -5,6 +5,7 @@ import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
 import { catchError, of, timeout, lastValueFrom, Observable, tap } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
+import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class TemplateService {
 
   constructor(
     private templateDataService: TemplateDataService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private configurationService: ConfigurationService
   ) {
     this.db = new AppDB();
   }
@@ -28,7 +30,7 @@ export class TemplateService {
     const res = await lastValueFrom(
       this.templateDataService.getFormsTemplate()
         .pipe(
-          timeout(2000),
+          timeout(this.configurationService.offlineTimeout),
           catchError(async () => {
             const forms = await this.db.referentials.get('formTemplate');
             if (forms) {
