@@ -32,10 +32,10 @@ insert into layer_references_default(
     lrd_display_type,
     lrd_section,
     lrd_isvisible)
-select r.id, t.position::int, t.display_type::layer_references_display_type, t.section, case when t.notvisible = '1' then false else true end
+select r.id, coalesce(t.position::int,0),  coalesce(t.display_type::layer_references_display_type,'DETAILED'), coalesce(t.section,'MÃ©tadonnÃ©es'), case when t.notvisible = '1' then false else true end
   from layer_references r
   join layer l on r.lyr_id = l.id
   join public.temp_layer_references t on l.lyr_table_name::text = t.lyr_table_name::text and t.column_name = r.lrf_reference_key and t.display_type is not null
  order by l.lyr_table_name::text, 2::int;
 
- DROP TABLE IF EXISTS public.temp_layer_references;
+ --DROP TABLE IF EXISTS public.temp_layer_references;

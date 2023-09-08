@@ -187,7 +187,7 @@ aep_canalisation;diametre;Diamètre;int4;14;SYNTHETIC;Caractéristiques patrimoi
 aep_canalisation;lib_recol;Récolement;text;15;DETAILED;Caractéristiques patrimoine;
 aep_canalisation;sensible;Ouvrage sensible;bool;16;DETAILED;Caractéristiques patrimoine;
 aep_canalisation;mat_rehab;Matériau réhabilitation;text;17;DETAILED;Caractéristiques patrimoine;
-aep_canalisation;exploitant;Exploitant;text;20;DETAILED;Caractéristiques réseau;
+aep_canalisation;exploitant;Exploitant;text;20;SYNTHETIC;Caractéristiques réseau;1
 aep_canalisation;secteur;Secteur;text;21;DETAILED;Caractéristiques réseau;
 aep_canalisation;etage;Etage de pression;text;22;DETAILED;Caractéristiques réseau;
 aep_canalisation;type_eau;Type eau;text;23;DETAILED;Caractéristiques réseau;
@@ -202,7 +202,7 @@ aep_canalisation;nd_amont;Noeud amont;text;92;DETAILED;Métadonnées;1
 aep_canalisation;nd_aval;Noeud aval;text;93;DETAILED;Métadonnées;1
 aep_canalisation;code_contrat;Code Contrat;text;94;DETAILED;Métadonnées;1
 aep_canalisation;geom;Geom;geometry;94;DETAILED;Métadonnées;1
-aep_canalisation;cde_rvb;Code Couleur;text;95;DETAILED;Métadonnées;1
+aep_canalisation;cde_rvb;Code Couleur;text;95;SYNTHETIC;Métadonnées;1
 aep_canalisation;label;Info;text;96;DETAILED;Métadonnées;1
 aep_canalisation;uuid;UUID;uuid;;;;
 aep_canalisation;source;Source de donnée;text;;;;

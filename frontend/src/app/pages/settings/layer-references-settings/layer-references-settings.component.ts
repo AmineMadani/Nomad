@@ -47,10 +47,8 @@ export class LayerReferencesSettingsPage implements OnInit {
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
       if (lyrTableName) {
-        // Get layer key from lyrTableName
-        const layerKey = lyrTableName.split('.')[1];
         // Get the user references for the selected layer
-        this.userReferences = this.layerReferences.find((layerReferences) => layerReferences.layerKey === layerKey).references;
+        this.userReferences = this.layerReferences.find((layerReferences) => layerReferences.layerKey === lyrTableName).references;
       } else {
         this.userReferences = [];
       }
