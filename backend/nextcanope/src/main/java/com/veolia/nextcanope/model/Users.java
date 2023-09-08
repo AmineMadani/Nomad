@@ -101,7 +101,7 @@ private Long id;
     private List<Users> listOfModifiedUsers;
 
     @OneToMany(mappedBy="modifiedBy")
-    private List<OrganizationalUnit> listOfOrganizationalUnit2;
+    private List<OrganizationalUnit> listOfModifiedOrganizationalUnit;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Basemaps> listOfCreatedBasemaps;
@@ -113,7 +113,7 @@ private Long id;
     private List<LayerReferences> listOfLayerModifiedReferences;
 
     @OneToMany(mappedBy="modifiedBy")
-    private List<Profile> listOfProfile2;
+    private List<Profile> listOfModifiedProfile;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<StyleDefinition> listOfModifiedStyleDefinition;
@@ -128,9 +128,9 @@ private Long id;
     private List<LayerStyleCustom> listOfLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
-    private List<Profile> listOfProfile;
+    private List<Profile> listOfCreatedProfile;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_default_org_id", referencedColumnName="id")
     private OrganizationalUnit organizationalUnitDefault;
 
@@ -243,7 +243,7 @@ private Long id;
     private List<Report> listOfModifiedReport;
 
     @OneToMany(mappedBy="modifiedBy")
-    private List<OrganizationalUnitType> listOfOrganizationalUnitType2;
+    private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyle> listOfCreatedLayerStyle;
@@ -258,7 +258,7 @@ private Long id;
     private List<ContractActivity> listOfCreatedContractActivity;
 
     @OneToMany(mappedBy="createdBy")
-    private List<OrganizationalUnitType> listOfOrganizationalUnitType;
+    private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
@@ -273,7 +273,7 @@ private Long id;
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom;
 
     @OneToMany(mappedBy="createdBy")
-    private List<Permissions> listOfPermissions;
+    private List<Permissions> listOfCreatedPermissions;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<FormTemplateCustom> listOfModifiedFormTemplateCustom;
@@ -288,7 +288,7 @@ private Long id;
     private List<Task> listOfModifiedTask;
 
     @OneToMany(mappedBy="modifiedBy")
-    private List<Permissions> listOfPermissions2;
+    private List<Permissions> listOfModifiedPermissions;
 
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyleCustom> listOfCreatedLayerStyleCustom;
@@ -317,7 +317,7 @@ private Long id;
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
-    private List<OrganizationalUnit> listOfOrganizationalUnit;
+    private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
 
     /**
      * Constructor
@@ -481,12 +481,12 @@ private Long id;
         this.listOfModifiedUsers = listOfModifiedUsers;
     }
 
-    public List<OrganizationalUnit> getListOfOrganizationalUnit2() {
-        return this.listOfOrganizationalUnit2;
+    public List<OrganizationalUnit> getListOfModifiedOrganizationalUnit() {
+        return this.listOfModifiedOrganizationalUnit;
     }
 
-    public void setListOfOrganizationalUnit2(List<OrganizationalUnit> listOfOrganizationalUnit2) {
-        this.listOfOrganizationalUnit2 = listOfOrganizationalUnit2;
+    public void setListOfModifiedOrganizationalUnit(List<OrganizationalUnit> listOfModifiedOrganizationalUnit) {
+        this.listOfModifiedOrganizationalUnit = listOfModifiedOrganizationalUnit;
     }
 
     public List<Basemaps> getListOfCreatedBasemaps() {
@@ -523,12 +523,12 @@ private Long id;
         this.listOfLayerModifiedReferences = listOfLayerModifiedReferences;
     }
 
-    public List<Profile> getListOfProfile2() {
-        return this.listOfProfile2;
+    public List<Profile> getListOfModifiedProfile() {
+        return this.listOfModifiedProfile;
     }
 
-    public void setListOfProfile2(List<Profile> listOfProfile2) {
-        this.listOfProfile2 = listOfProfile2;
+    public void setListOfModifiedProfile(List<Profile> listOfModifiedProfile) {
+        this.listOfModifiedProfile = listOfModifiedProfile;
     }
 
     public List<StyleDefinition> getListOfModifiedStyleDefinition() {
@@ -593,12 +593,12 @@ private Long id;
         this.listOfLayerStyleCustom = listOfLayerStyleCustom;
     }
 
-    public List<Profile> getListOfProfile() {
-        return this.listOfProfile;
+    public List<Profile> getListOfCreatedProfile() {
+        return this.listOfCreatedProfile;
     }
 
-    public void setListOfProfile(List<Profile> listOfProfile) {
-        this.listOfProfile = listOfProfile;
+    public void setListOfCreatedProfile(List<Profile> listOfCreatedProfile) {
+        this.listOfCreatedProfile = listOfCreatedProfile;
     }
 
     public OrganizationalUnit getOrganizationalUnitDefault() {
@@ -1007,12 +1007,12 @@ private Long id;
         this.listOfModifiedReport = listOfModifiedReport;
     }
 
-    public List<OrganizationalUnitType> getListOfOrganizationalUnitType2() {
-        return this.listOfOrganizationalUnitType2;
+    public List<OrganizationalUnitType> getListOfModifiedOrganizationalUnitType() {
+        return this.listOfModifiedOrganizationalUnitType;
     }
 
-    public void setListOfOrganizationalUnitType2(List<OrganizationalUnitType> listOfOrganizationalUnitType2) {
-        this.listOfOrganizationalUnitType2 = listOfOrganizationalUnitType2;
+    public void setListOfModifiedOrganizationalUnitType(List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType) {
+        this.listOfModifiedOrganizationalUnitType = listOfModifiedOrganizationalUnitType;
     }
 
     public List<LayerStyle> getListOfCreatedLayerStyle() {
@@ -1067,12 +1067,12 @@ private Long id;
         this.listOfCreatedContractActivity = listOfCreatedContractActivity;
     }
 
-    public List<OrganizationalUnitType> getListOfOrganizationalUnitType() {
-        return this.listOfOrganizationalUnitType;
+    public List<OrganizationalUnitType> getListOfCreatedOrganizationalUnitType() {
+        return this.listOfCreatedOrganizationalUnitType;
     }
 
-    public void setListOfOrganizationalUnitType(List<OrganizationalUnitType> listOfOrganizationalUnitType) {
-        this.listOfOrganizationalUnitType = listOfOrganizationalUnitType;
+    public void setListOfCreatedOrganizationalUnitType(List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType) {
+        this.listOfCreatedOrganizationalUnitType = listOfCreatedOrganizationalUnitType;
     }
 
     public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
@@ -1127,12 +1127,12 @@ private Long id;
         this.listOfCreatedFormTemplateCustom = listOfCreatedFormTemplateCustom;
     }
 
-    public List<Permissions> getListOfPermissions() {
-        return this.listOfPermissions;
+    public List<Permissions> getListOfCreatedPermissions() {
+        return this.listOfCreatedPermissions;
     }
 
-    public void setListOfPermissions(List<Permissions> listOfPermissions) {
-        this.listOfPermissions = listOfPermissions;
+    public void setListOfCreatedPermissions(List<Permissions> listOfCreatedPermissions) {
+        this.listOfCreatedPermissions = listOfCreatedPermissions;
     }
 
     public List<FormTemplateCustom> getListOfModifiedFormTemplateCustom() {
@@ -1187,12 +1187,12 @@ private Long id;
         this.listOfModifiedTask = listOfModifiedTask;
     }
 
-    public List<Permissions> getListOfPermissions2() {
-        return this.listOfPermissions2;
+    public List<Permissions> getListOfModifiedPermissions() {
+        return this.listOfModifiedPermissions;
     }
 
-    public void setListOfPermissions2(List<Permissions> listOfPermissions2) {
-        this.listOfPermissions2 = listOfPermissions2;
+    public void setListOfModifiedPermissions(List<Permissions> listOfModifiedPermissions) {
+        this.listOfModifiedPermissions = listOfModifiedPermissions;
     }
 
     public List<LayerStyleCustom> getListOfCreatedLayerStyleCustom() {
@@ -1299,12 +1299,12 @@ private Long id;
         this.listOfModifiedLayerStyleCustom = listOfModifiedLayerStyleCustom;
     }
 
-    public List<OrganizationalUnit> getListOfOrganizationalUnit() {
-        return this.listOfOrganizationalUnit;
+    public List<OrganizationalUnit> getListOfCreatedOrganizationalUnit() {
+        return this.listOfCreatedOrganizationalUnit;
     }
 
-    public void setListOfOrganizationalUnit(List<OrganizationalUnit> listOfOrganizationalUnit) {
-        this.listOfOrganizationalUnit = listOfOrganizationalUnit;
+    public void setListOfCreatedOrganizationalUnit(List<OrganizationalUnit> listOfCreatedOrganizationalUnit) {
+        this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
     }
 
 }

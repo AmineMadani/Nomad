@@ -51,26 +51,26 @@ public class UsrCtrPrf implements Serializable {
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usc_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ctr_id", referencedColumnName="id")
     @Id
     private Contract contract;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usc_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="prf_id", referencedColumnName="id")
     private Profile profile;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_id", referencedColumnName="id")
     @Id
     private Users user;

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AlertController, ModalController } from '@ionic/angular';
-import { catchError, forkJoin, of, pairwise, startWith } from 'rxjs';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { forkJoin, pairwise, startWith } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
@@ -26,7 +26,8 @@ export class UserDetailsComponent implements OnInit {
     private organizationalUnitService: OrganizationalUnitService,
     private contractService: ContractService,
     private utilsService: UtilsService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastCtrl: ToastController
   ) { }
 
   @Input("userId") userId: number;
@@ -156,6 +157,8 @@ export class UserDetailsComponent implements OnInit {
       }
     },
   ];
+
+  private savingToast: HTMLIonToastElement;
 
   async ngOnInit() {
     this.initForm();
@@ -398,6 +401,14 @@ export class UserDetailsComponent implements OnInit {
       return;
     }
 
+    // Show a toast to the user
+    this.savingToast = await this.toastCtrl.create({
+      message: 'Sauvegarde en cours...',
+      color: 'primary',
+      position: 'bottom',
+    });
+    this.savingToast.present();
+
     // Keep the initial data and complete them with formValues
     const userToSave: User = {
       ...this.initialUser,
@@ -468,6 +479,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private showSuccessMessageAndClose(res: { message: string; }) {
+    this.savingToast.dismiss();
     this.utilsService.showSuccessMessage(res.message);
 
     this.onClose(true, false);
