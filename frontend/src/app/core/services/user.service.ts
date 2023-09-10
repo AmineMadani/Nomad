@@ -98,7 +98,7 @@ export class UserService {
     const res = await lastValueFrom(
       this.userDataService.getCurrentUserInformation()
         .pipe(
-          timeout(this.configurationService.offlineTimeout),
+          timeout(this.configurationService.offlineTimeoutReferential),
           catchError(async () => {
             const forms = await this.preferenceService.getPreference(
               LocalStorageUserKey.USER

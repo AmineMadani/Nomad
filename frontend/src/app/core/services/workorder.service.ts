@@ -39,7 +39,7 @@ export class WorkorderService {
       }
       return firstValueFrom(
         this.workorderDataService.getWorkorderById(id).pipe(
-          timeout(this.configurationService.offlineTimeout),
+          timeout(this.configurationService.offlineTimeoutWorkorder),
           catchError(async (error) => {
             if (error?.name == 'TimeoutError') {
               let featureWorkorder =
@@ -96,7 +96,7 @@ export class WorkorderService {
   public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
     workorder.resync = false;
     return this.workorderDataService.updateWorkOrder(workorder).pipe(
-      timeout(this.configurationService.offlineTimeout),
+      timeout(this.configurationService.offlineTimeoutWorkorder),
       catchError(async (error) => {
         if (error?.name == 'TimeoutError') {
           workorder.resync = true;
@@ -125,7 +125,7 @@ export class WorkorderService {
   public createWorkOrder(workorder: Workorder): Observable<Workorder> {
     workorder.resync = false;
     return this.workorderDataService.createWorkOrder(workorder).pipe(
-      timeout(this.configurationService.offlineTimeout),
+      timeout(this.configurationService.offlineTimeoutWorkorder),
       catchError(async (error) => {
         if (error?.name == 'TimeoutError') {
           workorder.resync = true;

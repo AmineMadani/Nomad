@@ -19,7 +19,10 @@ export class ConfigurationService {
   externalApiUrl: string;
   host: string;
   keycloak: Keycloak;
-  offlineTimeout: number;
+  offlineTimeoutReferential: number;
+  offlineTimeoutEquipment: number;
+  offlineTimeoutTile: number;
+  offlineTimeoutWorkorder: number;
   
 
   constructor(
@@ -39,7 +42,10 @@ export class ConfigurationService {
           this.externalApiUrl = response.body.externalApiUrl;
           this.keycloak= response.body.keycloak;
           this.host = response.body.host;
-          this.offlineTimeout = response.body.offlineTimeout;
+          this.offlineTimeoutReferential = response.body.offlineTimeoutReferential;
+          this.offlineTimeoutEquipment = response.body.offlineTimeoutEquipment;
+          this.offlineTimeoutTile = response.body.offlineTimeoutTile;
+          this.offlineTimeoutWorkorder = response.body.offlineTimeoutWorkorder;
 
           resolve(this);
         },

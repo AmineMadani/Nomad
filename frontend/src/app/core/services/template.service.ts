@@ -30,7 +30,7 @@ export class TemplateService {
     const res = await lastValueFrom(
       this.templateDataService.getFormsTemplate()
         .pipe(
-          timeout(this.configurationService.offlineTimeout),
+          timeout(this.configurationService.offlineTimeoutReferential),
           catchError(async () => {
             const forms = await this.db.referentials.get('formTemplate');
             if (forms) {

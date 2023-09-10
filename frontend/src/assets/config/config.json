@@ -11,5 +11,8 @@
     "revocationEndpoint": "[keycloakRevocation]"
   },
   "host": "[hostNomad]",
-  "offlineTimeout":5000
+  "offlineTimeoutReferential":15000,
+  "offlineTimeoutEquipment":2000,
+  "offlineTimeoutTile":15000,
+  "offlineTimeoutWorkorder":3000
 }

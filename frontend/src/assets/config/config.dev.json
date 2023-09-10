@@ -11,5 +11,8 @@
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },
   "host":"https://nomad-dev.hp.m-ve.com/",
-  "offlineTimeout":5000
+  "offlineTimeoutReferential":15000,
+  "offlineTimeoutEquipment":2000,
+  "offlineTimeoutTile":15000,
+  "offlineTimeoutWorkorder":3000
 }
