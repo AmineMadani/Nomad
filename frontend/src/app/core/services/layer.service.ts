@@ -61,12 +61,19 @@ export class LayerService {
    * @returns The geojson of the index of the layer.
    */
   public async getLayerIndex(): Promise<GeoJSONObject> {
-    const index = await this.db.referentials.get(ReferentialCacheKey.INDEX);
-    if (index) {
-      return index.data;
-    }
-    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-    const req = await firstValueFrom(this.layerDataService.getLayerIndex('index'));
+    const req = await lastValueFrom(
+      this.layerDataService.getLayerIndex('index')
+        .pipe(
+          timeout(this.configurationService.offlineTimeoutReferential),
+          catchError(async () => {
+            const index = await this.db.referentials.get(ReferentialCacheKey.INDEX);
+            if (index) {
+              return index.data;
+            }
+            return null;
+          })
+        )
+    );
     if (!req) {
       throw new Error(`Failed to fetch index`);
     }

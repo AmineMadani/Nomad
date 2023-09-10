@@ -202,7 +202,7 @@ declare
 begin
   with
   records as
-  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid group by id, geom order by id),
+  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid where st_intersects(geom, (select st_union(ST_MakeValid(geom)) from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = 0 and ucp.usc_ddel is null)) group by id, geom order by id),
   features as
   (
 	select jsonb_build_object(
