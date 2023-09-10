@@ -27,8 +27,8 @@ public class ContractService {
 		return this.contractRepository.findById(contractId).orElseThrow(() -> new FunctionalException("Le contrat avec l'id " + contractId + " n'existe pas."));
 	}
 
-	public List<ContractDto> getAllContracts() {
-		return this.contractRepository.getAllContracts();
+	public List<ContractDto> getAllUserContracts(Long userId) {
+		return this.contractRepository.getAllUserContracts(userId);
 	}
 
 	/**

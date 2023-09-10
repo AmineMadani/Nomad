@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.veolia.nextcanope.dto.CityDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.service.CityService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,10 +30,10 @@ public class CityController {
     @GetMapping()
     @Operation(summary = "Get the list of city")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",description= "The contract list")
+            @ApiResponse(responseCode = "200",description= "The city list based on the user configuration")
     })
-    public List<CityDto> getCities() {
-        return this.cityService.getAllCities();
+    public List<CityDto> getCities(AccountTokenDto account) {
+        return this.cityService.getAllUserCities(account.getId());
     }
 
     @GetMapping(path = "/coordinates")

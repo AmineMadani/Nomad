@@ -27,7 +27,7 @@ public class CityService {
 		return this.cityRepository.getCityIdsByLatitudeLongitude(latitude, longitude);
 	}
 
-	public List<CityDto> getAllCities() {
-		return this.cityRepository.getAllCities();
+	public List<CityDto> getAllUserCities(Long userId) {
+		return this.cityRepository.getAllUserCities(userId);
 	}
 }

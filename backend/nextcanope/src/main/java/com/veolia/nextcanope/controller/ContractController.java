@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.controller;
 
 import com.veolia.nextcanope.dto.Contract.ContractOrgDto;
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.Contract.ContractDto;
 import com.veolia.nextcanope.service.ContractService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,8 +27,8 @@ public class ContractController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",description= "The contract list")
     })
-    public List<ContractDto> getContracts() {
-        return this.contractService.getAllContracts();
+    public List<ContractDto> getContracts(AccountTokenDto account) {
+        return this.contractService.getAllUserContracts(account.getId());
     }
 
     @GetMapping(path = "/organizational-units")
