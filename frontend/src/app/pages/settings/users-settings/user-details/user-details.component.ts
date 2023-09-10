@@ -1,7 +1,7 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AlertController, ModalController } from '@ionic/angular';
-import { catchError, forkJoin, of, pairwise, startWith } from 'rxjs';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { Subscription, forkJoin, pairwise, startWith } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
 import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
@@ -19,14 +19,15 @@ import { PermissionsSettingsPage } from '../../permissions-settings/permissions-
   templateUrl: './user-details.component.html',
   styleUrls: ['./user-details.component.scss'],
 })
-export class UserDetailsComponent implements OnInit {
+export class UserDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private userService: UserService,
     private modalController: ModalController,
     private organizationalUnitService: OrganizationalUnitService,
     private contractService: ContractService,
     private utilsService: UtilsService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastCtrl: ToastController
   ) { }
 
   @Input("userId") userId: number;
@@ -34,6 +35,7 @@ export class UserDetailsComponent implements OnInit {
   public ActionType = ActionType;
 
   public isLoading: boolean = false;
+  public isSaving: boolean = false;
 
   // Permissions
   public userHasPermissionManageUser: boolean = false;
@@ -157,6 +159,12 @@ export class UserDetailsComponent implements OnInit {
     },
   ];
 
+  private savingToast: HTMLIonToastElement;
+  private profileSubscription: Subscription;
+  private regionsSubscription: Subscription;
+  private territoriesSubscription: Subscription;
+  private contractsSubscription: Subscription;
+
   async ngOnInit() {
     this.initForm();
 
@@ -167,6 +175,13 @@ export class UserDetailsComponent implements OnInit {
       await this.userService.currentUserHasPermission(PermissionCodeEnum.SET_USER_RIGHTS);
 
     this.fetchInitData();
+  }
+
+  ngOnDestroy(): void {
+    this.profileSubscription.unsubscribe();
+    this.regionsSubscription.unsubscribe();
+    this.territoriesSubscription.unsubscribe();
+    this.contractsSubscription.unsubscribe();
   }
 
   private initForm() {
@@ -275,7 +290,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private subscribeToProfileValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('profileId').valueChanges.subscribe((newProfileId) => {
+    this.profileSubscription = row.get('profileId').valueChanges.subscribe((newProfileId) => {
       // If a profile is selected
       if (newProfileId) {
         // If it's admin nat
@@ -289,7 +304,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private subscribeToRegionValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('regionIds').valueChanges.pipe(
+    this.regionsSubscription = row.get('regionIds').valueChanges.pipe(
       startWith(row.get('regionIds').value),
       pairwise()
     ).subscribe(([previousRegionsIds, currentRegionsIds]) => {
@@ -313,7 +328,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private subscribeToTerritoryValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('territoryIds').valueChanges.pipe(
+    this.territoriesSubscription = row.get('territoryIds').valueChanges.pipe(
       startWith(row.get('territoryIds').value),
       pairwise()
     ).subscribe(([previousTerritoriesIds, currentTerritoriesIds]) => {
@@ -329,18 +344,21 @@ export class UserDetailsComponent implements OnInit {
         // Set automatically the region by orgParentId of the territory
         row.get('regionIds').setValue([...new Set(territories.map(t => t.orgParentId))]);
 
-        // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
-        const profileIds = this.profiles
-          .filter((prf) => [ProfileCodeEnum.ADMIN_NAT, ProfileCodeEnum.ADMIN_LOC_1, ProfileCodeEnum.ADMIN_LOC_2].includes(prf.prfCode))
-          .map((prf) => prf.id);
+        // If the form dirty (prevent to programatically change contracts at init)
+        if (this.userForm.dirty) {
+          // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
+          const profileIds = this.profiles
+            .filter((prf) => [ProfileCodeEnum.ADMIN_NAT, ProfileCodeEnum.ADMIN_LOC_1, ProfileCodeEnum.ADMIN_LOC_2].includes(prf.prfCode))
+            .map((prf) => prf.id);
 
-        if (profileIds.includes(row.get('profileId').value)) {
-          // Set automatically all contracts contains in the territory
-          const territoryContractIds = this.contracts
-            .filter((ctr) => ctr.organizationalUnits.some((org) => currentTerritoriesIds.includes(org.id)))
-            .map((ctr) => ctr.id);
+          if (profileIds.includes(row.get('profileId').value)) {
+            // Set automatically all contracts contains in the territory
+            const territoryContractIds = this.contracts
+              .filter((ctr) => ctr.organizationalUnits.some((org) => currentTerritoriesIds.includes(org.id)))
+              .map((ctr) => ctr.id);
 
-          row.get('contractIds').setValue(territoryContractIds.length > 0 ? territoryContractIds : null);
+            row.get('contractIds').setValue(territoryContractIds.length > 0 ? territoryContractIds : null);
+          }
         }
       }
 
@@ -362,7 +380,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private subscribeToContractValueChanges(row: TableRow<PerimeterRow>): void {
-    row.get('contractIds').valueChanges.pipe(
+    this.contractsSubscription = row.get('contractIds').valueChanges.pipe(
       startWith(row.get('contractIds').value),
       pairwise()
     ).subscribe(([previousContractsIds, currentContractsIds]) => {
@@ -397,6 +415,15 @@ export class UserDetailsComponent implements OnInit {
     if (!this.userForm.valid) {
       return;
     }
+
+    // Show a toast to the user
+    this.isSaving = true;
+    this.savingToast = await this.toastCtrl.create({
+      message: 'Sauvegarde en cours...',
+      color: 'primary',
+      position: 'bottom',
+    });
+    this.savingToast.present();
 
     // Keep the initial data and complete them with formValues
     const userToSave: User = {
@@ -468,6 +495,8 @@ export class UserDetailsComponent implements OnInit {
   }
 
   private showSuccessMessageAndClose(res: { message: string; }) {
+    this.isSaving = false;
+    this.savingToast.dismiss();
     this.utilsService.showSuccessMessage(res.message);
 
     this.onClose(true, false);
