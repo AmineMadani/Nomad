@@ -125,36 +125,64 @@ begin
   --
   if list_fields is null then
     -- Get list of fields from postgres
-    select string_agg(column_name, ', ')  into list_fields
+    select string_agg('t.'||column_name, ', ')  into list_fields
       from information_schema.columns
      where table_schema||'.'||table_name = 'asset.'||lyr_table_name;
   end if;
   --
-  execute format($sql$
-  with
-  records as
-  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.contract ctr on ctr.ctr_code =t.code_contrat join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null left join nomad.city cty on cty.cty_code = t.insee_code where st_intersects(t.geom, '%3$s'::geometry)),
-  features as
-  (
-    select 
-        jsonb_build_object(
-            'type', 'Feature',
-            'id', id,
-            'geometry', ST_AsGeoJSON(geom)::jsonb,
-            -- Transform underscore to camelcase permit to use the same standards in all the app  
-            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
-        ) as feature
-    from records r
-    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
-    GROUP BY id, r.geom, x, y
-  )
-  SELECT jsonb_build_object(
-  'crs', '%4$s'::jsonb,
-  'name',  '%2$s',
-  'type',     'FeatureCollection',
-  'features', jsonb_agg(feature))
-  from features f
-  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
+  if lyr_table_name != 'task' then
+	  execute format($sql$
+	  with
+	  records as
+	  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.contract ctr on ctr.ctr_code =t.code_contrat join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null left join nomad.city cty on cty.cty_code = t.insee_code where st_intersects(t.geom, '%3$s'::geometry)),
+	  features as
+	  (
+	    select 
+	        jsonb_build_object(
+	            'type', 'Feature',
+	            'id', id,
+	            'geometry', ST_AsGeoJSON(geom)::jsonb,
+	            -- Transform underscore to camelcase permit to use the same standards in all the app  
+	            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
+	        ) as feature
+	    from records r
+	    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
+	    GROUP BY id, r.geom, x, y
+	  )
+	  SELECT jsonb_build_object(
+	  'crs', '%4$s'::jsonb,
+	  'name',  '%2$s',
+	  'type',     'FeatureCollection',
+	  'features', jsonb_agg(feature))
+	  from features f
+	  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
+  else
+  	execute format($sql$
+	  with
+	  records as
+	  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.usr_ctr_prf ucp on ucp.ctr_id=t.ctr_id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null where st_intersects(t.geom, '%3$s'::geometry)),
+	  features as
+	  (
+	    select 
+	        jsonb_build_object(
+	            'type', 'Feature',
+	            'id', id,
+	            'geometry', ST_AsGeoJSON(geom)::jsonb,
+	            -- Transform underscore to camelcase permit to use the same standards in all the app  
+	            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
+	        ) as feature
+	    from records r
+	    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
+	    GROUP BY id, r.geom, x, y
+	  )
+	  SELECT jsonb_build_object(
+	  'crs', '%4$s'::jsonb,
+	  'name',  '%2$s',
+	  'type',     'FeatureCollection',
+	  'features', jsonb_agg(feature))
+	  from features f
+	  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
+  end if;
   return geojson;
 exception when others then
 	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
