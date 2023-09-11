@@ -457,7 +457,7 @@ public class WorkorderService {
 	) {
 		Workorder workorder = getWorkOrderById(wkoId);
 		workorder.setWkoCompletionStartDate(wkoCompletionStartDate);
-		//workorder.setWkoCompletionEndDate(wkoCompletionEndDate);
+		workorder.setWkoCompletionEndDate(wkoCompletionEndDate);
 		workorder.setWkoRealizationUser(wkoRealizationUser);
 		workorder.setModifiedBy(user);
 
