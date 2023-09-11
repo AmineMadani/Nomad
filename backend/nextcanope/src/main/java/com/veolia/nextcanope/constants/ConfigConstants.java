@@ -36,4 +36,9 @@ public class ConfigConstants {
 	 * Label /**
 	 */
 	public static final String SCHEMA  = "asset";
+
+	/**
+	 * Mail of the user used for external called (with basic auth)
+	 */
+	public static final String EXTERNAL_MAIL = "external@veolia.com";
 }

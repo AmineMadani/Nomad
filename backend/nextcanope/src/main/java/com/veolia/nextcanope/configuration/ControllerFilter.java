@@ -3,6 +3,7 @@ package com.veolia.nextcanope.configuration;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import com.veolia.nextcanope.constants.ConfigConstants;
@@ -27,13 +28,26 @@ public class ControllerFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
-	    AccountTokenDto account = (AccountTokenDto) req.getUserPrincipal();
-	    req.getRequestURI();
-	    if(!Arrays.stream(transcoUrlFilterArray(ConfigConstants.FILTER_URL_IGNORE)).anyMatch(req.getRequestURI()::contains) && (account == null || !account.getIsValid())) {
-	    	((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, MessageConstants.ERROR_NOT_AUTHORIZED);
-	    } else {
-	    	chain.doFilter(request, response);
-	    }
+
+		// AccountTokenDto is for keycloak authentication
+		if (req.getUserPrincipal() instanceof AccountTokenDto) {
+			AccountTokenDto account = (AccountTokenDto) req.getUserPrincipal();
+
+			// Check that the user is valid in DB
+			if (!account.getIsValid()) {
+				((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, MessageConstants.ERROR_NOT_AUTHORIZED);
+			} else {
+				chain.doFilter(request, response);
+			}
+		} else {
+			// Basic authentication
+			UsernamePasswordAuthenticationToken account = (UsernamePasswordAuthenticationToken) req.getUserPrincipal();
+			if (!Arrays.stream(transcoUrlFilterArray(ConfigConstants.FILTER_URL_IGNORE)).anyMatch(req.getRequestURI()::contains) && account == null) {
+				((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, MessageConstants.ERROR_NOT_AUTHORIZED);
+			} else {
+				chain.doFilter(request, response);
+			}
+		}
 	}
 	
 	/**

@@ -438,4 +438,35 @@ public class WorkorderService {
 	public List<WorkorderTaskReasonDto> getAllWorkorderTaskReasons() {
 		return this.workOrderTaskReasonRepository.getAllWorkorderTaskReasons();
 	}
+
+	// ### External call ### //
+	/**
+	 * Method which update the completion dates of a workorder
+	 * @param wkoId The id of the workorder
+	 * @param wkoCompletionStartDate The start date of the completion
+	 * @param wkoCompletionEndDate The end date of the completion
+	 * @param user the user who update the work order
+	 * @return the work order dto
+	 */
+	public WorkorderDto updateWorkOrderCompletion(
+			Long wkoId,
+			Date wkoCompletionStartDate,
+			Date wkoCompletionEndDate,
+			String wkoRealizationUser,
+			Users user
+	) {
+		Workorder workorder = getWorkOrderById(wkoId);
+		workorder.setWkoCompletionStartDate(wkoCompletionStartDate);
+		//workorder.setWkoCompletionEndDate(wkoCompletionEndDate);
+		workorder.setWkoRealizationUser(wkoRealizationUser);
+		workorder.setModifiedBy(user);
+
+		try {
+			workorder = workOrderRepository.save(workorder);
+		} catch (Exception e) {
+			throw new TechnicalException("Erreur lors de la sauvegarde du workorder pour l'utilisateur avec l'id  " + user.getId() + ".", e.getMessage());
+		}
+
+		return new WorkorderDto(workorder);
+	}
 }
