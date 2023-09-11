@@ -512,7 +512,7 @@ export class MapService {
         this.map.getZoom() >=
         Math.min(...layer[1].style.map((style) => style.minzoom))
       ) {
-        this.getOverlapTileFromIndex(layer[0]).then((res) => {
+        this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
           for (let str of res) {
             if (
               !this.loadedGeoJson.get(layer[0]) ||
@@ -523,7 +523,7 @@ export class MapService {
               } else {
                 this.loadedGeoJson.set(layer[0], [str]);
               }
-              this.loadNewTile(layer[0], str);
+              await this.loadNewTile(layer[0], str);
             }
           }
         });
