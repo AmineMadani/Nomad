@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.veolia.nextcanope.dto.*;
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
+import com.veolia.nextcanope.dto.payload.SearchTaskPayload;
 import com.veolia.nextcanope.enums.WorkOrderStatusCode;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.model.*;
@@ -70,14 +71,11 @@ public class WorkorderService {
      * @param searchParameter The search parameters
 	 * @return the workorder list
 	 */
-	public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(
-			Long limit,
-			Long offset,
-			HashMap<String, String[]> searchParameter,
-			Long userId
-	) {
-		return workOrderRepositoryImpl.getWorkOrderPaginationWithCustomCriteria(limit, offset, searchParameter, userId);
-	}
+    public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, SearchTaskPayload searchParameter, Long userId) {
+		searchParameter.wtsIds = searchParameter.wtsIds == null ? new ArrayList<>() : searchParameter.wtsIds;
+		searchParameter.wtrIds = searchParameter.wtrIds == null ? new ArrayList<>() : searchParameter.wtrIds;
+		return workOrderRepository.getTaskWithPaginationAndFilters(searchParameter.wtsIds, searchParameter.wtrIds, searchParameter.wkoAppointment, searchParameter.wkoEmergency, searchParameter.wkoPlanningStartDate, searchParameter.wkoPlanningEndDate, limit, offset, userId);
+    }
 
 	/**
 	 * Retrieve the workorders associated with an asset given by his id and his table

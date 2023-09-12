@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.veolia.nextcanope.dto.WorkorderTaskReasonDto;
 import com.veolia.nextcanope.dto.WorkorderTaskStatusDto;
+import com.veolia.nextcanope.dto.payload.SearchTaskPayload;
 import com.veolia.nextcanope.service.WorkorderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,12 +38,8 @@ public class WorkorderController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public List<TaskSearchDto> getWorkOrders(
-            @PathVariable Long limit,
-            @PathVariable Long offset,
-            @RequestBody(required = false) HashMap<String, String[]> searchParameter,
-            AccountTokenDto account) {
-        return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset,searchParameter, account.getId());
+    public List<TaskSearchDto> getWorkOrders(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) SearchTaskPayload searchParameter, AccountTokenDto account) {
+        return this.workOrderService.getWorkOrdersWithOffsetOrderByMostRecentDateBegin(limit, offset, searchParameter, account.getId());
     }
 
     @GetMapping(path = "/{id}")

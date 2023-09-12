@@ -58,12 +58,15 @@ export class CacheService {
       .where('key')
       .startsWith(layerKey)
       .filter((tile) => {
-        return tile?.data?.features?.some((feature) => feature.id.toString() === featureId);
+        return tile?.data?.features?.some(
+          (feature) => feature.id.toString() === featureId
+        );
       })
       .first((tile) => {
-        return tile?.data?.features?.find((feature) => feature.id.toString() === featureId)
-      }
-      );
+        return tile?.data?.features?.find(
+          (feature) => feature.id.toString() === featureId
+        );
+      });
   }
 
   /**
@@ -78,22 +81,46 @@ export class CacheService {
     property: string,
     value: string
   ): Promise<any> {
-
     return await this.db.tiles
       .where('key')
       .startsWith(layerKey)
       .filter((tile) => {
-        return tile.data.features?.some((feature) => feature.properties[property].toString() === value);
+        return tile.data.features?.some(
+          (feature) => feature.properties[property].toString() === value
+        );
       })
-      .toArray().then(tiles => {
+      .toArray()
+      .then((tiles) => {
         let result: any[] = [];
         if (tiles.length > 0) {
           for (let tile of tiles) {
-            result = [...result, ...tile.data.features?.filter(feature => feature.properties[property].toString() === value)];
+            result = [
+              ...result,
+              ...tile.data.features?.filter(
+                (feature) => feature.properties[property].toString() === value
+              ),
+            ];
           }
         }
         return result;
-      })
+      });
+  }
+
+  public async getFeaturesByLayersAndIds(
+    layerKeys: string[],
+    ids: string[]
+  ): Promise<any> {
+    const tiles = await this.db.tiles
+      .filter((tile) => layerKeys.some((prefix) => tile.key.startsWith(prefix)))
+      .toArray();
+
+    const features = tiles.flatMap((tile) =>
+      tile.data.features
+        .filter((feature) => ids.includes(feature.id))
+        .map((feature) => feature.properties)
+    );
+
+    return features;
   }
 
   /**
@@ -155,7 +182,7 @@ export class CacheService {
     layerKey: string
   ): Promise<any> {
     let geom;
-    await this.getFeatureByLayerAndFeatureId(layerKey,featureId).then(
+    await this.getFeatureByLayerAndFeatureId(layerKey, featureId).then(
       (result) => (geom = result.geometry.coordinates)
     );
     return geom;
@@ -176,9 +203,7 @@ export class CacheService {
       .toArray();
 
     const wtrs: VLayerWtr[] = wtrEntries.flatMap((entry) => entry.data);
-    const filteredWtrs = wtrs.filter((wtr) =>
-      lyrs.includes(wtr.lyrTableName)
-    );
+    const filteredWtrs = wtrs.filter((wtr) => lyrs.includes(wtr.lyrTableName));
 
     return filteredWtrs;
   }
@@ -208,23 +233,29 @@ export class CacheService {
   }
 
   /**
-  * Fetches referential data either from a local cache or from a service call.
-  * If the data is not available in the cache, it will be fetched using the provided service call
-  * and then saved to the cache for future access.
-  *
-  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
-  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
-  * @returns An Observable of the fetched data, either from the local cache or from the service call.
-  */
-  public fetchReferentialsData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
+   * Fetches referential data either from a local cache or from a service call.
+   * If the data is not available in the cache, it will be fetched using the provided service call
+   * and then saved to the cache for future access.
+   *
+   * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
+   * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
+   * @returns An Observable of the fetched data, either from the local cache or from the service call.
+   */
+  public fetchReferentialsData<T>(
+    referentialCacheKey: ReferentialCacheKey,
+    serviceCall: () => Observable<T>
+  ): Observable<T> {
     return from(this.db.referentials.get(referentialCacheKey)).pipe(
-      switchMap(referential => {
+      switchMap((referential) => {
         if (referential?.data) {
           return of(referential.data);
         } else {
           return serviceCall().pipe(
-            tap(async data => {
-              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
+            tap(async (data) => {
+              await this.db.referentials.put(
+                { data: data, key: referentialCacheKey },
+                referentialCacheKey
+              );
             })
           );
         }

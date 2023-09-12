@@ -46,6 +46,9 @@ export class MapLayerService {
     layerKey: string,
     featureId: string
   ): Promise<any | null> {
+    if (layerKey.includes('asset.')) {
+      layerKey = layerKey.split('asset.')[1];
+    }
     return await this.cacheService.getGeometryByLayerAndId(featureId, layerKey);
   }
 
@@ -183,7 +186,6 @@ export class MapLayerService {
    * @param y latitude
    */
   public moveToXY(x: number, y: number, zoomLevel: number = 16): Promise<string> {
-
     if (this.mapService.getMap().getZoom() > zoomLevel) {
       zoomLevel = this.mapService.getMap().getZoom();
     }
@@ -280,6 +282,14 @@ export class MapLayerService {
       padding: 20,
       maxZoom: maxZoomLevel,
     });
+  }
+
+  public hideFeature(layerKey: string, featureId: string): void {
+    const layer = this.mapService.getLayer(layerKey);
+    console.log(layer);
+    for (const style of layer.style) {
+      this.mapService.getMap().setFilter(style.id, ['!=', 'id', featureId]);
+    }
   }
 
   /**

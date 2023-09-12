@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { MapFeature } from '../../models/map-feature.model';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
-import { CancelWorkOrder, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
+import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,12 +28,29 @@ export class WorkorderDataService {
    * @param search
    * @returns an observable of the list of map features
    */
-  public getFeaturePagination(key: string,limit: number,offset: number,search: Map<string, string[]> | undefined): Observable<MapFeature[]> {
-    return this.http
-      .post<MapFeature[]>(`${this.configurationService.apiUrl}exploitation/workorders/${key}/pagination/${limit}/${offset}`,
-        this.utilsService.mapToJson(search),
-        this.httpOptions
-      )
+  public getFeaturePagination(
+    key: string,
+    limit: number,
+    offset: number,
+    search: Map<string, string[]> | undefined
+  ): Observable<MapFeature[]> {
+    return this.http.post<MapFeature[]>(
+      `${this.configurationService.apiUrl}exploitation/workorders/${key}/pagination/${limit}/${offset}`,
+      this.utilsService.mapToJson(search),
+      this.httpOptions
+    );
+  }
+
+  public getTasksPaginated(
+    limit: number,
+    offset: number,
+    searchParams: any
+  ): Observable<Task[]> {
+    return this.http.post<Task[]>(
+      `${this.configurationService.apiUrl}exploitation/workorders/task/pagination/${limit}/${offset}`,
+      searchParams,
+      this.httpOptions
+    );
   }
 
   /**
@@ -102,7 +119,10 @@ export class WorkorderDataService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkOrderHistory(assetTable: string, assetId: string): Observable<Workorder[]> {
+  public getEquipmentWorkOrderHistory(
+    assetTable: string,
+    assetId: string
+  ): Observable<Workorder[]> {
     return this.http.get<Workorder[]>(
       `${this.configurationService.apiUrl}layers/${assetTable}/equipments/${assetId}/history`
     );
@@ -113,7 +133,9 @@ export class WorkorderDataService {
    * @returns an observable of the list of status
    */
   public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
-    return this.http.get<WorkorderTaskStatus[]>(`${this.configurationService.apiUrl}exploitation/workorders/tasks/status`)
+    return this.http.get<WorkorderTaskStatus[]>(
+      `${this.configurationService.apiUrl}exploitation/workorders/tasks/status`
+    );
   }
 
   /**
@@ -121,6 +143,8 @@ export class WorkorderDataService {
    * @returns an observable of the list of reasons
    */
   public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
-    return this.http.get<WorkorderTaskReason[]>(`${this.configurationService.apiUrl}exploitation/workorders/tasks/reasons`)
+    return this.http.get<WorkorderTaskReason[]>(
+      `${this.configurationService.apiUrl}exploitation/workorders/tasks/reasons`
+    );
   }
 }

@@ -219,6 +219,10 @@ export class MapService {
       return;
     }
 
+    if (layerKey.includes('asset.')) {
+      layerKey = layerKey.split('asset.')[1];
+    }
+
     //Case if the user add the layer after to have remove it before the first loading finished
     const removeIndex = this.removeLoadingLayer.indexOf(
       layerKey + (styleKey ? styleKey : '')
@@ -268,7 +272,6 @@ export class MapService {
 
       const layerPromise = new Promise<void>((resolve) => {
         this.map.once('idle', async (e) => {
-          this.applyFilterOnMap(layerKey);
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           for (let i = 0; i < 6; i++) {
             if (this.map.querySourceFeatures(layerKey).length > 0) {
@@ -349,20 +352,22 @@ export class MapService {
    * @param layerKey  layer exploitation data
    * @returns
    */
-  public applyFilterOnMap(layerKey: string): void {
-    const filters: Map<string, string[]> = this.filterDataService
-      .getSearchFilterListData()
-      .get(layerKey);
+  public applyFilterOnMap(layerKey: string, filters?: any): void {
+    if(!filters) filters = this.filterDataService.getSearchFilterListData();
     const layer = this.getLayer(layerKey);
     if (!layer || !filters) {
       return;
     }
 
     const filter: any[] = ['all'];
-
     if (filters && filters.size > 0) {
       for (const [key, values] of filters) {
-        filter.push(['in', ['get', key], ['literal', values]]);
+        if (key.toLowerCase().includes('date')) {
+          filter.push(['>=', ['get', key], ['literal', values[0]]]);
+          if (values?.[1]) filter.push(['<=', ['get', key], ['literal', values[1]]]);
+        } else {
+          filter.push(['in', ['get', key], ['literal', values]]);
+        }
       }
     }
 

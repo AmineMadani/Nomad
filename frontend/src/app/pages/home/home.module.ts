@@ -17,14 +17,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { AssetDrawer } from './drawers/asset/asset.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
-import { FilterContentComponent } from './drawers/components/filter-content/filter-content.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
-import { FilterToggleComponent } from './drawers/components/filter-toggle/filter-toggle.component';
-import { FilterCardComponent } from './drawers/components/filter-card/filter-card.component';
-import { FilterSearchComponent } from './drawers/components/filter-search/filter-search.component';
+import { ExpCardComponent } from './drawers/components/exp-card/exp-card.component';
+import { ExpSearchComponent } from './drawers/exploitation/components/exp-search/exp-search.component';
 
-import { FilterWorkOrderComponent } from './drawers/components/filter-card/filter-work-order/filter-work-order.component';
+import { TaskCardComponent } from './drawers/components/exp-card/task-card/task-card.component';
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
@@ -44,7 +42,9 @@ import { ReportCreateComponent } from './drawers/workorder/pages/report/componen
 import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-context/report-context.component';
 import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
 import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
+import { WorkorderListComponent } from './drawers/exploitation/components/workorder-list/workorder-list.component';
 import { AttachmentComponent } from './drawers/components/attachment/attachment.component';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -67,16 +67,15 @@ import { AttachmentComponent } from './drawers/components/attachment/attachment.
     MapComponent,
     AssetDrawer,
     ExploitationDrawer,
-    FilterContentComponent,
-    FilterToggleComponent,
-    FilterCardComponent,
-    FilterSearchComponent,
-    FilterWorkOrderComponent,
+    ExpCardComponent,
+    ExpSearchComponent,
+    TaskCardComponent,
     SynthesisDrawer,
     WorkOrderDrawer,
     DemandeDrawer,
     EquipmentDrawer,
     ReportDrawer,
+    WorkorderListComponent,
     MultipleSelectionDrawer,
     EquipmentDetailsComponent,
     MobileHomeActionsComponent,

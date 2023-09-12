@@ -20,6 +20,16 @@ export class FilterService {
 
   public isLoading = false;
 
+  private filterForm: any;
+
+  public getFilterForm(): any {
+    return this.filterForm;
+  }
+
+  public setFilterForm(filter: any): void {
+    this.filterForm = filter;
+  }
+
   /**
    * Method to get all data
    * @param layerkey layer exploitation data
@@ -48,6 +58,12 @@ export class FilterService {
    * @param layerkey layer exploitation data
    * @param toogle boolean true: map - false: DB
    */
+/**
+ * The function `setToggleLayer` is used to toggle the visibility of a layer on a map and fetch its
+ * features if the layer is toggled on.
+ * @param {string} layerkey - A string representing the key of the layer.
+ * @param {boolean} toogle - A boolean value indicating whether to toggle the layer on or off.
+ */
   public setToggleLayer(layerkey: string, toogle: boolean): void {
     this.filterDataService.getFilterData().delete(layerkey);
     if (!toogle) {
@@ -113,18 +129,18 @@ export class FilterService {
    * @param layerkey layer exploitation data
    * @param ev infinity scroll event
    */
-  public updateData(key: string, ev?: InfiniteScrollCustomEvent): void {
-    let features = this.filterDataService.getFilterData().get(key);
-    if (features) {
-      this.workorderService
-        .getFeaturePagination(key, 20, features.length, this.filterDataService.getSearchFilterListData().get(key))
-        .pipe(finalize(() => ev?.target.complete()))
-        .subscribe((f: MapFeature[]) => {
-          features = [...features!, ...f];
-          this.filterDataService.getFilterData().set(key, features);
-        });
-    }
-  }
+  // public updateData(key: string, ev?: InfiniteScrollCustomEvent): void {
+  //   let features = this.filterDataService.getFilterData().get(key);
+  //   if (features) {
+  //     this.workorderService
+  //       .getFeaturePagination(key, 20, features.length, this.filterDataService.getSearchFilterListData().get(key))
+  //       .pipe(finalize(() => ev?.target.complete()))
+  //       .subscribe((f: MapFeature[]) => {
+  //         features = [...features!, ...f];
+  //         this.filterDataService.getFilterData().set(key, features);
+  //       });
+  //   }
+  // }
 
   /**
    * Method to set the new property filter to add and execute it on the target layer
@@ -149,9 +165,9 @@ export class FilterService {
     this.applyFilterOnMap(layerkey);
 
     // In the case of the data from DB
-    if (!this.mapService.getLayer(layerkey)) {
-      this.setToggleLayer(layerkey, false);
-    }
+    // if (!this.mapService.getLayer(layerkey)) {
+    //   this.setToggleLayer(layerkey, false);
+    // }
   }
 
   /**
