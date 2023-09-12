@@ -513,17 +513,17 @@ export class MapService {
         Math.min(...layer[1].style.map((style) => style.minzoom))
       ) {
         this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
-          for (let str of res) {
+          for (let str of res.listTile) {
             if (
-              !this.loadedGeoJson.get(layer[0]) ||
-              !this.loadedGeoJson.get(layer[0])!.includes(str)
+              !this.loadedGeoJson.get(res.layer) ||
+              !this.loadedGeoJson.get(res.layer)!.includes(str)
             ) {
-              if (this.loadedGeoJson.get(layer[0])) {
-                this.loadedGeoJson.get(layer[0])!.push(str);
+              if (this.loadedGeoJson.get(res.layer)) {
+                this.loadedGeoJson.get(res.layer)!.push(str);
               } else {
-                this.loadedGeoJson.set(layer[0], [str]);
+                this.loadedGeoJson.set(res.layer, [str]);
               }
-              await this.loadNewTile(layer[0], str);
+              await this.loadNewTile(res.layer, str);
             }
           }
         });
@@ -556,7 +556,7 @@ export class MapService {
    * @param {string} key - Layer index key
    * @returns a Promise that resolves to an array of strings.
    */
-  private async getOverlapTileFromIndex(key: string): Promise<string[]> {
+  private async getOverlapTileFromIndex(key: string): Promise<any> {
     const listTile: string[] = [];
     const val: Maplibregl.LngLatBounds = this.map!.getBounds();
     const box1: Box = {
@@ -596,8 +596,11 @@ export class MapService {
         }
       }
     }
-
-    return listTile;
+    let result:any = {
+      layer: key,
+      listTile: listTile
+    };
+    return result;
   }
 
   /**
