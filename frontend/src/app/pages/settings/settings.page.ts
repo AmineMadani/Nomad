@@ -36,9 +36,9 @@ export class SettingsPage implements OnInit {
         },
         {
           url: 'reports',
-          title: 'Personnalisation des formulaires',
+          title: 'Personnalisation des formulaires de comptes-rendus',
         },
-      ]
+      ],
     },
     {
       title: 'Paramétrage par contact',
@@ -65,7 +65,7 @@ export class SettingsPage implements OnInit {
       items: [
         {
           url: 'users',
-          title: "Gestion des utilisateurs",
+          title: 'Gestion des utilisateurs',
         },
         {
           url: 'permissions',
