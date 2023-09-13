@@ -33,7 +33,7 @@ export class ReportFormComponent implements OnInit {
       return;
     }
 
-    this.templateService.getFormsTemplate().then(forms => {
+    this.templateService.getFormsTemplate().subscribe(forms => {
       let formTemplate = forms.find(form => form.formCode === 'REPORT_' + this.tasks[0].astCode + '_' + this.tasks[0].wtrCode);
       if (formTemplate) {
         this.form = JSON.parse(formTemplate.definition);

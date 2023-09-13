@@ -466,49 +466,49 @@ export class ReportEditComponent implements OnInit {
   async duplicateFromReport() {
     // Select the type-motif from which to duplicate
     // Only display the ones with report
-    this.layerService.getAllVLayerWtr().subscribe(async (listAssetTypeWtr) => {
-      const listFormTemplateReport = await this.templateService.getFormsTemplate();
+    this.layerService.getAllVLayerWtr().subscribe((listAssetTypeWtr) => {
+      this.templateService.getFormsTemplate().subscribe( async (listFormTemplateReport) => {
+        let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
+          .filter((assetTypeWtr) => {
+            return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
+          })
+          .sort((a, b) => {
+            if (a.astCode === b.astCode) return a.wtrCode.localeCompare(b.wtrCode);
+            return a.astCode.localeCompare(b.astCode);
+          })
+          .map((assetTypeWtr) => {
+            // For each wtr, get the form, if it exists
+            const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
 
-      let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
-        .filter((assetTypeWtr) => {
-          return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
-        })
-        .sort((a, b) => {
-          if (a.astCode === b.astCode) return a.wtrCode.localeCompare(b.wtrCode);
-          return a.astCode.localeCompare(b.astCode);
-        })
-        .map((assetTypeWtr) => {
-          // For each wtr, get the form, if it exists
-          const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
+            return {
+              value: formTemplateReport.formCode,
+              label: assetTypeWtr.astCode + ' - ' + assetTypeWtr.astSlabel + ' - ' + assetTypeWtr.wtrCode + ' - ' + assetTypeWtr.wtrSlabel,
+            }
+          });
 
-          return {
-            value: formTemplateReport.formCode,
-            label: assetTypeWtr.astCode + ' - ' + assetTypeWtr.astSlabel + ' - ' + assetTypeWtr.wtrCode + ' - ' + assetTypeWtr.wtrSlabel,
+        // Remove duplicates
+        listAssetTypeWtrWithReport = this.utilsService.removeDuplicatesFromArr(listAssetTypeWtrWithReport, 'value');
+
+        const modal = await this.modalController.create({
+          component: SelectDuplicateReportComponent,
+          componentProps: {
+            listAssetTypeWtrReport: listAssetTypeWtrWithReport,
+          },
+          backdropDismiss: false,
+          cssClass: 'adaptive-modal stack-modal',
+        });
+
+        modal.onDidDismiss().then((result) => {
+          const report: string = result['data'];
+          // If a report is selected
+          if (report != null) {
+            const formTemplate = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === report);
+            this.createFormFromDefinition(formTemplate.definition);
           }
         });
 
-      // Remove duplicates
-      listAssetTypeWtrWithReport = this.utilsService.removeDuplicatesFromArr(listAssetTypeWtrWithReport, 'value');
-
-      const modal = await this.modalController.create({
-        component: SelectDuplicateReportComponent,
-        componentProps: {
-          listAssetTypeWtrReport: listAssetTypeWtrWithReport,
-        },
-        backdropDismiss: false,
-        cssClass: 'adaptive-modal stack-modal',
+        await modal.present();
       });
-
-      modal.onDidDismiss().then((result) => {
-        const report: string = result['data'];
-        // If a report is selected
-        if (report != null) {
-          const formTemplate = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === report);
-          this.createFormFromDefinition(formTemplate.definition);
-        }
-      });
-
-      await modal.present();
     });
   }
 

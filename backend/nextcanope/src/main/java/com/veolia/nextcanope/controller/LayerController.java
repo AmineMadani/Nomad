@@ -50,26 +50,15 @@ public class LayerController {
     @Autowired
     public LayerStyleService layerStyleService;
 
-    @GetMapping()
-    @Operation(summary = "Get all layers")
+    @GetMapping(path = "/indexes")
+    @Operation(summary = "Get the indexes of the current user.")
     @ApiResponses(value = {
-        @ApiResponse(description= "Get all layers", content =  {
-            @Content(schema = @Schema(implementation = String.class))
-        })
-    })
-    public List<LayerDto> getLayers() {
-        return this.layerService.getAllLayers();
-    }
-
-    @GetMapping(path = "/{key}")
-    @Operation(summary = "Get the index by key")
-    @ApiResponses(value = {
-    			@ApiResponse(description= "Indexes of the wanted layer", content =  {
+    			@ApiResponse(description= "Indexes of the current user", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public String getIndexByKey(@PathVariable String key) {
-        return this.layerService.getIndexByKey(key);
+    public String getIndexByKey() {
+        return this.layerService.getIndexByKey();
     }
 
     @GetMapping(path = "/{key}/{tileNumber}")
@@ -85,6 +74,21 @@ public class LayerController {
             AccountTokenDto account
     ) {
         return this.layerService.getLayerTile(key, tileNumber, account.getId());
+    }
+
+    @GetMapping(path = "/{key}")
+    @Operation(summary = "Get the list of layer tile by key")
+    @ApiResponses(value = {
+            @ApiResponse(description= "The list layer tile in list geojson format", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<Map<String, Object>> getListLayerTile(
+            @PathVariable String key,
+            @RequestParam List<Long> listTileNumber,
+            AccountTokenDto account
+    ) {
+        return this.layerService.getListLayerTile(key, listTileNumber, account.getId());
     }
 
     @GetMapping(path = "/references/{type}")

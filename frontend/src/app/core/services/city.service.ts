@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, of, switchMap, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CityDataService } from './dataservices/city.dataservice';
 import { City } from '../models/city.model';
-import { AppDB } from '../models/app-db.model';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 
 @Injectable({

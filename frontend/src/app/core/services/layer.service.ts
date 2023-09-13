@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { UserReference, ReferenceDisplayType, LayerWithStyles, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, layerReferencesKey } from '../models/layer.model';
+import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
-import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
+import { Observable, catchError, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
@@ -55,30 +55,15 @@ export class LayerService {
   }
 
   /**
-   * It fetches the index of a layer from indexed db if present or server
+   * It fetches the indexes of a layer from indexed db if present or server
    * If successful, it stores the layer in IndexedDB.
-   * @param {string} layerKey - string - key of the layer
    * @returns The geojson of the index of the layer.
    */
-  public async getLayerIndex(): Promise<GeoJSONObject> {
-    const req = await lastValueFrom(
-      this.layerDataService.getLayerIndex('index')
-        .pipe(
-          timeout(this.configurationService.offlineTimeoutReferential),
-          catchError(async () => {
-            const index = await this.db.referentials.get(ReferentialCacheKey.INDEX);
-            if (index) {
-              return index.data;
-            }
-            return null;
-          })
-        )
+  public getLayerIndexes(): Observable<GeoJSONObject> {
+    return this.cacheService.fetchReferentialsData<GeoJSONObject>(
+      ReferentialCacheKey.LAYER_INDEX,
+      () => this.layerDataService.getLayerIndexes()
     );
-    if (!req) {
-      throw new Error(`Failed to fetch index`);
-    }
-    await this.db.referentials.put({ data: req, key: ReferentialCacheKey.INDEX }, ReferentialCacheKey.INDEX);
-    return req;
   }
 
   /**
@@ -123,6 +108,30 @@ export class LayerService {
   }
 
   /**
+   * Fetches the tile of a layer from server.
+   * If successful, stores the layer's file in IndexedDB.
+   * If the network duration is superior to 2 seconds, it returns the indexedDB data.
+   * @param {string} layerKey - Key of the layer.
+   * @param {string} file - The file where the view is.
+   * @returns The GeoJSON file for the current tile.
+   */
+  public getListLayerFile(
+    layerKey: string,
+    files: string[]
+  ): Observable<NomadGeoJson[]> {
+    /* It's getting the number from the file name. */
+    const listFileNumber: number[] = files.map((file) => Number(file.replace('index_', '').replace('.geojson', '')));
+
+    return this.layerDataService.getListLayerFile(layerKey, listFileNumber).pipe(
+      tap(async listNomadGeojson => {
+        for (const geojson of listNomadGeojson) {
+          await this.db.tiles.put({ data: geojson, key: geojson.name }, geojson.name);
+        }
+      })
+    );
+  }
+
+  /**
    * Method to know if layer data is currently loading from the server
    * @returns true is data is currently loading
    */
@@ -144,22 +153,11 @@ export class LayerService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public async getLayers(): Promise<LayerWithStyles[]> {
-    const layers = await this.db.referentials.get('layers');
-    if (layers) {
-      return layers.data;
-    }
-
-    const res = await lastValueFrom(
-      this.layerDataService.getLayers()
+  public getAllLayers(): Observable<Layer[]> {
+    return this.cacheService.fetchReferentialsData<Layer[]>(
+      ReferentialCacheKey.LAYERS,
+      () => this.layerDataService.getAllLayers()
     );
-    if (!res) {
-      throw new Error(`Failed to fetch layers`);
-    }
-
-    await this.db.referentials.put({ data: res, key: 'layers' }, 'layers');
-
-    return res;
   }
 
   public getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
@@ -235,35 +233,13 @@ export class LayerService {
   /**
  * Gets the layer references for a user, either from the IndexedDB cache or the API.
  * @param userId The ID of the user to get the layer references for.
- * @returns A promise that resolves to the layer references.
+ * @returns An observable that resolves to the layer references.
  */
-  public async getUserLayerReferences(): Promise<LayerReferences[]> {
-    // Fetch the layer references from API
-    const layerReferencesData: LayerReferences[] = await lastValueFrom(
-      this.layerDataService.getUserLayerReferences().pipe(
-        timeout(this.configurationService.offlineTimeoutReferential),
-        catchError(async () => {
-          // Get the layer references data from IndexedDB cache
-          const layerReferences = await this.db.referentials.get(layerReferencesKey);
-          // If layer references data exists, return it
-          if (layerReferences) {
-            return layerReferences.data;
-          }
-          return null;
-        })
-      )
+  public getUserLayerReferences(): Observable<LayerReferences[]> {
+    return this.cacheService.fetchReferentialsData<LayerReferences[]>(
+      ReferentialCacheKey.LAYER_REFERENCES,
+      () => this.layerDataService.getUserLayerReferences()
     );
-
-    // Check if layer references data was fetched successfully
-    if (!layerReferencesData) {
-      throw new Error(`Failed to fetch the layer references for the current user`);
-    }
-
-    // Store layer references data in IndexedDB
-    await this.db.referentials.put({ data: layerReferencesData, key: layerReferencesKey }, layerReferencesKey);
-
-    // Return the layer references data fetched from the API
-    return layerReferencesData;
   }
 
   /**
@@ -279,17 +255,6 @@ export class LayerService {
           this.utilsService.showSuccessMessage(successResponse.message);
         })
       );
-  }
-
-  /**
-  * Get all layers.
-  * @returns A promise that resolves to the list of layers.
-  */
-  public getAllLayers(): Observable<Layer[]> {
-    return this.cacheService.fetchReferentialsData<Layer[]>(
-      ReferentialCacheKey.LAYERS,
-      () => this.layerDataService.getAllLayers()
-    );
   }
 
   /**

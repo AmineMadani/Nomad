@@ -1,10 +1,10 @@
 import { Subscription } from 'rxjs';
-import { LayerWithStyles, LayerStyleDetail } from './layer.model';
+import { Layer, LayerStyleDetail } from './layer.model';
 import * as Maplibregl from 'maplibre-gl';
 
 export class MaplibreLayer {
   constructor(
-    layerConfiguration : LayerWithStyles,
+    layerConfiguration : Layer,
     map : Maplibregl.Map
   ) {
     this.configurations = layerConfiguration ;
@@ -17,7 +17,7 @@ export class MaplibreLayer {
 
   public source: any;
   public style: any[];
-  public configurations: LayerWithStyles;
+  public configurations: Layer;
   public subscriptions: Subscription;
 
   private buildSource(): any {

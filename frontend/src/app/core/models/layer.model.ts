@@ -15,13 +15,10 @@ export interface Layer {
   lyrLlabel: string;
   lyrValid: boolean;
   lyrDisplay: boolean;
-}
-
-export interface LayerWithStyles extends Layer {
   listStyle: LayerStyleDetail[];
 }
 
-export function getLayerLabel(layer: LayerWithStyles) {
+export function getLayerLabel(layer: Layer) {
   return layer.lyrSlabel + ' - ' + layer.domLLabel;
 }
 
@@ -98,5 +95,3 @@ export enum ReferenceDisplayType {
   SYNTHETIC = 'SYNTHETIC',
   DETAILED = 'DETAILED',
 }
-
-export const layerReferencesKey = 'layerReferences';

@@ -117,8 +117,9 @@ export class ReportSettingsPage implements OnInit {
       this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId');
     });
 
-    const listFormTemplateReport = await this.templateService.getFormsTemplate();
-    this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
+    this.templateService.getFormsTemplate().subscribe((listFormTemplateReport) => {
+      this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
+    });
   }
 
   private async openReportFormDetails(wtrReport: WtrReport): Promise<void> {
@@ -135,9 +136,10 @@ export class ReportSettingsPage implements OnInit {
       const reloadNeeded: boolean = result['data'];
       // If some data changed
       if (reloadNeeded) {
-        const listFormTemplateReport = await this.templateService.getFormsTemplate();
-        this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
-        this.form.get('astId').updateValueAndValidity();
+        this.templateService.getFormsTemplate().subscribe((listFormTemplateReport) => {
+          this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
+          this.form.get('astId').updateValueAndValidity();
+        });
       }
     });
 

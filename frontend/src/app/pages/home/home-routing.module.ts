@@ -13,6 +13,8 @@ import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
 import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
 import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
+import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -46,8 +48,12 @@ const routes: Routes = [
       {
         path: 'equipment/:id/details',
         component: EquipmentDetailsComponent,
+        canActivate: [AuthGuard],
         data: {
           name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+          authorizedPermissions: [
+            PermissionCodeEnum.VIEW_ASSET_DETAILLED
+          ]
         },
       },
       {
@@ -60,15 +66,29 @@ const routes: Routes = [
           {
             path: '',
             component: WkoCreationComponent,
+            canActivate: [AuthGuard],
             data: {
-              name: DrawerRouteEnum.WORKORDER_CREATION
+              name: DrawerRouteEnum.WORKORDER_CREATION,
+              authorizedPermissions: [
+                PermissionCodeEnum.CREATE_NO_PLAN_WORKORDER,
+                PermissionCodeEnum.CREATE_X_Y_WORKORDER,
+                PermissionCodeEnum.CREATE_ASSET_WORKORDER,
+                PermissionCodeEnum.SEND_WORKORDER
+              ]
             },
           },
           {
             path: ':id/edit',
             component: WkoCreationComponent,
+            canActivate: [AuthGuard],
             data: {
-              name: DrawerRouteEnum.WORKORDER_EDITION
+              name: DrawerRouteEnum.WORKORDER_EDITION,
+              authorizedPermissions: [
+                PermissionCodeEnum.CREATE_NO_PLAN_WORKORDER,
+                PermissionCodeEnum.CREATE_X_Y_WORKORDER,
+                PermissionCodeEnum.CREATE_ASSET_WORKORDER,
+                PermissionCodeEnum.SEND_WORKORDER
+              ]
             },
           },
           {

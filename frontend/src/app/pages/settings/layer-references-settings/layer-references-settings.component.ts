@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { LayerWithStyles, getLayerLabel, LayerReferences, ReferenceDisplayType, UserReference  } from 'src/app/core/models/layer.model';
+import { Layer, getLayerLabel, LayerReferences, ReferenceDisplayType, UserReference  } from 'src/app/core/models/layer.model';
 import { SettingsTypeEnum } from 'src/app/core/models/settings.model';
 import { User, getUserEmail } from 'src/app/core/models/user.model';
 import { LayerService } from 'src/app/core/services/layer.service';
@@ -19,7 +19,7 @@ export class LayerReferencesSettingsPage implements OnInit {
   ) { }
 
   public users: User[];
-  public layers: LayerWithStyles[];
+  public layers: Layer[];
   public userReferences: UserReference[];
   public layerReferences: LayerReferences[];
 
@@ -40,9 +40,9 @@ export class LayerReferencesSettingsPage implements OnInit {
     // Get the list of users
     this.userService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
     // Get the list of layers
-    this.layerService.getLayers().then((layers: LayerWithStyles[]) => this.layers = layers);
+    this.layerService.getAllLayers().subscribe((layers: Layer[]) => this.layers = layers);
     // Get all layer references of the user
-    this.layerService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
+    this.layerService.getUserLayerReferences().subscribe((layerReferences) => this.layerReferences = layerReferences);
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {

@@ -47,14 +47,15 @@ export class AssetSettingsPage implements OnInit {
     // Get the list of users
     this.userService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
     // Get the asset filter
-    await this.getListAssetFilter();
+    this.getListAssetFilter();
   }
 
-  async getListAssetFilter() {
-    const listFormTemplate = await this.templateService.getFormsTemplate();
-    this.assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
-    this.listFilterAsset = JSON.parse(this.assetFilter.definition);
-    this.dataSource.data = this.listFilterAsset;
+  getListAssetFilter() {
+    this.templateService.getFormsTemplate().subscribe((listFormTemplate) => {
+      this.assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
+      this.listFilterAsset = JSON.parse(this.assetFilter.definition);
+      this.dataSource.data = this.listFilterAsset;
+    });
   }
 
   onSettingsTypeChange(newSettingsType: SettingsTypeEnum) {
@@ -241,7 +242,7 @@ export class AssetSettingsPage implements OnInit {
       this.templateService.saveFormTemplateCustomUser({ formTemplate, userIds: listUserId }).subscribe(async () => {
         // Get the saved asset filter if the current user is in the list of user to have this customisation
         const currentUser = await this.userService.getCurrentUser();
-        if (listUserId.includes(currentUser.id)) await this.getListAssetFilter();
+        if (listUserId.includes(currentUser.id)) this.getListAssetFilter();
       });
     } else {
       // Permit to show the current form errors to the user
@@ -265,7 +266,7 @@ export class AssetSettingsPage implements OnInit {
       this.templateService.deleteFormTemplateCustomUser({ id: this.assetFilter.fteId, userIds: listUserId }).subscribe(async () => {
         // Get the default asset filter if the current user is in the list of user to have this customisation
         const currentUser = await this.userService.getCurrentUser();
-        if (listUserId.includes(currentUser.id)) await this.getListAssetFilter();
+        if (listUserId.includes(currentUser.id)) this.getListAssetFilter();
       });
     } else {
       // Permit to show the current form errors to the user

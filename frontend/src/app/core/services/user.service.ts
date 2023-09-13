@@ -8,6 +8,8 @@ import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { ConfigurationService } from './configuration.service';
+import { CacheService, ReferentialCacheKey } from './cache.service';
+import { LayerService } from './layer.service';
 
 /**
  * Enum of cache items in local storage
@@ -27,7 +29,9 @@ export class UserService {
     private router: Router,
     private preferenceService: PreferenceService,
     private utilsService: UtilsService,
-    private configurationService: ConfigurationService
+    private configurationService: ConfigurationService,
+    private cacheService: CacheService,
+    private layerService: LayerService
   ) { }
 
   private currentUser: User;
@@ -269,15 +273,10 @@ export class UserService {
     * @returns Permissions
     */
   getAllPermissions(): Observable<Permission[]> {
-    if (this.permissions) {
-      return of(this.permissions);
-    } else {
-      return this.userDataService.getAllPermissions().pipe(
-        tap((result: Permission[]) => {
-          this.permissions = result;
-        })
-      );
-    }
+    return this.cacheService.fetchReferentialsData<Permission[]>(
+      ReferentialCacheKey.PERMISSIONS,
+      () => this.userDataService.getAllPermissions()
+    );
   }
 
   /**
@@ -298,6 +297,24 @@ export class UserService {
     }
 
     return hasPermission;
+  }
+
+  /**
+   * Check if the current user has any permission
+   * @param listPerCode The list of permissions code to check
+   */
+  async currentUserHasAnyPermission(perCodes: PermissionCodeEnum[]): Promise<boolean> {
+    const currentUser: User = await this.getCurrentUser();
+    if (!currentUser) return false;
+
+    const permissions: Permission[] = await firstValueFrom(this.getAllPermissions());
+
+    return permissions.some(permission => {
+      if (perCodes.includes(permission.perCode)) {
+        return currentUser.perimeters.some(per => permission.profilesIds.includes(per.profileId));
+      }
+      return false;
+    });
   }
 
   /**

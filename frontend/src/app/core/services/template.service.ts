@@ -6,6 +6,7 @@ import { catchError, of, timeout, lastValueFrom, Observable, tap } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { ConfigurationService } from './configuration.service';
+import { CacheService, ReferentialCacheKey } from './cache.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,41 +16,19 @@ export class TemplateService {
   constructor(
     private templateDataService: TemplateDataService,
     private utilsService: UtilsService,
-    private configurationService: ConfigurationService
+    private cacheService: CacheService
   ) {
-    this.db = new AppDB();
   }
-
-  private db: AppDB;
 
   /**
    * Method to get all the forms template
    * @returns list of Forms
    */
-  async getFormsTemplate(): Promise<FormTemplate[]> {
-    const res = await lastValueFrom(
-      this.templateDataService.getFormsTemplate()
-        .pipe(
-          timeout(this.configurationService.offlineTimeoutReferential),
-          catchError(async () => {
-            const forms = await this.db.referentials.get('formTemplate');
-            if (forms) {
-              return forms.data;
-            }
-            return of(null);
-          })
-        )
+  getFormsTemplate(): Observable<FormTemplate[]> {
+    return this.cacheService.fetchReferentialsData<FormTemplate[]>(
+      ReferentialCacheKey.FORM_TEMPLATE,
+      () => this.templateDataService.getFormsTemplate()
     );
-    if (!res) {
-      throw new Error(`Failed to fetch formTemplate`);
-    }
-
-    await this.db.referentials.put(
-      { data: res, key: 'formTemplate' },
-      'formTemplate'
-    );
-
-    return res;
   }
 
   /**

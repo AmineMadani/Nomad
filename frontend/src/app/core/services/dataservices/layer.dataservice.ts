@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { Layer, LayerWithStyles, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
+import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 
 @Injectable({
@@ -19,11 +19,10 @@ export class LayerDataService {
 
   /**
    * It fetches the index of a layer from server
-   * @param {string} layerKey - string - key of the layer
    * @returns The geojson of the index of the layer.
    */
-  public getLayerIndex(layerKey: string): Observable<GeoJSONObject> {
-    return this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layers/${layerKey}`);
+  public getLayerIndexes(): Observable<GeoJSONObject> {
+    return this.http.get<GeoJSONObject>(`${this.configurationService.apiUrl}layers/indexes`);
   }
 
   /**
@@ -37,11 +36,24 @@ export class LayerDataService {
   }
 
   /**
+   * Fetches the tile of a layer from server.
+   * @param {string} layerKey - Key of the layer.
+   * @param {number} featureNumber - The file number where the view is.
+   * @returns The GeoJSON file for the current tile.
+   */
+  public getListLayerFile(layerKey: string, listFeatureNumber: number[]): Observable<NomadGeoJson[]> {
+    var params = new HttpParams();
+    params = params.append('listTileNumber', listFeatureNumber.join(','));
+
+    return this.http.get<NomadGeoJson[]>(`${this.configurationService.apiUrl}layers/${layerKey}`, {params});
+  }
+
+  /**
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public getLayers(): Observable<LayerWithStyles[]> {
-    return this.http.get<LayerWithStyles[]>(`${this.configurationService.apiUrl}layers/defaults/definitions`);
+  public getAllLayers(): Observable<Layer[]> {
+    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layers/defaults/definitions`);
   }
 
   /**
@@ -112,14 +124,6 @@ export class LayerDataService {
    */
   public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }):Observable<any> {
     return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}layers/references/users/save`, payload);
-  }
-
-  /**
-  * Get all layer styles.
-  * @returns A promise that resolves to the list of layer styles.
-  */
-  public getAllLayers(): Observable<Layer[]> {
-    return this.http.get<Layer[]>(`${this.configurationService.apiUrl}layers`);
   }
 
   /**

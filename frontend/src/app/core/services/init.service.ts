@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
 import { LayerService } from './layer.service';
+import { Observable, forkJoin } from 'rxjs';
+import { UserService } from './user.service';
+import { ContractService } from './contract.service';
+import { CityService } from './city.service';
+import { WorkorderService } from './workorder.service';
+import { TemplateService } from './template.service';
 
 @Injectable({
   providedIn: 'root'
@@ -7,25 +13,37 @@ import { LayerService } from './layer.service';
 export class InitService {
 
   constructor(
-    private layerService: LayerService
+    private userService: UserService,
+    private contractService: ContractService,
+    private cityService: CityService,
+    private layerService: LayerService,
+    private workorderService: WorkorderService,
+    private templateService: TemplateService
   ) { }
 
   /**
- * Retrieves initial data for a user.
- * @param userId The ID of the user to retrieve initial data for.
+ * Retrieves initial data.
  * @returns A promise that resolves to a boolean indicating if the operation completed successfully.
  */
-  async getInitData(): Promise<boolean> {
-    let isComplete = true;
+  getInitDataForMobile(): Observable<any> {
+    return forkJoin({
+      contracts: this.contractService.getAllContracts(),
+      cities: this.cityService.getAllCities(),
+      layers: this.layerService.getAllLayers(),
+      vLayerWtrs: this.layerService.getAllVLayerWtr(),
+      layerIndexes: this.layerService.getLayerIndexes(),
+      workTaskStatus: this.workorderService.getAllWorkorderTaskStatus(),
+      workTaskReasons: this.workorderService.getAllWorkorderTaskReasons(),
+      permissions: this.userService.getAllPermissions(),
+      formTemplates: this.templateService.getFormsTemplate(),
+      layerReferences: this.layerService.getUserLayerReferences()
+    });
+  }
 
-    try {
-      // Try to get the user's layer references data
-      await this.layerService.getUserLayerReferences();
-    } catch (e) {
-      // If an error occurs, set isComplete to false
-      isComplete = false;
-    }
-
-    return isComplete;
+  getInitDataForWeb(): void {
+    forkJoin({
+      permissions: this.userService.getAllPermissions(),
+      layerReferences: this.layerService.getUserLayerReferences()
+    }).subscribe();
   }
 }

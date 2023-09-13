@@ -38,31 +38,13 @@ public class LayerService {
     private StyleDefinitionRepository styleDefinitionRepository;
 
     /**
-     * Get all Layers.
-     * @return A list of LayerDto
-     */
-    public List<LayerDto> getAllLayers() {
-        List<LayerDto> layersDto = new ArrayList<>();
-        // Get all layers
-        List<Layer> layers = layerRepository.findAll();
-        for (Layer layer : layers) {
-            LayerDto layerDto = new LayerDto(layer);
-            // Add the layer to the list
-            layersDto.add(layerDto);
-        }
-
-        // Return the list of layers
-        return layersDto;
-    }
-
-    /**
      * Retrieves the index associated with a specific key.
      *
      * @param key The key to search for in the database.
      * @return The index as a string, associated with the given key.
      */
-    public String getIndexByKey(String key) {
-        return layerRepositoryImpl.getIndexByKey(key);
+    public String getIndexByKey() {
+        return layerRepositoryImpl.getIndexByKey();
     }
 
     /**
@@ -74,6 +56,22 @@ public class LayerService {
      */
     public String getLayerTile(String key, Long tileNumber, Long userId) {
         return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
+    }
+
+    /**
+     * Retrieves the equipment tile associated with a specific key and tile number.
+     *
+     * @param key        The key to search for in the database.
+     * @param tileNumber The tile number to search for in the database.
+     * @return The equipment tile as a string, associated with the given key and tile number.
+     */
+    public List<Map<String, Object>> getListLayerTile(String key, List<Long> listTileNumber, Long userId) {
+        if (listTileNumber.size() > 1000) {
+            throw new FunctionalException("La liste de tuiles ne doit pas être supérieure à 1000.");
+        }
+
+        Long[] tileNumberArray = listTileNumber.toArray(new Long[0]);
+        return layerRepository.getListLayerTile(key, tileNumberArray, userId);
     }
     
     /**

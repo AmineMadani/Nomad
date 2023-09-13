@@ -97,102 +97,205 @@ $$ LANGUAGE plpgsql;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
-returns jsonb
-language plpgsql
+create or replace function nomad.f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
+    returns jsonb
+    language plpgsql
 as $$
 declare
-	geojson jsonb;
-	tile_geom geometry;
-  list_fields text;
-  crs jsonb;
+    geojson jsonb;
+    tile_geom geometry;
+    list_fields text;
+    crs jsonb;
+    sql_query text;
 begin
-  tile_geom := (select geom from nomad.app_grid where id = tile_id);
-  --
-  crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||nomad.get_srid());
-  crs :=  jsonb_build_object('type', 'name', 'properties', crs);
-  --
-  -- Get list of fields from conf
-  if lyr_table_name != 'task' then
-  	select CONCAT(string_agg('t.'||"referenceKey", ', '), ', ' || (SELECT 'cty.id as cty_id'
-	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'), ', ' || (SELECT 'ctr.id as ctr_id' 
-	  FROM information_schema.columns 
-	  WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat')) into list_fields
-      from nomad.f_get_layer_references_user(0, false) f
-      where layer = lyr_table_name and ("displayType" = 'SYNTHETIC' or "isVisible" = false);
-  end if;
-  --
-  if list_fields is null then
-    -- Get list of fields from postgres
-    select string_agg('t.'||column_name, ', ')  into list_fields
-      from information_schema.columns
-     where table_schema||'.'||table_name = 'asset.'||lyr_table_name;
-  end if;
-  --
-  if lyr_table_name != 'task' then
-	  execute format($sql$
-	  with
-	  records as
-	  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.contract ctr on ctr.ctr_code =t.code_contrat join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null left join nomad.city cty on cty.cty_code = t.insee_code where st_intersects(t.geom, '%3$s'::geometry)),
-	  features as
-	  (
-	    select 
-	        jsonb_build_object(
-	            'type', 'Feature',
-	            'id', id,
-	            'geometry', ST_AsGeoJSON(geom)::jsonb,
-	            -- Transform underscore to camelcase permit to use the same standards in all the app  
-	            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
-	        ) as feature
-	    from records r
-	    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
-	    GROUP BY id, r.geom, x, y
-	  )
-	  SELECT jsonb_build_object(
-	  'crs', '%4$s'::jsonb,
-	  'name',  '%2$s',
-	  'type',     'FeatureCollection',
-	  'features', jsonb_agg(feature))
-	  from features f
-	  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
-  else
-  	execute format($sql$
-	  with
-	  records as
-	  (select %1$s, ST_X(ST_Centroid(t.geom)) as x, ST_Y(ST_Centroid(t.geom)) as y from %2$s t join nomad.usr_ctr_prf ucp on ucp.ctr_id=t.ctr_id and ucp.usr_id = %5$s::int and ucp.usc_ddel is null where st_intersects(t.geom, '%3$s'::geometry)),
-	  features as
-	  (
-	    select 
-	        jsonb_build_object(
-	            'type', 'Feature',
-	            'id', id,
-	            'geometry', ST_AsGeoJSON(geom)::jsonb,
-	            -- Transform underscore to camelcase permit to use the same standards in all the app  
-	            'properties', jsonb_object_agg(nomad.underscore_to_camelcase(key), value)
-	        ) as feature
-	    from records r
-	    JOIN LATERAL jsonb_each(to_jsonb(r.*) - 'geom') ON TRUE
-	    GROUP BY id, r.geom, x, y
-	  )
-	  SELECT jsonb_build_object(
-	  'crs', '%4$s'::jsonb,
-	  'name',  '%2$s',
-	  'type',     'FeatureCollection',
-	  'features', jsonb_agg(feature))
-	  from features f
-	  $sql$, coalesce(list_fields, '*'), ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident) into geojson;
-  end if;
-  return geojson;
+    tile_geom := (select geom from nomad.app_grid where id = tile_id);
+    --
+    crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||nomad.get_srid());
+    crs :=  jsonb_build_object('type', 'name', 'properties', crs);
+    --
+    -- Get list of fields from conf
+    if lyr_table_name != 'task' then
+        SELECT
+            STRING_AGG(
+                CASE
+                    WHEN "referenceKey" = 'insee_code' THEN '''ctyId'', cty.id'
+                    WHEN "referenceKey" = 'code_contrat' THEN '''ctrId'', ctr.id'
+                    ELSE '''' || nomad.underscore_to_camelcase("referenceKey") || ''', t.' || "referenceKey"
+                    END, ', '
+            )
+        INTO list_fields
+        FROM nomad.f_get_layer_references_user(user_ident, false) f
+        WHERE layer = lyr_table_name AND "displayType" = 'SYNTHETIC';
+    end if;
+    --
+    if list_fields is null then
+        -- Get list of fields from postgres
+        SELECT
+            STRING_AGG('''' || nomad.underscore_to_camelcase(column_name) || ''', t.' || column_name, ', ')
+        INTO list_fields
+        FROM information_schema.columns
+        WHERE table_schema || '.' || table_name = 'asset.' || lyr_table_name;
+    end if;
+    --
+    if lyr_table_name != 'task' then
+        sql_query := FORMAT('
+        WITH features AS (
+            SELECT DISTINCT ON (t.id)
+                jsonb_build_object(
+                    ''type'', ''Feature'',
+                    ''id'', t.id,
+                    ''geometry'', ST_AsGeoJSON(t.geom)::jsonb,
+                    ''properties'', jsonb_build_object(%1$s, ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom)))
+                ) as feature
+            FROM %2$s t
+                INNER JOIN nomad.contract ctr ON ctr.ctr_code = t.code_contrat
+                INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=ctr.id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
+                LEFT JOIN nomad.city cty ON cty.cty_code = t.insee_code
+            WHERE st_intersects(t.geom, ''%3$s''::geometry)
+        )
+        SELECT
+            jsonb_build_object(
+                ''crs'', ''%4$s''::jsonb,
+                ''name'', ''%2$s'',
+                ''type'', ''FeatureCollection'',
+                ''features'', jsonb_agg(feature)
+            )
+        FROM features;
+    ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
+    else
+        sql_query := FORMAT('
+        WITH features AS (
+            SELECT DISTINCT ON (t.id)
+                jsonb_build_object(
+                        ''type'', ''Feature'',
+                        ''id'', t.id,
+                        ''geometry'', ST_AsGeoJSON(t.geom)::jsonb,
+                        ''properties'', jsonb_build_object(%1$s, ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom)))
+                    ) as feature
+            FROM %2$s t
+                INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=t.ctr_id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
+            WHERE st_intersects(t.geom, ''%3$s''::geometry)
+        )
+        SELECT
+            jsonb_build_object(
+                    ''crs'', ''%4$s''::jsonb,
+                    ''name'', ''%2$s'',
+                    ''type'', ''FeatureCollection'',
+                    ''features'', jsonb_agg(feature)
+                )
+        FROM features;
+        ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
+    end if;
+
+    execute sql_query into geojson;
+
+    return geojson;
 exception when others then
-	raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
-  return null;
+    raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
+    return null;
 end;
+$$;
+
+CREATE OR REPLACE FUNCTION nomad.f_get_geojson_from_list_tiles(lyr_table_name text, list_tile_id bigint[], user_ident bigint = NULL)
+    RETURNS SETOF jsonb
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    list_fields text;
+    crs jsonb;
+    sql_query text;
+BEGIN
+    crs := jsonb_build_object('name', 'urn:ogc:def:crs:EPSG::'||nomad.get_srid());
+    crs := jsonb_build_object('type', 'name', 'properties', crs);
+
+    if lyr_table_name != 'task' then
+        SELECT
+            STRING_AGG(
+                    CASE
+                        WHEN "referenceKey" = 'insee_code' THEN '''ctyId'', cty.id'
+                        WHEN "referenceKey" = 'code_contrat' THEN '''ctrId'', ctr.id'
+                        ELSE '''' || nomad.underscore_to_camelcase("referenceKey") || ''', t.' || "referenceKey"
+                        END, ', '
+                )
+        INTO list_fields
+        FROM nomad.f_get_layer_references_user(user_ident, false) f
+        WHERE layer = lyr_table_name AND "displayType" = 'SYNTHETIC';
+    end if;
+    --
+    if list_fields is null then
+        -- Get list of fields from postgres
+        SELECT
+            STRING_AGG('''' || nomad.underscore_to_camelcase(column_name) || ''', t.' || column_name, ', ')
+        INTO list_fields
+        FROM information_schema.columns
+        WHERE table_schema || '.' || table_name = 'asset.' || lyr_table_name;
+    end if;
+    --
+    if lyr_table_name != 'task' then
+        sql_query := FORMAT('
+        WITH features AS (
+            SELECT DISTINCT ON (t.id)
+                jsonb_build_object(
+                    ''type'', ''Feature'',
+                    ''id'', t.id,
+                    ''geometry'', ST_AsGeoJSON(t.geom)::jsonb,
+                    ''properties'', jsonb_build_object(%1$s, ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom)))
+                ) as feature,
+                g.tile_id
+            FROM asset.%2$s t
+                INNER JOIN nomad.contract ctr ON ctr.ctr_code = t.code_contrat
+                INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=ctr.id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
+                LEFT JOIN nomad.city cty ON cty.cty_code = t.insee_code
+                INNER JOIN LATERAL unnest(''%3$s''::bigint[]) as g(tile_id) ON TRUE
+                INNER JOIN nomad.app_grid ag ON ag.id = g.tile_id
+            WHERE st_intersects(t.geom, ag.geom)
+        )
+        SELECT
+            jsonb_build_object(
+                ''crs'', ''%4$s''::jsonb,
+                ''name'', ''%2$s''||''_''||tile_id||''.geojson'',
+                ''type'', ''FeatureCollection'',
+                ''features'', jsonb_agg(feature)
+            )
+        FROM features
+        GROUP BY tile_id;
+    ', list_fields, lyr_table_name, list_tile_id, crs, user_ident);
+    ELSE
+        sql_query := FORMAT('
+        WITH features AS (
+            SELECT DISTINCT ON (t.id)
+                jsonb_build_object(
+                        ''type'', ''Feature'',
+                        ''id'', t.id,
+                        ''geometry'', ST_AsGeoJSON(t.geom)::jsonb,
+                        ''properties'', jsonb_build_object(%1$s, ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom)))
+                    ) as feature,
+                g.tile_id
+            FROM asset.%2$s t
+                INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=t.ctr_id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
+                INNER JOIN LATERAL unnest(''%3$s''::bigint[]) as g(tile_id) ON TRUE
+                INNER JOIN nomad.app_grid ag ON ag.id = g.tile_id
+            WHERE st_intersects(t.geom, ag.geom)
+        )
+        SELECT
+            jsonb_build_object(
+                    ''crs'', ''%4$s''::jsonb,
+                    ''name'', ''%2$s''||''_''||tile_id||''.geojson'',
+                    ''type'', ''FeatureCollection'',
+                    ''features'', jsonb_agg(feature)
+                )
+        FROM features
+        GROUP BY tile_id;
+        ', list_fields, lyr_table_name, list_tile_id, crs, user_ident);
+    END IF;
+
+    RETURN QUERY EXECUTE sql_query;
+END;
 $$;
 
 -- Function to create a geojson index
 -- for a specific layer
-create or replace function f_get_geojson_index(lyr_table_name text)
+create or replace function f_get_geojson_index()
 returns jsonb
 language plpgsql
 as $$
@@ -202,7 +305,20 @@ declare
 begin
   with
   records as
-  (select split_part(lyr_table_name, '.', 1)||'_'||id||'.geojson' as file, st_asText(st_extent(geom))::text as bbox, geom from nomad.app_grid where st_intersects(geom, (select st_union(ST_MakeValid(geom)) from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = 0 and ucp.usc_ddel is null)) group by id, geom order by id),
+  (
+    select
+      'index_'||id||'.geojson' as file,
+      st_asText(st_extent(geom))::text as bbox,
+      geom
+    from nomad.app_grid
+      where st_intersects(
+        geom,
+        (
+          select st_union(ST_MakeValid(geom))
+          from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = 0 and ucp.usc_ddel is null
+        )
+      ) group by id, geom order by id
+  ),
   features as
   (
 	select jsonb_build_object(
@@ -213,7 +329,7 @@ begin
   )
   SELECT jsonb_build_object(
   'type',     'FeatureCollection',
-  'name',     lyr_table_name||'_index',
+  'name',     'index',
   'features', jsonb_agg(feature))
   from features f
   into geojson;

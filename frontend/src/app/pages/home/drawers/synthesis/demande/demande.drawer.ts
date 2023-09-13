@@ -51,7 +51,7 @@ export class DemandeDrawer implements OnInit {
 
   createForm(): void {
     this.templateService.getFormsTemplate()
-      .then(forms => {
+      .subscribe(forms => {
         let demForm = JSON.parse(forms.find(form => form.formCode === 'WORKORDER_VIEW').definition);
         demForm.definitions.map((def: FormDefinition) => {
           if (this.demande[def.key]) {
@@ -67,7 +67,7 @@ export class DemandeDrawer implements OnInit {
               )}`;
             } else if (def.key === 'urgence') {
               def.attributes.value = this.demande.urgent ? 'Urgent' : def.attributes.default;
-            } 
+            }
             else if (def.attributes.default) {
               def.attributes.value = def.attributes.default;
             }

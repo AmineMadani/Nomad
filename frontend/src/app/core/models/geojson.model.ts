@@ -10,7 +10,8 @@ export interface GeoJSONObject {
 }
 
 export interface NomadGeoJson {
-  type: string,
+  name: string;
+  type: string;
   features: any[];
 }
 

@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
-import { LayerWithStyles, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
+import { Layer, LayerStyleSummary, getLayerLabel } from 'src/app/core/models/layer.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { ModalController } from '@ionic/angular';
 import { LayerStyleComponent } from './layer-style/layer-style.component';
-import { forkJoin } from 'rxjs';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { TableService } from 'src/app/core/services/table.service';
-import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-layer-styles-settings',
@@ -20,14 +18,13 @@ export class LayerStylesSettingsPage implements OnInit {
   constructor(
     private layerService: LayerService,
     private modalController: ModalController,
-    private tableService: TableService,
-    private utilsService: UtilsService
+    private tableService: TableService
   ) { }
 
   public form: FormGroup;
   public modal: any;
   // Layers
-  public layers: LayerWithStyles[];
+  public layers: Layer[];
   public getLayerLabel = getLayerLabel;
   public currentLayerId: number;
   // Styles
@@ -84,7 +81,7 @@ export class LayerStylesSettingsPage implements OnInit {
 
     // Get datas
     // Layers
-    this.layerService.getLayers().then((layers) => this.layers = layers);
+    this.layerService.getAllLayers().subscribe((layers) => this.layers = layers);
     // Layer styles
     this.layerService.getAllLayerStyles().subscribe((styles) => {
       this.allLayerStyles = styles;

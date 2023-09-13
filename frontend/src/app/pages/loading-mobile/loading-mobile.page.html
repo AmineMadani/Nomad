@@ -8,9 +8,10 @@
     </div>
     <div class="loading-mobile-progress-bar">
       <ion-progress-bar [buffer]="buffer" [value]="progress"></ion-progress-bar>
+      <div class="loading-step">Etape {{currentStep}}/2</div>
     </div>
-    <div class="loading-mobile-progress-text">
-      {{ title }}
+    <div *ngFor="let title of loadingTitles" class="loading-mobile-progress-text">
+      {{ title.value }}
     </div>
   </div>
 </ion-content>

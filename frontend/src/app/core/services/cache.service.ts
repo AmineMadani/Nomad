@@ -10,9 +10,12 @@ export enum ReferentialCacheKey {
   CONTRACTS = 'contracts',
   LAYERS = 'layers',
   V_LAYER_WTR = 'v_layer_wtr',
-  INDEX = 'layerIndex',
+  LAYER_INDEX = 'layer_index',
   WORKORDER_TASK_STATUS = 'workorder_task_status',
-  WORKORDER_TASK_REASON = 'workorder_task_reason'
+  WORKORDER_TASK_REASON = 'workorder_task_reason',
+  PERMISSIONS = 'permissions',
+  FORM_TEMPLATE = 'form_template',
+  LAYER_REFERENCES = 'layer_references'
 }
 @Injectable({
   providedIn: 'root',
@@ -78,7 +81,6 @@ export class CacheService {
     property: string,
     value: string
   ): Promise<any> {
-
     return await this.db.tiles
       .where('key')
       .startsWith(layerKey)
@@ -217,6 +219,31 @@ export class CacheService {
   * @returns An Observable of the fetched data, either from the local cache or from the service call.
   */
   public fetchReferentialsData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
+    return from(this.db.referentials.get(referentialCacheKey)).pipe(
+      switchMap(referential => {
+        if (referential?.data) {
+          return of(referential.data);
+        } else {
+          return serviceCall().pipe(
+            tap(async data => {
+              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
+            })
+          );
+        }
+      })
+    );
+  }
+
+  /**
+  * Fetches referential data either from a local cache or from a service call.
+  * If the data is not available in the cache, it will be fetched using the provided service call
+  * and then saved to the cache for future access.
+  *
+  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
+  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
+  * @returns An Observable of the fetched data, either from the local cache or from the service call.
+  */
+  public fetchTilesData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
     return from(this.db.referentials.get(referentialCacheKey)).pipe(
       switchMap(referential => {
         if (referential?.data) {

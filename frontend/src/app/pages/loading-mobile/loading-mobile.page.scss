@@ -18,6 +18,9 @@
     }
 
     .loading-mobile-progress-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         width: 90%;
     }
 
@@ -25,5 +28,10 @@
         margin-top: 5px;
         font-size: 10px;
         color: grey;
+    }
+
+    .loading-step {
+      margin-top: 8px;
+      font-size: 12px;
     }
 }

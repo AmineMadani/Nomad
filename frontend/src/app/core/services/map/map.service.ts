@@ -1,12 +1,12 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, takeUntil } from 'rxjs';
+import { Observable, ReplaySubject, map, takeUntil } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
 import { Basemap } from '../../models/basemap.model';
-import { LayerWithStyles, localisationExportMode  } from '../../models/layer.model';
+import { Layer, localisationExportMode  } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -47,7 +47,7 @@ export class MapService {
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
-  private layersConfiguration: LayerWithStyles[];
+  private layersConfiguration: Layer[];
 
   private draw: MapboxDraw;
   private drawActive: boolean;
@@ -227,8 +227,6 @@ export class MapService {
       this.removeLoadingLayer.splice(removeIndex, 1);
     }
 
-    this.layersConfiguration = await this.layerService.getLayers();
-
     //If style loading in queue
     if (this.loadingStyle.get(layerKey)) {
       if (!this.loadingStyle.get(layerKey)[styleKey]) {
@@ -238,61 +236,65 @@ export class MapService {
       this.loadingStyle.set(layerKey, [styleKey]);
     }
 
-    //If layer is loaded
-    if (this.loadedLayer.indexOf(layerKey) >= 0) {
-      this.displayLayer(layerKey);
-      return new Promise<void>((resolve) => resolve());
-    } else {
-      //If layer is on loading (has event)
-      if (this.loadingLayer.has(layerKey)) {
-        return this.loadingLayer.get(layerKey);
-      }
-      //else create the layer
-      const layer: MaplibreLayer = new MaplibreLayer(
-        this.layersConfiguration.find(
-          (element) => element.lyrTableName == layerKey
-        ),
-        this.map
-      );
-      this.layers.set(layerKey, layer);
-      if (!this.map.isZooming()) {
-        this.map.zoomTo(this.map.getZoom() + 0.0001);
-      }
-      this.map.addSource(layerKey, layer.source);
+    this.layerService.getAllLayers().subscribe((layers) => {
+      this.layersConfiguration = layers;
 
-      for (let style of layer.style) {
-        setTimeout(() => {
-          this.map.addLayer(style);
-        });
-      }
+      //If layer is loaded
+      if (this.loadedLayer.indexOf(layerKey) >= 0) {
+        this.displayLayer(layerKey);
+        return new Promise<void>((resolve) => resolve());
+      } else {
+        //If layer is on loading (has event)
+        if (this.loadingLayer.has(layerKey)) {
+          return this.loadingLayer.get(layerKey);
+        }
+        //else create the layer
+        const layer: MaplibreLayer = new MaplibreLayer(
+          this.layersConfiguration.find(
+            (element) => element.lyrTableName == layerKey
+          ),
+          this.map
+        );
+        this.layers.set(layerKey, layer);
+        if (!this.map.isZooming()) {
+          this.map.zoomTo(this.map.getZoom() + 0.0001);
+        }
+        this.map.addSource(layerKey, layer.source);
 
-      const layerPromise = new Promise<void>((resolve) => {
-        this.map.once('idle', async (e) => {
-          this.applyFilterOnMap(layerKey);
-          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-          for (let i = 0; i < 6; i++) {
-            if (this.map.querySourceFeatures(layerKey).length > 0) {
-              break;
+        for (let style of layer.style) {
+          setTimeout(() => {
+            this.map.addLayer(style);
+          });
+        }
+
+        const layerPromise = new Promise<void>((resolve) => {
+          this.map.once('idle', async (e) => {
+            this.applyFilterOnMap(layerKey);
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            for (let i = 0; i < 6; i++) {
+              if (this.map.querySourceFeatures(layerKey).length > 0) {
+                break;
+              }
+              await sleep(500);
             }
-            await sleep(500);
-          }
-          this.displayLayer(layerKey);
-          this.loadedLayer.push(layerKey);
-          this.loadingLayer.delete(layerKey);
-          //Case if user click on remove layer before loaded
-          const removeIndex = this.removeLoadingLayer.indexOf(
-            layerKey + (styleKey ? styleKey : '')
-          );
-          if (removeIndex >= 0) {
-            this.removeEventLayer(layerKey, styleKey);
-          }
-          this.reorderMapStyleDisplay();
-          resolve();
+            this.displayLayer(layerKey);
+            this.loadedLayer.push(layerKey);
+            this.loadingLayer.delete(layerKey);
+            //Case if user click on remove layer before loaded
+            const removeIndex = this.removeLoadingLayer.indexOf(
+              layerKey + (styleKey ? styleKey : '')
+            );
+            if (removeIndex >= 0) {
+              this.removeEventLayer(layerKey, styleKey);
+            }
+            this.reorderMapStyleDisplay();
+            resolve();
+          });
         });
-      });
-      this.loadingLayer.set(layerKey, layerPromise);
-      return layerPromise;
-    }
+        this.loadingLayer.set(layerKey, layerPromise);
+        return layerPromise;
+      }
+    });
   }
 
   /**
@@ -512,7 +514,7 @@ export class MapService {
         this.map.getZoom() >=
         Math.min(...layer[1].style.map((style) => style.minzoom))
       ) {
-        this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
+        this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
           for (let str of res) {
             if (
               !this.loadedGeoJson.get(layer[0]) ||
@@ -556,8 +558,7 @@ export class MapService {
    * @param {string} key - Layer index key
    * @returns a Promise that resolves to an array of strings.
    */
-  private async getOverlapTileFromIndex(key: string): Promise<string[]> {
-    const listTile: string[] = [];
+  private getOverlapTileFromIndex(key: string): Observable<string[]> {
     const val: Maplibregl.LngLatBounds = this.map!.getBounds();
     const box1: Box = {
       x1: Math.min(val._sw.lat, val._ne.lat),
@@ -566,38 +567,42 @@ export class MapService {
       y2: Math.max(val._sw.lng, val._ne.lng),
     };
 
-    const res = await this.layerService.getLayerIndex();
-    const index: any[] = (res as any)['features'];
+    return this.layerService.getLayerIndexes().pipe(
+      map((res) => {
+        const listTile: string[] = [];
+        const index: any[] = (res as any)['features'];
 
-    if (index && index.length > 0) {
-      for (const coordRaw of index) {
-        const coords: string[] = (coordRaw['properties']['bbox'] as string)
-          .replace('POLYGON((', '')
-          .replace(')', '')
-          .split(',');
+        if (index && index.length > 0) {
+          for (const coordRaw of index) {
+            const coords: string[] = (coordRaw['properties']['bbox'] as string)
+              .replace('POLYGON((', '')
+              .replace(')', '')
+              .split(',');
 
-        const box2: Box = {
-          y1: Math.max(
-            ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-          ),
-          y2: Math.min(
-            ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-          ),
-          x1: Math.max(
-            ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-          ),
-          x2: Math.min(
-            ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-          ),
-        };
+            const box2: Box = {
+              y1: Math.max(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+              ),
+              y2: Math.min(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+              ),
+              x1: Math.max(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+              ),
+              x2: Math.min(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+              ),
+            };
 
-        if (this.checkIfBoxesOverlap(box2, box1)) {
-          listTile.push(coordRaw['properties']['file']);
+            if (this.checkIfBoxesOverlap(box2, box1)) {
+              listTile.push(coordRaw['properties']['file']);
+            }
+          }
         }
-      }
-    }
 
-    return listTile;
+        return listTile;
+      })
+    );
   }
 
   /**

@@ -43,7 +43,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.isLoading = true;
-    this.templateService.getFormsTemplate().then(forms => {
+    this.templateService.getFormsTemplate().subscribe(forms => {
       const assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
       this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
       this.assetFilterService.setAssetFilter(this.assetFilterTree);
