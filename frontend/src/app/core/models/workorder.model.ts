@@ -89,3 +89,12 @@ export enum WorkorderType {
     UNPLANNED = 'UNPLANNED',
     PLANNED = 'PLANNED'
 }
+
+export interface TaskPaginated {
+  wkoEmergeny?: boolean;
+  wkoAppointment?: boolean;
+  wkoPlanningStartDate?: string;
+  wkoPlanningEndDate?: string;
+  wtrIds?: number[];
+  wtsIds?: number[];
+}

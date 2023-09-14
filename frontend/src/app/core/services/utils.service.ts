@@ -8,10 +8,7 @@ import { DateTime } from 'luxon';
   providedIn: 'root',
 })
 export class UtilsService {
-  constructor(
-    private platform: Platform,
-    private toastCtrl: ToastController,
-  ) { }
+  constructor(private platform: Platform, private toastCtrl: ToastController) {}
 
   /**
    * Check if the current platform is Android.
@@ -102,7 +99,9 @@ export class UtilsService {
     return capitalizedString;
   }
 
-  public transformMap(params: Map<string, string>): any {
+  public transformMap(
+    params: Map<string, string>
+  ): { lyrTableName: string; equipmentIds: string[] }[] {
     const filteredEntries = Array.from(params.entries()).filter(
       ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
     );
@@ -116,6 +115,16 @@ export class UtilsService {
     });
 
     return transformedArray;
+  }
+
+  public flattenEquipments(
+    arr: { lyrTableName: string; equipmentIds: string[] }[]
+  ): string[] {
+    return arr.reduce(
+      (acc: string[], curr: { lyrTableName: string; equipmentIds: string[] }) =>
+        acc.concat(curr.equipmentIds),
+      []
+    );
   }
 
   public sortMap(map: Map<string, string[]>): { key: string; ids: string[] }[] {
@@ -184,7 +193,9 @@ export class UtilsService {
     return taskParams;
   }
 
-  public findMostFrequentValue(arr: Array<number | string>): number | string | undefined {
+  public findMostFrequentValue(
+    arr: Array<number | string>
+  ): number | string | undefined {
     if (arr.length === 0) {
       // Handle the case of an empty array.
       return undefined;
@@ -217,7 +228,7 @@ export class UtilsService {
    * @param formGroup FormGroup to validate
    */
   public validateAllFormFields(formGroup: FormGroup | FormArray): void {
-    Object.keys(formGroup.controls).forEach(field => {
+    Object.keys(formGroup.controls).forEach((field) => {
       const control = formGroup.get(field);
 
       if (control instanceof FormControl) {
@@ -254,6 +265,10 @@ export class UtilsService {
   }
 
   public createCacheId(): number {
-    return Number(Date.now().toString() + Math.floor(Math.random() * 1000000).toString()) * -1;
+    return (
+      Number(
+        Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
+      ) * -1
+    );
   }
 }

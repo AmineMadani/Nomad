@@ -689,7 +689,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
     if (!feature) {
       this.map.getCanvas().style.cursor = '';
-      this.mapEvent.highlightHoveredFeatures(this.map, undefined);
+      this.mapEvent.highlightHoveredFeatures(this.map, undefined, true);
       return;
     }
 
@@ -697,7 +697,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.mapEvent.highlightHoveredFeatures(
       this.map,
       [{source: feature.source,
-        id: feature.id.toString()}]
+        id: feature.id.toString()}], true
     );
   }
 

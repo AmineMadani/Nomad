@@ -1,12 +1,12 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, map, takeUntil } from 'rxjs';
+import { Observable, ReplaySubject, map } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
 import { FilterDataService } from '../dataservices/filter.dataservice';
 import { Basemap } from '../../models/basemap.model';
-import { Layer, localisationExportMode  } from '../../models/layer.model';
+import { Layer, localisationExportMode } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -40,7 +40,7 @@ export class MapService {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private workorderService: WorkorderService
-  ) {}
+  ) { }
 
   public measureMessage: any[];
   public isMeasuring: boolean = false;
@@ -219,6 +219,10 @@ export class MapService {
       return;
     }
 
+    if (layerKey.includes('asset.')) {
+      layerKey = layerKey.split('asset.')[1];
+    }
+
     //Case if the user add the layer after to have remove it before the first loading finished
     const removeIndex = this.removeLoadingLayer.indexOf(
       layerKey + (styleKey ? styleKey : '')
@@ -227,17 +231,18 @@ export class MapService {
       this.removeLoadingLayer.splice(removeIndex, 1);
     }
 
-    //If style loading in queue
-    if (this.loadingStyle.get(layerKey)) {
-      if (!this.loadingStyle.get(layerKey)[styleKey]) {
-        this.loadingStyle.get(layerKey).push(styleKey);
-      }
-    } else {
-      this.loadingStyle.set(layerKey, [styleKey]);
-    }
-
+    // Get all layers
     this.layerService.getAllLayers().subscribe((layers) => {
       this.layersConfiguration = layers;
+
+      //If style loading in queue
+      if (this.loadingStyle.get(layerKey)) {
+        if (!this.loadingStyle.get(layerKey)[styleKey]) {
+          this.loadingStyle.get(layerKey).push(styleKey);
+        }
+      } else {
+        this.loadingStyle.set(layerKey, [styleKey]);
+      }
 
       //If layer is loaded
       if (this.loadedLayer.indexOf(layerKey) >= 0) {
@@ -269,7 +274,6 @@ export class MapService {
 
         const layerPromise = new Promise<void>((resolve) => {
           this.map.once('idle', async (e) => {
-            this.applyFilterOnMap(layerKey);
             const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
             for (let i = 0; i < 6; i++) {
               if (this.map.querySourceFeatures(layerKey).length > 0) {
@@ -351,20 +355,22 @@ export class MapService {
    * @param layerKey  layer exploitation data
    * @returns
    */
-  public applyFilterOnMap(layerKey: string): void {
-    const filters: Map<string, string[]> = this.filterDataService
-      .getSearchFilterListData()
-      .get(layerKey);
+  public applyFilterOnMap(layerKey: string, filters?: any): void {
+    if (!filters) filters = this.filterDataService.getSearchFilterListData();
     const layer = this.getLayer(layerKey);
     if (!layer || !filters) {
       return;
     }
 
     const filter: any[] = ['all'];
-
     if (filters && filters.size > 0) {
       for (const [key, values] of filters) {
-        filter.push(['in', ['get', key], ['literal', values]]);
+        if (key.toLowerCase().includes('date')) {
+          filter.push(['>=', ['get', key], ['literal', values[0]]]);
+          if (values?.[1]) filter.push(['<=', ['get', key], ['literal', values[1]]]);
+        } else {
+          filter.push(['in', ['get', key], ['literal', values]]);
+        }
       }
     }
 
@@ -515,17 +521,17 @@ export class MapService {
         Math.min(...layer[1].style.map((style) => style.minzoom))
       ) {
         this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
-          for (let str of res) {
+          for (let str of res.listTile) {
             if (
-              !this.loadedGeoJson.get(layer[0]) ||
-              !this.loadedGeoJson.get(layer[0])!.includes(str)
+              !this.loadedGeoJson.get(res.layer) ||
+              !this.loadedGeoJson.get(res.layer)!.includes(str)
             ) {
-              if (this.loadedGeoJson.get(layer[0])) {
-                this.loadedGeoJson.get(layer[0])!.push(str);
+              if (this.loadedGeoJson.get(res.layer)) {
+                this.loadedGeoJson.get(res.layer)!.push(str);
               } else {
-                this.loadedGeoJson.set(layer[0], [str]);
+                this.loadedGeoJson.set(res.layer, [str]);
               }
-              await this.loadNewTile(layer[0], str);
+              await this.loadNewTile(res.layer, str);
             }
           }
         });
@@ -558,7 +564,8 @@ export class MapService {
    * @param {string} key - Layer index key
    * @returns a Promise that resolves to an array of strings.
    */
-  private getOverlapTileFromIndex(key: string): Observable<string[]> {
+  private getOverlapTileFromIndex(key: string): Observable<any> {
+    const listTile: string[] = [];
     const val: Maplibregl.LngLatBounds = this.map!.getBounds();
     const box1: Box = {
       x1: Math.min(val._sw.lat, val._ne.lat),
@@ -569,7 +576,6 @@ export class MapService {
 
     return this.layerService.getLayerIndexes().pipe(
       map((res) => {
-        const listTile: string[] = [];
         const index: any[] = (res as any)['features'];
 
         if (index && index.length > 0) {
@@ -599,8 +605,11 @@ export class MapService {
             }
           }
         }
-
-        return listTile;
+        let result: any = {
+          layer: key,
+          listTile: listTile
+        };
+        return result;
       })
     );
   }
@@ -737,9 +746,8 @@ export class MapService {
     const clipboardText: string =
       role === localisationExportMode.gpsCoordinates
         ? `latitude: ${latitude}, longitude: ${longitude}`
-        : `${
-            this.configurationService.host
-          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
+        : `${this.configurationService.host
+        }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
 
     await Clipboard.write({ string: clipboardText });
 

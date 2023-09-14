@@ -64,7 +64,8 @@ export class MapEventService {
    */
   public highlightHoveredFeatures(
     mapLibre: Maplibregl.Map,
-    features: MultiSelection[]
+    features: MultiSelection[],
+    fireEvent: boolean = false
   ): void {
 
     if (!features && this.multiHover.length > 0) {
@@ -75,6 +76,9 @@ export class MapEventService {
         );
       });
       this.multiHover = [];
+      if (fireEvent) {
+        this.onFeatureHovered$.next(undefined);
+      }
       return;
     }
 
@@ -83,6 +87,10 @@ export class MapEventService {
 
       if (this.selectedFeatureId) {
         this.highlightHoveredFeatures(mapLibre, undefined);
+      }
+
+      if (features.length === 1 && fireEvent) {
+        this.onFeatureHovered$.next(features[0].id);
       }
 
       features.forEach((f: MultiSelection) => {

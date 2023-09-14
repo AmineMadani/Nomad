@@ -7,11 +7,11 @@ import { InfiniteScrollCustomEvent, IonContent } from '@ionic/angular';
 import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
-  selector: 'app-filter-card',
-  templateUrl: './filter-card.component.html',
-  styleUrls: ['./filter-card.component.scss'],
+  selector: 'app-exp-card',
+  templateUrl: './exp-card.component.html',
+  styleUrls: ['./exp-card.component.scss'],
 })
-export class FilterCardComponent implements OnInit, OnDestroy {
+export class ExpCardComponent implements OnInit, OnDestroy {
   constructor(
     private mapService: MapService,
     private mapEvent: MapEventService
@@ -43,7 +43,7 @@ export class FilterCardComponent implements OnInit, OnDestroy {
       });
   }
 
-  @Input() features: MapFeature[];
+  @Input() features: any[];
   @Input() type: string;
   @Input() titleTemplateRef: TemplateRef<any>;
   @Input() subtitleTemplateRef: TemplateRef<any>;
@@ -52,14 +52,15 @@ export class FilterCardComponent implements OnInit, OnDestroy {
   @Input() fromCache: boolean;
   @Input() isLoading: boolean = false;
 
-  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> = new EventEmitter();
+  @Output() onLoadingEvent: EventEmitter<InfiniteScrollCustomEvent> =
+    new EventEmitter();
   @Output() onFeatureSelected: EventEmitter<MapFeature> = new EventEmitter();
 
   public featureHovered: string | number | undefined;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
@@ -70,16 +71,17 @@ export class FilterCardComponent implements OnInit, OnDestroy {
     return feature.id;
   }
 
-  public highlightFeature(feature: MapFeature | undefined): void {
-    if (this.fromCache) {
+  public highlightFeature(feature: any | undefined): void {
+    if (this.mapService.hasEventLayer('task')) {
       if (feature?.id) {
-        this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(),
-        [{source: 'task',
-          id: feature?.id ?? undefined}]
-        )
+        this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(), [
+          { source: 'task', id: feature?.id ?? undefined },
+        ]);
       } else {
-        this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(),
-        undefined)
+        this.mapEvent.highlightHoveredFeatures(
+          this.mapService.getMap(),
+          undefined
+        );
       }
     }
   }

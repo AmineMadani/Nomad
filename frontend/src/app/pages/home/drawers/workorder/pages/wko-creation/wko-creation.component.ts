@@ -117,7 +117,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     const paramMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
     );
-
     const params = this.utils.transformMap(paramMap);
     this.mapService
       .onMapLoaded()
@@ -128,7 +127,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           if (paramMap.has('lyrTableName')) {
             return of([]);
           } else {
-            return this.layerService.getEquipmentsByLayersAndIds(params);
+            return this.cacheService.getFeaturesByLayersAndIds(
+              params.map((p) => p.lyrTableName),
+              this.utils.flattenEquipments(params)
+            );
           }
         }),
         map((eqs: any[]) =>
@@ -152,7 +154,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.equipments = this.workorder.tasks.map((t) => {
             return {
               id: t.assObjRef,
-              lyrTableName: t.assObjTable,
+              lyrTableName: t.assObjTable.includes('asset.')
+                ? t.assObjTable.split('asset.')[1]
+                : t.assObjTable,
               x: t.longitude,
               y: t.latitude,
             };
@@ -188,7 +192,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }
 
-        if (this.workorder.tasks === undefined || this.workorder.tasks?.length == 0) {
+        if (
+          this.workorder.tasks === undefined ||
+          this.workorder.tasks?.length == 0
+        ) {
           this.workorder.tasks = assets;
         } else {
           assets.forEach((asset) => {
@@ -502,6 +509,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async initializeEquipments(): Promise<void> {
+    this.equipments.map((eq) => {
+      if (eq.lyrTableName.includes('asset.')) {
+        eq.lyrTableName = eq.lyrTableName.split('asset.')[1];
+      }
+      return eq;
+    })
     if (this.equipments.length > 0 && this.equipments[0] !== null) {
       this.nbEquipments = this.equipments.length.toString();
 
@@ -665,6 +678,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   ): string | undefined {
     for (const m of map) {
       if (m.equipmentIds.includes(idToSearch)) {
+        if (m.lyrTableName.includes('asset.')) {
+          return m.lyrTableName.split('asset.')[1];
+        }
         return m.lyrTableName;
       }
     }

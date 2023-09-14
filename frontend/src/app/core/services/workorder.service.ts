@@ -49,7 +49,12 @@ export class WorkorderService {
                 );
               if (featureWorkorder) {
                 workorder = this.buildWorkorderFromGeojson(featureWorkorder);
-                let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
+                let tasks =
+                  await this.cacheService.getFeatureByLayerAndProperty(
+                    'task',
+                    'wkoId',
+                    featureWorkorder.properties['wkoId'].toString()
+                  );
                 for (let task of tasks) {
                   workorder.tasks.push(this.buildTaskFromGeojson(task));
                 }
@@ -65,8 +70,7 @@ export class WorkorderService {
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {
-    let workorders: Workorder[] = (await this.db.workorders.toArray()).map(elem => elem.data);
-    return workorders;
+    return (await this.db.workorders.toArray()).map(elem => elem.data);
   }
 
   /**
@@ -86,6 +90,14 @@ export class WorkorderService {
     return this.workorderDataService
       .getFeaturePagination(key, limit, offset, search)
       .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
+  }
+
+  public getTasksPaginated(
+    limit: number,
+    offset: number,
+    search: any
+  ): Observable<Task[]> {
+    return this.workorderDataService.getTasksPaginated(limit, offset, search);
   }
 
   /**
@@ -238,7 +250,7 @@ export class WorkorderService {
       tskReportDate: task.properties['tskReportDate'],
       wtrId: task.properties['wtrId'],
       wtsId: task.properties['wtsId'],
-      wkoId: task.properties['wkoId']
+      wkoId: task.properties['wkoId'],
     };
   }
 

@@ -46,7 +46,7 @@ export class PraxedoService {
         }
         if(res.extras.GPS_RI) {
           try {
-            let coords = res.extras.GPS_RI.toString().split(',');
+            let coords = res.extras.GPS_RI.toString().split(';');
             longitude = Number(coords[0]);
             latitude = Number(coords[1]);
           } catch (e) {

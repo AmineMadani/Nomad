@@ -12,7 +12,7 @@
           [control]="creationWkoForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
-        <app-search-select class="select-search" [key]="'wtrId'" [label]="'Liste des raisons *'" [elements]="wtrs"
+        <app-search-select class="select-search" [key]="'wtrId'" [label]="'Liste des actions *'" [elements]="wtrs"
           [control]="creationWkoForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
         </app-search-select>
 
@@ -53,9 +53,9 @@
         </ion-select>
 
         <div class="wko-calendar">
-          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
+          <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
             formControlName="wkoPlanningStartDate"></ion-input>
-          <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
+          <ion-input type="text"  aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
             formControlName="wkoPlanningEndDate"></ion-input>
           <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
             <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
