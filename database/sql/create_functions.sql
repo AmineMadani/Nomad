@@ -116,12 +116,16 @@ begin
     -- Get list of fields from conf
     if lyr_table_name != 'task' then
         SELECT
-            STRING_AGG(
-                CASE
-                    WHEN "referenceKey" = 'insee_code' THEN '''ctyId'', cty.id'
-                    WHEN "referenceKey" = 'code_contrat' THEN '''ctrId'', ctr.id'
-                    ELSE '''' || nomad.underscore_to_camelcase("referenceKey") || ''', t.' || "referenceKey"
-                    END, ', '
+            CONCAT(
+                string_agg(''''||nomad.underscore_to_camelcase("referenceKey")||''''||', t.'||"referenceKey", ', '),
+                ', ' ||
+                (SELECT '''ctyId'', cty.id'
+                FROM information_schema.columns
+                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'),
+                ', ' ||
+                (SELECT '''ctrId'', ctr.id'
+                FROM information_schema.columns
+                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat')
             )
         INTO list_fields
         FROM nomad.f_get_layer_references_user(user_ident, false) f
@@ -210,13 +214,17 @@ BEGIN
 
     if lyr_table_name != 'task' then
         SELECT
-            STRING_AGG(
-                    CASE
-                        WHEN "referenceKey" = 'insee_code' THEN '''ctyId'', cty.id'
-                        WHEN "referenceKey" = 'code_contrat' THEN '''ctrId'', ctr.id'
-                        ELSE '''' || nomad.underscore_to_camelcase("referenceKey") || ''', t.' || "referenceKey"
-                        END, ', '
-                )
+            CONCAT(
+                string_agg(''''||nomad.underscore_to_camelcase("referenceKey")||''''||', t.'||"referenceKey", ', '),
+                ', ' ||
+                (SELECT '''ctyId'', cty.id'
+                FROM information_schema.columns
+                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'),
+                ', ' ||
+                (SELECT '''ctrId'', ctr.id'
+                FROM information_schema.columns
+                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat')
+            )
         INTO list_fields
         FROM nomad.f_get_layer_references_user(user_ident, false) f
         WHERE layer = lyr_table_name AND "displayType" = 'SYNTHETIC';

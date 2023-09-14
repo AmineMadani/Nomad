@@ -13,5 +13,9 @@
     <div *ngFor="let title of loadingTitles" class="loading-mobile-progress-text">
       {{ title.value }}
     </div>
+    <div *ngIf="hasError" class="loading-mobile-error-text">
+      Une erreur s'est produite pendant le téléchargement des données. Assurez-vous d'être sur un réseau wifi stable avant de réessayer.
+    </div>
+    <ion-button *ngIf="hasError" (click)="fetchAllInitialisationData()">Réessayer</ion-button>
   </div>
 </ion-content>

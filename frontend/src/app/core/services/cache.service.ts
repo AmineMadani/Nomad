@@ -266,6 +266,11 @@ export class CacheService {
     );
   }
 
+  public clearCache() {
+    this.db.referentials.clear();
+    this.db.tiles.clear();
+  }
+
   /**
   * Fetches referential data either from a local cache or from a service call.
   * If the data is not available in the cache, it will be fetched using the provided service call

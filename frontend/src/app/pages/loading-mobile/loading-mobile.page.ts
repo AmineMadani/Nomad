@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, forkJoin, switchMap, tap } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { CacheService } from 'src/app/core/services/cache.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -17,10 +18,11 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 })
 export class LoadingMobilePage implements OnInit {
 
-  public buffer = 0.1;
+  public buffer = 0.05;
   public progress = 0;
   public currentStep = 1;
   public loadingTitles: any[] = [];
+  public hasError: boolean = false;
 
   constructor(
     private contractService: ContractService,
@@ -30,23 +32,33 @@ export class LoadingMobilePage implements OnInit {
     private userService: UserService,
     private templateService: TemplateService,
     private preferenceService: PreferenceService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private cacheService: CacheService
   ) { }
 
   ngOnInit() {
     // Get referentials and tiles
+    this.fetchAllInitialisationData();
+  }
+
+  public fetchAllInitialisationData() {
+    this.hasError = false;
+    this.cacheService.clearCache();
+
     this.fetchAllReferential().pipe(
       switchMap(results => this.fetchAllTiles(results))
     ).subscribe(async () => {
       await this.preferenceService.setPreference("loadedApp", "true");
       this.drawerService.navigateTo(DrawerRouteEnum.HOME);
-      }
-    )
+    });
   }
 
   private fetchAllReferential() {
     const nbReferentialCalls: number = 10;
 
+    this.currentStep = 1;
+    this.progress = 0;
+    this.buffer = 0.05;
     this.loadingTitles = [
       { key: "contracts", value: "Téléchargement des contrats..." },
       { key: "cities", value: "Téléchargement des villes..." },
@@ -55,7 +67,7 @@ export class LoadingMobilePage implements OnInit {
       { key: "layerIndexes", value: "Téléchargement des index..." },
       { key: "workTaskStatus", value: "Téléchargement des statuts..." },
       { key: "workTaskReasons", value: "Téléchargement des raisons..." },
-      { key: "formTemplates", value: "Téléchargement des template de formulaire..." },
+      { key: "formTemplates", value: "Téléchargement des templates de formulaire..." },
       { key: "permissions", value: "Téléchargement des permissions..." },
       { key: "layerReferences", value: "Téléchargement des références de couche..." },
     ];
@@ -71,12 +83,19 @@ export class LoadingMobilePage implements OnInit {
       formTemplates: this.templateService.getFormsTemplate().pipe(tap(() => this.onDownloadDown(nbReferentialCalls, 'formTemplates'))),
       permissions: this.userService.getAllPermissions().pipe(tap(() => this.onDownloadDown(nbReferentialCalls, 'permissions'))),
       layerReferences: this.layerService.getUserLayerReferences().pipe(tap(() => this.onDownloadDown(nbReferentialCalls, 'layerReferences'))),
-    });
+    }).pipe(
+      catchError(error => {
+        console.error("Error during fetchAllReferential:", error);
+        this.loadingTitles = [];
+        this.hasError = true;
+        return EMPTY;
+      })
+    );
   }
 
   private fetchAllTiles(results: any) {
     this.progress = 0;
-    this.buffer = 0.1;
+    this.buffer = 0.05;
     this.currentStep = 2;
 
     // Each request will send 1000 tiles max
@@ -116,7 +135,14 @@ export class LoadingMobilePage implements OnInit {
     }
 
     // Send all api calls in the same time
-    return forkJoin(apiCalls);
+    return forkJoin(apiCalls).pipe(
+      catchError(error => {
+        console.error("Error during fetchAllTiles:", error);
+        this.loadingTitles = [];
+        this.hasError = true;
+        return EMPTY;
+      })
+    );
   }
 
   private onDownloadDown(listSize: number, titleKey: string) {

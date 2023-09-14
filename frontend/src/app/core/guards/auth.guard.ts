@@ -45,6 +45,12 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
       }
       // Else, we only get the user necessary data
       else {
+        // Prevent the access of loading-mobile from web
+        if (route.routeConfig?.path === 'loading-mobile') {
+          router.navigate(['home']);
+          return false;
+        }
+
         try {
           await initService.getInitDataForWeb();
         } catch (e) {
@@ -62,8 +68,9 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
       // Check for route permissions
       const authorizedPermissions: PermissionCodeEnum[] = route.data['authorizedPermissions'];
       if (authorizedPermissions) {
-        const hasPermission = userService.currentUserHasAnyPermission(authorizedPermissions);
+        const hasPermission = await userService.currentUserHasAnyPermission(authorizedPermissions);
         if (!hasPermission) {
+          router.navigate(['home']);
           return false;
         }
       }
