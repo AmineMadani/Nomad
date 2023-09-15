@@ -3,7 +3,7 @@ import { OAuthStorage } from "angular-oauth2-oidc";
 import { PreferenceService } from "./preference.service";
 
 @Injectable()
-export class customOAuthStorageService extends OAuthStorage {
+export class CustomOAuthStorageService extends OAuthStorage {
 
     private data: Record<string, any> = {};
     private storageKey: string = 'storage_oauth'

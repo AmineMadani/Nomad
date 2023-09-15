@@ -30,6 +30,7 @@ import { PraxedoService } from 'src/app/core/services/praxedo.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
+import { BasemapOfflineService } from 'src/app/core/services/basemapOffline.service';
 
 @Component({
   selector: 'app-map',
@@ -50,7 +51,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private praxedoService: PraxedoService,
     private userService: UserService,
-    private drawingService: DrawingService
+    private drawingService: DrawingService,
+    private basemapOfflineService: BasemapOfflineService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -162,6 +164,14 @@ export class MapComponent implements OnInit, OnDestroy {
   public generateMap(): void {
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
+      if(this.basemapOfflineService.db) {
+         this.basemaps.push({
+            map_type: 'OFFLINE',
+            map_default: false,
+            map_display: true,
+            map_slabel: 'Plan Offline'
+         })
+      }
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
         (bl) => bl.map_default
       );
@@ -257,8 +267,56 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
     }
-    this.map.getLayer('basemap').source = keyLayer;
+    if(keyLayer != 'PlanOffline') {
+      this.removeOfflineLayer();
+      this.changeBasemapSource(keyLayer);
+    } else {
+      this.addOfflineLayer();
+    }
     this.map.zoomTo(this.map.getZoom() + 0.001);
+  }
+
+  private async removeOfflineLayer() {
+   if(this.map.getSource('offlineBaseMap')) {
+    let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+    for (let layer of styleLayers) {
+      if(this.map.getLayer(layer.id)){
+        this.map.removeLayer(layer.id);
+      }
+    }
+    this.map.removeSource('offlineBaseMap');
+   }
+  }
+
+  private changeBasemapSource(keyLayer: string){
+   if(!this.map.getLayer('basemap')) {
+    const firstLayerId = this.map.getStyle().layers[0]?.id;
+    this.map.addLayer({
+        id: 'basemap',
+        type: 'raster',
+        source: keyLayer,
+        paint: {},
+      },firstLayerId);
+   } else {
+      this.map.getLayer('basemap').source = keyLayer;
+   }
+  }
+
+  private async addOfflineLayer() {
+   this.mapService.getMap().removeLayer('basemap');
+   this.mapService.getMap().addSource("offlineBaseMap", {
+      type: "vector",
+      tiles: [
+         "offline://{z}/{x}/{y}.vector.pbf"
+         //"https://nomad-basemaps.hp.m-ve.com/maps/{z}/{x}/{y}.pbf"
+      ]
+   });
+
+   const firstLayerId = this.map.getStyle().layers[0]?.id;
+   let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+   for (let layer of styleLayers) {
+      this.mapService.getMap().addLayer(layer,firstLayerId);
+   }
   }
 
   // Temp while basemaps do not have keys

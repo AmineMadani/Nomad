@@ -15,7 +15,8 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { ConfigurationService } from './core/services/configuration.service';
 import { DatePipe } from '@angular/common';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { customOAuthStorageService } from './core/services/customOAuthStorage.service';
+import { CustomOAuthStorageService } from './core/services/customOAuthStorage.service';
+import { BasemapOfflineService } from './core/services/basemapOffline.service';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { customOAuthStorageService } from './core/services/customOAuthStorage.se
     ConfigurationService,
     {
       provide: APP_INITIALIZER,
-      useFactory: AppConfigurationFactory,
+      useFactory: appConfigurationFactory,
       deps: [ConfigurationService, HttpClient],
       multi: true
     },
@@ -45,12 +46,19 @@ import { customOAuthStorageService } from './core/services/customOAuthStorage.se
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     {
       provide: OAuthStorage,
-      useClass: customOAuthStorageService
+      useClass: CustomOAuthStorageService
     },
     {
       provide: APP_INITIALIZER,
       useFactory: initAuthStorage,
       deps: [OAuthStorage],
+      multi: true
+    },
+    BasemapOfflineService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initBasemapOffline,
+      deps: [BasemapOfflineService],
       multi: true
     }
   ],
@@ -59,12 +67,16 @@ import { customOAuthStorageService } from './core/services/customOAuthStorage.se
 })
 export class AppModule { }
 
-export function AppConfigurationFactory(appConfig: ConfigurationService) {
+export function appConfigurationFactory(appConfig: ConfigurationService) {
   return () => appConfig.ensureInit();
 }
 
-export function initAuthStorage(storage: customOAuthStorageService) {
+export function initAuthStorage(storage: CustomOAuthStorageService) {
   return () => storage.init();
+}
+
+export function initBasemapOffline(basemapOffline: BasemapOfflineService) {
+  return () => basemapOffline.initializePlugin();
 }
 
 declare global {
