@@ -99,7 +99,7 @@ export class LoadingMobilePage implements OnInit {
     this.currentStep = 2;
 
     // Each request will send 5 tiles max
-    const chunkSize = 5;
+    const chunkSize = 100;
 
     // Get only visible layers
     const layers = results.layers.filter((lyr) => lyr.lyrDisplay);
