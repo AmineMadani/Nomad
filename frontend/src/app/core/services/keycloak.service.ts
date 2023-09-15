@@ -44,11 +44,14 @@ export class KeycloakService {
     if(this.configurationService.keycloak.active) {
       this.oauthService.events.subscribe(eventResult => {
         if (eventResult.type == 'token_refreshed') {
-          console.log("token : " + this.oauthService.getAccessToken());
+          //console.log("token : " + this.oauthService.getAccessToken());
         }
         if(eventResult.type == 'token_received') {
-          console.log("token : " + this.oauthService.getAccessToken());
-          this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
+          //console.log("token : " + this.oauthService.getAccessToken());
+          if(this.oauthService.state) {
+            this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
+            this.oauthService.state=null;
+          }
         }
       })
       
