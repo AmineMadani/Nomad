@@ -9,7 +9,6 @@ import { Basemap } from '../../models/basemap.model';
 import { Layer, localisationExportMode } from '../../models/layer.model';
 import { LngLatLike } from 'maplibre-gl';
 import { ConfigurationService } from '../configuration.service';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapEventService } from './map-event.service';
 import { DrawerRouteEnum } from '../../models/drawer.model';
 import { AlertController, ToastController } from '@ionic/angular';
@@ -17,8 +16,6 @@ import { Clipboard } from '@capacitor/clipboard';
 import { LayerService } from '../layer.service';
 import { WorkorderService } from '../workorder.service';
 import { Workorder } from '../../models/workorder.model';
-import { FeatureCollection } from 'geojson';
-import * as turf from '@turf/turf';
 
 export interface Box {
   x1: number;
@@ -39,18 +36,14 @@ export class MapService {
     private mapEventService: MapEventService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private workorderService: WorkorderService
-  ) { }
+    private workorderService: WorkorderService,
+  ) {}
 
   public measureMessage: any[];
-  public isMeasuring: boolean = false;
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
   private layersConfiguration: Layer[];
-
-  private draw: MapboxDraw;
-  private drawActive: boolean;
 
   private loadedGeoJson: Map<string, string[]> = new Map();
 
@@ -65,16 +58,6 @@ export class MapService {
   private loadedLayer: Array<string> = new Array<string>();
   private localisationMarker: Maplibregl.Marker = undefined;
   private removeLoadingLayer: Array<string> = new Array<string>();
-
-  private mesureEnded = false;
-
-  public getMeasureEnded() {
-    return this.mesureEnded;
-  }
-
-  public setMeasureEnded(value: boolean) {
-    this.mesureEnded = value;
-  }
 
   /**
    * This function creates a Maplibregl map and subscribes to moveend events to load new tiles based on
@@ -170,17 +153,6 @@ export class MapService {
     return Array.from(this.layers.values())
       .flatMap((layer) => layer.style)
       .map((s) => s.id);
-  }
-
-  public endMesure(): void {
-    this.isMeasuring = false;
-    this.measureMessage = [this.measureMessage[0], this.measureMessage[1], ''];
-  }
-
-  public cleanMesure(): void {
-    this.isMeasuring = false;
-    this.mesureEnded = false;
-    this.deleteDrawing();
   }
 
   public getCurrentLayersKey(): string[] {
@@ -539,25 +511,6 @@ export class MapService {
     }
   }
 
-  public setDraw(draw: any): void {
-    this.draw = draw;
-  }
-  public getDrawActive(): boolean {
-    return this.drawActive;
-  }
-
-  public deleteDrawing(): void {
-    this.draw.deleteAll();
-  }
-
-  public setDrawMode(mode: string): void {
-    this.draw.changeMode(mode);
-  }
-
-  public getDraws(): FeatureCollection {
-    return this.draw.getAll();
-  }
-
   /**
    * Retrieves a list of tiles that overlap with the current map view based on their
    * coordinates and a given layer index.
@@ -763,64 +716,5 @@ export class MapService {
    */
   public async removeLocalisationMarker() {
     this.localisationMarker.remove();
-  }
-
-  /**
-   * Add a drow element for areal measure
-   */
-  public addMapBoxDrow(): void {
-    this.setDrawMode('draw_polygon');
-    this.isMeasuring = true;
-    this.mesureEnded = false;
-    this.measureMessage = ['', '', 'Cliquez pour commencer à mesurer'];
-  }
-
-  /**
-   * Calculate the area and the perimeter
-   * @param feature a geometry collection
-   * @returns a string contening the perimeter and the area
-   */
-  public calculateMeasure(feature: any): string[] {
-    if (!this.isMeasuring) {
-      return undefined;
-    }
-
-    const convertedArea: string = this.convertArea(turf.area(feature));
-    const coordinates = turf.coordAll(feature);
-
-    if (coordinates.length > 2) {
-      const indexToRemove = coordinates.length - 1;
-      coordinates.splice(indexToRemove, 1);
-    } else {
-      return ['', '', 'Cliquez pour commencer'];
-    }
-
-    const perimiter = this.convertPerimeter(
-      turf.length(turf.lineString(coordinates), { units: 'meters' })
-    );
-    this.measureMessage = [
-      `${perimiter} `,
-      convertedArea !== '0' ? convertedArea : '',
-      convertedArea !== '0' ? 'Double-cliquez sur la carte pour terminer' : '',
-    ];
-    return this.measureMessage;
-  }
-
-  private convertArea(area: number): string {
-    if (area < 10000) {
-      return area.toFixed(2) + ' m²';
-    } else if (10000 <= area && area < 1000000) {
-      return (area / 10000).toFixed(2) + ' ha';
-    } else if (area >= 1000000) {
-      return (area / 1000000).toFixed(2) + ' km²';
-    }
-    return '0';
-  }
-
-  private convertPerimeter(perimetre: number): string {
-    if (perimetre < 1000) {
-      return perimetre.toFixed(2) + ' m';
-    }
-    return (perimetre / 1000).toFixed(2) + ' km';
   }
 }

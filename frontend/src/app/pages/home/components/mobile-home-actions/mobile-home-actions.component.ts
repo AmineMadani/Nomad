@@ -7,6 +7,7 @@ import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UserService } from 'src/app/core/services/user.service';
 
@@ -23,7 +24,8 @@ export class MobileHomeActionsComponent implements OnInit {
     private contractService: ContractService,
     private cityService: CityService,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private drawingService: DrawingService
     ) {}
 
   public type: 'DISPLAY' | 'ACTIONS' | 'TOOLS';
@@ -33,6 +35,10 @@ export class MobileHomeActionsComponent implements OnInit {
   public userHasPermissionCreateXYWorkorder: boolean = false;
 
   async ngOnInit(): Promise<void> {
+    if (this.drawingService.getIsMeasuring()) {
+      this.drawingService.endMesure(true);
+    }
+
     this.userHasPermissionCreateXYWorkorder =
       await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_X_Y_WORKORDER);
   }
@@ -71,7 +77,7 @@ export class MobileHomeActionsComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.modalCtlr.dismiss();
-    this.mapService.setDrawMode('draw_polygon');
+    this.drawingService.setDrawMode('draw_line_string');
   }
 
   public onRectangleTool(): void {
@@ -80,7 +86,19 @@ export class MobileHomeActionsComponent implements OnInit {
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
-    this.mapService.setDrawMode('draw_rectangle');
+    this.drawingService.setDrawMode('draw_rectangle');
+    this.modalCtlr.dismiss();
+  }
+
+  public async onClickDisplaySurfaceMesureTool(): Promise<void> {
+    this.drawingService.setDrawMode('draw_polygon');
+    this.drawingService.setIsMeasuring(true);
+    this.modalCtlr.dismiss();
+  }
+
+  public async onClickDisplayLinearMesureTool(): Promise<void> {
+    this.drawingService.setDrawMode('draw_line_string');
+    this.drawingService.setIsMeasuring(true);
     this.modalCtlr.dismiss();
   }
 

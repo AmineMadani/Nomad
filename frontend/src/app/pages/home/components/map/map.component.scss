@@ -118,12 +118,15 @@
   border: 2px;
   border-style: solid;
   border-color: black;
+
+  span {
+    color: black;
+  }
 }
 
-.calculation-box-header{
-  font-weight: bold;
-}
-
-.calculation-box-tip{
-  font-style: italic;
+.calculation-box-mobile {
+    position: absolute;
+    bottom: 16px;
+    top: 730px;
+    left: 20%;
 }

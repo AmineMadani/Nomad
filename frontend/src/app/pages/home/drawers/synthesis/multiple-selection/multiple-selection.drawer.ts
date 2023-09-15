@@ -15,6 +15,7 @@ import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -32,7 +33,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private mapEventService: MapEventService,
     private utilsService: UtilsService,
     private userService: UserService,
-    private workorderService: WorkorderService
+    private workorderService: WorkorderService,
+    private drawingService: DrawingService,
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -272,7 +274,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             'mapbox-gl-draw_ctrl-draw-btn'
           )[0] as HTMLButtonElement
         ).click();
-        this.mapService.setDrawMode('draw_rectangle');
+        this.drawingService.setDrawMode('draw_rectangle');
         break;
       case 'unit':
         // this.mapService.setAddToSelection(true);

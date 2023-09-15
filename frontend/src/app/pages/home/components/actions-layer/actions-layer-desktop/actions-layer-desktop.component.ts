@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
@@ -9,16 +10,18 @@ import {
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonPopover } from '@ionic/angular';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { Subject, fromEvent, takeUntil, debounceTime, finalize } from 'rxjs';
+
+import * as turf from '@turf/turf';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
 
 @Component({
   selector: 'app-actions-layer-desktop',
   templateUrl: './actions-layer-desktop.component.html',
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
-export class ActionsLayerDesktopComponent implements OnInit {
-  constructor(
-    private mapService: MapService
-  ) { }
+export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
+  constructor(private mapService: MapService, private drawingService: DrawingService) {}
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
 
@@ -29,7 +32,17 @@ export class ActionsLayerDesktopComponent implements OnInit {
   public drawerRouteEnum = DrawerRouteEnum;
   public isToolboxOpen: boolean = false;
 
+  private isMeasuringLinear: boolean = false;
+
+  private onStopMeasuring$: Subject<void> = new Subject();
+  private ngUnsubscribe$: Subject<void> = new Subject();
+
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
+  }
 
   public onAction(route: DrawerRouteEnum) {
     this.selectedActionEvent.emit(route);
@@ -42,7 +55,7 @@ export class ActionsLayerDesktopComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.toolboxPopover.dismiss();
-    this.mapService.setDrawMode('draw_polygon');
+    this.drawingService.setDrawMode('draw_polygon');
   }
 
   public onClickDrawingRectangle(): void {
@@ -52,7 +65,7 @@ export class ActionsLayerDesktopComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.toolboxPopover.dismiss();
-    this.mapService.setDrawMode('draw_rectangle');
+    this.drawingService.setDrawMode('draw_rectangle');
   }
 
   public displayToolbox(e: Event): void {
@@ -68,9 +81,17 @@ export class ActionsLayerDesktopComponent implements OnInit {
     window.print();
   }
 
-  public async onClickDisplayMesureTool(): Promise<void> {
+  public async onClickDisplaySurfaceMesureTool(): Promise<void> {
     this.toolboxPopover.dismiss();
     await this.toolboxPopover.onDidDismiss();
-    this.mapService.addMapBoxDrow();
+    this.drawingService.setDrawMode('draw_polygon');
+    this.drawingService.setIsMeasuring(true);
+  }
+
+  public async onClickDisplayLinearMesureTool(): Promise<void> {
+    this.toolboxPopover.dismiss();
+    await this.toolboxPopover.onDidDismiss();
+    this.drawingService.setDrawMode('draw_line_string');
+    this.drawingService.setIsMeasuring(true);
   }
 }

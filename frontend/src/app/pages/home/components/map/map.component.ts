@@ -21,7 +21,6 @@ import { debounceTime, first, forkJoin, switchMap } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
-import * as turf from '@turf/turf';
 import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
@@ -30,6 +29,7 @@ import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { CityService } from 'src/app/core/services/city.service';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
 
 @Component({
   selector: 'app-map',
@@ -49,7 +49,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
     private praxedoService: PraxedoService,
-    private userService: UserService
+    private userService: UserService,
+    private drawingService: DrawingService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -66,6 +67,17 @@ export class MapComponent implements OnInit, OnDestroy {
   clickout() {
     if (!this.isInsideContextMenu) {
       document.getElementById('map-nomad-context-menu').className = 'hide';
+    }
+  }
+
+  /**
+   * Method to hide the nomad context menu if the user click outside of the context menu
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapePressed() {
+    if (this.drawingService.getIsMeasuring()) {
+      this.drawingService.endMesure(true);
+      this.measure = undefined;
     }
   }
 
@@ -86,7 +98,7 @@ export class MapComponent implements OnInit, OnDestroy {
   public userHasPermissionCreateXYWorkorder: boolean = false;
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionRequestUpdateAsset: boolean = false;
-  public mesure: string[];
+  public measure: string;
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
@@ -102,11 +114,17 @@ export class MapComponent implements OnInit, OnDestroy {
 
     // Init permissions
     this.userHasPermissionCreateXYWorkorder =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_X_Y_WORKORDER);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CREATE_X_Y_WORKORDER
+      );
     this.userHasPermissionModifyReport =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.MODIFY_REPORT_MY_AREA);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.MODIFY_REPORT_MY_AREA
+      );
     this.userHasPermissionRequestUpdateAsset =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.REQUEST_UPDATE_ASSET);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.REQUEST_UPDATE_ASSET
+      );
 
     const loading = await this.loadingCtrl.create({
       message: 'Chargement de la carte',
@@ -280,14 +298,9 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'mousemove')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e) => {
-        const mapElement = document.getElementById('map');
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
-
-        if (
-          mapElement.classList.contains('mode-draw_polygon') ||
-          mapElement.classList.contains('mode-draw_rectangle')
-        ) {
+        if (this.drawingService.getIsMeasuring() && !this.isMobile) {
           canvasElement.classList.add('cursor-pointer');
           //for the area calculation box move
           const resumeBox = document.getElementById('calculation-box');
@@ -296,9 +309,9 @@ export class MapComponent implements OnInit, OnDestroy {
             const y = e.originalEvent.offsetY;
             resumeBox.style.transform = `translate(${x}px, ${y}px)`;
           }
-          if (this.mapService.isMeasuring) {
-            canvasElement.classList.add('cursor-mesure');
-          }
+        }
+        if (!this.drawingService.getIsMeasuring()) {
+          canvasElement.classList.remove('cursor-mesure');
         }
       });
 
@@ -321,15 +334,8 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'click')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-
-        if (this.mapService.getMeasureEnded()) {
-          this.mapService.cleanMesure();
-          this.mesure = undefined;
-        }
-        if (!this.mapService.isMeasuring ) {
-          const nearestFeature = this.queryNearestFeature(e);
-          this.onFeatureSelected(nearestFeature, e);
-        }
+        const nearestFeature = this.queryNearestFeature(e);
+        this.onFeatureSelected(nearestFeature, e);
       });
 
     fromEvent(this.map, 'touchend')
@@ -342,16 +348,6 @@ export class MapComponent implements OnInit, OnDestroy {
           setTimeout(() => {
             this.preventTouchMoveClicked = false;
           }, 500);
-        }
-      });
-
-    fromEvent(this.map, 'dblclick')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        if (this.mapService.isMeasuring) {
-          this.mapService.setMeasureEnded(true);
-          this.mapService.endMesure();
-          this.mesure = this.mapService.measureMessage;
         }
       });
 
@@ -375,44 +371,36 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.preventTouchMoveClicked = true;
         this.scale = this.calculateScale();
-        if (!this.mapService.isMeasuring && this.mapService.getMeasureEnded()) {
-          this.mapService.cleanMesure();
-          this.mesure = undefined;
-        }
       });
 
-    // Ending zoom event
+    // Drawing event
     fromEvent(this.map, 'draw.create')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
-        if (!this.mapService.isMeasuring) {
-        this.mapService.deleteDrawing();
-        const fireEvent = this.mapEvent.isFeatureFiredEvent;
+        if (!this.drawingService.getIsMeasuring()) {
+          this.drawingService.deleteDrawing();
+          const fireEvent = this.mapEvent.isFeatureFiredEvent;
 
-        const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
+          const features = this.drawingService.getFeaturesFromDraw(
+            e,
+            this.map,
+            this.mapService.getCurrentLayersIds()
+          );
 
-        let features = this.map.queryRenderedFeatures(
-          [this.map.project([maxX, maxY]), this.map.project([minX, minY])],
-          { layers: this.mapService.getCurrentLayersIds() }
-        );
-
-        features = this.utilsService.removeDuplicatesFromArr(features, 'id');
-
-        if (fireEvent) {
-          this.mapEvent.setMultiFeaturesSelected(features);
-        }
-
-        if (!fireEvent) {
-          if (features.length > 0) {
-            this.drawerService.navigateWithEquipments(
-              DrawerRouteEnum.SELECTION,
-              features
-            );
+          if (fireEvent) {
+            this.mapEvent.setMultiFeaturesSelected(features);
           }
-        }
+
+          if (!fireEvent) {
+            if (features.length > 0) {
+              this.drawerService.navigateWithEquipments(
+                DrawerRouteEnum.SELECTION,
+                features
+              );
+            }
+          }
         } else {
-         // this.mapService.endMesure();
-          this.mesure = this.mapService.measureMessage;
+          this.measure = this.drawingService.calculateMeasure();
           const canvasElement =
             document.getElementsByClassName('maplibregl-canvas')[0];
           if (canvasElement.classList.contains('cursor-mesure')) {
@@ -425,10 +413,16 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'draw.render')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
-        if (this.mapService.isMeasuring) {
-          this.mapService.calculateMeasure(this.mapService.getDraws());
-          this.mesure = this.mapService.measureMessage;
+        if (this.drawingService.getIsMeasuring()) {
+          this.measure = this.drawingService.calculateMeasure();
         }
+      });
+
+    // updating draw
+    fromEvent(this.map, 'draw.update')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((e: any) => {
+        this.measure = this.drawingService.calculateMeasure();
       });
   }
 
@@ -440,9 +434,9 @@ export class MapComponent implements OnInit, OnDestroy {
     e: Maplibregl.MapMouseEvent,
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
-    if (this.mapService.getDrawActive()) {
-      this.mapService.deleteDrawing();
-    }
+    this.drawingService.deleteDrawing();
+    //this.drawingService.endMesure(true);
+    this.measure = undefined;
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
     const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
@@ -457,14 +451,21 @@ export class MapComponent implements OnInit, OnDestroy {
 
     if (!feature) {
       forkJoin({
-        contractIds: this.contractService.getContractIdsByLatitudeLongitude(e.lngLat.lat, e.lngLat.lng),
-        cityIds: this.cityService.getCityIdsByLatitudeLongitude(e.lngLat.lat, e.lngLat.lng),
+        contractIds: this.contractService.getContractIdsByLatitudeLongitude(
+          e.lngLat.lat,
+          e.lngLat.lng
+        ),
+        cityIds: this.cityService.getCityIdsByLatitudeLongitude(
+          e.lngLat.lat,
+          e.lngLat.lng
+        ),
       }).subscribe(({ contractIds, cityIds }) => {
         const params: any = {};
         params.x = e.lngLat.lng;
         params.y = e.lngLat.lat;
         params.lyrTableName = 'aep_xy';
-        if (contractIds && contractIds.length > 0) params.ctrId = contractIds.join(',');
+        if (contractIds && contractIds.length > 0)
+          params.ctrId = contractIds.join(',');
         if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
         this.selectedFeature = {
           properties: params,
@@ -516,7 +517,7 @@ export class MapComponent implements OnInit, OnDestroy {
       )[0] as HTMLButtonElement
     ).click();
     document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.mapService.setDrawMode('draw_polygon');
+    this.drawingService.setDrawMode('draw_polygon');
   }
 
   /**
@@ -528,7 +529,7 @@ export class MapComponent implements OnInit, OnDestroy {
         'mapbox-gl-draw_ctrl-draw-btn'
       )[0] as HTMLButtonElement
     ).click();
-    this.mapService.setDrawMode('draw_rectangle');
+    this.drawingService.setDrawMode('draw_rectangle');
     document.getElementById('map-nomad-context-menu').className = 'hide';
   }
 
@@ -580,7 +581,7 @@ export class MapComponent implements OnInit, OnDestroy {
       },
     });
     this.map.addControl(draw as any, 'top-left');
-    this.mapService.setDraw(draw);
+    this.drawingService.setDraw(draw);
   }
 
   /**
@@ -696,8 +697,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.getCanvas().style.cursor = 'pointer';
     this.mapEvent.highlightHoveredFeatures(
       this.map,
-      [{source: feature.source,
-        id: feature.id.toString()}], true
+      [{ source: feature.source, id: feature.id.toString() }],
+      true
     );
   }
 
@@ -721,8 +722,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.mapEvent.highlighSelectedFeatures(
       this.map,
-      [{source:feature.source,
-       id:feature.id.toString()}],
+      [{ source: feature.source, id: feature.id.toString() }],
       firedEvent,
       e
     );
@@ -737,9 +737,9 @@ export class MapComponent implements OnInit, OnDestroy {
       let pathVariables = [];
       switch (feature.source) {
         case 'task':
-          if(Number(properties['wkoId']) > 0) {
+          if (Number(properties['wkoId']) > 0) {
             route = DrawerRouteEnum.TASK_VIEW;
-            pathVariables = [properties['wkoId'],properties['id']];
+            pathVariables = [properties['wkoId'], properties['id']];
           } else {
             route = DrawerRouteEnum.REPORT;
             pathVariables = [properties['wkoId']];
