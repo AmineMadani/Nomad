@@ -109,17 +109,19 @@ export class BasemapOfflineService {
             path: 'territory',
             url: urlFile
         }).then(async () => {
-            this.moveDatabasesAndAddSuffix().then(async () => {
-                let dbList = [];
-                try {
-                    dbList = (await this.sqliteConnection.getDatabaseList()).values;
-                } catch (e) {
-                    dbList = [];
-                }
-                if (dbList.includes('territorySQLite.db')) {
-                    this.openDatabase('territory', false, "no-encryption", 1, false);
-                }
-            });
+            if (this.native) {
+                this.moveDatabasesAndAddSuffix().then(async () => {
+                    let dbList = [];
+                    try {
+                        dbList = (await this.sqliteConnection.getDatabaseList()).values;
+                    } catch (e) {
+                        dbList = [];
+                    }
+                    if (dbList.includes('territorySQLite.db')) {
+                        this.openDatabase('territory', false, "no-encryption", 1, false);
+                    }
+                });
+            }
         })
     }
 
