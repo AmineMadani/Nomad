@@ -98,8 +98,8 @@ export class LoadingMobilePage implements OnInit {
     this.buffer = 0.05;
     this.currentStep = 2;
 
-    // Each request will send 10 tiles max
-    const chunkSize = 10;
+    // Each request will send 5 tiles max
+    const chunkSize = 5;
 
     // Get only visible layers
     const layers = results.layers.filter((lyr) => lyr.lyrDisplay);
@@ -119,7 +119,7 @@ export class LoadingMobilePage implements OnInit {
         outputList.push(indexFiles.slice(i, i + chunkSize));
       }
 
-      // Make a request for each batch of 1000 tiles
+      // Make a request for each batch of 5 tiles
       for (const files of outputList) {
         apiCalls[`request_${requestNumber}`] = this.layerService
           .getListLayerFile(layer.lyrTableName, files)
