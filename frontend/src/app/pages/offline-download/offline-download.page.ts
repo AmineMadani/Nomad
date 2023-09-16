@@ -12,11 +12,11 @@ import { UserService } from 'src/app/core/services/user.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
-  selector: 'app-loading-mobile',
-  templateUrl: './loading-mobile.page.html',
-  styleUrls: ['./loading-mobile.page.scss'],
+  selector: 'app-offline-download',
+  templateUrl: './offline-download.page.html',
+  styleUrls: ['./offline-download.page.scss'],
 })
-export class LoadingMobilePage implements OnInit {
+export class OfflineDownloadPage implements OnInit {
 
   public buffer = 0.05;
   public progress = 0;
@@ -37,21 +37,10 @@ export class LoadingMobilePage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Get referentials and tiles
-    this.fetchAllInitialisationData();
+
   }
 
-  public fetchAllInitialisationData() {
-    this.hasError = false;
-    this.cacheService.clearCache();
-
-    this.fetchAllReferential().pipe(
-      switchMap(results => this.fetchAllTiles(results))
-    ).subscribe(async () => {
-      await this.preferenceService.setPreference("loadedApp", "true");
-      this.drawerService.navigateTo(DrawerRouteEnum.HOME);
-    });
-  }
+  DrawerRouteEnum = DrawerRouteEnum;
 
   private fetchAllReferential() {
     const nbReferentialCalls: number = 10;

@@ -31,6 +31,11 @@ const routes: Routes = [
   {
     path: 'loading-mobile',
     loadChildren: () => import('./pages/loading-mobile/loading-mobile.module').then( m => m.LoadingMobilePageModule)
+  },
+  {
+    path: 'offline-download',
+    loadChildren: () => import('./pages/offline-download/offline-download.module').then(m => m.OfflineDownloadPageModule),
+    canActivate: [AuthGuard]
   }
 ];
 

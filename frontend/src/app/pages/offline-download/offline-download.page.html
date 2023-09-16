@@ -1,0 +1,80 @@
+<app-page-header
+  [headerLabel]="'Données hors connexion'"
+  [displayBackButton]="true">
+</app-page-header>
+
+<ion-content class="offline-content">
+  <ion-card class="offline-card">
+    <ion-item button>
+      <ion-label>Tout télécharger</ion-label>
+    </ion-item>
+    <ion-item button disabled="true">
+      <ion-label>Tout vider</ion-label>
+    </ion-item>
+  </ion-card>
+
+  <ion-list>
+    <ion-item>
+      <ion-icon class="download-state" name="close-circle-outline"></ion-icon>
+
+      <div class="download-label">
+        <ion-label>Référentiels</ion-label>
+        <div class="download-description">Non disponible en mode hors connexion</div>
+      </div>
+
+      <ion-button id="3-dot-1" fill="clear" slot="end">
+          <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+      <ion-popover trigger="3-dot-1" triggerAction="click">
+        <ng-template>
+          <ion-content class="ion-padding">
+            <ion-item>Télécharger</ion-item>
+            <ion-item>Supprimer</ion-item>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon class="download-state" color="primary" name="checkmark-circle-outline"></ion-icon>
+
+      <div class="download-label">
+        <ion-label>Equipements</ion-label>
+        <div class="download-description">200mo | Dernière mise à jour: 10/10/2023</div>
+      </div>
+
+      <ion-button id="3-dot-2" fill="clear" slot="end">
+          <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+      <ion-popover trigger="3-dot-2" triggerAction="click">
+        <ng-template>
+          <ion-content class="ion-padding">
+            <ion-item>Télécharger</ion-item>
+            <ion-item>Supprimer</ion-item>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+
+    <ion-item>
+      <ion-spinner class="download-state" name="lines-small"></ion-spinner>
+
+      <div class="download-label">
+        <ion-label>Fonds de plan</ion-label>
+        <div class="download-description">Téléchargement en cours... 10%</div>
+      </div>
+
+      <ion-button id="3-dot-3" fill="clear" slot="end">
+          <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+      <ion-popover trigger="3-dot-3" triggerAction="click">
+        <ng-template>
+          <ion-content class="ion-padding">
+            <ion-item>Télécharger</ion-item>
+            <ion-item>Supprimer</ion-item>
+          </ion-content>
+        </ng-template>
+      </ion-popover>
+    </ion-item>
+  </ion-list>
+</ion-content>

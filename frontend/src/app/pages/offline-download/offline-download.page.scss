@@ -1,0 +1,34 @@
+ion-content {
+  --padding-start: var(--ion-padding, 16px);
+  --padding-end: var(--ion-padding, 16px);
+  --padding-top: var(--ion-padding, 0px);
+  --padding-bottom: var(--ion-padding, 0px);
+}
+
+.offline-content {
+
+  .offline-card {
+    ion-label {
+      --font-size: 14px;
+    }
+  }
+
+  .download-state {
+    margin-right: 10px;
+  }
+
+  .download-label {
+    display: flex;
+    flex-direction: column;
+
+    .download-title {
+
+    }
+
+    .download-description {
+      font-size: 10px;
+      color: grey;
+    }
+  }
+
+}

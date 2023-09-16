@@ -32,31 +32,15 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
   } else {
     // Try to get the user data
     const user = await userService.getCurrentUser();
+    console.log(user);
+    console.log(route.routeConfig?.path);
 
     if (user) {
-      // If mobile plateform
-      if (utilsService.isMobilePlateform()) {
-        // Go to the loading screen, to get all necessary data
-        const loadedMobileApp = await preferenceService.getPreference("loadedApp");
-        if (!loadedMobileApp || loadedMobileApp === "false") {
-          router.navigate(['loading-mobile']);
-          return false;
-        }
-      }
-      // Else, we only get the user necessary data
-      else {
-        // Prevent the access of loading-mobile from web
-        if (route.routeConfig?.path === 'loading-mobile') {
-          router.navigate(['home']);
-          return false;
-        }
-
-        try {
-          await initService.getInitDataForWeb();
-        } catch (e) {
-          router.navigate(['error']);
-          return false;
-        }
+      try {
+        await initService.getInitDataForWeb();
+      } catch (e) {
+        router.navigate(['error']);
+        return false;
       }
 
       // If the user is on the login page and initialization is complete, redirect them to the home page

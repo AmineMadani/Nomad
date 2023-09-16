@@ -32,6 +32,11 @@ export class AppComponent implements OnInit, OnDestroy {
       url: '/settings',
       icon: 'settings',
     },
+    {
+      title: 'Données hors connexion',
+      url: '/offline-download',
+      icon: 'cloud-offline',
+    },
   ];
   constructor(
     private keycloakService: KeycloakService,
