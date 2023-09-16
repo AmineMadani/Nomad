@@ -1,0 +1,18 @@
+{
+  "apiUrl": "https://nomad-for-backend.hp.m-ve.com/api/nomad/v1/",
+  "externalApiUrl": "https://nomad-for-backend.hp.m-ve.com/api/external-veolia-api/v1/",
+  "keycloak": {
+    "active": true,
+    "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
+    "redirectUri": "https://nomad-for.hp.m-ve.com/login",
+    "redirectUriIos": "myschema://login",
+    "redirectUriAndroid": "myschema://login",
+    "clientId": "nomad",
+    "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
+  },
+  "host":"https://nomad-for.hp.m-ve.com/",
+  "offlineTimeoutReferential":15000,
+  "offlineTimeoutEquipment":2000,
+  "offlineTimeoutTile":15000,
+  "offlineTimeoutWorkorder":3000
+}
