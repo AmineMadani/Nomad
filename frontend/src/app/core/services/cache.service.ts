@@ -271,28 +271,46 @@ export class CacheService {
     this.db.tiles.clear();
   }
 
-  /**
-  * Fetches referential data either from a local cache or from a service call.
-  * If the data is not available in the cache, it will be fetched using the provided service call
-  * and then saved to the cache for future access.
-  *
-  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
-  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
-  * @returns An Observable of the fetched data, either from the local cache or from the service call.
-  */
-  public fetchTilesData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
-    return from(this.db.referentials.get(referentialCacheKey)).pipe(
-      switchMap(referential => {
-        if (referential?.data) {
-          return of(referential.data);
-        } else {
-          return serviceCall().pipe(
-            tap(async data => {
-              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
-            })
-          );
-        }
-      })
-    );
+  public clearReferentials() {
+    this.db.referentials.clear();
   }
+
+  public clearTiles() {
+    this.db.referentials.clear();
+  }
+
+  public async getReferentialSize(): Promise<string> {
+    // Get all items in the referentials table
+    const items = await this.db.referentials.toArray();
+
+    // Calculate the size in bytes
+    let totalSize = 0;
+    for (const item of items) {
+      const itemSize = new Blob([JSON.stringify(item)]).size;
+      totalSize += itemSize;
+    }
+
+    // Convert size to Mo
+    const sizeInMo = totalSize / (1024 * 1024);
+
+    return `${sizeInMo.toFixed(2)} mo`;
+  }
+
+  public async getTilesSize(): Promise<string> {
+    // Get all items in the tiles table
+    const items = await this.db.tiles.toArray();
+
+    // Calculate the size in bytes
+    let totalSize = 0;
+    for (const item of items) {
+      const itemSize = new Blob([JSON.stringify(item)]).size;
+      totalSize += itemSize;
+    }
+
+    // Convert size to Mo
+    const sizeInMo = totalSize / (1024 * 1024);
+
+    return `${sizeInMo.toFixed(2)} Mo`;
+  }
+
 }

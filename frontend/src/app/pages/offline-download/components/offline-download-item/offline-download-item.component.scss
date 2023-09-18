@@ -1,0 +1,15 @@
+.download-item {
+  .download-state {
+    margin-right: 10px;
+  }
+
+  .download-label {
+    display: flex;
+    flex-direction: column;
+
+    .download-description {
+      font-size: 10px;
+      color: var(--ion-color-neutral-variant-50);
+    }
+  }
+}

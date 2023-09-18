@@ -9,7 +9,8 @@ ion-content {
 
   .offline-card {
     ion-label {
-      --font-size: 14px;
+      font-size: 14px;
+      color: var(--ion-color-primary);
     }
   }
 

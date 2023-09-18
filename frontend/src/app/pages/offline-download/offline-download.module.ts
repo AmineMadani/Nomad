@@ -8,6 +8,7 @@ import { OfflineDownloadPageRoutingModule } from './offline-download-routing.mod
 
 import { OfflineDownloadPage } from './offline-download.page';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { OfflineDownloadItemComponent } from './components/offline-download-item/offline-download-item.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,9 @@ import { SharedModule } from 'src/app/shared/shared.module';
     OfflineDownloadPageRoutingModule,
     SharedModule
   ],
-  declarations: [OfflineDownloadPage]
+  declarations: [
+    OfflineDownloadPage,
+    OfflineDownloadItemComponent
+  ]
 })
 export class OfflineDownloadPageModule { }

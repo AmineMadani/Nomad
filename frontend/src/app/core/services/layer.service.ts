@@ -3,7 +3,7 @@ import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetai
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
-import { Observable, catchError, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
+import { Observable, catchError, delay, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';

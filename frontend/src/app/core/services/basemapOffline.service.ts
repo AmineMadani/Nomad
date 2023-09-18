@@ -58,7 +58,7 @@ export class BasemapOfflineService {
     }
 
     /**
-     * Get the database connection 
+     * Get the database connection
      * @param dbName Name of the db
      * @param encrypted Encryption
      * @param mode Connection mode
@@ -97,10 +97,11 @@ export class BasemapOfflineService {
     /**
      * Download the offline basemap file
      */
-    public downloadOfflineData(urlFile: string) {
-
+  public downloadOfflineData(urlFile: string, onProgressPercentage: Function, onComplete: Function) {
         Filesystem.addListener('progress', progress => {
-            console.log(`Progress: ${((progress.bytes / progress.contentLength) * 100).toFixed(0)}%`);
+          const newPercentage = ((progress.bytes / progress.contentLength) * 100).toFixed(0);
+          console.log(`Progress: ${newPercentage}%`);
+          onProgressPercentage(newPercentage);
         });
 
         Filesystem.downloadFile({
@@ -118,7 +119,8 @@ export class BasemapOfflineService {
                         dbList = [];
                     }
                     if (dbList.includes('territorySQLite.db')) {
-                        this.openDatabase('territory', false, "no-encryption", 1, false);
+                      this.openDatabase('territory', false, "no-encryption", 1, false);
+                      onComplete();
                     }
                 });
             }
