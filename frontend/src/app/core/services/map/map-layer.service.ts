@@ -211,7 +211,8 @@ export class MapLayerService {
    */
   public async zoomOnXyToFeatureByIdAndLayerKey(
     layerKey: string,
-    id: string
+    id: string,
+    minZoom:number=17
   ): Promise<void> {
     await this.mapService.addEventLayer(layerKey);
     const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
@@ -230,8 +231,8 @@ export class MapLayerService {
     }
 
     let currentZoom = this.mapService.getMap().getZoom();
-    if (currentZoom < 17) {
-      currentZoom = 17;
+    if (currentZoom < minZoom) {
+      currentZoom = minZoom;
     }
 
     this.mapService.getMap().fitBounds(bounds, {

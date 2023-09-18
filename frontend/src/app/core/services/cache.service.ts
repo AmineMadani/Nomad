@@ -246,24 +246,36 @@ export class CacheService {
    */
   public fetchReferentialsData<T>(
     referentialCacheKey: ReferentialCacheKey,
-    serviceCall: () => Observable<T>
+    serviceCall: () => Observable<T>,
+    forceGetFromDb: boolean = false
   ): Observable<T> {
-    return from(this.db.referentials.get(referentialCacheKey)).pipe(
-      switchMap((referential) => {
-        if (referential?.data) {
-          return of(referential.data);
-        } else {
-          return serviceCall().pipe(
-            tap(async (data) => {
-              await this.db.referentials.put(
-                { data: data, key: referentialCacheKey },
-                referentialCacheKey
-              );
-            })
+    if (forceGetFromDb) {
+      return serviceCall().pipe(
+        tap(async (data) => {
+          await this.db.referentials.put(
+            { data: data, key: referentialCacheKey },
+            referentialCacheKey
           );
-        }
-      })
-    );
+        })
+      );
+    } else {
+      return from(this.db.referentials.get(referentialCacheKey)).pipe(
+        switchMap((referential) => {
+          if (referential?.data) {
+            return of(referential.data);
+          } else {
+            return serviceCall().pipe(
+              tap(async (data) => {
+                await this.db.referentials.put(
+                  { data: data, key: referentialCacheKey },
+                  referentialCacheKey
+                );
+              })
+            );
+          }
+        })
+      );
+    }
   }
 
   public clearCache() {

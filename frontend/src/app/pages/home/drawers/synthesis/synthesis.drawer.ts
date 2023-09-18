@@ -127,7 +127,9 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
 
         // Mono-Equipment
         if (!Array.isArray(feature)) {
-          await this.mapLayerService.moveToXY(feature.x, feature.y);
+          const  layers = await this.layerService.getLayerByKey(params.get('lyrTableName'));
+          const minZoom = (JSON.parse(layers.listStyle[0].sydDefinition)[0].minzoom)+1
+          await this.mapLayerService.moveToXY(feature.x, feature.y,minZoom);
           await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
             params.get('lyrTableName'),
             feature.id
