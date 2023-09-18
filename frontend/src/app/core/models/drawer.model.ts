@@ -12,7 +12,8 @@ export enum DrawerRouteEnum {
   TASK_VIEW = 'TASK_VIEW',
   REPORT = 'REPORT',
   DEMANDE = 'DEMANDE',
-  SELECTION = 'SELECTION'
+  SELECTION = 'SELECTION',
+  NEW_ASSET = 'NEW_ASSET',
 }
 
 export enum DrawerTypeEnum {
@@ -78,5 +79,9 @@ export const drawerRoutes = [
   {
     path: '/home/selection',
     name: DrawerRouteEnum.SELECTION,
+  },
+  {
+    path: '/home/asset/new',
+    name: DrawerRouteEnum.NEW_ASSET,
   },
 ];

@@ -113,6 +113,9 @@ private Long id;
     @OneToMany(mappedBy="layer")
     private List<LayerReferences> listOfLayerReferences;
 
+    @OneToMany(mappedBy="layer")
+    private List<AssetForSig> listOfAssetForSig;
+
     /**
      * Constructor
      */
@@ -284,4 +287,11 @@ private Long id;
         this.listOfLayerReferences = listOfLayerReferences;
     }
 
+    public List<AssetForSig> getListOfAssetForSig() {
+        return listOfAssetForSig;
+    }
+
+    public void setListOfAssetForSig(List<AssetForSig> listOfAssetForSig) {
+        this.listOfAssetForSig = listOfAssetForSig;
+    }
 }

@@ -1,0 +1,91 @@
+<div class="new-asset-drawer">
+  <ion-item class="header-item" lines="none">
+    <ion-button fill="clear" slot="start" (click)="onDrawerBack()">
+        <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
+    </ion-button>
+    <ion-label class="header-label">
+        {{ drawerTitle }}
+    </ion-label>
+    <!-- HIDE THIS BUTTON, ITS FOR DEV ONLY-->
+    <ion-button mat-stroked-button (click)="fileUpload.click()" fill="clear" style="display:none">
+      Import
+      <input #fileUpload type="file" value="Upload" (change)="createFormDefinitionFromCSVFile($event)" style="display:none" accept=".csv" />
+    </ion-button>
+    
+    <ion-button fill="clear" slot="end" (click)="onDrawerClose()">
+        <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <!-- First step - Type of asset to create -->
+  <ng-container *ngIf="step === 1 && indexFilterAssetSelection === 0">
+    <div class="question">Sur quelle activité souhaitez-vous ajouter un patrimoine ?</div>
+    <div class="answers">
+      <div *ngFor="let filterAsset of listFilterAsset" 
+          (click)="selectFilterAsset(filterAsset)"
+          class="answer"
+          [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
+        {{ filterAsset.name }}
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="step === 1 && indexFilterAssetSelection > 0">
+    <div class="question">Quel patrimoine souhaitez-vous créer ?</div>
+    <div class="answers">
+      <div *ngFor="let filterAsset of listChildFilterAsset" 
+          (click)="selectFilterAsset(filterAsset)"
+          class="answer"
+          [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
+        {{ filterAsset.name }}
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Second step - Select where the asset is -->
+  <ng-container *ngIf="step === 2">
+    <div class="question">Selection de la position de {{selectedAsset.layerKey}}</div>
+    <div class="answers">
+      {{coords?.lng ?? '-'}} / {{coords?.lat ?? '-'}}
+    </div>
+  </ng-container>
+
+  <!-- Third step - Fill the data bout the asset -->
+  <ng-container *ngIf="step === 3">
+    <div class="question">Remplir les informations de {{selectedAsset.layerKey}}</div>
+
+    <div class="answers">
+      <app-form-editor #formEditor *ngIf="form && !isLoading"
+        [nomadForm]="form" [editMode]="true" 
+        [indexQuestion]="indexQuestion"
+        [resumeQuestions]="listSavedAnswer">
+      </app-form-editor>
+
+      <ng-container *ngIf="!form && !isLoading">
+        Pas de formulaire disponible.
+        Veuillez contacter votre responsable.
+      </ng-container>
+
+      <ng-container *ngIf="isLoading">
+        <ion-spinner color="primary" name="circular" style="margin-top: 20%;margin-left: calc(50% - 20px);"></ion-spinner>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- Actions -->
+  <div class="new-asset-footer-actions">
+    <ng-container *ngIf="!isSubmitting">
+      <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
+      <ion-button *ngIf="step === 1" [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 2" [style.visibility]="coords === null ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 3" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+    </ng-container>
+    <ng-container *ngIf="isSubmitting">
+      <ion-item lines="none" style="margin: auto;">
+        <ion-spinner name="circular" color="primary" style="margin-right: 10px;"></ion-spinner>
+        <ion-label>Clôture en cours...</ion-label>
+      </ion-item>
+    </ng-container>
+  </div>
+</div>
+

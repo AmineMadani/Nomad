@@ -6,6 +6,7 @@ export interface Layer {
   domCode: string;
   astId: number;
   astCode: string;
+  astGeomType: string;
   lyrTableName: string;
   lyrGeomColumnName: string;
   lyrUuidColumnName: string;
@@ -20,6 +21,11 @@ export interface Layer {
 
 export function getLayerLabel(layer: Layer) {
   return layer.lyrSlabel + ' - ' + layer.domLLabel;
+}
+
+export enum GEOM_TYPE {
+  POINT = 'point',
+  LINE = 'line'
 }
 
 export interface VLayerWtr {

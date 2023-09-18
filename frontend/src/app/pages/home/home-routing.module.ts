@@ -15,6 +15,7 @@ import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
 import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 
 const routes: Routes = [
   {
@@ -29,6 +30,13 @@ const routes: Routes = [
         component: AssetDrawer,
         data: {
           name: DrawerRouteEnum.ASSET,
+        },
+      },
+      {
+        path: 'asset/new',
+        component: NewAssetDrawer,
+        data: {
+          name: DrawerRouteEnum.NEW_ASSET,
         },
       },
       {

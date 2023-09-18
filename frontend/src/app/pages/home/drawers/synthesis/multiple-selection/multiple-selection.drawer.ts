@@ -250,6 +250,19 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }
 
         break;
+      case 'ask':
+        if (this.wkoDraft) {
+          this.drawerService.navigateTo(
+            DrawerRouteEnum.NEW_ASSET,
+            [ this.wkoDraft ],
+          );
+        } else {
+          this.drawerService.navigateTo(
+            DrawerRouteEnum.NEW_ASSET,
+            [],
+          );
+        }
+        break;
       case 'showSelectedFeatures':
         this.restoreViewOnFeatureSelected();
         break;

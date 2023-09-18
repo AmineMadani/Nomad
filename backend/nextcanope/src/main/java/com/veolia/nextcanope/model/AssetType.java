@@ -46,6 +46,10 @@ private Long id;
     @JsonProperty("ast_llabel")
     private String astLlabel;
 
+    @Column(name="ast_geom_type", length=2147483647)
+    @JsonProperty("ast_geom_type")
+    private String astGeomType;
+
     @Column(name="ast_valid")
     @JsonProperty("ast_valid")
     private Boolean astValid;
@@ -122,6 +126,14 @@ private Long id;
 
 	public void setAstLlabel( String astLlabel ) {
         this.astLlabel = astLlabel ;
+    }
+
+    public String getAstGeomType() {
+        return astGeomType;
+    }
+
+    public void setAstGeomType(String astGeomType) {
+        this.astGeomType = astGeomType;
     }
 
     public Boolean getAstValid() {
