@@ -352,6 +352,135 @@ export class MapComponent implements OnInit, OnDestroy {
   // ---- MAP ACTIONS ---- //
   // --------------------- //
 
+  /**
+   * Opens a context menu on the map and updates its content based on the selected feature.
+   * @param e - MapMouseEvent from Maplibre
+   */
+  public async openNomadContextMenu(
+    e: Maplibregl.MapMouseEvent,
+    feature: Maplibregl.MapGeoJSONFeature
+  ): Promise<void> {
+    this.drawingService.deleteDrawing();
+    //this.drawingService.endMesure(true);
+    this.measure = undefined;
+
+    const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
+    const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
+      'map-nomad-context-menu-create-workorder'
+    );
+
+    menu.className = 'show';
+    menu.style.top = e.originalEvent.clientY - 56 + 'px';
+    menu.style.left = e.originalEvent.clientX + 'px';
+    this.clicklatitude = e.lngLat.lat;
+    this.clicklongitute = e.lngLat.lng;
+
+    if (!feature) {
+      forkJoin({
+        contractIds: this.contractService.getContractIdsByLatitudeLongitude(
+          e.lngLat.lat,
+          e.lngLat.lng
+        ),
+        cityIds: this.cityService.getCityIdsByLatitudeLongitude(
+          e.lngLat.lat,
+          e.lngLat.lng
+        ),
+      }).subscribe(({ contractIds, cityIds }) => {
+        const params: any = {};
+        params.x = e.lngLat.lng;
+        params.y = e.lngLat.lat;
+        params.lyrTableName = 'aep_xy';
+        if (contractIds && contractIds.length > 0)
+          params.ctrId = contractIds.join(',');
+        if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
+        this.selectedFeature = {
+          properties: params,
+        };
+        contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      });
+    } else {
+      contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
+      this.selectedFeature = {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          x: e.lngLat.lng,
+          y: e.lngLat.lat,
+        },
+      };
+    }
+  }
+
+  /**
+   * Navigates to a work order page with selected feature properties as query parameters.
+   */
+  public onGenerateWorkOrder(): void {
+    if (!this.selectedFeature['properties']['lyrTableName']) {
+      this.selectedFeature['properties']['lyrTableName'] =
+        this.selectedFeature['source'];
+    }
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    this.router.navigate(['/home/workorder'], {
+      queryParams: this.selectedFeature['properties'],
+    });
+  }
+
+  /**
+   * Change the param isInsideContextMenu if hte user is on/out of the context menu
+   * @param hover True if context menu hover
+   */
+  public onHoverContextMenu(hover: boolean) {
+    this.isInsideContextMenu = hover;
+  }
+
+  /**
+   * Use the polygon drawing tool of MapboxDraw, with their input hidden
+   */
+  public onPolygonalSelection(): void {
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    this.drawingService.setDrawMode('draw_polygon');
+  }
+
+  /**
+   * Use the polygon drawing tool of MapboxDraw, with their input hidden
+   */
+  public onRectangleSelection(): void {
+    (
+      document.getElementsByClassName(
+        'mapbox-gl-draw_ctrl-draw-btn'
+      )[0] as HTMLButtonElement
+    ).click();
+    this.drawingService.setDrawMode('draw_rectangle');
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+  }
+
+  /**
+   * Remove the pin representing the initial localisation
+   */
+  public async onRemoveMarker() {
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    await this.mapService.removeLocalisationMarker();
+  }
+
+  /**
+   * Use the geolocate feature of Maplibre, with their input hidden
+   */
+  public geolocate(): void {
+    const el = this.elem.nativeElement.querySelectorAll(
+      '.maplibregl-ctrl-geolocate'
+    )[0];
+    el.click();
+  }
+
+  public getMeasuringCondition(): boolean {
+    return this.drawingService.getIsMeasuring();
+  }
+
   private addEvents(): void {
     fromEvent(this.map, 'mousemove')
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -482,131 +611,6 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe((e: any) => {
         this.measure = this.drawingService.calculateMeasure();
       });
-  }
-
-  /**
-   * Opens a context menu on the map and updates its content based on the selected feature.
-   * @param e - MapMouseEvent from Maplibre
-   */
-  public async openNomadContextMenu(
-    e: Maplibregl.MapMouseEvent,
-    feature: Maplibregl.MapGeoJSONFeature
-  ): Promise<void> {
-    this.drawingService.deleteDrawing();
-    //this.drawingService.endMesure(true);
-    this.measure = undefined;
-
-    const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
-    const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
-      'map-nomad-context-menu-create-workorder'
-    );
-
-    menu.className = 'show';
-    menu.style.top = e.originalEvent.clientY - 56 + 'px';
-    menu.style.left = e.originalEvent.clientX + 'px';
-    this.clicklatitude = e.lngLat.lat;
-    this.clicklongitute = e.lngLat.lng;
-
-    if (!feature) {
-      forkJoin({
-        contractIds: this.contractService.getContractIdsByLatitudeLongitude(
-          e.lngLat.lat,
-          e.lngLat.lng
-        ),
-        cityIds: this.cityService.getCityIdsByLatitudeLongitude(
-          e.lngLat.lat,
-          e.lngLat.lng
-        ),
-      }).subscribe(({ contractIds, cityIds }) => {
-        const params: any = {};
-        params.x = e.lngLat.lng;
-        params.y = e.lngLat.lat;
-        params.lyrTableName = 'aep_xy';
-        if (contractIds && contractIds.length > 0)
-          params.ctrId = contractIds.join(',');
-        if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
-        this.selectedFeature = {
-          properties: params,
-        };
-        contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-      });
-    } else {
-      contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
-      this.selectedFeature = {
-        ...feature,
-        properties: {
-          ...feature.properties,
-          x: e.lngLat.lng,
-          y: e.lngLat.lat,
-        },
-      };
-    }
-  }
-
-  /**
-   * Navigates to a work order page with selected feature properties as query parameters.
-   */
-  public onGenerateWorkOrder(): void {
-    if (!this.selectedFeature['properties']['lyrTableName']) {
-      this.selectedFeature['properties']['lyrTableName'] =
-        this.selectedFeature['source'];
-    }
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.router.navigate(['/home/workorder'], {
-      queryParams: this.selectedFeature['properties'],
-    });
-  }
-
-  /**
-   * Change the param isInsideContextMenu if hte user is on/out of the context menu
-   * @param hover True if context menu hover
-   */
-  public onHoverContextMenu(hover: boolean) {
-    this.isInsideContextMenu = hover;
-  }
-
-  /**
-   * Use the polygon drawing tool of MapboxDraw, with their input hidden
-   */
-  public onPolygonalSelection(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.drawingService.setDrawMode('draw_polygon');
-  }
-
-  /**
-   * Use the polygon drawing tool of MapboxDraw, with their input hidden
-   */
-  public onRectangleSelection(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
-    this.drawingService.setDrawMode('draw_rectangle');
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-  }
-
-  /**
-   * Remove the pin representing the initial localisation
-   */
-  public async onRemoveMarker() {
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    await this.mapService.removeLocalisationMarker();
-  }
-
-  /**
-   * Use the geolocate feature of Maplibre, with their input hidden
-   */
-  public geolocate(): void {
-    const el = this.elem.nativeElement.querySelectorAll(
-      '.maplibregl-ctrl-geolocate'
-    )[0];
-    el.click();
   }
 
   private addControls(): void {
@@ -853,11 +857,5 @@ export class MapComponent implements OnInit, OnDestroy {
           resolutionAtLatitudeAndZoom
       ) / Math.log(2)
     );
-  }
-
-  public changeCursor(cursor: string): void {
-    const canvasElement =
-      document.getElementsByClassName('maplibregl-canvas')[0];
-    canvasElement.classList.add(cursor);
   }
 }

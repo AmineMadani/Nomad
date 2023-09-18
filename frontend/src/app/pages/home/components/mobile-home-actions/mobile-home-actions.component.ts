@@ -77,7 +77,7 @@ export class MobileHomeActionsComponent implements OnInit {
       )[0] as HTMLButtonElement
     ).click();
     this.modalCtlr.dismiss();
-    this.drawingService.setDrawMode('draw_line_string');
+    this.drawingService.setDrawMode('draw_polygon');
   }
 
   public onRectangleTool(): void {

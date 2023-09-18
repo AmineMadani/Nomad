@@ -158,6 +158,7 @@ create table asset_type
     ast_code text unique not null, -- code hérité de CANOPE / PICRU (20, 21...)
     ast_slabel text,
     ast_llabel text,
+    ast_geom_type text default 'point',
     -- Technical metadata
     ast_valid         boolean default True,
     ast_ucre_id       bigint references users(id) default 0,
@@ -173,6 +174,7 @@ comment on column asset_type.dom_id is 'Application domain (ie: drinking water, 
 comment on column asset_type.ast_code is 'Code asset type';
 comment on column asset_type.ast_slabel is 'Short label asset type';
 comment on column asset_type.ast_llabel is 'Long label asset type';
+comment on column asset_type.ast_llabel is 'Geometry type (point, line...)';
 comment on column asset_type.ast_valid is 'If valid, true else false';
 comment on column asset_type.ast_ucre_id is 'creator Id';
 comment on column asset_type.ast_umod_id is 'Last modificator Id';
@@ -255,7 +257,7 @@ comment on table basemaps is 'This table defines all the raster layers available
 comment on column basemaps.id is 'Table unique ID';
 comment on column basemaps.map_slabel is 'Basemap Short Label';
 comment on column basemaps.map_llabel is 'Basemap Long Label';
-comment on column basemaps.map_type is 'Basemap  ty:pe (WMTS, WMS...)';
+comment on column basemaps.map_type is 'Basemap  type (WMTS, WMS...)';
 comment on column basemaps.map_url is 'Basemap URL';
 comment on column basemaps.map_layer is 'Layer to display';
 comment on column basemaps.map_matrixset is 'Matrix set';
@@ -1287,3 +1289,28 @@ comment on column prf_per.prp_dmod is 'Last modification date';
 
 -- set the default organization of 
 alter table users add column usr_default_org_id bigint references organizational_unit(id);
+
+-- Table asset for sig
+-- Contains the assets to be create by sig
+create table if not exists asset_for_sig(
+id                           bigserial primary key,
+lyr_id                       bigint NOT NULL REFERENCES layer(id),
+afs_geom                     text NOT NULL,
+afs_informations             text NOT NULL,
+-- Technical metadata
+afs_ucre_id                  bigint references users(id) default 0,
+afs_umod_id                  bigint references users(id) default 0,
+afs_dcre                     timestamp without time zone  default current_timestamp,
+afs_dmod                     timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table asset_for_sig is 'This table contains the assets to be send to SIG';
+/* Comments on fields */
+comment on column asset_for_sig.id is 'Table unique ID';
+comment on column asset_for_sig.lyr_id is 'Layer Id';
+comment on column asset_for_sig.afs_geom is 'Geometry of the asset';
+comment on column asset_for_sig.afs_informations is 'Informations about the asset';
+comment on column asset_for_sig.afs_ucre_id is 'creator Id';
+comment on column asset_for_sig.afs_umod_id is 'Last modificator Id';
+comment on column asset_for_sig.afs_dcre is 'Creation date';
+comment on column asset_for_sig.afs_dmod is 'Last modification date';

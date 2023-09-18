@@ -44,6 +44,7 @@ import { ReportAssetComponent } from './drawers/workorder/pages/report/component
 import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
 import { WorkorderListComponent } from './drawers/exploitation/components/workorder-list/workorder-list.component';
 import { AttachmentComponent } from './drawers/components/attachment/attachment.component';
+import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 
 @NgModule({
   imports: [
@@ -90,6 +91,7 @@ import { AttachmentComponent } from './drawers/components/attachment/attachment.
     ReportContextComponent,
     ReportFormComponent,
     AttachmentComponent,
+    NewAssetDrawer,
   ],
   exports: [ReportCreateComponent]
 })

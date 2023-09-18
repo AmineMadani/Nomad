@@ -87,6 +87,7 @@ export class DrawerService {
             DrawerRouteEnum.WORKORDER_VIEW,
             DrawerRouteEnum.DEMANDE,
             DrawerRouteEnum.SELECTION,
+            DrawerRouteEnum.NEW_ASSET,
           ].includes(currentRouteName) &&
           this.utilsService.isMobilePlateform()
         ) {

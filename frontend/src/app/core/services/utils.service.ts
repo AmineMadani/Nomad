@@ -264,6 +264,11 @@ export class UtilsService {
     return dateLuxon.toJSDate();
   }
 
+  public convertToDateWithTime(dateStr: string, time: string): Date {
+    const dateLuxon: DateTime = DateTime.fromFormat(dateStr +' '+ time, 'dd/MM/yyyy HH:mm');
+    return dateLuxon.toJSDate();
+  }
+
   public createCacheId(): number {
     return (
       Number(

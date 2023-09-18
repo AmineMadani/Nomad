@@ -24,10 +24,11 @@ export class TemplateService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  getFormsTemplate(): Observable<FormTemplate[]> {
+  getFormsTemplate(forceGetFromDb: boolean = false): Observable<FormTemplate[]> {
     return this.cacheService.fetchReferentialsData<FormTemplate[]>(
       ReferentialCacheKey.FORM_TEMPLATE,
-      () => this.templateDataService.getFormsTemplate()
+      () => this.templateDataService.getFormsTemplate(),
+      forceGetFromDb
     );
   }
 

@@ -29,12 +29,17 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheService } from 'src/app/core/services/cache.service';
-import { Task, Workorder, WorkorderType } from 'src/app/core/models/workorder.model';
+import {
+  Task,
+  Workorder,
+  WorkorderType,
+} from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
+import { TimeValidator } from 'src/app/shared/form-editor/validators/time.validator';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';
@@ -311,6 +316,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       wkoEmergency: new FormControl(false),
       wkoAppointment: new FormControl(false),
       wkoCreationComment: new FormControl(''),
+      wkoPlanningStartHour: new FormControl(''),
+      wkoPlanningEndHour: new FormControl(''),
     });
     this.creationWkoForm.addValidators(
       DateValidator.compareDateValidator(
@@ -318,12 +325,53 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         'wkoPlanningEndDate'
       )
     );
+    this.creationWkoForm.addValidators(
+      TimeValidator.compareTimeValidatorWithTrigger(
+        'wkoPlanningStartHour',
+        'wkoPlanningEndHour',
+        'wkoAppointment'
+      )
+    );
+  }
+
+  public onStartHourChange(controlKey: string, event: Event): void {
+    if (!this.creationWkoForm.controls['wkoPlanningEndHour'].value) {
+      const end = DateTime.fromFormat(
+        this.creationWkoForm.controls['wkoPlanningStartHour'].value,
+        'HH:mm'
+      );
+      this.creationWkoForm.controls['wkoPlanningEndHour'].setValue(
+        end.plus({ hours: 1 }).toFormat('HH:mm')
+      );
+    }
   }
 
   public setCheckboxValue(controlKey: string, event: Event): void {
     this.creationWkoForm.controls[controlKey].setValue(
       (event as CustomEvent).detail.checked
     );
+
+    if ((event as CustomEvent).detail.checked) {
+      this.creationWkoForm.controls['wkoPlanningStartHour'].addValidators([
+        Validators.required,
+        TimeValidator.isHourValid,
+      ]);
+      this.creationWkoForm.controls['wkoPlanningEndHour'].addValidators([
+        Validators.required,
+        TimeValidator.isHourValid,
+      ]);
+    } else {
+      this.creationWkoForm.controls['wkoPlanningStartHour'].clearValidators();
+      this.creationWkoForm.controls['wkoPlanningEndHour'].clearValidators();
+    }
+    this.creationWkoForm.controls[
+      'wkoPlanningStartHour'
+    ].updateValueAndValidity({
+      emitEvent: false,
+    });
+    this.creationWkoForm.controls['wkoPlanningEndHour'].updateValueAndValidity({
+      emitEvent: false,
+    });
   }
 
   public async onSubmit(): Promise<void> {
@@ -354,16 +402,20 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       ...form,
     };
 
-    this.workorder.wkoPlanningStartDate = this.utils.convertToDateISO(
-      form.wkoPlanningStartDate
+    this.workorder.wkoPlanningStartDate = this.utils.convertToDateWithTime(
+      form.wkoPlanningStartDate,
+      form.wkoPlanningStartHour
     );
-    this.workorder.wkoPlanningEndDate = this.utils.convertToDateISO(
-      form.wkoPlanningEndDate
+    this.workorder.wkoPlanningEndDate = this.utils.convertToDateWithTime(
+      form.wkoPlanningEndDate,
+      form.wkoPlanningEndHour
     );
 
+
+
     this.workorder.wkoDmod = new Date();
-    if(!this.workorder.id) {
-      this.workorder.id=this.utils.createCacheId();
+    if (!this.workorder.id) {
+      this.workorder.id = this.utils.createCacheId();
     }
 
     let funct: any;
@@ -404,7 +456,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
-      if(!res.resync) {
+      if (!res.resync) {
         this.workOrderService.deleteCacheWorkorder(this.workorder);
       }
     });
@@ -490,9 +542,22 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (control) {
         if (this.workorder[key] != null) {
           if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
-            control.setValue(
-              this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
-            );
+            console.log('this.workorder[key]', key + '-' + this.workorder[key]);
+            if (key == 'wkoPlanningStartDate') {
+              this.creationWkoForm.controls['wkoPlanningStartHour'].setValue(
+                this.datePipe.transform(this.workorder[key], 'HH:mm')
+              );
+              control.setValue(
+                this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
+              );
+            } else if (key == 'wkoPlanningEndDate') {
+              this.creationWkoForm.controls['wkoPlanningEndHour'].setValue(
+                this.datePipe.transform(this.workorder[key], 'HH:mm')
+              );
+              control.setValue(
+                this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
+              );
+            }
           } else {
             control.setValue(this.workorder[key].toString());
           }
@@ -514,7 +579,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         eq.lyrTableName = eq.lyrTableName.split('asset.')[1];
       }
       return eq;
-    })
+    });
     if (this.equipments.length > 0 && this.equipments[0] !== null) {
       this.nbEquipments = this.equipments.length.toString();
 
@@ -600,9 +665,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.layerService.getAllLayers().pipe(
       map((layersRef) => {
         const layer = layersRef.find(
-          (l) =>
-            l.lyrTableName ===
-            `${(eq ?? this.equipments[0]).lyrTableName}`
+          (l) => l.lyrTableName === `${(eq ?? this.equipments[0]).lyrTableName}`
         );
         return `${layer.lyrSlabel} - ${layer.domLLabel} `;
       })

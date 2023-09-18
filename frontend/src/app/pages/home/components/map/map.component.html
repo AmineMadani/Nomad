@@ -27,7 +27,7 @@
       </ion-fab-button>
     </ion-fab>
 
-    <div class="calculation-box  no-print" id="calculation-box" [class.calculation-box-mobile]="isMobile" *ngIf="measure !== undefined">
+    <div class="calculation-box  no-print" id="calculation-box" [class.calculation-box-mobile]="isMobile" *ngIf="getMeasuringCondition()">
       <span [innerHTML]="measure"></span>
     </div>
   </ng-container>

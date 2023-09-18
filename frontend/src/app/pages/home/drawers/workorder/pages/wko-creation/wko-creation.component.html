@@ -53,10 +53,10 @@
         </ion-select>
 
         <div class="wko-calendar">
-          <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
-            formControlName="wkoPlanningStartDate"></ion-input>
-          <ion-input type="text"  aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
-            formControlName="wkoPlanningEndDate"></ion-input>
+          <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *"
+            displayFormat="MM/DD/YYYY" placeholder="JJ/MM/AAAA" formControlName="wkoPlanningStartDate"></ion-input>
+          <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *"
+            placeholder="JJ/MM/AAAA" formControlName="wkoPlanningEndDate"></ion-input>
           <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
             <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
           </ion-button>
@@ -71,7 +71,16 @@
           <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)"
             [checked]="false" formControlName="wkoAppointment">Rendez-vous</ion-checkbox>
         </div>
-
+        <div class="wko-calendar" *ngIf="workorder?.wkoAppointment">
+          <ion-input type="time" aria-label="date" labelPlacement="floating" fill="outline" label="de *"
+            placeholder="HH:MM" formControlName="wkoPlanningStartHour"
+            (ionChange)="onStartHourChange('wkoPlanningStartHour',$event)"></ion-input>
+          <ion-input type="time" aria-label="date" labelPlacement="floating" fill="outline" label="a *"
+            placeholder="HH:MM" formControlName="wkoPlanningEndHour"></ion-input>
+        </div>
+        <div *ngIf="creationWkoForm.hasError('timeCompareInvalid') && workorder?.wkoAppointment" class="error-message">
+          <ion-note>L'heure de fin du Rendez-vous est inférieure à l'heure de début du Rendez-vous</ion-note>
+        </div>
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
           placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
       </ion-list>
@@ -83,8 +92,8 @@
     <ion-button fill="clear" (click)="onSubmit()" class="save-mode"
       [disabled]="isLoading || !creationWkoForm.valid || !userHasPermissionSendWorkorder">{{creationButonLabel}}</ion-button>
 
-    <ion-select aria-label="Sélectionner une action" label-placement="fixed" justify="start" interface="popover" with="500px"
-      (ionChange)="onCreationModeChange($event)" value="avec envoye à la planification">
+    <ion-select aria-label="Sélectionner une action" label-placement="fixed" justify="start" interface="popover"
+      with="500px" (ionChange)="onCreationModeChange($event)" value="avec envoye à la planification">
       <ion-select-option value="CREEAVECENVOIE" aria-label="" fill="clear"
         label=" ">{{defaultCreationLabel}}</ion-select-option>
       <ion-select-option value="CREE" aria-label="" fill="clear" label="" with="500px">
