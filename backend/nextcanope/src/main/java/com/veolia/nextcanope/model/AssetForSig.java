@@ -20,7 +20,8 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AssetForSig {
 
-    private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
+	private static final long serialVersionUID = 1L;
 
     //--- ENTITY PRIMARY KEY ---\\
     @Id
