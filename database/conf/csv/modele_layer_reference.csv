@@ -1365,7 +1365,7 @@ ass_drain;materiau;Matériau;text;11;SYNTHETIC;Caractéristiques patrimoine;
 ass_drain;longueur;Longueur;numeric;12;SYNTHETIC;Caractéristiques patrimoine;
 ass_drain;lib_recol;Récolement;text;13;DETAILED;Caractéristiques patrimoine;
 ass_drain;exploitant;Exploitant;text;20;SYNTHETIC;Caractéristiques réseau;
-ass_drain;type_eau;Type eau;text;21;DETAILED;Caractéristiques réseau;
+ass_drain;type_eau;Type eau;text;21;SYNTHETIC;Caractéristiques réseau;
 ass_drain;prec_clas;Classe précision;text;30;DETAILED;Localisation;
 ass_drain;commune;Commune;text;31;DETAILED;Localisation;
 ass_drain;rue;Rue;text;32;DETAILED;Localisation;
