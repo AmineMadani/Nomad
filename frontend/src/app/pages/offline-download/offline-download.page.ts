@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { Subject, takeUntil, takeWhile } from 'rxjs';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/core/services/offlineDownload.service';
 
 @Component({
@@ -12,14 +11,21 @@ export class OfflineDownloadPage implements OnInit {
   DownloadState = DownloadState;
 
   // Referential
-  referentialOfflineDownload: OfflineDownload;
+  referentialOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
   // Equipments
-  equipmentOfflineDownload: OfflineDownload;
+  equipmentOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
   // Basemaps
-  basemapOfflineDownload: OfflineDownload;
+  basemapOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
 
   constructor(
     private offlineDownloadService: OfflineDownloadService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -38,13 +44,14 @@ export class OfflineDownloadPage implements OnInit {
     this.offlineDownloadService.getBasemapOfflineDownload()
       .subscribe(offlineDownload => {
         this.basemapOfflineDownload = offlineDownload;
+        // Force changes because it's not detect otherwise
+        this.cd.detectChanges();
       });
   }
 
   onReferentialsDownload() {
     this.offlineDownloadService.downloadReferential();
   }
-
 
   onReferentialsDump() {
     this.offlineDownloadService.dumpReferential();

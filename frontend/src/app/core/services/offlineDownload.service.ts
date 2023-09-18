@@ -9,6 +9,7 @@ import { UserService } from './user.service';
 import { WorkorderService } from './workorder.service';
 import { PreferenceService } from './preference.service';
 import { BasemapOfflineService } from './basemapOffline.service';
+import { DownloadFileResult } from '@capacitor/filesystem';
 
 
 export enum DownloadState {
@@ -142,7 +143,7 @@ export class OfflineDownloadService {
       progressPercentage: 0
     });
 
-    const cachedValue: OfflineDownload = this.equipmentOfflineDownload.getValue();
+    const cachedValue: OfflineDownload = this.referentialOfflineDownload.getValue();
     this.preferenceService.setPreference('referentialDownload', JSON.stringify(cachedValue));
   }
 
@@ -158,10 +159,12 @@ export class OfflineDownloadService {
     const chunkSize = 5;
 
     // Get layers
-    this.layerService.getAllLayers().pipe(
+    forkJoin({
+      layers: this.layerService.getAllLayers(),
+      indexes: this.layerService.getLayerIndexes(),
+    }).pipe(
       // Get indexes
-      withLatestFrom(this.layerService.getLayerIndexes()),
-      switchMap(([layers, indexes]) => {
+      switchMap(({ layers, indexes }) => {
         const visibleLayers = layers.filter(layer => layer.lyrDisplay);
         const indexFiles: string[] = (indexes as any)['features'].map(i => i['properties']['file']);
         const nbTileCalls: number = visibleLayers.length * Math.ceil(indexFiles.length / chunkSize);
@@ -191,6 +194,13 @@ export class OfflineDownloadService {
             return EMPTY;
           })
         );
+      }),
+      catchError(error => {
+        console.error("Error during fetchLayers and indexes:", error);
+
+        this.dumpEquipments();
+
+        return EMPTY;
       })
     ).subscribe();
   }
@@ -231,28 +241,29 @@ export class OfflineDownloadService {
   }
 
   downloadBasemap() {
-    this.dumpBasemap();
-
     this.basemapOfflineDownload.next({
       state: DownloadState.IN_PROGRESS,
       progressPercentage: 0
     });
 
     this.basemapOfflineService.downloadOfflineData(
-      '/assets/sql-wasm.wasm',
-      (newPercentage) => {
+      'https://veolia-nomad-hp-basemaps.s3.amazonaws.com/67E.mbtiles?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA43GFG7DS7ASFLGLB%2F20230914%2Feu-west-3%2Fs3%2Faws4_request&X-Amz-Date=20230914T101022Z&X-Amz-Expires=604799&X-Amz-SignedHeaders=host&X-Amz-Signature=4629e7a9c179f447a7c1341c6d1dc7ba1eb8573bb0af4a1a6f3f046a3958f1fd',
+      (newPercentage: number) => {
         const currentOfflineDownload = this.basemapOfflineDownload.getValue();
-
-        this.basemapOfflineDownload.next({
-          ...currentOfflineDownload,
-          progressPercentage: newPercentage
-        });
+        if (currentOfflineDownload.progressPercentage !== newPercentage) {
+          this.basemapOfflineDownload.next({
+            ...currentOfflineDownload,
+            progressPercentage: newPercentage
+          });
+        }
       },
-      async () => {
+      (downloadFileResult: DownloadFileResult) => {
+        const sizeInMo = downloadFileResult.blob.size / (1024 * 1024);
+
         this.basemapOfflineDownload.next({
           state: DownloadState.DONE,
           progressPercentage: 100,
-          diskSize: '200 mo',
+          diskSize: `${sizeInMo.toFixed(2)} mo`,
           lastUpdateDate: new Date(),
         });
 
@@ -263,7 +274,7 @@ export class OfflineDownloadService {
   }
 
   dumpBasemap() {
-    // TODO this.cacheService.clearBasemap();
+    this.basemapOfflineService.deleteDatabase();
 
     this.basemapOfflineDownload.next({
       state: DownloadState.NOT_STARTED,
@@ -282,7 +293,7 @@ export class OfflineDownloadService {
 
   dumpAll() {
     this.dumpEquipments();
-    this.downloadBasemap();
+    this.dumpBasemap();
     this.dumpReferential();
   }
 
@@ -293,7 +304,7 @@ export class OfflineDownloadService {
     const newPercentage = currentOfflineDownload.progressPercentage + (100 / listSize);
     offlineDownloadSubject.next({
       ...currentOfflineDownload,
-      progressPercentage: newPercentage
+      progressPercentage: Number(newPercentage.toFixed(2))
     });
   }
 }

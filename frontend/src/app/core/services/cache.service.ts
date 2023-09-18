@@ -276,7 +276,7 @@ export class CacheService {
   }
 
   public clearTiles() {
-    this.db.referentials.clear();
+    this.db.tiles.clear();
   }
 
   public async getReferentialSize(): Promise<string> {
@@ -310,7 +310,7 @@ export class CacheService {
     // Convert size to Mo
     const sizeInMo = totalSize / (1024 * 1024);
 
-    return `${sizeInMo.toFixed(2)} Mo`;
+    return `${sizeInMo.toFixed(2)} mo`;
   }
 
 }
