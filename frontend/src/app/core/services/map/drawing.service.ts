@@ -94,7 +94,7 @@ export class DrawingService {
     const perimeter = this.convertPerimeter(
       turf.length(turf.lineString(coordinates), { units: 'meters' })
     );
-    return `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>Double-cliquez sur la carte pour terminer</i>`;
+    return `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>'Echap' pour terminer</i>`;
   }
 
   private convertArea(area: number): string {

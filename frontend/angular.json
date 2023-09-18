@@ -49,7 +49,14 @@
               "earcut",
               "maplibre-gl",
               "@mapbox/mapbox-gl-draw",
-              "mapbox-gl-draw-rectangle-mode"
+              "mapbox-gl-draw-rectangle-mode",
+              "@mapbox/point-geometry",
+              "@mapbox/geojson-area",
+              "@mapbox/geojson-extent",
+              "lodash.isequal",
+              "hat",
+              "xtend",
+              "@mapbox/geojson-normalize"
             ]
           },
           "configurations": {
