@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subject, filter, fromEvent, takeUntil } from 'rxjs';
+import { Subject, filter, firstValueFrom, fromEvent, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -9,7 +9,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-editor/models/form.model';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { GEOM_TYPE, LayerWithStyles } from 'src/app/core/models/layer.model';
+import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
 import { AssetForSigUpdateDto } from 'src/app/core/models/assetForSig.model';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { ReportValue } from 'src/app/core/models/workorder.model';
@@ -44,8 +44,8 @@ export class NewAssetDrawer implements OnInit {
   public listChildFilterAsset: FilterAsset[] = [];
   public listSelectedFilterAsset: FilterAsset[] = [];
   public selectedAsset: FilterAsset;
-  private listLayers: LayerWithStyles[] = [];
-  private layer: LayerWithStyles;
+  private listLayers: Layer[] = [];
+  private layer: Layer;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -61,11 +61,11 @@ export class NewAssetDrawer implements OnInit {
   async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
-    const listFormTemplate = await this.templateService.getFormsTemplate();
+    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
     this.listFilterAsset = JSON.parse(assetFilter.definition);
 
-    this.listLayers = await this.layerService.getLayers();
+    this.listLayers = await firstValueFrom(this.layerService.getAllLayers());
 
     this.mapService.onMapLoaded().pipe(
       filter((isMapLoaded) => isMapLoaded),
@@ -76,7 +76,7 @@ export class NewAssetDrawer implements OnInit {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
 
-        if (this.mapService.getMeasureEnded()) {
+        /*if (this.mapService.getMeasureEnded()) {
           this.mapService.cleanMesure();
           // ?
         }
@@ -84,7 +84,7 @@ export class NewAssetDrawer implements OnInit {
           this.coords = this.mapService.getMap().unproject(e.point);
           // TODO
           console.log(this.coords.lng, this.coords.lat);
-        }
+        }*/
       });
     });
   }
@@ -170,9 +170,9 @@ export class NewAssetDrawer implements OnInit {
         this.selectedAsset = selectedFilterAsset;
         this.layer = this.listLayers.find((layer) => layer.lyrTableName === this.selectedAsset.layerKey);
         if (this.layer.astGeomType === GEOM_TYPE.POINT) {
-          this.mapService.setDrawMode('draw_point');
+          //this.mapService.setDrawMode('draw_point');
         } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
-          this.mapService.setDrawMode('draw_line_string');
+          //this.mapService.setDrawMode('draw_line_string');
         }
         this.step++;
       }
@@ -185,7 +185,7 @@ export class NewAssetDrawer implements OnInit {
       if (!this.form) {
         this.isLoading = true;
 
-        const listFormTemplate = await this.templateService.getFormsTemplate();
+        const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
         const newAssetForm = listFormTemplate.find(form => form.formCode === 'NEW_ASSET_' + this.selectedAsset.layerKey.toUpperCase());
         if (newAssetForm) this.form = JSON.parse(newAssetForm.definition);
 
