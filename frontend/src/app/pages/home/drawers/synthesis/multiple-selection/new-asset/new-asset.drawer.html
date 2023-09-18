@@ -46,7 +46,9 @@
   <ng-container *ngIf="step === 2">
     <div class="question">Selection de la position de {{selectedAsset.layerKey}}</div>
     <div class="answers">
-      {{coords?.lng ?? '-'}} / {{coords?.lat ?? '-'}}
+      <ng-container *ngFor="let coord of coords; let i = index">
+        <p>Point {{i + 1}} - Lng: {{coord[0].toFixed(2)}} / Lat: {{coord[1].toFixed(2)}}</p> 
+      </ng-container>
     </div>
   </ng-container>
 
