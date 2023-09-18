@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, map } from 'rxjs';
+import { Observable, ReplaySubject, map, firstValueFrom } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
@@ -36,7 +36,7 @@ export class MapService {
     private mapEventService: MapEventService,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
-    private workorderService: WorkorderService,
+    private workorderService: WorkorderService
   ) {}
 
   public measureMessage: any[];
@@ -203,74 +203,74 @@ export class MapService {
       this.removeLoadingLayer.splice(removeIndex, 1);
     }
 
-    // Get all layers
-    this.layerService.getAllLayers().subscribe((layers) => {
-      this.layersConfiguration = layers;
+    // Get all layers - the call can not be observable (thus the firstValueFrom) because of the resolve at the end
+    const layers = await firstValueFrom(this.layerService.getAllLayers());
 
-      //If style loading in queue
-      if (this.loadingStyle.get(layerKey)) {
-        if (!this.loadingStyle.get(layerKey)[styleKey]) {
-          this.loadingStyle.get(layerKey).push(styleKey);
-        }
-      } else {
-        this.loadingStyle.set(layerKey, [styleKey]);
+    this.layersConfiguration = layers;
+
+    //If style loading in queue
+    if (this.loadingStyle.get(layerKey)) {
+      if (!this.loadingStyle.get(layerKey)[styleKey]) {
+        this.loadingStyle.get(layerKey).push(styleKey);
       }
+    } else {
+      this.loadingStyle.set(layerKey, [styleKey]);
+    }
 
-      //If layer is loaded
-      if (this.loadedLayer.indexOf(layerKey) >= 0) {
-        this.displayLayer(layerKey);
-        return new Promise<void>((resolve) => resolve());
-      } else {
-        //If layer is on loading (has event)
-        if (this.loadingLayer.has(layerKey)) {
-          return this.loadingLayer.get(layerKey);
-        }
-        //else create the layer
-        const layer: MaplibreLayer = new MaplibreLayer(
-          this.layersConfiguration.find(
-            (element) => element.lyrTableName == layerKey
-          ),
-          this.map
-        );
-        this.layers.set(layerKey, layer);
-        if (!this.map.isZooming()) {
-          this.map.zoomTo(this.map.getZoom() + 0.0001);
-        }
-        this.map.addSource(layerKey, layer.source);
+    //If layer is loaded
+    if (this.loadedLayer.indexOf(layerKey) >= 0) {
+      this.displayLayer(layerKey);
+      return new Promise<void>((resolve) => resolve());
+    } else {
+      //If layer is on loading (has event)
+      if (this.loadingLayer.has(layerKey)) {
+        return this.loadingLayer.get(layerKey);
+      }
+      //else create the layer
+      const layer: MaplibreLayer = new MaplibreLayer(
+        this.layersConfiguration.find(
+          (element) => element.lyrTableName == layerKey
+        ),
+        this.map
+      );
+      this.layers.set(layerKey, layer);
+      if (!this.map.isZooming()) {
+        this.map.zoomTo(this.map.getZoom() + 0.0001);
+      }
+      this.map.addSource(layerKey, layer.source);
 
-        for (let style of layer.style) {
-          setTimeout(() => {
-            this.map.addLayer(style);
-          });
-        }
-
-        const layerPromise = new Promise<void>((resolve) => {
-          this.map.once('idle', async (e) => {
-            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-            for (let i = 0; i < 6; i++) {
-              if (this.map.querySourceFeatures(layerKey).length > 0) {
-                break;
-              }
-              await sleep(500);
-            }
-            this.displayLayer(layerKey);
-            this.loadedLayer.push(layerKey);
-            this.loadingLayer.delete(layerKey);
-            //Case if user click on remove layer before loaded
-            const removeIndex = this.removeLoadingLayer.indexOf(
-              layerKey + (styleKey ? styleKey : '')
-            );
-            if (removeIndex >= 0) {
-              this.removeEventLayer(layerKey, styleKey);
-            }
-            this.reorderMapStyleDisplay();
-            resolve();
-          });
+      for (let style of layer.style) {
+        setTimeout(() => {
+          this.map.addLayer(style);
         });
-        this.loadingLayer.set(layerKey, layerPromise);
-        return layerPromise;
       }
-    });
+
+      const layerPromise = new Promise<void>((resolve) => {
+        this.map.once('idle', async (e) => {
+          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+          for (let i = 0; i < 6; i++) {
+            if (this.map.querySourceFeatures(layerKey).length > 0) {
+              break;
+            }
+            await sleep(500);
+          }
+          this.displayLayer(layerKey);
+          this.loadedLayer.push(layerKey);
+          this.loadingLayer.delete(layerKey);
+          //Case if user click on remove layer before loaded
+          const removeIndex = this.removeLoadingLayer.indexOf(
+            layerKey + (styleKey ? styleKey : '')
+          );
+          if (removeIndex >= 0) {
+            this.removeEventLayer(layerKey, styleKey);
+          }
+          this.reorderMapStyleDisplay();
+          resolve();
+        });
+      });
+      this.loadingLayer.set(layerKey, layerPromise);
+      return layerPromise;
+    }
   }
 
   /**
@@ -278,9 +278,7 @@ export class MapService {
    */
   private reorderMapStyleDisplay() {
     let layerSorted = this.layersConfiguration
-      .filter((layer) =>
-        this.loadedLayer.includes(layer.lyrTableName)
-      )
+      .filter((layer) => this.loadedLayer.includes(layer.lyrTableName))
       .sort((a, b) => a.lyrNumOrder - b.lyrNumOrder);
     for (let lyr of layerSorted) {
       for (let style of lyr.listStyle) {
@@ -339,7 +337,8 @@ export class MapService {
       for (const [key, values] of filters) {
         if (key.toLowerCase().includes('date')) {
           filter.push(['>=', ['get', key], ['literal', values[0]]]);
-          if (values?.[1]) filter.push(['<=', ['get', key], ['literal', values[1]]]);
+          if (values?.[1])
+            filter.push(['<=', ['get', key], ['literal', values[1]]]);
         } else {
           filter.push(['in', ['get', key], ['literal', values]]);
         }
@@ -560,7 +559,7 @@ export class MapService {
         }
         let result: any = {
           layer: key,
-          listTile: listTile
+          listTile: listTile,
         };
         return result;
       })
@@ -699,8 +698,9 @@ export class MapService {
     const clipboardText: string =
       role === localisationExportMode.gpsCoordinates
         ? `latitude: ${latitude}, longitude: ${longitude}`
-        : `${this.configurationService.host
-        }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
+        : `${
+            this.configurationService.host
+          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
 
     await Clipboard.write({ string: clipboardText });
 
