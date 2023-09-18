@@ -160,6 +160,17 @@ export class LayerService {
     );
   }
 
+  /**
+   * Method to get the wanted layer by key name
+   * @returns the selected layer
+   */
+  public async getLayerByKey(key: string): Promise<Layer> {
+    return (await firstValueFrom(this.cacheService.fetchReferentialsData<Layer[]>(
+      ReferentialCacheKey.LAYERS,
+      () => this.layerDataService.getAllLayers()
+    ))).find(layer => layer.lyrTableName == key);
+  }
+
   public getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
     return firstValueFrom(
       this.layerDataService.getEquipmentByLayerAndId(layer, id)
