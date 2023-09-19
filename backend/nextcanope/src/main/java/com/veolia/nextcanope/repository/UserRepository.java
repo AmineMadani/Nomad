@@ -3,7 +3,6 @@ package com.veolia.nextcanope.repository;
 import com.veolia.nextcanope.configuration.NomadRepository;
 
 import com.veolia.nextcanope.model.Users;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 

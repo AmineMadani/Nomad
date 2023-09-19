@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.veolia.nextcanope.constants.ConfigConstants;
-
 /**
  * LayerRepositoryImpl is a repository class for managing layer-related data in the persistence layer.
  * It uses JdbcTemplate for executing SQL queries.

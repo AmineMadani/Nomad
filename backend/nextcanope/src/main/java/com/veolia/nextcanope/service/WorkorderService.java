@@ -20,9 +20,6 @@ import com.veolia.nextcanope.exception.TechnicalException;
  */
 @Service
 public class WorkorderService {
-
-    @Autowired
-    private WorkorderRepositoryImpl workOrderRepositoryImpl;
     
     @Autowired
     private WorkorderRepository workOrderRepository;
