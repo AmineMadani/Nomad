@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subject, filter, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -10,10 +10,11 @@ import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-ed
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
-import { AssetForSigUpdateDto } from 'src/app/core/models/assetForSig.model';
-import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
-import { ReportValue } from 'src/app/core/models/workorder.model';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
+import { ReportValue, Workorder } from 'src/app/core/models/workorder.model';
+import { ActivatedRoute } from '@angular/router';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
   selector: 'app-new-asset',
@@ -28,8 +29,9 @@ export class NewAssetDrawer implements OnInit {
     private utils: UtilsService,
     private mapService: MapService,
     private layerService: LayerService,
-    private assetForSigService: AssetForSigService,
-    private mapEventService: MapEventService
+    private mapEventService: MapEventService,
+    private activatedRoute: ActivatedRoute,
+    private workorderService: WorkorderService,
   ) { }
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
@@ -37,6 +39,8 @@ export class NewAssetDrawer implements OnInit {
   public drawerTitle: string = 'Nouveau Patrimoine';
 
   public isMobile: boolean = false;
+
+  private wkoDraft: number = null;
 
   public step: number = 1;
 
@@ -62,6 +66,8 @@ export class NewAssetDrawer implements OnInit {
 
   async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
+
+    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
 
     const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
@@ -233,24 +239,35 @@ export class NewAssetDrawer implements OnInit {
     this.drawerService.closeDrawer();
   }
 
-  private createNewAsset(listAssetProperties) {
+  private async createNewAsset(listAssetProperties) {
     let afsGeom: string = null;
-    // if (this.layer.astGeomType === GEOM_TYPE.POINT) {
-    //   afsGeom = `POINT (${this.coords.lng} ${this.coords.lat})`;
-    // } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
-    //   afsGeom = 'LINESTRING (-1.6801293695429136 47.162501924757024, -1.6800756542707658 47.162528839771035)';
-    // }
+    if (this.layer.astGeomType === GEOM_TYPE.POINT) {
+      afsGeom = `POINT (${this.coords[0][0]} ${this.coords[0][1]})`;
+    } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
+      afsGeom = 'LINESTRING (' +  this.coords.map((coord) => coord[0] + ' ' + coord[1]).join(', ') + ')';
+    }
 
-    const assetForSig: AssetForSigUpdateDto = {
-      id: null,
+    const assetForSig: AssetForSigDto = {
+      id: this.utils.createCacheId(),
       lyrId: this.layer.id,
       afsGeom: afsGeom,
       afsInformations: JSON.stringify(listAssetProperties),
     }
 
-    this.assetForSigService.createAssetForSig(assetForSig).subscribe((id) => {
-      // TODO
-    });
+    if (this.wkoDraft) {
+      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      wko.tasks.push({
+        id: this.utils.createCacheId(),
+        assObjTable: this.layer.lyrTableName,
+        assObjRef: "TMP-" + assetForSig.id,
+        longitude: this.coords[0][0],
+        latitude: this.coords[0][1],
+        assetForSig: assetForSig,
+      });
+      await this.workorderService.saveCacheWorkorder(wko);
+    }
+
+    this.drawerService.setLocationBack();
   }
 
   // ##### HIDDEN ##### //

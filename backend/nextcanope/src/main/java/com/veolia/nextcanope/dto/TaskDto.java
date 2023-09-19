@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.veolia.nextcanope.dto.assetForSig.AssetForSigUpdateDto;
 import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.Task;
 
@@ -29,6 +30,8 @@ public class TaskDto {
     private Date tskReportDate;
     
     private ReportDto report;
+
+    private AssetForSigUpdateDto assetForSig;
 
     public Long getId() {
         return id;
@@ -110,7 +113,15 @@ public class TaskDto {
 		this.report = report;
 	}
 
-	public TaskDto() {
+    public AssetForSigUpdateDto getAssetForSig() {
+        return assetForSig;
+    }
+
+    public void setAssetForSig(AssetForSigUpdateDto assetForSig) {
+        this.assetForSig = assetForSig;
+    }
+
+    public TaskDto() {
 		super();
 	}
 

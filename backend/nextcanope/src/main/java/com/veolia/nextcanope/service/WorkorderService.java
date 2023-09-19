@@ -51,6 +51,9 @@ public class WorkorderService {
 	@Autowired
 	private WorkOrderTaskStatusRepository workOrderTaskStatusRepository;
 
+	@Autowired
+	private AssetForSigService assetForSigService;
+
 
 	public Workorder getWorkOrderById(Long id) {
 		return workOrderRepository.findById(id).orElseThrow(() -> new FunctionalException("L'intervention avec l'id " + id + " n'existe pas."));
@@ -171,6 +174,12 @@ public class WorkorderService {
 			// Get or create asset
 			Asset asset = assetService.getNewOrExistingAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), userId);
 			task.setAsset(asset);
+
+			// Asset for SIG
+			if (taskDto.getAssetForSig() != null) {
+				assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
+			}
+
 			// Get Reason
 			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);

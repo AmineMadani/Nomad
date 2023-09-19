@@ -164,6 +164,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 : t.assObjTable,
               x: t.longitude,
               y: t.latitude,
+              assetForSig: t.assetForSig,
             };
           });
 
@@ -191,8 +192,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               assObjRef: eq.id,
               assObjTable: eq.lyrTableName,
               wtrId: wtrId,
-              latitude: this.markerCreation.get(eq.id).getLngLat().lat,
-              longitude: this.markerCreation.get(eq.id).getLngLat().lng,
+              latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
+              longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
             };
           });
         }
@@ -390,8 +391,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           assObjRef: eq.id,
           assObjTable: eq.lyrTableName,
           wtrId: wtrId,
-          latitude: this.markerCreation.get(eq.id).getLngLat().lat,
-          longitude: this.markerCreation.get(eq.id).getLngLat().lng,
+          latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
+          longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
+          assetForSig: eq.assetForSig,
         };
       });
     }
@@ -682,6 +684,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
+          if (eq.assetForSig != null) continue;
+
           const geom = await this.mapLayerService.getCoordinateFeaturesById(
             eq.lyrTableName,
             eq.id

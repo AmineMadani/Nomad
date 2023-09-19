@@ -1,3 +1,5 @@
+import { AssetForSigDto } from './assetForSig.model';
+
 export interface Workorder {
     id?: number;
     wkoName?: number;
@@ -46,6 +48,7 @@ export interface Task {
     tskReportDate?: Date;
     report?: Report;
     isSelectedTask?: boolean;
+    assetForSig?: AssetForSigDto;
 }
 
 export interface Report {

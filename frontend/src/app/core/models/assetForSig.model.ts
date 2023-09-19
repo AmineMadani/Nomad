@@ -1,4 +1,4 @@
-export interface AssetForSigUpdateDto {
+export interface AssetForSigDto {
   id: number;
   lyrId: number;
   afsGeom: string;
