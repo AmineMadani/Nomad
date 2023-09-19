@@ -19,6 +19,8 @@ export class DrawingService {
 
   private draw: MapboxDraw;
 
+  
+  private drawActive: boolean = false;
   private isMeasuring: boolean = false;
 
   public getDraw(): MapboxDraw {
@@ -34,11 +36,21 @@ export class DrawingService {
   }
 
   public setIsMeasuring(isMeasuring: boolean) {
+    if (isMeasuring && this.drawActive) this.drawActive = false;
     this.isMeasuring = isMeasuring;
   }
 
+  public getDrawActive(): boolean {
+    return this.drawActive;
+  }
+
+  public setDrawActive(active: boolean) {
+    if (active && this.isMeasuring) this.isMeasuring = false;
+    this.drawActive = active;
+  }
+
   public endMesure(clean?: boolean): void {
-    this.isMeasuring = false;
+    this.setIsMeasuring(false);
     if (clean) {
       this.deleteDrawing();
     }
@@ -49,6 +61,7 @@ export class DrawingService {
   }
 
   public setDrawMode(mode: string): void {
+    this.setDrawActive(true);
     this.draw.changeMode(mode);
   }
 

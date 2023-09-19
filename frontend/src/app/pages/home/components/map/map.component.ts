@@ -17,7 +17,7 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, forkJoin, switchMap } from 'rxjs';
+import { debounceTime, first, forkJoin, switchMap, filter } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
@@ -483,12 +483,14 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private addEvents(): void {
     fromEvent(this.map, 'mousemove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e) => {
+      .pipe(
+        takeUntil(this.ngUnsubscribe$), 
+        filter(() => !this.isMobile)
+      ).subscribe((e) => {
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
-        if (this.drawingService.getIsMeasuring() && !this.isMobile) {
-          canvasElement.classList.add('cursor-pointer');
+        if (this.drawingService.getIsMeasuring()) {
+          canvasElement.classList.add('cursor-mesure');
           //for the area calculation box move
           const resumeBox = document.getElementById('calculation-box');
           if (resumeBox) {
@@ -497,8 +499,11 @@ export class MapComponent implements OnInit, OnDestroy {
             resumeBox.style.transform = `translate(${x}px, ${y}px)`;
           }
         }
-        if (!this.drawingService.getIsMeasuring()) {
+        else if (this.drawingService.getDrawActive()) {
+          canvasElement.classList.add('cursor-pointer');
+        } else {
           canvasElement.classList.remove('cursor-mesure');
+          canvasElement.classList.remove('cursor-pointer');
         }
       });
 
@@ -565,6 +570,7 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: any) => {
         if (!this.drawingService.getIsMeasuring()) {
+          this.drawingService.setDrawActive(false);
           this.drawingService.deleteDrawing();
           const fireEvent = this.mapEvent.isFeatureFiredEvent;
 

@@ -411,8 +411,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       form.wkoPlanningEndHour
     );
 
-
-
     this.workorder.wkoDmod = new Date();
     if (!this.workorder.id) {
       this.workorder.id = this.utils.createCacheId();
@@ -542,7 +540,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (control) {
         if (this.workorder[key] != null) {
           if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
-            console.log('this.workorder[key]', key + '-' + this.workorder[key]);
             if (key == 'wkoPlanningStartDate') {
               this.creationWkoForm.controls['wkoPlanningStartHour'].setValue(
                 this.datePipe.transform(this.workorder[key], 'HH:mm')

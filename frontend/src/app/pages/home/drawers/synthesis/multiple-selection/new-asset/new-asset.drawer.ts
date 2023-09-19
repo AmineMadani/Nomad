@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subject, filter, firstValueFrom, fromEvent, takeUntil } from 'rxjs';
+import { Subject, filter, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -13,6 +13,7 @@ import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
 import { AssetForSigUpdateDto } from 'src/app/core/models/assetForSig.model';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { ReportValue } from 'src/app/core/models/workorder.model';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-new-asset',
@@ -28,6 +29,7 @@ export class NewAssetDrawer implements OnInit {
     private mapService: MapService,
     private layerService: LayerService,
     private assetForSigService: AssetForSigService,
+    private mapEventService: MapEventService
   ) { }
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
@@ -71,6 +73,7 @@ export class NewAssetDrawer implements OnInit {
   ngOnDestroy(): void {
     this.terminateDrawing$.next();
     this.terminateDrawing$.complete();
+    this.mapEventService.isFeatureFiredEvent = false;
   }
 
   public selectFilterAsset(filterAsset: FilterAsset): void {
@@ -393,6 +396,7 @@ export class NewAssetDrawer implements OnInit {
   }
 
   private addDrawingLayer(nPoints?: number): void {
+    this.mapEventService.isFeatureFiredEvent = true;
     const map = this.mapService.getMap();
 
     const geojson = {
@@ -445,7 +449,7 @@ export class NewAssetDrawer implements OnInit {
       this.addExistingCoords(map, geojson, linestring);
     }
 
-    fromEvent(map, 'click')
+    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend')) 
       .pipe(takeUntil(this.terminateDrawing$))
       .subscribe((e) => {
         const features = map.queryRenderedFeatures(e.point, {
@@ -551,5 +555,6 @@ export class NewAssetDrawer implements OnInit {
     this.mapService.getMap().removeLayer('measure-lines');
     this.mapService.getMap().removeSource('geojson');
     this.terminateDrawing$.next();
+    this.mapEventService.isFeatureFiredEvent = false;
   }
 }

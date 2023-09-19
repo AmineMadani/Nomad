@@ -40,4 +40,6 @@ public interface TaskSearchDto {
     Integer getWkoAgentNb();
 
     String getWkoCreationComment();
+
+    String getAssObjTable();
 }

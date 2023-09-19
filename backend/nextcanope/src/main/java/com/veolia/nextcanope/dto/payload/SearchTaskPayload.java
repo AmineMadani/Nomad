@@ -9,6 +9,8 @@ public class SearchTaskPayload {
 
     public List<Long> wtrIds;
 
+    public List<String> assObjTables;
+
     public Date wkoPlanningStartDate;
 
     public Date wkoPlanningEndDate;

@@ -72,9 +72,10 @@ public class WorkorderService {
 	 * @return the workorder list
 	 */
     public List<TaskSearchDto> getWorkOrdersWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, SearchTaskPayload searchParameter, Long userId) {
-		searchParameter.wtsIds = searchParameter.wtsIds == null ? new ArrayList<>() : searchParameter.wtsIds;
-		searchParameter.wtrIds = searchParameter.wtrIds == null ? new ArrayList<>() : searchParameter.wtrIds;
-		return workOrderRepository.getTaskWithPaginationAndFilters(searchParameter.wtsIds, searchParameter.wtrIds, searchParameter.wkoAppointment, searchParameter.wkoEmergency, searchParameter.wkoPlanningStartDate, searchParameter.wkoPlanningEndDate, limit, offset, userId);
+		if (searchParameter.wtrIds == null) searchParameter.wtrIds = new ArrayList<>();
+		if (searchParameter.wtsIds == null) searchParameter.wtsIds = new ArrayList<>();
+		if (searchParameter.assObjTables == null) searchParameter.assObjTables = new ArrayList<>();
+		return workOrderRepository.getTaskWithPaginationAndFilters(searchParameter.wtsIds, searchParameter.wtrIds, searchParameter.wkoAppointment, searchParameter.wkoEmergency, searchParameter.wkoPlanningStartDate, searchParameter.wkoPlanningEndDate, searchParameter.assObjTables, limit, offset, userId);
     }
 
 	/**

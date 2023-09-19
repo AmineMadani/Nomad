@@ -97,4 +97,5 @@ export interface TaskPaginated {
   wkoPlanningEndDate?: string;
   wtrIds?: number[];
   wtsIds?: number[];
+  assObjTables?: string[];
 }

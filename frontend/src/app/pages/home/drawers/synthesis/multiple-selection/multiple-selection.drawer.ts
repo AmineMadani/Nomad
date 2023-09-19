@@ -275,18 +275,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.mapEventService.isFeatureFiredEvent = true;
     switch (mode) {
       case 'polygon':
-        (
-          document.getElementsByClassName(
-            'mapbox-gl-draw_ctrl-draw-btn'
-          )[0] as HTMLButtonElement
-        ).click();
+        this.drawingService.setDrawMode('draw_polygon');
         break;
       case 'rect':
-        (
-          document.getElementsByClassName(
-            'mapbox-gl-draw_ctrl-draw-btn'
-          )[0] as HTMLButtonElement
-        ).click();
         this.drawingService.setDrawMode('draw_rectangle');
         break;
       case 'unit':

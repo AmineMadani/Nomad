@@ -49,21 +49,11 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   }
 
   public onClickDrawingPolygone(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
     this.toolboxPopover.dismiss();
     this.drawingService.setDrawMode('draw_polygon');
   }
 
   public onClickDrawingRectangle(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
     this.toolboxPopover.dismiss();
     this.drawingService.setDrawMode('draw_rectangle');
   }

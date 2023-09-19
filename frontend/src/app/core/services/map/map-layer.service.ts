@@ -287,7 +287,6 @@ export class MapLayerService {
 
   public hideFeature(layerKey: string, featureId: string): void {
     const layer = this.mapService.getLayer(layerKey);
-    console.log(layer);
     for (const style of layer.style) {
       this.mapService.getMap().setFilter(style.id, ['!=', 'id', featureId]);
     }
