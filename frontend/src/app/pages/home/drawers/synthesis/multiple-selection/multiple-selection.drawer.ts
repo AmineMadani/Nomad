@@ -179,6 +179,21 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
+    // Add tempory new asset
+    const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+    const listTaskOnNewAsset = wko.tasks.filter((task) => task.assObjRef?.startsWith('TMP-'));
+    for (const task of listTaskOnNewAsset) {
+      abstractFeatures.push(
+        {
+          id: task.assObjRef,
+          lyrTableName: task.assObjTable,
+          x: task.longitude,
+          y: task.latitude,
+          isTemp: true,
+        }
+      );
+    }
+
     const promises: Promise<void>[] = abstractFeatures.map(
       ({ lyrTableName }) => {
         return this.mapService.addEventLayer(lyrTableName);
@@ -197,18 +212,24 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     });
 
     this.featuresSelected = abstractFeatures.map((absF: any) => {
-      return {
-        ...this.mapLayerService.getFeatureById(absF.lyrTableName, absF.id)
-          .properties,
-        lyrTableName: absF.lyrTableName,
-      };
+      if (absF.isTemp === true) {
+        return absF;
+      } else {
+        return {
+          ...this.mapLayerService.getFeatureById(absF.lyrTableName, absF.id)
+            .properties,
+          lyrTableName: absF.lyrTableName,
+        };
+      }
     });
 
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
-      this.featuresSelected.map((f: any) => {
+      this.featuresSelected
+      .filter((f) => f.isTemp !== true)
+      .map((f: any) => {
         return { id: f.id, source: f.lyrTableName };
       })
     );
@@ -254,7 +275,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         if (this.wkoDraft) {
           this.drawerService.navigateTo(
             DrawerRouteEnum.NEW_ASSET,
-            [ this.wkoDraft ],
+            [],
+            { 
+              draft: this.wkoDraft, 
+            }
           );
         } else {
           this.drawerService.navigateTo(
@@ -275,18 +299,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.mapEventService.isFeatureFiredEvent = true;
     switch (mode) {
       case 'polygon':
-        (
-          document.getElementsByClassName(
-            'mapbox-gl-draw_ctrl-draw-btn'
-          )[0] as HTMLButtonElement
-        ).click();
+        this.drawingService.setDrawMode('draw_polygon');
         break;
       case 'rect':
-        (
-          document.getElementsByClassName(
-            'mapbox-gl-draw_ctrl-draw-btn'
-          )[0] as HTMLButtonElement
-        ).click();
         this.drawingService.setDrawMode('draw_rectangle');
         break;
       case 'unit':
@@ -309,6 +324,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public openFeature(feature: any): void {
+    if (feature.isTemp === true) return;
+
     this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [feature.id], {
       lyrTableName: feature.lyrTableName,
     });

@@ -9,7 +9,6 @@
         [class.highlight]="featureIdSelected === feature.id || featuresHighlighted.includes(feature)" (click)="openFeature(feature)"
         (mouseenter)="highlightSelectedFeature(feature)" (mouseleave)="highlightSelectedFeature(undefined)">
         <ion-item lines="none" color="none">
-          <ion-icon slot="start" name="attach-outline"></ion-icon>
           <ion-label>
             <ion-label class="ion-no-margin">
               {{ getLyrLabel(feature.lyrTableName) }}
@@ -19,7 +18,7 @@
             </ion-note>
           </ion-label>
           <ion-label slot="end">
-            <ion-button fill="clear" (click)="bounceToFeature($event, feature)" >
+            <ion-button fill="clear" (click)="bounceToFeature($event, feature)" *ngIf="feature.isTemp !== true">
               <ion-icon slot="icon-only" class="locate-icon" [class.hightlight-icon]="featuresHighlighted.includes(feature)" name="locate-outline">
               </ion-icon>
             </ion-button>

@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UtilsService } from './utils.service';
-import { ConfigurationService } from './configuration.service';
 import { AssetForSigDataService } from './dataservices/assetForSig.dataservice';
-import { AssetForSigUpdateDto } from '../models/assetForSig.model';
+import { AssetForSigDto } from '../models/assetForSig.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +10,6 @@ export class AssetForSigService {
 
   constructor(
     private assetForSigDataService: AssetForSigDataService,
-    private utilsService: UtilsService,
-    private configurationService: ConfigurationService
   ) {
   }
 
@@ -22,7 +18,7 @@ export class AssetForSigService {
    * @param assetForSig the asset
    * @returns the asset
    */
-  public createAssetForSig(assetForSig: AssetForSigUpdateDto): Observable<any> {
+  public createAssetForSig(assetForSig: AssetForSigDto): Observable<any> {
     return this.assetForSigDataService.createAssetForSig(assetForSig);
   }
 }

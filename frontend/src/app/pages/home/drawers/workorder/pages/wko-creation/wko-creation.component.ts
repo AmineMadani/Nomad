@@ -164,6 +164,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 : t.assObjTable,
               x: t.longitude,
               y: t.latitude,
+              assetForSig: t.assetForSig,
             };
           });
 
@@ -191,8 +192,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               assObjRef: eq.id,
               assObjTable: eq.lyrTableName,
               wtrId: wtrId,
-              latitude: this.markerCreation.get(eq.id).getLngLat().lat,
-              longitude: this.markerCreation.get(eq.id).getLngLat().lng,
+              latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
+              longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
             };
           });
         }
@@ -390,8 +391,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           assObjRef: eq.id,
           assObjTable: eq.lyrTableName,
           wtrId: wtrId,
-          latitude: this.markerCreation.get(eq.id).getLngLat().lat,
-          longitude: this.markerCreation.get(eq.id).getLngLat().lng,
+          latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
+          longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
+          assetForSig: eq.assetForSig,
         };
       });
     }
@@ -410,8 +412,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       form.wkoPlanningEndDate,
       form.wkoPlanningEndHour
     );
-
-
 
     this.workorder.wkoDmod = new Date();
     if (!this.workorder.id) {
@@ -542,7 +542,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (control) {
         if (this.workorder[key] != null) {
           if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
-            console.log('this.workorder[key]', key + '-' + this.workorder[key]);
             if (key == 'wkoPlanningStartDate') {
               this.creationWkoForm.controls['wkoPlanningStartHour'].setValue(
                 this.datePipe.transform(this.workorder[key], 'HH:mm')
@@ -685,6 +684,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
+          if (eq.id.startsWith('TMP-')) continue;
+
           const geom = await this.mapLayerService.getCoordinateFeaturesById(
             eq.lyrTableName,
             eq.id

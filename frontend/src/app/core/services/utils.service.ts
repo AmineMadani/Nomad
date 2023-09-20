@@ -265,7 +265,13 @@ export class UtilsService {
   }
 
   public convertToDateWithTime(dateStr: string, time: string): Date {
-    const dateLuxon: DateTime = DateTime.fromFormat(dateStr +' '+ time, 'dd/MM/yyyy HH:mm');
+    if (!time) {
+      return this.convertToDateISO(dateStr);
+    }
+    const dateLuxon: DateTime = DateTime.fromFormat(
+      dateStr + ' ' + time,
+      'dd/MM/yyyy HH:mm'
+    );
     return dateLuxon.toJSDate();
   }
 

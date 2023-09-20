@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
 import { Observable } from 'rxjs';
 import { ApiSuccessResponse } from '../../models/api-response.model';
-import { AssetForSigUpdateDto } from '../../models/assetForSig.model';
+import { AssetForSigDto } from '../../models/assetForSig.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +26,7 @@ export class AssetForSigDataService {
    * @param assetForSig: asset for sig
    * @returns A response message if successfull, else return an error.
    */
-  public createAssetForSig(assetForSig: AssetForSigUpdateDto):Observable<any> {
+  public createAssetForSig(assetForSig: AssetForSigDto):Observable<any> {
     return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}asset-for-sig/create`, assetForSig);
   }
 }

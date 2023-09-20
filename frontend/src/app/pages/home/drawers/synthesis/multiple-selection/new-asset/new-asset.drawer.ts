@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Subject, filter, firstValueFrom, fromEvent, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -10,9 +10,11 @@ import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-ed
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
-import { AssetForSigUpdateDto } from 'src/app/core/models/assetForSig.model';
-import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
-import { ReportValue } from 'src/app/core/models/workorder.model';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
+import { ReportValue, Workorder } from 'src/app/core/models/workorder.model';
+import { ActivatedRoute } from '@angular/router';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
   selector: 'app-new-asset',
@@ -27,7 +29,9 @@ export class NewAssetDrawer implements OnInit {
     private utils: UtilsService,
     private mapService: MapService,
     private layerService: LayerService,
-    private assetForSigService: AssetForSigService,
+    private mapEventService: MapEventService,
+    private activatedRoute: ActivatedRoute,
+    private workorderService: WorkorderService,
   ) { }
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
@@ -35,6 +39,8 @@ export class NewAssetDrawer implements OnInit {
   public drawerTitle: string = 'Nouveau Patrimoine';
 
   public isMobile: boolean = false;
+
+  private wkoDraft: number = null;
 
   public step: number = 1;
 
@@ -61,6 +67,8 @@ export class NewAssetDrawer implements OnInit {
   async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
+    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+
     const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
     this.listFilterAsset = JSON.parse(assetFilter.definition);
@@ -69,7 +77,7 @@ export class NewAssetDrawer implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.terminateDrawing$.next();
+    this.removeDrawingLayer();
     this.terminateDrawing$.complete();
   }
 
@@ -89,7 +97,8 @@ export class NewAssetDrawer implements OnInit {
         this.layer = null;
 
         // And unselect the coordonates
-        this.coords = null;
+        this.removeDrawingLayer();
+        this.coords = [];
 
         // And delete the form
         this.form = null;
@@ -114,15 +123,8 @@ export class NewAssetDrawer implements OnInit {
     } else if (this.step === 2) {
       // Second step
       // Go to the previous step
-      this.removeDrawingLayer();
       this.step--;
     } else if (this.step === 3) {
-        this.layer = this.listLayers.find((layer) => layer.lyrTableName === this.selectedAsset.layerKey);
-        if (this.layer.astGeomType === GEOM_TYPE.POINT) {
-          this.addDrawingLayer(1);
-        } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
-          this.addDrawingLayer();
-        }
       // Third step
       // If there is no previous question
       if (this.indexQuestion === 0) {
@@ -183,7 +185,6 @@ export class NewAssetDrawer implements OnInit {
         this.isLoading = false;
       }
     } else if (this.step === 3) {
-      
       // Third step
       // Check if the answer is valid
       let child = this.formEditor.sections[0].children[this.formEditor.indexQuestion];
@@ -230,24 +231,202 @@ export class NewAssetDrawer implements OnInit {
     this.drawerService.closeDrawer();
   }
 
-  private createNewAsset(listAssetProperties) {
+  private async createNewAsset(listAssetProperties) {
     let afsGeom: string = null;
-    // if (this.layer.astGeomType === GEOM_TYPE.POINT) {
-    //   afsGeom = `POINT (${this.coords.lng} ${this.coords.lat})`;
-    // } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
-    //   afsGeom = 'LINESTRING (-1.6801293695429136 47.162501924757024, -1.6800756542707658 47.162528839771035)';
-    // }
+    if (this.layer.astGeomType === GEOM_TYPE.POINT) {
+      afsGeom = `POINT (${this.coords[0][0]} ${this.coords[0][1]})`;
+    } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
+      afsGeom = 'LINESTRING (' +  this.coords.map((coord) => coord[0] + ' ' + coord[1]).join(', ') + ')';
+    }
 
-    const assetForSig: AssetForSigUpdateDto = {
-      id: null,
+    const assetForSig: AssetForSigDto = {
+      id: this.utils.createCacheId(),
       lyrId: this.layer.id,
       afsGeom: afsGeom,
       afsInformations: JSON.stringify(listAssetProperties),
+      coords: this.coords,
     }
 
-    this.assetForSigService.createAssetForSig(assetForSig).subscribe((id) => {
-      // TODO
+    if (this.wkoDraft) {
+      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      wko.tasks.push({
+        id: this.utils.createCacheId(),
+        assObjTable: this.layer.lyrTableName,
+        assObjRef: "TMP-" + assetForSig.id,
+        longitude: this.coords[0][0],
+        latitude: this.coords[0][1],
+        assetForSig: assetForSig,
+      });
+      await this.workorderService.saveCacheWorkorder(wko);
+    }
+
+    this.drawerService.setLocationBack();
+  }
+
+  private addDrawingLayer(nPoints?: number): void {
+    this.mapEventService.isFeatureFiredEvent = true;
+    const map = this.mapService.getMap();
+
+    if (map.getSource('geojson') != null) return;
+
+    const geojson = {
+      type: 'FeatureCollection',
+      features: [],
+    };
+
+    // Used to draw a line between points
+    const linestring = {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: [],
+      },
+    };
+
+    map.addSource('geojson', {
+      type: 'geojson',
+      data: geojson,
     });
+
+    // Add styles to the map
+    map.addLayer({
+      id: 'measure-points',
+      type: 'circle',
+      source: 'geojson',
+      paint: {
+        'circle-radius': 5,
+        'circle-color': '#000',
+      },
+      filter: ['in', '$type', 'Point'],
+    });
+
+    map.addLayer({
+      id: 'measure-lines',
+      type: 'line',
+      source: 'geojson',
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
+      paint: {
+        'line-color': '#000',
+        'line-width': 2.5,
+      },
+      filter: ['in', '$type', 'LineString'],
+    });
+
+    if (this.coords.length > 0) {
+      this.addExistingCoords(map, geojson, linestring);
+    }
+
+    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend')) 
+      .pipe(takeUntil(this.terminateDrawing$))
+      .subscribe((e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['measure-points'],
+        });
+
+        if (geojson.features.length > 1) geojson.features.pop();
+
+        if (nPoints !== undefined) {
+          // If nPoints is defined, handle the limit
+          if (nPoints === 1) {
+            // Rule 3: If nPoints is set to 1, replace the existing point
+            geojson.features = [];
+          } else if (nPoints > 1 && geojson.features.length >= nPoints) {
+            // Rule 2: If nPoints is greater than 1 and the limit is reached, replace the first point
+            geojson.features.shift();
+          }
+        }
+
+        if (features.length) {
+          // Rule 4: If a feature was clicked, remove it from the map
+          const id = features[0].properties['id'];
+          geojson.features = geojson.features.filter((point) => {
+            return point.properties.id !== id;
+          });
+        } else {
+          // Add a new point if no existing point was clicked
+          const point = {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [e.lngLat.lng, e.lngLat.lat],
+            },
+            properties: {
+              id: String(new Date().getTime()),
+            },
+          };
+
+          geojson.features.push(point);
+        }
+
+        if (geojson.features.length > 1) {
+          linestring.geometry.coordinates = geojson.features.map((point) => {
+            return point.geometry.coordinates;
+          });
+
+          geojson.features.push(linestring);
+        }
+
+        (map.getSource('geojson') as any).setData(geojson);
+
+        this.coords = geojson.features
+          .filter((f) => f.geometry.type === 'Point')
+          .map((f) => f.geometry.coordinates);
+      });
+  }
+
+  private addExistingCoords(
+    map: Maplibregl.Map,
+    geojson: any,
+    linestring: any
+  ): void {
+    if (this.coords.length === 1) {
+      // Add a single point if there's only one coordinate pair
+      const point = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [this.coords[0][0], this.coords[0][1]],
+        },
+        properties: {
+          id: String(new Date().getTime()),
+        },
+      };
+
+      geojson.features.push(point);
+    } else if (this.coords.length > 1) {
+      // Add points and a line if there are multiple coordinate pairs
+      for (const coord of this.coords) {
+        const point = {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [coord[0], coord[1]],
+          },
+          properties: {
+            id: String(new Date().getTime()),
+          },
+        };
+
+        geojson.features.push(point);
+        linestring.geometry.coordinates.push([coord[0], coord[1]]);
+      }
+
+      geojson.features.push(linestring);
+    }
+
+    (map.getSource('geojson') as any).setData(geojson);
+  }
+
+  private removeDrawingLayer(): void {
+    const map = this.mapService.getMap();
+    if (map.getLayer('measure-points') != null) map.removeLayer('measure-points');
+    if (map.getLayer('measure-lines') != null) map.removeLayer('measure-lines');
+    if (map.getSource('geojson') != null) map.removeSource('geojson');
+    this.terminateDrawing$.next();
+    this.mapEventService.isFeatureFiredEvent = false;
   }
 
   // ##### HIDDEN ##### //
@@ -374,182 +553,26 @@ export class NewAssetDrawer implements OnInit {
           }
         }
 
-        let lastFormDefinitionId = 5;
-        let insert = "";
+        let listValueDefinition: string[] = [];
+        let listValueTemplate: string[] = [];
 
         for (let key of Object.keys(mapReportForm)) {
-          lastFormDefinitionId++;
+          const fdnCode = `DEFAULT_NEW_ASSET_${key.toUpperCase()}`;
+          const fteCode = `NEW_ASSET_${key.toUpperCase()}`;
 
-          insert +=
-            `
-            INSERT INTO nomad.FORM_DEFINITION (FDN_CODE, FDN_DEFINITION) values ('DEFAULT_NEW_ASSET_${key.toUpperCase()}', '${JSON.stringify(mapReportForm[key])}');
-            INSERT INTO nomad.FORM_TEMPLATE (FTE_CODE, FDN_ID) values ('NEW_ASSET_${key.toUpperCase()}', ${lastFormDefinitionId});
-            `;
+          listValueDefinition.push(`('${fdnCode}', '${JSON.stringify(mapReportForm[key])}')`);
+          listValueTemplate.push(`('${fteCode}', (SELECT ID FROM nomad.FORM_DEFINITION WHERE FDN_CODE = '${fdnCode}'))`);
         }
 
-        console.log(insert);
+        console.log(
+          "INSERT INTO nomad.FORM_DEFINITION (FDN_CODE, FDN_DEFINITION) values \n" +
+          listValueDefinition.join(',\n') + ';'
+        );
+        console.log(
+          "INSERT INTO nomad.FORM_TEMPLATE (FTE_CODE, FDN_ID) values \n" +
+          listValueTemplate.join(',\n') + ';'
+        );
       };
       fileReader.readAsText(file, 'UTF-8');
-  }
-
-  private addDrawingLayer(nPoints?: number): void {
-    const map = this.mapService.getMap();
-
-    const geojson = {
-      type: 'FeatureCollection',
-      features: [],
-    };
-
-    // Used to draw a line between points
-    const linestring = {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [],
-      },
-    };
-
-    map.addSource('geojson', {
-      type: 'geojson',
-      data: geojson,
-    });
-
-    // Add styles to the map
-    map.addLayer({
-      id: 'measure-points',
-      type: 'circle',
-      source: 'geojson',
-      paint: {
-        'circle-radius': 5,
-        'circle-color': '#000',
-      },
-      filter: ['in', '$type', 'Point'],
-    });
-
-    map.addLayer({
-      id: 'measure-lines',
-      type: 'line',
-      source: 'geojson',
-      layout: {
-        'line-cap': 'round',
-        'line-join': 'round',
-      },
-      paint: {
-        'line-color': '#000',
-        'line-width': 2.5,
-      },
-      filter: ['in', '$type', 'LineString'],
-    });
-
-    if (this.coords?.length > 0) {
-      this.addExistingCoords(map, geojson, linestring);
-    }
-
-    fromEvent(map, 'click')
-      .pipe(takeUntil(this.terminateDrawing$))
-      .subscribe((e) => {
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: ['measure-points'],
-        });
-
-        if (geojson.features.length > 1) geojson.features.pop();
-
-        if (nPoints !== undefined) {
-          // If nPoints is defined, handle the limit
-          if (nPoints === 1) {
-            // Rule 3: If nPoints is set to 1, replace the existing point
-            geojson.features = [];
-          } else if (nPoints > 1 && geojson.features.length >= nPoints) {
-            // Rule 2: If nPoints is greater than 1 and the limit is reached, replace the first point
-            geojson.features.shift();
-          }
-        }
-
-        if (features.length) {
-          // Rule 4: If a feature was clicked, remove it from the map
-          const id = features[0].properties['id'];
-          geojson.features = geojson.features.filter((point) => {
-            return point.properties.id !== id;
-          });
-        } else {
-          // Add a new point if no existing point was clicked
-          const point = {
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [e.lngLat.lng, e.lngLat.lat],
-            },
-            properties: {
-              id: String(new Date().getTime()),
-            },
-          };
-
-          geojson.features.push(point);
-        }
-
-        if (geojson.features.length > 1) {
-          linestring.geometry.coordinates = geojson.features.map((point) => {
-            return point.geometry.coordinates;
-          });
-
-          geojson.features.push(linestring);
-        }
-
-        (map.getSource('geojson') as any).setData(geojson);
-
-        this.coords = geojson.features
-          .filter((f) => f.geometry.type === 'Point')
-          .map((f) => f.geometry.coordinates);
-      });
-  }
-
-  private addExistingCoords(
-    map: Maplibregl.Map,
-    geojson: any,
-    linestring: any
-  ): void {
-    if (this.coords.length === 1) {
-      // Add a single point if there's only one coordinate pair
-      const point = {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [this.coords[0][0], this.coords[0][1]],
-        },
-        properties: {
-          id: String(new Date().getTime()),
-        },
-      };
-
-      geojson.features.push(point);
-    } else if (this.coords.length > 1) {
-      // Add points and a line if there are multiple coordinate pairs
-      for (const coord of this.coords) {
-        const point = {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [coord[0], coord[1]],
-          },
-          properties: {
-            id: String(new Date().getTime()),
-          },
-        };
-
-        geojson.features.push(point);
-        linestring.geometry.coordinates.push([coord[0], coord[1]]);
-      }
-
-      geojson.features.push(linestring);
-    }
-
-    (map.getSource('geojson') as any).setData(geojson);
-  }
-
-  private removeDrawingLayer(): void {
-    this.mapService.getMap().removeLayer('measure-points');
-    this.mapService.getMap().removeLayer('measure-lines');
-    this.mapService.getMap().removeSource('geojson');
-    this.terminateDrawing$.next();
   }
 }
