@@ -1,3 +1,10 @@
+ion-content {
+  --padding-start: var(--ion-padding, 5px);
+  --padding-end: var(--ion-padding, 16px);
+  --padding-top: var(--ion-padding, 10px);
+  --padding-bottom: var(--ion-padding, 20px);
+}
+
 .download-item {
   .download-state {
     margin-right: 10px;

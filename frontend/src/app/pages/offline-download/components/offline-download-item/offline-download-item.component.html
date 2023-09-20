@@ -36,8 +36,8 @@
     <ion-popover [trigger]="title" triggerAction="click">
       <ng-template>
         <ion-content class="ion-padding">
-          <ion-item (click)="onDownloadClick()">Mettre à jour</ion-item>
-          <ion-item (click)="onDumpClick()">Vider</ion-item>
+          <ion-item (click)="onDownloadClick(); dismissPopover();">Mettre à jour</ion-item>
+          <ion-item (click)="onDumpClick(); dismissPopover();">Vider</ion-item>
         </ion-content>
       </ng-template>
     </ion-popover>

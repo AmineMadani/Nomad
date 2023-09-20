@@ -90,17 +90,34 @@ export class BasemapOfflineService {
    * Method to delete a database
    */
   public async deleteDatabase(): Promise<void> {
-    // await this.sqliteConnection.closeAllConnections();
-    // CapacitorSQLite.deleteDatabase({ database: 'territory' });
+    if (this.native) {
+      try {
+        // Close the database connection before deleting
+        if (this.db) {
+          await this.db.close();
+        }
+
+        // Delete the database
+        this.db.delete();
+      } catch (error) {
+        console.error(`Error removing database:`, error);
+      }
+    }
   }
 
   /**
    * Download the offline basemap file
    */
   public downloadOfflineData(urlFile: string, onProgressPercentage: Function, onComplete: Function) {
+    let fileSize: number;
+
     Filesystem.addListener('progress', progress => {
+      if (!fileSize) {
+        fileSize = progress.bytes / (1024 * 1024);
+      }
+
       const newPercentage = ((progress.bytes / progress.contentLength) * 100);
-      onProgressPercentage(Number(newPercentage.toFixed(2)));
+      onProgressPercentage(newPercentage);
     });
 
     Filesystem.downloadFile({
@@ -108,7 +125,7 @@ export class BasemapOfflineService {
       directory: Directory.Data,
       path: 'territory',
       url: urlFile
-    }).then(async (downloadFileResult: DownloadFileResult) => {
+    }).then(async () => {
       if (this.native) {
         this.moveDatabasesAndAddSuffix().then(async () => {
           let dbList = [];
@@ -123,8 +140,8 @@ export class BasemapOfflineService {
         });
       }
 
-      onComplete(downloadFileResult);
-    })
+      onComplete(fileSize);
+    });
   }
 
   public async getTileFromDatabase(z: number, x: number, y: number): Promise<ArrayBuffer> {

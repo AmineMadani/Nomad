@@ -36,19 +36,6 @@ export class LayerDataService {
   }
 
   /**
-   * Fetches the tile of a layer from server.
-   * @param {string} layerKey - Key of the layer.
-   * @param {number} featureNumber - The file number where the view is.
-   * @returns The GeoJSON file for the current tile.
-   */
-  public getListLayerFile(layerKey: string, listFeatureNumber: number[]): Observable<NomadGeoJson[]> {
-    var params = new HttpParams();
-    params = params.append('listTileNumber', listFeatureNumber.join(','));
-
-    return this.http.get<NomadGeoJson[]>(`${this.configurationService.apiUrl}layers/${layerKey}`, {params});
-  }
-
-  /**
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */

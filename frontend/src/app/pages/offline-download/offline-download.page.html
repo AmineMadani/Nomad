@@ -3,7 +3,7 @@
   [displayBackButton]="true">
 </app-page-header>
 
-<ion-content class="offline-content">
+<ion-content>
   <ion-card class="offline-card">
     <ion-item button (click)="onDownloadAll()">
       <ion-label>Tout télécharger/mettre à jour</ion-label>
@@ -15,21 +15,21 @@
 
   <ion-list>
     <app-offline-download-item title="Référentiels"
-      [offlineDownload]="referentialOfflineDownload"
+      [offlineDownload]="referentialsOfflineDownload"
       (onDownload)="onReferentialsDownload()"
       (onDump)="onReferentialsDump()">
     >
     </app-offline-download-item>
 
     <app-offline-download-item title="Equipements"
-      [offlineDownload]="equipmentOfflineDownload"
-      (onDownload)="onEquipmentsDownload()"
-      (onDump)="onEquipmentsDump()">
+      [offlineDownload]="tilesOfflineDownload"
+      (onDownload)="onTilesDownload()"
+      (onDump)="onTilesDump()">
       >
     </app-offline-download-item>
 
     <app-offline-download-item title="Fonds de plan"
-      [offlineDownload]="basemapOfflineDownload"
+      [offlineDownload]="basemapsOfflineDownload"
       (onDownload)="onBasemapsDownload()"
       (onDump)="onBasemapsDump()">
     >

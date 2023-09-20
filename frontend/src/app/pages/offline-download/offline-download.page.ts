@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Observable, Subject, take, takeUntil } from 'rxjs';
 import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/core/services/offlineDownload.service';
 
 @Component({
@@ -8,76 +9,178 @@ import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/
 })
 export class OfflineDownloadPage implements OnInit {
 
-  DownloadState = DownloadState;
+  public referentialsOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
+  public tilesOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
+  public basemapsOfflineDownload: OfflineDownload = {
+    state: DownloadState.NOT_STARTED,
+  };
 
-  // Referential
-  referentialOfflineDownload: OfflineDownload = {
-    state: DownloadState.NOT_STARTED,
-  };
-  // Equipments
-  equipmentOfflineDownload: OfflineDownload = {
-    state: DownloadState.NOT_STARTED,
-  };
-  // Basemaps
-  basemapOfflineDownload: OfflineDownload = {
-    state: DownloadState.NOT_STARTED,
-  };
+  private destroyReferentialsSubscription$ = new Subject<void>();
+  private destroyTilesSubscription$ = new Subject<void>();
+  private destroyBasemapsSubscription$ = new Subject<void>();
 
   constructor(
     private offlineDownloadService: OfflineDownloadService,
     private cd: ChangeDetectorRef
   ) { }
 
-  ngOnInit() {
-    this.offlineDownloadService.initReferentialDownloadState();
+  async ngOnInit() {
+    // Get initial values of downloads
+    this.referentialsOfflineDownload = await this.offlineDownloadService.getInitialReferentialsDownloadState();
+    this.tilesOfflineDownload = await this.offlineDownloadService.getInitialTilesDownloadState();
+    this.basemapsOfflineDownload = await this.offlineDownloadService.getInitialBasemapsDownloadState();
+  }
 
-    this.offlineDownloadService.getReferentialOfflineDownload()
-      .subscribe(offlineDownload => {
-        this.referentialOfflineDownload = offlineDownload;
+  onReferentialsDownload() {
+    // Launch subscription to listen changes about the percentage progress
+    this.launchReferentialsSubscription();
+
+    // Download
+    this.offlineDownloadService.downloadReferentials();
+  }
+
+  onReferentialsDump() {
+    // Reset offline download
+    this.resetReferentialsDownload();
+
+    // Dump stored data
+    this.offlineDownloadService.dumpReferentials();
+  }
+
+  onTilesDownload() {
+    // Launch subscription to listen changes about the percentage progress
+    this.launchTilesSubscription();
+
+    // Download
+    this.offlineDownloadService.downloadTiles();
+  }
+
+  onTilesDump() {
+    // Reset offline download
+    this.resetTilesDownload();
+
+    // Dump stored data
+    this.offlineDownloadService.dumpTiles();
+  }
+
+  onBasemapsDownload() {
+    // Launch subscription to listen changes about the percentage progress
+    this.launchBasemapsSubscription();
+
+    // Download
+    this.offlineDownloadService.downloadBasemaps();
+  }
+
+  onBasemapsDump() {
+    // Reset offline download
+    this.resetBasemapsDownload();
+
+    // Dump stored data
+    this.offlineDownloadService.dumpBasemaps();
+  }
+
+  onDownloadAll() {
+    if (this.referentialsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.launchReferentialsSubscription();
+      this.onReferentialsDownload();
+    }
+
+    if (this.tilesOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.launchTilesSubscription();
+      this.onTilesDownload();
+    }
+
+    if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.launchBasemapsSubscription();
+      this.onBasemapsDownload();
+    }
+  }
+
+  onDumpAll() {
+    if (this.referentialsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.resetReferentialsDownload();
+      this.onReferentialsDump();
+    }
+
+    if (this.tilesOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.resetTilesDownload();
+      this.onTilesDump();
+    }
+
+    if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
+      this.resetBasemapsDownload();
+      this.onBasemapsDump();
+    }
+  }
+
+  private launchReferentialsSubscription() {
+    this.offlineDownloadService.getReferentialsOfflineDownload()
+      .pipe(
+        takeUntil(this.destroyReferentialsSubscription$)
+      )
+      .subscribe((downloadState) => {
+        // We stop the subscription when the state passed to "IN_PROGRESS" to "DONE" or "NOT_STARTED"
+        if (this.referentialsOfflineDownload.state === DownloadState.IN_PROGRESS &&
+          (downloadState.state === DownloadState.DONE || downloadState.state === DownloadState.NOT_STARTED)) {
+          this.destroyReferentialsSubscription$.next();
+        }
+
+        this.referentialsOfflineDownload = downloadState;
       });
+  }
 
-    this.offlineDownloadService.getEquipmentOfflineDownload()
-      .subscribe(offlineDownload => {
-        this.equipmentOfflineDownload = offlineDownload;
+  private launchTilesSubscription() {
+    this.offlineDownloadService.getTilesOfflineDownload()
+      .pipe(
+        takeUntil(this.destroyTilesSubscription$)
+      )
+      .subscribe((downloadState) => {
+        // We stop the subscription when the state passed to "IN_PROGRESS" to "DONE" or "NOT_STARTED"
+        if (this.tilesOfflineDownload.state === DownloadState.IN_PROGRESS &&
+          (downloadState.state === DownloadState.DONE || downloadState.state === DownloadState.NOT_STARTED)) {
+          this.destroyTilesSubscription$.next();
+        }
+
+        this.tilesOfflineDownload = downloadState;
       });
+  }
 
-    this.offlineDownloadService.getBasemapOfflineDownload()
-      .subscribe(offlineDownload => {
-        this.basemapOfflineDownload = offlineDownload;
-        // Force changes because it's not detect otherwise
+  private launchBasemapsSubscription() {
+    this.offlineDownloadService.getBasemapsOfflineDownload()
+      .pipe(
+        takeUntil(this.destroyBasemapsSubscription$)
+      )
+      .subscribe((downloadState) => {
+        // We stop the subscription when the state passed to "IN_PROGRESS" to "DONE" or "NOT_STARTED"
+        if (this.basemapsOfflineDownload.state === DownloadState.IN_PROGRESS &&
+          (downloadState.state === DownloadState.DONE || downloadState.state === DownloadState.NOT_STARTED)) {
+          this.destroyBasemapsSubscription$.next();
+        }
+
+        this.basemapsOfflineDownload = downloadState;
         this.cd.detectChanges();
       });
   }
 
-  onReferentialsDownload() {
-    this.offlineDownloadService.downloadReferential();
+  private resetReferentialsDownload() {
+    this.referentialsOfflineDownload = {
+      state: DownloadState.NOT_STARTED
+    };
   }
 
-  onReferentialsDump() {
-    this.offlineDownloadService.dumpReferential();
+  private resetTilesDownload() {
+    this.tilesOfflineDownload = {
+      state: DownloadState.NOT_STARTED
+    };
   }
 
-  onEquipmentsDownload() {
-    this.offlineDownloadService.downloadEquipments();
-  }
-
-  onEquipmentsDump() {
-    this.offlineDownloadService.dumpEquipments();
-  }
-
-  onBasemapsDownload() {
-    this.offlineDownloadService.downloadBasemap();
-  }
-
-  onBasemapsDump() {
-    this.offlineDownloadService.dumpBasemap();
-  }
-
-  onDownloadAll() {
-    this.offlineDownloadService.downloadAll();
-  }
-
-  onDumpAll() {
-    this.offlineDownloadService.dumpAll();
+  private resetBasemapsDownload() {
+    this.basemapsOfflineDownload = {
+      state: DownloadState.NOT_STARTED
+    };
   }
 }

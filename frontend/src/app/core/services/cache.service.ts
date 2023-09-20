@@ -266,51 +266,57 @@ export class CacheService {
     );
   }
 
-  public clearCache() {
-    this.db.referentials.clear();
-    this.db.tiles.clear();
-  }
-
+  /**
+ * Clear all entries from the referentials table.
+ */
   public clearReferentials() {
     this.db.referentials.clear();
   }
 
+  /**
+   * Clear all entries from the tiles table.
+   */
   public clearTiles() {
     this.db.tiles.clear();
   }
 
-  public async getReferentialSize(): Promise<string> {
-    // Get all items in the referentials table
-    const items = await this.db.referentials.toArray();
-
-    // Calculate the size in bytes
-    let totalSize = 0;
-    for (const item of items) {
-      const itemSize = new Blob([JSON.stringify(item)]).size;
-      totalSize += itemSize;
-    }
-
-    // Convert size to Mo
-    const sizeInMo = totalSize / (1024 * 1024);
-
-    return `${sizeInMo.toFixed(2)} mo`;
+  /**
+   * Get the size of all items in the referentials table.
+   *
+   * @returns {Promise<string>} The total size of the referentials in "mo" (megabytes).
+   */
+  public async getReferentialsSize(): Promise<string> {
+    return this.getTableSize(this.db.referentials);
   }
 
+  /**
+   * Get the size of all items in the tiles table.
+   *
+   * @returns {Promise<string>} The total size of the tiles in "mo" (megabytes).
+   */
   public async getTilesSize(): Promise<string> {
-    // Get all items in the tiles table
-    const items = await this.db.tiles.toArray();
+    return this.getTableSize(this.db.tiles);
+  }
 
-    // Calculate the size in bytes
+  /**
+   * Get the total size of all items in the specified table.
+   *
+   * @param table - The table to get the size for.
+   * @returns {Promise<string>} The total size of the items in the table in "mo" (megabytes).
+   */
+  private async getTableSize(table): Promise<string> {
+    // Fetch all items in the table
+    const items = await table.toArray();
+
+    // Calculate the total size in bytes
     let totalSize = 0;
     for (const item of items) {
       const itemSize = new Blob([JSON.stringify(item)]).size;
       totalSize += itemSize;
     }
 
-    // Convert size to Mo
+    // Convert size to megabytes (Mo)
     const sizeInMo = totalSize / (1024 * 1024);
-
     return `${sizeInMo.toFixed(2)} mo`;
   }
-
 }

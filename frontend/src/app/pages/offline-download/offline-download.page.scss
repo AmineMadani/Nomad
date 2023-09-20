@@ -5,31 +5,9 @@ ion-content {
   --padding-bottom: var(--ion-padding, 0px);
 }
 
-.offline-content {
-
-  .offline-card {
-    ion-label {
-      font-size: 14px;
-      color: var(--ion-color-primary);
-    }
+.offline-card {
+  ion-label {
+    font-size: 14px;
+    color: var(--ion-color-primary);
   }
-
-  .download-state {
-    margin-right: 10px;
-  }
-
-  .download-label {
-    display: flex;
-    flex-direction: column;
-
-    .download-title {
-
-    }
-
-    .download-description {
-      font-size: 10px;
-      color: grey;
-    }
-  }
-
 }

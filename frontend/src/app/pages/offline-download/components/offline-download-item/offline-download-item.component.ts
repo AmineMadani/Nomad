@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { PopoverController } from '@ionic/angular';
 import { DownloadState, OfflineDownload } from 'src/app/core/services/offlineDownload.service';
 
 @Component({
@@ -16,7 +17,9 @@ export class OfflineDownloadItemComponent implements OnInit {
 
   DownloadState = DownloadState;
 
-  constructor() { }
+  constructor(
+    private popoverController: PopoverController
+  ) { }
 
   ngOnInit() {
 
@@ -28,5 +31,9 @@ export class OfflineDownloadItemComponent implements OnInit {
 
   onDumpClick() {
     this.onDump.emit();
+  }
+
+  dismissPopover() {
+    this.popoverController.dismiss();
   }
 }
