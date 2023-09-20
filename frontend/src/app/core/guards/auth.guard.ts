@@ -18,8 +18,6 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);
   const userService = inject(UserService);
   const initService = inject(InitService);
-  const utilsService = inject(UtilsService);
-  const preferenceService = inject(PreferenceService);
 
   // If the user doesn't have a valid token and Keycloak is active
   if (!keycloakService.hasValidToken()) {
@@ -32,12 +30,10 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
   } else {
     // Try to get the user data
     const user = await userService.getCurrentUser();
-    console.log(user);
-    console.log(route.routeConfig?.path);
 
     if (user) {
       try {
-        await initService.getInitDataForWeb();
+        await initService.getInitData();
       } catch (e) {
         router.navigate(['error']);
         return false;
