@@ -299,17 +299,25 @@ export class ReportCreateComponent implements OnInit {
   /**
    * Send the form
    */
-  public submitForm() {
-    this.stepForm.formEditor.form.updateValueAndValidity();
-    this.stepForm.formEditor.form.markAllAsTouched();
-
-    if (this.stepForm.formEditor.form.valid) {
-      this.isSubmitting = true;
-      if (this.completeModalForm !== undefined) {
+  public submitForm(closeCircuit:boolean = false) {
+    if(closeCircuit) {
+      if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform()) {
         this.openCompleteModal();
       }
       else {
-        this.completeForm();
+        this.onClosedWko(true);
+      }
+    } else {
+      this.stepForm.formEditor.form.updateValueAndValidity();
+      this.stepForm.formEditor.form.markAllAsTouched();
+
+      if (this.stepForm.formEditor.form.valid) {
+        if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
+          this.openCompleteModal();
+        }
+        else {
+          this.completeForm();
+        }
       }
     }
   }
@@ -330,6 +338,7 @@ export class ReportCreateComponent implements OnInit {
    */
   private completeForm(): void {
     let comment = "";
+    this.isSubmitting = true;
 
     let report: Report = {
       dateCompletion: new Date(),
@@ -370,6 +379,7 @@ export class ReportCreateComponent implements OnInit {
       if(!task.report?.dateCompletion) {
         task.report = null;
       }
+      
     }
 
     if(this.workorder.tasks.length == 1 || forced) {
@@ -403,7 +413,22 @@ export class ReportCreateComponent implements OnInit {
             comment = reportValue.answer;
           }
         }
-        IntentAction.closeIntent({ value: { 'RETOUR': 'ok', 'CONTRAT': (contract ? contract.ctrCode : ''), 'COMMENTAIRE': comment } });
+        IntentAction.closeIntent(
+          { 
+            value: 
+              { 
+                'RETOUR': 'ok', 
+                'CONTRAT': (contract ? contract.ctrCode : ''), 
+                'COMMENTAIRE': comment,
+                'GPS_RI': this.workorder.tasks[0].latitude+';'+this.workorder.tasks[0].longitude,
+                'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
+                'TYPE': (this.workorder.tasks.length > 1 ? '38':this.workorder.tasks[0].astCode),
+                'MOTIF': this.workorder.tasks[0].wtrCode,
+                'REFEXTINT': this.workorder.id,
+                'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
+              } 
+          }
+        );
         this.isSubmitting = false;
         if(!this.workorder.resync) {
           this.exploitationService.deleteCacheWorkorder(this.workorder);
@@ -546,7 +571,11 @@ export class ReportCreateComponent implements OnInit {
       task.tskCompletionStartDate = this.workorder.wkoCompletionStartDate;
       task.tskCompletionEndDate = this.workorder.wkoCompletionEndDate;
     }
-    this.completeForm();
+    if (this.workorder.tasks.length == 1) {
+      this.completeForm();
+    } else {
+      this.onClosedWko(true);
+    }
     this.completeModal.dismiss();
   }
   
@@ -579,7 +608,11 @@ export class ReportCreateComponent implements OnInit {
       for(let task of this.workorder.tasks) {
         this.mapService.removePoint('task',task.id.toString());
       }
-      this.router.navigate(['/home']);
+      if (this.praxedoService.externalReport) {
+        IntentAction.closeIntent({ value: {'RETOUR': 'ko'} });
+      } else {
+        this.router.navigate(['/home']);
+      }
     }
   }
 

@@ -43,10 +43,14 @@ export class ReportAssetComponent implements OnInit {
       this.refLayers = layers;
     });
 
-    this.mapEventService.onFeatureSelected().pipe(takeUntil(this.ngUnsubscribe$)).subscribe(res => {
+    this.mapEventService.onFeatureSelected().pipe(takeUntil(this.ngUnsubscribe$)).subscribe(async res => {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
         this.editTaskEquipment.assObjTable = res.layerKey;
+        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId, true);
+        this.editTaskEquipment.ctrId = asset.ctrId;
+        this.workorder.ctrId = asset.ctrId;
+        this.workorder.ctyId = asset.ctyId;
         this.maplayerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
           if (this.draggableMarker) {
             this.draggableMarker.remove();
@@ -122,13 +126,24 @@ export class ReportAssetComponent implements OnInit {
    */
   public onValidateChangeEquipment(tsk: Task) {
     let feature: any = this.maplayerService.getFeatureById("task", tsk.id + '');
-    feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
+    tsk.longitude = this.draggableMarker.getLngLat().lng;
+    tsk.latitude = this.draggableMarker.getLngLat().lat;
+    if(feature) {
+      feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
+    } else {
+      feature = {
+        id: tsk.id +'',
+        geometry: {
+          coordinates : [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat],
+          type: "Point"
+        }
+      }
+    }
+    
     this.mapService.updateFeature("task", feature);
     if (this.workorder.id > 0) {
       this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
     }
-    tsk.longitude = this.draggableMarker.getLngLat().lng;
-    tsk.latitude = this.draggableMarker.getLngLat().lat;
     this.workorder.latitude = tsk.latitude;
     this.workorder.longitude = tsk.longitude;
     if (this.draggableMarker) {

@@ -35,7 +35,7 @@
     <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()" [class.font-mobile]="isMobile">Question suivante</ion-button>
     <ion-button *ngIf="isSubmit && !isTest" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>
     <ion-fab *ngIf="(step == 1 && hasReportClosed())" class="fab-terminate">
-      <ion-fab-button color="danger" (click)="onClosedWko(true)">
+      <ion-fab-button color="danger" (click)="submitForm(true)">
         <ion-icon name="close-outline"></ion-icon>
       </ion-fab-button>
       <div *ngIf="!isMobile" class="fab-terminate-text">
@@ -69,14 +69,14 @@
             Réalisation de l'intervention
           </ion-row>
           <ion-row>
-            <ion-col size="5">
+            <ion-row>
               <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
                 formControlName="realisationStartDate"></ion-input>
-            </ion-col>
-            <ion-col size="5">
+            </ion-row>
+            <ion-row>
               <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
                 formControlName="realisationEndDate"></ion-input>
-            </ion-col>
+            </ion-row>
             <ion-col size="1">
               <ion-button fill="clear" color="primary" (click)="openCalendar()">
                 <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
@@ -94,16 +94,12 @@
     <ion-footer>
       <ion-grid>
         <ion-row class="modal-footer-buttons">
-          <ion-col size="2">
-            <ion-button fill="clear" color="primary" (click)="cancelCompleteModal()">
-              Annuler
-            </ion-button>
-          </ion-col>
-          <ion-col size="2">
-            <ion-button fill="clear" color="primary" [disabled]="!completeModalForm.valid" (click)="validCompleteModal()">
+          <ion-button fill="clear" color="primary" (click)="cancelCompleteModal()">
+            Annuler
+          </ion-button>
+          <ion-button fill="clear" color="primary" [disabled]="!completeModalForm.valid" (click)="validCompleteModal()">
               Valider
-            </ion-button>
-          </ion-col>
+          </ion-button>
         </ion-row>
       </ion-grid>
     </ion-footer>

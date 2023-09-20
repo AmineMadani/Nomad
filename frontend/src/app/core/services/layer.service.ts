@@ -171,7 +171,14 @@ export class LayerService {
     ))).find(layer => layer.lyrTableName == key);
   }
 
-  public getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
+  public async getEquipmentByLayerAndId(layer: string, id: string, forcedCache: boolean = false): Promise<any> {
+    if(forcedCache) {
+      const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
+        layer,
+        id
+      );
+      return { id: feature.id, ...feature.properties };
+    }
     return firstValueFrom(
       this.layerDataService.getEquipmentByLayerAndId(layer, id)
         .pipe(

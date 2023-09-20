@@ -166,7 +166,7 @@ export class WorkorderService {
    */
   public async deleteCacheWorkorder(workorder: Workorder) {
     if(workorder.id) {
-      
+      await this.db.workorders.delete(workorder.id.toString());
     }
   }
 

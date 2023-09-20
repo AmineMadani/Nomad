@@ -461,6 +461,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       });
     }
 
-    this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features);
+    const qParam = this.wkoDraft ? { draft: this.wkoDraft } : {};
+    this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features, qParam);
   }
 }
