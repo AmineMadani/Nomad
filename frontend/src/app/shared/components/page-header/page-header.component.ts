@@ -23,7 +23,8 @@ export class PageHeaderComponent implements OnInit {
   ) {}
 
   @Input() public headerLabel: string;
-  @Input() public forceButtons: boolean;
+  @Input() public displayBackButton: boolean = false;
+  @Input() public displayCloseButton: boolean = false;
   @Input() public template: TemplateRef<any>;
   @Input() public loading: boolean;
 

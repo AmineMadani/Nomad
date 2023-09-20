@@ -278,33 +278,57 @@ export class CacheService {
     }
   }
 
-  public clearCache() {
+  /**
+ * Clear all entries from the referentials table.
+ */
+  public clearReferentials() {
     this.db.referentials.clear();
+  }
+
+  /**
+   * Clear all entries from the tiles table.
+   */
+  public clearTiles() {
     this.db.tiles.clear();
   }
 
   /**
-  * Fetches referential data either from a local cache or from a service call.
-  * If the data is not available in the cache, it will be fetched using the provided service call
-  * and then saved to the cache for future access.
-  *
-  * @param referentialCacheKey - The key used to store and retrieve the data from the local cache.
-  * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
-  * @returns An Observable of the fetched data, either from the local cache or from the service call.
-  */
-  public fetchTilesData<T>(referentialCacheKey: ReferentialCacheKey, serviceCall: () => Observable<T>): Observable<T> {
-    return from(this.db.referentials.get(referentialCacheKey)).pipe(
-      switchMap(referential => {
-        if (referential?.data) {
-          return of(referential.data);
-        } else {
-          return serviceCall().pipe(
-            tap(async data => {
-              await this.db.referentials.put({ data: data, key: referentialCacheKey }, referentialCacheKey);
-            })
-          );
-        }
-      })
-    );
+   * Get the size of all items in the referentials table.
+   *
+   * @returns {Promise<string>} The total size of the referentials in "mo" (megabytes).
+   */
+  public async getReferentialsSize(): Promise<string> {
+    return this.getTableSize(this.db.referentials);
+  }
+
+  /**
+   * Get the size of all items in the tiles table.
+   *
+   * @returns {Promise<string>} The total size of the tiles in "mo" (megabytes).
+   */
+  public async getTilesSize(): Promise<string> {
+    return this.getTableSize(this.db.tiles);
+  }
+
+  /**
+   * Get the total size of all items in the specified table.
+   *
+   * @param table - The table to get the size for.
+   * @returns {Promise<string>} The total size of the items in the table in "mo" (megabytes).
+   */
+  private async getTableSize(table): Promise<string> {
+    // Fetch all items in the table
+    const items = await table.toArray();
+
+    // Calculate the total size in bytes
+    let totalSize = 0;
+    for (const item of items) {
+      const itemSize = new Blob([JSON.stringify(item)]).size;
+      totalSize += itemSize;
+    }
+
+    // Convert size to megabytes (Mo)
+    const sizeInMo = totalSize / (1024 * 1024);
+    return `${sizeInMo.toFixed(2)} mo`;
   }
 }

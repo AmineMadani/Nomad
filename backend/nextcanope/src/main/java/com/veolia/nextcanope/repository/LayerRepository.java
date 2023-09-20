@@ -18,23 +18,4 @@ public interface LayerRepository extends JpaRepository<Layer, Long> {
             nativeQuery = true
     )
     List<VLayerWtrDto> getAllVLayerWtr();
-
-
-
-    /**
-     * Retrieves the list of layer tiles associated with a specific key and list tiles number.
-     *
-     * @param key        The key to search for in the database.
-     * @param listTileNumber The list Tile Number to search for in the database.
-     * @return The List layer tile as a list of string, associated with the given key and list tile number.
-     */
-    @Query(
-        value="select * from nomad.f_get_geojson_from_list_tiles(:key, ARRAY[:listTileNumber], :userId);",
-        nativeQuery = true
-    )
-    List<Map<String, Object>> getListLayerTile(
-        @Param("key") String key,
-        @Param("listTileNumber") Long[] listTileNumber,
-        @Param("userId") Long userId
-    );
 }
