@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Sélection des fonds de plan</ion-title>
+    <ion-button fill="clear" slot="end" (click)="cancel()">
+      <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list class="checkbox-list" *ngIf="basemaps.length > 0">
+    <ion-item *ngFor="let basemap of basemaps">
+      <ion-checkbox labelPlacement="start" aria-label="checkbox" [(ngModel)]="basemap.selected">
+        <div class="label">
+          <ion-label>{{ basemap.name }}</ion-label>
+          <div class="description">{{ basemap.size }} mo</div>
+        </div>
+      </ion-checkbox>
+    </ion-item>
+  </ion-list>
+
+  <app-skeleton-loading *ngIf="basemaps.length === 0" [rows]="4"></app-skeleton-loading>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="confirm()" color="primary">Valider</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

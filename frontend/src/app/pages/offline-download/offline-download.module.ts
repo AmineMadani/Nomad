@@ -9,6 +9,7 @@ import { OfflineDownloadPageRoutingModule } from './offline-download-routing.mod
 import { OfflineDownloadPage } from './offline-download.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { OfflineDownloadItemComponent } from './components/offline-download-item/offline-download-item.component';
+import { BasemapsSelectionModalComponent } from './components/basemaps-selection-modal/basemaps-selection-modal.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { OfflineDownloadItemComponent } from './components/offline-download-item
   ],
   declarations: [
     OfflineDownloadPage,
-    OfflineDownloadItemComponent
+    OfflineDownloadItemComponent,
+    BasemapsSelectionModalComponent
   ]
 })
 export class OfflineDownloadPageModule { }

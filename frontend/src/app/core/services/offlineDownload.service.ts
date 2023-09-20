@@ -10,6 +10,7 @@ import { WorkorderService } from './workorder.service';
 import { PreferenceService } from './preference.service';
 import { BasemapOfflineService } from './basemapOffline.service';
 import { UtilsService } from './utils.service';
+import { BasemapTemplate } from '../models/basemap.model';
 
 export enum DownloadState {
   NOT_STARTED = 'NOT_STARTED',
@@ -28,6 +29,8 @@ export interface OfflineDownload {
   progressPercentage?: number;
   diskSize?: string;
   lastUpdateDate?: Date;
+  // Only for basemaps
+  listBasemapsDownloaded?: string[];
 }
 
 @Injectable({
@@ -303,23 +306,20 @@ export class OfflineDownloadService {
   /**
    * Download basemaps offline.
    */
-  public downloadBasemaps() {
+  public async downloadBasemaps(basemaps: BasemapTemplate[]) {
     this.basemapsOfflineDownload.next({
       state: DownloadState.IN_PROGRESS,
       progressPercentage: 0
     });
 
-    const fileToDownload: string =
-      'https://veolia-nomad-hp-basemaps.s3.amazonaws.com/63.mbtiles?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA43GFG7DS7ASFLGLB%2F20230919%2Feu-west-3%2Fs3%2Faws4_request&X-Amz-Date=20230919T090438Z&X-Amz-Expires=604799&X-Amz-SignedHeaders=host&X-Amz-Signature=a6698a553fbccafcd5e5a2dbd9cbf66f610fbdd7995c4cda16cdf9960358b0f3';
-
-    try {
-      this.basemapOfflineService.downloadOfflineData(
-        fileToDownload,
+    const downloadCalls: any[] = basemaps.map((file) => {
+      return this.basemapOfflineService.downloadOfflineData(
+        file.link,
         // On percentage progress
         (newPercentage: number) => {
           const currentOfflineDownload = this.basemapsOfflineDownload.getValue();
 
-          newPercentage = Math.round(newPercentage);
+          newPercentage = Math.round(newPercentage / basemaps.length);
 
           if (currentOfflineDownload.progressPercentage !== newPercentage) {
             this.basemapsOfflineDownload.next({
@@ -328,12 +328,16 @@ export class OfflineDownloadService {
             });
           }
         },
-        // On complete
-        (fileSize: number) => this.onDownloadBasemapSuccess(fileSize)
       );
+    });
+
+    try {
+      await Promise.all(downloadCalls);
     } catch (e) {
       this.onDownloadBasemapsError();
     }
+
+    this.onDownloadBasemapSuccess(basemaps);
   }
 
   /**
@@ -353,14 +357,15 @@ export class OfflineDownloadService {
 
   /**
    * Handle the successful scenario of basemaps download.
-   * @param fileSize The size of the downloaded file.
+   * @param diskSize The size of the downloaded files.
    */
-  private onDownloadBasemapSuccess(fileSize: number) {
+  private onDownloadBasemapSuccess(basemapsDownloaded: BasemapTemplate[]) {
     this.basemapsOfflineDownload.next({
       state: DownloadState.DONE,
       progressPercentage: 100,
-      diskSize: `${fileSize.toFixed(2)} mo`,
+      diskSize: `${(basemapsDownloaded.reduce((acc, obj) => acc + obj.size, 0)).toFixed(2)} mo`,
       lastUpdateDate: new Date(),
+      listBasemapsDownloaded: basemapsDownloaded.map((b) => b.name),
     });
 
     const cachedValue: OfflineDownload = this.basemapsOfflineDownload.getValue();
