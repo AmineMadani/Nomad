@@ -298,6 +298,12 @@ public class WorkorderService {
 			// Get or create asset
 			Asset asset = assetService.getNewOrExistingAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), userId);
 			task.setAsset(asset);
+
+			// Asset for SIG
+			if (taskDto.getAssetForSig() != null) {
+				assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
+			}
+
 			// Get Reason
 			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);

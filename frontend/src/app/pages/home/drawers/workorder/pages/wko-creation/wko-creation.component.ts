@@ -684,7 +684,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
-          if (eq.assetForSig != null) continue;
+          if (eq.id.startsWith('TMP-')) continue;
 
           const geom = await this.mapLayerService.getCoordinateFeaturesById(
             eq.lyrTableName,
