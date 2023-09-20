@@ -1,0 +1,51 @@
+<ng-container [ngSwitch]="offlineDownload.state">
+  <!-- Download not started -->
+  <ion-item *ngSwitchCase="DownloadState.NOT_STARTED" class="download-item">
+    <ion-icon class="download-state" name="close-circle-outline"></ion-icon>
+
+    <div class="download-label">
+      <ion-label>{{ title }}</ion-label>
+      <div class="download-description">Non disponible en mode hors connexion</div>
+    </div>
+
+    <ion-button fill="clear" slot="end" (click)="onDownloadClick()">
+        <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+  <!-- Download in progress -->
+  <ion-item *ngSwitchCase="DownloadState.IN_PROGRESS" class="download-item">
+    <ion-spinner class="download-state" name="lines-small"></ion-spinner>
+
+    <div class="download-label">
+      <ion-label>{{ title }}</ion-label>
+      <div class="download-description">Téléchargement en cours... {{ offlineDownload.progressPercentage }}%</div>
+    </div>
+  </ion-item>
+  <!-- Download done -->
+  <ion-item *ngSwitchCase="DownloadState.DONE" class="download-item">
+    <ion-icon class="download-state" color="success" name="checkmark-circle-outline"></ion-icon>
+
+    <div class="download-label">
+      <ion-label>{{ title }}</ion-label>
+      <div class="download-description">{{ offlineDownload.diskSize }} | Dernière mise à jour: {{ offlineDownload.lastUpdateDate | date:"dd/MM/yyyy 'à' HH:mm"  }}</div>
+    </div>
+
+    <ion-button [id]="title" fill="clear" slot="end">
+        <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+    </ion-button>
+    <ion-popover [trigger]="title" triggerAction="click">
+      <ng-template>
+        <ion-content class="ion-padding">
+          <ion-item (click)="onDownloadClick(); dismissPopover();">Mettre à jour</ion-item>
+          <ion-item (click)="onDumpClick(); dismissPopover();">Vider</ion-item>
+        </ion-content>
+      </ng-template>
+    </ion-popover>
+  </ion-item>
+</ng-container>
+
+
+
+
+
+

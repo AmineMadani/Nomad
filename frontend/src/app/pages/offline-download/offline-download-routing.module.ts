@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { LoadingMobilePage } from './loading-mobile.page';
+import { OfflineDownloadPage } from './offline-download.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: LoadingMobilePage
+    component: OfflineDownloadPage
   }
 ];
 
@@ -14,4 +14,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class LoadingMobilePageRoutingModule {}
+export class OfflineDownloadPageRoutingModule {}

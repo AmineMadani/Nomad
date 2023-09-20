@@ -247,6 +247,21 @@ export class UtilsService {
     const toast = await this.toastCtrl.create({
       message: message,
       color: 'success',
+      duration: 3000,
+      position: 'bottom',
+    });
+
+    toast.present();
+  }
+
+  /**
+   * Permit to show an error toast
+   * @param message
+   */
+  public async showErrorMessage(message: string) {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      color: 'danger',
       duration: 1500,
       position: 'bottom',
     });
@@ -281,5 +296,17 @@ export class UtilsService {
         Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
       ) * -1
     );
+  }
+
+  /**
+    * Rounds a number to a specified number of decimal places.
+    *
+    * @param {number} num - The number to round.
+    * @param {number} decimalPlaces - The number of decimal places to round to.
+    * @returns {number} The rounded number.
+    */
+  public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
+    const factor = Math.pow(10, decimalPlaces);
+    return Math.round(num * factor) / factor;
   }
 }

@@ -57,22 +57,6 @@ public class LayerService {
     public String getLayerTile(String key, Long tileNumber, Long userId) {
         return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
     }
-
-    /**
-     * Retrieves the equipment tile associated with a specific key and tile number.
-     *
-     * @param key        The key to search for in the database.
-     * @param tileNumber The tile number to search for in the database.
-     * @return The equipment tile as a string, associated with the given key and tile number.
-     */
-    public List<Map<String, Object>> getListLayerTile(String key, List<Long> listTileNumber, Long userId) {
-        if (listTileNumber.size() > 1000) {
-            throw new FunctionalException("La liste de tuiles ne doit pas être supérieure à 1000.");
-        }
-
-        Long[] tileNumberArray = listTileNumber.toArray(new Long[0]);
-        return layerRepository.getListLayerTile(key, tileNumberArray, userId);
-    }
     
     /**
      * Get all Layers. For each layer, get the styles of the layer and the user.

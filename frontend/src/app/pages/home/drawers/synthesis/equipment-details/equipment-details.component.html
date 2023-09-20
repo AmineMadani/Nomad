@@ -1,5 +1,5 @@
 <ion-content>
-  <app-page-header [headerLabel]="'Fiche ' + type" [template]="buttonsTemplate" [forceButtons]="true"></app-page-header>
+  <app-page-header [headerLabel]="'Fiche ' + type" [template]="buttonsTemplate" [displayBackButton]="true" [displayCloseButton]="true"></app-page-header>
   <ng-container *ngIf="isMobile">
     <ion-tab-bar class="action-bar">
       <ion-tab-button [disabled]="!userHasPermissionCreateAssetWorkorder">

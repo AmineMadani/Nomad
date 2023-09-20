@@ -76,21 +76,6 @@ public class LayerController {
         return this.layerService.getLayerTile(key, tileNumber, account.getId());
     }
 
-    @GetMapping(path = "/{key}")
-    @Operation(summary = "Get the list of layer tile by key")
-    @ApiResponses(value = {
-            @ApiResponse(description= "The list layer tile in list geojson format", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public List<Map<String, Object>> getListLayerTile(
-            @PathVariable String key,
-            @RequestParam List<Long> listTileNumber,
-            AccountTokenDto account
-    ) {
-        return this.layerService.getListLayerTile(key, listTileNumber, account.getId());
-    }
-
     @GetMapping(path = "/references/{type}")
     @Operation(summary = "Get the layer references")
     @ApiResponses(value = {
