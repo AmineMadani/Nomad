@@ -254,30 +254,50 @@ export class WkoViewComponent implements OnInit {
    * @param workorder the workorder
    */
    private displayAndZoomTo(workorder: Workorder) {
+    // Get the list of task to display
+    let listTask = [];
+    if (this.taskId) {
+      const task = workorder.tasks.find((task) => task.id.toString() === this.taskId);
+      if (task) listTask.push(task);
+    } else {
+      listTask = workorder.tasks;
+    }
 
-    let featuresSelection: MultiSelection[] = [];
-    let geometries = [];
+    if (listTask.length > 0) {
+      // Show the task layer and layers related to the tasks
+      let listLayerKey = [...new Set(listTask.map((task) => task.assObjTable))];
 
-    for (let task of workorder.tasks) {
-      if (!this.taskId || (this.taskId && this.taskId == task.id.toString())) {
-        geometries.push([task.longitude, task.latitude]);
-        this.mapService.addEventLayer('task').then(() => {
-          featuresSelection.push({
+      Promise.all(
+        listLayerKey.map((layerKey) => this.mapService.addEventLayer(layerKey))
+        .concat(
+          this.mapService.addEventLayer('task')
+        )
+       ).then(() => {
+        // Once loaded
+        // Highlight the tasks and the layers related to them
+        let featuresSelection: MultiSelection[] = [];
+        featuresSelection = listTask.map((task) => {
+          return {
             id: task.id.toString(),
             source: 'task'
-          });
-          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+          }
         });
-        this.mapService.addEventLayer(task.assObjTable).then(async () => {
-          featuresSelection.push({
-            id: task.assObjRef,
-            source: task.assObjTable
-          });
-          this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
-        });
-      }
+        featuresSelection = featuresSelection.concat(
+          listTask.map((task) => {
+            return {
+              id: task.assObjRef,
+              source: task.assObjTable,
+            }
+          })
+        );
+
+        this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+      });
+
+      // Zoom on the location of the tasks
+      let geometries = listTask.map((task) => [task.longitude, task.latitude]);
+      this.mapLayerService.fitBounds(geometries, 20);
     }
-    this.mapLayerService.fitBounds(geometries, 20);
   }
 
   // ### Attachement ### //
