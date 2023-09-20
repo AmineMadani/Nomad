@@ -319,7 +319,7 @@ export class OfflineDownloadService {
         (newPercentage: number) => {
           const currentOfflineDownload = this.basemapsOfflineDownload.getValue();
 
-          newPercentage = this.utilsService.roundToDecimalPlaces(newPercentage, 2);
+          newPercentage = Math.round(newPercentage);
 
           if (currentOfflineDownload.progressPercentage !== newPercentage) {
             this.basemapsOfflineDownload.next({
