@@ -22,15 +22,21 @@ public class IntentActionPlugin extends Plugin {
         JSObject value = call.getObject("value");
         JSObject ret = new JSObject();
         Intent returnIntent = new Intent();
+        int returnState = getActivity().RESULT_CANCELED;
 
         for (Iterator<String> it = value.keys(); it.hasNext(); ) {
             String key = it.next();
             String val = value.getString(key);
+            if(key.equals("RETOUR")) {
+              if(val.equals("ok")){
+                returnState = getActivity().RESULT_OK;
+              }
+            }
             ret.put(key, val);
             returnIntent.putExtra(key,val);
         }
 
-        getActivity().setResult(getActivity().RESULT_OK, returnIntent);
+        getActivity().setResult(returnState, returnIntent);
         getActivity().finish();
 
         call.resolve(ret);
