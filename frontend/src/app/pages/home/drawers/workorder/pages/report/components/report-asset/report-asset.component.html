@@ -11,7 +11,7 @@
         </ion-note>
       </ion-label>
     </div>
-    <ng-container *ngIf="!draggableMarker && !editTaskEquipment && (workorder.tasks.length == 1 || !workorder.wkoPlanningStartDate)">
+    <ng-container *ngIf="!draggableMarker && !editTaskEquipment && (workorder.tasks.length == 1 || !workorder.wkoPlanningStartDate) && !tsk.report?.dateCompletion">
       <ion-button slot="end" fill="clear" (click)="onEditEquipment(tsk)">
         <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
       </ion-button>
