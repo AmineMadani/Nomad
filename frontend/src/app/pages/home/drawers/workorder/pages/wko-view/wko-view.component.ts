@@ -61,12 +61,14 @@ export class WkoViewComponent implements OnInit {
 
   public canEdit(): boolean {
     return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
-                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF);
+                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF
+                                        || this.workOrder.wtsId === WkoStatus.ERREUR);
   }
 
   public canCancel(): boolean {
     return  !this.loading && this.workOrder  && this.workOrder.wtsId !== WkoStatus.TERMINE
-                                        && this.workOrder.wtsId !== WkoStatus.ANNULE;
+                                        && this.workOrder.wtsId !== WkoStatus.ANNULE
+                                        && this.workOrder.wtsId === WkoStatus.ERREUR;
   }
 
   public isCancelled(): boolean {

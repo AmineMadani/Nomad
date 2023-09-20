@@ -192,8 +192,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               assObjRef: eq.id,
               assObjTable: eq.lyrTableName,
               wtrId: wtrId,
-              latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
-              longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
+              latitude:
+                this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
+              longitude:
+                this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
             };
           });
         }
@@ -351,28 +353,34 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.creationWkoForm.controls[controlKey].setValue(
       (event as CustomEvent).detail.checked
     );
-
-    if ((event as CustomEvent).detail.checked) {
-      this.creationWkoForm.controls['wkoPlanningStartHour'].addValidators([
-        Validators.required,
-        TimeValidator.isHourValid,
-      ]);
-      this.creationWkoForm.controls['wkoPlanningEndHour'].addValidators([
-        Validators.required,
-        TimeValidator.isHourValid,
-      ]);
-    } else {
-      this.creationWkoForm.controls['wkoPlanningStartHour'].clearValidators();
-      this.creationWkoForm.controls['wkoPlanningEndHour'].clearValidators();
+    if (
+      controlKey === 'wkoPlanningStartHour' ||
+      controlKey === 'wkoPlanningEndHour'
+    ) {
+      if ((event as CustomEvent).detail.checked) {
+        this.creationWkoForm.controls['wkoPlanningStartHour'].addValidators([
+          Validators.required,
+          TimeValidator.isHourValid,
+        ]);
+        this.creationWkoForm.controls['wkoPlanningEndHour'].addValidators([
+          Validators.required,
+          TimeValidator.isHourValid,
+        ]);
+      } else {
+        this.creationWkoForm.controls['wkoPlanningStartHour'].clearValidators();
+        this.creationWkoForm.controls['wkoPlanningEndHour'].clearValidators();
+      }
+      this.creationWkoForm.controls[
+        'wkoPlanningStartHour'
+      ].updateValueAndValidity({
+        emitEvent: false,
+      });
+      this.creationWkoForm.controls[
+        'wkoPlanningEndHour'
+      ].updateValueAndValidity({
+        emitEvent: false,
+      });
     }
-    this.creationWkoForm.controls[
-      'wkoPlanningStartHour'
-    ].updateValueAndValidity({
-      emitEvent: false,
-    });
-    this.creationWkoForm.controls['wkoPlanningEndHour'].updateValueAndValidity({
-      emitEvent: false,
-    });
   }
 
   public async onSubmit(): Promise<void> {
