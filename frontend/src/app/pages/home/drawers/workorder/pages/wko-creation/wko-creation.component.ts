@@ -684,16 +684,21 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
-          if (eq.id.startsWith('TMP-')) continue;
-
-          const geom = await this.mapLayerService.getCoordinateFeaturesById(
-            eq.lyrTableName,
-            eq.id
-          );
-          this.markerCreation.set(
-            eq.id,
-            this.mapLayerService.addMarker(eq.x, eq.y, geom)
-          );
+          if (eq.id.startsWith('TMP-')) {
+            this.markerCreation.set(
+              eq.id,
+              this.mapLayerService.addMarker(eq.x, eq.y, [eq.x as any, eq.y as any], true)
+            );
+          } else {
+            const geom = await this.mapLayerService.getCoordinateFeaturesById(
+              eq.lyrTableName,
+              eq.id
+            );
+            this.markerCreation.set(
+              eq.id,
+              this.mapLayerService.addMarker(eq.x, eq.y, geom)
+            );
+          }
         }
       }
       this.mapEvent.highlighSelectedFeatures(

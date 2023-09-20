@@ -103,7 +103,7 @@ export class ReportAssetComponent implements OnInit {
    */
   public onEditEquipment(tsk: Task) {
 
-    if (!tsk.assObjTable.includes('_xy')) {
+    if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
       this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable, tsk.assObjRef).then(result => {
         this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result);
       })

@@ -613,7 +613,7 @@ export class MapService {
         const newPoint: any = {
           geometry: {
             type: 'Point',
-            coordinates: [properties.longitude, properties.latitude],
+            coordinates: [task.longitude, task.latitude],
           },
           properties: taskProperties,
           type: 'Feature',
