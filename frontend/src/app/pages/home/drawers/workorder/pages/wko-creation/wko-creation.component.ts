@@ -114,15 +114,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.title = 'Générer une interventions';
     this.creationButonLabel = this.defaultCreationLabel;
+
     this.userHasPermissionSendWorkorder =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.SEND_WORKORDER
       );
-
     const paramMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
     );
+
     const params = this.utils.transformMap(paramMap);
+
     this.mapService
       .onMapLoaded()
       .pipe(
@@ -153,18 +155,19 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         const wkoId = this.activatedRoute.snapshot.params['id'];
 
         if (wkoId) {
+          // EDIT
           this.workorder = await this.workOrderService.getWorkorderById(
             Number(wkoId)
           );
+          
           this.equipments = this.workorder.tasks.map((t) => {
             return {
-              id: t.assObjRef,
-              lyrTableName: t.assObjTable.includes('asset.')
-                ? t.assObjTable.split('asset.')[1]
-                : t.assObjTable,
+              id: t.assObjRef ?? this.utils.createCacheId().toString(),
+              lyrTableName: t.assObjTable,
               x: t.longitude,
               y: t.latitude,
               assetForSig: t.assetForSig,
+              taskId: t.id
             };
           });
 
@@ -178,67 +181,35 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.initializeFormWithWko();
         } else {
           this.workorder = { id: this.utils.createCacheId(), isDraft: true };
-        }
-
-        await this.generateMarker();
-
-        const { wtrId } = this.creationWkoForm.value;
-
-        let assets = [];
-        if (this.equipments?.[0] !== null) {
-          assets = this.equipments?.map((eq) => {
-            return {
+          if (this.equipments.length > 0) {
+            // CREATION
+            this.workorder.tasks = this.equipments.map((eq) => {
+              return {
+                id: this.utils.createCacheId(),
+                assObjRef: eq.id,
+                assObjTable: eq.lyrTableName,
+                wtrId: null,
+                longitude: eq.x,
+                latitude: eq.y,
+              };
+            });
+          } else {
+            // XY CREATION
+            this.workorder = {
               id: this.utils.createCacheId(),
-              assObjRef: eq.id,
-              assObjTable: eq.lyrTableName,
-              wtrId: wtrId,
-              latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
-              longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
+              isDraft: true,
+              tasks: [],
             };
-          });
+          }
         }
 
-        if (
-          this.workorder.tasks === undefined ||
-          this.workorder.tasks?.length == 0
-        ) {
-          this.workorder.tasks = assets;
-        } else {
-          assets.forEach((asset) => {
-            if (
-              !this.workorder.tasks.some((t) => t.assObjRef == asset.assObjRef)
-            ) {
-              this.workorder.tasks.push(asset);
-            }
-          });
-        }
-        this.workorder.latitude =
-          assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
-        this.workorder.longitude =
-          assets?.[0].longitude ??
-          this.markerCreation.get('xy').getLngLat().lng;
+        await this.initializeEquipments();
+
         this.workorder.wkoAttachment = false;
 
         await this.workOrderService.saveCacheWorkorder(this.workorder);
 
-        await this.initializeEquipments();
-      });
-
-    this.creationWkoForm.valueChanges
-      .pipe(debounceTime(500), takeUntil(this.ngUnsubscribe$))
-      .subscribe(async () => {
-        Object.keys(this.creationWkoForm.value).forEach((key) => {
-          if (key === 'wtrId') {
-            this.workorder.tasks.map((task: Task) => {
-              task.wtrId = this.creationWkoForm.value['wtrId'];
-              return task;
-            });
-          } else {
-            this.workorder[key] = this.creationWkoForm.value[key];
-          }
-        });
-
-        this.workOrderService.saveCacheWorkorder(this.workorder);
+        await this.generateMarker();
       });
   }
 
@@ -288,9 +259,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe((result: DateTime[]) => {
         this.creationWkoForm.patchValue({
           wkoPlanningStartDate: result[0].toFormat('dd/MM/yyyy'),
-        });
-
-        this.creationWkoForm.patchValue({
           wkoPlanningEndDate:
             result?.[1]?.toFormat('dd/MM/yyyy') ??
             result[0].toFormat('dd/MM/yyyy'),
@@ -305,7 +273,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       wtrId: new FormControl('', Validators.required),
       wkoName: new FormControl('', Validators.required),
       wkoAddress: new FormControl(''),
-      wkoAgentNb: new FormControl('1', Validators.required),
+      wkoAgentNb: new FormControl(1, Validators.required),
       wkoPlanningStartDate: new FormControl(
         '',
         Validators.compose([Validators.required, DateValidator.isDateValid])
@@ -317,8 +285,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       wkoEmergency: new FormControl(false),
       wkoAppointment: new FormControl(false),
       wkoCreationComment: new FormControl(''),
-      wkoPlanningStartHour: new FormControl(''),
-      wkoPlanningEndHour: new FormControl(''),
+      wkoPlanningStartHour: new FormControl('', [TimeValidator.isHourValid]),
+      wkoPlanningEndHour: new FormControl('', [TimeValidator.isHourValid]),
     });
     this.creationWkoForm.addValidators(
       DateValidator.compareDateValidator(
@@ -351,28 +319,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.creationWkoForm.controls[controlKey].setValue(
       (event as CustomEvent).detail.checked
     );
-
-    if ((event as CustomEvent).detail.checked) {
-      this.creationWkoForm.controls['wkoPlanningStartHour'].addValidators([
-        Validators.required,
-        TimeValidator.isHourValid,
-      ]);
-      this.creationWkoForm.controls['wkoPlanningEndHour'].addValidators([
-        Validators.required,
-        TimeValidator.isHourValid,
-      ]);
-    } else {
-      this.creationWkoForm.controls['wkoPlanningStartHour'].clearValidators();
-      this.creationWkoForm.controls['wkoPlanningEndHour'].clearValidators();
-    }
-    this.creationWkoForm.controls[
-      'wkoPlanningStartHour'
-    ].updateValueAndValidity({
-      emitEvent: false,
-    });
-    this.creationWkoForm.controls['wkoPlanningEndHour'].updateValueAndValidity({
-      emitEvent: false,
-    });
   }
 
   public async onSubmit(): Promise<void> {
@@ -394,6 +340,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           latitude: this.markerCreation.get(eq.id)?.getLngLat()?.lat ?? eq.y,
           longitude: this.markerCreation.get(eq.id)?.getLngLat()?.lng ?? eq.x,
           assetForSig: eq.assetForSig,
+          taskId: eq?.taskId
         };
       });
     }
@@ -421,16 +368,27 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     let funct: any;
 
     this.workorder.latitude =
-      assets?.[0].latitude ?? this.markerCreation.get('xy').getLngLat().lat;
+      assets?.[0]?.latitude ?? this.markerCreation.get('xy').getLngLat().lat;
     this.workorder.longitude =
-      assets?.[0].longitude ?? this.markerCreation.get('xy').getLngLat().lng;
+      assets?.[0]?.longitude ?? this.markerCreation.get('xy').getLngLat().lng;
     this.workorder.wkoAttachment = false;
 
     if (this.workorder.tasks?.length == 0) {
-      this.workorder.tasks = assets;
+      if (assets.length === 0) {
+        this.workorder.tasks.push({
+          id: this.utils.createCacheId(),
+          assObjRef: null,
+          assObjTable: 'aep_xy',
+          wtrId: wtrId,
+          latitude: this.markerCreation.get('xy').getLngLat().lat,
+          longitude: this.markerCreation.get('xy').getLngLat().lng,
+        });
+      } else {
+        this.workorder.tasks = assets;
+      }
     } else {
       assets.forEach((asset) => {
-        if (!this.workorder.tasks.some((t) => t.assObjRef == asset.assObjRef)) {
+        if (!this.workorder.tasks.some((t) => t.assObjRef == asset.assObjRef || t.id === asset?.taskId)) {
           this.workorder.tasks.push(asset);
         }
       });
@@ -539,46 +497,45 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private async initializeFormWithWko(): Promise<void> {
     Object.keys(this.workorder).forEach((key) => {
       const control = this.creationWkoForm.get(key);
-      if (control) {
-        if (this.workorder[key] != null) {
-          if (key == 'wkoPlanningStartDate' || key == 'wkoPlanningEndDate') {
-            if (key == 'wkoPlanningStartDate') {
-              this.creationWkoForm.controls['wkoPlanningStartHour'].setValue(
-                this.datePipe.transform(this.workorder[key], 'HH:mm')
-              );
-              control.setValue(
-                this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
-              );
-            } else if (key == 'wkoPlanningEndDate') {
-              this.creationWkoForm.controls['wkoPlanningEndHour'].setValue(
-                this.datePipe.transform(this.workorder[key], 'HH:mm')
-              );
-              control.setValue(
-                this.datePipe.transform(this.workorder[key], 'dd/MM/yyyy')
-              );
-            }
-          } else {
-            control.setValue(this.workorder[key].toString());
-          }
+      if (!control) {
+        return;
+      }
+
+      if (this.workorder[key] != null) {
+        if (key == 'wkoPlanningStartDate') {
+          control.setValue(
+            DateTime.fromISO(this.workorder[key] as any).toFormat('dd/MM/yyyy'),
+            { emitEvent: false }
+          );
+          const startHour = DateTime.fromISO(
+            this.workorder[key].toString()
+          ).toFormat('HH:mm');
+          this.creationWkoForm.get('wkoPlanningStartHour').setValue(startHour);
+        } else if (key == 'wkoPlanningEndDate') {
+          control.setValue(
+            DateTime.fromISO(this.workorder[key] as any).toFormat('dd/MM/yyyy'),
+            { emitEvent: false }
+          );
+          const endHour = DateTime.fromISO(
+            this.workorder[key].toString()
+          ).toFormat('HH:mm');
+          this.creationWkoForm.get('wkoPlanningEndHour').setValue(endHour);
+        } else if (key === 'wkoAppointment' || key === 'wkoEmergency') {
+          this.workorder[key].toString() === 'false'
+            ? (this.workorder[key] = false)
+            : true;
+          control.setValue(this.workorder[key], { emitEvent: false });
         } else {
-          control.setValue(this.workorder[key]);
+          control.setValue(this.workorder[key], { emitEvent: false });
         }
       }
     });
 
     //set WTR
-    this.creationWkoForm.controls['wtrId'].setValue(
-      this.workorder.tasks[0].wtrId.toString()
-    );
+    this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
   }
 
   private async initializeEquipments(): Promise<void> {
-    this.equipments.map((eq) => {
-      if (eq.lyrTableName.includes('asset.')) {
-        eq.lyrTableName = eq.lyrTableName.split('asset.')[1];
-      }
-      return eq;
-    });
     if (this.equipments.length > 0 && this.equipments[0] !== null) {
       this.nbEquipments = this.equipments.length.toString();
 
@@ -627,7 +584,26 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       contracts: this.contractService.getAllContracts(),
       cities: this.cityService.getAllCities(),
     }).subscribe(({ reasons, contracts, cities }) => {
+      if (this.equipments.length > 0) {
+        reasons = reasons.filter((vlw: VLayerWtr) =>
+          this.equipments
+            .map((eq) => eq.lyrTableName)
+            .includes(vlw.lyrTableName)
+        );
+      }
       this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+
+      if (
+        !this.wtrs.some(
+          (v) => v.wtrId === this.creationWkoForm.get('wtrId').value
+        )
+      ) {
+        this.creationWkoForm.patchValue(
+          { wtrId: undefined },
+          { emitEvent: false }
+        );
+      }
+
       this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
       this.cities = cities.filter((c) => cityIds.includes(c.id));
 
@@ -645,6 +621,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.isLoading = false;
+
+      // We listen to the changes only after the form is set
+      this.listenToFormChanges();
     });
   }
 
@@ -684,10 +663,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           await this.mapService.addEventLayer(eq.lyrTableName);
         }
         if (!this.markerCreation.has(eq.id)) {
-          if (eq.id.startsWith('TMP-')) {
+          if (eq.id.startsWith('TMP-') || eq.lyrTableName.includes('_xy')) {
             this.markerCreation.set(
               eq.id,
-              this.mapLayerService.addMarker(eq.x, eq.y, [eq.x as any, eq.y as any], true)
+              this.mapLayerService.addMarker(
+                eq.x,
+                eq.y,
+                [eq.x as any, eq.y as any],
+                true
+              )
             );
           } else {
             const geom = await this.mapLayerService.getCoordinateFeaturesById(
@@ -703,7 +687,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.mapEvent.highlighSelectedFeatures(
         this.mapService.getMap(),
-        this.equipments.map((f) => {
+        this.equipments.filter((f) => !f.lyrTableName.includes('_xy')).map((f) => {
           return { source: f.lyrTableName, id: f.id };
         })
       );
@@ -757,17 +741,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async initEquipmentsLayers(): Promise<void> {
-    const promises: Promise<void>[] = this.equipments.map(
-      ({ lyrTableName }) => {
-        return this.mapService.addEventLayer(lyrTableName);
-      }
+    const currentEqs = this.equipments.filter(
+      ({ lyrTableName }) => lyrTableName !== 'aep_xy'
     );
+    const promises: Promise<void>[] = currentEqs.map(({ lyrTableName }) => {
+      return this.mapService.addEventLayer(lyrTableName);
+    });
 
     await Promise.all(promises);
 
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
-      this.equipments.map((eq: any) => {
+      currentEqs.map((eq: any) => {
         return { id: eq.id, source: eq.lyrTableName };
       })
     );
@@ -777,5 +762,31 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         return [+eq.x, +eq.y];
       })
     );
+  }
+
+  private listenToFormChanges(): void {
+    this.creationWkoForm.valueChanges
+      .pipe(debounceTime(500), takeUntil(this.ngUnsubscribe$))
+      .subscribe(async () => {
+        Object.keys(this.creationWkoForm.value).forEach((key) => {
+          if (key === 'wtrId') {
+            this.workorder.tasks.map((task: Task) => {
+              task.wtrId = this.creationWkoForm.value['wtrId'];
+              return task;
+            });
+          } else {
+            this.workorder[key] = this.creationWkoForm.value[key];
+          }
+        });
+        this.workorder.wkoPlanningStartDate = DateTime.fromFormat(
+          this.workorder.wkoPlanningStartDate as any,
+          'dd/MM/yyyy'
+        ).toISO() as any;
+        this.workorder.wkoPlanningEndDate = DateTime.fromFormat(
+          this.workorder.wkoPlanningEndDate as any,
+          'dd/MM/yyyy'
+        ).toISO() as any;
+        this.workOrderService.saveCacheWorkorder(this.workorder);
+      });
   }
 }

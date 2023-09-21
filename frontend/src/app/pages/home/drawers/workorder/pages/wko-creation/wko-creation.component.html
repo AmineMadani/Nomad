@@ -22,7 +22,7 @@
               [value]="equipmentName"></ion-input>
             <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="ID" type="text"
               [value]="equipments[0].id"></ion-input>
-            <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])">
+            <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])" [disabled]="equipments[0].lyrTableName.includes('_xy')">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </ng-container>
@@ -30,7 +30,7 @@
             <ion-input labelPlacement="floating" fill="outline" label="Equipements" type="text" [value]="nbEquipments"
               (click)="openEquipmentModal()" [disabled]="equipments?.[0] === null"></ion-input>
           </ng-container>
-          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()">
+          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()" [disabled]="equipments[0].lyrTableName.includes('_xy')">
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
@@ -45,11 +45,11 @@
 
         <ion-select class="select" aria-label="agents" labelPlacement="floating" fill="outline"
           label="Nombre d'agents *" placeholder="Agents" formControlName="wkoAgentNb">
-          <ion-select-option value="1">1</ion-select-option>
-          <ion-select-option value="2">2</ion-select-option>
-          <ion-select-option value="3">3</ion-select-option>
-          <ion-select-option value="4">4</ion-select-option>
-          <ion-select-option value="5">5</ion-select-option>
+          <ion-select-option [value]="1">1</ion-select-option>
+          <ion-select-option [value]="2">2</ion-select-option>
+          <ion-select-option [value]="3">3</ion-select-option>
+          <ion-select-option [value]="4">4</ion-select-option>
+          <ion-select-option [value]="5">5</ion-select-option>
         </ion-select>
 
         <div class="wko-calendar">
@@ -71,6 +71,7 @@
           <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoAppointment', $event)"
             [checked]="false" formControlName="wkoAppointment">Rendez-vous</ion-checkbox>
         </div>
+
         <div class="wko-calendar" *ngIf="workorder?.wkoAppointment">
           <ion-input type="time" aria-label="date" labelPlacement="floating" fill="outline" label="de *"
             placeholder="HH:MM" formControlName="wkoPlanningStartHour"
@@ -81,6 +82,7 @@
         <div *ngIf="creationWkoForm.hasError('timeCompareInvalid') && workorder?.wkoAppointment" class="error-message">
           <ion-note>L'heure de fin du Rendez-vous est inférieure à l'heure de début du Rendez-vous</ion-note>
         </div>
+        
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
           placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
       </ion-list>
