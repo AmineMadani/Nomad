@@ -30,7 +30,7 @@ export interface OfflineDownload {
   diskSize?: string;
   lastUpdateDate?: Date;
   // Only for basemaps
-  listBasemapsDownloaded?: string[];
+  basemapDownloaded?: string;
 }
 
 @Injectable({
@@ -306,20 +306,20 @@ export class OfflineDownloadService {
   /**
    * Download basemaps offline.
    */
-  public async downloadBasemaps(basemaps: BasemapTemplate[]) {
+  public async downloadBasemap(basemap: BasemapTemplate) {
     this.basemapsOfflineDownload.next({
       state: DownloadState.IN_PROGRESS,
       progressPercentage: 0
     });
 
-    const downloadCalls: any[] = basemaps.map((file) => {
-      return this.basemapOfflineService.downloadOfflineData(
-        file.link,
+    try {
+      await this.basemapOfflineService.downloadOfflineData(
+        basemap.link,
         // On percentage progress
         (newPercentage: number) => {
           const currentOfflineDownload = this.basemapsOfflineDownload.getValue();
 
-          newPercentage = Math.round(newPercentage / basemaps.length);
+          newPercentage = Math.round(newPercentage);
 
           if (currentOfflineDownload.progressPercentage !== newPercentage) {
             this.basemapsOfflineDownload.next({
@@ -329,21 +329,17 @@ export class OfflineDownloadService {
           }
         },
       );
-    });
-
-    try {
-      await Promise.all(downloadCalls);
     } catch (e) {
       this.onDownloadBasemapsError();
     }
 
-    this.onDownloadBasemapSuccess(basemaps);
+    this.onDownloadBasemapSuccess(basemap);
   }
 
   /**
    * Reset and clear basemaps offline data.
    */
-  public dumpBasemaps() {
+  public dumpBasemap() {
     this.basemapOfflineService.deleteDatabase();
 
     this.basemapsOfflineDownload.next({
@@ -359,13 +355,13 @@ export class OfflineDownloadService {
    * Handle the successful scenario of basemaps download.
    * @param diskSize The size of the downloaded files.
    */
-  private onDownloadBasemapSuccess(basemapsDownloaded: BasemapTemplate[]) {
+  private onDownloadBasemapSuccess(basemapDownloaded: BasemapTemplate) {
     this.basemapsOfflineDownload.next({
       state: DownloadState.DONE,
       progressPercentage: 100,
-      diskSize: `${(basemapsDownloaded.reduce((acc, obj) => acc + obj.size, 0)).toFixed(2)} mo`,
+      diskSize: `${basemapDownloaded.size} mo`,
       lastUpdateDate: new Date(),
-      listBasemapsDownloaded: basemapsDownloaded.map((b) => b.name),
+      basemapDownloaded: basemapDownloaded.name,
     });
 
     const cachedValue: OfflineDownload = this.basemapsOfflineDownload.getValue();
@@ -377,7 +373,7 @@ export class OfflineDownloadService {
    */
   private onDownloadBasemapsError() {
     this.utilsService.showErrorMessage("Une erreur est survenue lors du téléchargement des fonds de plan.");
-    this.dumpBasemaps();
+    this.dumpBasemap();
   }
 
 

@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { BasemapTemplate } from 'src/app/core/models/basemap.model';
-import { TemplateService } from 'src/app/core/services/template.service';
 
 @Component({
   selector: 'app-basemaps-selection-modal',
@@ -9,15 +8,16 @@ import { TemplateService } from 'src/app/core/services/template.service';
   styleUrls: ['./basemaps-selection-modal.component.scss'],
 })
 export class BasemapsSelectionModalComponent implements OnInit {
-  name: string;
-
   @Input("basemaps") basemaps: BasemapTemplate[] = [];
+
+  selectedBasemap: BasemapTemplate;
 
   constructor(
     private modalCtrl: ModalController,
   ) { }
 
   ngOnInit() {
+    this.selectedBasemap = this.basemaps.find((b) => b.selected);
   }
 
   cancel() {
@@ -26,7 +26,7 @@ export class BasemapsSelectionModalComponent implements OnInit {
 
   confirm() {
     return this.modalCtrl.dismiss(
-      this.basemaps.filter((b) => b.selected === true),
+      this.selectedBasemap,
       'confirm'
     );
   }

@@ -50,9 +50,9 @@ export class OfflineDownloadPage implements OnInit {
         this.availableBasemaps = this.availableBasemaps.map((basemap) => {
           return {
             ...basemap,
-            selected: this.basemapsOfflineDownload.listBasemapsDownloaded?.includes(basemap.name),
+            selected: this.basemapsOfflineDownload.basemapDownloaded === basemap.name,
           }
-        })
+        });
       }
     });
   }
@@ -89,7 +89,7 @@ export class OfflineDownloadPage implements OnInit {
     this.offlineDownloadService.dumpTiles();
   }
 
-  async onBasemapsDownload() {
+  async onBasemapDownload() {
     // Select the basemaps to download
     const modal = await this.modalCtrl.create({
       component: BasemapsSelectionModalComponent,
@@ -103,25 +103,36 @@ export class OfflineDownloadPage implements OnInit {
     const { data, role } = await modal.onWillDismiss();
 
     if (role === 'confirm') {
-      if (data && data.length > 0) {
+      if (data) {
         // Launch subscription to listen changes about the percentage progress
-        this.launchBasemapsSubscription();
+        this.launchBasemapSubscription();
 
         // Download
-        this.offlineDownloadService.downloadBasemaps(data);
+        this.offlineDownloadService.downloadBasemap(data).then(() => {
+          // We set the selected basemap after download
+          this.availableBasemaps = this.availableBasemaps.map((basemap) => {
+            basemap.selected = this.basemapsOfflineDownload.basemapDownloaded === basemap.name;
+            return basemap;
+          });
+        });
       } else {
         // Dump databases if no selection
-        this.onBasemapsDump();
+        this.onBasemapDump();
+        // We set all selected basemap to false
+        this.availableBasemaps = this.availableBasemaps.map((basemap) => {
+          basemap.selected = false;
+          return basemap;
+        });
       }
     }
   }
 
-  onBasemapsDump() {
+  onBasemapDump() {
     // Reset offline download
-    this.resetBasemapsDownload();
+    this.resetBasemapDownload();
 
     // Dump stored data
-    this.offlineDownloadService.dumpBasemaps();
+    this.offlineDownloadService.dumpBasemap();
   }
 
   onDownloadAll() {
@@ -136,8 +147,8 @@ export class OfflineDownloadPage implements OnInit {
     }
 
     if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
-      this.launchBasemapsSubscription();
-      this.onBasemapsDownload();
+      this.launchBasemapSubscription();
+      this.onBasemapDownload();
     }
   }
 
@@ -153,8 +164,8 @@ export class OfflineDownloadPage implements OnInit {
     }
 
     if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
-      this.resetBasemapsDownload();
-      this.onBasemapsDump();
+      this.resetBasemapDownload();
+      this.onBasemapDump();
     }
   }
 
@@ -190,7 +201,7 @@ export class OfflineDownloadPage implements OnInit {
       });
   }
 
-  private launchBasemapsSubscription() {
+  private launchBasemapSubscription() {
     this.offlineDownloadService.getBasemapsOfflineDownload()
       .pipe(
         takeUntil(this.destroyBasemapsSubscription$)
@@ -219,7 +230,7 @@ export class OfflineDownloadPage implements OnInit {
     };
   }
 
-  private resetBasemapsDownload() {
+  private resetBasemapDownload() {
     this.basemapsOfflineDownload = {
       state: DownloadState.NOT_STARTED
     };

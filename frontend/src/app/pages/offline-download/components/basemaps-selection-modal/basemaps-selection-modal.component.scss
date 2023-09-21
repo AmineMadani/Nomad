@@ -1,10 +1,5 @@
-.checkbox-list {
-  display: flex;
-  flex-direction: column;
-  padding-left: 20px;
-  padding-right: 20px;
-
-  ion-checkbox {
+ion-radio-group {
+  ion-radio {
     margin-bottom: 5px;
   }
 
