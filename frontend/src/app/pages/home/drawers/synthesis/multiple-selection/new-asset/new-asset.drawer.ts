@@ -242,12 +242,15 @@ export class NewAssetDrawer implements OnInit {
 
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
       wko.tasks.push({
         id: this.utils.createCacheId(),
         assObjTable: this.layer.lyrTableName,
         assObjRef: "TMP-" + assetForSig.id,
         longitude: this.coords[0][0],
         latitude: this.coords[0][1],
+        wtrId: wko.tasks[0]?.wtrId ?? null,
+        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
         assetForSig: assetForSig,
       });
       await this.workorderService.saveCacheWorkorder(wko);
