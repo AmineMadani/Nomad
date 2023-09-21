@@ -1,7 +1,7 @@
 <app-page-header [headerLabel]="taskId ? 'Tâche ' + taskId : 'I-' + workOrder?.id" [loading]="loading" [template]="buttonsTemplate"></app-page-header>
 
 <ion-tab-bar class="action-bar" slot="top">
-  <ion-tab-button *ngIf="taskId || (!taskId && workOrder.tasks.length == 1)" [disabled]="(loading || !userHasPermissionModifyReport) || ((taskId || workOrder.tasks.length === 1) && selectedTask?.report?.dateCompletion)" (click)="onGenerateReport()">
+  <ion-tab-button *ngIf="taskId || (!taskId && workOrder?.tasks?.length == 1)" [disabled]="(loading || !userHasPermissionModifyReport) || ((taskId || workOrder?.tasks?.length === 1) && selectedTask?.report?.dateCompletion)" (click)="onGenerateReport()">
     <ion-icon name="reader-outline"></ion-icon>
     Saisir un compte-rendu
   </ion-tab-button>
