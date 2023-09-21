@@ -83,7 +83,11 @@ public class BatchWriter implements ItemWriter<MoveoOrdreIntervention> {
 		
 		String statusUpdate = "";
 		if(oi.getWkoStatus().equals("CREE")) {
-			statusUpdate =", wts_id=(select id from nomad.workorder_task_status wts where wts_code='ENVOYEPLANIF')";
+			if(error != null) {
+				statusUpdate =", wts_id=(select id from nomad.workorder_task_status wts where wts_code='ERREUR')";
+			} else {
+				statusUpdate =", wts_id=(select id from nomad.workorder_task_status wts where wts_code='ENVOYEPLANIF')";
+			}
 		}
 
 		log.info("Update the workorder " + oi.getId());
