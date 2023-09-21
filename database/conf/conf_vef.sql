@@ -146,7 +146,8 @@ insert into workorder_task_status( wts_code, wts_slabel, wts_llabel)
 ('ENVOYEPLANIF','envoyé à la planification','envoyé à la planification'),
 ('PLANIFIE','planifié','planifié'),
 ('TERMINE','terminé','terminé'),
-('ANNULE','annulé','annulé');
+('ANNULE','annulé','annulé'),
+('ERREUR','erreur','erreur');
 
 -- creating grid
 with metro_grid as (
