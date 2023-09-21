@@ -232,17 +232,10 @@ export class NewAssetDrawer implements OnInit {
   }
 
   private async createNewAsset(listAssetProperties) {
-    let afsGeom: string = null;
-    if (this.layer.astGeomType === GEOM_TYPE.POINT) {
-      afsGeom = `POINT (${this.coords[0][0]} ${this.coords[0][1]})`;
-    } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
-      afsGeom = 'LINESTRING (' +  this.coords.map((coord) => coord[0] + ' ' + coord[1]).join(', ') + ')';
-    }
-
     const assetForSig: AssetForSigDto = {
       id: this.utils.createCacheId(),
       lyrId: this.layer.id,
-      afsGeom: afsGeom,
+      afsGeom: null,
       afsInformations: JSON.stringify(listAssetProperties),
       coords: this.coords,
     }

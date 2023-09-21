@@ -1297,6 +1297,7 @@ id                           bigserial primary key,
 lyr_id                       bigint NOT NULL REFERENCES layer(id),
 afs_geom                     text NOT NULL,
 afs_informations             text NOT NULL,
+afs_ref                      text NOT NULL,
 -- Technical metadata
 afs_ucre_id                  bigint references users(id) default 0,
 afs_umod_id                  bigint references users(id) default 0,

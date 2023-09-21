@@ -1,10 +1,15 @@
 package com.veolia.nextcanope.dto.assetForSig;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 public class AssetForSigUpdateDto {
     private Long id;
     private Long lyrId;
     private String afsGeom;
     private String afsInformations;
+
+    private List<List<Double>> coords;
 
     public Long getId() {
         return id;
@@ -36,5 +41,13 @@ public class AssetForSigUpdateDto {
 
     public void setAfsInformations(String afsInformations) {
         this.afsInformations = afsInformations;
+    }
+
+    public List<List<Double>> getCoords() {
+        return coords;
+    }
+
+    public void setCoords(List<List<Double>> coords) {
+        this.coords = coords;
     }
 }
