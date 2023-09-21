@@ -50,9 +50,9 @@ public class AssetForSig {
     @JsonProperty("afs_dmod")
     private Date afsDmod;
 
-    @Column(name="afs_ref", length=2147483647)
-    @JsonProperty("afs_ref")
-    private String afsRef;
+    @Column(name="afs_cache_id", length=2147483647)
+    @JsonProperty("afs_cache_id")
+    private Long afsCacheId;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -101,12 +101,12 @@ public class AssetForSig {
         this.afsInformations = afsInformations;
     }
 
-    public String getAfsRef() {
-        return afsRef;
+    public Long getAfsCacheId() {
+        return afsCacheId;
     }
 
-    public void setAfsRef(String afsRef) {
-        this.afsRef = afsRef;
+    public void setAfsCacheId(Long afsCacheId) {
+        this.afsCacheId = afsCacheId;
     }
 
     public Date getAfsDcre() {

@@ -62,7 +62,7 @@ public class AssetForSigService {
         }
 
         assetForSig.setAfsInformations(assetForSigUpdateDto.getAfsInformations());
-        assetForSig.setAfsRef(assetForSigUpdateDto.getId().toString());
+        assetForSig.setAfsCacheId(assetForSigUpdateDto.getId());
         assetForSig.setCreatedBy(user);
         assetForSig.setModifiedBy(user);
         assetForSig.setLayer(layer);
