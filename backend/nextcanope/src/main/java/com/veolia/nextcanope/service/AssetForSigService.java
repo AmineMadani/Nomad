@@ -6,8 +6,15 @@ import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.*;
 import com.veolia.nextcanope.repository.AssetForSigRepository;
 import com.veolia.nextcanope.repository.LayerRepository;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AssetForSigService {
@@ -34,8 +41,28 @@ public class AssetForSigService {
             throw new FunctionalException("Layer non trouvée : " + assetForSigUpdateDto.getLyrId());
 
         AssetForSig assetForSig = new AssetForSig();
-        assetForSig.setAfsGeom(assetForSigUpdateDto.getAfsGeom());
+
+        if (assetForSigUpdateDto.getCoords().size() == 1) {
+            // POINT
+            List<Double> xy = assetForSigUpdateDto.getCoords().get(0);
+            Coordinate coordinate = new CoordinateXY(xy.get(0), xy.get(1));
+            Geometry geometry = new GeometryFactory().createPoint(coordinate);
+            assetForSig.setAfsGeom(geometry);
+        } else if (assetForSigUpdateDto.getCoords().size() > 1){
+            // LINE
+            List<Coordinate> coordinates = new ArrayList<>();
+            for (List<Double> xy : assetForSigUpdateDto.getCoords()) {
+                Coordinate coordinate = new CoordinateXY(xy.get(0), xy.get(1));
+                coordinates.add(coordinate);
+            }
+            Geometry geometry = new GeometryFactory().createLineString(coordinates.toArray(new Coordinate[0]));
+            assetForSig.setAfsGeom(geometry);
+        } else {
+            throw new FunctionalException("Création impossible du nouvel équipement : pas de coordonnées");
+        }
+
         assetForSig.setAfsInformations(assetForSigUpdateDto.getAfsInformations());
+        assetForSig.setAfsCacheId(assetForSigUpdateDto.getId());
         assetForSig.setCreatedBy(user);
         assetForSig.setModifiedBy(user);
         assetForSig.setLayer(layer);

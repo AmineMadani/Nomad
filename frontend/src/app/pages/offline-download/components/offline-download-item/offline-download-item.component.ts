@@ -11,6 +11,7 @@ export class OfflineDownloadItemComponent implements OnInit {
 
   @Input() offlineDownload: OfflineDownload;
   @Input() title: string;
+  @Input() isDirectDownload: boolean = true;
 
   @Output() onDownload: EventEmitter<void> = new EventEmitter<void>();
   @Output() onDump: EventEmitter<void> = new EventEmitter<void>();

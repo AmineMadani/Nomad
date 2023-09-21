@@ -42,7 +42,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 
     @Query(value = "SELECT id " +
             "FROM nomad.contract ctr " +
-            "WHERE ST_Intersects(ctr.geom, st_setsrid(st_geomfromtext('POINT('||':longitude'|| ' '||':latitude'||')'),4326))",
+            "WHERE ST_Intersects(ctr.geom, ST_SetSRID(ST_MakePoint(:longitude, :latitude),4326))",
             nativeQuery = true
     )
     List<Long> getContractIdsByLatitudeLongitude(

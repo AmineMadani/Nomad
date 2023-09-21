@@ -1295,8 +1295,9 @@ alter table users add column usr_default_org_id bigint references organizational
 create table if not exists asset_for_sig(
 id                           bigserial primary key,
 lyr_id                       bigint NOT NULL REFERENCES layer(id),
-afs_geom                     text NOT NULL,
+afs_geom                     geometry NOT NULL,
 afs_informations             text NOT NULL,
+afs_cache_id                 bigint unique,
 -- Technical metadata
 afs_ucre_id                  bigint references users(id) default 0,
 afs_umod_id                  bigint references users(id) default 0,
@@ -1310,6 +1311,7 @@ comment on column asset_for_sig.id is 'Table unique ID';
 comment on column asset_for_sig.lyr_id is 'Layer Id';
 comment on column asset_for_sig.afs_geom is 'Geometry of the asset';
 comment on column asset_for_sig.afs_informations is 'Informations about the asset';
+comment on column asset_for_sig.afs_cache_id is 'Table unique cache ID';
 comment on column asset_for_sig.afs_ucre_id is 'creator Id';
 comment on column asset_for_sig.afs_umod_id is 'Last modificator Id';
 comment on column asset_for_sig.afs_dcre is 'Creation date';
