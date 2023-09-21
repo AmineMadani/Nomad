@@ -108,40 +108,32 @@ export class BasemapOfflineService {
   /**
    * Download the offline basemap file
    */
-  public downloadOfflineData(urlFile: string, onProgressPercentage: Function, onComplete: Function) {
-    let fileSize: number;
-
+  public async downloadOfflineData(urlFile: string, onProgressPercentage: Function) {
     Filesystem.addListener('progress', progress => {
-      if (!fileSize) {
-        fileSize = progress.bytes / (1024 * 1024);
-      }
-
       const newPercentage = ((progress.bytes / progress.contentLength) * 100);
       onProgressPercentage(newPercentage);
     });
 
-    Filesystem.downloadFile({
+    await Filesystem.downloadFile({
       progress: true,
       directory: Directory.Data,
       path: 'territory',
       url: urlFile
-    }).then(async () => {
-      if (this.native) {
-        this.moveDatabasesAndAddSuffix().then(async () => {
-          let dbList = [];
-          try {
-            dbList = (await this.sqliteConnection.getDatabaseList()).values;
-          } catch (e) {
-            dbList = [];
-          }
-          if (dbList.includes('territorySQLite.db')) {
-            this.openDatabase('territory', false, "no-encryption", 1, false);
-          }
-        });
-      }
-
-      onComplete(fileSize);
     });
+
+    if (this.native) {
+      await this.moveDatabasesAndAddSuffix();
+
+      let dbList = [];
+      try {
+        dbList = (await this.sqliteConnection.getDatabaseList()).values;
+      } catch (e) {
+        dbList = [];
+      }
+      if (dbList.includes('territorySQLite.db')) {
+        this.openDatabase('territory', false, "no-encryption", 1, false);
+      }
+    }
   }
 
   public async getTileFromDatabase(z: number, x: number, y: number): Promise<ArrayBuffer> {

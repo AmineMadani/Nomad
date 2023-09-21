@@ -10,3 +10,10 @@ export interface Basemap {
   map_default: boolean;
   map_slabel?: string;
 }
+
+export interface BasemapTemplate {
+  name: string;
+  link: string;
+  size: number;
+  selected: boolean;
+}

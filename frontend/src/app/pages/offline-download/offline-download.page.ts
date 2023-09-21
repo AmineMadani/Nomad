@@ -1,6 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Observable, Subject, take, takeUntil } from 'rxjs';
+import { ModalController } from '@ionic/angular';
+import { Subject, takeUntil } from 'rxjs';
 import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/core/services/offlineDownload.service';
+import { BasemapsSelectionModalComponent } from './components/basemaps-selection-modal/basemaps-selection-modal.component';
+import { TemplateService } from 'src/app/core/services/template.service';
+import { BasemapTemplate } from 'src/app/core/models/basemap.model';
 
 @Component({
   selector: 'app-offline-download',
@@ -8,6 +12,8 @@ import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/
   styleUrls: ['./offline-download.page.scss'],
 })
 export class OfflineDownloadPage implements OnInit {
+
+  public availableBasemaps: BasemapTemplate[] = [];
 
   public referentialsOfflineDownload: OfflineDownload = {
     state: DownloadState.NOT_STARTED,
@@ -25,7 +31,9 @@ export class OfflineDownloadPage implements OnInit {
 
   constructor(
     private offlineDownloadService: OfflineDownloadService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private modalCtrl: ModalController,
+    private templateService: TemplateService
   ) { }
 
   async ngOnInit() {
@@ -33,6 +41,20 @@ export class OfflineDownloadPage implements OnInit {
     this.referentialsOfflineDownload = await this.offlineDownloadService.getInitialReferentialsDownloadState();
     this.tilesOfflineDownload = await this.offlineDownloadService.getInitialTilesDownloadState();
     this.basemapsOfflineDownload = await this.offlineDownloadService.getInitialBasemapsDownloadState();
+
+    // Get required data for the basemaps selection
+    this.templateService.getFormsTemplate().subscribe((forms) => {
+      let formTemplate = forms.find(form => form.formCode === 'OFFLINE_BASEMAPS');
+      if (formTemplate) {
+        this.availableBasemaps = JSON.parse(formTemplate.definition);
+        this.availableBasemaps = this.availableBasemaps.map((basemap) => {
+          return {
+            ...basemap,
+            selected: this.basemapsOfflineDownload.basemapDownloaded === basemap.name,
+          }
+        });
+      }
+    });
   }
 
   onReferentialsDownload() {
@@ -67,20 +89,50 @@ export class OfflineDownloadPage implements OnInit {
     this.offlineDownloadService.dumpTiles();
   }
 
-  onBasemapsDownload() {
-    // Launch subscription to listen changes about the percentage progress
-    this.launchBasemapsSubscription();
+  async onBasemapDownload() {
+    // Select the basemaps to download
+    const modal = await this.modalCtrl.create({
+      component: BasemapsSelectionModalComponent,
+      componentProps: {
+        basemaps: this.availableBasemaps
+      },
+      cssClass: 'selection-modal'
+    });
+    modal.present();
 
-    // Download
-    this.offlineDownloadService.downloadBasemaps();
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'confirm') {
+      if (data) {
+        // Launch subscription to listen changes about the percentage progress
+        this.launchBasemapSubscription();
+
+        // Download
+        this.offlineDownloadService.downloadBasemap(data).then(() => {
+          // We set the selected basemap after download
+          this.availableBasemaps = this.availableBasemaps.map((basemap) => {
+            basemap.selected = this.basemapsOfflineDownload.basemapDownloaded === basemap.name;
+            return basemap;
+          });
+        });
+      } else {
+        // Dump databases if no selection
+        this.onBasemapDump();
+        // We set all selected basemap to false
+        this.availableBasemaps = this.availableBasemaps.map((basemap) => {
+          basemap.selected = false;
+          return basemap;
+        });
+      }
+    }
   }
 
-  onBasemapsDump() {
+  onBasemapDump() {
     // Reset offline download
-    this.resetBasemapsDownload();
+    this.resetBasemapDownload();
 
     // Dump stored data
-    this.offlineDownloadService.dumpBasemaps();
+    this.offlineDownloadService.dumpBasemap();
   }
 
   onDownloadAll() {
@@ -95,8 +147,8 @@ export class OfflineDownloadPage implements OnInit {
     }
 
     if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
-      this.launchBasemapsSubscription();
-      this.onBasemapsDownload();
+      this.launchBasemapSubscription();
+      this.onBasemapDownload();
     }
   }
 
@@ -112,8 +164,8 @@ export class OfflineDownloadPage implements OnInit {
     }
 
     if (this.basemapsOfflineDownload.state !== DownloadState.IN_PROGRESS) {
-      this.resetBasemapsDownload();
-      this.onBasemapsDump();
+      this.resetBasemapDownload();
+      this.onBasemapDump();
     }
   }
 
@@ -149,7 +201,7 @@ export class OfflineDownloadPage implements OnInit {
       });
   }
 
-  private launchBasemapsSubscription() {
+  private launchBasemapSubscription() {
     this.offlineDownloadService.getBasemapsOfflineDownload()
       .pipe(
         takeUntil(this.destroyBasemapsSubscription$)
@@ -178,7 +230,7 @@ export class OfflineDownloadPage implements OnInit {
     };
   }
 
-  private resetBasemapsDownload() {
+  private resetBasemapDownload() {
     this.basemapsOfflineDownload = {
       state: DownloadState.NOT_STARTED
     };

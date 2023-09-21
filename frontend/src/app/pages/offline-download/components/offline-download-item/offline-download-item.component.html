@@ -8,8 +8,11 @@
       <div class="download-description">Non disponible en mode hors connexion</div>
     </div>
 
-    <ion-button fill="clear" slot="end" (click)="onDownloadClick()">
+    <ion-button *ngIf="isDirectDownload" fill="clear" slot="end" (click)="onDownloadClick()">
         <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+    </ion-button>
+    <ion-button *ngIf="!isDirectDownload" fill="clear" slot="end" (click)="onDownloadClick()">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
     </ion-button>
   </ion-item>
   <!-- Download in progress -->
@@ -30,10 +33,10 @@
       <div class="download-description">{{ offlineDownload.diskSize }} | Dernière mise à jour: {{ offlineDownload.lastUpdateDate | date:"dd/MM/yyyy 'à' HH:mm"  }}</div>
     </div>
 
-    <ion-button [id]="title" fill="clear" slot="end">
+    <ion-button *ngIf="isDirectDownload" [id]="title" fill="clear" slot="end">
         <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
     </ion-button>
-    <ion-popover [trigger]="title" triggerAction="click">
+    <ion-popover *ngIf="isDirectDownload" [trigger]="title" triggerAction="click">
       <ng-template>
         <ion-content class="ion-padding">
           <ion-item (click)="onDownloadClick(); dismissPopover();">Mettre à jour</ion-item>
@@ -41,6 +44,10 @@
         </ion-content>
       </ng-template>
     </ion-popover>
+
+    <ion-button *ngIf="!isDirectDownload" fill="clear" slot="end" (click)="onDownloadClick()">
+      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+    </ion-button>
   </ion-item>
 </ng-container>
 
