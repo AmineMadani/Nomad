@@ -3,4 +3,5 @@ export interface AssetForSigDto {
   lyrId: number;
   afsGeom: string;
   afsInformations: string;
+  coords: number[][];
 }

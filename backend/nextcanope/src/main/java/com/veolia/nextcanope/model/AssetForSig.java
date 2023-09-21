@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.locationtech.jts.geom.Geometry;
 
 import java.util.Date;
 
@@ -31,7 +32,7 @@ public class AssetForSig {
 
     @Column(name="afs_geom", length=2147483647)
     @JsonProperty("afs_geom")
-    private String afsGeom;
+    private Geometry afsGeom;
 
     @Column(name="afs_informations", length=2147483647)
     @JsonProperty("afs_informations")
@@ -48,6 +49,10 @@ public class AssetForSig {
     @UpdateTimestamp
     @JsonProperty("afs_dmod")
     private Date afsDmod;
+
+    @Column(name="afs_cache_id", length=2147483647)
+    @JsonProperty("afs_cache_id")
+    private Long afsCacheId;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -80,11 +85,11 @@ public class AssetForSig {
         this.id = id;
     }
 
-    public String getAfsGeom() {
+    public Geometry getAfsGeom() {
         return afsGeom;
     }
 
-    public void setAfsGeom(String afsGeom) {
+    public void setAfsGeom(Geometry afsGeom) {
         this.afsGeom = afsGeom;
     }
 
@@ -94,6 +99,14 @@ public class AssetForSig {
 
     public void setAfsInformations(String afsInformations) {
         this.afsInformations = afsInformations;
+    }
+
+    public Long getAfsCacheId() {
+        return afsCacheId;
+    }
+
+    public void setAfsCacheId(Long afsCacheId) {
+        this.afsCacheId = afsCacheId;
     }
 
     public Date getAfsDcre() {

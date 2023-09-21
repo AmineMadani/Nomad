@@ -39,16 +39,18 @@ export class PraxedoService {
         let reasonId;
 
         if(res.extras.TYPE) {
-          layer = lLayerWtr.find(layerWtr => layerWtr.astCode == res.extras.TYPE.toString())?.lyrTableName;
+          const typeCode = res.extras.TYPE.toString().split('-')[0];
+          layer = lLayerWtr.find(layerWtr => layerWtr.astCode == typeCode)?.lyrTableName;
         }
         if(res.extras.MOTIF) {
-          reasonId = lLayerWtr.find(layerWtr => layerWtr.wtrCode == res.extras.MOTIF.toString())?.wtrId;
+          const reasonCode = res.extras.TYPE.toString().split('-')[0];
+          reasonId = lLayerWtr.find(layerWtr => layerWtr.wtrCode == reasonCode)?.wtrId;
         }
         if(res.extras.GPS_RI) {
           try {
             let coords = res.extras.GPS_RI.toString().split(';');
-            longitude = Number(coords[0]);
-            latitude = Number(coords[1]);
+            latitude = Number(coords[0]);
+            longitude = Number(coords[1]);
           } catch (e) {
             console.error('Praxedo gps coords failed ', e);
           }

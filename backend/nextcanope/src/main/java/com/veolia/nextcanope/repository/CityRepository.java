@@ -15,7 +15,7 @@ import com.veolia.nextcanope.model.City;
  */
 public interface CityRepository extends JpaRepository<City, Long> {
 	@Query(value = "SELECT id " + "FROM nomad.city cty "
-				+ "WHERE ST_Intersects(cty.geom, st_setsrid(st_geomfromtext('POINT('||':longitude'|| ' '||':latitude'||')'),4326))"
+				+ "WHERE ST_Intersects(cty.geom, ST_SetSRID(ST_MakePoint(:longitude, :latitude),4326))"
 			, nativeQuery = true)
 	List<Long> getCityIdsByLatitudeLongitude(@Param("latitude") Double latitude, @Param("longitude") Double longitude);
 

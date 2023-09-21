@@ -50,4 +50,26 @@ export class FormSelectComponent implements OnInit {
     )?.message;
     return error ? error : val.value;
   }
+
+  onSelectValue(key: string){
+    if(this.attributes.multiple) {
+      let values = this.control.value;
+      if(values) {
+        if(values.includes(key)) {
+          this.control.setValue(values.filter(val => val != key));
+        } else {
+          values.push(key);
+          this.control.setValue(values);
+        }
+      } else {
+        this.control.setValue([key]);
+      }
+    } else {
+      if(this.control.value == key) {
+        this.control.setValue(null);
+      } else {
+        this.control.setValue(key);
+      }
+    }
+  }
 }

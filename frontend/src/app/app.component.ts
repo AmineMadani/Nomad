@@ -32,6 +32,11 @@ export class AppComponent implements OnInit, OnDestroy {
       url: '/settings',
       icon: 'settings',
     },
+    {
+      title: 'Données hors connexion',
+      url: '/offline-download',
+      icon: 'cloud-offline',
+    },
   ];
   constructor(
     private keycloakService: KeycloakService,
@@ -59,7 +64,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isMobile = this.utils.isMobilePlateform();
     // Don't show the settings page if mobile plateform
     if (this.isMobile) {
-      this.appPages = this.appPages.filter((page) => page.title !== 'Paramètres');
+      this.appPages = this.appPages.filter((page) => page.url !== '/settings');
+    } else {
+      this.appPages = this.appPages.filter((page) => page.url !== '/offline-download');
     }
 
     this.keycloakService.initialisation();

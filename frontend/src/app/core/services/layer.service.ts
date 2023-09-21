@@ -3,7 +3,7 @@ import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetai
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
-import { Observable, catchError, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
+import { Observable, catchError, delay, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
@@ -108,30 +108,6 @@ export class LayerService {
   }
 
   /**
-   * Fetches the tile of a layer from server.
-   * If successful, stores the layer's file in IndexedDB.
-   * If the network duration is superior to 2 seconds, it returns the indexedDB data.
-   * @param {string} layerKey - Key of the layer.
-   * @param {string} file - The file where the view is.
-   * @returns The GeoJSON file for the current tile.
-   */
-  public getListLayerFile(
-    layerKey: string,
-    files: string[]
-  ): Observable<NomadGeoJson[]> {
-    /* It's getting the number from the file name. */
-    const listFileNumber: number[] = files.map((file) => Number(file.replace('index_', '').replace('.geojson', '')));
-
-    return this.layerDataService.getListLayerFile(layerKey, listFileNumber).pipe(
-      tap(async listNomadGeojson => {
-        for (const geojson of listNomadGeojson) {
-          await this.db.tiles.put({ data: geojson, key: geojson.name }, geojson.name);
-        }
-      })
-    );
-  }
-
-  /**
    * Method to know if layer data is currently loading from the server
    * @returns true is data is currently loading
    */
@@ -171,7 +147,14 @@ export class LayerService {
     ))).find(layer => layer.lyrTableName == key);
   }
 
-  public getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
+  public async getEquipmentByLayerAndId(layer: string, id: string, forcedCache: boolean = false): Promise<any> {
+    if(forcedCache) {
+      const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
+        layer,
+        id
+      );
+      return { id: feature.id, ...feature.properties };
+    }
     return firstValueFrom(
       this.layerDataService.getEquipmentByLayerAndId(layer, id)
         .pipe(

@@ -179,19 +179,21 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
-    // Add tempory new asset
-    const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
-    const listTaskOnNewAsset = wko.tasks.filter((task) => task.assObjRef?.startsWith('TMP-'));
-    for (const task of listTaskOnNewAsset) {
-      abstractFeatures.push(
-        {
-          id: task.assObjRef,
-          lyrTableName: task.assObjTable,
-          x: task.longitude,
-          y: task.latitude,
-          isTemp: true,
-        }
-      );
+    if (this.wkoDraft != null) {
+      // Add tempory new asset
+      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      const listTaskOnNewAsset = wko.tasks.filter((task) => task.assObjRef?.startsWith('TMP-'));
+      for (const task of listTaskOnNewAsset) {
+        abstractFeatures.push(
+          {
+            id: task.assObjRef,
+            lyrTableName: task.assObjTable,
+            x: task.longitude,
+            y: task.latitude,
+            isTemp: true,
+          }
+        );
+      }
     }
 
     const promises: Promise<void>[] = abstractFeatures.map(
@@ -478,6 +480,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       });
     }
 
-    this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features);
+    const qParam = this.wkoDraft ? { draft: this.wkoDraft } : {};
+    this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features, qParam);
   }
 }
