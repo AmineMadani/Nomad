@@ -307,12 +307,18 @@ export class MapService {
             this.map.setLayoutProperty(style.id, 'visibility', 'visible');
           }
         } else {
-          if (
-            style.id.includes(styleLayer) &&
-            (style as any).source == layerKey &&
-            style.layout?.visibility === 'none'
-          ) {
-            this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+          if((style as any).source == layerKey) {
+            if (
+              style.id.includes(styleLayer)
+            ) {
+              if(style.layout?.visibility === 'none' || !style.layout?.visibility) {
+                this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+              }
+            } else {
+              if(!style.layout?.visibility){
+                this.map.setLayoutProperty(style.id, 'visibility', 'none');
+              }
+            }
           }
         }
       }
@@ -422,7 +428,7 @@ export class MapService {
       if (
         style.id.includes(styleLayer) &&
         (style as any).source == layerKey &&
-        style.layout?.visibility === 'visible'
+        (!style.layout?.visibility || style.layout?.visibility === 'visible')
       ) {
         this.map.setLayoutProperty(style.id, 'visibility', 'none');
       }
