@@ -321,8 +321,8 @@ export class MapService {
   }
 
   /**
-   * Method to apply the filter on the map for a specific layer
-   * @param layerKey  layer exploitation data
+   * Method to create then apply the filter on the map for a specific layer
+   * @param layerKey layer
    * @returns
    */
   public applyFilterOnMap(layerKey: string, filters?: any): void {
@@ -335,15 +335,26 @@ export class MapService {
     const filter: any[] = ['all'];
     if (filters && filters.size > 0) {
       for (const [key, values] of filters) {
-        if (key.toLowerCase().includes('date')) {
-          filter.push(['>=', ['get', key], ['literal', values[0]]]);
-          if (values?.[1]) {
-            filter.push(['<=', ['get', key], ['literal', values[1]]]);
-          }
-        } else {
+        if (!key.toLowerCase().includes('date')) {
           filter.push(['in', ['get', key], ['literal', values]]);
         }
       }
+    }
+
+    for (const style of layer.style) {
+      this.map.setFilter(style.id, filter as any);
+    }
+  }
+
+  /**
+   * Method to apply an already created the filter on the map for a specific layer
+   * @param layerKey layer
+   * @returns
+   */
+  public applyCreatedFilterOnMap(layerKey: string, filter: any): void {
+    const layer = this.getLayer(layerKey);
+    if (!layer || !filter) {
+      return;
     }
 
     for (const style of layer.style) {
