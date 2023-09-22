@@ -365,7 +365,7 @@ export class ReportCreateComponent implements OnInit {
     }
     this.onSaveWorkOrderState();
     this.onClosedWko();
-      
+
   }
 
   /**
@@ -379,7 +379,7 @@ export class ReportCreateComponent implements OnInit {
       if(!task.report?.dateCompletion) {
         task.report = null;
       }
-      
+
     }
 
     if(this.workorder.tasks.length == 1 || forced) {
@@ -414,11 +414,11 @@ export class ReportCreateComponent implements OnInit {
           }
         }
         IntentAction.closeIntent(
-          { 
-            value: 
-              { 
-                'RETOUR': 'ok', 
-                'CONTRAT': (contract ? contract.ctrCode : ''), 
+          {
+            value:
+              {
+                'RETOUR': 'ok',
+                'CONTRAT': (contract ? contract.ctrCode : ''),
                 'COMMENTAIRE': comment,
                 'GPS_RI': this.workorder.tasks[0].latitude+';'+this.workorder.tasks[0].longitude,
                 'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
@@ -426,11 +426,11 @@ export class ReportCreateComponent implements OnInit {
                 'MOTIF': this.workorder.tasks[0].wtrCode,
                 'REFEXTINT': this.workorder.id,
                 'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
-              } 
+              }
           }
         );
         this.isSubmitting = false;
-        if(!this.workorder.resync) {
+        if (!this.workorder.syncOperation) {
           this.exploitationService.deleteCacheWorkorder(this.workorder);
         }
       });
@@ -438,7 +438,7 @@ export class ReportCreateComponent implements OnInit {
       this.mapService.removeEventLayer('task');
       this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
-      if(!this.workorder.resync) {
+      if(!this.workorder.syncOperation) {
         this.exploitationService.deleteCacheWorkorder(this.workorder);
       }
     }
@@ -578,7 +578,7 @@ export class ReportCreateComponent implements OnInit {
     }
     this.completeModal.dismiss();
   }
-  
+
   /*
    * Delete unplanned workorder
    */
@@ -627,8 +627,8 @@ export class ReportCreateComponent implements OnInit {
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,
       equipments,
-      { 
-        draft: this.workorder.id, 
+      {
+        draft: this.workorder.id,
         step: 'report'
       }
     );

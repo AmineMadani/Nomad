@@ -33,7 +33,7 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
 
     if (user) {
       try {
-        await initService.getInitData();
+        await initService.onAppInit();
       } catch (e) {
         router.navigate(['error']);
         return false;

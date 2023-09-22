@@ -159,7 +159,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.workorder = await this.workOrderService.getWorkorderById(
             Number(wkoId)
           );
-          
+
           this.equipments = this.workorder.tasks.map((t) => {
             return {
               id: t.assObjRef ?? this.utils.createCacheId().toString(),
@@ -442,7 +442,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
-      if (!res.resync) {
+      if (!res.syncOperation) {
         this.workOrderService.deleteCacheWorkorder(this.workorder);
       }
     });

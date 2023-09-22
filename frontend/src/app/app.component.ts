@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserService } from './core/services/user.service';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { WorkorderService } from './core/services/workorder.service';
 
 register();
 
@@ -45,7 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private platform: Platform,
     private utils: UtilsService,
     private userService : UserService,
-    private router: Router
+    private router: Router,
+    private workorderService: WorkorderService
   ) {
     this.keycloakService.configure();
     defineCustomElements(window);
@@ -80,6 +82,9 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    // Synchronize workorders all 15 minutes to send and refresh cached values to the server
+    this.workorderService.startPeriodicSyncWorkorders();
   }
 
   ngOnDestroy(): void {
