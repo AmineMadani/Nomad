@@ -343,8 +343,9 @@ export class MapService {
       for (const [key, values] of filters) {
         if (key.toLowerCase().includes('date')) {
           filter.push(['>=', ['get', key], ['literal', values[0]]]);
-          if (values?.[1])
+          if (values?.[1]) {
             filter.push(['<=', ['get', key], ['literal', values[1]]]);
+          }
         } else {
           filter.push(['in', ['get', key], ['literal', values]]);
         }
@@ -621,7 +622,7 @@ export class MapService {
         const newPoint: any = {
           geometry: {
             type: 'Point',
-            coordinates: [task.longitude, task.latitude],
+            coordinates: [properties.longitude, properties.latitude],
           },
           properties: taskProperties,
           type: 'Feature',
