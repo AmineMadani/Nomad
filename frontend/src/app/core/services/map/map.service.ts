@@ -611,6 +611,8 @@ export class MapService {
         taskProperties.y = task.latitude;
         taskProperties.wkoName = 'Intervention opportuniste';
         taskProperties.wkoId = properties.id.toString();
+        taskProperties.wkoAppointment = properties.wkoAppointment;
+        taskProperties.wkoEmergency = properties.wkoEmergency;
         const newPoint: any = {
           geometry: {
             type: 'Point',

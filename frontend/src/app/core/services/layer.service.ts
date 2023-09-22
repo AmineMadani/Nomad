@@ -3,7 +3,7 @@ import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetai
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
-import { Observable, catchError, delay, firstValueFrom, from, lastValueFrom, map, switchMap, tap, timeout } from 'rxjs';
+import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
@@ -153,7 +153,9 @@ export class LayerService {
         layer,
         id
       );
-      return { id: feature.id, ...feature.properties };
+      if(feature) {
+        return { id: feature.id, ...feature.properties };
+      }
     }
     return firstValueFrom(
       this.layerDataService.getEquipmentByLayerAndId(layer, id)
@@ -171,8 +173,30 @@ export class LayerService {
     );
   }
 
-  public getEquipmentsByLayersAndIds(idsLayers: any): Observable<any> {
-    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers);
+  public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
+    //Check if we find the equipment in cached
+    let res = [];
+    let idsLayersNotLocal = [];
+    for(let idLayer of idsLayers) {
+      let ids = [];
+      for(let ref of idLayer.equipmentIds) {
+        const feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+        if(feature) {
+          res.push(feature.properties)
+        } else {
+          ids.push(ref);
+        }
+      }
+      if(ids.length > 0) {
+        idsLayersNotLocal.push({ equipmentsIds : ids, lyrTableName : idLayer.lyrTableName});
+      }
+    }
+    //If we don't find some of them, we call the backend
+    if(idsLayersNotLocal.length == 0) {
+      return res;
+    } else {
+      return [...res, ...(await firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers)))] 
+    }
   }
 
   /**

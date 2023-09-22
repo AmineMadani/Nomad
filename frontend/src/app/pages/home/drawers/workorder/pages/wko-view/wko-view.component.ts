@@ -62,21 +62,15 @@ export class WkoViewComponent implements OnInit {
   public userHasPermissionCreateProgram: boolean = false;
 
   public canEdit(): boolean {
-    return (
-      !this.loading &&
-      this.workOrder &&
-      (this.workOrder.wtsId === WkoStatus.CREE ||
-        this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF)
-    );
+    return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
+                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF
+                                        || this.workOrder.wtsId === WkoStatus.ERREUR);
   }
 
   public canCancel(): boolean {
-    return (
-      !this.loading &&
-      this.workOrder &&
-      this.workOrder.wtsId !== WkoStatus.TERMINE &&
-      this.workOrder.wtsId !== WkoStatus.ANNULE
-    );
+    return  !this.loading && this.workOrder  && this.workOrder.wtsId !== WkoStatus.TERMINE
+                                        && this.workOrder.wtsId !== WkoStatus.ANNULE
+                                        && this.workOrder.wtsId === WkoStatus.ERREUR;
   }
 
   public isCancelled(): boolean {
@@ -102,8 +96,8 @@ export class WkoViewComponent implements OnInit {
         takeUntil(this.ngUnsubscribe$)
       )
       .subscribe(async () => {
-        const { id } = this.activatedRoute.snapshot.params;
-        this.taskId = this.activatedRoute.snapshot.params['taskid']?.toString();
+        const { id, taskid } = this.activatedRoute.snapshot.params;
+        this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
 
         // Get the list of attachment
@@ -113,12 +107,10 @@ export class WkoViewComponent implements OnInit {
 
         this.displayAndZoomTo(this.workOrder);
 
-        this.selectedTask = this.workOrder.tasks[0];
-
         if (this.taskId) {
-          this.selectedTask = this.workOrder.tasks.find(
-            (task) => task.id.toString() == this.taskId
-          );
+          this.selectedTask = this.workOrder.tasks.find((task) => task.id.toString() == this.taskId);
+        } else {
+          this.selectedTask = this.workOrder.tasks[0];
         }
 
         const wtsid = this.selectedTask?.wtsId;
@@ -132,22 +124,15 @@ export class WkoViewComponent implements OnInit {
           layers: this.layerService.getAllLayers(),
         }).subscribe(
           ({ workorderTaskStatus, workorderTaskReasons, layers }) => {
-            this.status = workorderTaskStatus.find(
-              (refStatus) => refStatus.id == wtsid
-            )?.wtsLlabel;
-            this.status =
-              this.status?.charAt(0).toUpperCase() + this.status.slice(1);
+            this.status = workorderTaskStatus.find((refStatus) => refStatus.id == wtsid)?.wtsLlabel;
+            this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
 
             this.reason = workorderTaskReasons.find(
               (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
             )?.wtrLlabel;
 
-            const layer = lyrTableName
-              ? layers.find((asset) => asset.lyrTableName == lyrTableName)
-              : null;
-            this.assetLabel = layer
-              ? layer.domLLabel + ' - ' + layer.lyrSlabel
-              : null;
+            const layer = lyrTableName ? layers.find((asset) => asset.lyrTableName == lyrTableName) : null;
+            this.assetLabel = layer ? layer.domLLabel + ' - ' + layer.lyrSlabel : null;
 
             this.loading = false;
           }
@@ -236,6 +221,8 @@ export class WkoViewComponent implements OnInit {
     }
 
     const lyrTableName = this.selectedTask.assObjTable;
+
+    if (this.selectedTask.assObjRef.startsWith('TMP-')) return;
 
     this.drawerService.navigateTo(
       DrawerRouteEnum.EQUIPMENT,

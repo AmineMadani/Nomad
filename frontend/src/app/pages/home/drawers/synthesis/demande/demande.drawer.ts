@@ -34,7 +34,6 @@ export class DemandeDrawer implements OnInit {
 
   public buttons: SynthesisButton[] = [
     { key: 'note', label: 'Compte-rendu', icon: 'reader' },
-    { key: 'add', label: 'Ajouter à un programme', icon: 'link' },
     { key: 'update', label: 'Mettre à jour', icon: 'pencil' },
   ];
   public demande: MapFeature;

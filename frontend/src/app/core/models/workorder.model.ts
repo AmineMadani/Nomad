@@ -68,7 +68,8 @@ export enum WkoStatus {
     'ENVOYEPLANIF' = 2,
     'PLANIFIE' = 3,
     'TERMINE' = 4,
-    'ANNULE' = 5
+    'ANNULE' = 5,
+    'ERREUR'= 6
 }
 
 export interface WorkorderTaskStatus {
