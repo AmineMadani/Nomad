@@ -1,6 +1,5 @@
 package com.veolia.nextcanope.dto.assetForSig;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class AssetForSigUpdateDto {

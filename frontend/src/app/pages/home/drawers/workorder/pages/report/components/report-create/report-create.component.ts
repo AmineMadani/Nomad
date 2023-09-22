@@ -482,7 +482,7 @@ export class ReportCreateComponent implements OnInit {
    */
   public getFormQuestionLabel(): string {
     if (this.stepForm?.formEditor?.sections[0]?.children) {
-      if (this.selectedTasks[0]?.report?.questionIndex) {
+      if (this.selectedTasks && this.selectedTasks[0]?.report?.questionIndex) {
         return (this.selectedTasks[0].report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
       } else if (this.selectedTasks && this.selectedTasks.length > 0 && this.step == 3) {
         return '1 sur ' + this.stepForm.formEditor.sections[0].children.length;

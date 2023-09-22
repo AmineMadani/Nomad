@@ -42,7 +42,7 @@
         Clôturer circuit
       </div>
     </ion-fab>
-    <ion-fab *ngIf="(step == 3 && !isSubmitting)" (click)="onGoToFirstStep()" class="fab-return">
+    <ion-fab *ngIf="(step == 3 && !isSubmitting && !this.isTest)" (click)="onGoToFirstStep()" class="fab-return">
       <ion-fab-button color="secondary" size="small">
         <ion-icon name="arrow-undo-outline"></ion-icon>
       </ion-fab-button>
