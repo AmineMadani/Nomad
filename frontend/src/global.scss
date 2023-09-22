@@ -77,6 +77,16 @@ html, body { height: 100%; width: 100%; margin: 0; }
   .maplibregl-ctrl, .maplibregl-ctrl-scale {
     display: none !important;
   }
+  .main-container{
+    object-fit: contain;
+    //image-resolution: 300dpi;
+    width: 1280px !important;
+    height: 720px !important;
+  }
+  .maplibregl-canvas{
+    width: 1280px !important;
+    height: 720px !important;
+  }
 }
 
 .maplibregl-ctrl-top-right, .maplibregl-ctrl-top-left {
@@ -441,13 +451,6 @@ ion-segment-button {
     color: black;
     font-size: 14px;
   }
-}
-
-.selection-modal {
-  --height: 50%;
-  --width: 90%;
-  --border-radius: 16px;
-  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 .filter-popover {
