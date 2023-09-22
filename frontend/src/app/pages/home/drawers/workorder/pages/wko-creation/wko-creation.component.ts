@@ -5,7 +5,7 @@ import {
   ViewChild,
   AfterViewInit,
 } from '@angular/core';
-import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
@@ -20,6 +20,7 @@ import {
   Observable,
   tap,
   debounceTime,
+  skipWhile
 } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
@@ -70,7 +71,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private cityService: CityService,
     private contractService: ContractService,
     private datePipe: DatePipe
-  ) {}
+  ) {
+    this.router.events
+      .pipe(
+        takeUntil(this.ngUnsubscribe$),
+        filter((event) => event instanceof NavigationEnd)
+      )
+      .subscribe(async () => {
+        this.removeMarkers();
+        this.markerCreation.clear();
+        await this.ngOnInit();
+      });
+  }
 
   @ViewChild('equipmentModal', { static: true })
   public equipmentModal: IonModal;
@@ -207,9 +219,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.workorder.wkoAttachment = false;
 
-        await this.workOrderService.saveCacheWorkorder(this.workorder);
-
         await this.generateMarker();
+        
+        await this.saveWorkOrderInCache();
       });
   }
 
@@ -768,25 +780,29 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.creationWkoForm.valueChanges
       .pipe(debounceTime(500), takeUntil(this.ngUnsubscribe$))
       .subscribe(async () => {
-        Object.keys(this.creationWkoForm.value).forEach((key) => {
-          if (key === 'wtrId') {
-            this.workorder.tasks.map((task: Task) => {
-              task.wtrId = this.creationWkoForm.value['wtrId'];
-              return task;
-            });
-          } else {
-            this.workorder[key] = this.creationWkoForm.value[key];
-          }
-        });
-        this.workorder.wkoPlanningStartDate = DateTime.fromFormat(
-          this.workorder.wkoPlanningStartDate as any,
-          'dd/MM/yyyy'
-        ).toISO() as any;
-        this.workorder.wkoPlanningEndDate = DateTime.fromFormat(
-          this.workorder.wkoPlanningEndDate as any,
-          'dd/MM/yyyy'
-        ).toISO() as any;
-        this.workOrderService.saveCacheWorkorder(this.workorder);
+        await this.saveWorkOrderInCache();
       });
+  }
+
+  private async saveWorkOrderInCache(): Promise<void> {
+    Object.keys(this.creationWkoForm.value).forEach((key) => {
+      if (key === 'wtrId') {
+        this.workorder.tasks.map((task: Task) => {
+          task.wtrId = this.creationWkoForm.value['wtrId'];
+          return task;
+        });
+      } else {
+        this.workorder[key] = this.creationWkoForm.value[key];
+      }
+    });
+    this.workorder.wkoPlanningStartDate = DateTime.fromFormat(
+      this.workorder.wkoPlanningStartDate as any,
+      'dd/MM/yyyy'
+    ).toISO() as any;
+    this.workorder.wkoPlanningEndDate = DateTime.fromFormat(
+      this.workorder.wkoPlanningEndDate as any,
+      'dd/MM/yyyy'
+    ).toISO() as any;
+    await this.workOrderService.saveCacheWorkorder(this.workorder);
   }
 }
