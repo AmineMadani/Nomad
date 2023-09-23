@@ -57,8 +57,8 @@ public class LayerController {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public String getIndexByKey() {
-        return this.layerService.getIndexByKey();
+    public String getIndexByKey(AccountTokenDto account) {
+        return this.layerService.getIndexByKey(account.getId());
     }
 
     @GetMapping(path = "/{key}/{tileNumber}")

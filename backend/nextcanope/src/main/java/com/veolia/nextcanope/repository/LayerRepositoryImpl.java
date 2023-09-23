@@ -20,13 +20,14 @@ public class LayerRepositoryImpl {
 
 	/**
      * Retrieves the index associated with a specific key.
+	 * @param userId 
      *
      * @param key The key to search for in the database.
      * @return The index as a string, associated with the given key.
      */
-	public String getIndexByKey() {
+	public String getIndexByKey(Long userId) {
         return this.jdbcTemplate.queryForObject(
-                "select nomad.f_get_geojson_index()",
+                "select nomad.f_get_geojson_index("+userId+")",
                 String.class
         );
     }
