@@ -6,6 +6,7 @@ export enum DrawerRouteEnum {
   EQUIPMENT = 'EQUIPMENT',
   EQUIPMENT_DETAILS = 'EQUIPMENT_DETAILS',
   WORKORDER = 'WORKORDER',
+  WORKORDER_WATER_TYPE = 'WORKORDER_WATER_TYPE',
   WORKORDER_CREATION = 'WORKORDER_CREATION',
   WORKORDER_EDITION = 'WORKORDER_EDITION',
   WORKORDER_VIEW = 'WORKORDER_VIEW',
@@ -47,6 +48,10 @@ export const drawerRoutes = [
   {
     path: '/home/equipment/:id/details',
     name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+  },
+  {
+    path: '/home/water-type',
+    name: DrawerRouteEnum.WORKORDER_WATER_TYPE,
   },
   {
     path: '/home/workorder/',

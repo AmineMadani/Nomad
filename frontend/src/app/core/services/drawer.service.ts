@@ -139,7 +139,7 @@ export class DrawerService {
       queryParams = this.generateFeatureParams(queryParams);
     }
 
-    this.router.navigate([url], { queryParams: queryParams, replaceUrl });
+    this.router.navigate([url], { queryParams: queryParams });
   }
 
   navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], queryParams?: any): void {
