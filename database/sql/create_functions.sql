@@ -202,7 +202,7 @@ $$;
 
 -- Function to create a geojson index
 -- for a specific layer
-create or replace function f_get_geojson_index()
+create or replace function f_get_geojson_index(user_ident int)
 returns jsonb
 language plpgsql
 as $$
@@ -222,7 +222,7 @@ begin
         geom,
         (
           select st_union(ST_MakeValid(geom))
-          from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = 0 and ucp.usc_ddel is null
+          from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = user_ident and ucp.usc_ddel is null
         )
       ) group by id, geom order by id
   ),

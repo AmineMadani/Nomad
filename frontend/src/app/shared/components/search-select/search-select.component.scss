@@ -71,5 +71,9 @@
       display: flex;
       flex-direction: column;
     }
+
+    .select-all-color {
+      color: var(--ion-color-primary);
+    }
   }
 }

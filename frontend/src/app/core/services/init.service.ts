@@ -10,10 +10,12 @@ export class InitService {
 
   constructor(
     private userService: UserService,
-    private layerService: LayerService,
+    private layerService: LayerService
   ) { }
 
-  async getInitData(): Promise<void> {
+  async onAppInit(): Promise<void> {
+    // Get necessary data in cache to avoid to much api calls
+    // TODO: Remove this on web, and just stock the values in the service
     await firstValueFrom(
       forkJoin({
         permissions: this.userService.getAllPermissions(),

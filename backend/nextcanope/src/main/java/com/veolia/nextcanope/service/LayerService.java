@@ -39,12 +39,13 @@ public class LayerService {
 
     /**
      * Retrieves the index associated with a specific key.
+     * @param userId 
      *
      * @param key The key to search for in the database.
      * @return The index as a string, associated with the given key.
      */
-    public String getIndexByKey() {
-        return layerRepositoryImpl.getIndexByKey();
+    public String getIndexByKey(Long userId) {
+        return layerRepositoryImpl.getIndexByKey(userId);
     }
 
     /**

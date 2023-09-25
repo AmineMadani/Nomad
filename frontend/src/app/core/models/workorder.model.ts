@@ -1,4 +1,5 @@
 import { AssetForSigDto } from './assetForSig.model';
+import { SyncOperations } from '../services/workorder.service';
 
 export interface Workorder {
     id?: number;
@@ -22,7 +23,7 @@ export interface Workorder {
     wkoAttachment?: boolean;
     wkoExtToSync?: boolean;
     wkoDmod?: Date;
-    resync?: boolean; //Param to indicate if the workorder have to be resync with the server
+    syncOperation?: SyncOperations; // A value wich indicates the method necessary to perform synchronization with the server
     isDraft?: boolean;
 }
 
