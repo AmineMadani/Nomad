@@ -124,7 +124,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.createForm();
 
-    this.title = 'Générer une interventions';
+    this.title = 'Générer une intervention';
     this.creationButonLabel = this.defaultCreationLabel;
 
     this.userHasPermissionSendWorkorder =
