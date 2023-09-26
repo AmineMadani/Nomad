@@ -145,7 +145,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       },
       {
         key: 'ask',
-        label: 'Faire une demande de MAJ',
+        label: 'Créer un patrimoine',
         icon: 'refresh',
         disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
       },

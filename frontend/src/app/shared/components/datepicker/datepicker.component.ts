@@ -1,8 +1,10 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import { DialogRef, DIALOG_DATA } from 'src/app/core/services/dialog.service';
 import { Year, Month, Day } from './datepicker.interface';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { Subject, filter, takeUntil } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
 
 const MAX_DAYS = 42;
 
@@ -11,12 +13,20 @@ const MAX_DAYS = 42;
   templateUrl: './datepicker.component.html',
   styleUrls: ['./datepicker.component.scss'],
 })
-export class DatepickerComponent implements OnInit {
+export class DatepickerComponent implements OnInit, OnDestroy {
   constructor(
     private utils: UtilsService,
     private dialogRef: DialogRef,
+    private route: Router,
     @Inject(DIALOG_DATA) private data: { multiple: boolean }
-  ) {}
+  ) {
+    this.route.events
+      .pipe(
+        takeUntil(this.ngUnsubscribe$),
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+      )
+      .subscribe(() => this.close());
+  }
 
   public year: number;
   public daysOfWeek: string[] = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
@@ -29,6 +39,8 @@ export class DatepickerComponent implements OnInit {
   public isMobile: boolean = false;
   public isMultiple: boolean;
 
+  private ngUnsubscribe$: Subject<void> = new Subject();
+
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
     this.isMultiple = this.data?.multiple ?? true;
@@ -39,6 +51,11 @@ export class DatepickerComponent implements OnInit {
         .getElementById(DateTime.local().toFormat('yyyyMMMM'))
         ?.scrollIntoView({ behavior: 'auto' });
     }, 100);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
   }
 
   public changeYear(change: number): void {
