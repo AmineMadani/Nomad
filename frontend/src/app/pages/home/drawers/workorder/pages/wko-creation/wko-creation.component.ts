@@ -128,6 +128,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
   private wkoExtToSyncValue: boolean = true;
+  private currentDateValue: string;
 
   async ngOnInit(): Promise<void> {
     this.createForm();
@@ -325,6 +326,27 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         'wkoAppointment'
       )
     );
+  }
+
+  /**
+   * manage keydown event on date input
+   * prevent non numeric input
+   * @param event 
+   */
+  public onDateKeyDown(event: any) {
+    this.currentDateValue = event.target.value;
+    if (!DateValidator.isKeyValid(event, this.currentDateValue)){
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * manage keyup event on date input
+   * post treatment for date format
+   * @param event 
+   */
+  public onDateKeyUp(event: any) {
+    event.target.value = DateValidator.formatDate(event, this.currentDateValue);
   }
 
   public onStartHourChange(controlKey: string, event: Event): void {

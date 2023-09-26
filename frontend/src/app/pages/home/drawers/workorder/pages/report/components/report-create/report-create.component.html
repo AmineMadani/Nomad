@@ -71,11 +71,11 @@
           <ion-row>
             <ion-row>
               <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
-                formControlName="realisationStartDate"></ion-input>
+                formControlName="realisationStartDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
             </ion-row>
             <ion-row>
               <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
-                formControlName="realisationEndDate"></ion-input>
+                formControlName="realisationEndDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
             </ion-row>
             <ion-col size="1">
               <ion-button fill="clear" color="primary" (click)="openCalendar()">
