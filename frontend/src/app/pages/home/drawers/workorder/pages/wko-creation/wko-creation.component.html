@@ -1,6 +1,6 @@
 <app-page-header [headerLabel]="title" [loading]="isLoading" [template]="buttonsTemplate" [displayCloseButton]="true"></app-page-header>
 
-<div class="wko-creation-body">
+<div class="wko-creation-body no-scroll-mobile">
   <ng-container *ngIf="!isLoading; else loadingBody">
     <form *ngIf="creationWkoForm" [formGroup]="creationWkoForm" id="wko_form_creation">
       <ion-list>
