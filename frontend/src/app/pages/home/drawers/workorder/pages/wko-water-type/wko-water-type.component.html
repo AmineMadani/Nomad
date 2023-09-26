@@ -1,0 +1,13 @@
+<app-page-header [headerLabel]="'Création d\'intervention XY - Choix d\'activité'"></app-page-header>
+
+<ion-list lines="none">
+  <ion-list-header>
+    <ion-label>Choississez le type d'activité pour l'intervention XY</ion-label>
+  </ion-list-header>
+  <ion-item button (click)="onWaterTypeChosen('dw')">
+    <ion-radio value="cherries">Eau Potable</ion-radio>
+  </ion-item>
+  <ion-item button (click)="onWaterTypeChosen('ww')">
+    <ion-radio value="cherries">Assainissement</ion-radio>
+  </ion-item>
+</ion-list>

@@ -16,11 +16,11 @@
           [control]="creationWkoForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
         </app-search-select>
 
-        <div *ngIf="!params" class="wko-assets">
+        <div class="wko-assets">
           <ng-container *ngIf="equipments?.length === 1">
             <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="Equipement" type="text"
               [value]="equipmentName"></ion-input>
-            <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="ID" type="text"
+            <ion-input *ngIf="equipments[0].id > 0" class="mono-equipment" labelPlacement="floating" fill="outline" label="ID" type="text"
               [value]="equipments[0].id"></ion-input>
             <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])" [disabled]="equipments[0].lyrTableName.includes('_xy')">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>

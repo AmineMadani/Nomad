@@ -69,8 +69,7 @@ export class WkoViewComponent implements OnInit {
 
   public canCancel(): boolean {
     return  !this.loading && this.workOrder  && this.workOrder.wtsId !== WkoStatus.TERMINE
-                                        && this.workOrder.wtsId !== WkoStatus.ANNULE
-                                        && this.workOrder.wtsId === WkoStatus.ERREUR;
+                                        && this.workOrder.wtsId !== WkoStatus.ANNULE;
   }
 
   public isCancelled(): boolean {
@@ -144,10 +143,9 @@ export class WkoViewComponent implements OnInit {
    * Update workorder
    */
   public updateWorkorder(): void {
-    this.drawerService.navigateWithWko(
+    this.drawerService.navigateTo(
       DrawerRouteEnum.WORKORDER_EDITION,
-      [this.workOrder.id],
-      this.workOrder.tasks
+      [this.workOrder.id]
     );
   }
 
