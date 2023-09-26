@@ -1,5 +1,6 @@
 {
   "apiUrl": "https://nomad-int-backend.hp.m-ve.com/api/nomad/v1/",
+  "externalApiUrl": "https://nomad-int-backend.hp.m-ve.com/api/nomad-api/v1/",
   "keycloak": {
     "active": true,
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
@@ -9,5 +10,9 @@
     "clientId": "nomad",
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },
-  "host":"https://nomad-int.hp.m-ve.com/"
+  "host":"https://nomad-int.hp.m-ve.com/",
+  "offlineTimeoutReferential":15000,
+  "offlineTimeoutEquipment":2000,
+  "offlineTimeoutTile":15000,
+  "offlineTimeoutWorkorder":3000
 }
