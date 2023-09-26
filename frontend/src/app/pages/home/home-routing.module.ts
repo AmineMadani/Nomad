@@ -16,6 +16,7 @@ import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
+import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 
 const routes: Routes = [
   {
@@ -59,8 +60,20 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         data: {
           name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+          authorizedPermissions: [PermissionCodeEnum.VIEW_ASSET_DETAILLED],
+        },
+      },
+      {
+        path: 'water-type',
+        component: WkoWaterTypeComponent,
+        canActivate: [AuthGuard],
+        data: {
+          name: DrawerRouteEnum.WORKORDER_WATER_TYPE,
           authorizedPermissions: [
-            PermissionCodeEnum.VIEW_ASSET_DETAILLED
+            PermissionCodeEnum.CREATE_NO_PLAN_WORKORDER,
+            PermissionCodeEnum.CREATE_X_Y_WORKORDER,
+            PermissionCodeEnum.CREATE_ASSET_WORKORDER,
+            PermissionCodeEnum.SEND_WORKORDER
           ]
         },
       },
@@ -68,7 +81,7 @@ const routes: Routes = [
         path: 'workorder',
         component: WorkOrderDrawer,
         data: {
-          name: DrawerRouteEnum.WORKORDER
+          name: DrawerRouteEnum.WORKORDER,
         },
         children: [
           {
@@ -81,8 +94,8 @@ const routes: Routes = [
                 PermissionCodeEnum.CREATE_NO_PLAN_WORKORDER,
                 PermissionCodeEnum.CREATE_X_Y_WORKORDER,
                 PermissionCodeEnum.CREATE_ASSET_WORKORDER,
-                PermissionCodeEnum.SEND_WORKORDER
-              ]
+                PermissionCodeEnum.SEND_WORKORDER,
+              ],
             },
           },
           {
@@ -95,32 +108,32 @@ const routes: Routes = [
                 PermissionCodeEnum.CREATE_NO_PLAN_WORKORDER,
                 PermissionCodeEnum.CREATE_X_Y_WORKORDER,
                 PermissionCodeEnum.CREATE_ASSET_WORKORDER,
-                PermissionCodeEnum.SEND_WORKORDER
-              ]
+                PermissionCodeEnum.SEND_WORKORDER,
+              ],
             },
           },
           {
             path: ':id',
             component: WkoViewComponent,
             data: {
-              name: DrawerRouteEnum.WORKORDER_VIEW
+              name: DrawerRouteEnum.WORKORDER_VIEW,
             },
           },
           {
             path: ':id/cr',
             component: ReportDrawer,
             data: {
-              name: DrawerRouteEnum.REPORT
+              name: DrawerRouteEnum.REPORT,
             },
           },
           {
             path: ':id/task/:taskid',
             component: WkoViewComponent,
             data: {
-              name: DrawerRouteEnum.WORKORDER_VIEW
+              name: DrawerRouteEnum.WORKORDER_VIEW,
             },
-          }
-        ]
+          },
+        ],
       },
       {
         path: 'selection',

@@ -45,6 +45,7 @@ import { ReportFormComponent } from './drawers/workorder/pages/report/components
 import { WorkorderListComponent } from './drawers/exploitation/components/workorder-list/workorder-list.component';
 import { AttachmentComponent } from './drawers/components/attachment/attachment.component';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
+import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 
 @NgModule({
   imports: [
@@ -92,6 +93,7 @@ import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset
     ReportFormComponent,
     AttachmentComponent,
     NewAssetDrawer,
+    WkoWaterTypeComponent,
   ],
   exports: [ReportCreateComponent]
 })

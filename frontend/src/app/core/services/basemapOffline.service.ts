@@ -95,10 +95,10 @@ export class BasemapOfflineService {
         // Close the database connection before deleting
         if (this.db) {
           await this.db.close();
+          // Delete the database
+          this.db.delete();
         }
 
-        // Delete the database
-        this.db.delete();
       } catch (error) {
         console.error(`Error removing database:`, error);
       }

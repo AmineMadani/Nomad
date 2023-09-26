@@ -420,9 +420,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'];
     }
     document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.router.navigate(['/home/workorder'], {
-      queryParams: this.selectedFeature['properties'],
-    });
+    this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_WATER_TYPE, undefined, this.selectedFeature['properties'])
   }
 
   /**

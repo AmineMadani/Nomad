@@ -60,6 +60,8 @@ export class ReportCreateComponent implements OnInit {
   public completeModal: IonModal;
   public completeModalForm: FormGroup;
 
+  private currentDateValue: string;
+
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
@@ -268,6 +270,27 @@ export class ReportCreateComponent implements OnInit {
     }
 
     return nextValidQuestionIndex;
+  }
+
+  /**
+   * manage keydown event on date input
+   * prevent non numeric input
+   * @param event 
+   */
+  public onDateKeyDown(event: any) {
+    this.currentDateValue = event.target.value;
+    if (!DateValidator.isKeyValid(event, this.currentDateValue)){
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * manage keyup event on date input
+   * post treatment for date format
+   * @param event 
+   */
+  public onDateKeyUp(event: any) {
+    event.target.value = DateValidator.formatDate(event, this.currentDateValue);
   }
 
   /**
