@@ -34,7 +34,16 @@ export class LayerService {
    */
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
-    const listLayerReferences = await firstValueFrom(this.layerDataService.getUserLayerReferences());
+    const listLayerReferences = await firstValueFrom(
+      this.layerDataService.getUserLayerReferences()
+      .pipe(
+        timeout(this.configurationService.offlineTimeoutEquipment),
+        catchError(async () => {
+          const feature = await firstValueFrom(this.getUserLayerReferences());
+          return feature;
+        })
+      )
+    );
     if (listLayerReferences) {
       const layer = listLayerReferences.find((layer) => layer.layerKey === layerKey);
       if (layer) {
