@@ -53,6 +53,12 @@
     }
   }
 
+  .form-div {
+    > .input-div {
+      margin-bottom: 16px;
+    }
+  }
+
   .new-asset-footer-actions {
     border-top: solid 1px var(--ion-color-neutral-variant-80);
     display: flex;
