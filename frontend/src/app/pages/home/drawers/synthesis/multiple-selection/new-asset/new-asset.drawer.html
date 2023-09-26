@@ -56,12 +56,39 @@
   <ng-container *ngIf="step === 3">
     <div class="question">Remplir les informations de {{selectedAsset.layerKey}}</div>
 
-    <div class="answers">
-      <app-form-editor #formEditor *ngIf="form && !isLoading"
-        [nomadForm]="form" [editMode]="true" 
-        [indexQuestion]="indexQuestion"
-        [resumeQuestions]="listSavedAnswer">
-      </app-form-editor>
+    <div class="answers no-scroll-mobile">
+      <form *ngIf="form && !isLoading" [formGroup]="form" class="form-div">
+        <ng-container *ngFor="let definition of listDefinition">
+          <ng-container [ngSwitch]="definition.component">
+            <div *ngSwitchCase="'input'" class="input-div">
+              <ion-input labelPlacement="floating" fill="outline"
+                [label]="definition.label"
+                [placeholder]="definition.attributes?.placeholder" 
+                [formControlName]="definition.key" 
+                [type]="definition.attributes?.type" />
+
+              <ng-container *ngIf="definition.rules">
+                <ng-container *ngFor="let rule of definition.rules">
+                  <ng-container *ngIf="form.controls[definition.key].hasError(rule.key) && form.controls[definition.key].touched">
+                    <ion-label color="danger" lines="none">
+                      {{ rule.message }}
+                    </ion-label>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </div>
+
+            <div *ngSwitchCase="'select'" class="input-div">
+              <ion-select label-placement="floating" fill="outline" 
+                [label]="definition.label"
+                [formControlName]="definition.key"
+                interface="popover">
+                <ion-select-option *ngFor="let opt of definition.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
+              </ion-select>
+            </div>
+          </ng-container>
+        </ng-container>
+      </form>
 
       <ng-container *ngIf="!form && !isLoading">
         Pas de formulaire disponible.
@@ -80,7 +107,7 @@
       <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
       <ion-button *ngIf="step === 1" [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
       <ion-button *ngIf="step === 2" [style.visibility]="coords.length === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
-      <ion-button *ngIf="step === 3" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Créer</ion-button>
     </ng-container>
     <ng-container *ngIf="isSubmitting">
       <ion-item lines="none" style="margin: auto;">

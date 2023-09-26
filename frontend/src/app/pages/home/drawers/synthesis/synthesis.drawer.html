@@ -29,7 +29,7 @@
         [ngTemplateOutletContext]="{ $implicit: tabButtons }"></ng-container>
 
     <!-- CONTENT -->
-    <div #content class="synthesis-content" [ngClass]="{
+    <div #content class="synthesis-content no-scroll-mobile" [ngClass]="{
                 'synthesis-content-mobile': isMobile,
                 'content-without-buttons': tabButtons.length === 0,
                 'content-without-buttons-mobile': isMobile && tabButtons.length === 0
