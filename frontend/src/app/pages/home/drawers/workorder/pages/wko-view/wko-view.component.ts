@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  CancelTask,
   CancelWorkOrder,
   Task,
   WkoStatus,
@@ -8,7 +9,7 @@ import {
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
+import { Subject, filter, firstValueFrom, forkJoin, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import {
@@ -68,8 +69,15 @@ export class WkoViewComponent implements OnInit {
   }
 
   public canCancel(): boolean {
-    return  !this.loading && this.workOrder  && this.workOrder.wtsId !== WkoStatus.TERMINE
-                                        && this.workOrder.wtsId !== WkoStatus.ANNULE;
+    if (this.loading || this.workOrder) return false;
+
+    let wtsId = this.workOrder.wtsId;
+    if (this.taskId != null) {
+      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+      wtsId = task?.wtsId;
+    }
+
+    return wtsId !== WkoStatus.TERMINE && wtsId !== WkoStatus.ANNULE;
   }
 
   public isCancelled(): boolean {
@@ -150,6 +158,25 @@ export class WkoViewComponent implements OnInit {
   }
 
   /**
+   * Cancel
+   */
+  public cancel(): void {
+    let isCancelWorkOrder = this.taskId == null;
+
+    if (this.workOrder.tasks.filter((task) => task.wtsId !== WkoStatus.ANNULE).length === 1) {
+      isCancelWorkOrder = true;
+    }
+
+    console.log(isCancelWorkOrder)
+
+    if (isCancelWorkOrder) {
+      this.cancelWorkorder();
+    } else {
+      this.cancelTask();
+    }
+  }
+
+  /**
    * Displays an alert to prompt the user to enter a reason for canceling
    * a work order, and then sends a request to cancel the work order with the entered reason.
    */
@@ -198,7 +225,65 @@ export class WkoViewComponent implements OnInit {
         .cancelWorkorder(cancelWko)
         .subscribe(async (res) => {
           this.workOrder.wtsId = 5;
-          this.getStatus();
+          this.getStatus(this.workOrder.wtsId);
+          await this.workorderService.deleteCacheWorkorder(this.workOrder);
+          this.displayCancelToast('Modification enregistré avec succès.');
+        });
+    }
+  }
+
+  /**
+   * Displays an alert to prompt the user to enter a reason for canceling
+   * a task, and then sends a request to cancel the task with the entered reason.
+   */
+  public async cancelTask(): Promise<void> {
+    const alertReason = await this.alertCtrl.create({
+      header: "Veuillez saisir le motif de l'annulation de cette tâche",
+      message: '',
+      inputs: [
+        {
+          name: 'cancelComment',
+          placeholder: 'Motif',
+          attributes: {
+            required: true,
+          },
+        },
+      ],
+      buttons: [
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: (data) => {
+            if (data.cancelComment === '') {
+              alertReason.message = 'Le champ est requis';
+              return false;
+            }
+            return true;
+          },
+        },
+        {
+          text: 'Annuler',
+          role: 'cancel',
+        },
+      ],
+    });
+
+    await alertReason.present();
+
+    const { role, data } = await alertReason.onDidDismiss();
+
+    if (role === 'confirm') {
+      const cancelTsk: CancelTask = {
+        id: this.workOrder.id,
+        tskId: Number(this.taskId),
+        cancelComment: data.values.cancelComment,
+      };
+      this.workorderService
+        .cancelTask(cancelTsk)
+        .subscribe(async (res) => {
+          this.workOrder = res;
+          const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+          this.getStatus(task.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
           this.displayCancelToast('Modification enregistré avec succès.');
         });
@@ -254,16 +339,12 @@ export class WkoViewComponent implements OnInit {
     }, 1000);
   }
 
-  private getStatus(): void {
+  private getStatus(wtsId: number): void {
     this.workorderService
       .getAllWorkorderTaskStatus()
       .subscribe((statusList) => {
-        this.status = statusList.find(
-          (refStatus) =>
-            refStatus.id.toString() === this.workOrder.wtsId.toString()
-        ).wtsLlabel;
-        this.status =
-          this.status.charAt(0).toUpperCase() + this.status.slice(1);
+        this.status = statusList.find((refStatus) => refStatus.id.toString() === wtsId.toString()).wtsLlabel;
+        this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
       });
   }
 

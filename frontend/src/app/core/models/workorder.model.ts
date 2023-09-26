@@ -32,6 +32,12 @@ export interface CancelWorkOrder {
     cancelComment: string;
 }
 
+export interface CancelTask {
+    id: number;
+    tskId: number;
+    cancelComment: string;
+}
+
 export interface Task {
     id?: number;
     assObjRef?: string;

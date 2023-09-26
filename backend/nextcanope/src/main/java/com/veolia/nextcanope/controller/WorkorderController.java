@@ -120,6 +120,27 @@ public class WorkorderController {
         );
     }
 
+    @PutMapping(path = "/{wkoId}/task/{tskId}/cancel")
+    @Operation(summary = "Cancel a workorder")
+    @ApiResponses(value = {
+            @ApiResponse(description= "The workorder", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public WorkorderDto cancelTask(
+            @PathVariable Long wkoId,
+            @PathVariable Long tskId,
+            @RequestBody CancelWorkorderPayload cancelWorkorderPayload,
+            AccountTokenDto account
+    ) {
+        return this.workOrderService.cancelTask(
+                wkoId,
+                tskId,
+                cancelWorkorderPayload,
+                account.getId()
+        );
+    }
+
     @GetMapping(path = "tasks/status")
     @Operation(summary = "Get all workorders task status")
     @ApiResponses(value = {

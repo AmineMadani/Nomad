@@ -438,6 +438,38 @@ public class WorkorderService {
 		return new WorkorderDto(workorder);
 	}
 
+	/**
+	 * Method to cancel a task
+	 * @return message returned to front
+	 */
+	public WorkorderDto cancelTask(
+			Long wkoId,
+			Long tskId,
+			CancelWorkorderPayload cancelWorkorderPayload,
+			Long userId
+	) {
+		Users user = userService.getUserById(userId);
+
+		Workorder workorder = getWorkOrderById(wkoId);
+
+		WorkorderTaskStatus wkoStatus = statusService.getStatus(workorder.getWorkorderTaskStatus().getId());
+		WorkorderTaskStatus cancelStatus = statusService.getStatus(WorkOrderStatusCode.ANNULE.toString());
+		workorder.setModifiedBy(user);
+
+		Task task = workorder.getListOfTask().stream().filter(t -> t.getId().equals(tskId)).findFirst().orElse(null);
+		if (task == null) {
+			throw new FunctionalException("Task " + tskId + " non connue pour le workorder " + wkoId);
+		}
+
+		task.setWorkorderTaskStatus(cancelStatus);
+		task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+		task.setModifiedBy(user);
+
+		workorder = workOrderRepository.save(workorder);
+
+		return new WorkorderDto(workorder);
+	}
+
     public List<WorkorderTaskStatusDto> getAllWorkorderTaskStatus() {
 		return this.workOrderTaskStatusRepository.getAllWorkorderTaskStatus();
     }

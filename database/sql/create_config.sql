@@ -769,6 +769,7 @@ create table if not exists task
   tsk_completion_end_date	     timestamp without time zone,
   tsk_realization_user     bigint,
   tsk_report_date          timestamp without time zone,
+  tsk_cancel_comment		       text,
   -- Technical metadata
   tsk_ucre_id              bigint references users(id) default 0,
   tsk_umod_id              bigint references users(id) default 0,

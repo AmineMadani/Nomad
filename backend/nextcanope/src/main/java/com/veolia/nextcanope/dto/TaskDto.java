@@ -28,6 +28,8 @@ public class TaskDto {
     private BigDecimal latitude;
     
     private Date tskReportDate;
+
+    private String tskCancelComment;
     
     private ReportDto report;
 
@@ -105,7 +107,15 @@ public class TaskDto {
 		this.tskReportDate = tskReportDate;
 	}
 
-	public ReportDto getReport() {
+    public String getTskCancelComment() {
+        return tskCancelComment;
+    }
+
+    public void setTskCancelComment(String tskCancelComment) {
+        this.tskCancelComment = tskCancelComment;
+    }
+
+    public ReportDto getReport() {
 		return report;
 	}
 
@@ -138,6 +148,7 @@ public class TaskDto {
         if(task.getContract() != null) {
         	this.ctrId = task.getContract().getId();
         }
+        this.tskCancelComment = task.getTskCancelComment();
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
         

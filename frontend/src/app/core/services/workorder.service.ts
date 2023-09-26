@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, from, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
 import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
+import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { UtilsService } from './utils.service';
@@ -172,6 +172,17 @@ export class WorkorderService {
   ): Observable<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
+
+  /**
+   * Cancel a task
+   * @param cancelPayload the payload to cancel the task
+   * @returns the workorder
+   */
+    public cancelTask(
+      cancelPayload: CancelTask
+    ): Observable<Workorder> {
+      return this.workorderDataService.cancelTask(cancelPayload);
+    }
 
   /**
    * Save last state of a workorder
