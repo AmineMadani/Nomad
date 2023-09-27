@@ -567,7 +567,7 @@ comment on column workorder_task_status.wts_dmod is 'Last modification date';
 create table if not exists workorder_task_reason
 (
   id                bigserial primary key,
-  wtr_code          text unique not null,
+  wtr_code          text not null,
   wtr_slabel        text not null,
   wtr_llabel        text,
   wtr_work_request  boolean default True,

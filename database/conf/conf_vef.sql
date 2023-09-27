@@ -229,9 +229,13 @@ values
 ('Raccorder', 'Raccorder', '11'),
 ('Renouveler', 'Renouveler', '12'),
 ('Réaliser un Métré', 'Réaliser un Métré', '13'),
-('Mettre hors service', 'Mettre hors service', '14'),
-('Entretenir / Réparer / Maintenir', 'Entretenir / Réparer / Maintenir', '15'),
-('Contrôler / Enquêter / Relever', 'Contrôler / Enquêter / Relever', '16'),
+('Mettre hors service', 'Mettre en ou hors service', '14'),
+('Entretenir / Maintenir', 'Entretenir / Maintenir', '15'),
+('Entretenir / Réparer', 'Entretenir / Réparer', '15'),
+('Contrôler', 'Contrôler', 'Contrôler / Enquêter', '16'),
+('Manoeuvrer', 'Manoeuvrer', '16'),
+('Relever / Vérifier', 'Relever / Vérifier', '16'),
+('Contrôler / Enquêter', '16'), 
 ('Entretenir / Réparer BAC ou Fontes de Voirie', 'Entretenir / Réparer BAC ou Fontes de Voirie', '17'),
 ('Repérer / Enquêter sur X,Y', 'Repérer / Enquêter sur X,Y', '19'),
 ('Rechercher Fuite', 'Rechercher Fuite', '20'),
@@ -251,150 +255,130 @@ values
 ('Effectuer un remblais', 'Effectuer un remblais', '41'),
 ('Effectuer Réfection de Voirie X,Y', 'Effectuer Réfection de Voirie X,Y', '42');
 
-alter sequence workorder_task_reason_id_seq restart with 170;
-
--- FIXME assoction via l'ID pénible , mieux vaut utiliser un code
-create table tmp_asset_type_wtr(ast_code text, wtr_code text, ast_id integer, wtr_id integer);
-insert into tmp_asset_type_wtr(ast_code, wtr_code)
-values
-('20', '10'),
-('20', '11'),
-('20', '12'),
-('20', '14'),
-('20', '16'),
-('20', '20'),
-('20', '21'),
-('20', '22'),
+insert into ast_wtr(ast_id, wtr_id ) values
+select ast_id, wtr_id 
+from (
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '11') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '20') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
+select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '22') as wtr_id union
 ----------------
-('21', '10'),
-('21', '12'),
-('21', '14'),
-('21', '16'),
-('21', '21'),
+select (select id from asset_type where ast_code = '21') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '21') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '21') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '21') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler') as wtr_id union
+select (select id from asset_type where ast_code = '21') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('23', '23'),
+select (select id from asset_type where ast_code = '22') as ast_id, (select id from workorder_task_reason where wtr_code = '23') as wtr_id union
 ----------------
-('23', '10'),
-('23', '11'),
-('23', '12'),
-('23', '14'),
-('23', '15'),
-('23', '16'),
-('23', '17'),
-('23', '21'),
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Maintenir') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Manoeuvrer') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '23') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('24', '10'),
-('24', '11'),
-('24', '12'),
-('24', '14'),
-('24', '15'),
-('24', '16'),
-('24', '21'),
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Maintenir') as wtr_id union
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler') as wtr_id union
+select (select id from asset_type where ast_code = '24') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('25', '10'),
-('25', '12'),
-('25', '15'),
-('25', '16'),
-('25', '17'),
-('25', '21'),
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Maintenir') as wtr_id union
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Relever / Vérifier') as wtr_id union
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '25') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('26', '10'),
-('26', '11'),
-('26', '12'),
-('26', '14'),
-('26', '15'),
-('26', '16'),
-('26', '17'),
-('26', '21'),
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Maintenir') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '26') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('27', '10'),
-('27', '11'),
-('27', '12'),
-('27', '14'),
-('27', '15'),
-('27', '17'),
-('27', '21'),
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '14') as wtr_id union
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Maintenir') as wtr_id union
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '27') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
 ----------------
-('29', '13'),
-('29', '19'),
-('29', '20'),
-('29', '21'),
-('29', '28'),
-('29', '29'),
-('29', '40'),
-('29', '41'),
-('29', '42'),
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '13') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '19') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '20') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '21') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '28') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '29') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '40') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '41') as wtr_id union
+select (select id from asset_type where ast_code = '29') as ast_id, (select id from workorder_task_reason where wtr_code = '42') as wtr_id union
 ----------------
-('30', '10'),
-('30', '12'),
-('30', '15'),
-('30', '16'),
-('30', '30'),
-('30', '31'),
-('30', '32'),
-('30', '34'),
-('30', '35'),
-('30', '36'),
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Réparer') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '30') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '31') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '34') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '35') as wtr_id union
+select (select id from asset_type where ast_code = '30') as ast_id, (select id from workorder_task_reason where wtr_code = '36') as wtr_id union
 ----------------
-('31', '10'),
-('31', '12'),
-('31', '15'),
-('31', '16'),
-('31', '30'),
-('31', '31'),
-('31', '32'),
-('31', '34'),
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Réparer') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '30') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '31') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
+select (select id from asset_type where ast_code = '31') as ast_id, (select id from workorder_task_reason where wtr_code = '34') as wtr_id union
 ----------------
-('32', '16'),
-('32', '30'),
-('32', '31'),
-('32', '32'),
+select (select id from asset_type where ast_code = '32') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '32') as ast_id, (select id from workorder_task_reason where wtr_code = '30') as wtr_id union
+select (select id from asset_type where ast_code = '32') as ast_id, (select id from workorder_task_reason where wtr_code = '31') as wtr_id union
+select (select id from asset_type where ast_code = '32') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
 ----------------
-('33', '10'),
-('33', '12'),
-('33', '15'),
-('33', '16'),
-('33', '17'),
-('33', '30'),
-('33', '31'),
-('33', '32'),
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Réparer') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '30') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '31') as wtr_id union
+select (select id from asset_type where ast_code = '33') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
 ----------------
-('34', '12'),
-('34', '15'),
-('34', '16'),
-('34', '17'),
-('34', '30'),
-('34', '31'),
-('34', '32'),
-('34', '33'),
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Réparer') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '30') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '31') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
+select (select id from asset_type where ast_code = '34') as ast_id, (select id from workorder_task_reason where wtr_code = '33') as wtr_id union
 ----------------
-('35', '10'),
-('35', '12'),
-('35', '15'),
-('35', '16'),
-('35', '17'),
+select (select id from asset_type where ast_code = '35') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union
+select (select id from asset_type where ast_code = '35') as ast_id, (select id from workorder_task_reason where wtr_code = '12') as wtr_id union
+select (select id from asset_type where ast_code = '35') as ast_id, (select id from workorder_task_reason where wtr_code = '15' and wtr_slabel = 'Entretenir / Réparer') as wtr_id union
+select (select id from asset_type where ast_code = '35') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '35') as ast_id, (select id from workorder_task_reason where wtr_code = '17') as wtr_id union
 ----------------
-('39', '13'),
-('39', '16'),
-('39', '32'),
-('39', '40'),
-('39', '41'),
-('39', '42')
-;
-
-update tmp_asset_type_wtr t
-   set ast_id = a.id
-  from asset_type a
-  where a.ast_code =  t.ast_code;
-
-update tmp_asset_type_wtr t
-   set wtr_id = w.id
-  from workorder_task_reason w
-  where w.wtr_code =  t.wtr_code;
-
-insert into ast_wtr(ast_id, wtr_id ) select ast_id, wtr_id from tmp_asset_type_wtr;
-
-drop table if exists tmp_asset_type_wtr;
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '13') as wtr_id union
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter') as wtr_id union
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '32') as wtr_id union
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '40') as wtr_id union
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '41') as wtr_id union
+select (select id from asset_type where ast_code = '39') as ast_id, (select id from workorder_task_reason where wtr_code = '42') as wtr_id
+) as t;
 
 INSERT INTO nomad.form_definition (fdn_definition,fdn_code) VALUES
 	 ('{"key":"work-order-creation-form","editable":true,"definitions":[{"key":"workordercreationlist","type":"section","component":"list","editable":true,"label":"","attributes":{}},{"key":"ctr_id","type":"property","component":"referential","editable":false,"label":"Contrat *","attributes":{"value":"","repository":"contract","repositoryKey":"id","repositoryValue":"ctr_slabel"},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"}]},{"key":"cty_id","type":"property","component":"referential","editable":false,"label":"Commune *","attributes":{"value":"","repository":"city","repositoryKey":"id","repositoryValue":"cty_slabel"},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"}]},{"key":"wtr_id","type":"property","component":"referential","editable":false,"label":"Action *","attributes":{"value":"","repository":"v_layer_wtr","repositoryKey":"wtr_id","repositoryValue":"wtr_llabel","filters":["lyr_table_name"]},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"}]},{"key":"wko_name","type":"property","component":"input","editable":true,"label":"Libelle","attributes":{"type":"text","hiddenNull":false},"section":"workordercreationlist"},{"key":"wko_agent_nb","type":"property","component":"select","editable":true,"label":"Nombre d''agents *","attributes":{"value":"","options":[{"key":"1","value":"1"},{"key":"2","value":"2"},{"key":"3","value":"3"},{"key":"4","value":"4"}],"default":1},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"}]},{"key":"wko_planning_start_date","type":"property","component":"datepicker","editable":false,"label":"Date de début *","attributes":{"value":"","dateformat":"yyyy-MM-dd","type":"text","hiddenNull":false},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"},{"key":"dateformat","value":"yyyy-MM-dd","message":"La date saisie est incorrect"}]},{"key":"wko_planning_end_date","type":"property","component":"datepicker","editable":false,"label":"Date de fin *","attributes":{"value":"","placeholder":"yyyy-MM-dd","dateformat":"yyyy-MM-dd","type":"text","hiddenNull":false},"section":"workordercreationlist","rules":[{"key":"required","value":"Obligatoire","message":"Ce champs est obligatoire"},{"key":"dateformat","value":"yyyy-MM-dd","message":"La date saisie est incorrect"}]},{"key":"wko_emergency","type":"property","component":"radio","editable":true,"label":"Urgent","attributes":{"value":"","default":"false","options":[{"key":"true","value":"Oui"},{"key":"false","value":"Non"}]},"section":"workordercreationlist"},{"key":"wko_appointment","type":"property","component":"radio","editable":true,"label":"Rendez-vous","attributes":{"value":"","default":"false","options":[{"key":"true","value":"Oui"},{"key":"false","value":"Non"}]},"section":"workordercreationlist"},{"key":"wko_creation_comment","type":"property","component":"input","editable":true,"label":"Commentaire","attributes":{"value":"","type":"text","hiddenNull":false},"section":"workordercreationlist"}],"relations":[{"key":"rel1","relatedFrom":"wko_planning_start_date","relatedTo":"wko_planning_end_date","relation":"dateBefore","message":"La date de début doit être inférieur ou égale à la date de fin","options":{"dateformat":"yyyy-MM-dd"}}]}','DEFAULT_WORKORDER_CREATION'),
