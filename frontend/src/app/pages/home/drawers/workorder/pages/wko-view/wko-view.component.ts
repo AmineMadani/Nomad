@@ -69,7 +69,7 @@ export class WkoViewComponent implements OnInit {
   }
 
   public canCancel(): boolean {
-    if (this.loading || this.workOrder) return false;
+    if (this.loading || !this.workOrder) return false;
 
     let wtsId = this.workOrder.wtsId;
     if (this.taskId != null) {
@@ -224,10 +224,17 @@ export class WkoViewComponent implements OnInit {
       this.workorderService
         .cancelWorkorder(cancelWko)
         .subscribe(async (res) => {
-          this.workOrder.wtsId = 5;
+          this.displayCancelToast('Modification enregistré avec succès.');
+          this.workOrder = res;
           this.getStatus(this.workOrder.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
-          this.displayCancelToast('Modification enregistré avec succès.');
+          for (let task of res.tasks) {
+            const feature = this.mapLayerService.getFeatureById('task', task.id.toString());
+            if (feature) {
+              feature.properties['wtsCode'] = "ANNULE";
+              this.mapService.updateFeature('task', feature);
+            }
+          }
         });
     }
   }
@@ -281,11 +288,16 @@ export class WkoViewComponent implements OnInit {
       this.workorderService
         .cancelTask(cancelTsk)
         .subscribe(async (res) => {
+          this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
           const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
           this.getStatus(task.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
-          this.displayCancelToast('Modification enregistré avec succès.');
+          const feature = this.mapLayerService.getFeatureById('task', this.taskId);
+          if (feature) {
+            feature.properties['wtsCode'] = "ANNULE";
+            this.mapService.updateFeature('task', feature);
+          }
         });
     }
   }
