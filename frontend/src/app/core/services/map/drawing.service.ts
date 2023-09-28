@@ -101,12 +101,15 @@ export class DrawingService {
       const indexToRemove = coordinates.length - 1;
       coordinates.splice(indexToRemove, 1);
     } else {
-      return `<b>Perimètre : </b><br/><b>Aire : </b><br/><i>Cliquez pour commencer</i>`;
+      return `<i>Cliquez pour commencer</i>`;
     }
 
     const perimeter = this.convertPerimeter(
       turf.length(turf.lineString(coordinates), { units: 'meters' })
     );
+    if (convertedArea === '0.00 m²') {
+      return `<b>Longueur : </b>${perimeter}<br/><i>'Echap' pour terminer</i>`;
+    }
     return `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>'Echap' pour terminer</i>`;
   }
 

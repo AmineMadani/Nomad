@@ -6,6 +6,7 @@ import { BehaviorSubject, filter, map, Observable, ReplaySubject, Subject, Subsc
 import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from './workorder.service';
+import { DrawingService } from './map/drawing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,8 @@ export class DrawerService {
     private location: LocationStrategy,
     private utilsService: UtilsService,
     private nav: NavController,
-    private workorderService: WorkorderService
+    private workorderService: WorkorderService,
+    private drawingService: DrawingService
   ) {}
   private routerEventsSubscription: Subscription;
 
@@ -114,6 +116,9 @@ export class DrawerService {
           if (currentRouteName !== DrawerRouteEnum.HOME) {
             this.drawerHasBeenOpened$.next(true);
           }
+        }
+        if (this.drawingService.getIsMeasuring()) {
+          this.drawingService.endMesure(true);
         }
       });
   }

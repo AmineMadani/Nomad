@@ -32,9 +32,6 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public drawerRouteEnum = DrawerRouteEnum;
   public isToolboxOpen: boolean = false;
 
-  private isMeasuringLinear: boolean = false;
-
-  private onStopMeasuring$: Subject<void> = new Subject();
   private ngUnsubscribe$: Subject<void> = new Subject();
 
   ngOnInit() {}
@@ -59,6 +56,9 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   }
 
   public displayToolbox(e: Event): void {
+    if (this.drawingService.getIsMeasuring()) {
+      this.drawingService.endMesure(true);
+    }
     this.toolboxPopover.event = e;
     this.isToolboxOpen = true;
   }

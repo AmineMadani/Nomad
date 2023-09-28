@@ -6,9 +6,7 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import {
-  LoadingController,
-} from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -164,13 +162,13 @@ export class MapComponent implements OnInit, OnDestroy {
   public generateMap(): void {
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
-      if(this.basemapOfflineService.db) {
-         this.basemaps.push({
-            map_type: 'OFFLINE',
-            map_default: false,
-            map_display: true,
-            map_slabel: 'Plan Offline'
-         })
+      if (this.basemapOfflineService.db) {
+        this.basemaps.push({
+          map_type: 'OFFLINE',
+          map_default: false,
+          map_display: true,
+          map_slabel: 'Plan Offline',
+        });
       }
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
         (bl) => bl.map_default
@@ -267,7 +265,7 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
     }
-    if(keyLayer != 'PlanOffline') {
+    if (keyLayer != 'PlanOffline') {
       this.removeOfflineLayer();
       this.changeBasemapSource(keyLayer);
     } else {
@@ -277,46 +275,15 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private async removeOfflineLayer() {
-   if(this.map.getSource('offlineBaseMap')) {
-    let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
-    for (let layer of styleLayers) {
-      if(this.map.getLayer(layer.id)){
-        this.map.removeLayer(layer.id);
+    if (this.map.getSource('offlineBaseMap')) {
+      let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+      for (let layer of styleLayers) {
+        if (this.map.getLayer(layer.id)) {
+          this.map.removeLayer(layer.id);
+        }
       }
+      this.map.removeSource('offlineBaseMap');
     }
-    this.map.removeSource('offlineBaseMap');
-   }
-  }
-
-  private changeBasemapSource(keyLayer: string){
-   if(!this.map.getLayer('basemap')) {
-    const firstLayerId = this.map.getStyle().layers[0]?.id;
-    this.map.addLayer({
-        id: 'basemap',
-        type: 'raster',
-        source: keyLayer,
-        paint: {},
-      },firstLayerId);
-   } else {
-      this.map.getLayer('basemap').source = keyLayer;
-   }
-  }
-
-  private async addOfflineLayer() {
-   this.mapService.getMap().removeLayer('basemap');
-   this.mapService.getMap().addSource("offlineBaseMap", {
-      type: "vector",
-      tiles: [
-         "offline://{z}/{x}/{y}.vector.pbf"
-         //"https://nomad-basemaps.hp.m-ve.com/maps/{z}/{x}/{y}.pbf"
-      ]
-   });
-
-   const firstLayerId = this.map.getStyle().layers[0]?.id;
-   let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
-   for (let layer of styleLayers) {
-      this.mapService.getMap().addLayer(layer,firstLayerId);
-   }
   }
 
   // Temp while basemaps do not have keys
@@ -420,7 +387,11 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'];
     }
     document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_WATER_TYPE, undefined, this.selectedFeature['properties'])
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.WORKORDER_WATER_TYPE,
+      undefined,
+      this.selectedFeature['properties']
+    );
   }
 
   /**
@@ -475,16 +446,55 @@ export class MapComponent implements OnInit, OnDestroy {
     el.click();
   }
 
+  /**
+   * Asks the user how they want to share their location then
+   * copies the appropriate information to the clipboard.
+   */
+  public async onShareLocalisation(): Promise<void> {
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    await this.mapService.sharePosition(
+      this.clicklatitude,
+      this.clicklongitute
+    );
+  }
+
+  /**
+   * Sets the zoom level of the map to the value e.
+   * @param {number} e - e is a number representing the new zoom level that the map should be set to
+   */
+  public onZoomChange(e: number): void {
+    this.zoom = e;
+    this.map.zoomTo(this.zoom);
+  }
+
+  /**
+   * event on the change of the scale by the user
+   * @param event the value of the user input
+   */
+  public onScaleChange(event: string): void {
+    const newValue = event;
+    const pattern = /^1:\s?(\d+)$/; //1:232500
+    const matchResult = newValue.match(pattern);
+    matchResult?.[1]
+      ? this.calculateZoomByScale(matchResult[1])
+      : (this.scale = this.calculateScale());
+  }
+
   public getMeasuringCondition(): boolean {
     return this.drawingService.getIsMeasuring();
+  }
+
+  public endMeasuring(): void {
+    this.drawingService.endMesure(true);
   }
 
   private addEvents(): void {
     fromEvent(this.map, 'mousemove')
       .pipe(
-        takeUntil(this.ngUnsubscribe$), 
+        takeUntil(this.ngUnsubscribe$),
         filter(() => !this.isMobile)
-      ).subscribe((e) => {
+      )
+      .subscribe((e) => {
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
         if (this.drawingService.getIsMeasuring()) {
@@ -496,8 +506,7 @@ export class MapComponent implements OnInit, OnDestroy {
             const y = e.originalEvent.offsetY;
             resumeBox.style.transform = `translate(${x}px, ${y}px)`;
           }
-        }
-        else if (this.drawingService.getDrawActive()) {
+        } else if (this.drawingService.getDrawActive()) {
           canvasElement.classList.add('cursor-pointer');
         } else {
           canvasElement.classList.remove('cursor-mesure');
@@ -650,38 +659,38 @@ export class MapComponent implements OnInit, OnDestroy {
     this.drawingService.setDraw(draw);
   }
 
-  /**
-   * Asks the user how they want to share their location then
-   * copies the appropriate information to the clipboard.
-   */
-  public async onShareLocalisation(): Promise<void> {
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    await this.mapService.sharePosition(
-      this.clicklatitude,
-      this.clicklongitute
-    );
+  private changeBasemapSource(keyLayer: string) {
+    if (!this.map.getLayer('basemap')) {
+      const firstLayerId = this.map.getStyle().layers[0]?.id;
+      this.map.addLayer(
+        {
+          id: 'basemap',
+          type: 'raster',
+          source: keyLayer,
+          paint: {},
+        },
+        firstLayerId
+      );
+    } else {
+      this.map.getLayer('basemap').source = keyLayer;
+    }
   }
 
-  /**
-   * Sets the zoom level of the map to the value e.
-   * @param {number} e - e is a number representing the new zoom level that the map should be set to
-   */
-  public onZoomChange(e: number): void {
-    this.zoom = e;
-    this.map.zoomTo(this.zoom);
-  }
+  private async addOfflineLayer() {
+    this.mapService.getMap().removeLayer('basemap');
+    this.mapService.getMap().addSource('offlineBaseMap', {
+      type: 'vector',
+      tiles: [
+        'offline://{z}/{x}/{y}.vector.pbf',
+        //"https://nomad-basemaps.hp.m-ve.com/maps/{z}/{x}/{y}.pbf"
+      ],
+    });
 
-  /**
-   * event on the change of the scale by the user
-   * @param event the value of the user input
-   */
-  public onScaleChange(event: string): void {
-    const newValue = event;
-    const pattern = /^1:\s?(\d+)$/; //1:232500
-    const matchResult = newValue.match(pattern);
-    matchResult?.[1]
-      ? this.calculateZoomByScale(matchResult[1])
-      : (this.scale = this.calculateScale());
+    const firstLayerId = this.map.getStyle().layers[0]?.id;
+    let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+    for (let layer of styleLayers) {
+      this.mapService.getMap().addLayer(layer, firstLayerId);
+    }
   }
 
   /**
