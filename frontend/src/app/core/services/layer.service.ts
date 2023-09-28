@@ -177,7 +177,8 @@ export class LayerService {
           let res = [];
           for(let idLayer of idsLayers) {
             for(let ref of idLayer.equipmentIds) {
-              const feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+              let feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+              feature.properties = Object.assign(feature.properties, {lyrTableName:idLayer.lyrTableName});
               if(feature) {
                 res.push(feature.properties)
               }

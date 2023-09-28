@@ -6,7 +6,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, switchMap, EMPTY, debounceTime } from 'rxjs';
-import { Layer } from 'src/app/core/models/layer.model';
+import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -213,18 +213,29 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       return { key: lyrName, label: conf.lyrSlabel };
     });
 
-    this.featuresSelected = abstractFeatures.map((absF: any) => {
-      if (absF.isTemp === true) {
-        return absF;
+    let mapSearch:Map<string, string[]> = new Map();
+    for (let feature of abstractFeatures) {
+      if (feature.isTemp) {
+        this.featuresSelected.push(feature);
       } else {
-        return {
-          ...this.mapLayerService.getFeatureById(absF.lyrTableName, absF.id)
-            .properties,
-          lyrTableName: absF.lyrTableName,
-        };
+        if(mapSearch.get(feature.lyrTableName)) {
+          mapSearch.get(feature.lyrTableName).push(feature.id);
+        } else {
+          mapSearch.set(feature.lyrTableName, [feature.id]);
+        }
       }
-    });
+    }
+   
+    let searchEquipments: SearchEquipments[] = [];
+    for(let [key,value] of mapSearch){
+      searchEquipments.push({
+        lyrTableName: key,
+        equipmentIds: value
+      })
+    }
 
+    const searchEquipmentsRes = await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
+    this.featuresSelected = [...this.featuresSelected, ...searchEquipmentsRes];
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
