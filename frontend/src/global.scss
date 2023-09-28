@@ -481,3 +481,31 @@ ion-icon.strike-through {
     background: rgb(240, 240, 240);
   }
 }
+
+ion-icon.strike-inverted-through {
+  position: relative;
+  transition: none;
+
+  &:after,
+  &:before {
+    display: block;
+    position: absolute;
+    content: '';
+    top: 8px;
+    width: 22px;
+    transform: rotate(-45deg);
+  }
+
+  &:after {
+    height: 2px;
+    left: -2px;
+    background: black;
+  }
+
+  &:before {
+    height: 5px;
+    left: 0px;
+    background: rgb(240, 240, 240);
+  }
+}
+

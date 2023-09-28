@@ -34,6 +34,12 @@
 
 
   <div *ngIf="map" class="right-buttons no-print" [class.mobile-buttons]="isMobile">
+    <ion-fab *ngIf="getMeasuringCondition()" (click)="endMeasuring()">
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+        <ion-icon src="assets/icon/rule.svg" class="strike-inverted-through"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
     <ion-fab (click)="onResetRotation()">
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
         <ion-icon name="compass-outline"></ion-icon>
