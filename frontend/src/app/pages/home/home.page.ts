@@ -125,7 +125,7 @@ export class HomePage implements OnInit, OnDestroy {
         if (drawerType == DrawerTypeEnum.BOTTOM_SHEET) {
           setTimeout(() => {
             const sContents =
-              document.getElementsByClassName('synthesis-content');
+              document.getElementsByClassName('no-scroll-mobile');
             for (let content of Array.from(sContents)) {
               (content as any).ontouchmove = function (e) {
                 e.stopPropagation();

@@ -426,12 +426,49 @@ public class WorkorderService {
 		workorder.setModifiedBy(user);
 
 		for (Task task : workorder.getListOfTask()) {
-			task.setWorkorderTaskStatus(newStatus);
+			WorkorderTaskStatus oldTaskStatus = statusService.getStatus(task.getWorkorderTaskStatus().getId());
+
+			// Copy the cancel comment on all task, except if it is already cancel
+			if (!WorkOrderStatusCode.ANNULE.toString().equals(oldTaskStatus.getWtsCode())) {
+				task.setWorkorderTaskStatus(newStatus);
+				task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+				task.setModifiedBy(user);
+			}
 		}
 
 		if (oldStatus.getWtsCode().equals(WorkOrderStatusCode.ENVOYEPLANIF.toString())) {
 			workorder.setWkoExtToSync(true);
 		}
+
+		workorder = workOrderRepository.save(workorder);
+
+		return new WorkorderDto(workorder);
+	}
+
+	/**
+	 * Method to cancel a task
+	 * @return message returned to front
+	 */
+	public WorkorderDto cancelTask(
+			Long wkoId,
+			Long tskId,
+			CancelWorkorderPayload cancelWorkorderPayload,
+			Long userId
+	) {
+		Users user = userService.getUserById(userId);
+
+		Workorder workorder = getWorkOrderById(wkoId);
+
+		WorkorderTaskStatus cancelStatus = statusService.getStatus(WorkOrderStatusCode.ANNULE.toString());
+
+		Task task = workorder.getListOfTask().stream().filter(t -> t.getId().equals(tskId)).findFirst().orElse(null);
+		if (task == null) {
+			throw new FunctionalException("Task " + tskId + " non connue pour le workorder " + wkoId);
+		}
+
+		task.setWorkorderTaskStatus(cancelStatus);
+		task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+		task.setModifiedBy(user);
 
 		workorder = workOrderRepository.save(workorder);
 

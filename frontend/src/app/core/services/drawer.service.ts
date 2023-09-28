@@ -82,6 +82,7 @@ export class DrawerService {
             DrawerRouteEnum.EQUIPMENT,
             DrawerRouteEnum.REPORT,
             DrawerRouteEnum.WORKORDER,
+            DrawerRouteEnum.WORKORDER_WATER_TYPE,
             DrawerRouteEnum.WORKORDER_CREATION,
             DrawerRouteEnum.WORKORDER_EDITION,
             DrawerRouteEnum.WORKORDER_VIEW,

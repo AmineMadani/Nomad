@@ -107,6 +107,10 @@ private Long id;
     @JsonProperty("tsk_cache_id")
     private Long tskCacheId;
 
+    @Column(name="tsk_cancel_comment", length=2147483647)
+    @JsonProperty("tsk_cancel_comment")
+    private String tskCancelComment;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -273,6 +277,14 @@ private Long id;
 
 	public void setTskCacheId( Long tskCacheId ) {
         this.tskCacheId = tskCacheId ;
+    }
+
+    public String getTskCancelComment() {
+        return tskCancelComment;
+    }
+
+    public void setTskCancelComment(String tskCancelComment) {
+        this.tskCancelComment = tskCancelComment;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

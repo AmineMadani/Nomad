@@ -64,9 +64,7 @@ export class MobileHomeActionsComponent implements OnInit {
 
       this.modalCtlr.dismiss();
 
-      this.router.navigate(['/home/workorder'], {
-        queryParams: params,
-      });
+      this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_WATER_TYPE, undefined, params);
     });
   }
 

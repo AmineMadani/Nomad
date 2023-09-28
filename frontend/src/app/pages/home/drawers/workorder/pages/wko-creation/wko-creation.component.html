@@ -1,6 +1,6 @@
 <app-page-header [headerLabel]="title" [loading]="isLoading" [template]="buttonsTemplate" [displayCloseButton]="true"></app-page-header>
 
-<div class="wko-creation-body">
+<div class="wko-creation-body no-scroll-mobile">
   <ng-container *ngIf="!isLoading; else loadingBody">
     <form *ngIf="creationWkoForm" [formGroup]="creationWkoForm" id="wko_form_creation">
       <ion-list>
@@ -54,9 +54,9 @@
 
         <div class="wko-calendar">
           <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *"
-            displayFormat="MM/DD/YYYY" placeholder="JJ/MM/AAAA" formControlName="wkoPlanningStartDate"></ion-input>
+            placeholder="JJ/MM/AAAA" formControlName="wkoPlanningStartDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
           <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *"
-            placeholder="JJ/MM/AAAA" formControlName="wkoPlanningEndDate"></ion-input>
+            placeholder="JJ/MM/AAAA" formControlName="wkoPlanningEndDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
           <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
             <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
           </ion-button>

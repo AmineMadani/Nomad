@@ -484,14 +484,42 @@ export class MapService {
   }
 
   /**
-   * add a point data for a specific layerkey
+   * update geometry of a feature
    * @param layerKey the layer key
    */
-  public updateFeature(layerKey: string, feature: any) {
+  public updateFeatureGeometry(layerKey: string, feature: any) {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     const featureDiff: Maplibregl.GeoJSONFeatureDiff = {
       id: feature.id,
       newGeometry: feature.geometry,
+    };
+    const updateDate: Maplibregl.GeoJSONSourceDiff = {
+      update: [featureDiff],
+    };
+    source.updateData(updateDate);
+  }
+
+  /**
+   * update a feature
+   * @param layerKey the layer key
+   */
+  public updateFeature(layerKey: string, feature: any) {
+    const listProperties = new Array<{
+      key: string;
+      value: any;
+    }>;
+    for (let key of Object.keys(feature.properties)) {
+      listProperties.push({
+        key: key,
+        value: feature.properties[key],
+      });
+    }
+
+    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    const featureDiff: Maplibregl.GeoJSONFeatureDiff = {
+      id: feature.id,
+      newGeometry: feature.geometry,
+      addOrUpdateProperties: listProperties,
     };
     const updateDate: Maplibregl.GeoJSONSourceDiff = {
       update: [featureDiff],
@@ -633,7 +661,7 @@ export class MapService {
         const newPoint: any = {
           geometry: {
             type: 'Point',
-            coordinates: [properties.longitude, properties.latitude],
+            coordinates: [task.longitude, task.latitude],
           },
           properties: taskProperties,
           type: 'Feature',

@@ -140,7 +140,7 @@ export class ReportAssetComponent implements OnInit {
       }
     }
     
-    this.mapService.updateFeature("task", feature);
+    this.mapService.updateFeatureGeometry("task", feature);
     if (this.workorder.id > 0) {
       this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
     }
@@ -233,7 +233,7 @@ export class ReportAssetComponent implements OnInit {
               setTimeout(() => {
                 let feature: any = this.maplayerService.getFeatureById("task", task.id + '');
                 feature.geometry.coordinates = [task.longitude, task.latitude];
-                this.mapService.updateFeature("task", feature);
+                this.mapService.updateFeatureGeometry("task", feature);
                 geometries.push(feature.geometry.coordinates);
                 featuresSelection.push({
                   id: task.id.toString(),
