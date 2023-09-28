@@ -25,13 +25,11 @@ import {
   Observable,
   tap,
   debounceTime,
-  skipWhile,
   firstValueFrom,
   fromEvent,
   Subscription,
 } from 'rxjs';
 import { DateTime } from 'luxon';
-import { DatePipe } from '@angular/common';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -41,7 +39,6 @@ import { CacheService } from 'src/app/core/services/cache.service';
 import {
   Task,
   Workorder,
-  WorkorderType,
 } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';

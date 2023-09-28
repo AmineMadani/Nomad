@@ -1,18 +1,21 @@
 package com.veolia.nextcanope.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.veolia.nextcanope.dto.*;
-import com.veolia.nextcanope.dto.LayerStyle.StyleDefinitionDto;
-import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
-import com.veolia.nextcanope.exception.FunctionalException;
-import com.veolia.nextcanope.exception.TechnicalException;
-
-import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
-import com.veolia.nextcanope.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.veolia.nextcanope.dto.LayerWithStylesDto;
+import com.veolia.nextcanope.dto.VLayerWtrDto;
+import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
+import com.veolia.nextcanope.dto.LayerStyle.StyleDefinitionDto;
+import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
+import com.veolia.nextcanope.exception.FunctionalException;
+import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.Layer;
+import com.veolia.nextcanope.model.LayerStyle;
+import com.veolia.nextcanope.model.StyleDefinition;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.repository.LayerRepositoryImpl;
 import com.veolia.nextcanope.repository.LayerStyleRepository;
@@ -90,24 +93,17 @@ public class LayerService {
         return layersDto;
     }
     
-    /**
-     * Retrieve the equipment by layer and id
-     *
-     * @param layer The layer
-     * @param id The object id
-     * @return the equipment
-     */
-	public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
-        return layerRepositoryImpl.getEquipmentByLayerAndId(layer, id);
-    }
-
-    public List<Map<String, Object>> getEquipmentsByLayersAndIds(List<GetEquipmentsPayload> equipmentsPayload) {
-        List<Map<String, Object>> features = new ArrayList<>();
+    public String getAssetByLayerAndIds(List<GetEquipmentsPayload> equipmentsPayload, Long userId) {
+    	String assets = "";
         for(GetEquipmentsPayload payload : equipmentsPayload) {
-            List<Map<String, Object>> layerFeatures = this.layerRepositoryImpl.getEquipmentsByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds());
-            features.addAll(layerFeatures);
+            String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
+            res = res.substring(1, res.length() - 1);
+            if(res.length() > 0) {
+            	assets += (assets.length() > 0 ? ",":"")+res;
+            }
         }
-                return features;
+        assets = "["+assets+"]";
+        return assets;
     }
 
     public Layer getLayerByLyrTableName(String lyrTableName) {

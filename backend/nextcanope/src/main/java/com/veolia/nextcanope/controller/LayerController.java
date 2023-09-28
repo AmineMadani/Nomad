@@ -1,26 +1,36 @@
 package com.veolia.nextcanope.controller;
 
 import java.util.List;
-import java.util.Map;
 
-import com.veolia.nextcanope.dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.veolia.nextcanope.constants.LayerConstants;
+import com.veolia.nextcanope.dto.LayerWithStylesDto;
+import com.veolia.nextcanope.dto.VLayerWtrDto;
+import com.veolia.nextcanope.dto.WorkorderDto;
+import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleSummaryDto;
 import com.veolia.nextcanope.dto.account.AccountTokenDto;
+import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerStylePayload;
-import com.veolia.nextcanope.service.LayerStyleService;
-import com.veolia.nextcanope.service.WorkorderService;
-import com.veolia.nextcanope.utils.ResponseMessage;
-import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import com.veolia.nextcanope.constants.LayerConstants;
-import com.veolia.nextcanope.dto.LayerReference.LayerReferencesDto;
 import com.veolia.nextcanope.repository.LayerRepository;
 import com.veolia.nextcanope.service.LayerReferencesService;
 import com.veolia.nextcanope.service.LayerService;
+import com.veolia.nextcanope.service.LayerStyleService;
+import com.veolia.nextcanope.service.WorkorderService;
+import com.veolia.nextcanope.utils.ResponseMessage;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -109,26 +119,12 @@ public class LayerController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public List<Map<String, Object>> getEquipmentsByLayers(@RequestBody List<GetEquipmentsPayload> getEquipmentsPayload) throws Exception {
+    public String getEquipmentsByLayers(@RequestBody List<GetEquipmentsPayload> getEquipmentsPayload,AccountTokenDto account) throws Exception {
         try {
-            return this.layerService.getEquipmentsByLayersAndIds(getEquipmentsPayload);
+            return this.layerService.getAssetByLayerAndIds(getEquipmentsPayload, account.getId());
         } catch (Exception e) {
             throw new Exception("Error during the layer references saving");
         }
-    }
-    
-    @GetMapping(path = "/{key}/equipments/{id}")
-    @Operation(summary = "Get the equipment by layer and id")
-    @ApiResponses(value = {
-    			@ApiResponse(description= "The equipment", content =  {
-    						@Content(schema = @Schema(implementation = String.class))
-    					})
-    			})
-    public List<Map<String, Object>> getEquipmentByLayerAndId(
-            @PathVariable String key,
-            @PathVariable String id
-    ) {
-        return this.layerService.getEquipmentByLayerAndId(key, id);
     }
     
     @GetMapping(path = "/{key}/equipments/{id}/history")

@@ -3,6 +3,7 @@ import { Platform, ToastController } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
+import { SearchEquipments } from '../models/layer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -101,7 +102,7 @@ export class UtilsService {
 
   public transformMap(
     params: Map<string, string>
-  ): { lyrTableName: string; equipmentIds: string[] }[] {
+  ): SearchEquipments[] {
     const filteredEntries = Array.from(params.entries()).filter(
       ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
     );
@@ -110,7 +111,8 @@ export class UtilsService {
       const equipmentIds = value.split(',');
       return {
         lyrTableName: key,
-        equipmentIds,
+        equipmentIds: equipmentIds,
+        allColumn: false
       };
     });
 

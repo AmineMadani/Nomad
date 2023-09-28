@@ -47,7 +47,7 @@ export class ReportAssetComponent implements OnInit {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
         this.editTaskEquipment.assObjTable = res.layerKey;
-        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId, true);
+        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId);
         this.editTaskEquipment.ctrId = asset.ctrId;
         this.workorder.ctrId = asset.ctrId;
         this.workorder.ctyId = asset.ctyId;

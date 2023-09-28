@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr } from '../models/layer.model';
+import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, SearchEquipments } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
@@ -156,56 +156,37 @@ export class LayerService {
     ))).find(layer => layer.lyrTableName == key);
   }
 
-  public async getEquipmentByLayerAndId(layer: string, id: string, forcedCache: boolean = false): Promise<any> {
-    if(forcedCache) {
-      const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
-        layer,
-        id
-      );
-      if(feature) {
-        return { id: feature.id, ...feature.properties };
-      }
-    }
-    return firstValueFrom(
-      this.layerDataService.getEquipmentByLayerAndId(layer, id)
-        .pipe(
-          map((equipment: any[]) => equipment[0]),
-          timeout(this.configurationService.offlineTimeoutEquipment),
-          catchError(async () => {
-            const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
-              layer,
-              id
-            );
-            return { id: feature.id, ...feature.properties };
-          })
-        )
-    );
+  public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
+    let searchEquipment:SearchEquipments[] = [{
+      lyrTableName: layer,
+      equipmentIds: [id],
+      allColumn: true
+    }]
+    let response = await this.getEquipmentsByLayersAndIds(searchEquipment);
+    return response[0];
   }
 
   public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    //Check if we find the equipment in cached
-    let res = [];
-    let idsLayersNotLocal = [];
-    for(let idLayer of idsLayers) {
-      let ids = [];
-      for(let ref of idLayer.equipmentIds) {
-        const feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
-        if(feature) {
-          res.push(feature.properties)
-        } else {
-          ids.push(ref);
-        }
-      }
-      if(ids.length > 0) {
-        idsLayersNotLocal.push({ equipmentsIds : ids, lyrTableName : idLayer.lyrTableName});
-      }
+    if(!this.utilsService.isMobilePlateform()) {
+      return await firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
     }
-    //If we don't find some of them, we call the backend
-    if(idsLayersNotLocal.length == 0) {
-      return res;
-    } else {
-      return [...res, ...(await firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers)))] 
-    }
+    return await firstValueFrom(
+      this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
+        timeout(this.configurationService.offlineTimeoutEquipment),
+        catchError(async () => {
+          let res = [];
+          for(let idLayer of idsLayers) {
+            for(let ref of idLayer.equipmentIds) {
+              const feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+              if(feature) {
+                res.push(feature.properties)
+              }
+            }
+          }
+          return res;
+        })
+      )
+    );
   }
 
   /**
