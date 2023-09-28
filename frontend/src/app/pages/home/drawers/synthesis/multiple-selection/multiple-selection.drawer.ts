@@ -235,7 +235,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
 
     const searchEquipmentsRes = await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
-    this.featuresSelected = [...this.featuresSelected, ...searchEquipmentsRes];
+    this.featuresSelected = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...searchEquipmentsRes], 'id');
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
