@@ -5,3 +5,11 @@ ion-fab {
 ion-searchbar.home-search {
   --border-radius: 80px;
 }
+
+.ion-fab {
+  --box-shadow: none
+}
+
+.ion-fab-search {
+  margin-left: 15px;
+}
