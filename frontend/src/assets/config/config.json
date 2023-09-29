@@ -1,19 +1,19 @@
 {
-  "apiUrl": "[urlApiNomad]",
-  "externalApiUrl": "[urlExternalApiNomad]",
+  "apiUrl": "https://nomad-rec-backend.hp.m-ve.com/api/nomad/v1/",
+  "externalApiUrl": "https://nomad-rec-backend.hp.m-ve.com/api/external-veolia-api/v1/",
   "keycloak": {
     "active": true,
-    "issuer": "[keycloakIssuer]",
-    "redirectUri": "[currentOrigin]/login",
+    "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
+    "redirectUri": "https://nomad-rec.hp.m-ve.com/login",
     "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
-    "clientId": "[keycloakClientId]",
-    "revocationEndpoint": "[keycloakRevocation]"
+    "redirectUriAndroid": "https://nomad-rec.hp.m-ve.com/login",
+    "clientId": "nomad",
+    "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },
-  "host": "[hostNomad]",
+  "host":"https://nomad-rec.hp.m-ve.com/",
   "offlineTimeoutReferential":15000,
   "offlineTimeoutEquipment":2000,
   "offlineTimeoutTile":15000,
   "offlineTimeoutWorkorder":3000,
-  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/"
+  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}"
 }
