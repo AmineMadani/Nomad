@@ -23,6 +23,7 @@ export class ConfigurationService {
   offlineTimeoutEquipment: number;
   offlineTimeoutTile: number;
   offlineTimeoutWorkorder: number;
+  apiAdressesUrl: string;
   
 
   constructor(
@@ -46,6 +47,7 @@ export class ConfigurationService {
           this.offlineTimeoutEquipment = response.body.offlineTimeoutEquipment;
           this.offlineTimeoutTile = response.body.offlineTimeoutTile;
           this.offlineTimeoutWorkorder = response.body.offlineTimeoutWorkorder;
+          this.apiAdressesUrl = response.body.apiAdressesUrl;
 
           resolve(this);
         },

@@ -3,7 +3,6 @@ import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
 import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
-import { Workorder } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',

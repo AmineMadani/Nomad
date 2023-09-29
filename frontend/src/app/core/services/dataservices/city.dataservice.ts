@@ -30,6 +30,15 @@ export class CityDataService {
   getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
     return this.http.get<number[]>(`${this.configurationService.apiUrl}cities/coordinates?latitude=${latitude}&longitude=${longitude}`);
   }
+
+  /**
+   * Get adresses by query
+   * @param query the string query
+   * @returns the adresses
+   */
+  getAdressesByQuery(query: string): any {
+    return this.http.get<any>(this.configurationService.apiAdressesUrl.replace('{query}',query));
+  }
 }
 
 

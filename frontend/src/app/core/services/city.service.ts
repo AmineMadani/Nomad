@@ -30,4 +30,26 @@ export class CityService {
   getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
     return this.cityDataService.getCityIdsByLatitudeLongitude(latitude, longitude);
   }
+
+  /**
+   * Get a list off adress by string query 
+   * @param query string query
+   * @returns list of adresses
+   */
+  getAdressesByQuery(query: string): any {
+    query = query.replace(' ','+');
+    query = 'search/?q='+query+'&limit=5';
+    return this.cityDataService.getAdressesByQuery(query);
+  }
+
+  /**
+   * Get a adress by x and y
+   * @param x longitude
+   * @param y latitude
+   * @returns the adress
+   */
+  getAdressByXY(x:number, y:number): any {
+    const query = 'reverse/?lon='+x+'&lat='+y+'';
+    return this.cityDataService.getAdressesByQuery(query);
+  }
 }
