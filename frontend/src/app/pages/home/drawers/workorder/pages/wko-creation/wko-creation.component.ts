@@ -36,10 +36,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheService } from 'src/app/core/services/cache.service';
-import {
-  Task,
-  Workorder,
-} from 'src/app/core/models/workorder.model';
+import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -171,7 +168,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.equipments = equipments;
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
-
+        this.params = { ...this.activatedRoute.snapshot.queryParams };
         if (wkoId) {
           // EDIT
           this.workorder = await this.workOrderService.getWorkorderById(
@@ -223,6 +220,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               tasks: [],
             };
           }
+          // gestion de l'adresse
+          this.cityService
+            .getAdressByXY(
+              this.params.x || this.equipments[0].x,
+              this.params.y || this.equipments[0].y
+            )
+            .subscribe((addresse) =>
+              this.creationWkoForm
+                .get('wkoAddress')
+                .setValue(addresse.features[0]?.properties['label'])
+            );
         }
 
         await this.initializeEquipments();
@@ -294,7 +302,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       ctyId: new FormControl('', Validators.required),
       wtrId: new FormControl('', Validators.required),
       wkoName: new FormControl('', Validators.required),
-      wkoAddress: new FormControl(''),
+      wkoAddress: new FormControl('', Validators.required),
       wkoAgentNb: new FormControl(1, Validators.required),
       wkoPlanningStartDate: new FormControl(
         '',
@@ -328,11 +336,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * manage keydown event on date input
    * prevent non numeric input
-   * @param event 
+   * @param event
    */
   public onDateKeyDown(event: any) {
     this.currentDateValue = event.target.value;
-    if (!DateValidator.isKeyValid(event, this.currentDateValue)){
+    if (!DateValidator.isKeyValid(event, this.currentDateValue)) {
       event.preventDefault();
     }
   }
@@ -340,7 +348,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * manage keyup event on date input
    * post treatment for date format
-   * @param event 
+   * @param event
    */
   public onDateKeyUp(event: any) {
     event.target.value = DateValidator.formatDate(event, this.currentDateValue);
@@ -628,7 +636,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.fetchReferentialsData(contractsIds, cityIds);
     } else {
       // WKO XY
-      this.params = { ...this.activatedRoute.snapshot.queryParams };
+      //  this.params = { ...this.activatedRoute.snapshot.queryParams };
 
       const layer = await firstValueFrom(
         this.layerService
