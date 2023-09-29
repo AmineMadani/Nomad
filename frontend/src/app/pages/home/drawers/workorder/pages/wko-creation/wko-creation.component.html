@@ -40,8 +40,10 @@
         <ng-container
           *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoName'] }"></ng-container>
 
-        <ion-input labelPlacement="floating" fill="outline" label="Adresse" placeholder="Adresse" type="text"
-          formControlName="wkoAddress"></ion-input>
+        <ion-input labelPlacement="floating" fill="outline" label="Adresse *" placeholder="Adresse" type="text"
+          [formControlName]="'wkoAddress'"></ion-input>
+        <ng-container
+          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
 
         <ion-select class="select" aria-label="agents" labelPlacement="floating" fill="outline"
           label="Nombre d'agents *" placeholder="Agents" formControlName="wkoAgentNb">
