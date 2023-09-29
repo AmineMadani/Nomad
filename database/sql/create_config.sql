@@ -64,6 +64,8 @@ comment on column users.usr_configuration is 'User configuration';
 
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'administrator', 'administrator', 'administrator@veolia.com');
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (1, 'external', 'external', 'external@veolia.com');
+insert into users(id, usr_first_name, usr_last_name, usr_email) values (2, 'migration', 'migration', 'migration@veolia.com');
+
 
 ALTER TABLE users
 ADD CONSTRAINT fk_usr_ucre_id
