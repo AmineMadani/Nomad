@@ -43,7 +43,7 @@ export class PraxedoService {
           layer = lLayerWtr.find(layerWtr => layerWtr.astCode == typeCode)?.lyrTableName;
         }
         if(res.extras.MOTIF) {
-          const reasonCode = res.extras.TYPE.toString().split('-')[0];
+          const reasonCode = res.extras.MOTIF.toString().split('-')[0];
           reasonId = lLayerWtr.find(layerWtr => layerWtr.wtrCode == reasonCode)?.wtrId;
         }
         if(res.extras.GPS_RI) {
