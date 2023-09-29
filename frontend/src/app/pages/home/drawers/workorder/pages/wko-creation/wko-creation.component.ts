@@ -636,8 +636,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.fetchReferentialsData(contractsIds, cityIds);
     } else {
       // WKO XY
-      //  this.params = { ...this.activatedRoute.snapshot.queryParams };
-
       const layer = await firstValueFrom(
         this.layerService
           .getAllLayers()
