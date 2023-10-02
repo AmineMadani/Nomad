@@ -50,7 +50,7 @@ export class TaskCardComponent implements OnInit {
   }
 
   public getAction(id: number): string {
-    const label = this.actions.find((status) => status.id === id).wtrLlabel;
-    return label.charAt(0).toUpperCase() + label.slice(1);
+    const label = this.actions.find((status) => status.id === id)?.wtrLlabel;
+    return label ? (label.charAt(0).toUpperCase() + label.slice(1)) : "NC";
   }
 }
