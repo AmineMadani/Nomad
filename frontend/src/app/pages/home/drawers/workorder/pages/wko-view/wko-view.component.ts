@@ -334,6 +334,7 @@ export class WkoViewComponent implements OnInit {
         const task = this.workOrder.tasks.find(
           (task) => task.id === Number(this.taskId)
         );
+        this.selectedTask = task;
         this.getStatus(task.wtsId);
         await this.workorderService.deleteCacheWorkorder(this.workOrder);
         const feature = this.mapLayerService.getFeatureById(
