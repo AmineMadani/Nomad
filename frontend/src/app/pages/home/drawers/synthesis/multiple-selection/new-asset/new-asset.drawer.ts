@@ -106,6 +106,10 @@ export class NewAssetDrawer implements OnInit {
       // Else add the asset to the list
       this.listSelectedFilterAsset.push(filterAsset);
     }
+
+    if (this.indexFilterAssetSelection < this.listSelectedFilterAsset.length) {
+      this.next();
+    }
   }
 
   public previous() {
