@@ -576,6 +576,7 @@ create table if not exists workorder_task_reason
   wtr_report        boolean default True,
   wtr_wo            boolean default True,
   wtr_task          boolean default True,
+  wtr_no_xy         boolean default False,
   -- Technical metadata
   wtr_valid         boolean default True,
   wtr_ucre_id       bigint references users(id) default 0,

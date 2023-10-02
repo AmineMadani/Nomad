@@ -232,10 +232,10 @@ values
 ('Mettre hors service', 'Mettre en ou hors service', '14'),
 ('Entretenir / Maintenir', 'Entretenir / Maintenir', '15'),
 ('Entretenir / Réparer', 'Entretenir / Réparer', '15'),
-('Contrôler', 'Contrôler', 'Contrôler / Enquêter', '16'),
+('Contrôler', 'Contrôler', '16'),
 ('Manoeuvrer', 'Manoeuvrer', '16'),
 ('Relever / Vérifier', 'Relever / Vérifier', '16'),
-('Contrôler / Enquêter', '16'), 
+('Contrôler / Enquêter', 'Contrôler / Enquêter', '16'), 
 ('Entretenir / Réparer BAC ou Fontes de Voirie', 'Entretenir / Réparer BAC ou Fontes de Voirie', '17'),
 ('Repérer / Enquêter sur X,Y', 'Repérer / Enquêter sur X,Y', '19'),
 ('Rechercher Fuite', 'Rechercher Fuite', '20'),
@@ -255,7 +255,9 @@ values
 ('Effectuer un remblais', 'Effectuer un remblais', '41'),
 ('Effectuer Réfection de Voirie X,Y', 'Effectuer Réfection de Voirie X,Y', '42');
 
-insert into ast_wtr(ast_id, wtr_id ) values
+update workorder_task_reason set wtr_no_xy = true where wtr_code in ('13', '19') or (wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter');
+
+insert into ast_wtr(ast_id, wtr_id )
 select ast_id, wtr_id 
 from (
 select (select id from asset_type where ast_code = '20') as ast_id, (select id from workorder_task_reason where wtr_code = '10') as wtr_id union

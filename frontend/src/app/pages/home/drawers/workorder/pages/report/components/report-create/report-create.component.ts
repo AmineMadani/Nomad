@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { AlertController, IonModal } from '@ionic/angular';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { filter } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -52,6 +52,7 @@ export class ReportCreateComponent implements OnInit {
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
+  public hasXYInvalid: boolean = false;
 
   @ViewChild('stepForm') stepForm: ReportFormComponent;
   @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
@@ -62,7 +63,7 @@ export class ReportCreateComponent implements OnInit {
 
   private currentDateValue: string;
 
-  ngOnInit() {
+  async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
     // Case on admin screen to test forms
@@ -97,6 +98,8 @@ export class ReportCreateComponent implements OnInit {
           this.isSubmit = true;
         }
       }
+    } else {
+      await this.checkHasXYInvalid();
     }
   }
 
@@ -489,6 +492,10 @@ export class ReportCreateComponent implements OnInit {
    */
   public onSaveWorkOrderState() {
     this.exploitationService.saveCacheWorkorder(this.workorder);
+
+    if (this.step === 1) {
+      this.checkHasXYInvalid();
+    }
   }
 
   /**
@@ -657,4 +664,29 @@ export class ReportCreateComponent implements OnInit {
     );
   }
 
+  public onNewAsset() {
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.NEW_ASSET,
+      [],
+      { 
+        draft: this.workorder.id,
+        step: 'report'
+      }
+    );
+  }
+
+  /**
+   * If there is a XY Asset with reason other than 'Enquête' (16 or 19) and 'Réaliser un métré' (13)
+   * The user must choose an existing asset or create a new one
+   */
+  private async checkHasXYInvalid() {
+    const listWtr = await firstValueFrom(this.workorderService.getAllWorkorderTaskReasons());
+    const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
+
+    this.hasXYInvalid = this.workorder.tasks.some(task => {
+      return task.assObjTable?.includes('_xy') && (
+        task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
+      );
+    });
+  }
 }

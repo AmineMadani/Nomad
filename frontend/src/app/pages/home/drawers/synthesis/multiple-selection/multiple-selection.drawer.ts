@@ -144,7 +144,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
       },
       {
-        key: 'ask',
+        key: 'new-asset',
         label: 'Créer un patrimoine',
         icon: 'refresh',
         disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
@@ -284,7 +284,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }
 
         break;
-      case 'ask':
+      case 'new-asset':
         if (this.wkoDraft) {
           this.drawerService.navigateTo(
             DrawerRouteEnum.NEW_ASSET,
