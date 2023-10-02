@@ -24,6 +24,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { Attachment } from 'src/app/core/models/attachment.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { DateTime } from 'luxon';
 
 @Component({
   selector: 'app-wko-view',
@@ -58,14 +59,20 @@ export class WkoViewComponent implements OnInit {
   public selectedTask: Task;
   public taskId: string;
   public loading: boolean = true;
+  public appointmentHours: string;
+  public wkoIdLabel: string;
 
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
 
   public canEdit(): boolean {
-    return  !this.loading && this.workOrder  && (this.workOrder.wtsId === WkoStatus.CREE
-                                        || this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF
-                                        || this.workOrder.wtsId === WkoStatus.ERREUR);
+    return (
+      !this.loading &&
+      this.workOrder &&
+      (this.workOrder.wtsId === WkoStatus.CREE ||
+        this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF ||
+        this.workOrder.wtsId === WkoStatus.ERREUR)
+    );
   }
 
   public canCancel(): boolean {
@@ -73,7 +80,9 @@ export class WkoViewComponent implements OnInit {
 
     let wtsId = this.workOrder.wtsId;
     if (this.taskId != null) {
-      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+      const task = this.workOrder.tasks.find(
+        (task) => task.id === Number(this.taskId)
+      );
       wtsId = task?.wtsId;
     }
 
@@ -81,7 +90,13 @@ export class WkoViewComponent implements OnInit {
   }
 
   public isCancelled(): boolean {
-    return this.workOrder.wtsId === WkoStatus.ANNULE;
+    let wtsId = this.workOrder.wtsId;
+    if (this.taskId != null) {
+      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+      wtsId = task?.wtsId;
+    }
+
+    return wtsId === WkoStatus.ANNULE;
   }
 
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -115,13 +130,28 @@ export class WkoViewComponent implements OnInit {
         this.displayAndZoomTo(this.workOrder);
 
         if (this.taskId) {
-          this.selectedTask = this.workOrder.tasks.find((task) => task.id.toString() == this.taskId);
+          this.selectedTask = this.workOrder.tasks.find(
+            (task) => task.id.toString() == this.taskId
+          );
         } else {
           this.selectedTask = this.workOrder.tasks[0];
         }
 
         const wtsid = this.selectedTask?.wtsId;
         const lyrTableName = this.selectedTask?.assObjTable;
+
+        if (this.workOrder.wkoAppointment) {
+          const planningStartDate = DateTime.fromJSDate(
+            new Date(this.workOrder.wkoPlanningStartDate)
+          );
+          const planningEndDate = DateTime.fromJSDate(
+            new Date(this.workOrder.wkoPlanningEndDate)
+          );
+
+          const formattedStartDate = planningStartDate.toFormat('HH:mm');
+          const formattedEndDate = planningEndDate.toFormat('HH:mm');
+          this.appointmentHours = `${formattedStartDate} - ${formattedEndDate}`;
+        }
 
         forkJoin({
           workorderTaskStatus:
@@ -131,16 +161,26 @@ export class WkoViewComponent implements OnInit {
           layers: this.layerService.getAllLayers(),
         }).subscribe(
           ({ workorderTaskStatus, workorderTaskReasons, layers }) => {
-            this.status = workorderTaskStatus.find((refStatus) => refStatus.id == wtsid)?.wtsLlabel;
-            this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
+            this.status = workorderTaskStatus.find(
+              (refStatus) => refStatus.id == wtsid
+            )?.wtsLlabel;
+            this.status =
+              this.status?.charAt(0).toUpperCase() + this.status.slice(1);
 
             this.reason = workorderTaskReasons.find(
               (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
             )?.wtrLlabel;
 
-            const layer = lyrTableName ? layers.find((asset) => asset.lyrTableName == lyrTableName) : null;
-            this.assetLabel = layer ? layer.domLLabel + ' - ' + layer.lyrSlabel : null;
-
+            const layer = lyrTableName
+              ? layers.find((asset) => asset.lyrTableName == lyrTableName)
+              : null;
+            this.assetLabel = layer
+              ? `${layer.domLLabel} - ${layer.lyrSlabel}` +
+                (this.selectedTask?.assObjRef
+                  ? ` - ${this.selectedTask?.assObjRef}`
+                  : '')
+              : null;
+            this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
             this.loading = false;
           }
         );
@@ -151,10 +191,9 @@ export class WkoViewComponent implements OnInit {
    * Update workorder
    */
   public updateWorkorder(): void {
-    this.drawerService.navigateTo(
-      DrawerRouteEnum.WORKORDER_EDITION,
-      [this.workOrder.id]
-    );
+    this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_EDITION, [
+      this.workOrder.id,
+    ]);
   }
 
   /**
@@ -163,11 +202,12 @@ export class WkoViewComponent implements OnInit {
   public cancel(): void {
     let isCancelWorkOrder = this.taskId == null;
 
-    if (this.workOrder.tasks.filter((task) => task.wtsId !== WkoStatus.ANNULE).length === 1) {
+    if (
+      this.workOrder.tasks.filter((task) => task.wtsId !== WkoStatus.ANNULE)
+        .length === 1
+    ) {
       isCancelWorkOrder = true;
     }
-
-    console.log(isCancelWorkOrder)
 
     if (isCancelWorkOrder) {
       this.cancelWorkorder();
@@ -229,9 +269,12 @@ export class WkoViewComponent implements OnInit {
           this.getStatus(this.workOrder.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
           for (let task of res.tasks) {
-            const feature = this.mapLayerService.getFeatureById('task', task.id.toString());
+            const feature = this.mapLayerService.getFeatureById(
+              'task',
+              task.id.toString()
+            );
             if (feature) {
-              feature.properties['wtsCode'] = "ANNULE";
+              feature.properties['wtsCode'] = 'ANNULE';
               this.mapService.updateFeature('task', feature);
             }
           }
@@ -285,20 +328,23 @@ export class WkoViewComponent implements OnInit {
         tskId: Number(this.taskId),
         cancelComment: data.values.cancelComment,
       };
-      this.workorderService
-        .cancelTask(cancelTsk)
-        .subscribe(async (res) => {
-          this.displayCancelToast('Modification enregistré avec succès.');
-          this.workOrder = res;
-          const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
-          this.getStatus(task.wtsId);
-          await this.workorderService.deleteCacheWorkorder(this.workOrder);
-          const feature = this.mapLayerService.getFeatureById('task', this.taskId);
-          if (feature) {
-            feature.properties['wtsCode'] = "ANNULE";
-            this.mapService.updateFeature('task', feature);
-          }
-        });
+      this.workorderService.cancelTask(cancelTsk).subscribe(async (res) => {
+        this.displayCancelToast('Modification enregistré avec succès.');
+        this.workOrder = res;
+        const task = this.workOrder.tasks.find(
+          (task) => task.id === Number(this.taskId)
+        );
+        this.getStatus(task.wtsId);
+        await this.workorderService.deleteCacheWorkorder(this.workOrder);
+        const feature = this.mapLayerService.getFeatureById(
+          'task',
+          this.taskId
+        );
+        if (feature) {
+          feature.properties['wtsCode'] = 'ANNULE';
+          this.mapService.updateFeature('task', feature);
+        }
+      });
     }
   }
 
@@ -311,21 +357,40 @@ export class WkoViewComponent implements OnInit {
   }
 
   public openEquipment(): void {
-    if (!(this.taskId || this.workOrder.tasks.length === 1)) {
-      return;
+    if (this.workOrder.tasks.length > 1) {
+      const equipments = this.workOrder.tasks.map((t) => {
+        return {
+          id: t.assObjRef,
+          lyrTableName: t.assObjTable,
+          x: t.longitude,
+          y: t.latitude,
+          assetForSig: t.assetForSig,
+          taskId: t.id,
+        };
+      });
+
+      this.drawerService.navigateWithEquipments(
+        DrawerRouteEnum.SELECTION,
+        equipments,
+        { draft: this.workOrder.id }
+      );
+    } else {
+      const lyrTableName = this.selectedTask.assObjTable;
+
+      if (
+        !this.selectedTask?.assObjRef ||
+        this.selectedTask.assObjRef.startsWith('TMP-')
+      )
+        return;
+
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.EQUIPMENT,
+        [this.selectedTask.assObjRef],
+        {
+          lyrTableName: lyrTableName,
+        }
+      );
     }
-
-    const lyrTableName = this.selectedTask.assObjTable;
-
-    if (this.selectedTask.assObjRef.startsWith('TMP-')) return;
-
-    this.drawerService.navigateTo(
-      DrawerRouteEnum.EQUIPMENT,
-      [this.selectedTask.assObjRef],
-      {
-        lyrTableName: lyrTableName,
-      }
-    );
   }
 
   public convertBitsToBytes(x): string {
@@ -355,8 +420,11 @@ export class WkoViewComponent implements OnInit {
     this.workorderService
       .getAllWorkorderTaskStatus()
       .subscribe((statusList) => {
-        this.status = statusList.find((refStatus) => refStatus.id.toString() === wtsId.toString()).wtsLlabel;
-        this.status = this.status.charAt(0).toUpperCase() + this.status.slice(1);
+        this.status = statusList.find(
+          (refStatus) => refStatus.id.toString() === wtsId.toString()
+        ).wtsLlabel;
+        this.status =
+          this.status.charAt(0).toUpperCase() + this.status.slice(1);
       });
   }
 
@@ -397,11 +465,13 @@ export class WkoViewComponent implements OnInit {
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
-   private displayAndZoomTo(workorder: Workorder) {
+  private displayAndZoomTo(workorder: Workorder) {
     // Get the list of task to display
     let listTask = [];
     if (this.taskId) {
-      const task = workorder.tasks.find((task) => task.id.toString() === this.taskId);
+      const task = workorder.tasks.find(
+        (task) => task.id.toString() === this.taskId
+      );
       if (task) listTask.push(task);
     } else {
       listTask = workorder.tasks;
@@ -412,30 +482,34 @@ export class WkoViewComponent implements OnInit {
       let listLayerKey = [...new Set(listTask.map((task) => task.assObjTable))];
 
       Promise.all(
-        listLayerKey.map((layerKey) => this.mapService.addEventLayer(layerKey))
-        .concat(
-          this.mapService.addEventLayer('task')
-        )
-       ).then(() => {
+        listLayerKey
+          .map((layerKey) => this.mapService.addEventLayer(layerKey))
+          .concat(this.mapService.addEventLayer('task'))
+      ).then(() => {
         // Once loaded
         // Highlight the tasks and the layers related to them
         let featuresSelection: MultiSelection[] = [];
         featuresSelection = listTask.map((task) => {
           return {
             id: task.id.toString(),
-            source: 'task'
-          }
+            source: 'task',
+          };
         });
         featuresSelection = featuresSelection.concat(
-          listTask.filter(t => !t.assObjTable.includes('_xy')).map((task) => {
-            return {
-              id: task.assObjRef,
-              source: task.assObjTable,
-            }
-          })
+          listTask
+            .filter((t) => !t.assObjTable.includes('_xy'))
+            .map((task) => {
+              return {
+                id: task.assObjRef,
+                source: task.assObjTable,
+              };
+            })
         );
 
-        this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+        this.mapEventService.highlighSelectedFeatures(
+          this.mapService.getMap(),
+          featuresSelection
+        );
       });
 
       // Zoom on the location of the tasks

@@ -41,10 +41,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         switchMap(() => {
-          // if (this.updateUrl) {
-          //   this.updateUrl = false;
-          //   return EMPTY;
-          // }
           const urlParams = new URLSearchParams(window.location.search);
           this.paramFeatures = this.utilsService.transformMap(
             new Map(urlParams.entries())
@@ -141,7 +137,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           ? (this.step == 'report' ? "Reprendre le CR" : "Reprendre l'intervention")
           : 'Générer une intervention',
         icon: 'person-circle',
-        disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
+        disabledFunction: () => (!this.userHasPermissionCreateAssetWorkorder || this.filteredFeatures.length === 0),
       },
       {
         key: 'new-asset',
@@ -213,8 +209,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       return { key: lyrName, label: conf.lyrSlabel };
     });
 
-    let mapSearch:Map<string, string[]> = new Map();
-    for (let feature of abstractFeatures) {
+    const mapSearch:Map<string, string[]> = new Map();
+    for (const feature of abstractFeatures) {
       if (feature.isTemp) {
         this.featuresSelected.push(feature);
       } else {
@@ -226,8 +222,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       }
     }
    
-    let searchEquipments: SearchEquipments[] = [];
-    for(let [key,value] of mapSearch){
+    const searchEquipments: SearchEquipments[] = [];
+    for(const [key,value] of mapSearch){
       searchEquipments.push({
         lyrTableName: key,
         equipmentIds: value
@@ -253,7 +249,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       })
     );
 
-    // this.addToSelection = false;
     this.isLoading = false;
   }
 
@@ -380,12 +375,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public getLyrLabel(layerKey: string): string {
     return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
-      .lyrSlabel;
+      ?.lyrSlabel;
   }
 
   public getDomLabel(layerKey: string): string {
     return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
-      .domLLabel;
+      ?.domLLabel;
   }
 
   public generateFeatureParams(features: any[]): any {
