@@ -53,6 +53,7 @@ export interface Task {
     tskCompletionStartDate?: Date;
     tskCompletionEndDate?: Date;
     tskReportDate?: Date;
+    tskCancelComment?: string;
     report?: Report;
     isSelectedTask?: boolean;
     assetForSig?: AssetForSigDto;

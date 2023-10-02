@@ -81,7 +81,13 @@ export class WkoViewComponent implements OnInit {
   }
 
   public isCancelled(): boolean {
-    return this.workOrder.wtsId === WkoStatus.ANNULE;
+    let wtsId = this.workOrder.wtsId;
+    if (this.taskId != null) {
+      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+      wtsId = task?.wtsId;
+    }
+
+    return wtsId === WkoStatus.ANNULE;
   }
 
   private ngUnsubscribe$: Subject<void> = new Subject();
