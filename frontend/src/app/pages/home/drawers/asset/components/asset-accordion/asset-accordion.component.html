@@ -1,17 +1,19 @@
 <ion-accordion-group multiple="true" #accordionGroup>
-  <ng-container >
-    <ion-accordion *ngFor="let item of filterSegment.child" [toggleIcon]="''" [value]="item.name">
+  <ng-container *ngFor="let item of filterSegment.child">
+    <ion-accordion *ngIf="item.segmentVisible != false" [toggleIcon]="''" [value]="item.name">
       <ion-item slot="header" (click)="onCheckOpeningRule(item,$event)">
         <ion-checkbox aria-label="checkbox" slot="start" (ionChange)="onItemSelected(item, $event, true)" (click)="$event.stopPropagation()" [checked]='item.selected' [indeterminate]="item.isIndeterminate"></ion-checkbox>
         <ion-label>{{ item.name }}</ion-label>
         <ion-icon slot="end" color="primary" [name]="(item.child && item.child.length > 0) ? (item.closedAccordion ? 'add-outline' : 'remove-outline'):''"></ion-icon>
       </ion-item>
       <div class="ion-accordion-content" slot="content">
-        <div *ngFor="let child of item.child" class="children" [class.children-selected]="child.selected || child.isIndeterminate" (click)="onItemSelected(child,$event)">
-          <img [src]="child.imgSource" width="70" height="70" />
-          <span>{{ child.name }}</span>
-          <div *ngIf="child.selected || child.isIndeterminate" class="child-selected-arrow"><ion-icon size="large" [name]="child.isIndeterminate ? 'remove-outline':'checkmark'"></ion-icon></div>
-        </div>
+        <ng-container *ngFor="let child of item.child">
+          <div *ngIf="child.segmentVisible != false" class="children" [class.children-selected]="child.selected || child.isIndeterminate" (click)="onItemSelected(child,$event)">
+            <img [src]="child.imgSource" width="70" height="70" />
+            <span>{{ child.name }}</span>
+            <div *ngIf="child.selected || child.isIndeterminate" class="child-selected-arrow"><ion-icon size="large" [name]="child.isIndeterminate ? 'remove-outline':'checkmark'"></ion-icon></div>
+          </div>
+        </ng-container>
       </div>
     </ion-accordion>
   </ng-container>
