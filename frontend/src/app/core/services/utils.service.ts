@@ -311,4 +311,11 @@ export class UtilsService {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;
   }
+
+  /**
+   * Check if offline mode enable
+   */
+  public isOfflineMode(cachedData: string): boolean{
+    return this.isMobilePlateform();
+  }
 }

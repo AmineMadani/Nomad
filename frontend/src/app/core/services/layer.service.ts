@@ -88,29 +88,37 @@ export class LayerService {
     file: string
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
+    
     /* It's getting the number from the file name. */
     const featureNumber: number = Number(file.replace('index_','').replace('.geojson',''));
     file = file.replace('index',layerKey);
-    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-    const req: NomadGeoJson = await lastValueFrom(
-      this.layerDataService.getLayerFile(layerKey, featureNumber)
-        .pipe(
-          timeout(this.configurationService.offlineTimeoutTile),
-          catchError(async () => {
-            const tile = await this.db.tiles.get(file);
-            if (tile) {
-              return tile.data;
-            }
-            return null;
-          })
-        )
-    );
-    if (!req) {
-      this.listTileOnLoad.delete(layerKey);
-      throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
-    }
+    let req: NomadGeoJson = null;
 
-    await this.db.tiles.put({ data: req, key: file }, file);
+    if(!this.utilsService.isOfflineMode('tiles')) {
+      req = await lastValueFrom(this.layerDataService.getLayerFile(layerKey, featureNumber));
+    } else {
+      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
+      req = await lastValueFrom(
+        this.layerDataService.getLayerFile(layerKey, featureNumber)
+          .pipe(
+            timeout(this.configurationService.offlineTimeoutTile),
+            catchError(async () => {
+              const tile = await this.db.tiles.get(file);
+              if (tile) {
+                return tile.data;
+              }
+              return null;
+            })
+          )
+      );
+      if (!req) {
+        this.listTileOnLoad.delete(layerKey);
+        throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
+      }
+
+      await this.db.tiles.put({ data: req, key: file }, file);
+    }
+    
 
     this.listTileOnLoad.delete(layerKey);
     return req;
@@ -167,7 +175,7 @@ export class LayerService {
   }
 
   public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    if(!this.utilsService.isMobilePlateform()) {
+    if(!this.utilsService.isOfflineMode('tiles')) {
       return firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
     }
     return firstValueFrom(

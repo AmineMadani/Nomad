@@ -45,8 +45,8 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
-    if(!this.utilsService.isMobilePlateform()) {
-      return firstValueFrom(this.workorderDataService.getWorkorderById(id));;
+    if(!this.utilsService.isOfflineMode('tiles')) {
+      return firstValueFrom(this.workorderDataService.getWorkorderById(id));
     }
     return firstValueFrom(
       this.workorderDataService.getWorkorderById(id).pipe(
