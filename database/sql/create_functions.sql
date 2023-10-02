@@ -350,7 +350,7 @@ begin
       end if;
       field_increment := field_increment + 1;
     END LOOP;
-   	field_to_text := field_to_text || ')';
+   	field_to_text := field_to_text || ') || jsonb_build_object(''lyrTableName'', '''||lyr_table_name||''')';
    
 	sql_query := FORMAT('select json_agg(%1$s) FROM %2$s t
                 INNER JOIN nomad.contract ctr ON ctr.ctr_code = t.code_contrat
