@@ -203,7 +203,7 @@ aep_canalisation;nd_aval;Noeud aval;text;93;DETAILED;Métadonnées;1
 aep_canalisation;code_contrat;Code Contrat;text;94;DETAILED;Métadonnées;1
 aep_canalisation;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 aep_canalisation;cde_rvb;Code Couleur;text;95;SYNTHETIC;Métadonnées;1
-aep_canalisation;label;Info;text;96;DETAILED;Métadonnées;1
+aep_canalisation;label;Info;text;96;SYNTHETIC;Métadonnées;1
 aep_canalisation;uuid;UUID;uuid;;;;
 aep_canalisation;source;Source de donnée;text;;;;
 aep_canalisation;integ;Type intégration;text;;;;
@@ -1324,7 +1324,7 @@ ass_collecteur;nd_aval;Noeud aval;text;92;DETAILED;Métadonnées;
 ass_collecteur;code_contrat;Code Contrat;text;93;DETAILED;Métadonnées;1
 ass_collecteur;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 ass_collecteur;insee_code;Insee Code;text;95;DETAILED;Métadonnées;1
-ass_collecteur;label;Info;text;96;DETAILED;Métadonnées;1
+ass_collecteur;label;Info;text;96;SYNTHETIC;Métadonnées;1
 ass_collecteur;adresse;Adresse ;text;;;;
 ass_collecteur;annee_max;Année min;int4;;;;
 ass_collecteur;annee_min;Année max;int4;;;;
