@@ -92,6 +92,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public creationWkoForm: FormGroup;
   public params: any;
 
+  public currentContract: Contract;
+
   public contracts: Contract[];
   public cities: City[];
   public wtrs: VLayerWtr[];
@@ -241,6 +243,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         await this.saveWorkOrderInCache();
       });
+
+      this.creationWkoForm.get('ctrId').valueChanges.pipe(takeUntil(this.ngUnsubscribe$)).subscribe((contractId: number) => {
+        this.currentContract = this.contracts.find((c) => Number(c.id) === Number(contractId));
+      })
   }
 
   ngAfterViewInit(): void {

@@ -6,6 +6,8 @@ export interface Contract {
   ctrSlabel: string;
   ctrLlabel: string;
   ctrValid: boolean;
+  ctrStartDate: Date;
+  ctrEndDate: Date;
 }
 
 export interface ContractWithOrganizationalUnits {

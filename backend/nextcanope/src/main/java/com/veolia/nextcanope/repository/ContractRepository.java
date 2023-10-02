@@ -50,7 +50,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
             @Param("longitude") Double longitude
     );
 
-    @Query(value="select ctr.id, ctr.ctr_code as ctrCode, ctr.ctr_slabel as ctrSlabel, ctr.ctr_llabel as ctrLlabel, ctr.ctr_valid as ctrValid from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = :userId and ucp.usc_ddel is null",
+    @Query(value="select ctr.id, ctr.ctr_code as ctrCode, ctr.ctr_slabel as ctrSlabel, ctr.ctr_llabel as ctrLlabel, ctr.ctr_valid as ctrValid, ctr.ctr_start_date as ctrStartDate, ctr.ctr_end_date as ctrEndDate from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = :userId and ucp.usc_ddel is null",
     		nativeQuery = true)
     List<ContractDto> getAllUserContracts(@Param("userId") Long userId);
 }

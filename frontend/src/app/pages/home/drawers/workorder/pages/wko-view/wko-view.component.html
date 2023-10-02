@@ -59,18 +59,22 @@
           <ion-label> Généralités </ion-label>
         </ion-item>
         <div slot="content">
+          <ion-item lines="none">
+            <ion-label class="label">
+              <h3>ID</h3>
+              <p>{{ wkoIdLabel }}</p>
+            </ion-label>
+          </ion-item>
           <ion-item lines="none" *ngIf="isCancelled()">
             <ion-label class="label">
               <h3>Motif d'annulation</h3>
               <p>{{ selectedTask?.tskCancelComment ?? workOrder.wkoCancelComment }}</p>
             </ion-label>
           </ion-item>
-          <ion-item lines="none" [button]="taskId || workOrder.tasks.length === 1" (click)="openEquipment()">
+          <ion-item lines="none" button (click)="openEquipment()">
             <ion-label class="label">
               <h3>Patrimoine</h3>
-              <p>{{ (taskId || workOrder.tasks.length === 1) ? (assetLabel?.length > 0 ? assetLabel +
-                (selectedTask?.assObjRef ? '
-                - ' + selectedTask?.assObjRef : '') : 'Non défini') : 'Multi-equipement' }}</p>
+              <p>{{ (taskId || workOrder.tasks.length === 1) ? assetLabel : 'Multi-equipement' }}</p>
             </ion-label>
           </ion-item>
           <ion-item lines="none">
@@ -119,11 +123,16 @@
               <p>{{ workOrder.wkoPlanningStartDate | date: 'dd/MM/yyyy' }}</p>
             </ion-label>
           </ion-item>
-
           <ion-item lines="none">
             <ion-label class="label">
               <h3>Date de fin</h3>
               <p>{{ workOrder.wkoPlanningEndDate | date: 'dd/MM/yyyy' }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoAppointment">
+            <ion-label class="label">
+              <h3>Rendez-vous</h3>
+              <p>{{ appointmentHours }}</p>
             </ion-label>
           </ion-item>
           <ion-item lines="none">
