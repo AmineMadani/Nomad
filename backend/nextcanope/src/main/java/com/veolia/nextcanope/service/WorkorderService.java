@@ -362,8 +362,37 @@ public class WorkorderService {
 		workorder.setWorkorderTaskStatus(status);
 
 		// Get the work order asset
+		List<Task> existingTasks = workorder.getListOfTask();
+		List<Task> newTasks = new ArrayList<>();
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
-			Task task = getTaskById(taskDto.getId());
+			Task task;
+			if (taskDto.getId() < 0) {
+				task = new Task();
+
+				// Set task attributes
+				task.setWorkorder(workorder);
+				task.setTskName(workorder.getWkoName());
+				task.setTskComment(workorder.getWkoCreationComment());
+				task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
+				task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+				task.setCreatedBy(user);
+
+				// Asset for SIG
+				if (taskDto.getAssetForSig() != null) {
+					assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
+				}
+
+				// Get Contract
+				if (customWorkorderDto.getCtrId() != null) {
+					Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+					task.setContract(contract);
+				}
+
+				newTasks.add(task);
+			} else {
+				task = getTaskById(taskDto.getId());
+				newTasks.add(task);
+			}
 
 			// Set task attributes
 			task.setWorkorderTaskStatus(workorder.getWorkorderTaskStatus());
@@ -396,6 +425,16 @@ public class WorkorderService {
 			WorkorderTaskReason wtr = this.getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
 		}
+
+		// Gestion des task à supprimer
+		List<String> objRef = customWorkorderDto.getTasks().stream().map(TaskDto::getAssObjRef).toList();
+		for (Task existingTask : existingTasks) {
+			if (!objRef.contains(existingTask.getAsset().getAssObjRef())){
+				existingTask.markAsDeleted(user);
+				newTasks.add((existingTask));
+			}
+		}
+		workorder.setListOfTask(newTasks);
 
 		try {
 			workorder = workOrderRepository.save(workorder);

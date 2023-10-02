@@ -107,7 +107,7 @@
       <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
       <ion-button *ngIf="step === 1" [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
       <ion-button *ngIf="step === 2" [style.visibility]="coords.length === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
-      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Créer</ion-button>
+      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Valider</ion-button>
     </ng-container>
     <ng-container *ngIf="isSubmitting">
       <ion-item lines="none" style="margin: auto;">

@@ -39,6 +39,7 @@ export class NewAssetDrawer implements OnInit {
   public isMobile: boolean = false;
 
   private wkoDraft: number = null;
+  private wkoStep: string = null;
 
   public step: number = 1;
 
@@ -65,6 +66,7 @@ export class NewAssetDrawer implements OnInit {
     this.isMobile = this.utils.isMobilePlateform();
 
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+    this.wkoStep = this.activatedRoute.snapshot.queryParams?.['step'];
 
     const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
@@ -215,6 +217,20 @@ export class NewAssetDrawer implements OnInit {
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
       const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+
+      // If we come from a report
+      if (this.wkoStep === 'report') {
+        // If there is only 1 task, replace it with the new one
+        if (wko.tasks.length === 1) {
+          // Hide the marker of the deleted task
+          const oldTask = wko.tasks[0];
+          this.mapService.removePoint('task', oldTask.id.toString());
+
+          // Empty the list
+          wko.tasks = [];
+        }
+      }
+
       wko.tasks.push({
         id: this.utils.createCacheId(),
         assObjTable: this.layer.lyrTableName,

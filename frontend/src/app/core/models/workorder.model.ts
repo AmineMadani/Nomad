@@ -93,6 +93,7 @@ export interface WorkorderTaskReason {
     wtrSlabel: string;
     wtrLlabel: string;
     wtrValid: boolean;
+    wtrNoXy: boolean;
 }
 
 export enum WorkorderType {
