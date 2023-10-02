@@ -45,15 +45,12 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
-    let workorder: Workorder = (await this.db.workorders.get(id.toString()))
-      ?.data;
-    if (!workorder) {
-      if (!this.utilsService.isMobilePlateform()) {
-        return firstValueFrom(this.workorderDataService.getWorkorderById(id));
-      }
-      return firstValueFrom(
-        this.workorderDataService.getWorkorderById(id).pipe(
-          timeout(this.configurationService.offlineTimeoutWorkorder),
+    if(!this.utilsService.isMobilePlateform()) {
+      return firstValueFrom(this.workorderDataService.getWorkorderById(id));;
+    }
+    return firstValueFrom(
+      this.workorderDataService.getWorkorderById(id).pipe(
+        timeout(this.configurationService.offlineTimeoutWorkorder),
           catchError(async (error) => {
             if (error?.name == 'TimeoutError') {
               let featureWorkorder =
@@ -62,7 +59,7 @@ export class WorkorderService {
                   id.toString()
                 );
               if (featureWorkorder) {
-                workorder = this.buildWorkorderFromGeojson(featureWorkorder);
+                let workorder = this.buildWorkorderFromGeojson(featureWorkorder);
                 let tasks =
                   await this.cacheService.getFeatureByLayerAndProperty(
                     'task',
@@ -77,10 +74,8 @@ export class WorkorderService {
             }
             throw error;
           })
-        )
-      );
-    }
-    return workorder;
+      )
+    );
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {

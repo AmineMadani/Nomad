@@ -168,9 +168,9 @@ export class LayerService {
 
   public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
     if(!this.utilsService.isMobilePlateform()) {
-      return await firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
+      return firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
     }
-    return await firstValueFrom(
+    return firstValueFrom(
       this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
         timeout(this.configurationService.offlineTimeoutEquipment),
         catchError(async () => {
