@@ -140,7 +140,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       new URLSearchParams(window.location.search).entries()
     );
 
-    const params = this.utils.transformMap(paramMap);
+    const params = this.utils.transformMap(paramMap,true);
 
     this.mapService
       .onMapLoaded()
@@ -151,10 +151,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           if (paramMap.has('lyrTableName')) {
             return of([]);
           } else {
-            return this.cacheService.getFeaturesByLayersAndIds(
-              params.map((p) => p.lyrTableName),
-              this.utils.flattenEquipments(params)
-            );
+            return this.layerService.getEquipmentsByLayersAndIds(params);
           }
         }),
         map((eqs: any[]) =>
@@ -788,10 +785,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           } else {
             let geom = undefined;
             if (!eq.lyrTableName.includes('_xy')) {
-              geom = await this.mapLayerService.getCoordinateFeaturesById(
-                eq.lyrTableName,
-                eq.id
-              );
+              if(eq.geom?.coordinates) {
+                geom = eq.geom.coordinates;
+              } else {
+                const equipt = await this.layerService.getEquipmentByLayerAndId(
+                  eq.lyrTableName,
+                  eq.id
+                );
+                geom = equipt.geom.coordinates;
+              }
             }
             this.markerCreation.set(
               eq.id,

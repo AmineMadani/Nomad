@@ -164,8 +164,9 @@ export class WkoViewComponent implements OnInit {
             this.status = workorderTaskStatus.find(
               (refStatus) => refStatus.id == wtsid
             )?.wtsLlabel;
-            this.status =
-              this.status?.charAt(0).toUpperCase() + this.status.slice(1);
+            if(this.status) {
+              this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
+            }
 
             this.reason = workorderTaskReasons.find(
               (refReason) => refReason.id === this.workOrder.tasks[0].wtrId

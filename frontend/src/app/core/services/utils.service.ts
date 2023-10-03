@@ -101,7 +101,8 @@ export class UtilsService {
   }
 
   public transformMap(
-    params: Map<string, string>
+    params: Map<string, string>,
+    allColumn?: boolean
   ): SearchEquipments[] {
     const filteredEntries = Array.from(params.entries()).filter(
       ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
@@ -112,7 +113,7 @@ export class UtilsService {
       return {
         lyrTableName: key,
         equipmentIds: equipmentIds,
-        allColumn: false
+        allColumn: allColumn
       };
     });
 

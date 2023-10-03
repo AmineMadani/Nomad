@@ -3,6 +3,7 @@ import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
 import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
+import { UtilsService } from '../utils.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,8 @@ export class MapLayerService {
   constructor(
     private mapService: MapService,
     private mapEvent: MapEventService,
-    private cacheService: CacheService
+    private cacheService: CacheService,
+    private utilsService: UtilsService
   ) {
   }
 
@@ -33,22 +35,6 @@ export class MapLayerService {
         filter: ['==', 'id', featureId],
       });
     return r[0] ?? null;
-  }
-
-  /**
-     * Get feature coordinates by its ID on a given layer
-     * @param layerKey The key of the layer to get the feature from
-     * @param featureId The ID of the feature to get
-     * @returns The feature with the given ID, or null if there is no such feature
-     */
-  public async getCoordinateFeaturesById(
-    layerKey: string,
-    featureId: string
-  ): Promise<any | null> {
-    if (layerKey.includes('asset.')) {
-      layerKey = layerKey.split('asset.')[1];
-    }
-    return await this.cacheService.getGeometryByLayerAndId(featureId, layerKey);
   }
 
   /**

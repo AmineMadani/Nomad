@@ -8,6 +8,7 @@ import { CacheService, ReferentialCacheKey } from './cache.service';
 import { UtilsService } from './utils.service';
 import { MapFeature } from '../models/map-feature.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MapService } from './map/map.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -25,7 +26,8 @@ export class WorkorderService {
     private workorderDataService: WorkorderDataService,
     private cacheService: CacheService,
     private configurationService: ConfigurationService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private mapService: MapService
   ) {
     this.db = new AppDB();
   }
@@ -45,6 +47,10 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
+    if(id < 0) {
+      const localWorkorders: Workorder[] = await this.getLocalWorkorders();
+      return localWorkorders.find(wko => wko.id.toString() === id.toString());
+    }
     if(!this.utilsService.isOfflineMode('tiles')) {
       return firstValueFrom(this.workorderDataService.getWorkorderById(id));
     }
@@ -351,7 +357,8 @@ export class WorkorderService {
                 // If the synchronization is successful, delete the workorder from the cache
                 tap((workorder) => {
                   console.log('Workorder updated successfully', workorder);
-                  this.deleteCacheWorkorder(workorder);
+                  this.deleteCacheWorkorder(wko);
+                  this.syncWorkorderDisplay(wko, workorder)
                 }),
               );
             }
@@ -371,6 +378,17 @@ export class WorkorderService {
           )
         })
       ).subscribe();
+    }
+  }
+
+  private syncWorkorderDisplay(oldWko: Workorder, wko: Workorder) {
+    if(this.mapService.getMap()) {
+      if(this.mapService.getLayer('task')) {
+        for(let oldTask of oldWko.tasks) {
+          this.mapService.removePoint('task',oldTask.id.toString());
+        }
+        this.mapService.addGeojsonToLayer(wko, 'task');
+      }
     }
   }
 }

@@ -187,6 +187,7 @@ export class LayerService {
             for(let ref of idLayer.equipmentIds) {
               let feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
               feature.properties = Object.assign(feature.properties, {lyrTableName:idLayer.lyrTableName});
+              feature.properties = Object.assign(feature.properties, {geom:feature.geometry});
               if(feature) {
                 res.push(feature.properties)
               }

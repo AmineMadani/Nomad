@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, map, firstValueFrom } from 'rxjs';
+import { Observable, ReplaySubject, firstValueFrom } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { BaseMapsDataService } from '../dataservices/base-maps.dataservice';
@@ -14,7 +14,6 @@ import { DrawerRouteEnum } from '../../models/drawer.model';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Clipboard } from '@capacitor/clipboard';
 import { LayerService } from '../layer.service';
-import { WorkorderService } from '../workorder.service';
 import { Workorder } from '../../models/workorder.model';
 
 export interface Box {
@@ -35,8 +34,7 @@ export class MapService {
     private configurationService: ConfigurationService,
     private mapEventService: MapEventService,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController,
-    private workorderService: WorkorderService
+    private alertCtrl: AlertController
   ) {}
 
   public measureMessage: any[];
@@ -45,7 +43,7 @@ export class MapService {
   private layers: Map<string, MaplibreLayer> = new Map();
   private layersConfiguration: Layer[];
 
-  private loadedGeoJson: Map<string, string[]> = new Map();
+  public loadedGeoJson: Map<string, string[]> = new Map();
 
   private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
@@ -528,122 +526,6 @@ export class MapService {
   }
 
   /**
-   * The function loads new tiles for layers based on their maximum zoom level and checks if they have
-   * already been loaded.
-   */
-  public onMoveEnd(): void {
-    for (let layer of this.layers) {
-      if (
-        this.map.getZoom() >=
-        Math.min(...layer[1].style.map((style) => style.minzoom))
-      ) {
-        this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
-          for (let str of res.listTile) {
-            if (
-              !this.loadedGeoJson.get(res.layer) ||
-              !this.loadedGeoJson.get(res.layer)!.includes(str)
-            ) {
-              if (this.loadedGeoJson.get(res.layer)) {
-                this.loadedGeoJson.get(res.layer)!.push(str);
-              } else {
-                this.loadedGeoJson.set(res.layer, [str]);
-              }
-              await this.loadNewTile(res.layer, str);
-            }
-          }
-        });
-      }
-    }
-  }
-
-  /**
-   * Retrieves a list of tiles that overlap with the current map view based on their
-   * coordinates and a given layer index.
-   * @param {string} key - Layer index key
-   * @returns a Promise that resolves to an array of strings.
-   */
-  private getOverlapTileFromIndex(key: string): Observable<any> {
-    const listTile: string[] = [];
-    const val: Maplibregl.LngLatBounds = this.map!.getBounds();
-    const box1: Box = {
-      x1: Math.min(val._sw.lat, val._ne.lat),
-      x2: Math.max(val._sw.lat, val._ne.lat),
-      y1: Math.min(val._sw.lng, val._ne.lng),
-      y2: Math.max(val._sw.lng, val._ne.lng),
-    };
-
-    return this.layerService.getLayerIndexes().pipe(
-      map((res) => {
-        const index: any[] = (res as any)['features'];
-
-        if (index && index.length > 0) {
-          for (const coordRaw of index) {
-            const coords: string[] = (coordRaw['properties']['bbox'] as string)
-              .replace('POLYGON((', '')
-              .replace(')', '')
-              .split(',');
-
-            const box2: Box = {
-              y1: Math.max(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-              ),
-              y2: Math.min(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-              ),
-              x1: Math.max(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-              ),
-              x2: Math.min(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-              ),
-            };
-
-            if (this.checkIfBoxesOverlap(box2, box1)) {
-              listTile.push(coordRaw['properties']['file']);
-            }
-          }
-        }
-        let result: any = {
-          layer: key,
-          listTile: listTile,
-        };
-        return result;
-      })
-    );
-  }
-
-  /**
-   * Load a new tile for a given layer and updates the layer's data on the map.
-   * @param {string} layerKey -Key of the layer being loaded or updated.
-   * @param {string} file - Path of the file that contains the data to be loaded.
-   */
-  private async loadNewTile(layerKey: string, file: string): Promise<void> {
-    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
-    if (source) {
-      const newLayer = await this.layerService.getLayerFile(layerKey, file);
-      const addData: Maplibregl.GeoJSONSourceDiff = {
-        add: newLayer.features,
-      };
-      setTimeout(() => {
-        source.updateData(addData);
-        if (layerKey == 'task') {
-          this.loadLocalTask();
-        }
-      });
-    }
-  }
-
-  private loadLocalTask() {
-    this.workorderService.getLocalWorkorders().then((workorders) => {
-      for (let workorder of workorders) {
-        if (workorder.id < 0 && !workorder.isDraft) {
-          this.addGeojsonToLayer(workorder, 'task');
-        }
-      }
-    });
-  }
-
-  /**
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
@@ -669,24 +551,6 @@ export class MapService {
         this.addNewPoint(layerKey, newPoint);
       }
     });
-  }
-
-  /**
-   * The function checks if two boxes overlap by comparing their x and y coordinates.
-   * @param {Box} box1 - The first box object with properties x1, y1, x2, y2 representing the coordinates
-   * of its top-left and bottom-right corners.
-   * @param {Box} box2 - The second box object that we want to check for overlap with the first box
-   * object (box1).
-   * @returns A boolean value indicating whether or not the two boxes overlap.
-   */
-  private checkIfBoxesOverlap(box1: Box, box2: Box): boolean {
-    const xOverlap =
-      Math.max(box1.x1, box1.x2) >= Math.min(box2.x1, box2.x2) &&
-      Math.max(box2.x1, box2.x2) >= Math.min(box1.x1, box1.x2);
-    const yOverlap =
-      Math.max(box1.y1, box1.y2) >= Math.min(box2.y1, box2.y2) &&
-      Math.max(box2.y1, box2.y2) >= Math.min(box1.y1, box1.y2);
-    return xOverlap && yOverlap;
   }
 
   public setZoom(zoom: number): void {
