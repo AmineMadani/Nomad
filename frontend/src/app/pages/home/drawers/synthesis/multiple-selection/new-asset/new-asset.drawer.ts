@@ -222,29 +222,30 @@ export class NewAssetDrawer implements OnInit {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
       const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
 
-      // If we come from a report
-      if (this.wkoStep === 'report') {
-        // If there is only 1 task, replace it with the new one
-        if (wko.tasks.length === 1) {
-          // Hide the marker of the deleted task
-          const oldTask = wko.tasks[0];
-          this.mapService.removePoint('task', oldTask.id.toString());
-
-          // Empty the list
-          wko.tasks = [];
-        }
+      // When coming from the report and if there is only 1 task
+      if (this.wkoStep === 'report' && wko.tasks.length === 1) {
+        // Replace the asset of the task
+        const task = wko.tasks[0];
+        task.assObjTable = this.layer.lyrTableName;
+        task.assObjRef = "TMP-" + assetForSig.id;
+        task.longitude = this.coords[0][0];
+        task.latitude = this.coords[0][1];
+        task.assetForSig = assetForSig;
+        task.report = null;
+      } else {
+        // Else add it
+        wko.tasks.push({
+          id: this.utils.createCacheId(),
+          assObjTable: this.layer.lyrTableName,
+          assObjRef: "TMP-" + assetForSig.id,
+          longitude: this.coords[0][0],
+          latitude: this.coords[0][1],
+          wtrId: wko.tasks[0]?.wtrId ?? null,
+          wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+          assetForSig: assetForSig,
+        });
       }
 
-      wko.tasks.push({
-        id: this.utils.createCacheId(),
-        assObjTable: this.layer.lyrTableName,
-        assObjRef: "TMP-" + assetForSig.id,
-        longitude: this.coords[0][0],
-        latitude: this.coords[0][1],
-        wtrId: wko.tasks[0]?.wtrId ?? null,
-        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
-        assetForSig: assetForSig,
-      });
       await this.workorderService.saveCacheWorkorder(wko);
     }
 

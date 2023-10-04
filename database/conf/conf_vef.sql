@@ -255,7 +255,7 @@ values
 ('Effectuer un remblais', 'Effectuer un remblais', '41'),
 ('Effectuer Réfection de Voirie X,Y', 'Effectuer Réfection de Voirie X,Y', '42');
 
-update workorder_task_reason set wtr_no_xy = true where wtr_code in ('13', '19') or (wtr_code = '16' and wtr_slabel = 'Contrôler / Enquêter');
+update workorder_task_reason set wtr_no_xy = true where wtr_code in ('10', '20', '21', '28', '29', '32', '40', '41', '42');
 
 insert into ast_wtr(ast_id, wtr_id )
 select ast_id, wtr_id 

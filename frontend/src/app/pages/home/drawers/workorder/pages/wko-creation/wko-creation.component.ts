@@ -51,6 +51,8 @@ import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 
+const WTR_CODE_POSE = '10';
+
 @Component({
   selector: 'app-wko-creation',
   templateUrl: './wko-creation.component.html',
@@ -98,6 +100,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public cities: City[];
   public wtrs: VLayerWtr[];
   public equipmentsDetails: any[] = [];
+  public layers: Layer[];
 
   public nbEquipments: string;
 
@@ -117,7 +120,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   // Label à mettre à jours dès la création d'une ion-list custom
   public createWithoutSendToPlanning = 'Ne pas envoyer à la planification';
 
-  private isXY: boolean = false;
+  public isCreation: boolean = true;
+  public isXY: boolean = false;
   private markerCreation: Map<string, any> = new Map();
   private markerSubscription: Map<string, Subscription> = new Map();
   private markerDestroyed: boolean;
@@ -125,6 +129,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
   private wkoExtToSyncValue: boolean = true;
   private currentDateValue: string;
+
+  public displayLayerSelect = false;
 
   async ngOnInit(): Promise<void> {
     this.createForm();
@@ -170,6 +176,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.params = { ...this.activatedRoute.snapshot.queryParams };
         if (wkoId) {
           // EDIT
+          this.isCreation = false;
           this.workorder = await this.workOrderService.getWorkorderById(
             Number(wkoId)
           );
@@ -182,6 +189,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               y: t.latitude,
               assetForSig: t.assetForSig,
               taskId: t.id,
+              isXY: t.assObjRef == null,
             };
           });
 
@@ -196,6 +204,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           await this.initializeFormWithWko();
         } else {
+          this.isCreation = true;
           this.workorder = { id: this.utils.createCacheId(), isDraft: true };
           if (this.equipments.length > 0) {
             // CREATION
@@ -304,6 +313,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       ctrId: new FormControl('', Validators.required),
       ctyId: new FormControl('', Validators.required),
       wtrId: new FormControl('', Validators.required),
+      lyrTableName: new FormControl(null),
       wkoName: new FormControl('', Validators.required),
       wkoAddress: new FormControl('', Validators.required),
       wkoAgentNb: new FormControl(1, Validators.required),
@@ -334,6 +344,21 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         'wkoAppointment'
       )
     );
+
+    this.creationWkoForm.get('wtrId').valueChanges.subscribe((wtrId) => {
+      // Creation - If it is a XY asset with the 'Pose' reason then the asset type is required
+      if (this.isCreation && this.isXY) {
+        const wtr = this.wtrs.find((wtr) => wtr.wtrId === wtrId);
+        if (wtr.wtrCode === WTR_CODE_POSE) {
+          this.creationWkoForm.get('lyrTableName').addValidators(Validators.required);
+          this.displayLayerSelect = true;
+        } else {
+          this.creationWkoForm.get('lyrTableName').removeValidators(Validators.required);
+          this.displayLayerSelect = false;
+        }
+        this.creationWkoForm.get('lyrTableName').updateValueAndValidity();
+      }
+    });
   }
 
   /**
@@ -447,11 +472,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder.id = this.utils.createCacheId();
     }
 
-    let funct: any;
-
     this.workorder.latitude = assets?.[0]?.latitude;
     this.workorder.longitude = assets?.[0]?.longitude;
-    this.workorder.wkoAttachment = false;
 
     if (this.workorder.tasks?.length == 0) {
       this.workorder.tasks = assets;
@@ -474,6 +496,21 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
+
+    // Creation - Case of a 'Pose' reason on a XY asset
+    if (this.isCreation && this.isXY && wtrId === -1) {
+      // Change the task to be on the asset selected
+      const task = this.workorder.tasks[0];
+      task.assObjTable = form.lyrTableName;
+      task.assObjRef = null;
+
+      // Change the reason to be the 'Pose' reason of the layer selected
+      const listWtr = await firstValueFrom(this.layerService.getAllVLayerWtr());
+      const wtr = listWtr.find((wtr) => wtr.wtrCode === WTR_CODE_POSE && wtr.lyrTableName === task.assObjTable);
+      task.wtrId = wtr?.wtrId;
+    }
+
+    let funct: any;
     if (this.workorder?.id > 0) {
       funct = this.workOrderService.updateWorkOrder(this.workorder);
     } else {
@@ -482,6 +519,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     funct.subscribe(async (res: Workorder) => {
+      this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
       this.mapService.addGeojsonToLayer(res, 'task');
@@ -662,6 +700,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           y: this.params.y,
           assetForSig: undefined,
           taskId: undefined,
+          isXY: true,
         },
       ];
 
@@ -688,7 +727,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       reasons: this.layerService.getAllVLayerWtr(),
       contracts: this.contractService.getAllContracts(),
       cities: this.cityService.getAllCities(),
-    }).subscribe(({ reasons, contracts, cities }) => {
+      layers: this.layerService.getAllLayers(),
+    }).subscribe(({ reasons, contracts, cities, layers }) => {
       if (this.equipments.length > 0) {
         reasons = reasons.filter((vlw: VLayerWtr) =>
           this.equipments
@@ -697,6 +737,34 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       }
       this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+
+      // Creation
+      if (this.isCreation) {
+        if (!this.isXY) {
+          // The 'Pose' reason is only accessible to the XY asset so we filter it
+          this.wtrs = this.wtrs.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
+        } else {
+          // The 'pose' reason does not exist for XY so we add it
+          if (!this.wtrs.some((wtr) => wtr.wtrCode === WTR_CODE_POSE)) {
+            this.wtrs.push({
+              astCode: null,
+              astSlabel: null,
+              astLlabel: null,
+              lyrTableName: null,
+              wtrSlabel: 'Poser',
+              wtrLlabel: 'Poser',
+              wtrCode: WTR_CODE_POSE,
+              wtrId: -1,
+              astId: null,
+              aswValid: null,
+              aswUcreId: null,
+              aswUmodId: null,
+              aswDcre: null,
+              aswDmod: null,
+            });
+          }
+        }
+      }
 
       if (
         !this.wtrs.some(
@@ -724,6 +792,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           this.utils.findMostFrequentValue(contractsIds)
         );
       }
+
+      this.layers = layers.filter((layer) => layer.domCode === this.params.waterType && !layer.lyrTableName.includes('_xy'));
 
       this.isLoading = false;
 
@@ -753,6 +823,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         return `${layer.lyrSlabel} - ${layer.domLLabel} `;
       })
     );
+  }
+
+  public getLayerLabel(layer: Layer): string {
+    return layer.lyrSlabel;
   }
 
   /**

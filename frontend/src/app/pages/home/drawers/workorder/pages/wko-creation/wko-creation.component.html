@@ -21,6 +21,11 @@
           [control]="creationWkoForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
         </app-search-select>
 
+        <app-search-select *ngIf="displayLayerSelect"
+          class="select-search" [key]="'lyrTableName'" [label]="'Patrimoine *'" [elements]="layers"
+          [control]="creationWkoForm.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
+        </app-search-select>
+
         <div class="wko-assets">
           <ng-container *ngIf="equipments?.length === 1">
             <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="Equipement" type="text"
@@ -28,7 +33,7 @@
             <ion-input *ngIf="equipments[0].id > 0" class="mono-equipment" labelPlacement="floating" fill="outline"
               label="ID" type="text" [value]="equipments[0].id"></ion-input>
             <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(equipments[0])"
-              [disabled]="equipments[0].lyrTableName.includes('_xy')">
+              [disabled]="equipments[0].isXY === true">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </ng-container>
@@ -37,7 +42,7 @@
               (click)="openEquipmentModal()" [disabled]="equipments?.[0] === null"></ion-input>
           </ng-container>
           <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()"
-            [disabled]="equipments[0].lyrTableName.includes('_xy')">
+            [disabled]="equipments[0].isXY === true">
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
