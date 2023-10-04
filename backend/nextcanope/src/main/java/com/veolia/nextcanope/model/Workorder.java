@@ -182,7 +182,7 @@ private Long id;
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="workorder")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="workorder")
     private List<Task> listOfTask;
 
     @ManyToOne

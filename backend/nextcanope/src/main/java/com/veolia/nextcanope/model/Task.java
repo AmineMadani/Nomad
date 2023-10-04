@@ -143,7 +143,7 @@ private Long id;
     @JoinColumn(name="ctr_id", referencedColumnName="id")
     private Contract contract;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="task")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="task")
     private List<Report> listOfReport;
 
     /**
