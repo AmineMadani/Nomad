@@ -684,7 +684,7 @@ export class ReportCreateComponent implements OnInit {
     const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
 
     this.hasXYInvalid = this.workorder.tasks.some(task => {
-      return task.assObjTable?.includes('_xy') && (
+      return task.assObjRef == null && (
         task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
       );
     });
