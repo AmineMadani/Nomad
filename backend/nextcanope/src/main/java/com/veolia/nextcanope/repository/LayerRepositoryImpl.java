@@ -1,5 +1,7 @@
 package com.veolia.nextcanope.repository;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ public class LayerRepositoryImpl {
 
 	@Autowired
     private JdbcTemplate jdbcTemplate;
+	
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	/**
      * Retrieves the index associated with a specific key.
@@ -47,13 +51,15 @@ public class LayerRepositoryImpl {
      *
      * @param key        The key to search for in the database.
      * @param tileNumber The tile number to search for in the database.
+     * @param optionnalStartDate The optional start date for tile search
+     * @param userId The user id
      * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber, Long userId) {
-		String param = "," + userId.toString();
+    public String getLayerTile(String key, Long tileNumber, Date optionnalStartDate, Long userId) {
+    	String formatOptionnalStartDate = (optionnalStartDate != null ? sdf.format(optionnalStartDate):null);
         return this.jdbcTemplate.queryForObject(
-                "select nomad.f_get_geojson_from_tile('"+ key + "'," + tileNumber + param + ")",
-                String.class
+                "select nomad.f_get_geojson_from_tile(?,?,?,?)",
+                String.class, key, tileNumber.intValue(), formatOptionnalStartDate, userId.intValue()
         );
     }
 

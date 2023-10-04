@@ -1,6 +1,7 @@
 package com.veolia.nextcanope.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +57,12 @@ public class LayerService {
      *
      * @param key        The key to search for in the database.
      * @param tileNumber The tile number to search for in the database.
+     * @param optionnalStartDate The optional start date for tile search
+     * @param userId The user id
      * @return The equipment tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber, Long userId) {
-        return layerRepositoryImpl.getLayerTile(key, tileNumber, userId);
+    public String getLayerTile(String key, Long tileNumber, Date optionalStartDate, Long userId) {
+        return layerRepositoryImpl.getLayerTile(key, tileNumber, optionalStartDate, userId);
     }
     
     /**

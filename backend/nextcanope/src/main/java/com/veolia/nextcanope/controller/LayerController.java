@@ -23,6 +23,7 @@ import com.veolia.nextcanope.dto.LayerStyle.LayerStyleDetailDto;
 import com.veolia.nextcanope.dto.LayerStyle.LayerStyleSummaryDto;
 import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.payload.GetEquipmentsPayload;
+import com.veolia.nextcanope.dto.payload.GetTilePayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerStylePayload;
 import com.veolia.nextcanope.repository.LayerRepository;
@@ -71,7 +72,7 @@ public class LayerController {
         return this.layerService.getIndexByKey(account.getId());
     }
 
-    @GetMapping(path = "/{key}/{tileNumber}")
+    @PostMapping(path = "/{key}/{tileNumber}")
     @Operation(summary = "Get the layer tile by key")
     @ApiResponses(value = {
     			@ApiResponse(description= "The layer tile in geojson format", content =  {
@@ -81,9 +82,10 @@ public class LayerController {
     public String getLayerTile(
             @PathVariable String key,
             @PathVariable Long tileNumber,
+            @RequestBody GetTilePayload getTilePayload,
             AccountTokenDto account
     ) {
-        return this.layerService.getLayerTile(key, tileNumber, account.getId());
+        return this.layerService.getLayerTile(key, tileNumber,getTilePayload.getStartDate(), account.getId());
     }
 
     @GetMapping(path = "/references/{type}")

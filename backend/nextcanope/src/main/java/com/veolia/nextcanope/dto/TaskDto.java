@@ -18,6 +18,8 @@ public class TaskDto {
     private String assObjTable;
 
     private Long wtsId;
+    
+    private String wtsCode;
 
     private Long wtrId;
     
@@ -131,7 +133,15 @@ public class TaskDto {
         this.assetForSig = assetForSig;
     }
 
-    public TaskDto() {
+    public String getWtsCode() {
+		return wtsCode;
+	}
+
+	public void setWtsCode(String wtsCode) {
+		this.wtsCode = wtsCode;
+	}
+
+	public TaskDto() {
 		super();
 	}
 
@@ -141,6 +151,7 @@ public class TaskDto {
         this.longitude = task.getLongitude();
         this.latitude = task.getLatitude();
         this.wtsId = task.getWorkorderTaskStatus().getId();
+        this.wtsCode = task.getWorkorderTaskStatus().getWtsCode();
         this.assObjRef = task.getAsset().getAssObjRef();
         this.tskReportDate = task.getTskReportDate();
         this.assObjTable = task.getAsset().getLayer().getLyrTableName();

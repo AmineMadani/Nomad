@@ -880,6 +880,8 @@ export class MapComponent implements OnInit, OnDestroy {
       if (
         this.map.getZoom() >=
         Math.min(...layer[1].style.map((style) => style.minzoom))
+        &&
+        this.customTileFilter(layer[0])
       ) {
         this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
           for (let str of res.listTile) {
@@ -898,6 +900,16 @@ export class MapComponent implements OnInit, OnDestroy {
         });
       }
     }
+  }
+
+  /**
+   * Method to add custom filter on layer tile loading
+   * Example : If layer task has not the active task switch enable so we don't load geojson but the layer stay available
+   * @param layer The layer name
+   * @returns The custom filter for the specific layer
+   */
+  private customTileFilter(layer: string): boolean {
+    return layer != 'task' || (layer == 'task' && this.mapService.activeTaskSwitch)
   }
 
   /**

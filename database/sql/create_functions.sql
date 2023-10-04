@@ -97,7 +97,7 @@ $$ LANGUAGE plpgsql;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function nomad.f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
+create or replace function f_get_geojson_from_tile(lyr_table_name text, tile_id integer, start_date text DEFAULT NULL::text, user_ident integer DEFAULT NULL::integer)
     returns jsonb
     language plpgsql
 as $$
@@ -167,6 +167,10 @@ begin
         FROM features;
     ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
     else
+    	if start_date is null then
+    		start_date := '''1900-01-01''';
+    	end if;
+    
         sql_query := FORMAT('
         WITH features AS (
             SELECT DISTINCT ON (t.id)
@@ -179,6 +183,12 @@ begin
             FROM %2$s t
                 INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=t.ctr_id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
             WHERE st_intersects(t.geom, ''%3$s''::geometry)
+				and 
+				(
+            		(t.wko_planning_end_date >=  %6$s
+            		or
+            		t.wko_completion_start_date >= %6$s)
+				)
         )
         SELECT
             jsonb_build_object(
@@ -188,7 +198,7 @@ begin
                     ''features'', jsonb_agg(feature)
                 )
         FROM features;
-        ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
+        ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident,start_date);
     end if;
 
     execute sql_query into geojson;

@@ -47,10 +47,13 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
-    if(id < 0) {
-      const localWorkorders: Workorder[] = await this.getLocalWorkorders();
-      return localWorkorders.find(wko => wko.id.toString() === id.toString());
+    
+    const localWorkorders: Workorder[] = await this.getLocalWorkorders();
+    const workOrder = localWorkorders.find(wko => wko.id.toString() === id.toString());
+    if(workOrder) {
+      return workOrder;
     }
+    
     if(!this.utilsService.isOfflineMode('tiles')) {
       return firstValueFrom(this.workorderDataService.getWorkorderById(id));
     }

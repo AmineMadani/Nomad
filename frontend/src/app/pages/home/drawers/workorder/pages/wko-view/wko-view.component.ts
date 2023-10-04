@@ -121,6 +121,9 @@ export class WkoViewComponent implements OnInit {
         const { id, taskid } = this.activatedRoute.snapshot.params;
         this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
+        if(!this.mapService.activeTaskSwitch) {
+          this.mapService.addGeojsonToLayer(this.workOrder,'task');
+        }
 
         // Get the list of attachment
         this.getListAttachment();
@@ -537,5 +540,13 @@ export class WkoViewComponent implements OnInit {
         console.log(error);
         this.isAttachmentLoaded = true;
       });
+  }
+
+  ngOnDestroy(){
+    if(!this.mapService.activeTaskSwitch) {
+      for(let task of this.workOrder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+    }
   }
 }

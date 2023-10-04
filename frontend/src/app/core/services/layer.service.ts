@@ -85,7 +85,8 @@ export class LayerService {
    */
   public async getLayerFile(
     layerKey: string,
-    file: string
+    file: string,
+    startDate?: Date
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
     
@@ -94,12 +95,16 @@ export class LayerService {
     file = file.replace('index',layerKey);
     let req: NomadGeoJson = null;
 
+    const params = {
+      startDate: startDate
+    }
+
     if(!this.utilsService.isOfflineMode('tiles')) {
-      req = await lastValueFrom(this.layerDataService.getLayerFile(layerKey, featureNumber));
+      req = await lastValueFrom(this.layerDataService.getLayerFile(layerKey, featureNumber,params));
     } else {
       /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
       req = await lastValueFrom(
-        this.layerDataService.getLayerFile(layerKey, featureNumber)
+        this.layerDataService.getLayerFile(layerKey, featureNumber,params)
           .pipe(
             timeout(this.configurationService.offlineTimeoutTile),
             catchError(async () => {

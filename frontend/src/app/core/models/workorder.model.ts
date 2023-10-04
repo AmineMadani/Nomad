@@ -43,6 +43,7 @@ export interface Task {
     assObjRef?: string;
     assObjTable: string;
     wtsId?: number;
+    wtsCode?: string;
     wtrId?: number;
     ctrId?: number;
     astCode?: string;

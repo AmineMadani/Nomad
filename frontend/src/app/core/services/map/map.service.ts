@@ -38,6 +38,7 @@ export class MapService {
   ) {}
 
   public measureMessage: any[];
+  public activeTaskSwitch:boolean = false;
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
