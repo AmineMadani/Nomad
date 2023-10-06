@@ -1,6 +1,6 @@
 <ng-container *ngIf="edit; else labelTemplate">
   <div class="form-property-select" [id]="definition.key">
-    <div class="question">{{definition.label}}</div>
+    <div class="question">{{definition.label}} {{checkIfRuleExist('required') ? '*':''}}</div>
     <div class="answers">
       <div *ngFor="let opt of attributes.options" class="answer" (click)="onSelectValue(opt.key)" [class.selected]="attributes.multiple === true ? control.value?.includes(opt.key):(control.value === opt.key)">
         {{ opt.value }}

@@ -72,4 +72,8 @@ export class FormSelectComponent implements OnInit {
       }
     }
   }
+
+  checkIfRuleExist(ruleKey:string): boolean {
+    return this.definition.rules.some(rule => rule.key == ruleKey);
+  }
 }

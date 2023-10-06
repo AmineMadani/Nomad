@@ -18,4 +18,8 @@ export class FormTextaeraComponent implements OnInit {
   ngOnInit() {
     this.attributes = this.definition.attributes as FormTextaera;
   }
+
+  checkIfRuleExist(ruleKey:string): boolean {
+    return this.definition.rules.some(rule => rule.key == ruleKey);
+  }
 }

@@ -1,7 +1,7 @@
 <ng-container *ngIf="editMode; else radioTemplate">
   <ion-item>
     <ion-label>
-      <h3>{{ definition.label }}</h3>
+      <h3>{{ definition.label }} {{checkIfRuleExist('required') ? '*':''}}</h3>
       <p>{{ attributes.value }}</p>
     </ion-label>
   </ion-item>
