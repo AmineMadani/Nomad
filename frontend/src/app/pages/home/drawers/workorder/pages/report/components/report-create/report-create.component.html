@@ -19,7 +19,9 @@
     <app-report-context [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
   </ng-container>
   <ng-container *ngIf="step == 3">
-    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()" [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
+    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()" 
+      (goToNextQuestion)="nextFormQuestion()"
+      [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
   <div *ngIf="step == 3" class="form-questions-count">
     {{getFormQuestionLabel()}}

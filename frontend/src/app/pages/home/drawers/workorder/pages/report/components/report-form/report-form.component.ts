@@ -19,6 +19,7 @@ export class ReportFormComponent implements OnInit {
   @Input() reportForm: Form = null;
   @Input() isTest = false;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
+  @Output() goToNextQuestion: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('formEditor') formEditor: FormEditorComponent;
 
@@ -45,4 +46,7 @@ export class ReportFormComponent implements OnInit {
     });
   }
 
+  onGoToNextQuestion() {
+    this.goToNextQuestion.emit();
+  }
 }

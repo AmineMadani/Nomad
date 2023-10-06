@@ -116,7 +116,7 @@ values
 , ((select id from domains where dom_type = 'dw') , 'aep_equipement_public', 'geom', 'uuid', '4326', 'Equipement public', (select id from asset_type where ast_code = '25'), true)
 , ((select id from domains where dom_type = 'dw') , 'aep_defense_incendie', 'geom', 'uuid', '4326', 'Défense incendie', (select id from asset_type where ast_code = '24'), true)
 , ((select id from domains where dom_type = 'dw') , 'aep_point_desserte', 'geom', 'uuid', '4326', 'Point désserte', (select id from asset_type where ast_code = '21'), true)
-, ((select id from domains where dom_type = 'dw') , 'aep_branche', 'geom', 'uuid', '4326', 'Branchement', (select id from asset_type where ast_code = '25'), true)
+, ((select id from domains where dom_type = 'dw') , 'aep_branche', 'geom', 'uuid', '4326', 'Branchement', (select id from asset_type where ast_code = '21'), true)
 , ((select id from domains where dom_type = 'dw') , 'aep_canalisation', 'geom', 'uuid', '4326', 'Canalisation', (select id from asset_type where ast_code = '20'), true)
 , ((select id from domains where dom_type = 'dw') , 'aep_canalisation_abandonnee', 'geom', 'uuid', '4326', 'Canalisation abandonnée', (select id from asset_type where ast_code = '20'), true)
 , ((select id from domains where dom_type = 'dw') , 'aep_xy', 'geom', 'uuid', '4326', 'XY', (select id from asset_type where ast_code = '29'), false)
