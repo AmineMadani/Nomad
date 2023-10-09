@@ -301,6 +301,14 @@ export class UtilsService {
     );
   }
 
+  public createUniqueId(): number {
+    return (
+      Number(
+        Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
+      )
+    );
+  }
+
   /**
    * Rounds a number to a specified number of decimal places.
    *

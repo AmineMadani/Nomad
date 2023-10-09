@@ -319,6 +319,12 @@ private Long id;
     @OneToMany(mappedBy="createdBy")
     private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
 
+    @OneToMany(mappedBy="modifiedBy")
+    private List<ReportQuestion> listOfModifiedReportQuestion;
+
+    @OneToMany(mappedBy="createdBy")
+    private List<ReportQuestion> listOfCreatedReportQuestion;
+
     /**
      * Constructor
      */
@@ -1307,4 +1313,19 @@ private Long id;
         this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
     }
 
+    public List<ReportQuestion> getListOfModifiedReportQuestion() {
+        return listOfModifiedReportQuestion;
+    }
+
+    public void setListOfModifiedReportQuestion(List<ReportQuestion> listOfModifiedReportQuestion) {
+        this.listOfModifiedReportQuestion = listOfModifiedReportQuestion;
+    }
+
+    public List<ReportQuestion> getListOfCreatedReportQuestion() {
+        return listOfCreatedReportQuestion;
+    }
+
+    public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
+        this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
+    }
 }
