@@ -65,7 +65,7 @@ export class ReportSettingsPage implements OnInit {
       type: TypeColumn.TEXT,
     },
     {
-      key: 'wtrSlabel',
+      key: 'wtrLlabel',
       label: 'Libellé',
       type: TypeColumn.TEXT
     },

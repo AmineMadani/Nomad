@@ -229,7 +229,7 @@ values
 ('Raccorder', 'Raccorder', '11'),
 ('Renouveler', 'Renouveler', '12'),
 ('Réaliser un Métré', 'Réaliser un Métré', '13'),
-('Mettre hors service', 'Mettre en ou hors service', '14'),
+('Mettre en ou hors service', 'Mettre en ou hors service', '14'),
 ('Entretenir / Maintenir', 'Entretenir / Maintenir', '15'),
 ('Entretenir / Réparer', 'Entretenir / Réparer', '15'),
 ('Contrôler', 'Contrôler', '16'),
