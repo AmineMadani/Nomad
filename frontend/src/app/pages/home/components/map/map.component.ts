@@ -386,16 +386,23 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    if (!this.selectedFeature['properties']['lyrTableName']) {
-      this.selectedFeature['properties']['lyrTableName'] =
-        this.selectedFeature['source'];
+    if(this.selectedFeature['id']) {
+     this.router.navigate(['/home/workorder'], {
+      queryParams: { [this.selectedFeature['source']]: this.selectedFeature['id'] },
+     }); 
+     document.getElementById('map-nomad-context-menu').className = 'hide';
+    } else {
+      if (!this.selectedFeature['properties']['lyrTableName']) {
+        this.selectedFeature['properties']['lyrTableName'] =
+          this.selectedFeature['source'];
+      }
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.WORKORDER_WATER_TYPE,
+        undefined,
+        this.selectedFeature['properties']
+      );
     }
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.drawerService.navigateTo(
-      DrawerRouteEnum.WORKORDER_WATER_TYPE,
-      undefined,
-      this.selectedFeature['properties']
-    );
   }
 
   /**
