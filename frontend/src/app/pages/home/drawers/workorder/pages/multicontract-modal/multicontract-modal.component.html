@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Problème de contrats</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label class="ion-text-wrap">
+      Impossible de déclencher une intervention multi-équipement sur une sélection de patrimoine appartenant à
+      des contrats différents.
+    </ion-label>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-label>Ne conserver que les interventions associées à ce contrat :</ion-label>
+  </ion-item>
+
+  <ion-select labelPlacement="floating" fill="outline" label="Contrat à conserver"
+    [interface]="isMobile ? 'action-sheet' : 'popover'" [(ngModel)]="contractSelected">
+    <ion-select-option *ngFor="let contract of contracts" [value]="contract">
+      {{ contract.ctrLlabel }} - {{ getNumberOfAssetsPerContract(contract) }} équipements
+    </ion-select-option>
+  </ion-select>
+</ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-toolbar>
+    <ion-button slot="start" (click)="editEquipmentList()">Retour à la sélection</ion-button>
+    <ion-button slot="end" [disabled]="!contractSelected" (click)="confirmContract()">Confirmer</ion-button>
+  </ion-toolbar>
+</ion-footer>

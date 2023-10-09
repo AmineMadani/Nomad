@@ -302,12 +302,12 @@ export class UtilsService {
   }
 
   /**
-    * Rounds a number to a specified number of decimal places.
-    *
-    * @param {number} num - The number to round.
-    * @param {number} decimalPlaces - The number of decimal places to round to.
-    * @returns {number} The rounded number.
-    */
+   * Rounds a number to a specified number of decimal places.
+   *
+   * @param {number} num - The number to round.
+   * @param {number} decimalPlaces - The number of decimal places to round to.
+   * @returns {number} The rounded number.
+   */
   public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;

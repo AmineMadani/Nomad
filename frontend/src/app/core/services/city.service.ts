@@ -49,7 +49,7 @@ export class CityService {
    * @returns the adress
    */
   getAdressByXY(x:number, y:number): any {
-    const query = 'reverse/?lon='+x+'&lat='+y+'';
+    const query = 'reverse/?lon=' + x + '&lat=' + y + '';
     return this.cityDataService.getAdressesByQuery(query);
   }
 }
