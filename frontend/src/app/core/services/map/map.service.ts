@@ -38,7 +38,6 @@ export class MapService {
   ) {}
 
   public measureMessage: any[];
-  public activeTaskSwitch:boolean = false;
 
   private map: Maplibregl.Map;
   private layers: Map<string, MaplibreLayer> = new Map();
@@ -248,7 +247,7 @@ export class MapService {
         this.map.once('idle', async (e) => {
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           for (let i = 0; i < 6; i++) {
-            if (this.map.querySourceFeatures(layerKey).length > 0) {
+            if ((this.map.querySourceFeatures(layerKey).length > 0)) {
               break;
             }
             await sleep(500);
@@ -531,7 +530,7 @@ export class MapService {
    * @param workOrder the workorder
    */
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
-    this.addEventLayer(layerKey).then(() => {
+    this.addEventLayer(layerKey,null).then(() => {
       for (let task of properties.tasks) {
         const taskProperties: any = task;
         taskProperties.id = task.id.toString();

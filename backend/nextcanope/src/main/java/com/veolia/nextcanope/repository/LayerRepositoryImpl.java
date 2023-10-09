@@ -56,7 +56,7 @@ public class LayerRepositoryImpl {
      * @return The layer tile as a string, associated with the given key and tile number.
      */
     public String getLayerTile(String key, Long tileNumber, Date optionnalStartDate, Long userId) {
-    	String formatOptionnalStartDate = (optionnalStartDate != null ? sdf.format(optionnalStartDate):null);
+    	String formatOptionnalStartDate = (optionnalStartDate != null ? "'"+sdf.format(optionnalStartDate)+"'":null);
         return this.jdbcTemplate.queryForObject(
                 "select nomad.f_get_geojson_from_tile(?,?,?,?)",
                 String.class, key, tileNumber.intValue(), formatOptionnalStartDate, userId.intValue()

@@ -20,6 +20,10 @@ export enum SyncOperations {
   providedIn: 'root',
 })
 export class WorkorderService {
+
+  public activeWorkorderSwitch:boolean = false;
+  public dateWorkorderSwitch: Date = null;
+
   private db: AppDB;
 
   constructor(

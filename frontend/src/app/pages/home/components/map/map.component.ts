@@ -909,7 +909,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * @returns The custom filter for the specific layer
    */
   private customTileFilter(layer: string): boolean {
-    return layer != 'task' || (layer == 'task' && this.mapService.activeTaskSwitch)
+    return layer != 'task' || (layer == 'task' && this.workorderService.activeWorkorderSwitch)
   }
 
   /**
@@ -994,7 +994,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private async loadNewTile(layerKey: string, file: string): Promise<void> {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     if (source) {
-      const newLayer = await this.layerService.getLayerFile(layerKey, file);
+      const newLayer = await this.layerService.getLayerFile(layerKey, file, this.customDateSearch(layerKey));
       const addData: Maplibregl.GeoJSONSourceDiff = {
         add: newLayer.features,
       };
@@ -1015,5 +1015,12 @@ export class MapComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  private customDateSearch(layerkey:string): Date {
+    if(layerkey == 'task') {
+      return this.workorderService.dateWorkorderSwitch;
+    }
+    return null
   }
 }

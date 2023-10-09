@@ -121,7 +121,7 @@ export class WkoViewComponent implements OnInit {
         const { id, taskid } = this.activatedRoute.snapshot.params;
         this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
-        if(!this.mapService.activeTaskSwitch) {
+        if(!this.workorderService.activeWorkorderSwitch) {
           this.mapService.addGeojsonToLayer(this.workOrder,'task');
         }
 
@@ -543,7 +543,7 @@ export class WkoViewComponent implements OnInit {
   }
 
   ngOnDestroy(){
-    if(!this.mapService.activeTaskSwitch) {
+    if(!this.workorderService.activeWorkorderSwitch) {
       for(let task of this.workOrder.tasks) {
         this.mapService.removePoint('task',task.id.toString());
       }
