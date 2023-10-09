@@ -15,6 +15,7 @@ export interface FormDefinition {
   section?: string;
   rules: FormRule[];
   displayCondition?: FormDisplayCondition;
+  rqnCode?: string; // For report, ID of the question
 }
 
 export interface FormSection {

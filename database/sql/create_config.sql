@@ -881,6 +881,38 @@ create table if not exists frm_rpf(
 );
 */
 
+-- Table report_question
+-- Contains the questions that can be in a report form
+create table if not exists report_question
+(
+  id                bigserial primary key,
+  rqn_code          text not null,
+  rqn_slabel        text not null,
+  rqn_llabel        text not null,
+  rqn_type          text not null,
+  rqn_required      boolean default False,
+  rqn_select_values text,
+  -- Technical metadata
+  rqn_ucre_id       bigint references users(id) default 0,
+  rqn_umod_id       bigint references users(id) default 0,
+  rqn_dcre          timestamp without time zone  default current_timestamp,
+  rqn_dmod          timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table report_question is 'This table contains the questions available for a report form';
+/* Comments on fields */
+comment on column report_question.id is 'Table unique ID';
+comment on column report_question.rqn_code is 'Code of the reason';
+comment on column report_question.rqn_slabel is 'Short label of reason';
+comment on column report_question.rqn_llabel is 'Long label of reason';
+comment on column report_question.rqn_type is 'Type of the question';
+comment on column report_question.rqn_required is 'Is the question required';
+comment on column report_question.rqn_select_values is 'List of the possible anwsers for the type select in a json format';
+comment on column report_question.rqn_ucre_id is 'creator Id';
+comment on column report_question.rqn_umod_id is 'Last modificator Id';
+comment on column report_question.rqn_dcre is 'Creation date';
+comment on column report_question.rqn_dmod is 'Last modification date';
+
 -- Table form_definition
 -- Contains the forms content
 create table if not exists form_definition(
