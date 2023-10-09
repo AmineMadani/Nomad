@@ -133,6 +133,7 @@ public class WorkorderService {
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setWkoCompletionStartDate(customWorkorderDto.getWkoCompletionStartDate());
 		workorder.setWkoCompletionEndDate(customWorkorderDto.getWkoCompletionEndDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
@@ -167,6 +168,8 @@ public class WorkorderService {
 			task.setTskComment(workorder.getWkoCreationComment());
 			task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
 			task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+			task.setTskCompletionEndDate(workorder.getWkoCompletionEndDate());
+			task.setTskCompletionStartDate(workorder.getWkoCompletionStartDate());
 			task.setCreatedBy(user);
 			task.setModifiedBy(user);
 			task.setLongitude(taskDto.getLongitude());
@@ -184,8 +187,8 @@ public class WorkorderService {
 			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
 			// Get Contract
-			if(customWorkorderDto.getCtrId() != null) {
-				Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+			if(customWorkorderDto.getCtrId() != null || taskDto.getCtrId() != null) {
+				Contract contract = contractService.getContractById((customWorkorderDto.getCtrId() != null ? customWorkorderDto.getCtrId() : taskDto.getCtrId()));
 				task.setContract(contract);
 			}
 			

@@ -15,7 +15,7 @@ import { Box, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, forkJoin, switchMap, filter, Observable, map } from 'rxjs';
+import { debounceTime, first, forkJoin, switchMap, filter, Observable, map, firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
@@ -31,6 +31,8 @@ import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { BasemapOfflineService } from 'src/app/core/services/basemapOffline.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { Workorder } from 'src/app/core/models/workorder.model';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 
 @Component({
   selector: 'app-map',
@@ -54,7 +56,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private drawingService: DrawingService,
     private basemapOfflineService: BasemapOfflineService,
     private layerService: LayerService,
-    private workorderService: WorkorderService
+    private workorderService: WorkorderService,
+    private mapLayerService: MapLayerService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -339,6 +342,9 @@ export class MapComponent implements OnInit, OnDestroy {
     const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
       'map-nomad-context-menu-create-workorder'
     );
+    const contextMenuCreateReport: HTMLElement = document.getElementById(
+      'map-nomad-context-menu-create-report'
+    );
 
     menu.className = 'show';
     menu.style.top = e.originalEvent.clientY - 56 + 'px';
@@ -368,9 +374,11 @@ export class MapComponent implements OnInit, OnDestroy {
           properties: params,
         };
         contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+        contextMenuCreateReport.innerHTML = "Saisir un compte-rendu XY";
       });
     } else {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
+      contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
       this.selectedFeature = {
         ...feature,
         properties: {
@@ -397,6 +405,52 @@ export class MapComponent implements OnInit, OnDestroy {
           this.selectedFeature['source'];
       }
       document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.WORKORDER_WATER_TYPE,
+        undefined,
+        this.selectedFeature['properties']
+      );
+    }
+  }
+
+  /**
+   * Navigates to a report page with selected feature properties as query parameters.
+   */
+  public async onGenerateReport(): Promise<void> {
+    let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+    let ctrId = this.selectedFeature['properties']['ctrId'] ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0] : null;
+    if(this.selectedFeature['id']) {
+
+      let equipment = await this.layerService.getEquipmentByLayerAndId(this.selectedFeature['source'],this.selectedFeature['id']);
+      const recalculateCoords = this.mapLayerService.findNearestPoint(equipment.geom.coordinates,[this.selectedFeature['properties']['x'],this.selectedFeature['properties']['y']]);
+
+      let workorder: Workorder = {
+        latitude: recalculateCoords[1],
+        longitude: recalculateCoords[0],
+        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+        ctyId: this.selectedFeature['properties']['ctyId'],
+        id: this.utilsService.createCacheId(),
+        isDraft: true,
+        tasks: [
+          {
+            id: this.utilsService.createCacheId(),
+            latitude: recalculateCoords[1],
+            longitude: recalculateCoords[0],
+            assObjTable: this.selectedFeature['source'] ? this.selectedFeature['source']:'aep_xy',
+            assObjRef: this.selectedFeature['id'] ? this.selectedFeature['id'] : null,
+            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+            ctrId: ctrId
+          }
+        ]
+      };
+      this.workorderService.saveCacheWorkorder(workorder);
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
+    } else {
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.selectedFeature['properties']['ctrId'] = ctrId;
+      this.selectedFeature['properties']['target'] = 'report';
+      this.selectedFeature['properties']['wtsId'] = lStatus.find(status => status.wtsCode == 'CREE')?.id;
       this.drawerService.navigateTo(
         DrawerRouteEnum.WORKORDER_WATER_TYPE,
         undefined,

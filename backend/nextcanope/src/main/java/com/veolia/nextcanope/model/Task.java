@@ -189,6 +189,14 @@ private Long id;
     public Date getTskPlanningEndDate() {
         return this.tskPlanningEndDate;
     }
+    
+	public Date getTskCompletionStartDate() {
+		return tskCompletionStartDate;
+	}
+
+	public void setTskCompletionStartDate(Date tskCompletionStartDate) {
+		this.tskCompletionStartDate = tskCompletionStartDate;
+	}
 
 	public void setTskPlanningEndDate( Date tskPlanningEndDate ) {
         this.tskPlanningEndDate = tskPlanningEndDate ;

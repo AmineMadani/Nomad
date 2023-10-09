@@ -73,7 +73,7 @@ export class ReportCreateComponent implements OnInit {
     }
 
     this.workorderService.getAllWorkorderTaskStatus().subscribe((workorderTaskStatus: WorkorderTaskStatus[]) => {
-      const status = workorderTaskStatus.find(sts => sts.id === this.workorder.wtsId);
+      const status = workorderTaskStatus.find(sts => sts.id.toString() === this.workorder.wtsId.toString());
       switch (status.wtsCode) {
         case WkoStatus[WkoStatus.TERMINE]:
           this.presentAlert();
@@ -461,7 +461,6 @@ export class ReportCreateComponent implements OnInit {
         }
       });
     } else {
-      this.mapService.removeEventLayer('task');
       this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
       if(!this.workorder.syncOperation) {
@@ -680,13 +679,25 @@ export class ReportCreateComponent implements OnInit {
    * The user must choose an existing asset or create a new one
    */
   private async checkHasXYInvalid() {
-    const listWtr = await firstValueFrom(this.workorderService.getAllWorkorderTaskReasons());
-    const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
+    if(this.workorder.isDraft) {
+      this.hasXYInvalid =  false;
+    } else {
+      const listWtr = await firstValueFrom(this.workorderService.getAllWorkorderTaskReasons());
+      const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
 
-    this.hasXYInvalid = this.workorder.tasks.some(task => {
-      return task.assObjRef == null && (
-        task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
-      );
-    });
+      this.hasXYInvalid = this.workorder.tasks.some(task => {
+        return task.assObjRef == null && (
+          task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
+        );
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if(this.workorder.isDraft) {
+      for(let task of this.workorder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+    }
   }
 }

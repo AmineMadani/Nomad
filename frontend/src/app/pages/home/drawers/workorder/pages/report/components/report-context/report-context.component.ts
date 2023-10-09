@@ -100,6 +100,7 @@ export class ReportContextComponent implements OnInit {
       task.wtrId = obj.wtrId;
       task.wtrCode = this.originalOptions.find(val => val.wtrId === task.wtrId).wtrCode;
       task.astCode = this.originalOptions.find(val => val.lyrTableName === task.assObjTable).astCode;
+      task.report = null;
     }
     this.onSaveWorkOrderState.emit();
   }

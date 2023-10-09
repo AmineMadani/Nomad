@@ -121,9 +121,7 @@ export class WkoViewComponent implements OnInit {
         const { id, taskid } = this.activatedRoute.snapshot.params;
         this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
-        if(!this.workorderService.activeWorkorderSwitch) {
-          this.mapService.addGeojsonToLayer(this.workOrder,'task');
-        }
+        this.mapService.addGeojsonToLayer(this.workOrder,'task');
 
         // Get the list of attachment
         this.getListAttachment();

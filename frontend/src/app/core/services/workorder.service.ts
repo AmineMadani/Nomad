@@ -162,6 +162,7 @@ export class WorkorderService {
       catchError(async (error) => {
         if (error?.name == 'TimeoutError') {
           workorder.syncOperation = SyncOperations.CreateWorkorder;
+          workorder.isDraft = false;
           this.saveCacheWorkorder(workorder);
           return workorder;
         }
