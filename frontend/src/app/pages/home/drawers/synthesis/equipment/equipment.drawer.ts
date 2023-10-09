@@ -11,6 +11,10 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { ReferenceDisplayType, UserReference } from 'src/app/core/models/layer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { firstValueFrom } from 'rxjs';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-equipment',
@@ -25,6 +29,10 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private drawer: DrawerService,
     private cacheService: CacheService,
     private userService: UserService,
+    private workorderService: WorkorderService,
+    private layerService: LayerService,
+    private mapLayerService: MapLayerService,
+    private utilsService: UtilsService
   ) { }
 
   public buttons: SynthesisButton[] = [
@@ -34,6 +42,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       icon: 'person-circle',
       disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
     },
+    {
+      key: 'report',
+      label: 'Saisir un compte rendu',
+      icon: 'newspaper-outline',
+      disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
+    }
   ];
 
   // Permissions
@@ -68,6 +82,31 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       this.router.navigate(['/home/workorder'], {
         queryParams: { [this.equipment.lyrTableName]: this.equipment.id },
       });
+    } else if (ev.key === 'report') {
+      
+      let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+
+      let workorder: Workorder = {
+        latitude: this.equipment.y,
+        longitude: this.equipment.x,
+        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+        ctyId: this.equipment.ctyId,
+        id: this.utilsService.createCacheId(),
+        isDraft: true,
+        tasks: [
+          {
+            id: this.utilsService.createCacheId(),
+            latitude: this.equipment.y,
+            longitude: this.equipment.x,
+            assObjTable: this.equipment.lyrTableName,
+            assObjRef: this.equipment.id,
+            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+            ctrId: this.equipment.ctrId
+          }
+        ]
+      };
+      this.workorderService.saveCacheWorkorder(workorder);
+      this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
     }
   }
 
