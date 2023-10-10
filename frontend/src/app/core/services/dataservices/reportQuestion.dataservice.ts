@@ -29,12 +29,40 @@ export class ReportQuestionDataService {
   }
 
   /**
+   * Get a report question by id
+   * @returns The report question
+   */
+  public getReportQuestionById(id: number):Observable<ReportQuestionDto> {
+    return this.http.get<ReportQuestionDto>(`${this.configurationService.apiUrl}report-question/${id}`);
+  }
+
+  /**
    * Create the report question
    * A toast is automatically showed to the user when the api call is done.
    * @param reportQuestion: report question
    * @returns A response message if successfull, else return an error.
    */
-  public createReportQuestion(reportQuestion: ReportQuestionDto):Observable<any> {
+  public createReportQuestion(reportQuestion: ReportQuestionDto):Observable<ApiSuccessResponse> {
     return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}report-question/create`, reportQuestion);
+  }
+
+  /**
+   * Update the report question
+   * A toast is automatically showed to the user when the api call is done.
+   * @param reportQuestion: report question
+   * @returns A response message if successfull, else return an error.
+   */
+  public updateReportQuestion(reportQuestion: ReportQuestionDto):Observable<ApiSuccessResponse> {
+    return this.http.put<ApiSuccessResponse>(`${this.configurationService.apiUrl}report-question/update`, reportQuestion);
+  }
+
+  /**
+   * Delete the report question
+   * A toast is automatically showed to the user when the api call is done.
+   * @param listId: the list of id of report questions to delete
+   * @returns A response message if successfull, else return an error.
+   */
+  public deleteListReportQuestion(listId: number[]):Observable<ApiSuccessResponse> {
+    return this.http.delete<ApiSuccessResponse>(`${this.configurationService.apiUrl}report-question/delete?id=${listId}`);
   }
 }

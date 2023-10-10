@@ -1,6 +1,7 @@
 export interface FormTemplate {
   fteId: number;
   formCode: string;
+  fdnCode: string;
   ftcId: number;
   fdnId: number;
   definition: string;

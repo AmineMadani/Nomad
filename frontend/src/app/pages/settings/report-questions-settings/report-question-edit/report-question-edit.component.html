@@ -1,0 +1,70 @@
+<div class="report-question-edit-content">
+  <app-settings-header
+    [title]="'Question'"
+    [isModalHeader]="true"
+    (onModalClose)="close()"
+  ></app-settings-header>
+
+  <form [formGroup]="form" class="report-question-edit-body" *ngIf="!isLoading">
+    <div class="line">
+      <ion-input aria-label="code" labelPlacement="floating" fill="outline" style="width: 25%;"
+        label="Code *" formControlName="rqnSlabel" errorText="Le code est obligatoire." />
+
+      <ion-input aria-label="label" labelPlacement="floating" fill="outline" 
+        label="Libellé *" formControlName="rqnLlabel" errorText="Le libellé est obligatoire." />
+    </div>
+
+    <div class="line">
+      <app-search-select 
+        key="value" label="Type *" style="width: 320px"
+        [elements]="LIST_RQN_TYPE" [control]="form.controls['rqnType']" 
+        [elementLabelFunction]="getRqnTypeLabel">
+      </app-search-select>
+
+      <ion-checkbox aria-label="required" formControlName="rqnRequired" labelPlacement="end" justify="start">
+        Champ obligatoire
+      </ion-checkbox>
+    </div>
+
+    <div class="line-values" *ngIf="[RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(form.get('rqnType').value)">
+      <div class="add-button-line">
+        <div>Liste des valeurs :</div>
+        <ion-button fill="clear" class="small-button" (click)="addValue()" [disabled]="!userHasPermissionCustomizeFormField">
+          <ion-icon slot="icon-only" name="add"></ion-icon>
+        </ion-button>
+      </div>
+
+      <div class="values-div">
+        <div *ngFor="let value of form.get('rqnSelectValues').value; let i = index" class="value-line">
+          <div class="value">{{value}}</div>
+
+          <div class="buttons">
+            <ion-button fill="clear" class="small-button" (click)="valueDown(i)" [disabled]="i === 0 || !userHasPermissionCustomizeFormField">
+              <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="clear" class="small-button" (click)="valueUp(i)" [disabled]="i === form.get('rqnSelectValues').value.length - 1 || !userHasPermissionCustomizeFormField">
+              <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="clear" class="small-button" (click)="updateValue(i)" [disabled]="!userHasPermissionCustomizeFormField">
+              <ion-icon slot="icon-only" name="pencil"></ion-icon>
+            </ion-button>
+
+            <ion-button fill="clear" class="small-button" (click)="deleteValue(i)" [disabled]="!userHasPermissionCustomizeFormField">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+
+  <div class="report-question-edit-footer">
+    <ion-button fill="clear" (click)="save()" [disabled]="!userHasPermissionCustomizeFormField">
+      <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+  </div>
+</div>

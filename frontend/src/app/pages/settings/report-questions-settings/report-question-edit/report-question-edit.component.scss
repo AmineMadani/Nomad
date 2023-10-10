@@ -1,0 +1,80 @@
+.report-question-edit-content {
+  height: 100%;
+  width: 100%;
+  padding: 20px 30px;
+
+  .report-question-edit-body {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 44px - 54px); // 100% - header - footer
+    padding: 16px 0px;
+
+    .line {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 16px;
+
+      > ion-input, app-search-select, ion-checkbox {
+        margin-right: 24px;
+      }
+    }
+
+    .line-values {
+      display: flex;
+      flex-direction: column;
+      width: 700px;
+      flex: 1;
+      overflow: auto;
+
+      .add-button-line {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .values-div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: auto;
+        border: 1px dashed black;
+        padding: 0 4px;
+
+        .value-line {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+
+          .buttons {
+            display: flex;
+            flex-direction: row;
+          }
+        }
+      }
+
+      ion-icon {
+        --size: 12px;
+        font-size: 16px;
+      }
+
+      .small-button {
+        --padding-start: 5px;
+        --padding-end: 5px;
+        margin-inline: unset;
+        margin-top: unset;
+        margin-bottom: unset;
+        height: unset;
+      }
+    }
+  }
+
+  .report-question-edit-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: 5px 0px;
+  }
+}
