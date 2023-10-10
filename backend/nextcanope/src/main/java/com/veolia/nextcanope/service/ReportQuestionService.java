@@ -4,12 +4,14 @@ import com.veolia.nextcanope.dto.ReportQuestionDto;
 import com.veolia.nextcanope.dto.reportQuestion.ReportQuestionUpdateDto;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.ReportQuestion;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.ReportQuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -94,11 +96,22 @@ public class ReportQuestionService {
 
     /**
      * Delete a report question
-     * @param id The id of the report question to delete
+     * @param listId The list of id of the report question to delete
      */
-    public void deleteListReportQuestion(List<Long> listId) {
+    public void deleteListReportQuestion(List<Long> listId, Long userId) {
+        Users user = userService.getUserById(userId);
+
+        List<ReportQuestion> listReportQuestionToDelete = new ArrayList<>();
+        for (Long id : listId) {
+            ReportQuestion reportQuestion = reportQuestionRepository.findById(id).orElse(null);
+            if (reportQuestion == null)
+                throw new FunctionalException("Question non trouvée : " + id);
+
+            reportQuestion.markAsDeleted(user);
+            listReportQuestionToDelete.add(reportQuestion);
+        }
         try {
-            reportQuestionRepository.deleteAllById(listId);
+            reportQuestionRepository.saveAll(listReportQuestionToDelete);
         } catch (Exception e) {
             throw new TechnicalException("Erreur lors de la suppression de(s) la question(s)");
         }

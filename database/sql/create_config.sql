@@ -896,7 +896,8 @@ create table if not exists report_question
   rqn_ucre_id       bigint references users(id) default 0,
   rqn_umod_id       bigint references users(id) default 0,
   rqn_dcre          timestamp without time zone  default current_timestamp,
-  rqn_dmod          timestamp without time zone  default current_timestamp
+  rqn_dmod          timestamp without time zone  default current_timestamp,
+  rqn_ddel          timestamp without time zone  default null
 );
 /* Comments on table */
 comment on table report_question is 'This table contains the questions available for a report form';
@@ -912,6 +913,7 @@ comment on column report_question.rqn_ucre_id is 'creator Id';
 comment on column report_question.rqn_umod_id is 'Last modificator Id';
 comment on column report_question.rqn_dcre is 'Creation date';
 comment on column report_question.rqn_dmod is 'Last modification date';
+comment on column report_question.rqn_dmod is 'Deletion date';
 
 -- Table form_definition
 -- Contains the forms content

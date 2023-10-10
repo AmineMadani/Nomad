@@ -73,8 +73,8 @@ public class ReportQuestionController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public ResponseMessage deleteReportQuestion(@RequestParam List<Long> id) {
-        reportQuestionService.deleteListReportQuestion(id);
+    public ResponseMessage deleteReportQuestion(AccountTokenDto account, @RequestParam List<Long> id) {
+        reportQuestionService.deleteListReportQuestion(id, account.getId());
         return new ResponseMessage("Le(s) question(s) a été supprimé(s) avec succès.");
     }
 }
