@@ -40,7 +40,7 @@ export class SettingsPage implements OnInit {
         },
         {
           url: 'report-questions',
-          title: 'Personnalisation des questions de comptes-rendus',
+          title: 'Dictionnaire de questions',
         },
       ],
     },

@@ -12,6 +12,7 @@ import { UserService } from 'src/app/core/services/user.service';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { FormTemplate } from 'src/app/core/models/template.model';
 
 @Component({
   selector: 'app-report-questions-settings',
@@ -32,6 +33,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
   public isLoading: boolean = false;
 
   private userHasPermissionCustomizeFormField: boolean = false;
+
+  private listFormTemplateReport: FormTemplate[] = [];
 
   public listReportQuestion: TableRow<ReportQuestionDto>[] = [];
   public selectedReportQuestionRows: TableRow<ReportQuestionDto>[] = [];
@@ -94,12 +97,33 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       }
     },
     {
+      key: 'rqnSelectValuesTranslate',
+      label: 'Liste de valeur',
+      type: TypeColumn.TEXT,
+    },
+    {
       key: 'rqnRequiredTranslate',
       label: 'Requis ?',
       type: TypeColumn.TEXT,
       filter: {
         type: 'select',
         isSelectAllRow: true,
+      }
+    },
+    {
+      key: 'numberTimeUsedInReport',
+      label: 'Nombre de formulaire où la question est utilisée',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'number',
+      }
+    },
+    {
+      key: 'numberTimeUsedInReportCondition',
+      label: 'Nombre de formulaire avec dépendance à cette question',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'number',
       }
     },
   ];
@@ -122,12 +146,62 @@ export class ReportQuestionsSettingsComponent implements OnInit {
   async loadData() {
     this.isLoading = true;
 
+    // Report form
+    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate(true));
+    this.listFormTemplateReport = listFormTemplate.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
+    
+    // Set a map of number of times a question is used
+    // Directly
+    const mapNumberTimeUsedInReportByRqnCode = {};
+    // As condition
+    const mapNumberTimeUsedInReportAsConditionByRqnCode = {};
+    for (const formTemplate of this.listFormTemplateReport) {
+      const form: Form = JSON.parse(formTemplate.definition);
+      
+      const listRqnCode = [];
+      const listRqnCodeCondition = [];
+      for (const definition of form.definitions) {
+        if (!listRqnCode.includes(definition.rqnCode)) {
+          listRqnCode.push(definition.rqnCode);
+        }
+
+        if (definition.displayCondition) {
+          const conditionDefinition = form.definitions.find((d) => d.key === definition.displayCondition.key);
+          if (!listRqnCodeCondition.includes(conditionDefinition.rqnCode)) {
+            listRqnCodeCondition.push(conditionDefinition.rqnCode);
+          }
+        }
+      }
+
+      for (let rqnCode of listRqnCode) {
+        if (mapNumberTimeUsedInReportByRqnCode[rqnCode] == null)
+          mapNumberTimeUsedInReportByRqnCode[rqnCode] = 0;
+        mapNumberTimeUsedInReportByRqnCode[rqnCode]++;
+      }
+
+      for (let rqnCode of listRqnCodeCondition) {
+        if (mapNumberTimeUsedInReportAsConditionByRqnCode[rqnCode] == null)
+          mapNumberTimeUsedInReportAsConditionByRqnCode[rqnCode] = 0;
+        mapNumberTimeUsedInReportAsConditionByRqnCode[rqnCode]++;
+      }
+    }
+    
+    // Report question
     let listReportQuestion = await firstValueFrom(this.reportQuestionService.getListReportQuestion());
     listReportQuestion = listReportQuestion.map((reportQuestion) => {
+      let rqnSelectValuesTranlate = '-';
+      if (reportQuestion.rqnSelectValues != null) {
+        const listValue: string[] = JSON.parse(reportQuestion.rqnSelectValues);
+        rqnSelectValuesTranlate = listValue.join(', ');
+      }
+      
       return {
         ...reportQuestion,
         rqnTypeTranslate: LIST_RQN_TYPE.find((rqnType) => rqnType.value === reportQuestion.rqnType)?.label,
+        rqnSelectValuesTranslate: rqnSelectValuesTranlate,
         rqnRequiredTranslate: reportQuestion.rqnRequired === true ? 'Oui' : 'Non',
+        numberTimeUsedInReport: mapNumberTimeUsedInReportByRqnCode[reportQuestion.rqnCode] ?? 0,
+        numberTimeUsedInReportCondition: mapNumberTimeUsedInReportAsConditionByRqnCode[reportQuestion.rqnCode] ?? 0,
       };
     });
     this.listReportQuestion = this.tableService.createReadOnlyRowsFromObjects(listReportQuestion);
@@ -158,11 +232,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
   async deleteListReportQuestion() {
     // Check if the selected report questions are used in a form
-    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate(true));
-    const listFormTemplateReport = listFormTemplate.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
-
     const listRqnCode = this.selectedReportQuestionRows.map((row) => row.getRawValue().rqnCode);
-    const listFormTemplateUsingQuestion = listFormTemplateReport.filter((formTemplate) => {
+    const listFormTemplateUsingQuestion = this.listFormTemplateReport.filter((formTemplate) => {
       const form: Form = JSON.parse(formTemplate.definition);
       return form.definitions.some((definition) => listRqnCode.includes(definition.rqnCode));
     });
