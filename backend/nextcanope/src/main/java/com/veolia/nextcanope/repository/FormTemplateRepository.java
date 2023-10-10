@@ -24,6 +24,7 @@ public interface FormTemplateRepository extends NomadRepository<FormTemplate, Lo
     @Query(
             value = "select ft.id as fteId, " +
 					"		ft.fte_code as formCode, " +
+					"		fd.fdn_code as fdnCode, " +
 					"		ftc.id as ftcId, " +
 					"		COALESCE(fdc.id, fd.id) as fdnId, " +
 					"		COALESCE(fdc.fdn_definition, fd.fdn_definition) as definition " +

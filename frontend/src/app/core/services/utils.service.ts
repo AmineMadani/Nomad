@@ -261,11 +261,11 @@ export class UtilsService {
    * Permit to show an error toast
    * @param message
    */
-  public async showErrorMessage(message: string) {
+  public async showErrorMessage(message: string, duration: number = 1500) {
     const toast = await this.toastCtrl.create({
       message: message,
       color: 'danger',
-      duration: 1500,
+      duration: duration,
       position: 'bottom',
     });
 

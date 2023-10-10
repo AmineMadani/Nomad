@@ -8,6 +8,7 @@ import { LayerReferencesSettingsPage } from './layer-references-settings/layer-r
 import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-settings.component';
 import { ReportSettingsPage } from './report-settings/report-settings.component';
 import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
+import { ReportQuestionsSettingsComponent } from './report-questions-settings/report-questions-settings.component';
 
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
       {
         path: 'reports',
         component: ReportSettingsPage,
+      },
+      {
+        path: 'report-questions',
+        component: ReportQuestionsSettingsComponent,
       },
     ],
   }

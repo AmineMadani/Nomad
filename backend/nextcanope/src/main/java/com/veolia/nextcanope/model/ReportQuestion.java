@@ -60,6 +60,11 @@ public class ReportQuestion implements Serializable {
     @JsonProperty("rqn_dmod")
     private Date rqnDmod;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="rqn_ddel")
+    @JsonProperty("rqn_ddel")
+    private Date deletedAt;
+
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -151,7 +156,20 @@ public class ReportQuestion implements Serializable {
         this.rqnDmod = rqnDmod;
     }
 
-    //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void markAsDeleted(Users user) {
+        this.deletedAt = new Date();
+        this.modifiedBy = user;
+    }
+
+//--- GETTERS AND SETTERS FOR LINKS ---\\
 
     public Users getModifiedBy() {
         return modifiedBy;

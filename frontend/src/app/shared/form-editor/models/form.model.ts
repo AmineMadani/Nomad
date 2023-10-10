@@ -1,3 +1,5 @@
+import { RqnTypeEnum } from "src/app/core/models/reportQuestion.model";
+
 export interface Form {
   key: string;
   editable: boolean;
@@ -119,4 +121,46 @@ export const PREFIX_KEY_DEFINITION = 'UUID-';
 export interface FormDisplayCondition {
   key: string;
   value: string[];
+}
+
+export function fillDefinitionComponentFromRqnType(definition: FormDefinition, rqnType: RqnTypeEnum, listValue: string[]): void {
+  definition.attributes = {};
+
+  if (rqnType === RqnTypeEnum.COMMENT) {
+    definition.key = 'COMMENT';
+  }
+
+  // Component
+  if ([RqnTypeEnum.TEXT, RqnTypeEnum.NUMBER].includes(rqnType)) {
+    definition.component = FormPropertiesEnum.INPUT;
+  }
+  if ([RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(rqnType)) {
+    definition.component = FormPropertiesEnum.SELECT;
+  }
+
+  // Attributes
+  if (rqnType === RqnTypeEnum.TEXT) {
+    definition.attributes = {
+      type: 'text',
+      hiddenNull: false,
+    }
+  }
+  if (rqnType === RqnTypeEnum.NUMBER) {
+    definition.attributes = {
+      type: 'number',
+      hiddenNull: false,
+    }
+  }
+  if ([RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(rqnType)) {
+    definition.attributes = {
+      value: '',
+      options: listValue.map((value) => {
+        return {
+          key: value,
+          value: value,
+        }
+      }),
+      multiple: rqnType === RqnTypeEnum.SELECT_MULTIPLE,
+    }
+  }
 }

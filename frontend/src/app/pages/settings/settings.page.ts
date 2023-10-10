@@ -38,6 +38,10 @@ export class SettingsPage implements OnInit {
           url: 'reports',
           title: 'Personnalisation des formulaires de comptes-rendus',
         },
+        {
+          url: 'report-questions',
+          title: 'Dictionnaire de questions',
+        },
       ],
     },
     {
