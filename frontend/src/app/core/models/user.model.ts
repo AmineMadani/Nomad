@@ -27,6 +27,7 @@ export interface Context {
     lng?: number;
     lat?: number;
     url?: string;
+    lastDrawerSegment?: string;
 }
 
 export interface Favorite {
