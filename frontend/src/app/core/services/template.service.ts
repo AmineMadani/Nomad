@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AppDB } from '../models/app-db.model';
 import { TemplateDataService } from './dataservices/template.dataservice';
 import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
-import { catchError, of, timeout, lastValueFrom, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
-import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 
 @Injectable({
@@ -24,11 +22,10 @@ export class TemplateService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  getFormsTemplate(forceGetFromDb: boolean = false): Observable<FormTemplate[]> {
+  getFormsTemplate(): Observable<FormTemplate[]> {
     return this.cacheService.fetchReferentialsData<FormTemplate[]>(
       ReferentialCacheKey.FORM_TEMPLATE,
-      () => this.templateDataService.getFormsTemplate(),
-      forceGetFromDb
+      () => this.templateDataService.getFormsTemplate()
     );
   }
 

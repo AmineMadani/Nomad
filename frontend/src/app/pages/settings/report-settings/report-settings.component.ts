@@ -117,7 +117,7 @@ export class ReportSettingsPage implements OnInit {
       this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId');
     });
 
-    this.templateService.getFormsTemplate(true).subscribe((listFormTemplateReport) => {
+    this.templateService.getFormsTemplate().subscribe((listFormTemplateReport) => {
       this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
     });
   }
@@ -136,7 +136,7 @@ export class ReportSettingsPage implements OnInit {
       const reloadNeeded: boolean = result['data'];
       // If some data changed
       if (reloadNeeded) {
-        this.templateService.getFormsTemplate(true).subscribe((listFormTemplateReport) => {
+        this.templateService.getFormsTemplate().subscribe((listFormTemplateReport) => {
           this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
           this.form.get('astId').updateValueAndValidity();
         });

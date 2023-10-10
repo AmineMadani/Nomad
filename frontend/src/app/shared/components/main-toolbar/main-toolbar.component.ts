@@ -1,7 +1,6 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonPopover } from '@ionic/angular';
-import { Subject, takeUntil } from 'rxjs';
-import { AppDB } from 'src/app/core/models/app-db.model';
+import { Subject } from 'rxjs';
 import { User } from 'src/app/core/models/user.model';
 import { CacheService } from 'src/app/core/services/cache.service';
 import { ConfigurationService } from 'src/app/core/services/configuration.service';
@@ -17,17 +16,17 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 export class MainToolbarComponent implements OnInit, OnDestroy {
   constructor(
     private keycloakService: KeycloakService,
-    private cacheService: CacheService,
     private utilsService: UtilsService,
     private userService: UserService,
-    private configurationService: ConfigurationService ) {}
+    private configurationService: ConfigurationService,
+    private cacheService: CacheService
+  ) { }
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
 
   @Input('title') title: string;
   @Input('minimalist') minimalist: boolean = false;
 
-  public cacheLoaded: boolean = false;
   public isPopoverOpen: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -37,13 +36,6 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   isMobile : boolean = false;
 
   ngOnInit() {
-    this.cacheService
-      .onCacheLoaded()
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((loaded: boolean) => {
-        this.cacheLoaded = loaded;
-      });
-
     this.isMobile = this.utilsService.isMobilePlateform();
 
     if(!this.minimalist) {
@@ -74,17 +66,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   }
 
   public resetStorage(): void {
-    const db = new AppDB();
-    db.delete().then(
-      () => console.log('Cache réinitialisé')
-    ).catch((err) => {
-      console.log(`Erreur lors de la réinitialisation : ${err}`)
-    });
-    window.location.reload();
-  }
-
-  public reloadStorage(): void {
-    this.cacheService.setCacheLoaded(false);
+    this.cacheService.resetCache();
   }
 
   /**

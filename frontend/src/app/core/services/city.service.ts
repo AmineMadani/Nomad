@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { CityDataService } from './dataservices/city.dataservice';
 import { City } from '../models/city.model';
 import { CacheService, ReferentialCacheKey } from './cache.service';
@@ -14,10 +14,18 @@ export class CityService {
   ) {
   }
 
+  cities: City[];
+
   getAllCities(): Observable<City[]> {
+    if (this.cities) {
+      return of(this.cities);
+    }
+
     return this.cacheService.fetchReferentialsData<City[]>(
       ReferentialCacheKey.CITIES,
       () => this.cityDataService.getAllCities()
+    ).pipe(
+      tap((results => this.cities = results))
     );
   }
 
@@ -32,7 +40,7 @@ export class CityService {
   }
 
   /**
-   * Get a list off adress by string query 
+   * Get a list off adress by string query
    * @param query string query
    * @returns list of adresses
    */
