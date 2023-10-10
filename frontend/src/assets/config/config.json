@@ -5,8 +5,7 @@
     "active": true,
     "issuer": "[keycloakIssuer]",
     "redirectUri": "[currentOrigin]/login",
-    "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
+    "redirectUriAndroid": "[currentOrign]/login",
     "clientId": "[keycloakClientId]",
     "revocationEndpoint": "[keycloakRevocation]"
   },
