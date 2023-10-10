@@ -30,8 +30,6 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private cacheService: CacheService,
     private userService: UserService,
     private workorderService: WorkorderService,
-    private layerService: LayerService,
-    private mapLayerService: MapLayerService,
     private utilsService: UtilsService
   ) { }
 
@@ -46,7 +44,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       key: 'report',
       label: 'Saisir un compte rendu',
       icon: 'newspaper-outline',
-      disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
+      disabledFunction: () => !(this.userHasPermissionCreateAssetWorkorder && !this.utilsService.isMobilePlateform()),
     }
   ];
 
