@@ -9,9 +9,9 @@
   },
   "license": "@VEOLIA",
   "devDependencies": {
-    "serverless-api-gateway-caching": "^1.10.1",
+    "serverless-api-gateway-caching": "^1.10.2",
     "serverless-apigateway-service-proxy": "^2.2.1",
-    "serverless-domain-manager": "^7.0.4",
+    "serverless-domain-manager": "^7.1.2",
     "serverless-package-python-functions": "^0.7.0",
     "serverless-python-requirements": "^6.0.0",
     "serverless-s3-deploy": "^0.10.1",

@@ -1,6 +1,4 @@
 frameworkVersion: '3'
-# org: hocinemendaci
-# app: nomad-api-app
 service: nomad-api
 
 provider:
@@ -320,8 +318,8 @@ custom:
 
 # AWS Lambda Functions
 functions:
-  - update-wo:
-      name: update-wo-${self:provider.stage}
+  - nomad-update-wo:
+      name: nomad-update-wo-${self:provider.stage}
       handler: main.update_wo_lambda_handler
       memorySize: 128
       timeout: 29
@@ -336,7 +334,7 @@ functions:
         include:
           - src
       tags:
-        Name: update-wo-${self:provider.stage}
+        Name: nomad-update-wo-${self:provider.stage}
       environment:
         NOMAD_BACKEND_URL: 'https://${self:custom.nomad_backend_url.${self:provider.stage}}'
         NOMAD_BACKEND_TIMEOUT: ${self:custom.nomad_backend_timeout.${self:provider.stage}}
@@ -411,47 +409,12 @@ resources:
                     - s3:List*
                   Resource: '*'
                 - Effect: Allow
-                  Action: '*'
-                  Resource:
-                    - 'arn:aws:s3:::${self:custom.vams_caract_s3_bucket.${self:provider.stage}}'
-                    - 'arn:aws:s3:::${self:custom.vams_caract_s3_bucket.${self:provider.stage}}/*'
-                    - 'arn:aws:s3:::${self:custom.nomad_suivi_de_flotte_bucket_name.${self:provider.stage}}/*'
-                - Effect: Allow
                   Action:
                     - ec2:CreateNetworkInterface
                     - ec2:DescribeNetworkInterfaces
                     - ec2:DeleteNetworkInterface
                   Resource: '*'
                 - Effect: Allow
-                  Action:
-                    - sqs:DeleteMessage
-                    - sqs:DeleteMessageBatch
-                    - sqs:GetQueueAttributes
-                    - sqs:ReceiveMessage
-                    - sqs:SendMessage
-                    - sqs:SendMessageBatch
-                    - sqs:ChangeMessageVisibility
-                    - sqs:ChangeMessageVisibilityBatch
-                  Resource:
-                    - '${self:custom.nomad_backend_sqs_nomad_to_vams_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_sqs_nomad_to_waterp_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_sqs_to_nomad_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_sqs_vams_to_nomad_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_sqs_caract_vams_to_nomad_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_sqs_waterp_to_nomad_intervention_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_sqs_waterp_to_nomad_acquittement_monitoring_arn.${self:provider.stage}}'
-                - Effect: Allow
-                  Action:
-                    - dynamodb:PutItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:BatchWriteItem
-                    - dynamodb:Query
-                  Resource:
-                    - '${self:custom.nomad_backend_dynalomdb_table_incomming_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_dynalomdb_table_outcomming_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_dynalomdb_table_mock_arn.${self:provider.stage}}'
-                    - '${self:custom.nomad_backend_dynalomdb_table_waterp_arn.${self:provider.stage}}'
-                - Effect: 'Allow' # xray permissions (required)
                   Action:
                     - 'xray:PutTraceSegments'
                     - 'xray:PutTelemetryRecords'
