@@ -376,7 +376,7 @@ export class ReportCreateComponent implements OnInit {
     for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
       if (definition.type == 'property') {
         report.reportValues.push({
-          key: definition.key,
+          key: definition.rqnCode + '_' + definition.key,
           question: definition.label,
           answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
             this.stepForm.formEditor.form.value[definition.key].join('; ')
