@@ -168,6 +168,22 @@ export class ReportEditComponent implements OnInit {
               }
             }
           }
+
+          // If there is a question with a condition on this one
+          const lineIndex = this.lines.controls.indexOf(lineForm);
+          for (let i = lineIndex; i < this.lines.length; i++) {
+            const lineFormToCheck = this.lines.at(i);
+      
+            // If there is a condition
+            const questionCondition = lineFormToCheck.get('questionCondition').value;
+            if (questionCondition != null) {
+              // If the condition is on this line
+              if (questionCondition === (lineIndex+1).toString()) {
+                // Delete the condition and condition values
+                lineFormToCheck.get('questionCondition').setValue(null);
+              }
+            }
+          }
         }
       } else {
         lineForm.get('label').setValue(null);
@@ -184,7 +200,7 @@ export class ReportEditComponent implements OnInit {
 
       // If there is a question condition, question condition values has to be set
       if (questionCondition != null) {
-        lineForm.get('listQuestionConditionValues').addValidators(Validators.required);
+        lineForm.get('listQuestionConditionValues').addValidators(this.noEmptyList);
 
         const indexQuestionCondition = Number(questionCondition) - 1;
         if (indexQuestionCondition < this.lines.length) {
@@ -201,11 +217,20 @@ export class ReportEditComponent implements OnInit {
           }
         }
       } else {
-        lineForm.get('listQuestionConditionValues').removeValidators(Validators.required);
+        lineForm.get('listQuestionConditionValues').removeValidators(this.noEmptyList);
       }
+      lineForm.get('listQuestionConditionValues').updateValueAndValidity();
     });
 
     this.lines.push(lineForm);
+  }
+
+  noEmptyList(formControl: FormControl) {
+    return formControl.value && formControl.value.length ? null : {
+      noEmptyList: {
+        valid: false
+      }
+    };
   }
 
   // ### DELETE ### //
