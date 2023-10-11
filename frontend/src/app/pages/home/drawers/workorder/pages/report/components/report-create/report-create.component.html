@@ -16,7 +16,7 @@
     <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepAsset></app-report-asset>
   </ng-container>
   <ng-container *ngIf="step == 2">
-    <app-report-context [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
+    <app-report-context [workorder]="workorder" [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
   </ng-container>
   <ng-container *ngIf="step == 3">
     <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()" 

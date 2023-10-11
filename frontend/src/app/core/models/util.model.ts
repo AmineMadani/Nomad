@@ -1,4 +1,4 @@
 export interface ValueLabel {
-  value: string | number;
+  value: any;
   label: string;
 }

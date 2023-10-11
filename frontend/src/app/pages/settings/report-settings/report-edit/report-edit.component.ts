@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { WtrReport } from '../report-settings.component';
-import { Form, FormDefinition, FormPropertiesEnum, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
+import { Form, FormDefinition, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -14,16 +14,7 @@ import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
-import { ReportQuestionDto } from 'src/app/core/models/reportQuestion.model';
-
-enum CustomFormPropertiesEnum {
-    TEXT = 'text',
-    NUMBER = 'number',
-    SELECT = 'select',
-    SELECT_MULTIPLE = 'select_multiple',
-    COMMENT = 'comment'
-}
-
+import { RqnTypeEnum, ReportQuestionDto, LIST_RQN_TYPE } from 'src/app/core/models/reportQuestion.model';
 
 @Component({
   selector: 'app-report-edit',
@@ -47,18 +38,14 @@ export class ReportEditComponent implements OnInit {
 
   public form: FormGroup;
 
+  private isInit: boolean = false;
+
   public userHasPermissionCreateNewFormField: boolean = false;
   public userHasPermissionCustomizeFormField: boolean = false;
 
-  CustomFormPropertiesEnum = CustomFormPropertiesEnum;
+  RqnTypeEnum = RqnTypeEnum;
 
-  listComponentType: ValueLabel[] = [
-    {value: CustomFormPropertiesEnum.TEXT, label: 'Saisie libre'},
-    {value: CustomFormPropertiesEnum.NUMBER, label: 'Valeur numérique'},
-    {value: CustomFormPropertiesEnum.SELECT, label: 'Liste de valeurs'},
-    {value: CustomFormPropertiesEnum.SELECT_MULTIPLE, label: 'Liste de valeurs avec multiples selections'},
-    {value: CustomFormPropertiesEnum.COMMENT, label: 'Commentaire'},
-  ];
+  LIST_RQN_TYPE = LIST_RQN_TYPE;
   getComponentTypeLabel = (componentType: ValueLabel) => {
     return componentType.label;
   }
@@ -109,6 +96,10 @@ export class ReportEditComponent implements OnInit {
 
     this.lines.clear();
 
+    // For optimization - Set this flag to true to prevent the calculation of the list of available question
+    // while doing this init of th form
+    this.isInit = true;
+
     //const parentDefinition = definitions.find((definition) => definition.type === 'section');
     const listDefinition = definitions.filter((definition) => definition.type === 'property');
     for (const [index, definition] of listDefinition.entries()) {
@@ -127,6 +118,10 @@ export class ReportEditComponent implements OnInit {
     if (!this.userHasPermissionCustomizeFormField) {
       this.form.disable();
     }
+
+    setTimeout(() => {
+      this.isInit = false;
+    })
   }
 
   /*
@@ -141,6 +136,7 @@ export class ReportEditComponent implements OnInit {
       isRequired: new FormControl<boolean>(false, Validators.required),
       listValue: new FormControl<string[]>([]),
       questionCondition: new FormControl<string>(null),
+      listAvailableQuestionValues: new FormControl<ValueLabel[]>([]),
       listQuestionConditionValues: new FormControl<string[]>([]),
     });
 
@@ -164,10 +160,10 @@ export class ReportEditComponent implements OnInit {
           lineForm.get('listValue').setValue(reportQuestion.listSelectValue);
 
           // If it is COMMENT, check if another line of type COMMENT already exist
-          if (reportQuestion.rqnType === CustomFormPropertiesEnum.COMMENT) {
+          if (reportQuestion.rqnType === RqnTypeEnum.COMMENT) {
             for (let i = 0; i < this.lines.length; i++) {
               const lineFormToCheck = this.lines.at(i);
-              if (lineFormToCheck.get('component').value === CustomFormPropertiesEnum.COMMENT && lineForm !== lineFormToCheck) {
+              if (lineFormToCheck.get('component').value === RqnTypeEnum.COMMENT && lineForm !== lineFormToCheck) {
                 lineForm.get('rqnCode').setValue(null);
               }
             }
@@ -189,6 +185,23 @@ export class ReportEditComponent implements OnInit {
       // If there is a question condition, question condition values has to be set
       if (questionCondition != null) {
         lineForm.get('listQuestionConditionValues').addValidators(Validators.required);
+
+        if (questionCondition != null) {
+          const indexQuestionCondition = Number(questionCondition) - 1;
+          if (indexQuestionCondition < this.lines.length) {
+            const questionConditionLineForm = this.lines.at(indexQuestionCondition);
+            if (questionConditionLineForm) {
+              lineForm.get('listAvailableQuestionValues').setValue(
+                questionConditionLineForm.get('listValue').value.map((value, index) => {
+                  return {
+                    value: value,
+                    label: (index+1) + ' - ' + value,
+                  }
+                })
+              );
+            }
+          }
+        }
       } else {
         lineForm.get('listQuestionConditionValues').removeValidators(Validators.required);
       }
@@ -265,12 +278,14 @@ export class ReportEditComponent implements OnInit {
     }
 
     // Invert both lines
-    const listLine = this.lines.value;
+    const listLine = this.lines.getRawValue();
     const lineAtLineIndex = listLine[lineIndex];
     const lineAtLineIndexMinusOne = listLine[lineIndex - 1];
     listLine[lineIndex] = lineAtLineIndexMinusOne;
     listLine[lineIndex - 1] = lineAtLineIndex;
-    this.lines.setValue(listLine);
+    
+    // EmitEvent = false because otherwise valueChanged is activated and we don't want that
+    this.lines.setValue(listLine, {emitEvent: false});
   }
 
   lineUp(lineIndex: number) {
@@ -304,12 +319,14 @@ export class ReportEditComponent implements OnInit {
     }
 
     // Invert both lines
-    const listLine = this.lines.value;
+    const listLine = this.lines.getRawValue();
     const lineAtLineIndex = listLine[lineIndex];
     const lineAtLineIndexPlusOne = listLine[lineIndex + 1];
     listLine[lineIndex] = lineAtLineIndexPlusOne;
     listLine[lineIndex + 1] = lineAtLineIndex;
-    this.lines.setValue(listLine);
+
+    // EmitEvent = false because otherwise valueChanged is activated and we don't want that
+    this.lines.setValue(listLine, {emitEvent: false});
   }
 
   /**
@@ -319,11 +336,13 @@ export class ReportEditComponent implements OnInit {
    * @returns The list of questions
    */
   getListAvailableQuestion(lineIndex: number): ValueLabel[] {
+    if (this.isInit) return [];
+
     // Display only questions before the index and questions that are a list of values
     const listAvailableQuestion = [];
     for (let i = 0; i < lineIndex; i++) {
       const lineForm = this.lines.at(i);
-      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)) {
+      if ([RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)) {
         listAvailableQuestion.push({
           value: (i+1).toString(),
           label: (i+1) + ' - ' + lineForm.get('label').value,
@@ -485,44 +504,9 @@ export class ReportEditComponent implements OnInit {
       }
 
       const component = lineForm.get('component').value;
+      const listValue = lineForm.get('listValue').value;
 
-      if (component === CustomFormPropertiesEnum.COMMENT) {
-        definition.key = 'COMMENT';
-      }
-
-      // Component
-      if ([CustomFormPropertiesEnum.TEXT, CustomFormPropertiesEnum.NUMBER].includes(component)) {
-        definition.component = FormPropertiesEnum.INPUT;
-      }
-      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(component)) {
-        definition.component = FormPropertiesEnum.SELECT;
-      }
-
-      // Attributes
-      if (component === CustomFormPropertiesEnum.TEXT) {
-        definition.attributes = {
-          type: 'text',
-          hiddenNull: false,
-        }
-      }
-      if (component === CustomFormPropertiesEnum.NUMBER) {
-        definition.attributes = {
-          type: 'number',
-          hiddenNull: false,
-        }
-      }
-      if ([CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(component)) {
-        definition.attributes = {
-          value: '',
-          options: lineForm.get('listValue').value.map((value) => {
-            return {
-              key: value,
-              value: value,
-            }
-          }),
-          multiple: component === CustomFormPropertiesEnum.SELECT_MULTIPLE,
-        }
-      }
+      fillDefinitionComponentFromRqnType(definition, component, listValue);
 
       // Rules
       if (lineForm.get('isRequired').value === true) {
@@ -553,6 +537,7 @@ export class ReportEditComponent implements OnInit {
    */
   save(): void {
     this.utilsService.validateAllFormFields(this.form);
+    this.form.updateValueAndValidity();
 
     if (!this.form.valid) return;
 

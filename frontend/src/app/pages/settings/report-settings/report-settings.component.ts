@@ -11,6 +11,7 @@ import { TableService } from 'src/app/core/services/table.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { VLayerWtr, getAssetTypeLabel } from 'src/app/core/models/layer.model';
 import { Form, FormPropertiesEnum, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
+import { RqnTypeEnum } from 'src/app/core/models/reportQuestion.model';
 
 export interface WtrReport extends VLayerWtr {
   fteId: number;
@@ -149,14 +150,6 @@ export class ReportSettingsPage implements OnInit {
 
   // ### HIDDEN ### //
   generateQuestions() {
-    enum CustomFormPropertiesEnum {
-      TEXT = 'text',
-      NUMBER = 'number',
-      SELECT = 'select',
-      SELECT_MULTIPLE = 'select_multiple',
-      COMMENT = 'comment'
-    }
-
     const listQuestion = [];
 
     for (let formTemplateReport of this.listFormTemplateReport) {
@@ -168,17 +161,17 @@ export class ReportSettingsPage implements OnInit {
         let component = definition.component;
         if (definition.component === FormPropertiesEnum.INPUT) {
           if (definition.attributes?.type === 'number') {
-            component = CustomFormPropertiesEnum.NUMBER;
+            component = RqnTypeEnum.NUMBER;
           }
           if (definition.attributes?.type === 'text') {
-            component = CustomFormPropertiesEnum.TEXT;
+            component = RqnTypeEnum.TEXT;
           }
         }
         if (definition.component === FormPropertiesEnum.SELECT) {
           if (definition.attributes?.multiple === true) {
-            component = CustomFormPropertiesEnum.SELECT_MULTIPLE;
+            component = RqnTypeEnum.SELECT_MULTIPLE;
           } else {
-            component = CustomFormPropertiesEnum.SELECT;
+            component = RqnTypeEnum.SELECT;
           }
         }
 
@@ -247,17 +240,17 @@ export class ReportSettingsPage implements OnInit {
         let component = definition.component;
         if (definition.component === FormPropertiesEnum.INPUT) {
           if (definition.attributes?.type === 'number') {
-            component = CustomFormPropertiesEnum.NUMBER;
+            component = RqnTypeEnum.NUMBER;
           }
           if (definition.attributes?.type === 'text') {
-            component = CustomFormPropertiesEnum.TEXT;
+            component = RqnTypeEnum.TEXT;
           }
         }
         if (definition.component === FormPropertiesEnum.SELECT) {
           if (definition.attributes?.multiple === true) {
-            component = CustomFormPropertiesEnum.SELECT_MULTIPLE;
+            component = RqnTypeEnum.SELECT_MULTIPLE;
           } else {
-            component = CustomFormPropertiesEnum.SELECT;
+            component = RqnTypeEnum.SELECT;
           }
         }
 
@@ -265,6 +258,10 @@ export class ReportSettingsPage implements OnInit {
           const reportQuestion = listQuestionDedoublon.find((question) => question.component === component && question.label === definition.label);
           definition.key = PREFIX_KEY_DEFINITION + (index);
           definition.rqnCode = reportQuestion.uuid;
+
+          if (reportQuestion.component === RqnTypeEnum.COMMENT) {
+            definition.key = 'COMMENT';
+          }
 
           /*if (definition.displayCondition?.key != null) {
             const conditionDefinition = definitions[Number(definition.displayCondition.key.substring('UUID-'.length))];
