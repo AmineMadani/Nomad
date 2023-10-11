@@ -1,0 +1,37 @@
+<div class="delete-report-question-confirmation-content">
+  <app-settings-header
+    [title]="'Confirmation'"
+    [isModalHeader]="true"
+    (onModalClose)="close()"
+  ></app-settings-header>
+
+  <div class="delete-report-question-confirmation-body">
+    <div *ngIf="listReportQuestion.length === 1">Souhaitez-vous réellement supprimer la question :</div>
+    <div *ngIf="listReportQuestion.length > 1">Souhaitez-vous réellement supprimer les questions :</div>
+    <ion-list>
+      <ion-item *ngFor="let reportQuestion of listReportQuestion" lines="none">
+        - {{reportQuestion.rqnCode}} - {{reportQuestion.rqnLlabel}}
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="isUsedAsCondition">
+      Attention, d'autres questions sont dépendantes de celle(s)-ci. En supprimant cette(es) question(s), ces dépendances seront brisées
+    </div>
+    
+    <div class="acknowledge-div">
+      <ion-checkbox [(ngModel)]="isAcknowledged" labelPlacement="end" justify="start"></ion-checkbox>
+      <div class="message" (click)="isAcknowledged = !isAcknowledged">
+        J'ai bien compris qu'en supprimant ces données, je devrais solliciter les équipes techniques si je souhaite les récupérer
+      </div>
+    </div>
+  </div>
+
+  <div class="delete-report-question-confirmation-footer">
+    <ion-button fill="clear" (click)="ok()" [disabled]="!isAcknowledged">
+      Oui, je supprime
+    </ion-button>
+    <ion-button fill="clear" (click)="close()">
+      Non, je ne supprime pas
+    </ion-button>
+  </div>
+</div>

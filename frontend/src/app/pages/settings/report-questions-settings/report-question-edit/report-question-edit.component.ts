@@ -282,7 +282,7 @@ export class ReportQuestionEditComponent implements OnInit {
 
       await firstValueFrom(this.reportQuestionService.updateReportQuestion(reportQuestion));
 
-      // Reflex changes on forms that use that question
+      // Reflect changes on forms that use that question
       const listFormToSave = [];
 
       // If the label changes

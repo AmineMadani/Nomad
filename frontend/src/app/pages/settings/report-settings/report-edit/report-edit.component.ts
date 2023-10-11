@@ -186,20 +186,18 @@ export class ReportEditComponent implements OnInit {
       if (questionCondition != null) {
         lineForm.get('listQuestionConditionValues').addValidators(Validators.required);
 
-        if (questionCondition != null) {
-          const indexQuestionCondition = Number(questionCondition) - 1;
-          if (indexQuestionCondition < this.lines.length) {
-            const questionConditionLineForm = this.lines.at(indexQuestionCondition);
-            if (questionConditionLineForm) {
-              lineForm.get('listAvailableQuestionValues').setValue(
-                questionConditionLineForm.get('listValue').value.map((value, index) => {
-                  return {
-                    value: value,
-                    label: (index+1) + ' - ' + value,
-                  }
-                })
-              );
-            }
+        const indexQuestionCondition = Number(questionCondition) - 1;
+        if (indexQuestionCondition < this.lines.length) {
+          const questionConditionLineForm = this.lines.at(indexQuestionCondition);
+          if (questionConditionLineForm) {
+            lineForm.get('listAvailableQuestionValues').setValue(
+              questionConditionLineForm.get('listValue').value.map((value, index) => {
+                return {
+                  value: value,
+                  label: (index+1) + ' - ' + value,
+                }
+              })
+            );
           }
         }
       } else {
@@ -351,35 +349,6 @@ export class ReportEditComponent implements OnInit {
     }
 
     return listAvailableQuestion;
-  }
-
-  /**
-   * Get the list of available questions values for this line, for the question condition selected
-   *
-   * @param lineIndex index of the line
-   * @returns The list of values
-   */
-  getListAvailableQuestionValues(lineIndex: number): ValueLabel[] {
-    // Display the list of values linked to the selected question condition
-    const lineForm = this.lines.at(lineIndex);
-
-    const questionCondition = lineForm.get('questionCondition').value;
-    if (questionCondition != null) {
-      const indexQuestionCondition = Number(questionCondition) - 1;
-      if (indexQuestionCondition < this.lines.length) {
-        const questionConditionLineForm = this.lines.at(indexQuestionCondition);
-        if (questionConditionLineForm) {
-          return questionConditionLineForm.get('listValue').value.map((value, index) => {
-            return {
-              value: value,
-              label: (index+1) + ' - ' + value,
-            }
-          });
-        }
-      }
-    }
-
-    return [];
   }
 
   /**
