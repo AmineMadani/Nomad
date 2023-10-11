@@ -3,6 +3,7 @@ package com.veolia.nextcanope.service;
 import java.util.*;
 
 import com.veolia.nextcanope.dto.*;
+import com.veolia.nextcanope.dto.assetForSig.AssetForSigUpdateDto;
 import com.veolia.nextcanope.dto.payload.CancelWorkorderPayload;
 import com.veolia.nextcanope.dto.payload.SearchTaskPayload;
 import com.veolia.nextcanope.enums.WorkOrderStatusCode;
@@ -61,7 +62,20 @@ public class WorkorderService {
 
 	public WorkorderDto getWorkOrderDtoById(Long id) {
 		Workorder workOrder = getWorkOrderById(id);
-		return new WorkorderDto(workOrder);
+		WorkorderDto workorderDto = new WorkorderDto(workOrder);
+
+		// Check if a task is linked to a temporary asset (Asset for SIG)
+		for (TaskDto taskDto : workorderDto.getTasks()) {
+			if (taskDto.getAssObjRef() != null && taskDto.getAssObjRef().startsWith(("TMP-"))) {
+				Long afsCacheId = Long.parseLong(taskDto.getAssObjRef().substring(("TMP-").length()));
+				AssetForSig assetForSig = assetForSigService.getAssetForSigByCacheId(afsCacheId);
+				if (assetForSig != null) {
+					taskDto.setAssetForSig(new AssetForSigUpdateDto(assetForSig));
+				}
+			}
+		}
+
+		return workorderDto;
 	}
 
     /**
@@ -380,11 +394,6 @@ public class WorkorderService {
 				task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
 				task.setCreatedBy(user);
 
-				// Asset for SIG
-				if (taskDto.getAssetForSig() != null) {
-					assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
-				}
-
 				// Get Contract
 				if (customWorkorderDto.getCtrId() != null) {
 					Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
@@ -395,6 +404,11 @@ public class WorkorderService {
 			} else {
 				task = getTaskById(taskDto.getId());
 				newTasks.add(task);
+			}
+
+			// Asset for SIG
+			if (taskDto.getAssetForSig() != null) {
+				assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
 			}
 
 			// Set task attributes
@@ -541,10 +555,19 @@ public class WorkorderService {
 			String wkoRealizationUser,
 			Users user
 	) {
+		if (wkoId == null)
+			throw new FunctionalException("Modification impossible : l'id est obligatoire");
+
+		if (wkoCompletionStartDate == null && wkoCompletionEndDate == null && wkoRealizationUser == null)
+			throw new FunctionalException("Modification impossible : Au moins soit la date de début de réalisation, soit date de fin de réalisation ou soit l'agent doit être renseigné");
+
 		Workorder workorder = getWorkOrderById(wkoId);
-		workorder.setWkoCompletionStartDate(wkoCompletionStartDate);
-		workorder.setWkoCompletionEndDate(wkoCompletionEndDate);
-		workorder.setWkoRealizationUser(wkoRealizationUser);
+		if (wkoCompletionStartDate != null)
+			workorder.setWkoCompletionStartDate(wkoCompletionStartDate);
+		if (wkoCompletionEndDate != null)
+			workorder.setWkoCompletionEndDate(wkoCompletionEndDate);
+		if (wkoRealizationUser != null)
+			workorder.setWkoRealizationUser(wkoRealizationUser);
 		workorder.setModifiedBy(user);
 
 		try {
