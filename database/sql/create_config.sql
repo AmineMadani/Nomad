@@ -64,6 +64,8 @@ comment on column users.usr_configuration is 'User configuration';
 
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'administrator', 'administrator', 'administrator@veolia.com');
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (1, 'external', 'external', 'external@veolia.com');
+insert into users(id, usr_first_name, usr_last_name, usr_email) values (2, 'migration', 'migration', 'migration@veolia.com');
+
 
 ALTER TABLE users
 ADD CONSTRAINT fk_usr_ucre_id
@@ -567,13 +569,14 @@ comment on column workorder_task_status.wts_dmod is 'Last modification date';
 create table if not exists workorder_task_reason
 (
   id                bigserial primary key,
-  wtr_code          text unique not null,
+  wtr_code          text not null,
   wtr_slabel        text not null,
   wtr_llabel        text,
   wtr_work_request  boolean default True,
   wtr_report        boolean default True,
   wtr_wo            boolean default True,
   wtr_task          boolean default True,
+  wtr_no_xy         boolean default False,
   -- Technical metadata
   wtr_valid         boolean default True,
   wtr_ucre_id       bigint references users(id) default 0,
@@ -769,6 +772,7 @@ create table if not exists task
   tsk_completion_end_date	     timestamp without time zone,
   tsk_realization_user     bigint,
   tsk_report_date          timestamp without time zone,
+  tsk_cancel_comment		       text,
   -- Technical metadata
   tsk_ucre_id              bigint references users(id) default 0,
   tsk_umod_id              bigint references users(id) default 0,
@@ -876,6 +880,40 @@ create table if not exists frm_rpf(
   primary key (frm_id, rpf_id)
 );
 */
+
+-- Table report_question
+-- Contains the questions that can be in a report form
+create table if not exists report_question
+(
+  id                bigserial primary key,
+  rqn_code          text not null,
+  rqn_slabel        text not null,
+  rqn_llabel        text not null,
+  rqn_type          text not null,
+  rqn_required      boolean default False,
+  rqn_select_values text,
+  -- Technical metadata
+  rqn_ucre_id       bigint references users(id) default 0,
+  rqn_umod_id       bigint references users(id) default 0,
+  rqn_dcre          timestamp without time zone  default current_timestamp,
+  rqn_dmod          timestamp without time zone  default current_timestamp,
+  rqn_ddel          timestamp without time zone  default null
+);
+/* Comments on table */
+comment on table report_question is 'This table contains the questions available for a report form';
+/* Comments on fields */
+comment on column report_question.id is 'Table unique ID';
+comment on column report_question.rqn_code is 'Code of the reason';
+comment on column report_question.rqn_slabel is 'Short label of reason';
+comment on column report_question.rqn_llabel is 'Long label of reason';
+comment on column report_question.rqn_type is 'Type of the question';
+comment on column report_question.rqn_required is 'Is the question required';
+comment on column report_question.rqn_select_values is 'List of the possible anwsers for the type select in a json format';
+comment on column report_question.rqn_ucre_id is 'creator Id';
+comment on column report_question.rqn_umod_id is 'Last modificator Id';
+comment on column report_question.rqn_dcre is 'Creation date';
+comment on column report_question.rqn_dmod is 'Last modification date';
+comment on column report_question.rqn_dmod is 'Deletion date';
 
 -- Table form_definition
 -- Contains the forms content

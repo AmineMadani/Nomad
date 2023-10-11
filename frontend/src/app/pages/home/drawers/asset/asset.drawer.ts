@@ -48,11 +48,11 @@ export class AssetDrawer implements OnInit, OnDestroy {
       this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
       this.assetFilterService.setAssetFilter(this.assetFilterTree);
       this.assetFilterSegment = this.assetFilterService.getFilterSegment(this.assetFilterService.getAssetFilter());
-      this.selectedSegment = this.assetFilterSegment[0]?.name ?? 'favorite';
+      this.selectedSegment = this.user? this.user.usrConfiguration.context.lastDrawerSegment :  this.assetFilterSegment[0]?.name ?? 'favorite';
       this.isLoading = false;
     });
 
-    this.userService.getCurrentUser().then(usr => this.user = usr);
+    this.userService.getCurrentUser().then(usr => { this.user = usr});
   }
 
   removeAssetNotVisible(listAssetFilter: FilterAsset[]): FilterAsset[] {
@@ -136,8 +136,9 @@ export class AssetDrawer implements OnInit, OnDestroy {
    * Updates the selected segment
    * @param {any} event - The event of the segment button
    */
-  public onSegmentChange(event: any) {
+  public async onSegmentChange(event: any) {
     this.selectedSegment = event.detail.value;
+    await this.userService.setLastselectedDrawer(event.detail.value);
   }
 
   /**

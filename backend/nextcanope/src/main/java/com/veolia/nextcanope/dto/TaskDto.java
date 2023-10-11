@@ -18,6 +18,8 @@ public class TaskDto {
     private String assObjTable;
 
     private Long wtsId;
+    
+    private String wtsCode;
 
     private Long wtrId;
     
@@ -28,6 +30,8 @@ public class TaskDto {
     private BigDecimal latitude;
     
     private Date tskReportDate;
+
+    private String tskCancelComment;
     
     private ReportDto report;
 
@@ -105,7 +109,15 @@ public class TaskDto {
 		this.tskReportDate = tskReportDate;
 	}
 
-	public ReportDto getReport() {
+    public String getTskCancelComment() {
+        return tskCancelComment;
+    }
+
+    public void setTskCancelComment(String tskCancelComment) {
+        this.tskCancelComment = tskCancelComment;
+    }
+
+    public ReportDto getReport() {
 		return report;
 	}
 
@@ -121,7 +133,15 @@ public class TaskDto {
         this.assetForSig = assetForSig;
     }
 
-    public TaskDto() {
+    public String getWtsCode() {
+		return wtsCode;
+	}
+
+	public void setWtsCode(String wtsCode) {
+		this.wtsCode = wtsCode;
+	}
+
+	public TaskDto() {
 		super();
 	}
 
@@ -131,6 +151,7 @@ public class TaskDto {
         this.longitude = task.getLongitude();
         this.latitude = task.getLatitude();
         this.wtsId = task.getWorkorderTaskStatus().getId();
+        this.wtsCode = task.getWorkorderTaskStatus().getWtsCode();
         this.assObjRef = task.getAsset().getAssObjRef();
         this.tskReportDate = task.getTskReportDate();
         this.assObjTable = task.getAsset().getLayer().getLyrTableName();
@@ -138,6 +159,7 @@ public class TaskDto {
         if(task.getContract() != null) {
         	this.ctrId = task.getContract().getId();
         }
+        this.tskCancelComment = task.getTskCancelComment();
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
         

@@ -33,4 +33,8 @@ export class FormRadioComponent implements OnInit {
       this.control.disable();
     }
   }
+
+  checkIfRuleExist(ruleKey:string): boolean {
+    return this.definition.rules.some(rule => rule.key == ruleKey);
+  }
 }

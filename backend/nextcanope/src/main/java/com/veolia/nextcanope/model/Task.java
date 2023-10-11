@@ -107,6 +107,10 @@ private Long id;
     @JsonProperty("tsk_cache_id")
     private Long tskCacheId;
 
+    @Column(name="tsk_cancel_comment", length=2147483647)
+    @JsonProperty("tsk_cancel_comment")
+    private String tskCancelComment;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -139,7 +143,7 @@ private Long id;
     @JoinColumn(name="ctr_id", referencedColumnName="id")
     private Contract contract;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="task")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="task")
     private List<Report> listOfReport;
 
     /**
@@ -185,6 +189,14 @@ private Long id;
     public Date getTskPlanningEndDate() {
         return this.tskPlanningEndDate;
     }
+    
+	public Date getTskCompletionStartDate() {
+		return tskCompletionStartDate;
+	}
+
+	public void setTskCompletionStartDate(Date tskCompletionStartDate) {
+		this.tskCompletionStartDate = tskCompletionStartDate;
+	}
 
 	public void setTskPlanningEndDate( Date tskPlanningEndDate ) {
         this.tskPlanningEndDate = tskPlanningEndDate ;
@@ -273,6 +285,14 @@ private Long id;
 
 	public void setTskCacheId( Long tskCacheId ) {
         this.tskCacheId = tskCacheId ;
+    }
+
+    public String getTskCancelComment() {
+        return tskCancelComment;
+    }
+
+    public void setTskCancelComment(String tskCancelComment) {
+        this.tskCancelComment = tskCancelComment;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

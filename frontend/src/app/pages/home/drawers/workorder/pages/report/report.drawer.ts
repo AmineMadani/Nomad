@@ -4,8 +4,6 @@ import { Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { Geolocation } from '@capacitor/geolocation';
-import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-report',
@@ -18,9 +16,7 @@ export class ReportDrawer implements OnInit {
     private router: ActivatedRoute,
     private mapService: MapService,
     private mapEvent: MapEventService,
-    private workorderService: WorkorderService,
-    private activatedRoute: ActivatedRoute,
-    private utilsService: UtilsService
+    private workorderService: WorkorderService
   ) {
   }
 

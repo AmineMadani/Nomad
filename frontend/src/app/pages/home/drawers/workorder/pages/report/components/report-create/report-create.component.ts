@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { AlertController, IonModal } from '@ionic/angular';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { filter } from 'rxjs';
+import { filter, firstValueFrom } from 'rxjs';
 import { DateTime } from 'luxon';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -20,6 +20,7 @@ import { ReportAssetComponent } from '../report-asset/report-asset.component';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { LayerService } from 'src/app/core/services/layer.service';
 
 @Component({
   selector: 'app-report-create',
@@ -39,7 +40,8 @@ export class ReportCreateComponent implements OnInit {
     private dialogService: DialogService,
     private datePipe: DatePipe,
     private praxedoService: PraxedoService,
-    private mapService: MapService
+    private mapService: MapService,
+    private layerService: LayerService
   ) { }
 
   @Input() workorder: Workorder;
@@ -52,6 +54,7 @@ export class ReportCreateComponent implements OnInit {
   public hasPreviousQuestion: boolean = false;
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
+  public hasXYInvalid: boolean = false;
 
   @ViewChild('stepForm') stepForm: ReportFormComponent;
   @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
@@ -62,7 +65,7 @@ export class ReportCreateComponent implements OnInit {
 
   private currentDateValue: string;
 
-  ngOnInit() {
+  async ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
     // Case on admin screen to test forms
@@ -72,7 +75,7 @@ export class ReportCreateComponent implements OnInit {
     }
 
     this.workorderService.getAllWorkorderTaskStatus().subscribe((workorderTaskStatus: WorkorderTaskStatus[]) => {
-      const status = workorderTaskStatus.find(sts => sts.id === this.workorder.wtsId);
+      const status = workorderTaskStatus.find(sts => sts.id.toString() === this.workorder.wtsId.toString());
       switch (status.wtsCode) {
         case WkoStatus[WkoStatus.TERMINE]:
           this.presentAlert();
@@ -97,6 +100,8 @@ export class ReportCreateComponent implements OnInit {
           this.isSubmit = true;
         }
       }
+    } else {
+      await this.checkHasXYInvalid();
     }
   }
 
@@ -371,7 +376,7 @@ export class ReportCreateComponent implements OnInit {
     for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
       if (definition.type == 'property') {
         report.reportValues.push({
-          key: definition.key,
+          key: definition.rqnCode + '_' + definition.key,
           question: definition.label,
           answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
             this.stepForm.formEditor.form.value[definition.key].join('; ')
@@ -426,39 +431,41 @@ export class ReportCreateComponent implements OnInit {
   /**
    * List of action after the workorder is send
    */
-  private closeReport(unplanedWko: Workorder = null) {
+  private async closeReport(unplanedWko: Workorder = null) {
     if (this.praxedoService.externalReport) {
-      this.contractService.getAllContracts().subscribe(contracts => {
-        let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
-        let comment = "";
-        for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
-          if (reportValue.key == 'COMMENT') {
-            comment = reportValue.answer;
+      this.layerService.getAllVLayerWtr().subscribe(vLayerWtrs => {
+        const vLayerWtr = vLayerWtrs.find(val => val.wtrCode == this.workorder.tasks[0].wtrCode && val.astCode == this.workorder.tasks[0].astCode);
+        this.contractService.getAllContracts().subscribe(contracts => {
+          let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
+          let comment = "";
+          for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
+            if (reportValue.key == 'COMMENT') {
+              comment = reportValue.answer;
+            }
           }
-        }
-        IntentAction.closeIntent(
-          {
-            value:
-              {
-                'RETOUR': 'ok',
-                'CONTRAT': (contract ? contract.ctrCode : ''),
-                'COMMENTAIRE': comment,
-                'GPS_RI': this.workorder.tasks[0].latitude+';'+this.workorder.tasks[0].longitude,
-                'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
-                'TYPE': (this.workorder.tasks.length > 1 ? '38':this.workorder.tasks[0].astCode),
-                'MOTIF': this.workorder.tasks[0].wtrCode,
-                'REFEXTINT': this.workorder.id,
-                'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
-              }
+          IntentAction.closeIntent(
+            {
+              value:
+                {
+                  'RETOUR': 'ok',
+                  'CONTRAT': (contract ? contract.ctrCode : ''),
+                  'COMMENTAIRE': comment,
+                  'GPS_RI': this.workorder.tasks[0].latitude+';'+this.workorder.tasks[0].longitude,
+                  'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
+                  'TYPE': (this.workorder.tasks.length > 1 ? '38-Multi équipements':this.workorder.tasks[0].astCode+'-'+vLayerWtr.astLlabel),
+                  'MOTIF': this.workorder.tasks[0].wtrCode+'-'+vLayerWtr.wtrLlabel,
+                  'REFEXTINT': this.workorder.id,
+                  'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
+                }
+            }
+          );
+          this.isSubmitting = false;
+          if (!this.workorder.syncOperation) {
+            this.exploitationService.deleteCacheWorkorder(this.workorder);
           }
-        );
-        this.isSubmitting = false;
-        if (!this.workorder.syncOperation) {
-          this.exploitationService.deleteCacheWorkorder(this.workorder);
-        }
+        });
       });
     } else {
-      this.mapService.removeEventLayer('task');
       this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
       this.isSubmitting = false;
       if(!this.workorder.syncOperation) {
@@ -489,6 +496,10 @@ export class ReportCreateComponent implements OnInit {
    */
   public onSaveWorkOrderState() {
     this.exploitationService.saveCacheWorkorder(this.workorder);
+
+    if (this.step === 1) {
+      this.checkHasXYInvalid();
+    }
   }
 
   /**
@@ -657,4 +668,41 @@ export class ReportCreateComponent implements OnInit {
     );
   }
 
+  public onNewAsset() {
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.NEW_ASSET,
+      [],
+      { 
+        draft: this.workorder.id,
+        step: 'report'
+      }
+    );
+  }
+
+  /**
+   * If there is a XY Asset with reason other than 'Enquête' (16 or 19) and 'Réaliser un métré' (13)
+   * The user must choose an existing asset or create a new one
+   */
+  private async checkHasXYInvalid() {
+    if(this.workorder.isDraft) {
+      this.hasXYInvalid =  false;
+    } else {
+      const listWtr = await firstValueFrom(this.workorderService.getAllWorkorderTaskReasons());
+      const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
+
+      this.hasXYInvalid = this.workorder.tasks.some(task => {
+        return task.assObjRef == null && (
+          task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
+        );
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if(this.workorder.isDraft) {
+      for(let task of this.workorder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+    }
+  }
 }

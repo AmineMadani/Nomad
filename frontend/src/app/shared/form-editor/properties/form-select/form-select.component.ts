@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormDefinition, FormSelect } from '../../models/form.model';
 import { ActivatedRoute } from '@angular/router';
 
@@ -14,6 +14,8 @@ export class FormSelectComponent implements OnInit {
   @Input() control: any;
   @Input() edit: boolean;
   @Input() paramMap: Map<string, string>;
+
+  @Output() onSelectSingleValue: EventEmitter<void> = new EventEmitter();
 
   public attributes: FormSelect;
 
@@ -69,7 +71,12 @@ export class FormSelectComponent implements OnInit {
         this.control.setValue(null);
       } else {
         this.control.setValue(key);
+        this.onSelectSingleValue.emit()
       }
     }
+  }
+
+  checkIfRuleExist(ruleKey:string): boolean {
+    return this.definition.rules.some(rule => rule.key == ruleKey);
   }
 }

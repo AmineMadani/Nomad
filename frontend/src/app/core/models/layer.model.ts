@@ -101,3 +101,9 @@ export enum ReferenceDisplayType {
   SYNTHETIC = 'SYNTHETIC',
   DETAILED = 'DETAILED',
 }
+
+export interface SearchEquipments {
+  lyrTableName: string,
+  equipmentIds: string[],
+  allColumn?: boolean
+}

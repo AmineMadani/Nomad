@@ -68,6 +68,10 @@ private Long id;
     @JsonProperty("wtr_task")
     private Boolean wtrTask;
 
+    @Column(name="wtr_no_xy")
+    @JsonProperty("wtr_no_xy")
+    private Boolean wtrNoXy;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="wtr_dcre")
     @CreationTimestamp
@@ -176,6 +180,14 @@ private Long id;
 
 	public void setWtrTask( Boolean wtrTask ) {
         this.wtrTask = wtrTask ;
+    }
+
+    public Boolean getWtrNoXy() {
+        return wtrNoXy;
+    }
+
+    public void setWtrNoXy(Boolean wtrNoXy) {
+        this.wtrNoXy = wtrNoXy;
     }
 
     public Date getWtrDcre() {

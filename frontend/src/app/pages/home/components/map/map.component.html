@@ -34,6 +34,12 @@
 
 
   <div *ngIf="map" class="right-buttons no-print" [class.mobile-buttons]="isMobile">
+    <ion-fab *ngIf="getMeasuringCondition()" (click)="endMeasuring()">
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+        <ion-icon src="assets/icon/rule.svg" class="strike-inverted-through"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
     <ion-fab (click)="onResetRotation()">
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
         <ion-icon name="compass-outline"></ion-icon>
@@ -74,8 +80,8 @@
     <ion-item button (click)="onGenerateWorkOrder()" [disabled]="!userHasPermissionCreateXYWorkorder">
       <ion-label id="map-nomad-context-menu-create-workorder">Générer une intervention XY</ion-label>
     </ion-item>
-    <ion-item button [disabled]="!userHasPermissionModifyReport">
-      <ion-label>Saisir un compte-rendu</ion-label>
+    <ion-item button (click)="onGenerateReport()" [disabled]="!userHasPermissionModifyReport">
+      <ion-label id="map-nomad-context-menu-create-report">Saisir un compte-rendu XY</ion-label>
     </ion-item>
     <ion-item button [disabled]="!userHasPermissionRequestUpdateAsset">
       <ion-label>Faire une demande de mise à jour</ion-label>

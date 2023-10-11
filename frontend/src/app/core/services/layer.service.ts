@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr } from '../models/layer.model';
+import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, SearchEquipments } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { AppDB } from '../models/app-db.model';
@@ -34,7 +34,16 @@ export class LayerService {
    */
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
-    const listLayerReferences = await firstValueFrom(this.layerDataService.getUserLayerReferences());
+    const listLayerReferences = await firstValueFrom(
+      this.layerDataService.getUserLayerReferences()
+      .pipe(
+        timeout(this.configurationService.offlineTimeoutEquipment),
+        catchError(async () => {
+          const feature = await firstValueFrom(this.getUserLayerReferences());
+          return feature;
+        })
+      )
+    );
     if (listLayerReferences) {
       const layer = listLayerReferences.find((layer) => layer.layerKey === layerKey);
       if (layer) {
@@ -76,32 +85,45 @@ export class LayerService {
    */
   public async getLayerFile(
     layerKey: string,
-    file: string
+    file: string,
+    startDate?: Date
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
+    
     /* It's getting the number from the file name. */
     const featureNumber: number = Number(file.replace('index_','').replace('.geojson',''));
     file = file.replace('index',layerKey);
-    /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-    const req: NomadGeoJson = await lastValueFrom(
-      this.layerDataService.getLayerFile(layerKey, featureNumber)
-        .pipe(
-          timeout(this.configurationService.offlineTimeoutTile),
-          catchError(async () => {
-            const tile = await this.db.tiles.get(file);
-            if (tile) {
-              return tile.data;
-            }
-            return null;
-          })
-        )
-    );
-    if (!req) {
-      this.listTileOnLoad.delete(layerKey);
-      throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
+    let req: NomadGeoJson = null;
+
+    const params = {
+      startDate: startDate
     }
 
-    await this.db.tiles.put({ data: req, key: file }, file);
+    if(!this.utilsService.isOfflineMode('tiles')) {
+      req = await lastValueFrom(this.layerDataService.getLayerFile(layerKey, featureNumber,params));
+    } else {
+      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
+      req = await lastValueFrom(
+        this.layerDataService.getLayerFile(layerKey, featureNumber,params)
+          .pipe(
+            timeout(this.configurationService.offlineTimeoutTile),
+            catchError(async () => {
+              const tile = await this.db.tiles.get(file);
+              if (tile) {
+                return tile.data;
+              }
+              return null;
+            })
+          )
+      );
+      if (!req) {
+        this.listTileOnLoad.delete(layerKey);
+        throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
+      }
+
+      await this.db.tiles.put({ data: req, key: file }, file);
+    }
+    
 
     this.listTileOnLoad.delete(layerKey);
     return req;
@@ -147,56 +169,39 @@ export class LayerService {
     ))).find(layer => layer.lyrTableName == key);
   }
 
-  public async getEquipmentByLayerAndId(layer: string, id: string, forcedCache: boolean = false): Promise<any> {
-    if(forcedCache) {
-      const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
-        layer,
-        id
-      );
-      if(feature) {
-        return { id: feature.id, ...feature.properties };
-      }
-    }
-    return firstValueFrom(
-      this.layerDataService.getEquipmentByLayerAndId(layer, id)
-        .pipe(
-          map((equipment: any[]) => equipment[0]),
-          timeout(this.configurationService.offlineTimeoutEquipment),
-          catchError(async () => {
-            const feature = await this.cacheService.getFeatureByLayerAndFeatureId(
-              layer,
-              id
-            );
-            return { id: feature.id, ...feature.properties };
-          })
-        )
-    );
+  public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
+    let searchEquipment:SearchEquipments[] = [{
+      lyrTableName: layer,
+      equipmentIds: [id],
+      allColumn: true
+    }]
+    let response = await this.getEquipmentsByLayersAndIds(searchEquipment);
+    return response[0];
   }
 
   public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    //Check if we find the equipment in cached
-    let res = [];
-    let idsLayersNotLocal = [];
-    for(let idLayer of idsLayers) {
-      let ids = [];
-      for(let ref of idLayer.equipmentIds) {
-        const feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
-        if(feature) {
-          res.push(feature.properties)
-        } else {
-          ids.push(ref);
-        }
-      }
-      if(ids.length > 0) {
-        idsLayersNotLocal.push({ equipmentsIds : ids, lyrTableName : idLayer.lyrTableName});
-      }
+    if(!this.utilsService.isOfflineMode('tiles')) {
+      return firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
     }
-    //If we don't find some of them, we call the backend
-    if(idsLayersNotLocal.length == 0) {
-      return res;
-    } else {
-      return [...res, ...(await firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers)))] 
-    }
+    return firstValueFrom(
+      this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
+        timeout(this.configurationService.offlineTimeoutEquipment),
+        catchError(async () => {
+          let res = [];
+          for(let idLayer of idsLayers) {
+            for(let ref of idLayer.equipmentIds) {
+              let feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+              feature.properties = Object.assign(feature.properties, {lyrTableName:idLayer.lyrTableName});
+              feature.properties = Object.assign(feature.properties, {geom:feature.geometry});
+              if(feature) {
+                res.push(feature.properties)
+              }
+            }
+          }
+          return res;
+        })
+      )
+    );
   }
 
   /**

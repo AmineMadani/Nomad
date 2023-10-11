@@ -47,17 +47,15 @@ export class ReportAssetComponent implements OnInit {
       if (this.editTaskEquipment) {
         this.editTaskEquipment.assObjRef = res.featureId;
         this.editTaskEquipment.assObjTable = res.layerKey;
-        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId, true);
+        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId);
         this.editTaskEquipment.ctrId = asset.ctrId;
         this.workorder.ctrId = asset.ctrId;
         this.workorder.ctyId = asset.ctyId;
-        this.maplayerService.getCoordinateFeaturesById(res.layerKey, res.featureId).then(result => {
-          if (this.draggableMarker) {
-            this.draggableMarker.remove();
-            this.draggableMarker = null;
-          }
-          this.draggableMarker = this.maplayerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, result);
-        })
+        if (this.draggableMarker) {
+          this.draggableMarker.remove();
+          this.draggableMarker = null;
+        }
+        this.draggableMarker = this.maplayerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, asset.geom.coordinates);
       }
     });
 
@@ -104,8 +102,8 @@ export class ReportAssetComponent implements OnInit {
   public onEditEquipment(tsk: Task) {
 
     if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
-      this.maplayerService.getCoordinateFeaturesById(tsk.assObjTable, tsk.assObjRef).then(result => {
-        this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result);
+      this.layerService.getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef).then(result => {
+        this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result.geom.coordinates);
       })
     } else {
       this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, [tsk.longitude as any, tsk.latitude as any], true);
@@ -140,7 +138,7 @@ export class ReportAssetComponent implements OnInit {
       }
     }
     
-    this.mapService.updateFeature("task", feature);
+    this.mapService.updateFeatureGeometry("task", feature);
     if (this.workorder.id > 0) {
       this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
     }
@@ -233,7 +231,7 @@ export class ReportAssetComponent implements OnInit {
               setTimeout(() => {
                 let feature: any = this.maplayerService.getFeatureById("task", task.id + '');
                 feature.geometry.coordinates = [task.longitude, task.latitude];
-                this.mapService.updateFeature("task", feature);
+                this.mapService.updateFeatureGeometry("task", feature);
                 geometries.push(feature.geometry.coordinates);
                 featuresSelection.push({
                   id: task.id.toString(),

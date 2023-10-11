@@ -16,10 +16,12 @@
     <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepAsset></app-report-asset>
   </ng-container>
   <ng-container *ngIf="step == 2">
-    <app-report-context [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
+    <app-report-context [workorder]="workorder" [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
   </ng-container>
   <ng-container *ngIf="step == 3">
-    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()" [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
+    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()" 
+      (goToNextQuestion)="nextFormQuestion()"
+      [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
   <div *ngIf="step == 3" class="form-questions-count">
     {{getFormQuestionLabel()}}
@@ -27,10 +29,11 @@
 </div>
 <div class="report-footer-actions" lines="none">
   <ng-container *ngIf="!isSubmitting">
-    <ion-button *ngIf="step ==1 && !workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onEditTask()" [class.font-mobile]="isMobile">Editer les équipements</ion-button>
+    <ion-button *ngIf="step == 1 && !workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onEditTask()" [class.font-mobile]="isMobile">Editer les équipements</ion-button>
+    <ion-button *ngIf="step == 1 && workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onNewAsset()" [class.font-mobile]="isMobile">Créer un patrimoine</ion-button>
     <ion-button *ngIf="step >= 2 && !hasPreviousQuestion && !isTest" fill="clear" style="float: left;" (click)="onBack()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
     <div *ngIf="step >= 2 && !hasPreviousQuestion && isTest"></div>
-    <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile">Etape suivante</ion-button>
+    <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile" [disabled]="hasXYInvalid">Etape suivante</ion-button>
     <ion-button *ngIf="(step == 3) && hasPreviousQuestion" fill="clear" (click)="previousFormQuestion()" [class.font-mobile]="isMobile">Question précédente</ion-button>
     <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()" [class.font-mobile]="isMobile">Question suivante</ion-button>
     <ion-button *ngIf="isSubmit && !isTest" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>

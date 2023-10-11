@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, from, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
 import { AppDB } from '../models/app-db.model';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
+import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { UtilsService } from './utils.service';
 import { MapFeature } from '../models/map-feature.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MapService } from './map/map.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -19,13 +20,18 @@ export enum SyncOperations {
   providedIn: 'root',
 })
 export class WorkorderService {
+
+  public activeWorkorderSwitch:boolean = false;
+  public dateWorkorderSwitch: Date = null;
+
   private db: AppDB;
 
   constructor(
     private workorderDataService: WorkorderDataService,
     private cacheService: CacheService,
     private configurationService: ConfigurationService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private mapService: MapService
   ) {
     this.db = new AppDB();
   }
@@ -45,15 +51,19 @@ export class WorkorderService {
    * @returns A Promise that resolves to the referential
    */
   async getWorkorderById(id: number): Promise<Workorder> {
-    let workorder: Workorder = (await this.db.workorders.get(id.toString()))
-      ?.data;
-    if (!workorder) {
-      if (!this.utilsService.isMobilePlateform()) {
-        return firstValueFrom(this.workorderDataService.getWorkorderById(id));
-      }
-      return firstValueFrom(
-        this.workorderDataService.getWorkorderById(id).pipe(
-          timeout(this.configurationService.offlineTimeoutWorkorder),
+    
+    const localWorkorders: Workorder[] = await this.getLocalWorkorders();
+    const workOrder = localWorkorders.find(wko => wko.id.toString() === id.toString());
+    if(workOrder) {
+      return workOrder;
+    }
+    
+    if(!this.utilsService.isOfflineMode('tiles')) {
+      return firstValueFrom(this.workorderDataService.getWorkorderById(id));
+    }
+    return firstValueFrom(
+      this.workorderDataService.getWorkorderById(id).pipe(
+        timeout(this.configurationService.offlineTimeoutWorkorder),
           catchError(async (error) => {
             if (error?.name == 'TimeoutError') {
               let featureWorkorder =
@@ -62,7 +72,7 @@ export class WorkorderService {
                   id.toString()
                 );
               if (featureWorkorder) {
-                workorder = this.buildWorkorderFromGeojson(featureWorkorder);
+                let workorder = this.buildWorkorderFromGeojson(featureWorkorder);
                 let tasks =
                   await this.cacheService.getFeatureByLayerAndProperty(
                     'task',
@@ -77,10 +87,8 @@ export class WorkorderService {
             }
             throw error;
           })
-        )
-      );
-    }
-    return workorder;
+      )
+    );
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {
@@ -154,6 +162,7 @@ export class WorkorderService {
       catchError(async (error) => {
         if (error?.name == 'TimeoutError') {
           workorder.syncOperation = SyncOperations.CreateWorkorder;
+          workorder.isDraft = false;
           this.saveCacheWorkorder(workorder);
           return workorder;
         }
@@ -172,6 +181,17 @@ export class WorkorderService {
   ): Observable<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
+
+  /**
+   * Cancel a task
+   * @param cancelPayload the payload to cancel the task
+   * @returns the workorder
+   */
+    public cancelTask(
+      cancelPayload: CancelTask
+    ): Observable<Workorder> {
+      return this.workorderDataService.cancelTask(cancelPayload);
+    }
 
   /**
    * Save last state of a workorder
@@ -345,7 +365,8 @@ export class WorkorderService {
                 // If the synchronization is successful, delete the workorder from the cache
                 tap((workorder) => {
                   console.log('Workorder updated successfully', workorder);
-                  this.deleteCacheWorkorder(workorder);
+                  this.deleteCacheWorkorder(wko);
+                  this.syncWorkorderDisplay(wko, workorder)
                 }),
               );
             }
@@ -365,6 +386,17 @@ export class WorkorderService {
           )
         })
       ).subscribe();
+    }
+  }
+
+  private syncWorkorderDisplay(oldWko: Workorder, wko: Workorder) {
+    if(this.mapService.getMap()) {
+      if(this.mapService.getLayer('task')) {
+        for(let oldTask of oldWko.tasks) {
+          this.mapService.removePoint('task',oldTask.id.toString());
+        }
+        this.mapService.addGeojsonToLayer(wko, 'task');
+      }
     }
   }
 }

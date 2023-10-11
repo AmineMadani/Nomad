@@ -9,6 +9,8 @@ public class GetEquipmentsPayload {
     public String lyrTableName;
 
     public List<String> equipmentIds;
+    
+    public Boolean allColumn;
 
     public String getLyrTableName() {
         return lyrTableName;
@@ -25,4 +27,13 @@ public class GetEquipmentsPayload {
     public void setEquipmentId(List<String> equipmentIds) {
         this.equipmentIds = equipmentIds;
     }
+
+	public Boolean getAllColumn() {
+		return allColumn;
+	}
+
+	public void setAllColumn(Boolean allColumn) {
+		this.allColumn = allColumn;
+	}
+    
 }

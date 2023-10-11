@@ -1,8 +1,8 @@
 package com.veolia.nextcanope.repository;
 
-import java.util.Collections;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,6 +17,8 @@ public class LayerRepositoryImpl {
 
 	@Autowired
     private JdbcTemplate jdbcTemplate;
+	
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	/**
      * Retrieves the index associated with a specific key.
@@ -31,46 +33,34 @@ public class LayerRepositoryImpl {
                 String.class
         );
     }
+	
+	public String getAssetByLayerAndIds(String layer, List<String> ids, Long userId, Boolean allColumn) {
+		String idsFormat = "";
+		for(String id: ids) {
+			idsFormat += "'"+id+"',";
+		}
+		idsFormat = idsFormat.substring(0, idsFormat.length() - 1);
+        return this.jdbcTemplate.queryForObject(
+                "select nomad.f_get_assets_from_layer_and_ids(?,?,?,?)",
+                String.class, layer, idsFormat, userId.intValue(), allColumn
+        );
+    }
 
 	/**
      * Retrieves the layer tile associated with a specific key and tile number.
      *
      * @param key        The key to search for in the database.
      * @param tileNumber The tile number to search for in the database.
+     * @param optionnalStartDate The optional start date for tile search
+     * @param userId The user id
      * @return The layer tile as a string, associated with the given key and tile number.
      */
-    public String getLayerTile(String key, Long tileNumber, Long userId) {
-		String param = "," + userId.toString();
+    public String getLayerTile(String key, Long tileNumber, Date optionnalStartDate, Long userId) {
+    	String formatOptionnalStartDate = (optionnalStartDate != null ? "'"+sdf.format(optionnalStartDate)+"'":null);
         return this.jdbcTemplate.queryForObject(
-                "select nomad.f_get_geojson_from_tile('"+ key + "'," + tileNumber + param + ")",
-                String.class
+                "select nomad.f_get_geojson_from_tile(?,?,?,?)",
+                String.class, key, tileNumber.intValue(), formatOptionnalStartDate, userId.intValue()
         );
     }
-    
-    /**
-     * Retrieve the equipment by layer and id
-     *
-     * @param layer The layer
-     * @param id The object id
-     * @return the equipment
-     */
-    public List<Map<String, Object>> getEquipmentByLayerAndId(String layer, String id) {
-        String columnMapping = getColumnMappingForLayer(layer);
-        String query = "SELECT DISTINCT id, ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id=?";
-        return jdbcTemplate.queryForList(query, id);
-    }
 
-    public List<Map<String, Object>> getEquipmentsByLayerAndIds(String layer, List<String> ids) {
-        String columnMapping = getColumnMappingForLayer(layer);
-        String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
-        // Create the SQL query with the IN clause, placeholders, and transformed column names
-        String query = "SELECT DISTINCT id, ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y, " + columnMapping + " FROM asset." + layer + " WHERE id IN (" + placeholders + ")";
-        // Pass the IDs as arguments to the query
-        return jdbcTemplate.queryForList(query, ids.toArray());
-    }
-
-    private String getColumnMappingForLayer(String layer) {
-        String query = "SELECT string_agg(column_name || ' AS \"' || nomad.underscore_to_camelcase(column_name) || '\"', ', ') FROM information_schema.columns WHERE table_schema = 'asset' AND table_name = ?";
-        return jdbcTemplate.queryForObject(query, String.class, layer);
-    }
 }

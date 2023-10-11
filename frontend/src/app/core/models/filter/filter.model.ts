@@ -14,6 +14,7 @@ export interface FilterAsset {
     styleKey?: string;
     child?: FilterAsset[];
     visible?: boolean;
+    segmentVisible?: boolean;
 
     selected?: boolean;
     isIndeterminate?: boolean;
@@ -24,5 +25,6 @@ export interface CustomFilter {
     name: string,
     key: string,
     value: string,
-    checked?: boolean
+    checked?: boolean,
+    segmentVisible?: boolean
 }

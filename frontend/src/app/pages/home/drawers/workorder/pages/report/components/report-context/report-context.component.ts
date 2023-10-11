@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
+import { Attachment } from 'src/app/core/models/attachment.model';
 import { VLayerWtr } from 'src/app/core/models/layer.model';
-import { Task } from 'src/app/core/models/workorder.model';
+import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -18,9 +20,11 @@ export class ReportContextComponent implements OnInit {
     private layerService: LayerService,
     private mapService: MapService,
     private mapLayerService: MapLayerService,
-    private mapEventService: MapEventService
+    private mapEventService: MapEventService,
+    private attachmentService: AttachmentService
   ) { }
 
+  @Input() workorder: Workorder;
   @Input() tasks: Task[];
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
@@ -30,8 +34,16 @@ export class ReportContextComponent implements OnInit {
   public displayOptions: VLayerWtr[] = [];
   public valueKey: number;
   public querySearch: string = "";
+  public attachments: Attachment[];
+  public isAttachmentLoaded: boolean = false;
 
   ngOnInit() {
+
+    this.attachmentService.getListAttachmentByWorkorderId(this.tasks[0].wkoId).then(res => {
+      this.attachments = res;
+      this.isAttachmentLoaded = true
+    });
+
     this.layerService.getAllVLayerWtr().subscribe((res: VLayerWtr[]) => {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
@@ -100,6 +112,7 @@ export class ReportContextComponent implements OnInit {
       task.wtrId = obj.wtrId;
       task.wtrCode = this.originalOptions.find(val => val.wtrId === task.wtrId).wtrCode;
       task.astCode = this.originalOptions.find(val => val.lyrTableName === task.assObjTable).astCode;
+      task.report = null;
     }
     this.onSaveWorkOrderState.emit();
   }
@@ -113,6 +126,23 @@ export class ReportContextComponent implements OnInit {
       return this.originalOptions.find(opt => opt.wtrId === this.tasks[0].wtrId).wtrLlabel;
     }
     return "";
+  }
+
+  public convertBitsToBytes(x): string {
+    let l = 0,
+      n = parseInt(x, 10) || 0;
+
+    const units = ['o', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+
+    while (n >= 1024 && ++l) {
+      n = n / 1024;
+    }
+
+    return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
+  }
+
+  public getFileExtension(filename: string): string {
+    return filename.split('.').pop();
   }
 
   /**

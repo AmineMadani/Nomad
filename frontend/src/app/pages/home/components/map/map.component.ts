@@ -6,18 +6,16 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import {
-  LoadingController,
-} from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { MapService } from 'src/app/core/services/map/map.service';
+import { Box, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, forkJoin, switchMap, filter } from 'rxjs';
+import { debounceTime, first, forkJoin, switchMap, filter, Observable, map, firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
@@ -31,6 +29,10 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { BasemapOfflineService } from 'src/app/core/services/basemapOffline.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { Workorder } from 'src/app/core/models/workorder.model';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 
 @Component({
   selector: 'app-map',
@@ -52,7 +54,10 @@ export class MapComponent implements OnInit, OnDestroy {
     private praxedoService: PraxedoService,
     private userService: UserService,
     private drawingService: DrawingService,
-    private basemapOfflineService: BasemapOfflineService
+    private basemapOfflineService: BasemapOfflineService,
+    private layerService: LayerService,
+    private workorderService: WorkorderService,
+    private mapLayerService: MapLayerService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -164,13 +169,13 @@ export class MapComponent implements OnInit, OnDestroy {
   public generateMap(): void {
     this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
-      if(this.basemapOfflineService.db) {
-         this.basemaps.push({
-            map_type: 'OFFLINE',
-            map_default: false,
-            map_display: true,
-            map_slabel: 'Plan Offline'
-         })
+      if (this.basemapOfflineService.db) {
+        this.basemaps.push({
+          map_type: 'OFFLINE',
+          map_default: false,
+          map_display: true,
+          map_slabel: 'Plan Offline',
+        });
       }
       const defaultBackLayer: Basemap | undefined = this.basemaps.find(
         (bl) => bl.map_default
@@ -267,7 +272,7 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.mapBasemaps.has(keyLayer)) {
       this.createLayers(keyLayer);
     }
-    if(keyLayer != 'PlanOffline') {
+    if (keyLayer != 'PlanOffline') {
       this.removeOfflineLayer();
       this.changeBasemapSource(keyLayer);
     } else {
@@ -277,46 +282,15 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private async removeOfflineLayer() {
-   if(this.map.getSource('offlineBaseMap')) {
-    let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
-    for (let layer of styleLayers) {
-      if(this.map.getLayer(layer.id)){
-        this.map.removeLayer(layer.id);
+    if (this.map.getSource('offlineBaseMap')) {
+      let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+      for (let layer of styleLayers) {
+        if (this.map.getLayer(layer.id)) {
+          this.map.removeLayer(layer.id);
+        }
       }
+      this.map.removeSource('offlineBaseMap');
     }
-    this.map.removeSource('offlineBaseMap');
-   }
-  }
-
-  private changeBasemapSource(keyLayer: string){
-   if(!this.map.getLayer('basemap')) {
-    const firstLayerId = this.map.getStyle().layers[0]?.id;
-    this.map.addLayer({
-        id: 'basemap',
-        type: 'raster',
-        source: keyLayer,
-        paint: {},
-      },firstLayerId);
-   } else {
-      this.map.getLayer('basemap').source = keyLayer;
-   }
-  }
-
-  private async addOfflineLayer() {
-   this.mapService.getMap().removeLayer('basemap');
-   this.mapService.getMap().addSource("offlineBaseMap", {
-      type: "vector",
-      tiles: [
-         "offline://{z}/{x}/{y}.vector.pbf"
-         //"https://nomad-basemaps.hp.m-ve.com/maps/{z}/{x}/{y}.pbf"
-      ]
-   });
-
-   const firstLayerId = this.map.getStyle().layers[0]?.id;
-   let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
-   for (let layer of styleLayers) {
-      this.mapService.getMap().addLayer(layer,firstLayerId);
-   }
   }
 
   // Temp while basemaps do not have keys
@@ -368,6 +342,9 @@ export class MapComponent implements OnInit, OnDestroy {
     const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
       'map-nomad-context-menu-create-workorder'
     );
+    const contextMenuCreateReport: HTMLElement = document.getElementById(
+      'map-nomad-context-menu-create-report'
+    );
 
     menu.className = 'show';
     menu.style.top = e.originalEvent.clientY - 56 + 'px';
@@ -397,9 +374,11 @@ export class MapComponent implements OnInit, OnDestroy {
           properties: params,
         };
         contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+        contextMenuCreateReport.innerHTML = "Saisir un compte-rendu XY";
       });
     } else {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
+      contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
       this.selectedFeature = {
         ...feature,
         properties: {
@@ -415,12 +394,69 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    if (!this.selectedFeature['properties']['lyrTableName']) {
-      this.selectedFeature['properties']['lyrTableName'] =
-        this.selectedFeature['source'];
+    if(this.selectedFeature['id']) {
+     this.router.navigate(['/home/workorder'], {
+      queryParams: { [this.selectedFeature['source']]: this.selectedFeature['id'] },
+     }); 
+     document.getElementById('map-nomad-context-menu').className = 'hide';
+    } else {
+      if (!this.selectedFeature['properties']['lyrTableName']) {
+        this.selectedFeature['properties']['lyrTableName'] =
+          this.selectedFeature['source'];
+      }
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.WORKORDER_WATER_TYPE,
+        undefined,
+        this.selectedFeature['properties']
+      );
     }
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_WATER_TYPE, undefined, this.selectedFeature['properties'])
+  }
+
+  /**
+   * Navigates to a report page with selected feature properties as query parameters.
+   */
+  public async onGenerateReport(): Promise<void> {
+    let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+    let ctrId = this.selectedFeature['properties']['ctrId'] ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0] : null;
+    if(this.selectedFeature['id']) {
+
+      let equipment = await this.layerService.getEquipmentByLayerAndId(this.selectedFeature['source'],this.selectedFeature['id']);
+      const recalculateCoords = this.mapLayerService.findNearestPoint(equipment.geom.coordinates,[this.selectedFeature['properties']['x'],this.selectedFeature['properties']['y']]);
+
+      let workorder: Workorder = {
+        latitude: recalculateCoords[1],
+        longitude: recalculateCoords[0],
+        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+        ctyId: this.selectedFeature['properties']['ctyId'],
+        id: this.utilsService.createCacheId(),
+        isDraft: true,
+        tasks: [
+          {
+            id: this.utilsService.createCacheId(),
+            latitude: recalculateCoords[1],
+            longitude: recalculateCoords[0],
+            assObjTable: this.selectedFeature['source'] ? this.selectedFeature['source']:'aep_xy',
+            assObjRef: this.selectedFeature['id'] ? this.selectedFeature['id'] : null,
+            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+            ctrId: ctrId
+          }
+        ]
+      };
+      this.workorderService.saveCacheWorkorder(workorder);
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
+    } else {
+      document.getElementById('map-nomad-context-menu').className = 'hide';
+      this.selectedFeature['properties']['ctrId'] = ctrId;
+      this.selectedFeature['properties']['target'] = 'report';
+      this.selectedFeature['properties']['wtsId'] = lStatus.find(status => status.wtsCode == 'CREE')?.id;
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.WORKORDER_WATER_TYPE,
+        undefined,
+        this.selectedFeature['properties']
+      );
+    }
   }
 
   /**
@@ -475,16 +511,55 @@ export class MapComponent implements OnInit, OnDestroy {
     el.click();
   }
 
+  /**
+   * Asks the user how they want to share their location then
+   * copies the appropriate information to the clipboard.
+   */
+  public async onShareLocalisation(): Promise<void> {
+    document.getElementById('map-nomad-context-menu').className = 'hide';
+    await this.mapService.sharePosition(
+      this.clicklatitude,
+      this.clicklongitute
+    );
+  }
+
+  /**
+   * Sets the zoom level of the map to the value e.
+   * @param {number} e - e is a number representing the new zoom level that the map should be set to
+   */
+  public onZoomChange(e: number): void {
+    this.zoom = e;
+    this.map.zoomTo(this.zoom);
+  }
+
+  /**
+   * event on the change of the scale by the user
+   * @param event the value of the user input
+   */
+  public onScaleChange(event: string): void {
+    const newValue = event;
+    const pattern = /^1:\s?(\d+)$/; //1:232500
+    const matchResult = newValue.match(pattern);
+    matchResult?.[1]
+      ? this.calculateZoomByScale(matchResult[1])
+      : (this.scale = this.calculateScale());
+  }
+
   public getMeasuringCondition(): boolean {
     return this.drawingService.getIsMeasuring();
+  }
+
+  public endMeasuring(): void {
+    this.drawingService.endMesure(true);
   }
 
   private addEvents(): void {
     fromEvent(this.map, 'mousemove')
       .pipe(
-        takeUntil(this.ngUnsubscribe$), 
+        takeUntil(this.ngUnsubscribe$),
         filter(() => !this.isMobile)
-      ).subscribe((e) => {
+      )
+      .subscribe((e) => {
         const canvasElement =
           document.getElementsByClassName('maplibregl-canvas')[0];
         if (this.drawingService.getIsMeasuring()) {
@@ -496,8 +571,7 @@ export class MapComponent implements OnInit, OnDestroy {
             const y = e.originalEvent.offsetY;
             resumeBox.style.transform = `translate(${x}px, ${y}px)`;
           }
-        }
-        else if (this.drawingService.getDrawActive()) {
+        } else if (this.drawingService.getDrawActive()) {
           canvasElement.classList.add('cursor-pointer');
         } else {
           canvasElement.classList.remove('cursor-mesure');
@@ -509,7 +583,7 @@ export class MapComponent implements OnInit, OnDestroy {
     fromEvent(this.map, 'moveend')
       .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
       .subscribe(() => {
-        this.mapService.onMoveEnd();
+        this.onMoveEnd();
       });
 
     // Hovering feature event
@@ -650,38 +724,38 @@ export class MapComponent implements OnInit, OnDestroy {
     this.drawingService.setDraw(draw);
   }
 
-  /**
-   * Asks the user how they want to share their location then
-   * copies the appropriate information to the clipboard.
-   */
-  public async onShareLocalisation(): Promise<void> {
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    await this.mapService.sharePosition(
-      this.clicklatitude,
-      this.clicklongitute
-    );
+  private changeBasemapSource(keyLayer: string) {
+    if (!this.map.getLayer('basemap')) {
+      const firstLayerId = this.map.getStyle().layers[0]?.id;
+      this.map.addLayer(
+        {
+          id: 'basemap',
+          type: 'raster',
+          source: keyLayer,
+          paint: {},
+        },
+        firstLayerId
+      );
+    } else {
+      this.map.getLayer('basemap').source = keyLayer;
+    }
   }
 
-  /**
-   * Sets the zoom level of the map to the value e.
-   * @param {number} e - e is a number representing the new zoom level that the map should be set to
-   */
-  public onZoomChange(e: number): void {
-    this.zoom = e;
-    this.map.zoomTo(this.zoom);
-  }
+  private async addOfflineLayer() {
+    this.mapService.getMap().removeLayer('basemap');
+    this.mapService.getMap().addSource('offlineBaseMap', {
+      type: 'vector',
+      tiles: [
+        'offline://{z}/{x}/{y}.vector.pbf',
+        //"https://nomad-basemaps.hp.m-ve.com/maps/{z}/{x}/{y}.pbf"
+      ],
+    });
 
-  /**
-   * event on the change of the scale by the user
-   * @param event the value of the user input
-   */
-  public onScaleChange(event: string): void {
-    const newValue = event;
-    const pattern = /^1:\s?(\d+)$/; //1:232500
-    const matchResult = newValue.match(pattern);
-    matchResult?.[1]
-      ? this.calculateZoomByScale(matchResult[1])
-      : (this.scale = this.calculateScale());
+    const firstLayerId = this.map.getStyle().layers[0]?.id;
+    let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
+    for (let layer of styleLayers) {
+      this.mapService.getMap().addLayer(layer, firstLayerId);
+    }
   }
 
   /**
@@ -803,13 +877,8 @@ export class MapComponent implements OnInit, OnDestroy {
       let pathVariables = [];
       switch (feature.source) {
         case 'task':
-          if (Number(properties['wkoId']) > 0) {
-            route = DrawerRouteEnum.TASK_VIEW;
-            pathVariables = [properties['wkoId'], properties['id']];
-          } else {
-            route = DrawerRouteEnum.REPORT;
-            pathVariables = [properties['wkoId']];
-          }
+          route = DrawerRouteEnum.TASK_VIEW;
+          pathVariables = [properties['wkoId'], properties['id']];
           break;
         default:
           route = DrawerRouteEnum.EQUIPMENT;
@@ -861,5 +930,158 @@ export class MapComponent implements OnInit, OnDestroy {
           resolutionAtLatitudeAndZoom
       ) / Math.log(2)
     );
+  }
+
+  /**
+   * The function loads new tiles for layers based on their maximum zoom level and checks if they have
+   * already been loaded.
+   */
+  public onMoveEnd(): void {
+    for (let layer of this.mapService.getCurrentLayers()) {
+      if (
+        this.map.getZoom() >=
+        Math.min(...layer[1].style.map((style) => style.minzoom))
+        &&
+        this.customTileFilter(layer[0])
+      ) {
+        this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
+          for (let str of res.listTile) {
+            if (
+              !this.mapService.loadedGeoJson.get(res.layer) ||
+              !this.mapService.loadedGeoJson.get(res.layer)!.includes(str)
+            ) {
+              if (this.mapService.loadedGeoJson.get(res.layer)) {
+                this.mapService.loadedGeoJson.get(res.layer)!.push(str);
+              } else {
+                this.mapService.loadedGeoJson.set(res.layer, [str]);
+              }
+              await this.loadNewTile(res.layer, str);
+            }
+          }
+        });
+      }
+    }
+  }
+
+  /**
+   * Method to add custom filter on layer tile loading
+   * Example : If layer task has not the active task switch enable so we don't load geojson but the layer stay available
+   * @param layer The layer name
+   * @returns The custom filter for the specific layer
+   */
+  private customTileFilter(layer: string): boolean {
+    return layer != 'task' || (layer == 'task' && this.workorderService.activeWorkorderSwitch)
+  }
+
+  /**
+   * Retrieves a list of tiles that overlap with the current map view based on their
+   * coordinates and a given layer index.
+   * @param {string} key - Layer index key
+   * @returns a Promise that resolves to an array of strings.
+   */
+  private getOverlapTileFromIndex(key: string): Observable<any> {
+    const listTile: string[] = [];
+    const val: Maplibregl.LngLatBounds = this.map!.getBounds();
+    const box1: Box = {
+      x1: Math.min(val._sw.lat, val._ne.lat),
+      x2: Math.max(val._sw.lat, val._ne.lat),
+      y1: Math.min(val._sw.lng, val._ne.lng),
+      y2: Math.max(val._sw.lng, val._ne.lng),
+    };
+
+    return this.layerService.getLayerIndexes().pipe(
+      map((res) => {
+        const index: any[] = (res as any)['features'];
+
+        if (index && index.length > 0) {
+          for (const coordRaw of index) {
+            const coords: string[] = (coordRaw['properties']['bbox'] as string)
+              .replace('POLYGON((', '')
+              .replace(')', '')
+              .split(',');
+
+            const box2: Box = {
+              y1: Math.max(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+              ),
+              y2: Math.min(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+              ),
+              x1: Math.max(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+              ),
+              x2: Math.min(
+                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+              ),
+            };
+
+            if (this.checkIfBoxesOverlap(box2, box1)) {
+              listTile.push(coordRaw['properties']['file']);
+            }
+          }
+        }
+        let result: any = {
+          layer: key,
+          listTile: listTile,
+        };
+        return result;
+      })
+    );
+  }
+
+  /**
+   * The function checks if two boxes overlap by comparing their x and y coordinates.
+   * @param {Box} box1 - The first box object with properties x1, y1, x2, y2 representing the coordinates
+   * of its top-left and bottom-right corners.
+   * @param {Box} box2 - The second box object that we want to check for overlap with the first box
+   * object (box1).
+   * @returns A boolean value indicating whether or not the two boxes overlap.
+   */
+  private checkIfBoxesOverlap(box1: Box, box2: Box): boolean {
+    const xOverlap =
+      Math.max(box1.x1, box1.x2) >= Math.min(box2.x1, box2.x2) &&
+      Math.max(box2.x1, box2.x2) >= Math.min(box1.x1, box1.x2);
+    const yOverlap =
+      Math.max(box1.y1, box1.y2) >= Math.min(box2.y1, box2.y2) &&
+      Math.max(box2.y1, box2.y2) >= Math.min(box1.y1, box1.y2);
+    return xOverlap && yOverlap;
+  }
+
+  /**
+   * Load a new tile for a given layer and updates the layer's data on the map.
+   * @param {string} layerKey -Key of the layer being loaded or updated.
+   * @param {string} file - Path of the file that contains the data to be loaded.
+   */
+  private async loadNewTile(layerKey: string, file: string): Promise<void> {
+    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    if (source) {
+      const newLayer = await this.layerService.getLayerFile(layerKey, file, this.customDateSearch(layerKey));
+      const addData: Maplibregl.GeoJSONSourceDiff = {
+        add: newLayer.features,
+      };
+      setTimeout(() => {
+        source.updateData(addData);
+        if (layerKey == 'task') {
+          this.loadLocalTask();
+        }
+      });
+    }
+  }
+
+  private loadLocalTask() {
+    this.workorderService.getLocalWorkorders().then((workorders) => {
+      for (let workorder of workorders) {
+        if (workorder.id < 0 && !workorder.isDraft) {
+          this.mapService.addGeojsonToLayer(workorder, 'task');
+        }
+      }
+    });
+  }
+
+  private customDateSearch(layerkey:string): Date {
+    if(layerkey == 'task') {
+      return this.workorderService.dateWorkorderSwitch;
+    }
+    return null
   }
 }

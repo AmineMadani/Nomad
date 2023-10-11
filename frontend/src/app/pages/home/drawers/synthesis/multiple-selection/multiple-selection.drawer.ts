@@ -6,7 +6,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, switchMap, EMPTY, debounceTime } from 'rxjs';
-import { Layer } from 'src/app/core/models/layer.model';
+import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -41,10 +41,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         switchMap(() => {
-          // if (this.updateUrl) {
-          //   this.updateUrl = false;
-          //   return EMPTY;
-          // }
           const urlParams = new URLSearchParams(window.location.search);
           this.paramFeatures = this.utilsService.transformMap(
             new Map(urlParams.entries())
@@ -141,11 +137,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           ? (this.step == 'report' ? "Reprendre le CR" : "Reprendre l'intervention")
           : 'Générer une intervention',
         icon: 'person-circle',
-        disabledFunction: () => !this.userHasPermissionCreateAssetWorkorder,
+        disabledFunction: () => (!this.userHasPermissionCreateAssetWorkorder || this.filteredFeatures.length === 0),
       },
       {
-        key: 'ask',
-        label: 'Faire une demande de MAJ',
+        key: 'new-asset',
+        label: 'Créer un patrimoine',
         icon: 'refresh',
         disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
       },
@@ -213,18 +209,29 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       return { key: lyrName, label: conf.lyrSlabel };
     });
 
-    this.featuresSelected = abstractFeatures.map((absF: any) => {
-      if (absF.isTemp === true) {
-        return absF;
+    const mapSearch:Map<string, string[]> = new Map();
+    for (const feature of abstractFeatures) {
+      if (feature.isTemp) {
+        this.featuresSelected.push(feature);
       } else {
-        return {
-          ...this.mapLayerService.getFeatureById(absF.lyrTableName, absF.id)
-            .properties,
-          lyrTableName: absF.lyrTableName,
-        };
+        if(mapSearch.get(feature.lyrTableName)) {
+          mapSearch.get(feature.lyrTableName).push(feature.id);
+        } else {
+          mapSearch.set(feature.lyrTableName, [feature.id]);
+        }
       }
-    });
+    }
+   
+    const searchEquipments: SearchEquipments[] = [];
+    for(const [key,value] of mapSearch){
+      searchEquipments.push({
+        lyrTableName: key,
+        equipmentIds: value
+      })
+    }
 
+    const searchEquipmentsRes = await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
+    this.featuresSelected = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...searchEquipmentsRes], 'id');
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
@@ -242,7 +249,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       })
     );
 
-    // this.addToSelection = false;
     this.isLoading = false;
   }
 
@@ -273,7 +279,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }
 
         break;
-      case 'ask':
+      case 'new-asset':
         if (this.wkoDraft) {
           this.drawerService.navigateTo(
             DrawerRouteEnum.NEW_ASSET,
@@ -369,12 +375,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public getLyrLabel(layerKey: string): string {
     return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
-      .lyrSlabel;
+      ?.lyrSlabel;
   }
 
   public getDomLabel(layerKey: string): string {
     return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
-      .domLLabel;
+      ?.domLLabel;
   }
 
   public generateFeatureParams(features: any[]): any {

@@ -1,5 +1,5 @@
 <ng-container *ngIf="edit; else labelTemplate">
-  <ion-input aria-label="def-comment" labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label"
+  <ion-input aria-label="def-comment" labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label+(checkIfRuleExist('required') ? '*':'')"
     [placeholder]="attributes.placeholder" [formControl]="control" />
 
   <ng-container *ngIf="definition.rules">

@@ -5,8 +5,7 @@
     "active": true,
     "issuer": "[keycloakIssuer]",
     "redirectUri": "[currentOrigin]/login",
-    "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
+    "redirectUriAndroid": "[currentOrign]/login",
     "clientId": "[keycloakClientId]",
     "revocationEndpoint": "[keycloakRevocation]"
   },
@@ -14,5 +13,6 @@
   "offlineTimeoutReferential":15000,
   "offlineTimeoutEquipment":2000,
   "offlineTimeoutTile":15000,
-  "offlineTimeoutWorkorder":3000
+  "offlineTimeoutWorkorder":3000,
+  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}"
 }

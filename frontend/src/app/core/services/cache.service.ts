@@ -113,16 +113,11 @@ export class CacheService {
     layerKeys: string[],
     ids: string[]
   ): Promise<any> {
-    const tiles = await this.db.tiles
-      .filter((tile) => layerKeys.some((prefix) => tile.key.startsWith(prefix)))
-      .toArray();
-
-    const features = tiles.flatMap((tile) =>
-      tile.data.features
-        .filter((feature) => ids.includes(feature.id))
-        .map((feature) => feature.properties)
-    );
-
+    const tiles = await this.db.tiles.where('key').startsWithAnyOf(layerKeys).and(tile => tile.data.features != null && tile.data.features.length > 0).toArray();
+    let features = [];
+    for(let tile of tiles) {
+      features = features.concat(tile.data.features.filter((feature) => ids.includes(feature.id)).map((feature) => feature.properties));
+    }
     return features;
   }
 

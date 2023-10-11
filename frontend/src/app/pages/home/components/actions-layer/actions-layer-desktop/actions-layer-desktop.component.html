@@ -1,6 +1,14 @@
 <div class="actions-layer-desktop-content"  id="actions-layer-desktop-content">
-  <ion-searchbar show-clear-button="always" placeholder="Recherche"
-    class="actions-layer-desktop-content-button-search"></ion-searchbar>
+  <div id="searchbar-autocomplete">
+    <ion-searchbar show-clear-button="always" placeholder="Recherche" [debounce]="500" (ionInput)="onSearchInput($event)" [value]="adress"
+      (ionBlur)="onSearchbarFocusOut()" (keyup.enter)="onSearchKeyEnter()" class="actions-layer-desktop-content-button-search">
+    </ion-searchbar>
+    <div id="autocomplete-panel" *ngIf="adresses && adresses.length > 0">
+      <div class="autocomplete-content" *ngFor="let adress of adresses" (click)="onAdressClick(adress)">
+        {{adress.properties.label}}
+      </div>
+    </div>
+  </div>
   <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
     [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
   <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"

@@ -40,6 +40,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() indexQuestion = 0;
   @Input() resumeQuestions: ReportValue[];
   @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
+  @Output() goToNextQuestion: EventEmitter<void> = new EventEmitter();
 
   public form: FormGroup;
   public sections: FormNode[] = [];
@@ -141,29 +142,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     this.submitAction.emit(this.form);
   }
 
-  /**
-   * Action on click for the next question
-   * @param child the child property
-   */
-  public nextQuestion(child: any): void {
-    let childrens = child.children ? child.children : [child];
-    let valid: boolean = true;
-    for(let children of childrens) {
-      this.form.get(children.definition.key).updateValueAndValidity();
-      this.form.get(children.definition.key).markAsTouched();
-      valid = valid && this.form.get(children.definition.key).valid;
-    }
-    if(valid){
-      this.indexQuestion++;
-    }
-  }
-
-  /**
-   * Action on click for the previous question
-   */
-  public previousQuestion(): void {
-    if(this.indexQuestion > 0){
-      this.indexQuestion--;
-    }
+  public onGoToNextQuestion(): void {
+    this.goToNextQuestion.emit();
   }
 }

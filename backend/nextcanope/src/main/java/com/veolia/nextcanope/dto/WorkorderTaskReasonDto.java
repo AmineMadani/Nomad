@@ -6,4 +6,5 @@ public interface WorkorderTaskReasonDto {
     String getWtrSlabel();
     String getWtrLlabel();
     Boolean getWtrValid();
+    Boolean getWtrNoXy();
 }

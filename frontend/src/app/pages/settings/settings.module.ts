@@ -17,7 +17,7 @@ import { LayerStyleComponent } from './layer-styles-settings/layer-style/layer-s
 import { UserDetailsComponent } from './users-settings/user-details/user-details.component';
 import { ReportSettingsPage } from './report-settings/report-settings.component';
 import { ReportEditComponent } from './report-settings/report-edit/report-edit.component';
-import { ValueLabelComponent } from './report-settings/report-edit/value-label/value-label.component';
+import { ValueLabelComponent } from './report-questions-settings/report-question-edit/value-label/value-label.component';
 import { SelectDuplicateReportComponent } from './report-settings/report-edit/select-duplicate-report/select-duplicate-report.component';
 import { TestReportComponent } from './report-settings/report-edit/test-report/test-report.component';
 import { HomePageModule } from '../home/home.module';
@@ -25,6 +25,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsHeaderComponent } from './components/settings-header/settings-header.component';
 import { MatTreeModule } from '@angular/material/tree';
 import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
+import { ReportQuestionsSettingsComponent } from './report-questions-settings/report-questions-settings.component';
+import { ReportQuestionEditComponent } from './report-questions-settings/report-question-edit/report-question-edit.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -54,7 +56,9 @@ import { PermissionsSettingsPage } from './permissions-settings/permissions-sett
     SelectDuplicateReportComponent,
     TestReportComponent,
     SettingsHeaderComponent,
-    PermissionsSettingsPage
+    PermissionsSettingsPage,
+    ReportQuestionsSettingsComponent,
+    ReportQuestionEditComponent,
   ]
 })
 export class SettingsPageModule {}

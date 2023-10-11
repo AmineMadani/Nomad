@@ -133,6 +133,7 @@ public class WorkorderService {
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setWkoCompletionStartDate(customWorkorderDto.getWkoCompletionStartDate());
 		workorder.setWkoCompletionEndDate(customWorkorderDto.getWkoCompletionEndDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
@@ -167,6 +168,8 @@ public class WorkorderService {
 			task.setTskComment(workorder.getWkoCreationComment());
 			task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
 			task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+			task.setTskCompletionEndDate(workorder.getWkoCompletionEndDate());
+			task.setTskCompletionStartDate(workorder.getWkoCompletionStartDate());
 			task.setCreatedBy(user);
 			task.setModifiedBy(user);
 			task.setLongitude(taskDto.getLongitude());
@@ -184,8 +187,8 @@ public class WorkorderService {
 			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
 			task.setWorkorderTaskReason(wtr);
 			// Get Contract
-			if(customWorkorderDto.getCtrId() != null) {
-				Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+			if(customWorkorderDto.getCtrId() != null || taskDto.getCtrId() != null) {
+				Contract contract = contractService.getContractById((customWorkorderDto.getCtrId() != null ? customWorkorderDto.getCtrId() : taskDto.getCtrId()));
 				task.setContract(contract);
 			}
 			
@@ -362,8 +365,37 @@ public class WorkorderService {
 		workorder.setWorkorderTaskStatus(status);
 
 		// Get the work order asset
+		List<Task> existingTasks = workorder.getListOfTask();
+		List<Task> newTasks = new ArrayList<>();
 		for (TaskDto taskDto : customWorkorderDto.getTasks()) {
-			Task task = getTaskById(taskDto.getId());
+			Task task;
+			if (taskDto.getId() < 0) {
+				task = new Task();
+
+				// Set task attributes
+				task.setWorkorder(workorder);
+				task.setTskName(workorder.getWkoName());
+				task.setTskComment(workorder.getWkoCreationComment());
+				task.setTskPlanningStartDate(workorder.getWkoPlanningStartDate());
+				task.setTskPlanningEndDate(workorder.getWkoPlanningEndDate());
+				task.setCreatedBy(user);
+
+				// Asset for SIG
+				if (taskDto.getAssetForSig() != null) {
+					assetForSigService.createAssetForSig(taskDto.getAssetForSig(), userId);
+				}
+
+				// Get Contract
+				if (customWorkorderDto.getCtrId() != null) {
+					Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+					task.setContract(contract);
+				}
+
+				newTasks.add(task);
+			} else {
+				task = getTaskById(taskDto.getId());
+				newTasks.add(task);
+			}
 
 			// Set task attributes
 			task.setWorkorderTaskStatus(workorder.getWorkorderTaskStatus());
@@ -397,6 +429,16 @@ public class WorkorderService {
 			task.setWorkorderTaskReason(wtr);
 		}
 
+		// Gestion des task à supprimer
+		List<String> objRef = customWorkorderDto.getTasks().stream().map(TaskDto::getAssObjRef).toList();
+		for (Task existingTask : existingTasks) {
+			if (!objRef.contains(existingTask.getAsset().getAssObjRef())){
+				existingTask.markAsDeleted(user);
+				newTasks.add((existingTask));
+			}
+		}
+		workorder.setListOfTask(newTasks);
+
 		try {
 			workorder = workOrderRepository.save(workorder);
 		} catch (Exception e) {
@@ -426,12 +468,49 @@ public class WorkorderService {
 		workorder.setModifiedBy(user);
 
 		for (Task task : workorder.getListOfTask()) {
-			task.setWorkorderTaskStatus(newStatus);
+			WorkorderTaskStatus oldTaskStatus = statusService.getStatus(task.getWorkorderTaskStatus().getId());
+
+			// Copy the cancel comment on all task, except if it is already cancel
+			if (!WorkOrderStatusCode.ANNULE.toString().equals(oldTaskStatus.getWtsCode())) {
+				task.setWorkorderTaskStatus(newStatus);
+				task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+				task.setModifiedBy(user);
+			}
 		}
 
 		if (oldStatus.getWtsCode().equals(WorkOrderStatusCode.ENVOYEPLANIF.toString())) {
 			workorder.setWkoExtToSync(true);
 		}
+
+		workorder = workOrderRepository.save(workorder);
+
+		return new WorkorderDto(workorder);
+	}
+
+	/**
+	 * Method to cancel a task
+	 * @return message returned to front
+	 */
+	public WorkorderDto cancelTask(
+			Long wkoId,
+			Long tskId,
+			CancelWorkorderPayload cancelWorkorderPayload,
+			Long userId
+	) {
+		Users user = userService.getUserById(userId);
+
+		Workorder workorder = getWorkOrderById(wkoId);
+
+		WorkorderTaskStatus cancelStatus = statusService.getStatus(WorkOrderStatusCode.ANNULE.toString());
+
+		Task task = workorder.getListOfTask().stream().filter(t -> t.getId().equals(tskId)).findFirst().orElse(null);
+		if (task == null) {
+			throw new FunctionalException("Task " + tskId + " non connue pour le workorder " + wkoId);
+		}
+
+		task.setWorkorderTaskStatus(cancelStatus);
+		task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+		task.setModifiedBy(user);
 
 		workorder = workOrderRepository.save(workorder);
 

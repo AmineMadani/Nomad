@@ -66,4 +66,8 @@ export class FormInputComponent implements OnInit {
     );
     return parsedValues;
   }
+
+  checkIfRuleExist(ruleKey:string): boolean {
+    return this.definition.rules.some(rule => rule.key == ruleKey);
+  }
 }

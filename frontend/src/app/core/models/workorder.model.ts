@@ -32,11 +32,18 @@ export interface CancelWorkOrder {
     cancelComment: string;
 }
 
+export interface CancelTask {
+    id: number;
+    tskId: number;
+    cancelComment: string;
+}
+
 export interface Task {
     id?: number;
     assObjRef?: string;
     assObjTable: string;
     wtsId?: number;
+    wtsCode?: string;
     wtrId?: number;
     ctrId?: number;
     astCode?: string;
@@ -47,6 +54,7 @@ export interface Task {
     tskCompletionStartDate?: Date;
     tskCompletionEndDate?: Date;
     tskReportDate?: Date;
+    tskCancelComment?: string;
     report?: Report;
     isSelectedTask?: boolean;
     assetForSig?: AssetForSigDto;
@@ -87,6 +95,7 @@ export interface WorkorderTaskReason {
     wtrSlabel: string;
     wtrLlabel: string;
     wtrValid: boolean;
+    wtrNoXy: boolean;
 }
 
 export enum WorkorderType {

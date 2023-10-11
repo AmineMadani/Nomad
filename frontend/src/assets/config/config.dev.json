@@ -1,6 +1,6 @@
 {
   "apiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/nomad/v1/",
-  "externalApiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/external-veolia-api/v1/",
+  "externalApiUrl": "https://nomad-dev-backend.hp.m-ve.com/api/nomad-api/v1/",
   "keycloak": {
     "active": true,
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
@@ -14,5 +14,6 @@
   "offlineTimeoutReferential":15000,
   "offlineTimeoutEquipment":2000,
   "offlineTimeoutTile":15000,
-  "offlineTimeoutWorkorder":3000
+  "offlineTimeoutWorkorder":3000,
+  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}"
 }

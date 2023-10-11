@@ -97,7 +97,7 @@ $$ LANGUAGE plpgsql;
 
 -- Function to create a geojson collection
 -- if specify list of fields, must add ID and GEOM fields
-create or replace function nomad.f_get_geojson_from_tile(lyr_table_name text, tile_id integer, user_ident int = NULL)
+create or replace function f_get_geojson_from_tile(lyr_table_name text, tile_id integer, start_date text DEFAULT NULL::text, user_ident integer DEFAULT NULL::integer)
     returns jsonb
     language plpgsql
 as $$
@@ -167,6 +167,10 @@ begin
         FROM features;
     ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
     else
+    	if start_date is null then
+    		start_date := '''1900-01-01''';
+    	end if;
+    
         sql_query := FORMAT('
         WITH features AS (
             SELECT DISTINCT ON (t.id)
@@ -179,6 +183,12 @@ begin
             FROM %2$s t
                 INNER JOIN nomad.usr_ctr_prf ucp ON ucp.ctr_id=t.ctr_id AND ucp.usr_id = %5$s AND ucp.usc_ddel IS NULL
             WHERE st_intersects(t.geom, ''%3$s''::geometry)
+				and 
+				(
+            		(t.wko_planning_end_date >=  %6$s
+            		or
+            		t.wko_completion_start_date >= %6$s)
+				)
         )
         SELECT
             jsonb_build_object(
@@ -188,7 +198,7 @@ begin
                     ''features'', jsonb_agg(feature)
                 )
         FROM features;
-        ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident);
+        ', list_fields, ('asset.'||lyr_table_name)::text, tile_geom::text, crs, user_ident,start_date);
     end if;
 
     execute sql_query into geojson;
@@ -281,3 +291,91 @@ BEGIN
   ORDER BY 1, 5;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION f_get_assets_from_layer_and_ids(lyr_table_name text, ids text, user_ident integer DEFAULT NULL::integer, all_column boolean DEFAULT false)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+AS $function$
+declare
+    geojson jsonb;
+    list_fields text;
+    sql_query text;
+   	list_field_array text[];
+    field text;
+    field_to_text text;
+    field_increment integer;
+begin
+    
+	if all_column = false then
+	    SELECT
+	            CONCAT(
+	                string_agg(''''||nomad.underscore_to_camelcase("referenceKey")||''''||', t.'||"referenceKey", ', '),
+	                ', ' ||
+	                (SELECT '''ctyId'', cty.id'
+	                FROM information_schema.columns
+	                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'),
+	                ', ' ||
+	                (SELECT '''ctrId'', ctr.id'
+	                FROM information_schema.columns
+	                WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat'),
+	                ', ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom))'
+	            )
+	    INTO list_fields
+	    FROM nomad.f_get_layer_references_user(user_ident, false) f
+	    WHERE layer = lyr_table_name AND "displayType" = 'SYNTHETIC';
+	else
+		select  
+	   		CONCAT(
+	            STRING_AGG('''' || nomad.underscore_to_camelcase(column_name) || ''', t.' || column_name, ', '),
+	            ', ' ||
+	            (SELECT '''ctyId'', cty.id'
+	            FROM information_schema.columns
+	            WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='insee_code'),
+	            ', ' ||
+	            (SELECT '''ctrId'', ctr.id'
+	            FROM information_schema.columns
+	            WHERE table_schema||'.'||table_name='asset.'||lyr_table_name and column_name='code_contrat'),
+	            ', ''x'', ST_X(ST_Centroid(t.geom)), ''y'', ST_Y(ST_Centroid(t.geom))'
+	        )
+	    INTO list_fields
+	    FROM information_schema.columns
+	    WHERE table_schema || '.' || table_name = 'asset.' || lyr_table_name;
+	end if;
+
+	SELECT string_to_array(list_fields, ', ') into list_field_array;
+
+	field_increment := 0;
+    field_to_text := 'jsonb_build_object(';
+	foreach field in ARRAY list_field_array
+    loop
+      if field_increment = 100 then
+          field_to_text := field_to_text || ') || jsonb_build_object(';
+          field_increment := 0;
+      end if;
+     
+      if field_increment > 0 then
+      	field_to_text := field_to_text || ',' || field;
+      else
+      	field_to_text := field_to_text || field;
+      end if;
+      field_increment := field_increment + 1;
+    END LOOP;
+   	field_to_text := field_to_text || ') || jsonb_build_object(''lyrTableName'', '''||lyr_table_name||''')';
+   
+	sql_query := FORMAT('select json_agg(%1$s) FROM %2$s t
+                INNER JOIN nomad.contract ctr ON ctr.ctr_code = t.code_contrat
+                LEFT JOIN nomad.city cty ON cty.cty_code = t.insee_code where t.id in (%3$s)', field_to_text, ('asset.'||lyr_table_name)::text, ids);
+  
+    execute sql_query into geojson;
+   
+    if geojson is null then
+      geojson := '[]';
+    end if;
+    
+    return geojson;
+exception when others then
+    raise notice 'ERROR : % - % ',SQLERRM, SQLSTATE;
+    return null;
+end;
+$function$
+;

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Subject, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -7,14 +7,14 @@ import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-editor/models/form.model';
-import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
-import { ReportValue, Workorder } from 'src/app/core/models/workorder.model';
+import { Workorder } from 'src/app/core/models/workorder.model';
 import { ActivatedRoute } from '@angular/router';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-new-asset',
@@ -34,13 +34,12 @@ export class NewAssetDrawer implements OnInit {
     private workorderService: WorkorderService,
   ) { }
 
-  @ViewChild('formEditor') formEditor: FormEditorComponent;
-
   public drawerTitle: string = 'Nouveau Patrimoine';
 
   public isMobile: boolean = false;
 
   private wkoDraft: number = null;
+  private wkoStep: string = null;
 
   public step: number = 1;
 
@@ -55,10 +54,9 @@ export class NewAssetDrawer implements OnInit {
 
   public coords: number[][] = [];
 
-  public form: Form;
-  public indexQuestion: number = 0;
-  public listSavedAnswer: ReportValue[] = [];
+  public form: FormGroup;
   public isLoading: boolean = false;
+  public listDefinition: FormDefinition[] = [];
 
   public isSubmitting: boolean = false;
 
@@ -68,6 +66,7 @@ export class NewAssetDrawer implements OnInit {
     this.isMobile = this.utils.isMobilePlateform();
 
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+    this.wkoStep = this.activatedRoute.snapshot.queryParams?.['step'];
 
     const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
@@ -102,13 +101,14 @@ export class NewAssetDrawer implements OnInit {
 
         // And delete the form
         this.form = null;
-
-        // And delete the saved answer
-        this.listSavedAnswer = [];
       }
     } else {
       // Else add the asset to the list
       this.listSelectedFilterAsset.push(filterAsset);
+    }
+
+    if (this.indexFilterAssetSelection < this.listSelectedFilterAsset.length) {
+      this.next();
     }
   }
 
@@ -126,26 +126,8 @@ export class NewAssetDrawer implements OnInit {
       this.step--;
     } else if (this.step === 3) {
       // Third step
-      // If there is no previous question
-      if (this.indexQuestion === 0) {
-        // Save the answers
-        this.listSavedAnswer = [];
-        for (let definition of this.formEditor.nomadForm.definitions) {
-          if (definition.type == 'property') {
-            this.listSavedAnswer.push({
-              key: definition.key,
-              answer: this.formEditor.form.value[definition.key],
-              question: '',
-            });
-          }
-        }
-
-        // Go the previous step
-        this.step--;
-      } else {
-        // Otherwise, display the previous question
-        this.indexQuestion--;
-      }
+      // Go to the previous step
+      this.step--;
     }
   }
 
@@ -179,46 +161,25 @@ export class NewAssetDrawer implements OnInit {
         this.isLoading = true;
 
         const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
-        const newAssetForm = listFormTemplate.find(form => form.formCode === 'NEW_ASSET_' + this.selectedAsset.layerKey.toUpperCase());
-        if (newAssetForm) this.form = JSON.parse(newAssetForm.definition);
+        const newAsseTemplate = listFormTemplate.find(form => form.formCode === 'NEW_ASSET_' + this.selectedAsset.layerKey.toUpperCase());
+        if (newAsseTemplate) {
+          const newAssetForm: Form = JSON.parse(newAsseTemplate.definition);
 
-        this.isLoading = false;
-      }
-    } else if (this.step === 3) {
-      // Third step
-      // Check if the answer is valid
-      let child = this.formEditor.sections[0].children[this.formEditor.indexQuestion];
-      let childrens = child.children ? child.children : [child];
-      let valid: boolean = true;
-      for (let children of childrens) {
-        this.formEditor.form.get(children.definition.key).updateValueAndValidity();
-        this.formEditor.form.get(children.definition.key).markAsTouched();
-        valid = valid && this.formEditor.form.get(children.definition.key).valid;
-      }
+          this.form = new FormGroup({});
 
-      // If it is not valid, stop here
-      if (!valid) return;
-
-      // Check if there is a next question
-      if (this.indexQuestion < this.formEditor.sections[0].children.length - 1) {
-        // If that's the case then display it
-        this.indexQuestion++;
-      } else {
-        // Otherwise create the new asset
-        const listAssetProperties = [];
-        for (let definition of this.formEditor.nomadForm.definitions) {
-          if (definition.type == 'property') {
-            listAssetProperties.push({
-              key: definition.key,
-              label: definition.label,
-              value: this.formEditor.form.value[definition.key] instanceof Array ?
-                this.formEditor.form.value[definition.key].join('; ')
-                : this.formEditor.form.value[definition.key]
-            });
+          this.listDefinition = newAssetForm.definitions.filter((definition) => definition.type === 'property');
+          for (const [index, definition] of this.listDefinition.entries()) {
+            // Add the question to the form
+            this.form.addControl(definition.key, new FormControl<any>(null))
+            
+            // Add the validator if it is a required field
+            if (definition.rules.some((rule) => rule.key === 'required')) {
+              this.form.get(definition.key).addValidators([Validators.required]);
+            }
           }
         }
 
-        this.createNewAsset(listAssetProperties);
+        this.isLoading = false;
       }
     }
   }
@@ -231,7 +192,24 @@ export class NewAssetDrawer implements OnInit {
     this.drawerService.closeDrawer();
   }
 
-  private async createNewAsset(listAssetProperties) {
+  public async create() {
+    this.form.updateValueAndValidity();
+    this.form.markAllAsTouched();
+
+    // Check that the form is valid
+    if (!this.form.valid) return;
+
+    const formValue = this.form.value;
+
+    const listAssetProperties = [];
+    for (let definition of this.listDefinition) {
+      listAssetProperties.push({
+        key: definition.key,
+        label: definition.label,
+        value: formValue[definition.key] instanceof Array ? formValue[definition.key].join('; ') : formValue[definition.key]
+      });
+    }
+
     const assetForSig: AssetForSigDto = {
       id: this.utils.createCacheId(),
       lyrId: this.layer.id,
@@ -243,16 +221,31 @@ export class NewAssetDrawer implements OnInit {
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
       const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
-      wko.tasks.push({
-        id: this.utils.createCacheId(),
-        assObjTable: this.layer.lyrTableName,
-        assObjRef: "TMP-" + assetForSig.id,
-        longitude: this.coords[0][0],
-        latitude: this.coords[0][1],
-        wtrId: wko.tasks[0]?.wtrId ?? null,
-        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
-        assetForSig: assetForSig,
-      });
+
+      // When coming from the report and if there is only 1 task
+      if (this.wkoStep === 'report' && wko.tasks.length === 1) {
+        // Replace the asset of the task
+        const task = wko.tasks[0];
+        task.assObjTable = this.layer.lyrTableName;
+        task.assObjRef = "TMP-" + assetForSig.id;
+        task.longitude = this.coords[0][0];
+        task.latitude = this.coords[0][1];
+        task.assetForSig = assetForSig;
+        task.report = null;
+      } else {
+        // Else add it
+        wko.tasks.push({
+          id: this.utils.createCacheId(),
+          assObjTable: this.layer.lyrTableName,
+          assObjRef: "TMP-" + assetForSig.id,
+          longitude: this.coords[0][0],
+          latitude: this.coords[0][1],
+          wtrId: wko.tasks[0]?.wtrId ?? null,
+          wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+          assetForSig: assetForSig,
+        });
+      }
+
       await this.workorderService.saveCacheWorkorder(wko);
     }
 

@@ -125,24 +125,6 @@ export class FilterService {
   }
 
   /**
-   * Method to update data from pagination for the infinity scroll system
-   * @param layerkey layer exploitation data
-   * @param ev infinity scroll event
-   */
-  // public updateData(key: string, ev?: InfiniteScrollCustomEvent): void {
-  //   let features = this.filterDataService.getFilterData().get(key);
-  //   if (features) {
-  //     this.workorderService
-  //       .getFeaturePagination(key, 20, features.length, this.filterDataService.getSearchFilterListData().get(key))
-  //       .pipe(finalize(() => ev?.target.complete()))
-  //       .subscribe((f: MapFeature[]) => {
-  //         features = [...features!, ...f];
-  //         this.filterDataService.getFilterData().set(key, features);
-  //       });
-  //   }
-  // }
-
-  /**
    * Method to set the new property filter to add and execute it on the target layer
    * @param layerkey layer exploitation data
    * @param key property key

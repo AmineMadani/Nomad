@@ -39,13 +39,17 @@
 
             <div class="line-question">
               <div class="line-top">
-                <ion-input aria-label="label" labelPlacement="floating" fill="outline" label="Libellé *" formControlName="label" errorText="Le libellé est obligatoire." />
+                <app-search-select 
+                  key="rqnCode" label="Question *" style="width: 100%"
+                  [elements]="listReportQuestion" [control]="lineForm.controls['rqnCode']" 
+                  [elementLabelFunction]="getReportQuestionLabel">
+                </app-search-select>
               </div>
 
               <div class="line-bottom">
                 <div class="line-left">
                   <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component" interface="popover">
-                    <ion-select-option *ngFor="let componentType of listComponentType" [value]="componentType.value">{{componentType.label}}</ion-select-option>
+                    <ion-select-option *ngFor="let componentType of LIST_RQN_TYPE" [value]="componentType.value">{{componentType.label}}</ion-select-option>
                   </ion-select>
 
                   <ion-checkbox aria-label="required" formControlName="isRequired" labelPlacement="end" justify="start">
@@ -58,41 +62,19 @@
                     </ion-select>
 
                     <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" interface="popover">
-                      <ion-select-option *ngFor="let questionValue of getListAvailableQuestionValues(i)" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>
+                      <ion-select-option *ngFor="let questionValue of lineForm.get('listAvailableQuestionValues').value" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>
                     </ion-select>
                   </ng-container>
                 </div>
 
-                <div class="line-right" *ngIf="[CustomFormPropertiesEnum.SELECT, CustomFormPropertiesEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)">
+                <div class="line-right" *ngIf="[RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)">
                   <div class="add-button-line">
                     <div>Liste des valeurs :</div>
-
-                    <ion-button fill="clear" class="small-button" (click)="addValue(lineForm)" [disabled]="!userHasPermissionCustomizeFormField">
-                      <ion-icon slot="icon-only" name="add"></ion-icon>
-                    </ion-button>
                   </div>
 
                   <div class="values-div">
                     <div *ngFor="let value of lineForm.get('listValue').value; let j = index" class="value-line">
                       <div class="value">{{value}}</div>
-
-                      <div class="buttons">
-                        <ion-button fill="clear" class="small-button" (click)="valueDown(lineForm, j)" [disabled]="j === 0 || !userHasPermissionCustomizeFormField">
-                          <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
-                        </ion-button>
-
-                        <ion-button fill="clear" class="small-button" (click)="valueUp(lineForm, j)" [disabled]="j === lineForm.get('listValue').value.length - 1 || !userHasPermissionCustomizeFormField">
-                          <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
-                        </ion-button>
-
-                        <ion-button fill="clear" class="small-button" (click)="updateValue(lineForm, value, i)" [disabled]="!userHasPermissionCustomizeFormField">
-                          <ion-icon slot="icon-only" name="pencil"></ion-icon>
-                        </ion-button>
-
-                        <ion-button fill="clear" class="small-button" (click)="deleteValue(lineForm, value, i)" [disabled]="!userHasPermissionCustomizeFormField">
-                          <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-button>
-                      </div>
                     </div>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import { DrawerRouteEnum } from './core/models/drawer.model';
 import { UserService } from './core/services/user.service';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { WorkorderService } from './core/services/workorder.service';
+import { DateTime } from 'luxon';
 
 register();
 
@@ -85,6 +86,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Synchronize workorders all 15 minutes to send and refresh cached values to the server
     this.workorderService.startPeriodicSyncWorkorders();
+    this.workorderService.dateWorkorderSwitch = DateTime.now().minus({ months: 3 }).toJSDate();
   }
 
   ngOnDestroy(): void {

@@ -3,6 +3,7 @@ import { Platform, ToastController } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
+import { SearchEquipments } from '../models/layer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -100,8 +101,9 @@ export class UtilsService {
   }
 
   public transformMap(
-    params: Map<string, string>
-  ): { lyrTableName: string; equipmentIds: string[] }[] {
+    params: Map<string, string>,
+    allColumn?: boolean
+  ): SearchEquipments[] {
     const filteredEntries = Array.from(params.entries()).filter(
       ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
     );
@@ -110,7 +112,8 @@ export class UtilsService {
       const equipmentIds = value.split(',');
       return {
         lyrTableName: key,
-        equipmentIds,
+        equipmentIds: equipmentIds,
+        allColumn: allColumn
       };
     });
 
@@ -258,11 +261,11 @@ export class UtilsService {
    * Permit to show an error toast
    * @param message
    */
-  public async showErrorMessage(message: string) {
+  public async showErrorMessage(message: string, duration: number = 1500) {
     const toast = await this.toastCtrl.create({
       message: message,
       color: 'danger',
-      duration: 1500,
+      duration: duration,
       position: 'bottom',
     });
 
@@ -298,15 +301,30 @@ export class UtilsService {
     );
   }
 
+  public createUniqueId(): number {
+    return (
+      Number(
+        Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
+      )
+    );
+  }
+
   /**
-    * Rounds a number to a specified number of decimal places.
-    *
-    * @param {number} num - The number to round.
-    * @param {number} decimalPlaces - The number of decimal places to round to.
-    * @returns {number} The rounded number.
-    */
+   * Rounds a number to a specified number of decimal places.
+   *
+   * @param {number} num - The number to round.
+   * @param {number} decimalPlaces - The number of decimal places to round to.
+   * @returns {number} The rounded number.
+   */
   public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;
+  }
+
+  /**
+   * Check if offline mode enable
+   */
+  public isOfflineMode(cachedData: string): boolean{
+    return this.isMobilePlateform();
   }
 }

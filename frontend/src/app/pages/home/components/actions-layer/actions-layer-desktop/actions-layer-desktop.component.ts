@@ -9,11 +9,13 @@ import {
 } from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonPopover } from '@ionic/angular';
-import { MapService } from 'src/app/core/services/map/map.service';
-import { Subject, fromEvent, takeUntil, debounceTime, finalize } from 'rxjs';
+import { Subject } from 'rxjs';
 
-import * as turf from '@turf/turf';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
+import { CityService } from 'src/app/core/services/city.service';
+import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import * as Maplibregl from 'maplibre-gl';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -21,7 +23,13 @@ import { DrawingService } from 'src/app/core/services/map/drawing.service';
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
 export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
-  constructor(private mapService: MapService, private drawingService: DrawingService) {}
+
+  constructor(
+    private cityService: CityService, 
+    private drawingService: DrawingService,
+    private mapLayerService: MapLayerService,
+    private mapService: MapService
+  ) {}
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
 
@@ -32,10 +40,11 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public drawerRouteEnum = DrawerRouteEnum;
   public isToolboxOpen: boolean = false;
 
-  private isMeasuringLinear: boolean = false;
-
-  private onStopMeasuring$: Subject<void> = new Subject();
   private ngUnsubscribe$: Subject<void> = new Subject();
+  private marker: Maplibregl.Marker;
+
+  public adresses: any[] = [];
+  public adress: string = "";
 
   ngOnInit() {}
 
@@ -59,6 +68,9 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   }
 
   public displayToolbox(e: Event): void {
+    if (this.drawingService.getIsMeasuring()) {
+      this.drawingService.endMesure(true);
+    }
     this.toolboxPopover.event = e;
     this.isToolboxOpen = true;
   }
@@ -83,5 +95,55 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
     await this.toolboxPopover.onDidDismiss();
     this.drawingService.setDrawMode('draw_line_string');
     this.drawingService.setIsMeasuring(true);
+  }
+
+  public onSearchInput(event) {
+    const query = event.target.value.toLowerCase();
+    if(query && query.length > 3) {
+      this.cityService.getAdressesByQuery(query).subscribe(res => {
+        this.adresses = res.features;
+      })
+    } else {
+      this.adresses = [];
+    }
+    if(this.marker) {
+      this.marker.remove();
+    }
+  }
+
+  public onAdressClick(adress: any) {
+    this.adress = adress.properties.label;
+    this.mapLayerService.moveToXY(adress.geometry.coordinates[0],adress.geometry.coordinates[1],19);
+    if(this.marker) {
+      this.marker.remove();
+    }
+    this.marker = new Maplibregl.Marker({
+      color: "#ea4335",
+      draggable: false
+      }).setLngLat([adress.geometry.coordinates[0],adress.geometry.coordinates[1]])
+      .addTo(this.mapService.getMap());
+    this.adresses = [];
+  }
+
+  public onSearchbarFocusOut() {
+    setTimeout(() => {
+      this.adresses = [];
+    }, 200);
+  }
+
+  public onSearchKeyEnter() {
+    if(this.adresses && this.adresses.length > 0) {
+      this.mapLayerService.moveToXY(this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1],19);
+      if(this.marker) {
+        this.marker.remove();
+      }
+      this.marker = new Maplibregl.Marker({
+        color: "#ea4335",
+        draggable: false
+        }).setLngLat([this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1]])
+        .addTo(this.mapService.getMap());
+      this.adress = this.adresses[0].properties.label;
+      this.adresses = [];
+    }
   }
 }

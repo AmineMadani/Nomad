@@ -324,4 +324,14 @@ export class UserService {
   getUserStatusByEmail(email: string): Observable<UserStatus> {
     return this.userDataService.getUserStatusByEmail(email);
   }
+
+/**
+ * Update the last viewed asset drawer
+ * @param drawerLabel the last viewed asset drawer
+ */
+  async setLastselectedDrawer(drawerLabel: string): Promise<void>{
+    const currentUser: User =await this.getCurrentUser()
+    currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
+    this.setUser(currentUser);
+  }
 }

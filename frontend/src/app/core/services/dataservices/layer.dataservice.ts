@@ -31,8 +31,8 @@ export class LayerDataService {
    * @param {number} featureNumber - The file number where the view is.
    * @returns The GeoJSON file for the current tile.
    */
-  public getLayerFile(layerKey: string, featureNumber: number): Observable<NomadGeoJson> {
-    return this.http.get<NomadGeoJson>(`${this.configurationService.apiUrl}layers/${layerKey}/${featureNumber}`);
+  public getLayerFile(layerKey: string, featureNumber: number, params: any): Observable<NomadGeoJson> {
+    return this.http.post<NomadGeoJson>(`${this.configurationService.apiUrl}layers/${layerKey}/${featureNumber}`,params);
   }
 
   /**
