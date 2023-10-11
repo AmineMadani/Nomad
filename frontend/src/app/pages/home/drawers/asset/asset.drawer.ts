@@ -40,19 +40,24 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
   private ngUnsubscribe: Subject<void> = new Subject();
 
-  ngOnInit() {
+  async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.isLoading = true;
+
+    this.user = await this.userService.getCurrentUser();
+
     this.templateService.getFormsTemplate().subscribe(forms => {
       const assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
       this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
       this.assetFilterService.setAssetFilter(this.assetFilterTree);
       this.assetFilterSegment = this.assetFilterService.getFilterSegment(this.assetFilterService.getAssetFilter());
-      this.selectedSegment = this.user? this.user.usrConfiguration.context.lastDrawerSegment :  this.assetFilterSegment[0]?.name ?? 'favorite';
+      if (this.user.usrConfiguration?.context?.lastDrawerSegment) {
+        this.selectedSegment = this.user.usrConfiguration.context.lastDrawerSegment;
+      } else {
+        this.selectedSegment = this.assetFilterSegment[0]?.name ?? 'favorite';
+      }
       this.isLoading = false;
     });
-
-    this.userService.getCurrentUser().then(usr => { this.user = usr});
   }
 
   removeAssetNotVisible(listAssetFilter: FilterAsset[]): FilterAsset[] {
@@ -138,7 +143,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
    */
   public async onSegmentChange(event: any) {
     this.selectedSegment = event.detail.value;
-    await this.userService.setLastselectedDrawer(event.detail.value);
+    await this.userService.setLastSelectedDrawer(event.detail.value);
   }
 
   /**

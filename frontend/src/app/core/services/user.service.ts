@@ -334,9 +334,15 @@ export class UserService {
  * Update the last viewed asset drawer
  * @param drawerLabel the last viewed asset drawer
  */
-  async setLastselectedDrawer(drawerLabel: string): Promise<void>{
-    const currentUser: User =await this.getCurrentUser()
-    currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
+  async setLastSelectedDrawer(drawerLabel: string): Promise<void>{
+    const currentUser: User = await this.getCurrentUser();
+    if (currentUser.usrConfiguration.context) {
+      currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
+    } else {
+      currentUser.usrConfiguration.context = {
+        lastDrawerSegment: drawerLabel,
+      };
+    }
     this.setUser(currentUser);
   }
 }
