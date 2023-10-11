@@ -259,6 +259,10 @@ export class ReportSettingsPage implements OnInit {
           definition.key = PREFIX_KEY_DEFINITION + (index);
           definition.rqnCode = reportQuestion.uuid;
 
+          if (reportQuestion.component === RqnTypeEnum.COMMENT) {
+            definition.key = 'COMMENT';
+          }
+
           /*if (definition.displayCondition?.key != null) {
             const conditionDefinition = definitions[Number(definition.displayCondition.key.substring('UUID-'.length))];
             definition.displayCondition.key = conditionDefinition.key;

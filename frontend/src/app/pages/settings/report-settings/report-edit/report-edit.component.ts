@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { WtrReport } from '../report-settings.component';
-import { Form, FormDefinition, FormPropertiesEnum, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
+import { Form, FormDefinition, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UtilsService } from 'src/app/core/services/utils.service';
