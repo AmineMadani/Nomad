@@ -25,6 +25,7 @@ import { Attachment } from 'src/app/core/models/attachment.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
+import { ValueLabel } from 'src/app/core/models/util.model';
 
 @Component({
   selector: 'app-wko-view',
@@ -61,6 +62,7 @@ export class WkoViewComponent implements OnInit {
   public loading: boolean = true;
   public appointmentHours: string;
   public wkoIdLabel: string;
+  public listInformationAssetForSig: ValueLabel[] = null;
 
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
@@ -136,6 +138,11 @@ export class WkoViewComponent implements OnInit {
           );
         } else {
           this.selectedTask = this.workOrder.tasks[0];
+        }
+
+        if (this.selectedTask?.assetForSig != null) {
+          const listInformation = JSON.parse(this.selectedTask?.assetForSig.afsInformations);
+          this.listInformationAssetForSig = listInformation;
         }
 
         const wtsid = this.selectedTask?.wtsId;
