@@ -78,7 +78,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       }
     },
     {
-      key: 'rqnSlabel',
+      key: 'rqnCode',
       label: 'Code',
       type: TypeColumn.TEXT,
     },
