@@ -2,19 +2,10 @@ from __future__ import print_function
 import logging
 import os
 import json
-import customException
 import requests
 import boto3
 import uuid
 from datetime import datetime
-import base64
-import utils
-from SQSClientExtended import SQSClientExtended
-import re
-import time
-import ast
-import csv
-#from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch_all
 
 patch_all()
@@ -47,55 +38,6 @@ def validateDate(date_string, date_format):
 
 def is_property_missing(property_name, data):
     return property_name not in data or data[property_name] is None
-
-
-def log_incoming_rejected_messages(item_reject_code,
-                                   item_message,
-                                   error_message,
-                                   item_status,
-                                   item_comment,
-                                   message_id=""):
-    try:
-
-        now = datetime.now().strftime("%Y%m%d%H%M%S%f")
-        item_id = str(now) + '-' + str(uuid.uuid4())
-        response = table_incoming.put_item(
-            Item={
-                'item_id': item_id,
-                'item_reject_code': item_reject_code,
-                'item_message': item_message,
-                'error_message': error_message,
-                'item_status': item_status,
-                'item_comment': item_comment,
-                'message_id': message_id
-            }
-        )
-
-    except Exception as e:
-        logger.error('Nomad - log_incoming_rejected_messages : ' + str(e))
-
-
-def log_outcoming_rejected_messages(item_reject_code,
-                                    item_message,
-                                    error_message,
-                                    item_status,
-                                    item_comment):
-    try:
-        now = datetime.now().strftime("%Y%m%d%H%M%S%f")
-        item_id = str(now) + '-' + str(uuid.uuid4())
-        response = table_outcoming.put_item(
-            Item={
-                'item_id': item_id,
-                'item_reject_code': item_reject_code,
-                'item_message': item_message,
-                'error_message': error_message,
-                'item_status': item_status,
-                'item_comment': item_comment
-            }
-        )
-
-    except Exception as e:
-        logger.error('Nomad - log_outcoming_rejected_messages : ' + str(e))
 
 
 def get_wo_lambda_handler(event, context):
@@ -146,7 +88,7 @@ def update_wo_post_request(data, endpoint_part):
         'User-Agent': 'Python Lambda',
         'Authorization': 'Basic {}'.format(os.environ.get("NOMAD_BACKEND_CREDENTIALS", "")),
         'Accept': 'application/json'}
-    api_url = '{}{}'.format(os.environ.get("NOMAD_BACKEND_URL", endpoint_part), )
+    api_url = "{}{}".format(os.environ.get("NOMAD_BACKEND_URL", ""), endpoint_part)
     try:
         logger.debug('SEND Data to NomadBackend {}'.format(data))
         response = requests.post(api_url, json=data, headers=headers, timeout=20)
@@ -155,7 +97,7 @@ def update_wo_post_request(data, endpoint_part):
             return {
                 "statusCode": 200,
                 "success": True,
-                "body": str(response.content)
+                "body": {"status": "ok"}
             }
         else:
             logger.error('Nomad - update_wo_post_request - SEND - ' + json.dumps(data))
@@ -190,44 +132,36 @@ def update_wo_post_request(data, endpoint_part):
 
 def update_wo_lambda_handler(event, context):
 
-    if is_property_missing('refExterneIns', event["body"]) or event["body"]['refExterneIns'].strip() == '':
-        logger.debug('refExterneIns is required')
+    if is_property_missing('id', event["body"]) or event["body"]['id'].strip() == '':
+        logger.debug('id is required')
         return {
             'statusCode': 400,
             "success": False,
-            'body': 'refExterneIns is required'
+            'body': 'id is required'
         }
 
-    if is_property_missing('origine', event["body"]):
-        logger.debug('origine is required')
+    if is_property_missing('completionStartDate', event["body"]):
+        logger.debug('completionStartDate is required')
         return {
             'statusCode': 400,
             "success": False,
-            'body': 'origine is required'
+            'body': 'completionStartDate is required'
         }
 
-    if is_property_missing('codeCommuneInsee', event["body"]):
-        logger.debug('codeCommuneInsee is required')
+    if is_property_missing('completionEndDate', event["body"]):
+        logger.debug('completionEndDate is required')
         return {
             'statusCode': 400,
             "success": False,
-            'body': 'codeCommuneInsee is required'
+            'body': 'completionEndDate is required'
         }
 
-    if is_property_missing('codeContrat', event["body"]):
-        logger.debug('codeContrat is required')
+    if is_property_missing('agent', event["body"]):
+        logger.debug('agent is required')
         return {
             'statusCode': 400,
             "success": False,
-            'body': 'codeContrat is required'
-        }
-
-    if is_property_missing('codeActivite', event["body"]):
-        logger.debug('codeActivite is required')
-        return {
-            'statusCode': 400,
-            "success": False,
-            'body': 'codeActivite is required'
+            'body': 'agent is required'
         }
 
     resp = update_wo_post_request(data=event["body"],
