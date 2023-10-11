@@ -47,8 +47,8 @@ export class CacheService {
 
   public resetCache() {
     // Delete preferences
-    for (const cacheKey in CacheKey) {
-      this.preferenceService.deletePreference(cacheKey);
+    for (const key in CacheKey) {
+      this.preferenceService.deletePreference(CacheKey[key]);
     }
 
     // Delete indexed db
