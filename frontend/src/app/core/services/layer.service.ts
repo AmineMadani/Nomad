@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, SearchEquipments } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
-import { Observable, catchError, firstValueFrom, lastValueFrom, tap, timeout } from 'rxjs';
+import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
@@ -20,6 +20,10 @@ export class LayerService {
     private utilsService: UtilsService
   ) {
   }
+
+  private layerIndexes: GeoJSONObject;
+  private layers: Layer[];
+  private vLayerWtr: VLayerWtr[];
 
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
@@ -65,9 +69,15 @@ export class LayerService {
    * @returns The geojson of the index of the layer.
    */
   public getLayerIndexes(): Observable<GeoJSONObject> {
+    if (this.layerIndexes) {
+      return of(this.layerIndexes);
+    }
+
     return this.cacheService.fetchReferentialsData<GeoJSONObject>(
       ReferentialCacheKey.LAYER_INDEX,
       () => this.layerDataService.getLayerIndexes()
+    ).pipe(
+      tap((results => this.layerIndexes = results))
     );
   }
 
@@ -123,9 +133,15 @@ export class LayerService {
    * @returns all available layers
    */
   public getAllLayers(): Observable<Layer[]> {
+    if (this.layers) {
+      return of(this.layers);
+    }
+
     return this.cacheService.fetchReferentialsData<Layer[]>(
       ReferentialCacheKey.LAYERS,
       () => this.layerDataService.getAllLayers()
+    ).pipe(
+      tap((results => this.layers = results))
     );
   }
 
@@ -134,10 +150,7 @@ export class LayerService {
    * @returns the selected layer
    */
   public async getLayerByKey(key: string): Promise<Layer> {
-    return (await firstValueFrom(this.cacheService.fetchReferentialsData<Layer[]>(
-      ReferentialCacheKey.LAYERS,
-      () => this.layerDataService.getAllLayers()
-    ))).find(layer => layer.lyrTableName == key);
+    return (await firstValueFrom(this.getAllLayers())).find(layer => layer.lyrTableName == key);
   }
 
   public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
@@ -237,9 +250,15 @@ export class LayerService {
   * @returns A promise that resolves to the list of VLayerWtr.
   */
   public getAllVLayerWtr(): Observable<VLayerWtr[]> {
+    if (this.vLayerWtr) {
+      return of(this.vLayerWtr);
+    }
+
     return this.cacheService.fetchReferentialsData<VLayerWtr[]>(
       ReferentialCacheKey.V_LAYER_WTR,
       () => this.layerDataService.getAllVLayerWtr()
+    ).pipe(
+      tap((results => this.vLayerWtr = results))
     );
   }
 

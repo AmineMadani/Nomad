@@ -38,8 +38,7 @@ export class CacheService {
     private utilsService: UtilsService,
     private preferenceService: PreferenceService,
     private configurationService: ConfigurationService,
-    private layerDataService: LayerDataService,
-    private workorderDataService: WorkorderDataService
+    private layerDataService: LayerDataService
   ) {
     this.db = new AppDB();
   }
@@ -275,8 +274,8 @@ export class CacheService {
         const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
         if (isCacheDownload) {
           let res = [];
-          for (let idLayer of idsLayers) {
-            for (let ref of idLayer.equipmentIds) {
+          for (const idLayer of idsLayers) {
+            for (const ref of idLayer.equipmentIds) {
               const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
               if (feature) {
                 feature.properties = Object.assign(feature.properties, {

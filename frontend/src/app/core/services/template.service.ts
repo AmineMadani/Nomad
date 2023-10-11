@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { TemplateDataService } from './dataservices/template.dataservice';
 import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
@@ -18,14 +18,22 @@ export class TemplateService {
   ) {
   }
 
+  private formsTemplate: FormTemplate[];
+
   /**
    * Method to get all the forms template
    * @returns list of Forms
    */
   getFormsTemplate(): Observable<FormTemplate[]> {
+    if (this.formsTemplate) {
+      return of(this.formsTemplate);
+    }
+
     return this.cacheService.fetchReferentialsData<FormTemplate[]>(
       ReferentialCacheKey.FORM_TEMPLATE,
       () => this.templateDataService.getFormsTemplate()
+    ).pipe(
+      tap((results => this.formsTemplate = results))
     );
   }
 

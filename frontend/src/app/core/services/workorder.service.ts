@@ -34,6 +34,9 @@ export class WorkorderService {
 
   private db: AppDB;
 
+  private workorderTaskReasons: WorkorderTaskReason[];
+  private workorderTaskStatus: WorkorderTaskStatus[];
+
   private stopSyncOperations$: Subject<void> = new Subject<void>();
   private syncOperations = {
     createWorkOrder: (workorder: Workorder) => this.workorderDataService.createWorkOrder(workorder),
@@ -217,9 +220,15 @@ export class WorkorderService {
    * @returns an observable of the list of status
    */
   public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
+    if (this.workorderTaskStatus) {
+      return of(this.workorderTaskStatus);
+    }
+
     return this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
       ReferentialCacheKey.WORKORDER_TASK_STATUS,
       () => this.workorderDataService.getAllWorkorderTaskStatus()
+    ).pipe(
+      tap((results => this.workorderTaskStatus = results))
     );
   }
 
@@ -228,9 +237,15 @@ export class WorkorderService {
    * @returns an observable of the list of reasons
    */
   public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
+    if (this.workorderTaskReasons) {
+      return of(this.workorderTaskReasons);
+    }
+
     return this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
       ReferentialCacheKey.WORKORDER_TASK_REASON,
       () => this.workorderDataService.getAllWorkorderTaskReasons()
+    ).pipe(
+      tap((results => this.workorderTaskReasons = results))
     );
   }
 
