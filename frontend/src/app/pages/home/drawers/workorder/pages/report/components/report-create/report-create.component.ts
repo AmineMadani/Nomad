@@ -339,13 +339,11 @@ export class ReportCreateComponent implements OnInit {
       this.stepForm.formEditor.form.updateValueAndValidity();
       this.stepForm.formEditor.form.markAllAsTouched();
 
-      if (this.stepForm.formEditor.form.valid) {
-        if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
-          this.openCompleteModal();
-        }
-        else {
-          this.completeForm();
-        }
+      if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
+        this.openCompleteModal();
+      }
+      else {
+        this.completeForm();
       }
     }
   }
