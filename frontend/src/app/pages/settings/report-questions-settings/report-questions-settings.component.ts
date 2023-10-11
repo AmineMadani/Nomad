@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { LIST_RQN_TYPE, ReportQuestionDto } from 'src/app/core/models/reportQuestion.model';
+import { LIST_RQN_TYPE, ReportQuestionDto, RqnTypeEnum } from 'src/app/core/models/reportQuestion.model';
 import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
@@ -10,9 +10,18 @@ import { ReportQuestionEditComponent } from './report-question-edit/report-quest
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { TemplateService } from 'src/app/core/services/template.service';
-import { Form } from 'src/app/shared/form-editor/models/form.model';
+import { Form, FormDefinition, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { FormTemplate } from 'src/app/core/models/template.model';
+import { FormTemplate, FormTemplateUpdate } from 'src/app/core/models/template.model';
+import { DeleteReportQuestionConfirmationComponent } from './delete-report-question-confirmation/delete-report-question-confirmation.component';
+
+interface ReportQuestion extends ReportQuestionDto {
+  rqnTypeTranslate: string;
+  rqnSelectValuesTranslate: string;
+  rqnRequiredTranslate: string;
+  numberTimeUsedInReport: number
+  numberTimeUsedInReportCondition: number;
+}
 
 @Component({
   selector: 'app-report-questions-settings',
@@ -36,8 +45,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
   private listFormTemplateReport: FormTemplate[] = [];
 
-  public listReportQuestion: TableRow<ReportQuestionDto>[] = [];
-  public selectedReportQuestionRows: TableRow<ReportQuestionDto>[] = [];
+  public listReportQuestion: TableRow<ReportQuestion>[] = [];
+  public selectedReportQuestionRows: TableRow<ReportQuestion>[] = [];
 
   public toolbar: TableToolbar = {
     title: 'Liste des questions',
@@ -187,8 +196,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
     }
     
     // Report question
-    let listReportQuestion = await firstValueFrom(this.reportQuestionService.getListReportQuestion());
-    listReportQuestion = listReportQuestion.map((reportQuestion) => {
+    let listReportQuestionDto = await firstValueFrom(this.reportQuestionService.getListReportQuestion());
+    const listReportQuestion = listReportQuestionDto.map((reportQuestion) => {
       let rqnSelectValuesTranlate = '-';
       if (reportQuestion.rqnSelectValues != null) {
         const listValue: string[] = JSON.parse(reportQuestion.rqnSelectValues);
@@ -231,25 +240,95 @@ export class ReportQuestionsSettingsComponent implements OnInit {
   }
 
   async deleteListReportQuestion() {
-    // Check if the selected report questions are used in a form
-    const listRqnCode = this.selectedReportQuestionRows.map((row) => row.getRawValue().rqnCode);
-    const listFormTemplateUsingQuestion = this.listFormTemplateReport.filter((formTemplate) => {
-      const form: Form = JSON.parse(formTemplate.definition);
-      return form.definitions.some((definition) => listRqnCode.includes(definition.rqnCode));
+    const listReportQuestionToDelete = this.selectedReportQuestionRows.map((row) => row.getRawValue());
+
+    const modal = await this.modalController.create({
+      component: DeleteReportQuestionConfirmationComponent,
+      componentProps: {
+        listReportQuestion: listReportQuestionToDelete,
+        isUsedAsCondition: listReportQuestionToDelete.some((reportQuestion) => reportQuestion.numberTimeUsedInReportCondition > 0),
+      },
+      backdropDismiss: false,
     });
 
-    if (listFormTemplateUsingQuestion.length > 0) {
-      let message = "Cette question est utilisée dans le(s) formulaire(s) de compte-rendu : ";
-      if (listRqnCode.length > 1)
-        message = "Ces questions sont utilisées dans le(s) formulaire(s) de compte-rendu : ";
-      message += listFormTemplateUsingQuestion.map((formTemplate) => formTemplate.formCode.substring('REPORT_'.length).replace('_', ' - ')).join(', ');
-      this.utilsService.showErrorMessage(message, 5000);
-      return;
-    }
+    modal.onDidDismiss().then(async (result) => {
+      const accepted: boolean = result['data'];
+      // If the user says yes
+      if (accepted) {
+        // Check if the selected report questions are used in a form as a condition
+        const listRqnCode = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.rqnCode);
+        const isUsedAsCondition = this.listFormTemplateReport.some((formTemplate) => {
+          const form: Form = JSON.parse(formTemplate.definition);
+          return form.definitions.some((definition) => {
+            if (definition.displayCondition != null) {
+              const conditionDefinition = form.definitions.find((d) => d.key === definition.displayCondition.key);
+              return listRqnCode.includes(conditionDefinition.rqnCode);
+            }
+            return false;
+          });
+        });
 
-    const listIdToDelete = this.selectedReportQuestionRows.map((row) => row.getRawValue().id);
-    this.reportQuestionService.deleteListReportQuestion(listIdToDelete).subscribe(() => {
-      this.loadData();
+        // Delete the report questions
+        const listIdToDelete = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.id);
+        this.reportQuestionService.deleteListReportQuestion(listIdToDelete).subscribe(() => {
+          // Update all report form using those questions
+          const listRqnCode = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.rqnCode);
+
+          this.listFormTemplateReport.forEach((formTemplate) => {
+            const form: Form = JSON.parse(formTemplate.definition);
+            const listNewDefinition: FormDefinition[] = [];
+            const listDeletedDefinitionKey: string[] = [];
+            for(const definition of form.definitions) {
+              // If this definition is not linked to this report question
+              if (!listRqnCode.includes(definition.rqnCode)) {
+                // Keep it
+                listNewDefinition.push(definition);
+
+                // If the condition is linked to a deleted definition
+                if (definition.displayCondition != null && listDeletedDefinitionKey.includes(definition.displayCondition.key)) {
+                  // Then delete the condition
+                  definition.displayCondition = undefined;
+                }
+              } else {
+                // If the definition is linked, don't add it
+                listDeletedDefinitionKey.push(definition.key);
+              }
+            }
+
+            // If there is changes
+            if (listDeletedDefinitionKey.length > 0) {
+              // Renumber all definitions
+              for(const [index, definition] of listNewDefinition.filter((d) => d.type === 'property').entries()) {
+                if (definition.component === RqnTypeEnum.COMMENT) continue;
+
+                const oldKey = definition.key;
+                definition.key = PREFIX_KEY_DEFINITION + (index+1);
+                
+                // And the condition definitions linked to this definition
+                const listConditionDefinition = listNewDefinition.filter((d) => d.displayCondition?.key === oldKey);
+                listConditionDefinition.forEach((conditionDefinition) => conditionDefinition.displayCondition.key = definition.key);
+              }
+
+              form.definitions = listNewDefinition;
+
+              // Form template update
+              const formTemplateUpdate: FormTemplateUpdate = {
+                fteId: formTemplate.fteId,
+                fteCode: formTemplate.formCode,
+                fdnId: formTemplate.fdnId,
+                fdnCode: formTemplate.fdnCode,
+                fdnDefinition: JSON.stringify(form),
+              }
+
+              this.templateService.updateFormTemplate(formTemplateUpdate).subscribe();
+            }
+          });
+
+          this.loadData();
+        });
+      }
     });
+
+    await modal.present();
   }
 }

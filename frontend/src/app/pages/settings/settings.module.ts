@@ -27,6 +27,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
 import { ReportQuestionsSettingsComponent } from './report-questions-settings/report-questions-settings.component';
 import { ReportQuestionEditComponent } from './report-questions-settings/report-question-edit/report-question-edit.component';
+import { DeleteReportQuestionConfirmationComponent } from './report-questions-settings/delete-report-question-confirmation/delete-report-question-confirmation.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -59,6 +60,7 @@ import { ReportQuestionEditComponent } from './report-questions-settings/report-
     PermissionsSettingsPage,
     ReportQuestionsSettingsComponent,
     ReportQuestionEditComponent,
+    DeleteReportQuestionConfirmationComponent,
   ]
 })
 export class SettingsPageModule {}
