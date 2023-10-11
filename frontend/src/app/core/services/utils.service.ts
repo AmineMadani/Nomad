@@ -9,7 +9,10 @@ import { SearchEquipments } from '../models/layer.model';
   providedIn: 'root',
 })
 export class UtilsService {
-  constructor(private platform: Platform, private toastCtrl: ToastController) {}
+  constructor(
+    private platform: Platform,
+    private toastCtrl: ToastController,
+  ) { }
 
   /**
    * Check if the current platform is Android.
@@ -319,12 +322,5 @@ export class UtilsService {
   public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;
-  }
-
-  /**
-   * Check if offline mode enable
-   */
-  public isOfflineMode(cachedData: string): boolean{
-    return this.isMobilePlateform();
   }
 }

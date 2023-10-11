@@ -31,7 +31,6 @@ export class UserService {
     private utilsService: UtilsService,
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
-    private layerService: LayerService
   ) { }
 
   private currentUser: User;
@@ -273,9 +272,15 @@ export class UserService {
     * @returns Permissions
     */
   getAllPermissions(): Observable<Permission[]> {
+    if (this.permissions && this.permissions.length > 0) {
+      return of(this.permissions);
+    }
+
     return this.cacheService.fetchReferentialsData<Permission[]>(
       ReferentialCacheKey.PERMISSIONS,
       () => this.userDataService.getAllPermissions()
+    ).pipe(
+      tap((results) => this.permissions = results)
     );
   }
 
