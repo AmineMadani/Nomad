@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, catchError, forkJoin, switchMap, tap, withLatestFrom } from 'rxjs';
-import { CacheService, ReferentialCacheKey } from './cache.service';
+import { BehaviorSubject, EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
+import { CacheKey, CacheService } from './cache.service';
 import { CityService } from './city.service';
 import { ContractService } from './contract.service';
 import { LayerService } from './layer.service';
@@ -16,12 +16,6 @@ export enum DownloadState {
   NOT_STARTED = 'NOT_STARTED',
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE'
-}
-
-export enum DonwloadCacheKey {
-  REFERENTIALS = 'referentialsDownload',
-  TILES = 'tilesDownload',
-  BASEMAPS = 'basemapsDownload',
 }
 
 export interface OfflineDownload {
@@ -76,8 +70,12 @@ export class OfflineDownloadService {
     *
     * @returns {Promise<OfflineDownload>} The current referentials download state.
     */
-  public getInitialReferentialsDownloadState(): Promise<OfflineDownload> {
-    return this.getInitialDownloadState(DonwloadCacheKey.REFERENTIALS, this.referentialsOfflineDownload);
+  public async getInitialReferentialsDownloadState(): Promise<OfflineDownload> {
+    const downloadState = await this.cacheService.getCacheDownloadState(CacheKey.REFERENTIALS);
+
+    this.referentialsOfflineDownload.next(downloadState);
+
+    return downloadState;
   }
 
   /**
@@ -123,7 +121,7 @@ export class OfflineDownloadService {
    * Reset and clear referentials offline data.
    */
   public dumpReferentials() {
-    this.cacheService.clearReferentials();
+    this.cacheService.clearTable(CacheKey.REFERENTIALS);
 
     this.referentialsOfflineDownload.next({
       state: DownloadState.NOT_STARTED,
@@ -131,7 +129,7 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.referentialsOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.REFERENTIALS, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.REFERENTIALS, cachedValue);
   }
 
   /**
@@ -146,7 +144,7 @@ export class OfflineDownloadService {
    * Handle the successful scenario of referentials download.
    */
   private async onDownloadReferentialsSuccess() {
-    const diskSize = await this.cacheService.getReferentialsSize();
+    const diskSize = await this.cacheService.getTableSize(CacheKey.REFERENTIALS);
 
     this.referentialsOfflineDownload.next({
       state: DownloadState.DONE,
@@ -156,7 +154,7 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.referentialsOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.REFERENTIALS, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.REFERENTIALS, cachedValue);
   }
 
 
@@ -168,9 +166,12 @@ export class OfflineDownloadService {
     *
     * @returns {Promise<OfflineDownload>} The current tiles download state.
     */
-  public getInitialTilesDownloadState(): Promise<OfflineDownload> {
-    // Assuming there's a tilesOfflineDownload BehaviorSubject
-    return this.getInitialDownloadState(DonwloadCacheKey.TILES, this.tilesOfflineDownload);
+  public async getInitialTilesDownloadState(): Promise<OfflineDownload> {
+    const downloadState = await this.cacheService.getCacheDownloadState(CacheKey.TILES);
+
+    this.tilesOfflineDownload.next(downloadState);
+
+    return downloadState;
   }
 
   /**
@@ -245,7 +246,7 @@ export class OfflineDownloadService {
    * Reset and clear tiles offline data.
    */
   public dumpTiles() {
-    this.cacheService.clearTiles();
+    this.cacheService.clearTable(CacheKey.TILES);
 
     this.tilesOfflineDownload.next({
       state: DownloadState.NOT_STARTED,
@@ -253,14 +254,14 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.tilesOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.TILES, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.TILES, cachedValue);
   }
 
   /**
    * Handle the successful scenario of tiles fetching.
    */
   private async onFetchTilesSuccess() {
-    const diskSize = await this.cacheService.getTilesSize();
+    const diskSize = await this.cacheService.getTableSize(CacheKey.TILES);
 
     this.tilesOfflineDownload.next({
       state: DownloadState.DONE,
@@ -270,7 +271,7 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.tilesOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.TILES, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.TILES, cachedValue);
   }
 
   /**
@@ -290,9 +291,12 @@ export class OfflineDownloadService {
   *
   * @returns {Promise<OfflineDownload>} The current basemaps download state.
   */
-  public getInitialBasemapsDownloadState(): Promise<OfflineDownload> {
-    // Assuming there's a basemapsOfflineDownload BehaviorSubject
-    return this.getInitialDownloadState(DonwloadCacheKey.BASEMAPS, this.basemapsOfflineDownload);
+  public async getInitialBasemapsDownloadState(): Promise<OfflineDownload> {
+    const downloadState = await this.cacheService.getCacheDownloadState(CacheKey.BASEMAPS);
+
+    this.basemapsOfflineDownload.next(downloadState);
+
+    return downloadState;
   }
 
   /**
@@ -348,7 +352,7 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.basemapsOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.BASEMAPS, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.BASEMAPS, cachedValue);
   }
 
   /**
@@ -365,7 +369,7 @@ export class OfflineDownloadService {
     });
 
     const cachedValue: OfflineDownload = this.basemapsOfflineDownload.getValue();
-    this.preferenceService.setPreference(DonwloadCacheKey.BASEMAPS, JSON.stringify(cachedValue));
+    this.cacheService.setCacheDownloadState(CacheKey.BASEMAPS, cachedValue);
   }
 
   /**
@@ -380,29 +384,6 @@ export class OfflineDownloadService {
   //### Download/Dump All ###//
 
   // ### Utils ### //
-
-  /**
-    * Fetches the initial download state for a specific key from the preferences.
-    * If the state is stored in the preferences, it will be parsed and emitted
-    * through the provided BehaviorSubject.
-    * If not, a default NOT_STARTED state will be returned.
-    *
-    * @param {DonwloadCacheKey} key - The key to fetch the preference.
-    * @param {BehaviorSubject<OfflineDownload>} subject - The BehaviorSubject to emit the value.
-    * @returns {Promise<OfflineDownload>} The download state for the given key.
-  */
-  private async getInitialDownloadState(key: DonwloadCacheKey, subject: BehaviorSubject<OfflineDownload>): Promise<OfflineDownload> {
-    let downloadState = await this.preferenceService.getPreference(key);
-
-    if (downloadState) {
-      downloadState = JSON.parse(downloadState) as OfflineDownload;
-      subject.next(downloadState);
-    } else {
-      downloadState = { state: DownloadState.NOT_STARTED };
-    }
-
-    return downloadState;
-  }
 
   /**
    * Helper function to increment the progress percentage of an offline download.

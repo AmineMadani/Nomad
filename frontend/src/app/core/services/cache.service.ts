@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
-import { AppDB, ITiles } from '../models/app-db.model';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { AppDB } from '../models/app-db.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { VLayerWtr } from '../models/layer.model';
-import { from, of, switchMap, tap } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs';
+import { UtilsService } from './utils.service';
+import { DownloadState, OfflineDownload } from './offlineDownload.service';
+import { PreferenceService } from './preference.service';
+import { ConfigurationService } from './configuration.service';
+import { NomadGeoJson } from '../models/geojson.model';
+import { LayerDataService } from './dataservices/layer.dataservice';
+import { WorkorderDataService } from './dataservices/workorder.dataservice';
 
 export enum ReferentialCacheKey {
   CITIES = 'cities',
@@ -17,38 +22,82 @@ export enum ReferentialCacheKey {
   FORM_TEMPLATE = 'form_template',
   LAYER_REFERENCES = 'layer_references'
 }
+
+export enum CacheKey {
+  TILES = 'tiles',
+  BASEMAPS = 'basemaps',
+  REFERENTIALS = 'referentials',
+  WORKORDERS = 'workorders'
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CacheService {
-  constructor() {
+  constructor(
+    private utilsService: UtilsService,
+    private preferenceService: PreferenceService,
+    private configurationService: ConfigurationService,
+    private layerDataService: LayerDataService
+  ) {
     this.db = new AppDB();
   }
 
   private db: AppDB;
-  private cacheLoaded$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  public onCacheLoaded(): Observable<boolean> {
-    return this.cacheLoaded$.asObservable();
-  }
+  public resetCache() {
+    // Delete preferences
+    for (const key in CacheKey) {
+      this.preferenceService.deletePreference(CacheKey[key]);
+    }
 
-  public setCacheLoaded(loaded: boolean): void {
-    this.cacheLoaded$.next(loaded);
-  }
+    // Delete indexed db
+    this.db.delete().then(
+      () => console.log('Cache réinitialisé')
+    ).catch((err) => {
+      console.log(`Erreur lors de la réinitialisation : ${err}`)
+    });
 
-  public async cacheIsAlreadySet(): Promise<boolean> {
-    const tiles: ITiles[] = await this.db.tiles
-      .filter((tile: ITiles) => /index/.test(tile.key))
-      .toArray();
-    return tiles.length > 0;
-  }
-
-  public async getObjectFromCache(table: string, key: string): Promise<any> {
-    return await this.db.table(table).where('key').equals(key).first();
+    // Delete internal cache service with a manual reload
+    window.location.reload();
   }
 
   /**
-   * Returne all the data for a feature in a layer
+   * Check if offline mode enable
+   */
+  private async isCacheDownload(key: CacheKey): Promise<boolean> {
+    const downloadState = await this.getCacheDownloadState(key);
+    const isDataCached = downloadState?.state === DownloadState.DONE;
+
+    return isDataCached;
+  }
+
+  /**
+    * Fetches the download state for a specific key from the preferences.
+    * If the state is stored in the preferences, it will be parsed and return.
+    * If not, a default NOT_STARTED state will be returned.
+    *
+    * @param {DownloadCacheKey} key - The key to fetch the preference.
+    * @returns {Promise<OfflineDownload>} The download state for the given key.
+  */
+  public async getCacheDownloadState(key: CacheKey): Promise<OfflineDownload> {
+    let downloadState = await this.preferenceService.getPreference(key);
+
+    if (downloadState) {
+      downloadState = JSON.parse(downloadState) as OfflineDownload;
+    } else {
+      downloadState = { state: DownloadState.NOT_STARTED };
+    }
+
+    return downloadState;
+  }
+
+  public setCacheDownloadState(cacheKey: CacheKey, cachedValue: OfflineDownload) {
+    this.preferenceService.setPreference(cacheKey, JSON.stringify(cachedValue));
+  }
+
+  /**
+   * Return all the data for a feature in a layer
    * @param featureId featureId the id aog the future, ex: IDF-000070151
    * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
    * @returns
@@ -84,7 +133,7 @@ export class CacheService {
     property: string,
     value: string
   ): Promise<any> {
-    return await this.db.tiles
+    const tiles = await this.db.tiles
       .where('key')
       .startsWith(layerKey)
       .filter((tile) => {
@@ -92,52 +141,21 @@ export class CacheService {
           (feature) => feature.properties[property].toString() === value
         );
       })
-      .toArray()
-      .then((tiles) => {
-        let result: any[] = [];
-        if (tiles.length > 0) {
-          for (let tile of tiles) {
-            result = [
-              ...result,
-              ...tile.data.features?.filter(
-                (feature) => feature.properties[property].toString() === value
-              ),
-            ];
-          }
-        }
-        return result;
-      });
-  }
+      .toArray();
 
-  public async getFeaturesByLayersAndIds(
-    layerKeys: string[],
-    ids: string[]
-  ): Promise<any> {
-    const tiles = await this.db.tiles.where('key').startsWithAnyOf(layerKeys).and(tile => tile.data.features != null && tile.data.features.length > 0).toArray();
-    let features = [];
-    for(let tile of tiles) {
-      features = features.concat(tile.data.features.filter((feature) => ids.includes(feature.id)).map((feature) => feature.properties));
+    let result: any[] = [];
+    if (tiles.length > 0) {
+      for (let tile of tiles) {
+        result = [
+          ...result,
+          ...tile.data.features?.filter(
+            (feature) => feature.properties[property].toString() === value
+          ),
+        ];
+      }
     }
-    return features;
-  }
 
-  /**
-   * Returne all the tile where a specific feature is located in a layer
-   * @param featureId featureId the id aog the future, ex: IDF-000070151
-   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
-   * @returns
-   */
-  private async getTileByLayerAndId(
-    featureId: string,
-    layerKey: string
-  ): Promise<any> {
-    return await this.db.tiles
-      .where('key')
-      .startsWith(layerKey)
-      .filter((tile) => {
-        return tile.data.features?.some((feature) => feature.id === featureId);
-      })
-      .first();
+    return result;
   }
 
   /**
@@ -150,83 +168,34 @@ export class CacheService {
     layerKey: string,
     newGeometry: number[]
   ) {
-    this.getTileByLayerAndId(featureId, layerKey).then((res) => {
-      for (let data of res.data.features) {
-        if (data.id.toString() == featureId) {
-          data.geometry.coordinates = newGeometry;
-          break;
-        }
-      }
-      this.db.tiles
-        .where('key')
-        .startsWith(layerKey)
-        .filter((tile) => {
-          return tile.data.features?.some(
-            (feature) => feature.id === featureId
-          );
-        })
-        .modify(res);
-    });
-  }
-
-  /**
-   * Returne all the geometry for a feature in a layer
-   * @param featureId featureId featureId the id aog the future, ex: IDF-000070151
-   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
-   * @returns the geometry, Array<number>
-   */
-  public async getGeometryByLayerAndId(
-    featureId: string,
-    layerKey: string
-  ): Promise<any> {
-    let geom;
-    await this.getFeatureByLayerAndFeatureId(layerKey, featureId).then(
-      (result) => (geom = result.geometry.coordinates)
-    );
-    return geom;
-  }
-
-  /**
-   * Retrieves reason entries based on a list of layer names.
-   * @param {string[]} lyrs - The `lyrs` parameter is an array of strings that represents the layer table
-   * names.
-   * @returns The function `getWtrByLyrTables` returns an array of objects that match the filter
-   * condition.
-   */
-  public async getWtrByLyrTables(lyrs: string[]): Promise<VLayerWtr[]> {
-    const wtrEntries = await this.db.referentials
+    this.db.tiles
       .where('key')
-      .equals(ReferentialCacheKey.V_LAYER_WTR)
-      .distinct()
-      .toArray();
+      .startsWith(layerKey)
+      .filter((tile) => {
+        return tile.data.features?.some((feature) => feature.id === featureId);
+      })
+      .first()
+      .then((res) => {
+        for (let data of res.data.features) {
+          if (data.id.toString() == featureId) {
+            data.geometry.coordinates = newGeometry;
+            break;
+          }
+        }
 
-    const wtrs: VLayerWtr[] = wtrEntries.flatMap((entry) => entry.data);
-    const filteredWtrs = wtrs.filter((wtr) => lyrs.includes(wtr.lyrTableName));
-
-    return filteredWtrs;
+        this.db.tiles
+          .where('key')
+          .startsWith(layerKey)
+          .filter((tile) => {
+            return tile.data.features?.some(
+              (feature) => feature.id === featureId
+            );
+          })
+          .modify(res);
+      });
   }
 
-  /**
-   * Saves an object to a database table, either by updating an existing object
-   * or creating a new one.
-   * @param {string} table - The name of the table in the database.
-   * @param {string} id - Unique identifier.
-   * @param {any} object - Data object to save in the database.
-   */
-  public async saveObject(
-    table: string,
-    id: string,
-    object: any
-  ): Promise<void> {
-    const obj = await this.getObjectFromCache(table, id);
-    if (obj) {
-      await this.db.table(table).update(id, { data: object });
-    } else {
-      await this.db.table(table).put({ data: object, key: id }, id);
-    }
-  }
-
-  public async deleteObject(table: string, id: string): Promise<void> {
+  public async deleteObject(table: CacheKey, id: string): Promise<void> {
     await this.db.table(table).delete(id);
   }
 
@@ -241,68 +210,96 @@ export class CacheService {
    */
   public fetchReferentialsData<T>(
     referentialCacheKey: ReferentialCacheKey,
-    serviceCall: () => Observable<T>,
-    forceGetFromDb: boolean = false
+    serviceCall: () => Observable<T>
   ): Observable<T> {
-    if (forceGetFromDb) {
-      return serviceCall().pipe(
-        tap(async (data) => {
+    return serviceCall().pipe(
+      timeout(this.configurationService.offlineTimeoutReferential),
+      tap(async (data) => {
+        const isMobile = this.utilsService.isMobilePlateform();
+        if (isMobile) {
           await this.db.referentials.put(
             { data: data, key: referentialCacheKey },
             referentialCacheKey
           );
-        })
-      );
-    } else {
-      return from(this.db.referentials.get(referentialCacheKey)).pipe(
-        switchMap((referential) => {
-          if (referential?.data) {
-            return of(referential.data);
-          } else {
-            return serviceCall().pipe(
-              tap(async (data) => {
-                await this.db.referentials.put(
-                  { data: data, key: referentialCacheKey },
-                  referentialCacheKey
-                );
-              })
-            );
+        }
+      }),
+      catchError(async () => {
+        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
+        if (isCacheDownload) {
+          const referentials = await this.db.referentials.get(referentialCacheKey);
+          if (referentials) {
+            return referentials.data;
           }
+        }
+
+        throw new Error(`Failed to fetch referentials for ${referentialCacheKey}`);
+      })
+    )
+  }
+
+  public fetchLayerFile(
+    layerKey: string,
+    featureNumber: number,
+    file: string,
+    params: any
+  ): Observable<NomadGeoJson> {
+    return this.layerDataService.getLayerFile(layerKey, featureNumber, params)
+      .pipe(
+        timeout(this.configurationService.offlineTimeoutTile),
+        tap(async (req: NomadGeoJson) => {
+          const isMobile = this.utilsService.isMobilePlateform();
+
+          if (isMobile) {
+            await this.db.tiles.put({ data: req, key: file }, file);
+          }
+        }),
+        catchError(async () => {
+          const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
+          if (isCacheDownload) {
+            const tile = await this.db.tiles.get(file);
+            if (tile) {
+              return tile.data;
+            }
+          }
+
+          throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
         })
       );
-    }
   }
 
+  public fetchEquipmentsByLayerIds(idsLayers: any): Observable<any> {
+    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
+      timeout(this.configurationService.offlineTimeoutEquipment),
+      catchError(async () => {
+        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
+        if (isCacheDownload) {
+          let res = [];
+          for (const idLayer of idsLayers) {
+            for (const ref of idLayer.equipmentIds) {
+              const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+              if (feature) {
+                feature.properties = Object.assign(feature.properties, {
+                  lyrTableName: idLayer.lyrTableName,
+                  geom: feature.geometry
+                });
+                res.push(feature.properties);
+              }
+            }
+          }
+          return res;
+        }
+
+        throw new Error(`Failed to fetch the equipments of the following layer ids ${idsLayers}`);
+      })
+    );
+  }
+
+
   /**
- * Clear all entries from the referentials table.
+ * Clear all entries from a table.
  */
-  public clearReferentials() {
-    this.db.referentials.clear();
-  }
-
-  /**
-   * Clear all entries from the tiles table.
-   */
-  public clearTiles() {
-    this.db.tiles.clear();
-  }
-
-  /**
-   * Get the size of all items in the referentials table.
-   *
-   * @returns {Promise<string>} The total size of the referentials in "mo" (megabytes).
-   */
-  public async getReferentialsSize(): Promise<string> {
-    return this.getTableSize(this.db.referentials);
-  }
-
-  /**
-   * Get the size of all items in the tiles table.
-   *
-   * @returns {Promise<string>} The total size of the tiles in "mo" (megabytes).
-   */
-  public async getTilesSize(): Promise<string> {
-    return this.getTableSize(this.db.tiles);
+  public clearTable(table: CacheKey) {
+    this.db[table].clear();
   }
 
   /**
@@ -311,9 +308,9 @@ export class CacheService {
    * @param table - The table to get the size for.
    * @returns {Promise<string>} The total size of the items in the table in "mo" (megabytes).
    */
-  private async getTableSize(table): Promise<string> {
+  public async getTableSize(table: CacheKey): Promise<string> {
     // Fetch all items in the table
-    const items = await table.toArray();
+    const items = await this.db[table].toArray();
 
     // Calculate the total size in bytes
     let totalSize = 0;

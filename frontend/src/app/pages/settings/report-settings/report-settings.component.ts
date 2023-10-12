@@ -116,7 +116,9 @@ export class ReportSettingsPage implements OnInit {
 
     this.layerService.getAllVLayerWtr().subscribe((vLayerWtrList) => {
       this.listAssetTypeWtr = vLayerWtrList;
-      this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId');
+      this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId').sort((a, b) => {
+        return a.astCode.localeCompare(b.astCode);
+      });
     });
 
     this.templateService.getFormsTemplate(true).subscribe((listFormTemplateReport) => {
@@ -259,6 +261,10 @@ export class ReportSettingsPage implements OnInit {
           definition.key = PREFIX_KEY_DEFINITION + (index);
           definition.rqnCode = reportQuestion.uuid;
 
+          if (reportQuestion.component === RqnTypeEnum.COMMENT) {
+            definition.key = 'COMMENT';
+          }
+
           /*if (definition.displayCondition?.key != null) {
             const conditionDefinition = definitions[Number(definition.displayCondition.key.substring('UUID-'.length))];
             definition.displayCondition.key = conditionDefinition.key;
@@ -275,5 +281,30 @@ export class ReportSettingsPage implements OnInit {
       "INSERT INTO nomad.FORM_DEFINITION (FDN_CODE, FDN_DEFINITION) values \n" +
       listInsertFormDefinition.join(',\n') + ';'
     );
+  }
+
+  checkFormsCondition() {
+    for (let formTemplateReport of this.listFormTemplateReport) {
+      const form: Form = JSON.parse(formTemplateReport.definition);
+      const definitions = form.definitions;
+      const listDefinition = definitions.filter((definition) => definition.type === 'property');
+      for (const [index, definition] of listDefinition.entries()) {
+        if (definition.displayCondition != null) {
+          const conditionDefinition = listDefinition.find((def) => def.key === definition.displayCondition.key);
+          if (!conditionDefinition) {
+            console.log("Definition non trouvée", formTemplateReport.formCode, definition.key, definition.displayCondition.key)
+          } else {
+            const listValue = conditionDefinition.attributes.options;
+            if (listValue == null) {
+              console.log("Value non trouvée", formTemplateReport.formCode, definition.key, definition.displayCondition.key, definition.displayCondition.value, listValue);
+            } else {
+              if (!definition.displayCondition.value.every((v) => listValue.some((vl) => vl.value === v))) {
+                console.log("Value non trouvée", formTemplateReport.formCode, definition.key, definition.displayCondition.key, definition.displayCondition.value, listValue);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

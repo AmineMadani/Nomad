@@ -339,13 +339,11 @@ export class ReportCreateComponent implements OnInit {
       this.stepForm.formEditor.form.updateValueAndValidity();
       this.stepForm.formEditor.form.markAllAsTouched();
 
-      if (this.stepForm.formEditor.form.valid) {
-        if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
-          this.openCompleteModal();
-        }
-        else {
-          this.completeForm();
-        }
+      if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
+        this.openCompleteModal();
+      }
+      else {
+        this.completeForm();
       }
     }
   }
@@ -376,7 +374,7 @@ export class ReportCreateComponent implements OnInit {
     for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
       if (definition.type == 'property') {
         report.reportValues.push({
-          key: definition.key,
+          key: definition.rqnCode + '_' + definition.key,
           question: definition.label,
           answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
             this.stepForm.formEditor.form.value[definition.key].join('; ')

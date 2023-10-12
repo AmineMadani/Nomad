@@ -34,7 +34,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private userService: UserService,
     private workorderService: WorkorderService,
-    private drawingService: DrawingService,
+    private drawingService: DrawingService
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -134,10 +134,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       {
         key: 'create',
         label: this.wkoDraft
-          ? (this.step == 'report' ? "Reprendre le CR" : "Reprendre l'intervention")
+          ? this.step == 'report'
+            ? 'Reprendre le CR'
+            : "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle',
-        disabledFunction: () => (!this.userHasPermissionCreateAssetWorkorder || this.filteredFeatures.length === 0),
+        disabledFunction: () =>
+          !this.userHasPermissionCreateAssetWorkorder ||
+          this.filteredFeatures.length === 0,
       },
       {
         key: 'new-asset',
@@ -155,9 +159,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     // Permissions
     this.userHasPermissionCreateAssetWorkorder =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_ASSET_WORKORDER);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CREATE_ASSET_WORKORDER
+      );
     this.userHasPermissionRequestUpdateAsset =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.REQUEST_UPDATE_ASSET);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.REQUEST_UPDATE_ASSET
+      );
   }
 
   ngOnDestroy(): void {
@@ -177,18 +185,20 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
     if (this.wkoDraft != null) {
       // Add tempory new asset
-      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
-      const listTaskOnNewAsset = wko.tasks.filter((task) => task.assObjRef?.startsWith('TMP-'));
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
+      const listTaskOnNewAsset = wko.tasks.filter((task) =>
+        task.assObjRef?.startsWith('TMP-')
+      );
       for (const task of listTaskOnNewAsset) {
-        abstractFeatures.push(
-          {
-            id: task.assObjRef,
-            lyrTableName: task.assObjTable,
-            x: task.longitude,
-            y: task.latitude,
-            isTemp: true,
-          }
-        );
+        abstractFeatures.push({
+          id: task.assObjRef,
+          lyrTableName: task.assObjTable,
+          x: task.longitude,
+          y: task.latitude,
+          isTemp: true,
+        });
       }
     }
 
@@ -200,7 +210,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     await Promise.all(promises);
 
-
     this.sources = [
       ...new Set(abstractFeatures.map(({ lyrTableName }) => lyrTableName)),
     ].map((lyrName: string) => {
@@ -209,38 +218,42 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       return { key: lyrName, label: conf.lyrSlabel };
     });
 
-    const mapSearch:Map<string, string[]> = new Map();
+    const mapSearch: Map<string, string[]> = new Map();
     for (const feature of abstractFeatures) {
       if (feature.isTemp) {
         this.featuresSelected.push(feature);
       } else {
-        if(mapSearch.get(feature.lyrTableName)) {
+        if (mapSearch.get(feature.lyrTableName)) {
           mapSearch.get(feature.lyrTableName).push(feature.id);
         } else {
           mapSearch.set(feature.lyrTableName, [feature.id]);
         }
       }
     }
-   
+
     const searchEquipments: SearchEquipments[] = [];
-    for(const [key,value] of mapSearch){
+    for (const [key, value] of mapSearch) {
       searchEquipments.push({
         lyrTableName: key,
-        equipmentIds: value
-      })
+        equipmentIds: value,
+      });
     }
 
-    const searchEquipmentsRes = await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
-    this.featuresSelected = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...searchEquipmentsRes], 'id');
+    const searchEquipmentsRes =
+      await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
+    this.featuresSelected = this.utilsService.removeDuplicatesFromArr(
+      [...this.featuresSelected, ...searchEquipmentsRes],
+      'id'
+    );
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.featuresSelected
-      .filter((f) => f.isTemp !== true)
-      .map((f: any) => {
-        return { id: f.id, source: f.lyrTableName };
-      })
+        .filter((f) => f.isTemp !== true)
+        .map((f: any) => {
+          return { id: f.id, source: f.lyrTableName };
+        })
     );
 
     this.mapLayerService.fitBounds(
@@ -258,41 +271,31 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.popover.present();
         break;
       case 'create':
-        if (this.wkoDraft){
-          if(this.step == 'report') {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.REPORT,
-              [this.wkoDraft]
-            );
+        if (this.wkoDraft) {
+          if (this.step == 'report') {
+            this.drawerService.navigateTo(DrawerRouteEnum.REPORT, [
+              this.wkoDraft,
+            ]);
           } else {
-            this.drawerService.navigateTo(
-              DrawerRouteEnum.WORKORDER_EDITION,
-              [ this.wkoDraft ],
-            );
+            this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_EDITION, [
+              this.wkoDraft,
+            ]);
           }
-        }
-        else{
+        } else {
           this.drawerService.navigateWithEquipments(
             DrawerRouteEnum.WORKORDER_CREATION,
-            this.featuresSelected,
+            this.filteredFeatures
           );
         }
 
         break;
       case 'new-asset':
         if (this.wkoDraft) {
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.NEW_ASSET,
-            [],
-            { 
-              draft: this.wkoDraft, 
-            }
-          );
+          this.drawerService.navigateTo(DrawerRouteEnum.NEW_ASSET, [], {
+            draft: this.wkoDraft,
+          });
         } else {
-          this.drawerService.navigateTo(
-            DrawerRouteEnum.NEW_ASSET,
-            [],
-          );
+          this.drawerService.navigateTo(DrawerRouteEnum.NEW_ASSET, []);
         }
         break;
       case 'showSelectedFeatures':
@@ -319,7 +322,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.popover.dismiss();
   }
 
-  public handleChange(e: Event): void {
+  public async handleChange(e: Event): Promise<void> {
     const event: CustomEvent = e as CustomEvent;
     if (event?.detail.value?.length > 0) {
       this.filteredFeatures = this.featuresSelected.filter((f) =>
@@ -328,6 +331,34 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     } else {
       this.selectedSource = undefined;
       this.filteredFeatures = this.featuresSelected;
+    }
+
+    if (this.wkoDraft) {
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
+
+      // Step 1: Remove tasks with assObjRef not in filteredElements array
+      wko.tasks = wko.tasks.filter((t) =>
+        this.filteredFeatures.map((f) => f.id).includes(t.assObjRef)
+      );
+
+      // Step 2: Add tasks for filteredElements without corresponding tasks
+      const tasksToAdd = this.filteredFeatures
+        .filter((f) => !wko.tasks.some((t) => t.assObjRef === f.id))
+        .map((f) => ({
+          id: this.utilsService.createCacheId(),
+          assObjTable: f.lyrTableName,
+          assObjRef: f.id,
+          latitude: f.y,
+          longitude: f.x,
+          wtrId: wko.tasks[0]?.wtrId ?? null,
+          wtsId: wko.tasks[0]?.wtsId ?? null,
+        }));
+
+      wko.tasks.push(...tasksToAdd);
+
+      await this.workorderService.saveCacheWorkorder(wko);
     }
   }
 
@@ -362,7 +393,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
 
     if (this.wkoDraft) {
-      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
       wko.tasks = wko.tasks.filter((t) => t.assObjRef !== feature.id);
       await this.workorderService.saveCacheWorkorder(wko);
     }
@@ -434,7 +467,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public highlightSelectedFeature(feature: any): void {
     if (feature) {
-      const features = this.featuresHighlighted.length > 0 ? [feature, ...this.featuresHighlighted] : [feature];
+      const features =
+        this.featuresHighlighted.length > 0
+          ? [feature, ...this.featuresHighlighted]
+          : [feature];
       this.hightlightFeatures(features);
     } else {
       if (this.featuresHighlighted.length > 0) {
@@ -456,37 +492,58 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   private async addNewFeatures(features: any | any[]): Promise<void> {
     if (!Array.isArray(features)) {
-      features = [{ ...this.mapLayerService.getFeatureById(features.layerKey, features.featureId)['properties'], lyrTableName: features.layerKey }];
+      features = [
+        {
+          ...this.mapLayerService.getFeatureById(
+            features.layerKey,
+            features.featureId
+          )['properties'],
+          lyrTableName: features.layerKey,
+        },
+      ];
     } else {
       features = features.map((f) => {
-        return { ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'], lyrTableName: f.source}
-      })
-    }
-
-
-    features = this.utilsService.removeDuplicatesFromArr([...this.featuresSelected, ...features], 'id');
-
-    if (this.wkoDraft) {
-      const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
-      this.workorderService.getAllWorkorderTaskStatus().subscribe(async lStatus => {
-        for (let f of features) {
-          if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
-            wko.tasks.push({
-              id: this.utilsService.createCacheId(),
-              assObjTable: f.lyrTableName,
-              assObjRef: f.id,
-              latitude: f.y,
-              longitude: f.x,
-              wtrId: wko.tasks[0]?.wtrId ?? null,
-              wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id
-            })
-          }
-        }
-        await this.workorderService.saveCacheWorkorder(wko);
+        return {
+          ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'],
+          lyrTableName: f.source,
+        };
       });
     }
 
+    features = this.utilsService.removeDuplicatesFromArr(
+      [...this.featuresSelected, ...features],
+      'id'
+    );
+
+    if (this.wkoDraft) {
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
+      this.workorderService
+        .getAllWorkorderTaskStatus()
+        .subscribe(async (lStatus) => {
+          for (let f of features) {
+            if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
+              wko.tasks.push({
+                id: this.utilsService.createCacheId(),
+                assObjTable: f.lyrTableName,
+                assObjRef: f.id,
+                latitude: f.y,
+                longitude: f.x,
+                wtrId: wko.tasks[0]?.wtrId ?? null,
+                wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+              });
+            }
+          }
+          await this.workorderService.saveCacheWorkorder(wko);
+        });
+    }
+
     const qParam = this.wkoDraft ? { draft: this.wkoDraft } : {};
-    this.drawerService.navigateWithEquipments(DrawerRouteEnum.SELECTION, features, qParam);
+    this.drawerService.navigateWithEquipments(
+      DrawerRouteEnum.SELECTION,
+      features,
+      qParam
+    );
   }
 }

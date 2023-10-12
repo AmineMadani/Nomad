@@ -43,7 +43,7 @@ export class ReportQuestionEditComponent implements OnInit {
 
   public form: FormGroup;
 
-  private reportQuestion: ReportQuestionDto;
+  public reportQuestion: ReportQuestionDto;
   private listReportDefinition: FormWithLinkedToDefinition[] = [];
 
   public RqnTypeEnum = RqnTypeEnum;
@@ -57,7 +57,8 @@ export class ReportQuestionEditComponent implements OnInit {
 
     // ### Form ### //
     this.form = new FormGroup({
-      rqnSlabel: new FormControl<string>(null, Validators.required),
+      rqnCode: new FormControl<string>({value: null, disabled: true}),
+      //rqnSlabel: new FormControl<string>(null, Validators.required),
       rqnLlabel: new FormControl<string>(null, Validators.required),
       rqnType: new FormControl<string>(null, Validators.required),
       rqnRequired: new FormControl<boolean>(false, Validators.required),
@@ -272,15 +273,16 @@ export class ReportQuestionEditComponent implements OnInit {
         ...this.reportQuestion
       }
 
-      reportQuestion.rqnSlabel = this.form.get('rqnSlabel').value;
+      //reportQuestion.rqnSlabel = this.form.get('rqnSlabel').value;
       reportQuestion.rqnLlabel = this.form.get('rqnLlabel').value;
+      reportQuestion.rqnSlabel = reportQuestion.rqnLlabel;
       reportQuestion.rqnType = this.form.get('rqnType').value;
       reportQuestion.rqnRequired = this.form.get('rqnRequired').value;
       reportQuestion.rqnSelectValues = rqnSelectValues.length > 0 ? JSON.stringify(rqnSelectValues) : null;
 
       await firstValueFrom(this.reportQuestionService.updateReportQuestion(reportQuestion));
 
-      // Reflex changes on forms that use that question
+      // Reflect changes on forms that use that question
       const listFormToSave = [];
 
       // If the label changes
@@ -343,7 +345,8 @@ export class ReportQuestionEditComponent implements OnInit {
       const reportQuestion: ReportQuestionDto = {
         id: null,
         rqnCode: PREFIX_KEY_DEFINITION + this.utilsService.createUniqueId(),
-        rqnSlabel: this.form.get('rqnSlabel').value,
+        //rqnSlabel: this.form.get('rqnSlabel').value,
+        rqnSlabel: this.form.get('rqnLlabel').value,
         rqnLlabel: this.form.get('rqnLlabel').value,
         rqnType: this.form.get('rqnType').value,
         rqnRequired: this.form.get('rqnRequired').value,

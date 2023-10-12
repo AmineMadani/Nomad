@@ -34,7 +34,7 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { CacheService } from 'src/app/core/services/cache.service';
+import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -957,7 +957,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private async deleteDraft(): Promise<void> {
     if (+this.workorder.id < 0) {
       await this.cacheService.deleteObject(
-        'workorders',
+        CacheKey.WORKORDERS,
         this.workorder.id.toString()
       );
     }

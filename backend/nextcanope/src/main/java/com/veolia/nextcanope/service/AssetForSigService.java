@@ -27,6 +27,10 @@ public class AssetForSigService {
     @Autowired
     LayerRepository layerRepository;
 
+    public AssetForSig getAssetForSigByCacheId(Long afsCacheId) {
+        return assetForSigRepository.findByAfsCacheId(afsCacheId).orElse(null);
+    }
+
     /**
      *
      * @param assetForSigUpdateDto The asset to create
@@ -34,6 +38,12 @@ public class AssetForSigService {
      * @return The form
      */
     public Long createAssetForSig(AssetForSigUpdateDto assetForSigUpdateDto, Long userId) {
+        // Check if the asset for sig already exist
+        AssetForSig existingAssetForSig = assetForSigRepository.findByAfsCacheId(assetForSigUpdateDto.getId()).orElse(null);
+
+        // If that's the case, stop here
+        if (existingAssetForSig != null) return 0L;
+
         Users user = userService.getUserById(userId);
 
         Layer layer = layerRepository.findById(assetForSigUpdateDto.getLyrId()).orElse(null);

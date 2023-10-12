@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetail, SaveLayerStylePayload, LayerReferences, Layer, VLayerWtr, SearchEquipments } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
-import { AppDB } from '../models/app-db.model';
-import { Observable, catchError, firstValueFrom, lastValueFrom, map, tap, timeout } from 'rxjs';
+import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
@@ -20,10 +19,11 @@ export class LayerService {
     private configurationService: ConfigurationService,
     private utilsService: UtilsService
   ) {
-    this.db = new AppDB();
   }
 
-  private db: AppDB;
+  private layerIndexes: GeoJSONObject;
+  private layers: Layer[];
+  private vLayerWtr: VLayerWtr[];
 
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
@@ -69,64 +69,45 @@ export class LayerService {
    * @returns The geojson of the index of the layer.
    */
   public getLayerIndexes(): Observable<GeoJSONObject> {
+    if (this.layerIndexes) {
+      return of(this.layerIndexes);
+    }
+
     return this.cacheService.fetchReferentialsData<GeoJSONObject>(
       ReferentialCacheKey.LAYER_INDEX,
       () => this.layerDataService.getLayerIndexes()
+    ).pipe(
+      tap((results => this.layerIndexes = results))
     );
   }
 
   /**
-   * Fetches the tile of a layer from server.
-   * If successful, stores the layer's file in IndexedDB.
-   * If the network duration is superior to 2 seconds, it returns the indexedDB data.
-   * @param {string} layerKey - Key of the layer.
-   * @param {string} file - The file where the view is.
-   * @returns The GeoJSON file for the current tile.
-   */
+  * Fetches the tile of a layer from server.
+  * If successful, stores the layer's file in IndexedDB.
+  * If the network duration is superior to 2 seconds, it returns the indexedDB data.
+  * @param {string} layerKey - Key of the layer.
+  * @param {string} file - The file where the view is.
+  * @returns The GeoJSON file for the current tile.
+ */
   public async getLayerFile(
     layerKey: string,
     file: string,
     startDate?: Date
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
-    
-    /* It's getting the number from the file name. */
-    const featureNumber: number = Number(file.replace('index_','').replace('.geojson',''));
-    file = file.replace('index',layerKey);
-    let req: NomadGeoJson = null;
+
+    const featureNumber: number = Number(file.replace('index_', '').replace('.geojson', ''));
+    file = file.replace('index', layerKey);
 
     const params = {
       startDate: startDate
     }
 
-    if(!this.utilsService.isOfflineMode('tiles')) {
-      req = await lastValueFrom(this.layerDataService.getLayerFile(layerKey, featureNumber,params));
-    } else {
-      /* Transform http observable to promise to simplify layer's loader. It should be avoided for basic requests */
-      req = await lastValueFrom(
-        this.layerDataService.getLayerFile(layerKey, featureNumber,params)
-          .pipe(
-            timeout(this.configurationService.offlineTimeoutTile),
-            catchError(async () => {
-              const tile = await this.db.tiles.get(file);
-              if (tile) {
-                return tile.data;
-              }
-              return null;
-            })
-          )
-      );
-      if (!req) {
-        this.listTileOnLoad.delete(layerKey);
-        throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
-      }
-
-      await this.db.tiles.put({ data: req, key: file }, file);
-    }
-    
-
-    this.listTileOnLoad.delete(layerKey);
-    return req;
+    return await lastValueFrom(
+      this.cacheService.fetchLayerFile(layerKey, featureNumber, file, params).pipe(
+        tap(() => this.listTileOnLoad.delete(layerKey))
+      )
+    );
   }
 
   /**
@@ -152,9 +133,15 @@ export class LayerService {
    * @returns all available layers
    */
   public getAllLayers(): Observable<Layer[]> {
+    if (this.layers) {
+      return of(this.layers);
+    }
+
     return this.cacheService.fetchReferentialsData<Layer[]>(
       ReferentialCacheKey.LAYERS,
       () => this.layerDataService.getAllLayers()
+    ).pipe(
+      tap((results => this.layers = results))
     );
   }
 
@@ -163,10 +150,7 @@ export class LayerService {
    * @returns the selected layer
    */
   public async getLayerByKey(key: string): Promise<Layer> {
-    return (await firstValueFrom(this.cacheService.fetchReferentialsData<Layer[]>(
-      ReferentialCacheKey.LAYERS,
-      () => this.layerDataService.getAllLayers()
-    ))).find(layer => layer.lyrTableName == key);
+    return (await firstValueFrom(this.getAllLayers())).find(layer => layer.lyrTableName == key);
   }
 
   public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
@@ -180,27 +164,8 @@ export class LayerService {
   }
 
   public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    if(!this.utilsService.isOfflineMode('tiles')) {
-      return firstValueFrom(this.layerDataService.getEquipmentsByLayersAndIds(idsLayers));
-    }
     return firstValueFrom(
-      this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
-        timeout(this.configurationService.offlineTimeoutEquipment),
-        catchError(async () => {
-          let res = [];
-          for(let idLayer of idsLayers) {
-            for(let ref of idLayer.equipmentIds) {
-              let feature = await this.cacheService.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
-              feature.properties = Object.assign(feature.properties, {lyrTableName:idLayer.lyrTableName});
-              feature.properties = Object.assign(feature.properties, {geom:feature.geometry});
-              if(feature) {
-                res.push(feature.properties)
-              }
-            }
-          }
-          return res;
-        })
-      )
+      this.cacheService.fetchEquipmentsByLayerIds(idsLayers)
     );
   }
 
@@ -285,9 +250,15 @@ export class LayerService {
   * @returns A promise that resolves to the list of VLayerWtr.
   */
   public getAllVLayerWtr(): Observable<VLayerWtr[]> {
+    if (this.vLayerWtr) {
+      return of(this.vLayerWtr);
+    }
+
     return this.cacheService.fetchReferentialsData<VLayerWtr[]>(
       ReferentialCacheKey.V_LAYER_WTR,
       () => this.layerDataService.getAllVLayerWtr()
+    ).pipe(
+      tap((results => this.vLayerWtr = results))
     );
   }
 

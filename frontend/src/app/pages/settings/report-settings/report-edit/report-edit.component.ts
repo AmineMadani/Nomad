@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 import { WtrReport } from '../report-settings.component';
-import { Form, FormDefinition, FormPropertiesEnum, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
+import { Form, FormDefinition, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -168,6 +168,22 @@ export class ReportEditComponent implements OnInit {
               }
             }
           }
+
+          // If there is a question with a condition on this one
+          const lineIndex = this.lines.controls.indexOf(lineForm);
+          for (let i = lineIndex; i < this.lines.length; i++) {
+            const lineFormToCheck = this.lines.at(i);
+      
+            // If there is a condition
+            const questionCondition = lineFormToCheck.get('questionCondition').value;
+            if (questionCondition != null) {
+              // If the condition is on this line
+              if (questionCondition === (lineIndex+1).toString()) {
+                // Delete the condition and condition values
+                lineFormToCheck.get('questionCondition').setValue(null);
+              }
+            }
+          }
         }
       } else {
         lineForm.get('label').setValue(null);
@@ -184,30 +200,37 @@ export class ReportEditComponent implements OnInit {
 
       // If there is a question condition, question condition values has to be set
       if (questionCondition != null) {
-        lineForm.get('listQuestionConditionValues').addValidators(Validators.required);
+        lineForm.get('listQuestionConditionValues').addValidators(this.noEmptyList);
 
-        if (questionCondition != null) {
-          const indexQuestionCondition = Number(questionCondition) - 1;
-          if (indexQuestionCondition < this.lines.length) {
-            const questionConditionLineForm = this.lines.at(indexQuestionCondition);
-            if (questionConditionLineForm) {
-              lineForm.get('listAvailableQuestionValues').setValue(
-                questionConditionLineForm.get('listValue').value.map((value, index) => {
-                  return {
-                    value: value,
-                    label: (index+1) + ' - ' + value,
-                  }
-                })
-              );
-            }
+        const indexQuestionCondition = Number(questionCondition) - 1;
+        if (indexQuestionCondition < this.lines.length) {
+          const questionConditionLineForm = this.lines.at(indexQuestionCondition);
+          if (questionConditionLineForm) {
+            lineForm.get('listAvailableQuestionValues').setValue(
+              questionConditionLineForm.get('listValue').value.map((value, index) => {
+                return {
+                  value: value,
+                  label: (index+1) + ' - ' + value,
+                }
+              })
+            );
           }
         }
       } else {
-        lineForm.get('listQuestionConditionValues').removeValidators(Validators.required);
+        lineForm.get('listQuestionConditionValues').removeValidators(this.noEmptyList);
       }
+      lineForm.get('listQuestionConditionValues').updateValueAndValidity();
     });
 
     this.lines.push(lineForm);
+  }
+
+  noEmptyList(formControl: FormControl) {
+    return formControl.value && formControl.value.length ? null : {
+      noEmptyList: {
+        valid: false
+      }
+    };
   }
 
   // ### DELETE ### //
@@ -351,35 +374,6 @@ export class ReportEditComponent implements OnInit {
     }
 
     return listAvailableQuestion;
-  }
-
-  /**
-   * Get the list of available questions values for this line, for the question condition selected
-   *
-   * @param lineIndex index of the line
-   * @returns The list of values
-   */
-  getListAvailableQuestionValues(lineIndex: number): ValueLabel[] {
-    // Display the list of values linked to the selected question condition
-    const lineForm = this.lines.at(lineIndex);
-
-    const questionCondition = lineForm.get('questionCondition').value;
-    if (questionCondition != null) {
-      const indexQuestionCondition = Number(questionCondition) - 1;
-      if (indexQuestionCondition < this.lines.length) {
-        const questionConditionLineForm = this.lines.at(indexQuestionCondition);
-        if (questionConditionLineForm) {
-          return questionConditionLineForm.get('listValue').value.map((value, index) => {
-            return {
-              value: value,
-              label: (index+1) + ' - ' + value,
-            }
-          });
-        }
-      }
-    }
-
-    return [];
   }
 
   /**

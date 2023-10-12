@@ -7,8 +7,11 @@
 
   <form [formGroup]="form" class="report-question-edit-body" *ngIf="!isLoading">
     <div class="line">
-      <ion-input aria-label="code" labelPlacement="floating" fill="outline" style="width: 25%;"
-        label="Code *" formControlName="rqnSlabel" errorText="Le code est obligatoire." />
+      <ion-input *ngIf="reportQuestion != null" aria-label="code" labelPlacement="floating" fill="outline" style="width: 25%;"
+        label="Code *" formControlName="rqnCode" errorText="Le code est obligatoire." />
+
+      <!--<ion-input aria-label="code" labelPlacement="floating" fill="outline" style="width: 25%;"
+        label="Code *" formControlName="rqnSlabel" errorText="Le code est obligatoire." />-->
 
       <ion-input aria-label="label" labelPlacement="floating" fill="outline" 
         label="Libellé *" formControlName="rqnLlabel" errorText="Le libellé est obligatoire." />

@@ -150,6 +150,23 @@
         </div>
       </ion-accordion>
 
+      <!-- Information about asset for SIG -->
+      <ion-accordion value="assetForSig"
+        *ngIf="(taskId || workOrder.tasks.length === 1)  && listInformationAssetForSig != null">
+        <ion-item slot="header" color="light" [disabled]="!userHasPermissionModifyReport">
+          <ion-label> Patrimoine créé </ion-label>
+        </ion-item>
+        <div slot="content">
+          <ion-item lines="none" *ngFor="let informationAssetForSig of listInformationAssetForSig">
+            <ion-label class="label">
+              <h3 class="break-line"> <span>{{ informationAssetForSig.label }}</span></h3>
+              <p>{{ informationAssetForSig.value }}</p>
+            </ion-label>
+          </ion-item>
+
+        </div>
+      </ion-accordion>
+
       <!-- Attachments -->
       <ion-accordion value="attachment">
         <ion-item slot="header" color="light">

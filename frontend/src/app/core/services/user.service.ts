@@ -31,7 +31,6 @@ export class UserService {
     private utilsService: UtilsService,
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
-    private layerService: LayerService
   ) { }
 
   private currentUser: User;
@@ -273,9 +272,15 @@ export class UserService {
     * @returns Permissions
     */
   getAllPermissions(): Observable<Permission[]> {
+    if (this.permissions && this.permissions.length > 0) {
+      return of(this.permissions);
+    }
+
     return this.cacheService.fetchReferentialsData<Permission[]>(
       ReferentialCacheKey.PERMISSIONS,
       () => this.userDataService.getAllPermissions()
+    ).pipe(
+      tap((results) => this.permissions = results)
     );
   }
 
@@ -323,5 +328,21 @@ export class UserService {
     */
   getUserStatusByEmail(email: string): Observable<UserStatus> {
     return this.userDataService.getUserStatusByEmail(email);
+  }
+
+/**
+ * Update the last viewed asset drawer
+ * @param drawerLabel the last viewed asset drawer
+ */
+  async setLastSelectedDrawer(drawerLabel: string): Promise<void>{
+    const currentUser: User = await this.getCurrentUser();
+    if (currentUser.usrConfiguration.context) {
+      currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
+    } else {
+      currentUser.usrConfiguration.context = {
+        lastDrawerSegment: drawerLabel,
+      };
+    }
+    this.setUser(currentUser);
   }
 }

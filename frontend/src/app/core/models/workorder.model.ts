@@ -27,6 +27,31 @@ export interface Workorder {
     isDraft?: boolean;
 }
 
+export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
+  return {
+    id: featureWorkorder.properties['id'],
+    latitude: featureWorkorder.properties['y'],
+    longitude: featureWorkorder.properties['x'],
+    wkoAddress: featureWorkorder.properties['wkoAddress'],
+    wkoAgentNb: featureWorkorder.properties['wkoAgentNb'],
+    wkoEmergency: featureWorkorder.properties['wkoEmergency'],
+    wkoAppointment: featureWorkorder.properties['wkoAppointment'],
+    wkoName: featureWorkorder.properties['wkoName'],
+    wkoCompletionStartDate: featureWorkorder.properties['wkoCompletionStartDate'],
+    wkoCompletionEndDate: featureWorkorder.properties['wkoCompletionEndDate'],
+    wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
+    wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+    wtsId: featureWorkorder.properties['wkoWtsId'],
+    wkoCreationComment: featureWorkorder.properties['wkoCreationComment'],
+    wkoCancelComment: featureWorkorder.properties['wkoCancelComment'],
+    tasks: [],
+    ctyId: featureWorkorder.properties['ctyId'],
+    ctrId: '',
+    wkoAttachment: featureWorkorder.properties['wkoAttachment'],
+    wkoExtToSync: featureWorkorder.properties['wkoExtSoSync'],
+  };
+}
+
 export interface CancelWorkOrder {
     id: number;
     cancelComment: string;
@@ -58,6 +83,23 @@ export interface Task {
     report?: Report;
     isSelectedTask?: boolean;
     assetForSig?: AssetForSigDto;
+}
+
+export function buildTaskFromGeojson(task: any): Task {
+  return {
+    assObjRef: task.properties['assObjRef'],
+    assObjTable: task.properties['assObjTable'],
+    id: task.properties['id'],
+    ctrId: task.properties['ctrId'],
+    latitude: task.properties['y'],
+    longitude: task.properties['x'],
+    tskCompletionStartDate: task.properties['tskCompletionStartDate'],
+    tskCompletionEndDate: task.properties['tskCompletionEndDate'],
+    tskReportDate: task.properties['tskReportDate'],
+    wtrId: task.properties['wtrId'],
+    wtsId: task.properties['wtsId'],
+    wkoId: task.properties['wkoId'],
+  };
 }
 
 export interface Report {

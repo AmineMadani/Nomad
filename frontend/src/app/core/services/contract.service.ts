@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
 import { Contract, ContractWithOrganizationalUnits } from '../models/contract.model';
 import { ContractDataService } from './dataservices/contract.dataservice';
 import { CacheService, ReferentialCacheKey } from './cache.service';
@@ -14,11 +14,17 @@ export class ContractService {
   ) {
   }
 
+  contracts: Contract[];
+
   getAllContracts(): Observable<Contract[]> {
+    if (this.contracts) {
+      return of(this.contracts);
+    }
+
     return this.cacheService.fetchReferentialsData<Contract[]>(
       ReferentialCacheKey.CONTRACTS,
       () => this.contractDataService.getAllContracts()
-    );
+    ).pipe(tap(results => this.contracts = results));
   }
 
   /**
