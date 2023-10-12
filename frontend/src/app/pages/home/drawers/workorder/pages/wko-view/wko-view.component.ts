@@ -9,7 +9,7 @@ import {
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, firstValueFrom, forkJoin, takeUntil } from 'rxjs';
+import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import {
@@ -21,7 +21,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { Attachment } from 'src/app/core/models/attachment.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
@@ -50,9 +49,6 @@ export class WkoViewComponent implements OnInit {
   ) {}
 
   public workOrder: Workorder;
-
-  public listAttachment: Attachment[] = [];
-  public isAttachmentLoaded: boolean = true;
 
   public assetLabel: string;
   public status: string;
@@ -124,9 +120,6 @@ export class WkoViewComponent implements OnInit {
         this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
         this.mapService.addGeojsonToLayer(this.workOrder,'task');
-
-        // Get the list of attachment
-        this.getListAttachment();
 
         this.checkTask(this.taskId);
 
@@ -403,29 +396,6 @@ export class WkoViewComponent implements OnInit {
     }
   }
 
-  public convertBitsToBytes(x): string {
-    let l = 0,
-      n = parseInt(x, 10) || 0;
-
-    const units = ['o', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
-
-    while (n >= 1024 && ++l) {
-      n = n / 1024;
-    }
-
-    return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
-  }
-
-  public getFileExtension(filename: string): string {
-    return filename.split('.').pop();
-  }
-
-  public onSaveAttachment() {
-    setTimeout(() => {
-      this.getListAttachment();
-    }, 1000);
-  }
-
   private getStatus(wtsId: number): void {
     this.workorderService
       .getAllWorkorderTaskStatus()
@@ -526,25 +496,6 @@ export class WkoViewComponent implements OnInit {
       let geometries = listTask.map((task) => [task.longitude, task.latitude]);
       this.mapLayerService.fitBounds(geometries, 20);
     }
-  }
-
-  // ### Attachement ### //
-  private getListAttachment(): void {
-    this.isAttachmentLoaded = false;
-
-    // Get the list of attachment
-    this.attachmentService
-      .getListAttachmentByWorkorderId(this.workOrder.id)
-      .then((listAttachment) => {
-        this.listAttachment = listAttachment;
-        this.isAttachmentLoaded = true;
-      })
-      .catch((error) => {
-        // If there is an error (because the user is offline or anything else)
-        // keep it going
-        console.log(error);
-        this.isAttachmentLoaded = true;
-      });
   }
 
   ngOnDestroy(){

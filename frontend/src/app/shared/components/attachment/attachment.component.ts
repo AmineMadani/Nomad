@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { DateTime } from 'luxon';
+import { firstValueFrom } from 'rxjs';
+import { Attachment } from 'src/app/core/models/attachment.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -12,21 +14,61 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
   styleUrls: ['./attachment.component.scss'],
 })
 export class AttachmentComponent implements OnInit {
-
   constructor(
+    private utilsService: UtilsService,
     private attachmentService: AttachmentService,
-    private workorderService: WorkorderService,
-    private utils: UtilsService,
+    private workorderService: WorkorderService
   ) { }
 
   @Input("workorder") workorder: Workorder;
 
-  @Output() onSaveAttachment: EventEmitter<void> = new EventEmitter();
-
   public isMobile: boolean;
 
+  public listAttachment: Attachment[] = [];
+  public isAttachmentLoaded: boolean = true;
+
   ngOnInit() {
-    this.isMobile = this.utils.isMobilePlateform();
+    this.isMobile = this.utilsService.isMobilePlateform();
+
+    this.getListAttachment();
+  }
+
+  public convertBitsToBytes(x): string {
+    let l = 0,
+      n = parseInt(x, 10) || 0;
+
+    const units = ['o', 'Ko', 'Mo', 'Go', 'To', 'Po', 'Eo', 'Zo', 'Yo'];
+
+    while (n >= 1024 && ++l) {
+      n = n / 1024;
+    }
+
+    return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l];
+  }
+
+  public getFileExtension(filename: string): string {
+    return filename.split('.').pop();
+  }
+
+  // ### Attachement ### //
+  private getListAttachment(): void {
+    this.isAttachmentLoaded = false;
+
+    console.log('get list attachment.....');
+    // Get the list of attachment
+    this.attachmentService
+      .getListAttachmentByWorkorderId(this.workorder.id)
+      .then((listAttachment) => {
+        console.log(listAttachment);
+        this.listAttachment = listAttachment;
+        this.isAttachmentLoaded = true;
+      })
+      .catch((error) => {
+        // If there is an error (because the user is offline or anything else)
+        // keep it going
+        console.log(error);
+        this.isAttachmentLoaded = true;
+      });
   }
 
   async addAttachment(event) {
@@ -64,7 +106,7 @@ export class AttachmentComponent implements OnInit {
     for (let i = 0; i < byteString.length; i++) {
       int8Array[i] = byteString.charCodeAt(i);
     }
-    const blob = new Blob([int8Array], { type: 'image/png' });    
+    const blob = new Blob([int8Array], { type: 'image/png' });
     return blob;
   }
 
@@ -76,9 +118,11 @@ export class AttachmentComponent implements OnInit {
     // If there was no attachment before, set the flag of the workorder to true
     if (!this.workorder.wkoAttachment) {
       this.workorder.wkoAttachment = true;
-      this.workorderService.updateWorkOrder(this.workorder).subscribe();
+      await firstValueFrom(this.workorderService.updateWorkOrder(this.workorder));
     }
 
-    this.onSaveAttachment.emit();
+    this.utilsService.showSuccessMessage("Pièce(s) jointe(s) ajoutée(s) avec succès");
+
+    this.getListAttachment();
   }
 }
