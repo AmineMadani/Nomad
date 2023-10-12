@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.veolia.nomad",
+    "sha256_cert_fingerprints":
+    ["34:BC:9B:85:5E:98:7A:CC:C7:00:62:D4:B1:1D:6B:CC:22:56:71:E1:FF:34:31:93:3E:B8:31:86:BB:49:24:BE"]
+  }
+}]
