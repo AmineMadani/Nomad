@@ -5,6 +5,11 @@
   <ng-container *ngIf="!isLoading; else loadingBody">
     <form *ngIf="creationWkoForm" [formGroup]="creationWkoForm" id="wko_form_creation">
       <ion-list>
+        <div class="edit-reminder" *ngIf="!isCreation && workorder?.id > 0">
+          <ion-note>ID : {{ workorder?.id }}</ion-note>
+          <ion-note>Status actuel : <span class="status">{{ currentStatus }}</span></ion-note>
+        </div>
+
         <div class="select-search">
           <app-search-select [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
             [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">

@@ -6,11 +6,15 @@ ion-item-group {
   }
 
   &:hover {
-    background: var(--ion-color-secondary-variant-90) !important;
     cursor: pointer;
+    background: var(--ion-color-secondary-variant-90);
   }
 
   .status {
     text-transform: capitalize;
+  }
+
+  ion-item.cr {
+    pointer-events: none;
   }
 }

@@ -12,9 +12,9 @@
   <ion-item lines="none" class="summary">
     <ion-label class="labels" [class.mobile-labels]="isMobile">
       <ion-label>Etat : Mise en Service</ion-label>
-      <ion-label>ID : {{ equipment?.id }}</ion-label>
+      <ion-label>ID : {{ asset?.id }}</ion-label>
       <ion-label>Type : {{ type }}</ion-label>
-      <ion-label *ngIf="!isMobile">Contrat : {{ equipment?.contrat }}</ion-label>
+      <ion-label *ngIf="!isMobile">Contrat : {{ asset?.contrat }}</ion-label>
     </ion-label>
   </ion-item>
   <div class="detail-form" [class.mobile-form]="isMobile">
@@ -24,7 +24,7 @@
 
 <ng-template #buttonsTemplate>
   <ng-container *ngIf="!isMobile">
-    <ion-button fill="clear" slot="end" [disabled]="!userHasPermissionCreateAssetWorkorder">
+    <ion-button fill="clear" slot="end" [disabled]="!userHasPermissionCreateAssetWorkorder" (click)="createWorkorder()">
       <ion-icon slot="start" name="add-outline"></ion-icon>
       Générer une intervention
     </ion-button>
