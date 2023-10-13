@@ -85,3 +85,13 @@ ion-list {
   margin-right: 10px;
 }
 
+.edit-reminder {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 10px;
+
+  .status {
+    text-transform: capitalize;
+  }
+}

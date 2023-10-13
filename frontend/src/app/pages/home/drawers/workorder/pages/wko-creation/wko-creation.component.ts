@@ -27,6 +27,7 @@ import {
   firstValueFrom,
   fromEvent,
   Subscription,
+  finalize,
 } from 'rxjs';
 import { DateTime } from 'luxon';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -35,7 +36,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonModal, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
-import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { Task, Workorder, WorkorderTaskStatus } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -68,7 +69,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private drawerService: DrawerService,
     private mapEvent: MapEventService,
     private cacheService: CacheService,
-    private workOrderService: WorkorderService,
+    private workorderService: WorkorderService,
     private utils: UtilsService,
     private layerService: LayerService,
     private userService: UserService,
@@ -96,6 +97,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public params: any;
 
   public currentContract: Contract;
+  public currentStatus: string;
 
   public contracts: Contract[];
   public cities: City[];
@@ -421,6 +423,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.isLoading = true;
     const { wtrId, ...form } = this.creationWkoForm.value;
 
     let assets = [];
@@ -502,13 +505,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     let funct: any;
     if (this.workorder?.id > 0) {
-      funct = this.workOrderService.updateWorkOrder(this.workorder);
+      funct = this.workorderService.updateWorkOrder(this.workorder);
     } else {
       form.wkoExtToSync = this.wkoExtToSyncValue;
-      funct = this.workOrderService.createWorkOrder(this.workorder);
+      funct = this.workorderService.createWorkOrder(this.workorder);
     }
 
-    funct.subscribe(async (res: Workorder) => {
+    funct.pipe(
+      finalize(() => { 
+        this.isLoading = false;
+      })
+    )
+    .subscribe(async (res: Workorder) => {
       this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
@@ -522,7 +530,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
       if (!res.syncOperation) {
-        this.workOrderService.deleteCacheWorkorder(this.workorder);
+        this.workorderService.deleteCacheWorkorder(this.workorder);
       }
     });
   }
@@ -574,7 +582,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public async editEquipmentList(): Promise<void> {
-    this.workOrderService.saveCacheWorkorder(this.workorder);
+    this.workorderService.saveCacheWorkorder(this.workorder);
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,
       this.equipments,
@@ -640,6 +648,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     //set WTR
     this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
+
+    this.workorderService.getAllWorkorderTaskStatus().subscribe((status: WorkorderTaskStatus[]) => {
+      this.currentStatus = status.find((s) => s.id === this.workorder.wtsId)?.wtsLlabel;
+    })
   }
 
   private async initializeEquipments(): Promise<void> {
@@ -778,6 +790,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               this.equipmentName = label;
             });
           }
+
+          if (this.workorder.ctrId.toString() !== this.contracts[0].id.toString()) {
+            this.creationWkoForm.patchValue( { ctrId: this.contracts[0].id }, { emitEvent: true });
+          } 
 
           this.mapLayerService.fitBounds(
             this.equipments.map((eq) => {
@@ -1013,14 +1029,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder.wkoPlanningEndDate as any,
       'dd/MM/yyyy'
     ).toISO() as any;
-    await this.workOrderService.saveCacheWorkorder(this.workorder);
+    await this.workorderService.saveCacheWorkorder(this.workorder);
   }
 
   private async handleEditMode(): Promise<any[]> {
     this.isCreation = false;
     const wkoId = this.activatedRoute.snapshot.params['id'];
     if (wkoId) {
-      this.workorder = await this.workOrderService.getWorkorderById(
+      this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
       const xyTasksAndNewAssets = this.workorder.tasks
