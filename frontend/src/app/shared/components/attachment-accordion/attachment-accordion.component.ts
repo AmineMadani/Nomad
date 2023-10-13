@@ -1,9 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
+import { ModalController } from '@ionic/angular';
 import { DateTime } from 'luxon';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import { Navigation } from 'swiper';
+import { AttachmentImageViewerComponent } from './attachment-image-viewer/attachment-image-viewer.component';
+import { Attachment } from 'src/app/core/models/attachment.model';
 
 @Component({
   selector: 'app-attachment-accordion',
@@ -13,7 +17,8 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 export class AttachmentAccordionComponent implements OnInit {
   constructor(
     private utilsService: UtilsService,
-    private attachmentService: AttachmentService
+    private attachmentService: AttachmentService,
+    private modalCtrl: ModalController
   ) { }
 
   @Input("workorder") workorder: Workorder;
@@ -44,7 +49,26 @@ export class AttachmentAccordionComponent implements OnInit {
   }
 
   public getFileExtension(filename: string): string {
-    return filename.split('.').pop();
+    return filename.split('.').pop().toLowerCase();
+  }
+
+  public isFileImage(filename: string): boolean {
+    return this.getFileExtension(filename) === 'png' ||
+      this.getFileExtension(filename) === 'jpg' ||
+      this.getFileExtension(filename) === 'img';
+  }
+
+  public async openImgReader(attachment: Attachment): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: AttachmentImageViewerComponent,
+      showBackdrop: true,
+      cssClass: `img-reader ${!this.isMobile ? 'web' : ''}`,
+      componentProps: {
+        attachments: this.listAttachment.filter((a) => this.isFileImage(a.informations?.filename)),
+        currentAttachment: attachment
+      }
+    });
+    modal.present();
   }
 
   // ### Attachement ### //

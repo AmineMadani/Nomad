@@ -39,6 +39,7 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
+import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
     GenericTableComponent,
     FilterTableComponent,
     SkeletonLoadingComponent,
+    AttachmentImageViewerComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
