@@ -27,6 +27,7 @@ import {
   firstValueFrom,
   fromEvent,
   Subscription,
+  finalize,
 } from 'rxjs';
 import { DateTime } from 'luxon';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -422,6 +423,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.isLoading = true;
     const { wtrId, ...form } = this.creationWkoForm.value;
 
     let assets = [];
@@ -509,7 +511,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       funct = this.workorderService.createWorkOrder(this.workorder);
     }
 
-    funct.subscribe(async (res: Workorder) => {
+    funct.pipe(
+      finalize(() => { 
+        this.isLoading = false;
+      })
+    )
+    .subscribe(async (res: Workorder) => {
       this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
