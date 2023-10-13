@@ -1,0 +1,32 @@
+.attachment-accordion {
+  margin-bottom: 10px;
+
+  .attachment-div {
+      display: flex;
+      flex-direction: row;
+      font-size: 14px;
+      width: 100%;
+      align-items: center;
+      margin-top: 8px;
+
+      .preview-div {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          width: 96px;
+      }
+
+      .informations-div {
+          display: flex;
+          flex-direction: column;
+          margin-left: 8px;
+          width: 100%;
+
+          .title {
+              font-weight: bold;
+          }
+      }
+  }
+}
+

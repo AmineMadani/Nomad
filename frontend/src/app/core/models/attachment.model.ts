@@ -1,7 +1,9 @@
 export interface Attachment {
     id: string;
     informations: AttachmentInformation;
-    url: string;
+  url: string;
+  // Used only for local attachments
+  file?: File;
 }
 
 export interface AttachmentInformation {

@@ -25,7 +25,7 @@ import { FormTextaeraComponent } from './form-editor/properties/form-textaera/no
 import { FormLabelComponent } from './form-editor/properties/form-label/form-label.component';
 import { FormAttachmentComponent } from './form-editor/properties/form-attachment/form-attachment.component';
 import { FormSliderComponent } from './form-editor/properties/form-slider/form-slider.component';
-import { AttachmentComponent } from './components/attachment/attachment.component';
+import { AttachmentAccordionComponent } from './components/attachment-accordion/attachment-accordion.component';
 import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
@@ -45,7 +45,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
     // COMPONENTS
     MainToolbarComponent,
     DatepickerComponent,
-    AttachmentComponent,
+    AttachmentAccordionComponent,
     PageHeaderComponent,
     SearchSelectComponent,
     GenericTableComponent,
@@ -90,7 +90,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
   exports:[
     MainToolbarComponent,
     DatepickerComponent,
-    AttachmentComponent,
+    AttachmentAccordionComponent,
     PageHeaderComponent,
     FormEditorComponent,
     ClearDataDirective,

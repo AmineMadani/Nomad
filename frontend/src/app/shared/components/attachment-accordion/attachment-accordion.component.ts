@@ -1,30 +1,27 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Camera, CameraResultType } from '@capacitor/camera';
 import { DateTime } from 'luxon';
-import { firstValueFrom } from 'rxjs';
-import { Attachment } from 'src/app/core/models/attachment.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
-  selector: 'app-attachment',
-  templateUrl: './attachment.component.html',
-  styleUrls: ['./attachment.component.scss'],
+  selector: 'app-attachment-accordion',
+  templateUrl: './attachment-accordion.component.html',
+  styleUrls: ['./attachment-accordion.component.scss'],
 })
-export class AttachmentComponent implements OnInit {
+export class AttachmentAccordionComponent implements OnInit {
   constructor(
     private utilsService: UtilsService,
-    private attachmentService: AttachmentService,
-    private workorderService: WorkorderService
+    private attachmentService: AttachmentService
   ) { }
 
   @Input("workorder") workorder: Workorder;
+  @Input("isReadOnly") isReadOnly: boolean = false;
 
   public isMobile: boolean;
 
-  public listAttachment: Attachment[] = [];
+  public listAttachment: any[] = [];
   public isAttachmentLoaded: boolean = true;
 
   ngOnInit() {
@@ -54,12 +51,10 @@ export class AttachmentComponent implements OnInit {
   private getListAttachment(): void {
     this.isAttachmentLoaded = false;
 
-    console.log('get list attachment.....');
     // Get the list of attachment
     this.attachmentService
-      .getListAttachmentByWorkorderId(this.workorder.id)
+      .getAllAttachmentsByObjId(this.workorder.id)
       .then((listAttachment) => {
-        console.log(listAttachment);
         this.listAttachment = listAttachment;
         this.isAttachmentLoaded = true;
       })
@@ -112,16 +107,8 @@ export class AttachmentComponent implements OnInit {
 
   async saveAttachments(listFile: File[]) {
     for (const file of listFile) {
-      await this.attachmentService.addAttachment(this.workorder.id, file);
+      await this.attachmentService.addLocalAttachmentByObjId(this.workorder.id, file);
     };
-
-    // If there was no attachment before, set the flag of the workorder to true
-    if (!this.workorder.wkoAttachment) {
-      this.workorder.wkoAttachment = true;
-      await firstValueFrom(this.workorderService.updateWorkOrder(this.workorder));
-    }
-
-    this.utilsService.showSuccessMessage("Pièce(s) jointe(s) ajoutée(s) avec succès");
 
     this.getListAttachment();
   }

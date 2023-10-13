@@ -1,16 +1,18 @@
-<ion-accordion value="attachment">
+<ion-accordion value="attachment" class="attachment-accordion">
   <ion-item slot="header" color="light">
     <ion-label> Pièces jointes </ion-label>
 
-    <ion-button fill="clear" (click)="fileUpload.click()" [matTooltip]="'Ajouter une pièce jointe'">
-      <ion-icon slot="icon-only" name="attach"></ion-icon>
-    </ion-button>
-    <input #fileUpload type="file" value="Upload" (change)="addAttachment($event)" style="display:none" accept="*"
-      multiple />
+    <ng-container *ngIf="!isReadOnly">
+      <ion-button fill="clear" (click)="fileUpload.click()" [matTooltip]="'Ajouter une pièce jointe'">
+        <ion-icon slot="icon-only" name="attach"></ion-icon>
+      </ion-button>
+      <input #fileUpload type="file" value="Upload" (change)="addAttachment($event)" style="display:none" accept="*"
+        multiple />
 
-    <ion-button *ngIf="isMobile" fill="clear" (click)="addPicture()">
-      <ion-icon slot="icon-only" name="camera"></ion-icon>
-    </ion-button>
+      <ion-button *ngIf="isMobile" fill="clear" (click)="addPicture()">
+        <ion-icon slot="icon-only" name="camera"></ion-icon>
+      </ion-button>
+    </ng-container>
   </ion-item>
   <div slot="content">
     <ng-container *ngIf="isAttachmentLoaded">

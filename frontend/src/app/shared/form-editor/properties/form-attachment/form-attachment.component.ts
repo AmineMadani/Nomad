@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormAttachment, FormDefinition } from '../../models/form.model';
 import { ModalController } from '@ionic/angular';
-import { AttachmentComponent } from 'src/app/shared/components/attachment/attachment.component';
+// import { AttachmentComponent } from 'src/app/shared/components/attachment-accordion/attachment.component';
 
 @Component({
   selector: 'app-form-attachment',
@@ -20,15 +20,15 @@ export class FormAttachmentComponent implements OnInit {
   }
 
   public async openImgReader(img: any): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: AttachmentComponent,
-      showBackdrop: true,
-      cssClass: 'img-reader',
-      componentProps: {
-        imgs: this.attributes.value,
-        currentImg: img
-      }
-    });
-    modal.present();
+    // const modal = await this.modalCtrl.create({
+    //   component: AttachmentComponent,
+    //   showBackdrop: true,
+    //   cssClass: 'img-reader',
+    //   componentProps: {
+    //     imgs: this.attributes.value,
+    //     currentImg: img
+    //   }
+    // });
+    // modal.present();
   }
 }
