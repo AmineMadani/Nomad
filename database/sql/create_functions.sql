@@ -185,9 +185,9 @@ begin
             WHERE st_intersects(t.geom, ''%3$s''::geometry)
 				and 
 				(
-            		(t.wko_planning_end_date >=  %6$s
-            		or
-            		t.wko_completion_start_date >= %6$s)
+            		(t.wko_planning_end_date >=  %6$s or t.wko_completion_start_date >= %6$s)
+						or
+					(t.wko_planning_end_date is NULL and t.wko_completion_start_date is NULL)
 				)
         )
         SELECT
