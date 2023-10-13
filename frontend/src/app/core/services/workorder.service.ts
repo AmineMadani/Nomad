@@ -8,6 +8,7 @@ import { MapFeature } from '../models/map-feature.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MapService } from './map/map.service';
 import { AppDB } from '../models/app-db.model';
+import { AttachmentService } from './attachment.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -27,7 +28,8 @@ export class WorkorderService {
     private workorderDataService: WorkorderDataService,
     private cacheService: CacheService,
     private configurationService: ConfigurationService,
-    private mapService: MapService
+    private mapService: MapService,
+    private attachmentService: AttachmentService
   ) {
     this.db = new AppDB();
   }
@@ -124,7 +126,12 @@ export class WorkorderService {
     workorder.syncOperation = undefined;
     return this.workorderDataService.updateWorkOrder(workorder).pipe(
       timeout(this.configurationService.offlineTimeoutWorkorder),
-      catchError((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder))
+      catchError((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder)),
+      switchMap(async (newWko: Workorder) => {
+        // Save the workorder attachments if necessary
+        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+        return newWko;
+      }),
     );
   }
 
@@ -154,7 +161,12 @@ export class WorkorderService {
           return workorder;
         }
         throw error
-      })
+      }),
+      switchMap(async (newWko: Workorder) => {
+        // Save the workorder attachments if necessary
+        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+        return newWko;
+      }),
     );
   }
 

@@ -25,7 +25,7 @@ import { FormTextaeraComponent } from './form-editor/properties/form-textaera/no
 import { FormLabelComponent } from './form-editor/properties/form-label/form-label.component';
 import { FormAttachmentComponent } from './form-editor/properties/form-attachment/form-attachment.component';
 import { FormSliderComponent } from './form-editor/properties/form-slider/form-slider.component';
-import { ImageReaderComponent } from './components/image-reader/image-reader.component';
+import { AttachmentAccordionComponent } from './components/attachment-accordion/attachment-accordion.component';
 import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
@@ -39,18 +39,20 @@ import { GenericTableComponent } from './components/generic-table/generic-table.
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
+import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
 
 @NgModule({
   declarations: [
     // COMPONENTS
     MainToolbarComponent,
     DatepickerComponent,
-    ImageReaderComponent,
+    AttachmentAccordionComponent,
     PageHeaderComponent,
     SearchSelectComponent,
     GenericTableComponent,
     FilterTableComponent,
     SkeletonLoadingComponent,
+    AttachmentImageViewerComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -90,7 +92,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
   exports:[
     MainToolbarComponent,
     DatepickerComponent,
-    ImageReaderComponent,
+    AttachmentAccordionComponent,
     PageHeaderComponent,
     FormEditorComponent,
     ClearDataDirective,

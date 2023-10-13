@@ -43,7 +43,6 @@ import { ReportContextComponent } from './drawers/workorder/pages/report/compone
 import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
 import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
 import { WorkorderListComponent } from './drawers/exploitation/components/workorder-list/workorder-list.component';
-import { AttachmentComponent } from './drawers/components/attachment/attachment.component';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
@@ -92,7 +91,6 @@ import { MulticontractModalComponent } from './drawers/workorder/pages/multicont
     ReportAssetComponent,
     ReportContextComponent,
     ReportFormComponent,
-    AttachmentComponent,
     NewAssetDrawer,
     WkoWaterTypeComponent,
     MulticontractModalComponent,

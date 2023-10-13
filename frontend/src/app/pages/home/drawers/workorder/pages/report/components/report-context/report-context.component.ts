@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
-import { Attachment } from 'src/app/core/models/attachment.model';
 import { VLayerWtr } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
-import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -20,8 +18,7 @@ export class ReportContextComponent implements OnInit {
     private layerService: LayerService,
     private mapService: MapService,
     private mapLayerService: MapLayerService,
-    private mapEventService: MapEventService,
-    private attachmentService: AttachmentService
+    private mapEventService: MapEventService
   ) { }
 
   @Input() workorder: Workorder;
@@ -34,16 +31,8 @@ export class ReportContextComponent implements OnInit {
   public displayOptions: VLayerWtr[] = [];
   public valueKey: number;
   public querySearch: string = "";
-  public attachments: Attachment[];
-  public isAttachmentLoaded: boolean = false;
 
   ngOnInit() {
-
-    this.attachmentService.getListAttachmentByWorkorderId(this.tasks[0].wkoId).then(res => {
-      this.attachments = res;
-      this.isAttachmentLoaded = true
-    });
-
     this.layerService.getAllVLayerWtr().subscribe((res: VLayerWtr[]) => {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));

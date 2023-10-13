@@ -1,0 +1,10 @@
+<div class="swiper-container" [class.mobile]="isMobile">
+  <ion-button *ngIf="isMobile" fill="outline" (click)="close()">
+    <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+  </ion-button>
+  <swiper-container [slidesPerView]="1" [navigation]="true" [id]="'swiper-large-viewer'">
+    <swiper-slide *ngFor="let attachment of attachments">
+      <img src="{{ attachment.url }}" [alt]="attachment.informations?.filename" />
+    </swiper-slide>
+  </swiper-container>
+</div>

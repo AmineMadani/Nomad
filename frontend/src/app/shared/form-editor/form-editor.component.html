@@ -96,7 +96,7 @@
         [edit]="editMode" [paramMap]="paramMap"></app-form-input>
     </ng-container>
     <ng-container *ngSwitchCase="'select'">
-      <app-form-select [definition]="definition" [control]="form.controls[definition.key]" 
+      <app-form-select [definition]="definition" [control]="form.controls[definition.key]"
         [edit]="editMode" [paramMap]="paramMap" (onSelectSingleValue)="onGoToNextQuestion()"></app-form-select>
     </ng-container>
     <ng-container *ngSwitchCase="'radio'">
@@ -110,9 +110,9 @@
       <app-form-datepicker [definition]="definition" [control]="form.controls[definition.key]"
         [edit]="editMode" [paramMap]="paramMap"></app-form-datepicker>
     </ng-container>
-    <ng-container *ngSwitchCase="'attachment'">
+    <!-- <ng-container *ngSwitchCase="'attachment'">
       <app-form-attachment [definition]="definition" [control]="form.controls[definition.key]"></app-form-attachment>
-    </ng-container>
+    </ng-container> -->
     <ng-container *ngSwitchCase="'slider'">
       <app-form-slider [definition]="definition" [control]="form.controls[definition.key]"
         [edit]="editMode"></app-form-slider>

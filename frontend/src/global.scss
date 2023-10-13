@@ -192,6 +192,11 @@ ion-label.label {
 .img-reader {
   --background: transparent;
   --box-shadow: unset;
+
+  &.web {
+    --height: 70vh;
+    --width: 70vw;
+  }
 }
 
 ion-chip.status {
