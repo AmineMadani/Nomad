@@ -83,14 +83,8 @@
     <ion-item button (click)="onGenerateReport()" [disabled]="!userHasPermissionModifyReport">
       <ion-label id="map-nomad-context-menu-create-report">Saisir un compte-rendu XY</ion-label>
     </ion-item>
-    <ion-item button [disabled]="!userHasPermissionRequestUpdateAsset">
-      <ion-label>Faire une demande de mise à jour</ion-label>
-    </ion-item>
     <ion-item button (click)="onShareLocalisation()">
       <ion-label>Partager ma localisation </ion-label>
-    </ion-item>
-    <ion-item button (click)="onRemoveMarker()">
-      <ion-label>Supprimer le pin</ion-label>
     </ion-item>
   </ion-list>
 </div>

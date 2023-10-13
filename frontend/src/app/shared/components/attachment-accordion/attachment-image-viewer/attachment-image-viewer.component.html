@@ -4,7 +4,7 @@
   </ion-button>
   <swiper-container [slidesPerView]="1" [navigation]="true" [id]="'swiper-large-viewer'">
     <swiper-slide *ngFor="let attachment of attachments">
-      <img src="{{ attachment.url }}" [alt]="attachment.informations?.filename" />
+      <img src="{{ attachment.url }}" [alt]="attachment.informations?.filename" onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
     </swiper-slide>
   </swiper-container>
 </div>

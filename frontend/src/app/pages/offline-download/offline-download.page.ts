@@ -5,6 +5,8 @@ import { DownloadState, OfflineDownload, OfflineDownloadService } from 'src/app/
 import { BasemapsSelectionModalComponent } from './components/basemaps-selection-modal/basemaps-selection-modal.component';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { BasemapTemplate } from 'src/app/core/models/basemap.model';
+import { CacheService } from 'src/app/core/services/cache.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-offline-download',
@@ -33,7 +35,9 @@ export class OfflineDownloadPage implements OnInit {
     private offlineDownloadService: OfflineDownloadService,
     private cd: ChangeDetectorRef,
     private modalCtrl: ModalController,
-    private templateService: TemplateService
+    private templateService: TemplateService,
+    private cacheService: CacheService,
+    private utilsService: UtilsService
   ) { }
 
   async ngOnInit() {
@@ -167,6 +171,10 @@ export class OfflineDownloadPage implements OnInit {
       this.resetBasemapDownload();
       this.onBasemapDump();
     }
+  }
+
+  onClearLocalDb() {
+    this.cacheService.resetCache();
   }
 
   private launchReferentialsSubscription() {
