@@ -877,7 +877,7 @@ aep_vanne;z;Z relève (matrice sup.);numeric;35;DETAILED;Localisation;
 aep_vanne;comment;Commentaires;text;40;SYNTHETIC;Complément;
 aep_vanne;territoire;Code orga;text;90;DETAILED;Métadonnées;1
 aep_vanne;insee_code;Insee Code;text;91;DETAILED;Métadonnées;1
-aep_vanne;angle;Angle;float8;92;DETAILED;Métadonnées;1
+aep_vanne;angle;Angle;float8;92;SYNTHETIC;Métadonnées;1
 aep_vanne;code_contrat;Code Contrat;text;93;DETAILED;Métadonnées;1
 aep_vanne;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 aep_vanne;uuid;UUID;uuid;;;;
