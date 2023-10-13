@@ -67,21 +67,6 @@ export class FormHistoryComponent implements OnInit {
    * @param workorder workorder clicked
    */
   public onWKOClick(workorder: Workorder) {
-    const feature = MapFeature.from(workorder);
-    this.openIntervention(feature);
-  }
-
-  /**
-   * Open the selected intervention
-   * @param feature selected intervention
-   */
-  public openIntervention(feature: MapFeature): void {
-    this.drawer.navigateTo(DrawerRouteEnum.WORKORDER, [feature.id], {
-      lyrTableName: 'task'
-    });
-  }
-
-  public openReport(w: Workorder): void {
-    // To do in a following US
+    this.drawer.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [workorder.id]);
   }
 }

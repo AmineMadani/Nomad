@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { FormTemplate } from 'src/app/core/models/template.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
@@ -22,10 +22,11 @@ export class EquipmentDetailsComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private templateService: TemplateService,
     private userService: UserService,
+    private router: Router
   ) {}
 
   public form: Form;
-  public equipment: any;
+  public asset: any;
   public type: string;
   public tableName: string;
 
@@ -42,7 +43,7 @@ export class EquipmentDetailsComponent implements OnInit {
     this.activatedRoute.queryParams
       .pipe(
         switchMap((equipment: any) => {
-          this.equipment = equipment;
+          this.asset = equipment;
           this.tableName = equipment.lyrTableName;
           const type = equipment.lyrTableName.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
           if (type) {
@@ -60,12 +61,18 @@ export class EquipmentDetailsComponent implements OnInit {
           form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW').definition);
         }
         form.definitions.map((def: FormDefinition) => {
-          if (this.equipment[def.key]) {
-            def.attributes.value = this.equipment[def.key];
+          if (this.asset[def.key]) {
+            def.attributes.value = this.asset[def.key];
           }
           return def;
         });
         this.form = form;
       });
+  }
+
+  public createWorkorder(): void {
+    this.router.navigate(['/home/workorder'], {
+      queryParams: { [this.asset.lyrTableName]: this.asset.id },
+    });
   }
 }
