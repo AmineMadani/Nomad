@@ -224,17 +224,12 @@ begin
   records as
   (
     select
-      'index_'||id||'.geojson' as file,
-      st_asText(st_extent(geom))::text as bbox,
-      geom
-    from nomad.app_grid
-      where st_intersects(
-        geom,
-        (
-          select st_union(ST_MakeValid(geom))
-          from nomad.contract ctr join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = user_ident and ucp.usc_ddel is null
-        )
-      ) group by id, geom order by id
+       distinct
+      'index_'||a.id||'.geojson' as file,
+       ST_AsText(st_envelope(a.geom)) as bbox
+    from nomad.contract ctr 
+    join nomad.usr_ctr_prf ucp on ucp.ctr_id=ctr.id and ucp.usr_id = user_ident and ucp.usc_ddel is nulL
+    join  nomad.app_grid a on  st_intersects(a.geom, ST_MakeValid(ctr.geom))
   ),
   features as
   (
