@@ -98,8 +98,8 @@ def update_wo_post_request(data, endpoint_part):
                 "success": True,
                 "body": {"status": "ok"}
             }
-		
-		elif response.status_code == 404:
+
+        elif response.status_code == 404:
             return {
                 "statusCode": 404,
                 "success": False,
