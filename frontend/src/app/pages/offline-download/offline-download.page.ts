@@ -36,8 +36,7 @@ export class OfflineDownloadPage implements OnInit {
     private cd: ChangeDetectorRef,
     private modalCtrl: ModalController,
     private templateService: TemplateService,
-    private cacheService: CacheService,
-    private utilsService: UtilsService
+    private cacheService: CacheService
   ) { }
 
   async ngOnInit() {

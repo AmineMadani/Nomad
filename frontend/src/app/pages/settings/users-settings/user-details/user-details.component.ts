@@ -422,6 +422,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       message: 'Sauvegarde en cours...',
       color: 'primary',
       position: 'bottom',
+      duration: 2000
     });
     this.savingToast.present();
 

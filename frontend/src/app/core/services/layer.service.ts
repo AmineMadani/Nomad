@@ -24,6 +24,7 @@ export class LayerService {
   private layerIndexes: GeoJSONObject;
   private layers: Layer[];
   private vLayerWtr: VLayerWtr[];
+  private layerReferences: LayerReferences[];
 
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
@@ -68,8 +69,8 @@ export class LayerService {
    * If successful, it stores the layer in IndexedDB.
    * @returns The geojson of the index of the layer.
    */
-  public getLayerIndexes(): Observable<GeoJSONObject> {
-    if (this.layerIndexes) {
+  public getLayerIndexes(forceGetFromDb: boolean = false): Observable<GeoJSONObject> {
+    if (this.layerIndexes && !forceGetFromDb) {
       return of(this.layerIndexes);
     }
 
@@ -132,8 +133,8 @@ export class LayerService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public getAllLayers(): Observable<Layer[]> {
-    if (this.layers) {
+  public getAllLayers(forceGetFromDb: boolean = false): Observable<Layer[]> {
+    if (this.layers && !forceGetFromDb) {
       return of(this.layers);
     }
 
@@ -223,10 +224,16 @@ export class LayerService {
  * @param userId The ID of the user to get the layer references for.
  * @returns An observable that resolves to the layer references.
  */
-  public getUserLayerReferences(): Observable<LayerReferences[]> {
+  public getUserLayerReferences(forceGetFromDb: boolean = false): Observable<LayerReferences[]> {
+    if (this.layerReferences && !forceGetFromDb) {
+      return of(this.layerReferences);
+    }
+
     return this.cacheService.fetchReferentialsData<LayerReferences[]>(
       ReferentialCacheKey.LAYER_REFERENCES,
       () => this.layerDataService.getUserLayerReferences()
+    ).pipe(
+      tap(results => this.layerReferences = results)
     );
   }
 
@@ -249,8 +256,8 @@ export class LayerService {
   * Get all VLayerWtr.
   * @returns A promise that resolves to the list of VLayerWtr.
   */
-  public getAllVLayerWtr(): Observable<VLayerWtr[]> {
-    if (this.vLayerWtr) {
+  public getAllVLayerWtr(forceGetFromDb: boolean = false): Observable<VLayerWtr[]> {
+    if (this.vLayerWtr && !forceGetFromDb) {
       return of(this.vLayerWtr);
     }
 
