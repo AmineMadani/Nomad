@@ -16,8 +16,8 @@ export class ContractService {
 
   contracts: Contract[];
 
-  getAllContracts(): Observable<Contract[]> {
-    if (this.contracts) {
+  getAllContracts(forceGetFromDb: boolean = false): Observable<Contract[]> {
+    if (this.contracts && !forceGetFromDb) {
       return of(this.contracts);
     }
 

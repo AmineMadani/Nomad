@@ -99,16 +99,16 @@ export class OfflineDownloadService {
 
     const nbReferentialCalls: number = 10;
     forkJoin({
-      contracts: this.contractService.getAllContracts().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      cities: this.cityService.getAllCities().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      layers: this.layerService.getAllLayers().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      vLayerWtrs: this.layerService.getAllVLayerWtr().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      layerIndexes: this.layerService.getLayerIndexes().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      workTaskStatus: this.workorderService.getAllWorkorderTaskStatus().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      workTaskReasons: this.workorderService.getAllWorkorderTaskReasons().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      formTemplates: this.templateService.getFormsTemplate().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      permissions: this.userService.getAllPermissions().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
-      layerReferences: this.layerService.getUserLayerReferences().pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      contracts: this.contractService.getAllContracts(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      cities: this.cityService.getAllCities(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      layers: this.layerService.getAllLayers(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      vLayerWtrs: this.layerService.getAllVLayerWtr(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      layerIndexes: this.layerService.getLayerIndexes(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      workTaskStatus: this.workorderService.getAllWorkorderTaskStatus(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      workTaskReasons: this.workorderService.getAllWorkorderTaskReasons(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      formTemplates: this.templateService.getFormsTemplate(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      permissions: this.userService.getAllPermissions(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
+      layerReferences: this.layerService.getUserLayerReferences(true).pipe(tap(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload))),
     }).pipe(
       catchError(() => {
         this.onDownloadReferentialsError();

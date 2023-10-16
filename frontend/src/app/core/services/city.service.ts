@@ -16,8 +16,8 @@ export class CityService {
 
   cities: City[];
 
-  getAllCities(): Observable<City[]> {
-    if (this.cities) {
+  getAllCities(forceGetFromDb: boolean = false): Observable<City[]> {
+    if (this.cities && !forceGetFromDb) {
       return of(this.cities);
     }
 
