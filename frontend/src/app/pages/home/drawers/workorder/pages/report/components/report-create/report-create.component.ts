@@ -78,7 +78,7 @@ export class ReportCreateComponent implements OnInit {
       const status = workorderTaskStatus.find(sts => sts.id.toString() === this.workorder.wtsId.toString());
       switch (status.wtsCode) {
         case WkoStatus[WkoStatus.TERMINE]:
-          this.presentAlert();
+          this.endProcess();
           break;
         case WkoStatus[WkoStatus.CREE]:
           this.createCompleteForm();
@@ -280,7 +280,7 @@ export class ReportCreateComponent implements OnInit {
   /**
    * manage keydown event on date input
    * prevent non numeric input
-   * @param event 
+   * @param event
    */
   public onDateKeyDown(event: any) {
     this.currentDateValue = event.target.value;
@@ -292,7 +292,7 @@ export class ReportCreateComponent implements OnInit {
   /**
    * manage keyup event on date input
    * post treatment for date format
-   * @param event 
+   * @param event
    */
   public onDateKeyUp(event: any) {
     event.target.value = DateValidator.formatDate(event, this.currentDateValue);
@@ -524,27 +524,10 @@ export class ReportCreateComponent implements OnInit {
   }
 
   /**
-   * Modale if a workorder report is already done
+   * if a workorder report is already done go "exploitation"
    */
-  async presentAlert() {
-    const alert = await this.alertController.create({
-      backdropDismiss: false,
-      header: 'Alerte',
-      subHeader: 'Important',
-      message: 'Il existe déjà un compte rendu pour cette intervention.',
-      buttons: [{
-        text: 'Ok',
-        role: 'confirm',
-      }]
-    });
-
-    await alert.present();
-
-    const { role } = await alert.onDidDismiss();
-
-    if (role === 'confirm') {
-      this.closeReport();
-    }
+  private endProcess() {
+    this.router.navigate(['/home/exploitation']);
   }
 
   /**
@@ -670,7 +653,7 @@ export class ReportCreateComponent implements OnInit {
     this.drawerService.navigateTo(
       DrawerRouteEnum.NEW_ASSET,
       [],
-      { 
+      {
         draft: this.workorder.id,
         step: 'report'
       }

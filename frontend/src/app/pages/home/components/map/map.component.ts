@@ -397,7 +397,7 @@ export class MapComponent implements OnInit, OnDestroy {
     if(this.selectedFeature['id']) {
      this.router.navigate(['/home/workorder'], {
       queryParams: { [this.selectedFeature['source']]: this.selectedFeature['id'] },
-     }); 
+     });
      document.getElementById('map-nomad-context-menu').className = 'hide';
     } else {
       if (!this.selectedFeature['properties']['lyrTableName']) {
@@ -566,7 +566,7 @@ export class MapComponent implements OnInit, OnDestroy {
           canvasElement.classList.add('cursor-mesure');
           //for the area calculation box move
           const resumeBox = document.getElementById('calculation-box');
-          if (resumeBox) {
+          if (resumeBox && this.drawingService.getShouldMooveResumeBox()) {
             const x = e.originalEvent.offsetX;
             const y = e.originalEvent.offsetY;
             resumeBox.style.transform = `translate(${x}px, ${y}px)`;
@@ -666,6 +666,7 @@ export class MapComponent implements OnInit, OnDestroy {
           }
         } else {
           this.measure = this.drawingService.calculateMeasure();
+          this.drawingService.stopMooveMesureBox();
           const canvasElement =
             document.getElementsByClassName('maplibregl-canvas')[0];
           if (canvasElement.classList.contains('cursor-mesure')) {

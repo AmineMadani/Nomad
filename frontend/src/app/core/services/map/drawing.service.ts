@@ -19,9 +19,9 @@ export class DrawingService {
 
   private draw: MapboxDraw;
 
-  
   private drawActive: boolean = false;
   private isMeasuring: boolean = false;
+  private shouldMooveResumeBox: boolean = false;
 
   public getDraw(): MapboxDraw {
     return this.draw;
@@ -38,12 +38,18 @@ export class DrawingService {
   public setIsMeasuring(isMeasuring: boolean) {
     if (isMeasuring && this.drawActive) this.drawActive = false;
     this.isMeasuring = isMeasuring;
+    if (isMeasuring) {
+      this.shouldMooveResumeBox = true;
+    }
   }
 
   public getDrawActive(): boolean {
     return this.drawActive;
   }
 
+  public getShouldMooveResumeBox(): boolean {
+    return this.shouldMooveResumeBox;
+  }
   public setDrawActive(active: boolean) {
     if (active && this.isMeasuring) this.isMeasuring = false;
     this.drawActive = active;
@@ -100,7 +106,8 @@ export class DrawingService {
     if (coordinates.length > 2) {
       const indexToRemove = coordinates.length - 1;
       coordinates.splice(indexToRemove, 1);
-    } else {
+    }
+    else if (coordinates.length < 2 ) {
       return `<i>Cliquez pour commencer</i>`;
     }
 
@@ -129,5 +136,12 @@ export class DrawingService {
     } else {
       return (perimeter / 1000).toFixed(2) + ' km';
     }
+  }
+
+  /**
+   * Avoid the resume displayed to moove
+   */
+  public stopMooveMesureBox(): void {
+    this.shouldMooveResumeBox = false;
   }
 }

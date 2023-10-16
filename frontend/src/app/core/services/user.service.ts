@@ -271,8 +271,8 @@ export class UserService {
     * Method to get all the permissions from server or cache
     * @returns Permissions
     */
-  getAllPermissions(): Observable<Permission[]> {
-    if (this.permissions && this.permissions.length > 0) {
+  getAllPermissions(forceGetFromDb: boolean = false): Observable<Permission[]> {
+    if (this.permissions && this.permissions.length > 0 && !forceGetFromDb) {
       return of(this.permissions);
     }
 

@@ -4,7 +4,6 @@ import com.veolia.nextcanope.dto.ReportQuestionDto;
 import com.veolia.nextcanope.dto.reportQuestion.ReportQuestionUpdateDto;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
-import com.veolia.nextcanope.model.Report;
 import com.veolia.nextcanope.model.ReportQuestion;
 import com.veolia.nextcanope.model.Users;
 import com.veolia.nextcanope.repository.ReportQuestionRepository;

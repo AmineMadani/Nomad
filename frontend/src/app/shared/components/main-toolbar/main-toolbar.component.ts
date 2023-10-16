@@ -75,6 +75,7 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
   public async saveContext (): Promise<void>  {
     const user : User = await this.userService.getCurrentUserContext();
     this.userService.updateCurrentUser(user);
+    this.popover.dismiss();
   }
 
   /**
@@ -82,5 +83,6 @@ export class MainToolbarComponent implements OnInit, OnDestroy {
    */
   public restoreContext(): void {
     this.userService.restoreUserContextFromBase();
+    this.popover.dismiss();
   }
 }

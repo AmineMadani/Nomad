@@ -232,8 +232,8 @@ export class WorkorderService {
    * Get list of workorders task status
    * @returns an observable of the list of status
    */
-  public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
-    if (this.workorderTaskStatus) {
+  public getAllWorkorderTaskStatus(forceGetFromDb: boolean = false): Observable<WorkorderTaskStatus[]> {
+    if (this.workorderTaskStatus && !forceGetFromDb) {
       return of(this.workorderTaskStatus);
     }
 
@@ -249,8 +249,8 @@ export class WorkorderService {
    * Get list of workorders task reasons
    * @returns an observable of the list of reasons
    */
-  public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
-    if (this.workorderTaskReasons) {
+  public getAllWorkorderTaskReasons(forceGetFromDb: boolean = false): Observable<WorkorderTaskReason[]> {
+    if (this.workorderTaskReasons && !forceGetFromDb) {
       return of(this.workorderTaskReasons);
     }
 
@@ -321,7 +321,7 @@ export class WorkorderService {
       this.stopSyncOperations$ = new Subject<void>();
 
       // Listen changes every 5 minutes
-      interval(300000).pipe(
+      interval(10000).pipe(
         // Stop the interval when there are no more workorders to sync
         takeUntil(this.stopSyncOperations$),
         // Perform the synchronization
@@ -335,7 +335,7 @@ export class WorkorderService {
                 tap((workorder) => {
                   console.log('Workorder updated successfully', workorder);
                   this.deleteCacheWorkorder(wko);
-                  this.syncWorkorderDisplay(wko, workorder)
+                  this.syncWorkorderDisplay(wko, workorder);
                 }),
               );
             }
@@ -352,7 +352,7 @@ export class WorkorderService {
               console.error('Failed to perform the synchronization', error);
               return EMPTY;
             })
-          )
+          );
         })
       ).subscribe();
     }
