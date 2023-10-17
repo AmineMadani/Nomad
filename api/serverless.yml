@@ -155,7 +155,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
 
@@ -175,7 +175,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
     rec:
@@ -194,7 +194,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
 
@@ -214,7 +214,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
 
@@ -234,7 +234,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
 
@@ -254,7 +254,7 @@ custom:
             - arn:aws:iam::883029375205:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
 
@@ -274,7 +274,7 @@ custom:
             - arn:aws:iam::709087168436:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
 
@@ -294,7 +294,7 @@ custom:
             - arn:aws:iam::709087168436:user/apigeeuser
         Action: execute-api:Invoke
         Resource:
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-cloture'
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
 
