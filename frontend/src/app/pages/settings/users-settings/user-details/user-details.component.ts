@@ -36,6 +36,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   public isLoading: boolean = false;
   public isSaving: boolean = false;
+  public isMobile: boolean = false;
 
   // Permissions
   public userHasPermissionManageUser: boolean = false;
@@ -166,6 +167,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private contractsSubscription: Subscription;
 
   async ngOnInit() {
+    this.isMobile = this.utilsService.isMobilePlateform();
     this.initForm();
 
     // Permissions

@@ -2,7 +2,7 @@
   <ng-container [ngSwitch]="filterType">
     <!-- TEXT -->
     <ng-container *ngSwitchCase="FILTER_TYPE.TEXT">
-      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+      <ion-select aria-label="component-type" [interface]="isMobile ? 'action-sheet' : 'popover'" label="Avancé" label-placement="floating" fill="outline" 
         [(ngModel)]="selectedFilterTextCondition" interface="popover" class="filter-select">
         <ion-select-option *ngFor="let ftt of FILTER_TEXT_CONDITION" [value]="ftt.value">
           {{ftt.label}}
@@ -36,7 +36,8 @@
 
     <!-- NUMBER -->
     <ng-container *ngSwitchCase="FILTER_TYPE.NUMBER">
-      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+      <ion-select aria-label="component-type" [interface]="isMobile ? 'action-sheet' : 'popover'"
+        label="Avancé" label-placement="floating" fill="outline" 
         [(ngModel)]="selectedFilterNumberCondition" interface="popover" class="filter-select">
         <ion-select-option *ngFor="let ftt of FILTER_NUMBER_CONDITION" [value]="ftt.value">
           {{ftt.label}}
@@ -66,7 +67,8 @@
 
     <!-- DATE -->
     <ng-container *ngSwitchCase="FILTER_TYPE.DATE">
-      <ion-select aria-label="component-type" label="Avancé" label-placement="floating" fill="outline" 
+      <ion-select aria-label="component-type" [interface]="isMobile ? 'action-sheet' : 'popover'"
+      label="Avancé" label-placement="floating" fill="outline" 
         [(ngModel)]="selectedFilterDateCondition" interface="popover" class="filter-select">
         <ion-select-option *ngFor="let ftt of FILTER_DATE_CONDITION" [value]="ftt.value">
           {{ftt.label}}

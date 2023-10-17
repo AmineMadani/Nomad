@@ -7,7 +7,7 @@
       <ion-list>
         <div class="edit-reminder" *ngIf="!isCreation && workorder?.id > 0">
           <ion-note>ID : {{ workorder?.id }}</ion-note>
-          <ion-note>Status actuel : <span class="status">{{ currentStatus }}</span></ion-note>
+          <ion-note>Statut actuel : <span class="status">{{ currentStatus }}</span></ion-note>
         </div>
 
         <div class="select-search">
@@ -62,14 +62,8 @@
         <ng-container
           *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
 
-        <ion-select class="select" aria-label="agents" labelPlacement="floating" fill="outline"
-          label="Nombre d'agents *" placeholder="Agents" formControlName="wkoAgentNb">
-          <ion-select-option [value]="1">1</ion-select-option>
-          <ion-select-option [value]="2">2</ion-select-option>
-          <ion-select-option [value]="3">3</ion-select-option>
-          <ion-select-option [value]="4">4</ion-select-option>
-          <ion-select-option [value]="5">5</ion-select-option>
-        </ion-select>
+        <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
+          type="number" formControlName="wkoAgentNb"></ion-input>
 
         <div class="wko-calendar">
           <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *"

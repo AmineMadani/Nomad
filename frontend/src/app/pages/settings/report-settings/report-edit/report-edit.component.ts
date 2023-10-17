@@ -37,6 +37,7 @@ export class ReportEditComponent implements OnInit {
   @Input("wtrReport") wtrReport: WtrReport;
 
   public form: FormGroup;
+  public isMobile: boolean;
 
   private isInit: boolean = false;
 
@@ -57,6 +58,7 @@ export class ReportEditComponent implements OnInit {
   mapReportQuestionByRqnCode = {};
 
   async ngOnInit() {
+    this.isMobile = this.utilsService.isMobilePlateform();
     // ### Form ### //
     this.form = new FormGroup({
       lines: new FormArray([]),

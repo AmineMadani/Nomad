@@ -79,7 +79,8 @@
             </div>
 
             <div *ngSwitchCase="'select'" class="input-div">
-              <ion-select label-placement="floating" fill="outline" 
+              <ion-select label-placement="floating" fill="outline"
+                [interface]="isMobile ? 'action-sheet' : 'popover'"
                 [label]="definition.label"
                 [formControlName]="definition.key"
                 interface="popover">
