@@ -320,7 +320,7 @@ custom:
 functions:
   - nomad-update-wo:
       name: nomad-update-wo-${self:provider.stage}
-      handler: main.update_wo_lambda_handler
+      handler: main.update_dt_wo_lambda_handler
       memorySize: 128
       timeout: 29
       role: LambdaDefaultRole
@@ -342,7 +342,7 @@ functions:
         LOG_LEVEL: ${self:custom.log_level.${self:provider.stage}}
       events:
         - http:
-            path: wo
+            path: wo-dt-cloture
             method: POST
             integration: lambda
             private: false

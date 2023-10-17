@@ -137,7 +137,7 @@ def update_wo_post_request(data, endpoint_part):
         }
 
 
-def update_wo_lambda_handler(event, context):
+def update_dt_wo_lambda_handler(event, context):
 
     if is_property_missing('id', event["body"]) or event["body"]['id'].strip() == '':
         logger.debug('id is required')
