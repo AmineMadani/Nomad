@@ -45,7 +45,6 @@ export class MapService {
 
   public loadedGeoJson: Map<string, string[]> = new Map();
 
-  private basemaps$: Observable<Basemap[]>;
   private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   private loadingLayer: Map<string, Promise<void>> = new Map<
@@ -118,11 +117,8 @@ export class MapService {
     return this.onMapLoaded$.asObservable();
   }
 
-  public getBasemaps(): Observable<Basemap[]> {
-    if (!this.basemaps$) {
-      this.basemaps$ = this.basemapsDataservice.getBaseMaps();
-    }
-    return this.basemaps$;
+  public getBasemaps(): Promise<Basemap[]> {
+    return this.basemapsDataservice.getBasemaps();
   }
 
   /**

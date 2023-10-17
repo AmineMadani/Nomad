@@ -167,7 +167,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * This function generates a map with a navigation control and adds a default basemap layer.
    */
   public generateMap(): void {
-    this.mapService.getBasemaps().subscribe((basemaps: Basemap[]) => {
+    this.mapService.getBasemaps().then((basemaps: Basemap[]) => {
       this.basemaps = basemaps.filter((bl) => bl.map_display);
       if (this.basemapOfflineService.db) {
         this.basemaps.push({

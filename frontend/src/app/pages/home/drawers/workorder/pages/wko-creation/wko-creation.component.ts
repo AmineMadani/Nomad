@@ -512,7 +512,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     funct.pipe(
-      finalize(() => { 
+      finalize(() => {
         this.isLoading = false;
       })
     )
@@ -720,7 +720,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.params?.x ?? this.equipments[0].x,
         this.params?.y ?? this.equipments[0].y
       )
-      .subscribe((addresse) =>
+      .then((addresse) =>
         this.creationWkoForm.patchValue(
           {
             wkoAddress: addresse.features[0]?.properties['label'],
@@ -793,7 +793,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (this.workorder.ctrId.toString() !== this.contracts[0].id.toString()) {
             this.creationWkoForm.patchValue( { ctrId: this.contracts[0].id }, { emitEvent: true });
-          } 
+          }
 
           this.mapLayerService.fitBounds(
             this.equipments.map((eq) => {

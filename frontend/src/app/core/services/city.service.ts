@@ -16,9 +16,9 @@ export class CityService {
 
   cities: City[];
 
-  getAllCities(forceGetFromDb: boolean = false): Observable<City[]> {
+  getAllCities(forceGetFromDb: boolean = false): Promise<City[]> {
     if (this.cities && !forceGetFromDb) {
-      return of(this.cities);
+      return Promise.resolve(this.cities);
     }
 
     return this.cacheService.fetchReferentialsData<City[]>(
@@ -35,7 +35,7 @@ export class CityService {
    * @param longitude The longitude
    * @returns A list of city id
    */
-  getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
+  getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Promise<number[]> {
     return this.cityDataService.getCityIdsByLatitudeLongitude(latitude, longitude);
   }
 
@@ -44,7 +44,7 @@ export class CityService {
    * @param query string query
    * @returns list of adresses
    */
-  getAdressesByQuery(query: string): any {
+  getAdressesByQuery(query: string): Promise<any> {
     query = query.replace(' ','+');
     query = 'search/?q='+query+'&limit=5';
     return this.cityDataService.getAdressesByQuery(query);
@@ -56,7 +56,7 @@ export class CityService {
    * @param y latitude
    * @returns the adress
    */
-  getAdressByXY(x:number, y:number): any {
+  getAdressByXY(x:number, y:number): Promise<any> {
     const query = 'reverse/?lon=' + x + '&lat=' + y + '';
     return this.cityDataService.getAdressesByQuery(query);
   }

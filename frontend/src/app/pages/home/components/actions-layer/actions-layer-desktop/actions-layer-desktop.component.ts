@@ -25,7 +25,7 @@ import { MapService } from 'src/app/core/services/map/map.service';
 export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
 
   constructor(
-    private cityService: CityService, 
+    private cityService: CityService,
     private drawingService: DrawingService,
     private mapLayerService: MapLayerService,
     private mapService: MapService
@@ -100,7 +100,8 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public onSearchInput(event) {
     const query = event.target.value.toLowerCase();
     if(query && query.length > 3) {
-      this.cityService.getAdressesByQuery(query).subscribe(res => {
+      this.cityService.getAdressesByQuery(query).then(res => {
+        console.log(res);
         this.adresses = res.features;
       })
     } else {

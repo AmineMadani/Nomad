@@ -333,4 +333,14 @@ export class UtilsService {
   public isOfflineError(error): boolean {
     return error.name === 'TimeoutError' || (error instanceof HttpErrorResponse && !navigator.onLine);
   }
+
+  public fetchPromiseWithTimeout(args: { fetchPromise: Promise<any>, timeout: number }): Promise<any> {
+    function handleTimeout(ms) {
+      return new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), ms)
+      );
+    }
+
+    return Promise.race([args.fetchPromise, handleTimeout(args.timeout)]);
+  }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { catchError, from, switchMap, tap, timeout } from 'rxjs';
+import { catchError, firstValueFrom, from, from, switchMap, tap, timeout } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { DownloadState, OfflineDownload } from './offlineDownload.service';
 import { PreferenceService } from './preference.service';
@@ -238,40 +238,36 @@ export class CacheService {
    * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
    * @returns An Observable of the fetched data, either from the local cache or from the service call.
    */
-  public fetchReferentialsData<T>(
+  public async fetchReferentialsData<T>(
     referentialCacheKey: ReferentialCacheKey,
-    serviceCall: () => Observable<T>
-  ): Observable<T> {
-    return from(this.isCacheDownload(CacheKey.REFERENTIALS)).pipe(
-      switchMap((isCacheDownload) => {
-        if (!isCacheDownload) {
-          return serviceCall();
-        } else {
-          return serviceCall().pipe(
-            timeout(this.configurationService.offlineTimeoutReferential),
-            tap(async (data) => {
-              const isMobile = this.utilsService.isMobilePlateform();
-              if (isMobile) {
-                await this.db.referentials.put(
-                  { data: data, key: referentialCacheKey },
-                  referentialCacheKey
-                );
-              }
-            }),
-            catchError(async (error) => {
-              if (this.utilsService.isOfflineError(error)) {
-                const referentials = await this.db.referentials.get(referentialCacheKey);
-                if (referentials) {
-                  return referentials.data;
-                }
-              }
+    serviceCall: () => Promise<T>
+  ): Promise<T> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
 
-              throw error;
-            })
-          );
-        }
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: serviceCall(),
+        timeout: this.configurationService.offlineTimeoutReferential
       })
-    )
+        .then(async (data) => {
+          await this.db.referentials.put(
+            { data: data, key: referentialCacheKey },
+            referentialCacheKey
+          );
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            const referentials = await this.db.referentials.get(referentialCacheKey);
+            if (referentials) {
+              return referentials.data;
+            }
+          }
+
+          throw error;
+        });
+    }
+
+    return serviceCall();
   }
 
   public fetchLayerFile(
