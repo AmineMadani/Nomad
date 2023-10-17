@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson } from '../models/workorder.model';
+import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson, convertTasksToWorkorders } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
-import { CacheService, ReferentialCacheKey } from './cache.service';
+import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { MapFeature } from '../models/map-feature.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MapService } from './map/map.service';
 import { AppDB } from '../models/app-db.model';
 import { AttachmentService } from './attachment.service';
+import { UtilsService } from './utils.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -64,10 +65,10 @@ export class WorkorderService {
       this.workorderDataService.getWorkorderById(id).pipe(
         timeout(this.configurationService.offlineTimeoutWorkorder),
         catchError(async (error) => {
-          let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
-          if (featureWorkorder) {
-            let workorder = buildWorkorderFromGeojson(featureWorkorder);
-            let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
+          let featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
+          if (featureTask) {
+            let workorder = buildWorkorderFromGeojson(featureTask);
+            let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
             for (let task of tasks) {
               workorder.tasks.push(buildTaskFromGeojson(task));
             }
@@ -90,31 +91,68 @@ export class WorkorderService {
     return workorders.filter((wko) => wko?.syncOperation && wko?.id);
   }
 
-  /**
-   * Get workorder with pagination
-   * @param key The layer key
-   * @param limit The limit
-   * @param offset The offset
-   * @param search The search parameters
-   * @returns the list of features
-   */
-  public getFeaturePagination(
-    key: string,
-    limit: number,
-    offset: number,
-    search: Map<string, string[]> | undefined
-  ): Observable<MapFeature[]> {
-    return this.workorderDataService
-      .getFeaturePagination(key, limit, offset, search)
-      .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
-  }
-
   public getTasksPaginated(
     limit: number,
     offset: number,
     search: any
   ): Observable<Task[]> {
-    return this.workorderDataService.getTasksPaginated(limit, offset, search);
+    return this.workorderDataService.getTasksPaginated(limit, offset, search)
+      .pipe(
+        timeout(this.configurationService.offlineTimeoutWorkorder),
+        catchError(async (error) => {
+          const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.WORKORDERS);
+          if (isCacheDownload) {
+            const featureTasks: any[] = await this.cacheService.getPaginatedFeaturesByLayer('task', offset, limit);
+
+            return this.filterFeaturesTasks(featureTasks, search);
+          }
+
+          throw error;
+        }),
+      );
+  }
+
+  public filterFeaturesTasks(featureTasks: any[], search: any): Task[] {
+    const workorders: Workorder[] = convertTasksToWorkorders(featureTasks);
+
+    const result = workorders
+      .filter(workorders => {
+        const tasksMatch = workorders.tasks.some(task => (search.wtrIds === undefined || search.wtrIds.length === 0 || search.wtrIds.includes(task.wtrId)) &&
+          (search.assObjTables === undefined || search.assObjTables.length === 0 || search.assObjTables.includes(task.assObjTable))
+        );
+        return (
+          (search.wtrIds === undefined || search.wtsIds.length === 0 || search.wtsIds.includes(workorders.wtsId)) &&
+          (search.wkoAppointment === null || workorders.wkoAppointment === search.wkoAppointment) &&
+          (search.wkoEmergeny === null || workorders.wkoEmergency === search.wkoEmergeny) &&
+          (workorders.wkoPlanningStartDate >= search.wkoPlanningStartDate) &&
+          (search.wkoPlanningEndDate === null || workorders.wkoPlanningStartDate <= search.wkoPlanningEndDate) &&
+          tasksMatch
+        );
+      })
+      .flatMap(workorder => {
+        return workorder.tasks.map(task => ({
+          id: task.id,
+          wkoId: workorder.id,
+          wkoName: workorder.wkoName,
+          wkoEmergency: workorder.wkoEmergency,
+          wkoAppointment: workorder.wkoAppointment,
+          ctyId: workorder.ctyId,
+          ctrId: task.ctrId,
+          wkoAddress: workorder.wkoAddress,
+          wkoPlanningStartDate: workorder.wkoPlanningStartDate,
+          wkoPlanningEndDate: workorder.wkoPlanningEndDate,
+          wtsId: workorder.wtsId,
+          wtrId: task.wtrId,
+          wkoCompletionStartDate: workorder.wkoCompletionStartDate,
+          wkoCompletionEndDate: workorder.wkoCompletionEndDate,
+          longitude: task.longitude,
+          latitude: task.latitude,
+          wkoAgentNb: workorder.wkoAgentNb,
+          wkoCreationComment: workorder.wkoCreationComment,
+          assObjTable: task.assObjTable
+        }));
+      });
+    return result;
   }
 
   /**

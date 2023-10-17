@@ -65,7 +65,7 @@ export class CacheService {
   /**
    * Check if offline mode enable
    */
-  private async isCacheDownload(key: CacheKey): Promise<boolean> {
+  public async isCacheDownload(key: CacheKey): Promise<boolean> {
     const downloadState = await this.getCacheDownloadState(key);
     const isDataCached = downloadState?.state === DownloadState.DONE;
 
@@ -94,6 +94,37 @@ export class CacheService {
 
   public setCacheDownloadState(cacheKey: CacheKey, cachedValue: OfflineDownload) {
     this.preferenceService.setPreference(cacheKey, JSON.stringify(cachedValue));
+  }
+
+  /**
+   * Return all the data for a feature in a layer
+   * @param featureId featureId the id aog the future, ex: IDF-000070151
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
+   * @returns
+   */
+  public async getPaginatedFeaturesByLayer(
+    layerKey: string,
+    offset: number,
+    limit: number
+  ): Promise<any[]> {
+    const tiles = await this.db.tiles
+      .where('key')
+      .startsWith(layerKey)
+      .offset(offset)
+      .limit(limit)
+      .toArray();
+
+    let result: any[] = [];
+    if (tiles.length > 0) {
+      for (let tile of tiles) {
+        result = [
+          ...result,
+          ...tile.data.features,
+        ];
+      }
+    }
+
+    return result;
   }
 
   /**

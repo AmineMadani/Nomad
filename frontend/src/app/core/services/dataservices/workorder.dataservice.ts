@@ -20,27 +20,6 @@ export class WorkorderDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
-  /**
-   * Get list of workorders on MapFeature format
-   * @param key
-   * @param limit
-   * @param offset
-   * @param search
-   * @returns an observable of the list of map features
-   */
-  public getFeaturePagination(
-    key: string,
-    limit: number,
-    offset: number,
-    search: Map<string, string[]> | undefined
-  ): Observable<MapFeature[]> {
-    return this.http.post<MapFeature[]>(
-      `${this.configurationService.apiUrl}exploitation/workorders/${key}/pagination/${limit}/${offset}`,
-      this.utilsService.mapToJson(search),
-      this.httpOptions
-    );
-  }
-
   public getTasksPaginated(
     limit: number,
     offset: number,

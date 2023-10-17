@@ -54,37 +54,6 @@ export class FilterService {
   }
 
   /**
-   * Method to switch source of data from map layer or backend DB with pagination system for the last one
-   * @param layerkey layer exploitation data
-   * @param toogle boolean true: map - false: DB
-   */
-/**
- * The function `setToggleLayer` is used to toggle the visibility of a layer on a map and fetch its
- * features if the layer is toggled on.
- * @param {string} layerkey - A string representing the key of the layer.
- * @param {boolean} toogle - A boolean value indicating whether to toggle the layer on or off.
- */
-  public setToggleLayer(layerkey: string, toogle: boolean): void {
-    this.filterDataService.getFilterData().delete(layerkey);
-    if (!toogle) {
-      this.mapService.removeEventLayer(layerkey);
-      this.isLoading = true;
-      this.workorderService
-        .getFeaturePagination(layerkey, 20, 0, this.filterDataService.getSearchFilterListData().get(layerkey))
-        .subscribe((features: MapFeature[]) => {
-          this.filterDataService.getFilterData().set(layerkey, features);
-          this.isLoading = false;
-        });
-    } else {
-      this.isLoading = true;
-      this.mapService.addEventLayer(layerkey).then(() => {
-        this.applyFilterOnMap(layerkey); 
-        this.isLoading = false;
-      });
-    }
-  }
-
-  /**
    * Method to define a new property filter to add and run on target layers
    * @param tablekey  target layers
    * @param key property key
@@ -145,11 +114,6 @@ export class FilterService {
 
     // //Applied the filter on the map
     this.applyFilterOnMap(layerkey);
-
-    // In the case of the data from DB
-    // if (!this.mapService.getLayer(layerkey)) {
-    //   this.setToggleLayer(layerkey, false);
-    // }
   }
 
   /**
