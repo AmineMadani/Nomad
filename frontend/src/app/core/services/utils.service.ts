@@ -4,6 +4,7 @@ import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
 import { SearchEquipments } from '../models/layer.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -322,5 +323,14 @@ export class UtilsService {
   public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;
+  }
+
+  /**
+   * Check if an error is due to a service unavailability.
+   * @param error
+   * @returns true if it's an offline error, else false
+   */
+  public isOfflineError(error): boolean {
+    return error.name === 'TimeoutError' || (error instanceof HttpErrorResponse && !navigator.onLine);
   }
 }

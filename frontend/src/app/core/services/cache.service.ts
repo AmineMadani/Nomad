@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { catchError, tap, timeout } from 'rxjs';
+import { catchError, from, switchMap, tap, timeout } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { DownloadState, OfflineDownload } from './offlineDownload.service';
 import { PreferenceService } from './preference.service';
 import { ConfigurationService } from './configuration.service';
 import { NomadGeoJson } from '../models/geojson.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
-import { WorkorderDataService } from './dataservices/workorder.dataservice';
 
 export enum ReferentialCacheKey {
   CITIES = 'cities',
@@ -243,27 +242,34 @@ export class CacheService {
     referentialCacheKey: ReferentialCacheKey,
     serviceCall: () => Observable<T>
   ): Observable<T> {
-    return serviceCall().pipe(
-      timeout(this.configurationService.offlineTimeoutReferential),
-      tap(async (data) => {
-        const isMobile = this.utilsService.isMobilePlateform();
-        if (isMobile) {
-          await this.db.referentials.put(
-            { data: data, key: referentialCacheKey },
-            referentialCacheKey
+    return from(this.isCacheDownload(CacheKey.REFERENTIALS)).pipe(
+      switchMap((isCacheDownload) => {
+        if (!isCacheDownload) {
+          return serviceCall();
+        } else {
+          return serviceCall().pipe(
+            timeout(this.configurationService.offlineTimeoutReferential),
+            tap(async (data) => {
+              const isMobile = this.utilsService.isMobilePlateform();
+              if (isMobile) {
+                await this.db.referentials.put(
+                  { data: data, key: referentialCacheKey },
+                  referentialCacheKey
+                );
+              }
+            }),
+            catchError(async (error) => {
+              if (this.utilsService.isOfflineError(error)) {
+                const referentials = await this.db.referentials.get(referentialCacheKey);
+                if (referentials) {
+                  return referentials.data;
+                }
+              }
+
+              throw error;
+            })
           );
         }
-      }),
-      catchError(async () => {
-        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
-        if (isCacheDownload) {
-          const referentials = await this.db.referentials.get(referentialCacheKey);
-          if (referentials) {
-            return referentials.data;
-          }
-        }
-
-        throw new Error(`Failed to fetch referentials for ${referentialCacheKey}`);
       })
     )
   }
