@@ -51,6 +51,7 @@ import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 
 const WTR_CODE_POSE = '10';
 
@@ -75,7 +76,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private userService: UserService,
     private cityService: CityService,
     private contractService: ContractService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private assetForSigService: AssetForSigService,
   ) {
     this.router.events
       .pipe(
@@ -172,6 +174,31 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe(async (equipments: any) => {
         this.equipments = equipments;
+
+        // Extract the temporary new asset from the url (when coming from multiple selection without a workorder)
+        // Add them to the list of asset
+        const urlParams = new URLSearchParams(window.location.search);
+        let listAssObjRef = [];
+        for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+          const listValue = value.split(',');
+          for (const v of listValue) {
+            if (!listAssObjRef.includes(v))
+              listAssObjRef.push(v);
+          }
+        }
+        for (const assObjRef of listAssObjRef) {
+          const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+          if (assetForSig != null) {
+            this.equipments.push({
+              id: assObjRef,
+              lyrTableName: assetForSig.assObjTable,
+              x: assetForSig.coords[0][0],
+              y: assetForSig.coords[0][1],
+              assetForSig: assetForSig,
+            });
+          }
+        }
+
         this.nbEquipments = this.equipments.length.toString();
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
@@ -205,6 +232,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 wtrId: null,
                 longitude: eq.x,
                 latitude: eq.y,
+                assetForSig: eq.assetForSig,
               };
             });
           }

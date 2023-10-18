@@ -4,4 +4,7 @@ export interface AssetForSigDto {
   afsGeom: string;
   afsInformations: string;
   coords: number[][];
+
+  // Only used when saving in the cache
+  assObjTable?: string;
 }

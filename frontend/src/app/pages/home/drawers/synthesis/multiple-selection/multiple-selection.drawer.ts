@@ -16,6 +16,7 @@ import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -34,7 +35,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private userService: UserService,
     private workorderService: WorkorderService,
-    private drawingService: DrawingService
+    private drawingService: DrawingService,
+    private assetForSigService: AssetForSigService,
   ) {
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
@@ -183,8 +185,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
+    if (abstractFeatures == null) abstractFeatures = [];
+
+    // Add tempory new asset
     if (this.wkoDraft != null) {
-      // Add tempory new asset
+      // When there is a workorder
       const wko: Workorder = await this.workorderService.getWorkorderById(
         this.wkoDraft
       );
@@ -199,6 +204,29 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           y: task.latitude,
           isTemp: true,
         });
+      }
+    } else {
+      // When there is no workorder, but there is a reference in the url param
+      const urlParams = new URLSearchParams(window.location.search);
+      let listAssObjRef = [];
+      for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+        const listValue = value.split(',');
+        for (const v of listValue) {
+          if (!listAssObjRef.includes(v))
+            listAssObjRef.push(v);
+        }
+      }
+      for (const assObjRef of listAssObjRef) {
+        const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+        if (assetForSig != null) {
+          abstractFeatures.push({
+            id: assObjRef,
+            lyrTableName: assetForSig.assObjTable,
+            x: assetForSig.coords[0][0],
+            y: assetForSig.coords[0][1],
+            isTemp: true,
+          });
+        }
       }
     }
 
@@ -295,7 +323,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             draft: this.wkoDraft,
           });
         } else {
-          this.drawerService.navigateTo(DrawerRouteEnum.NEW_ASSET, []);
+          this.drawerService.navigateWithEquipments(DrawerRouteEnum.NEW_ASSET, this.filteredFeatures);
         }
         break;
       case 'showSelectedFeatures':

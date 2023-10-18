@@ -14,7 +14,9 @@ import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { ActivatedRoute } from '@angular/router';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-new-asset',
@@ -32,7 +34,9 @@ export class NewAssetDrawer implements OnInit {
     private mapEventService: MapEventService,
     private activatedRoute: ActivatedRoute,
     private workorderService: WorkorderService,
-  ) { }
+    private assetForSigService: AssetForSigService,
+  ) {
+  }
 
   public drawerTitle: string = 'Nouveau Patrimoine';
 
@@ -216,8 +220,10 @@ export class NewAssetDrawer implements OnInit {
       afsGeom: null,
       afsInformations: JSON.stringify(listAssetProperties),
       coords: this.coords,
+      assObjTable: this.layer.lyrTableName,
     }
 
+    // If there is a related workorder
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
       const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
@@ -233,7 +239,7 @@ export class NewAssetDrawer implements OnInit {
         task.assetForSig = assetForSig;
         task.report = null;
       } else {
-        // Else add it
+        // Else add a new task
         wko.tasks.push({
           id: this.utils.createCacheId(),
           assObjTable: this.layer.lyrTableName,
@@ -247,6 +253,36 @@ export class NewAssetDrawer implements OnInit {
       }
 
       await this.workorderService.saveCacheWorkorder(wko);
+    } else {
+      // If no workorder, then create the new asset in the cache
+      await this.assetForSigService.saveCacheAssetForSig(assetForSig);
+
+      // Recreate the list of asset from the url
+      const urlParams = new URLSearchParams(window.location.search);
+      let equipments = [];
+      for (let [key, value] of Array.from(urlParams.entries())) {
+        const listValue = value.split(',');
+        for (const v of listValue) {
+          if (!equipments.some((eq) => eq.source === key && eq.id === v)) {
+            equipments.push({
+              source: key,
+              id: v,
+            });
+          }
+        }
+      }
+
+      // Add the new asset to the list of asset
+      equipments.push({
+        source: 'tmp',
+        id: "TMP-" + assetForSig.id,
+      })
+
+      this.drawerService.navigateWithEquipments(
+        DrawerRouteEnum.SELECTION,
+        equipments,
+      );
+      return;
     }
 
     this.drawerService.setLocationBack();

@@ -167,7 +167,11 @@ export class UtilsService {
     const featureParams: any = {};
 
     features.forEach((feature) => {
-      const source = feature.lyrTableName || feature.source;
+      let source = feature.lyrTableName || feature.source;
+
+      if (feature.id.startsWith('TMP-')) {
+        source = 'tmp';
+      }
 
       if (!featureParams[source]) {
         featureParams[source] = new Set();
