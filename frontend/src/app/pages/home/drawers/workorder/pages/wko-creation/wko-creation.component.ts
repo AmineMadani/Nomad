@@ -697,9 +697,36 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // Ctr and Cty are on the equipments
       contractsIds = this.equipments.map(
         (eq) => eq?.ctrId ?? +this.workorder.ctrId
-      );
+      )
+      .filter((ctrId) => !isNaN(ctrId));
 
-      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId);
+      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId).filter((ctyId) => !isNaN(ctyId));;
+
+      // If there is no contracts
+      if (contractsIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id != null && equipment.id.startsWith('TMP-')) {
+            // Get the list of contract for this X/Y
+            contractsIds = await firstValueFrom(this.contractService.getContractIdsByLatitudeLongitude(equipment.y, equipment.x));
+          }
+        }
+      }
+
+      // If there is no cities
+      if (cityIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id && equipment.id.startsWith('TMP-')) {
+            // Get the list of cities for this X/Y
+            cityIds = await firstValueFrom(this.cityService.getCityIdsByLatitudeLongitude(equipment.y, equipment.x));
+          }
+        }
+      }
     } else {
       // WKO XY
       const layer = await firstValueFrom(

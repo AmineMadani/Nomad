@@ -632,12 +632,14 @@ export class ReportCreateComponent implements OnInit {
   }
 
   public onEditTask() {
-    let equipments = this.workorder.tasks.map((t) => {
-      return {
-        id: t.assObjRef,
-        lyrTableName: t.assObjTable,
-      };
-    });
+    let equipments = this.workorder.tasks
+      .filter((t) => t.assObjRef != null)
+      .map((t) => {
+        return {
+          id: t.assObjRef,
+          lyrTableName: t.assObjTable,
+        };
+      });
 
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,

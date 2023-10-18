@@ -82,13 +82,64 @@
               <ion-select label-placement="floating" fill="outline"
                 [interface]="isMobile ? 'action-sheet' : 'popover'"
                 [label]="definition.label"
-                [formControlName]="definition.key"
-                interface="popover">
+                [formControlName]="definition.key">
                 <ion-select-option *ngFor="let opt of definition.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
               </ion-select>
             </div>
           </ng-container>
         </ng-container>
+        
+        <!--<div class="additional-questions-div">
+          <ng-container formArrayName="additionalQuestions">
+            <ng-container *ngFor="let questionForm of additionalQuestions.controls; let i = index">
+              <div [formGroup]="questionForm" class="line">
+                <ion-select label-placement="floating" fill="outline" class="additional-question-select"
+                  [interface]="isMobile ? 'action-sheet' : 'popover'"
+                  label="Information complémentaire"
+                  formControlName="key">
+                  <ion-select-option *ngFor="let optionalDefinition of listOptionalDefinition" [value]="optionalDefinition.key">
+                    {{optionalDefinition.label}}
+                  </ion-select-option>
+                </ion-select>
+              
+                <ng-container *ngIf="questionForm.get('definition').value != null">
+                  <ng-container [ngSwitch]="questionForm.get('definition').value.component">
+                    <div *ngSwitchCase="'input'" class="input-div">
+                      <ion-input labelPlacement="floating" fill="outline"
+                        label="Valeur"
+                        [placeholder]="questionForm.get('definition').value.attributes?.placeholder" 
+                        formControlName="value" 
+                        [type]="questionForm.get('definition').value.attributes?.type" />
+        
+                      <ng-container *ngIf="questionForm.get('definition').value.rules">
+                        <ng-container *ngFor="let rule of questionForm.get('definition').value.rules">
+                          <ng-container *ngIf="form.controls[questionForm.get('definition').value.key].hasError(rule.key) && form.controls[questionForm.get('definition').value.key].touched">
+                            <ion-label color="danger" lines="none">
+                              {{ rule.message }}
+                            </ion-label>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+    
+                    <div *ngSwitchCase="'select'" class="input-div">
+                      <ion-select label-placement="floating" fill="outline"
+                        [interface]="isMobile ? 'action-sheet' : 'popover'"
+                        label="Valeur"
+                        formControlName="value">
+                        <ion-select-option *ngFor="let opt of questionForm.get('definition').value.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
+                      </ion-select>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ion-button fill="clear" class="small-button" (click)="addNewQuestion()">
+            <ion-icon slot="icon-only" name="add"></ion-icon>
+          </ion-button>
+        </div>-->
       </form>
 
       <ng-container *ngIf="!form && !isLoading">

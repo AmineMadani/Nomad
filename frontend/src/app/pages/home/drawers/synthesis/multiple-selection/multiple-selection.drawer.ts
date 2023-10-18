@@ -284,11 +284,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         })
     );
 
-    this.mapLayerService.fitBounds(
-      this.featuresSelected.map((f) => {
-        return [+f.x, +f.y];
-      })
-    );
+    if (this.featuresSelected.length > 0) {
+      this.mapLayerService.fitBounds(
+        this.featuresSelected.map((f) => {
+          return [+f.x, +f.y];
+        })
+      );
+    }
 
     this.isLoading = false;
   }
