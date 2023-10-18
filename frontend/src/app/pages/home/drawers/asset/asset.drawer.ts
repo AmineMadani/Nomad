@@ -46,7 +46,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
     this.user = await this.userService.getCurrentUser();
 
-    this.templateService.getFormsTemplate().subscribe(forms => {
+    this.templateService.getFormsTemplate().then(forms => {
       const assetFilterTree = JSON.parse(forms.find(form => form.formCode === 'ASSET_FILTER').definition);
       this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
       this.assetFilterService.setAssetFilter(this.assetFilterTree);

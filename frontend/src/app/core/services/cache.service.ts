@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
 import { Observable } from 'rxjs/internal/Observable';
-import { catchError, firstValueFrom, from, from, switchMap, tap, timeout } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { DownloadState, OfflineDownload } from './offlineDownload.service';
 import { PreferenceService } from './preference.service';
@@ -254,6 +254,8 @@ export class CacheService {
             { data: data, key: referentialCacheKey },
             referentialCacheKey
           );
+
+          return data;
         })
         .catch(async (error) => {
           if (this.utilsService.isOfflineError(error)) {
@@ -275,35 +277,40 @@ export class CacheService {
     featureNumber: number,
     file: string,
     params: any
-  ): Observable<NomadGeoJson> {
-    return this.layerDataService.getLayerFile(layerKey, featureNumber, params)
-      .pipe(
-        timeout(this.configurationService.offlineTimeoutTile),
-        tap(async (req: NomadGeoJson) => {
-          const isMobile = this.utilsService.isMobilePlateform();
+  ): Promise<NomadGeoJson> {
 
-          if (isMobile) {
-            await this.db.tiles.put({ data: req, key: file }, file);
-          }
-        }),
-        catchError(async () => {
-          const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
-          if (isCacheDownload) {
-            const tile = await this.db.tiles.get(file);
-            if (tile) {
-              return tile.data;
-            }
-          }
+    return this.utilsService.fetchPromiseWithTimeout({
+      fetchPromise: this.layerDataService.getLayerFile(layerKey, featureNumber, params),
+      timeout: this.configurationService.offlineTimeoutTile
+    })
+      .then(async (req: NomadGeoJson) => {
+        const isMobile = this.utilsService.isMobilePlateform();
 
-          throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
-        })
-      );
+        if (isMobile) {
+          await this.db.tiles.put({ data: req, key: file }, file);
+        }
+
+        return req;
+      })
+      .catch(async (error) => {
+        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
+        if (isCacheDownload) {
+          const tile = await this.db.tiles.get(file);
+          if (tile) {
+            return tile.data;
+          }
+        }
+
+        throw error;
+      });
   }
 
-  public fetchEquipmentsByLayerIds(idsLayers: any): Observable<any> {
-    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
-      timeout(this.configurationService.offlineTimeoutEquipment),
-      catchError(async () => {
+  public fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
+    return this.utilsService.fetchPromiseWithTimeout({
+      fetchPromise: this.layerDataService.getEquipmentsByLayersAndIds(idsLayers),
+      timeout: this.configurationService.offlineTimeoutEquipment
+    })
+      .catch(async (error) => {
         const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
         if (isCacheDownload) {
           let res = [];
@@ -322,9 +329,8 @@ export class CacheService {
           return res;
         }
 
-        throw new Error(`Failed to fetch the equipments of the following layer ids ${idsLayers}`);
-      })
-    );
+        throw error;
+      });
   }
 
 

@@ -265,7 +265,7 @@ export class WkoViewComponent implements OnInit {
       };
       this.workorderService
         .cancelWorkorder(cancelWko)
-        .subscribe(async (res) => {
+        .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
           this.getStatus(this.workOrder.wtsId);
@@ -330,7 +330,7 @@ export class WkoViewComponent implements OnInit {
         tskId: Number(this.taskId),
         cancelComment: data.values.cancelComment,
       };
-      this.workorderService.cancelTask(cancelTsk).subscribe(async (res) => {
+      this.workorderService.cancelTask(cancelTsk).then(async (res) => {
         this.displayCancelToast('Modification enregistré avec succès.');
         this.workOrder = res;
         const task = this.workOrder.tasks.find(
@@ -399,7 +399,7 @@ export class WkoViewComponent implements OnInit {
   private getStatus(wtsId: number): void {
     this.workorderService
       .getAllWorkorderTaskStatus()
-      .subscribe((statusList) => {
+      .then((statusList) => {
         this.status = statusList.find(
           (refStatus) => refStatus.id.toString() === wtsId.toString()
         ).wtsLlabel;

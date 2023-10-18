@@ -436,7 +436,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
     // Check the user status by email.
     this.userService.getUserStatusByEmail(userToSave.email)
-      .subscribe(async (userStatus) => {
+      .then(async (userStatus) => {
         // If user exists and he deleted, alert info.
         if (userStatus && userStatus.deleted) {
           const role = await this.showActivationAlert(userToSave);
@@ -449,12 +449,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             // Set as deleted the initial user when it's a modification
             if (this.actionType === ActionType.MODIFICATION) {
               const userToDelete = { ...this.initialUser, deleted: true };
-              this.userService.updateUser(userToDelete).subscribe();
+              this.userService.updateUser(userToDelete);
             }
             // Activate the user with the new email
             this.userService
               .updateUser(userToSave)
-              .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+              .then((res: { message: string; }) => this.showSuccessMessageAndClose(res));
           }
         }
         // If user exists and he not deleted and modification mode.
@@ -462,14 +462,14 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           // We launch an update
           this.userService
             .updateUser(userToSave)
-            .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+            .then((res: { message: string; }) => this.showSuccessMessageAndClose(res));
         }
         // Else the user doesn't exist
         else {
           // We launch a creation
           this.userService
             .createUser(userToSave)
-            .subscribe((res: { message: string }) => this.showSuccessMessageAndClose(res));
+            .then((res: { message: string }) => this.showSuccessMessageAndClose(res));
         }
       });
   }

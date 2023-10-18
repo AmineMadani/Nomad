@@ -80,7 +80,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       });
     } else if (ev.key === 'report') {
 
-      let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+      let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
       let workorder: Workorder = {
         latitude: this.equipment.y,
@@ -114,20 +114,13 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     );
   }
 
-  public onInitEquipment(feature: any) {
-    from(this.layerService.getUserReferences(feature.lyrTableName))
-      .pipe(
-        switchMap((refs: UserReference[]) => {
-          this.userReferences = refs;
-          this.equipment = feature;
+  public async onInitEquipment(feature: any): Promise<void> {
+    this.equipment = feature;
+    this.userReferences = await this.layerService.getUserReferences(feature.lyrTableName);
 
-          return this.layerService.getAllLayers().pipe(
-            map((layers) => layers.find((l) => l.lyrTableName === `${feature.lyrTableName}`))
-          );
-        })
-      )
-      .subscribe((currentLayer) => {
-        this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
-      });
+    // Get asset label by current layer info
+    const layers = await this.layerService.getAllLayers();
+    const currentLayer = layers.find((l) => l.lyrTableName === `${feature.lyrTableName}`);
+    this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
   }
 }

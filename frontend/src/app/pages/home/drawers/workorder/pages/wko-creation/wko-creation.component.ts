@@ -495,7 +495,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       task.assObjRef = null;
 
       // Change the reason to be the 'Pose' reason of the layer selected
-      const listWtr = await firstValueFrom(this.layerService.getAllVLayerWtr());
+      const listWtr = await this.layerService.getAllVLayerWtr();
       const wtr = listWtr.find(
         (wtr) =>
           wtr.wtrCode === WTR_CODE_POSE && wtr.lyrTableName === task.assObjTable
@@ -549,20 +549,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public async openEquipmentModal(): Promise<void> {
     if (this.equipmentsDetails.length === 0) {
       // Create an array of observables for each call to getEquipmentLabel
-      const observablesArray = this.equipments.map((eq) =>
-        this.getEquipmentLabel(eq).pipe(
-          tap((equipmentLabel) => {
-            this.equipmentsDetails.push([
-              equipmentLabel,
-              eq.id,
-              eq.lyrTableName,
-            ]);
-          })
-        )
-      );
+      const promisesArray = this.equipments.map((eq) => this.getEquipmentLabel(eq)
+        .then((equipmentLabel) => {
+          this.equipmentsDetails.push([
+            equipmentLabel,
+            eq.id,
+            eq.lyrTableName,
+          ]);
+        }));
 
       // Use forkJoin to run all observables in parallel
-      forkJoin(observablesArray).subscribe(() => {
+      forkJoin(promisesArray).subscribe(() => {
         if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
           this.equipmentModal.present();
         }
@@ -649,7 +646,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     //set WTR
     this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
 
-    this.workorderService.getAllWorkorderTaskStatus().subscribe((status: WorkorderTaskStatus[]) => {
+    this.workorderService.getAllWorkorderTaskStatus().then((status: WorkorderTaskStatus[]) => {
       this.currentStatus = status.find((s) => s.id === this.workorder.wtsId)?.wtsLlabel;
     })
   }
@@ -661,7 +658,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // WKO Assets
       // If mono-equipment, we need the equipment name
       if (this.equipments.length === 1) {
-        this.getEquipmentLabel().subscribe((label: string) => {
+        this.getEquipmentLabel().then((label: string) => {
           this.equipmentName = label;
         });
       }
@@ -674,20 +671,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId);
     } else {
       // WKO XY
-      const layer = await firstValueFrom(
-        this.layerService
-          .getAllLayers()
-          .pipe(
-            map(
-              (ls: Layer[]) =>
-                ls.filter(
-                  (l: Layer) =>
-                    l.domCode === this.params.waterType &&
-                    l.lyrTableName.includes('xy')
-                )[0]
-            )
-          )
-      );
+      const layers = await this.layerService.getAllLayers();
+      const layer = layers.filter(
+        (l: Layer) =>
+          l.domCode === this.params.waterType &&
+          l.lyrTableName.includes('xy')
+      )[0];
+
       this.equipments = [
         {
           id: this.utils.createCacheId().toString(),
@@ -786,7 +776,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           this.nbEquipments = this.equipments.length.toString();
           if (this.nbEquipments === '1') {
-            this.getEquipmentLabel().subscribe((label) => {
+            this.getEquipmentLabel().then((label) => {
               this.equipmentName = label;
             });
           }
@@ -871,15 +861,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return reason.wtrLlabel;
   }
 
-  public getEquipmentLabel(eq?: any): Observable<string> {
-    return this.layerService.getAllLayers().pipe(
-      map((layersRef) => {
-        const layer = layersRef.find(
-          (l) => l.lyrTableName === `${(eq ?? this.equipments[0]).lyrTableName}`
-        );
-        return `${layer.lyrSlabel} - ${layer.domLLabel} `;
-      })
+  public async getEquipmentLabel(eq?: any): Promise<string> {
+    const layers = await this.layerService.getAllLayers();
+    const layer = layers.find(
+      (l) => l.lyrTableName === `${(eq ?? this.equipments[0]).lyrTableName}`
     );
+    return `${layer.lyrSlabel} - ${layer.domLLabel} `;
   }
 
   public getLayerLabel(layer: Layer): string {

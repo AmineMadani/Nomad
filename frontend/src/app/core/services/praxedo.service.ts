@@ -30,8 +30,8 @@ export class PraxedoService {
         this.externalReport = res.extras.REFEXTINT;
       } else {
 
-        let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
-        let lLayerWtr = await firstValueFrom(this.layerService.getAllVLayerWtr());
+        let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
+        let lLayerWtr = await this.layerService.getAllVLayerWtr();
 
         let longitude;
         let latitude;

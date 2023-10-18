@@ -156,9 +156,9 @@ export class ReportQuestionsSettingsComponent implements OnInit {
     this.isLoading = true;
 
     // Report form
-    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate(true));
+    const listFormTemplate = await this.templateService.getFormsTemplate(true);
     this.listFormTemplateReport = listFormTemplate.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
-    
+
     // Set a map of number of times a question is used
     // Directly
     const mapNumberTimeUsedInReportByRqnCode = {};
@@ -166,7 +166,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
     const mapNumberTimeUsedInReportAsConditionByRqnCode = {};
     for (const formTemplate of this.listFormTemplateReport) {
       const form: Form = JSON.parse(formTemplate.definition);
-      
+
       const listRqnCode = [];
       const listRqnCodeCondition = [];
       for (const definition of form.definitions) {
@@ -194,16 +194,16 @@ export class ReportQuestionsSettingsComponent implements OnInit {
         mapNumberTimeUsedInReportAsConditionByRqnCode[rqnCode]++;
       }
     }
-    
+
     // Report question
-    let listReportQuestionDto = await firstValueFrom(this.reportQuestionService.getListReportQuestion());
+    let listReportQuestionDto = await this.reportQuestionService.getListReportQuestion();
     const listReportQuestion = listReportQuestionDto.map((reportQuestion) => {
       let rqnSelectValuesTranlate = '-';
       if (reportQuestion.rqnSelectValues != null) {
         const listValue: string[] = JSON.parse(reportQuestion.rqnSelectValues);
         rqnSelectValuesTranlate = listValue.join(', ');
       }
-      
+
       return {
         ...reportQuestion,
         rqnTypeTranslate: LIST_RQN_TYPE.find((rqnType) => rqnType.value === reportQuestion.rqnType)?.label,
@@ -270,7 +270,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
         // Delete the report questions
         const listIdToDelete = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.id);
-        this.reportQuestionService.deleteListReportQuestion(listIdToDelete).subscribe(() => {
+        this.reportQuestionService.deleteListReportQuestion(listIdToDelete).then(() => {
           // Update all report form using those questions
           const listRqnCode = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.rqnCode);
 
@@ -303,7 +303,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
                 const oldKey = definition.key;
                 definition.key = PREFIX_KEY_DEFINITION + (index+1);
-                
+
                 // And the condition definitions linked to this definition
                 const listConditionDefinition = listNewDefinition.filter((d) => d.displayCondition?.key === oldKey);
                 listConditionDefinition.forEach((conditionDefinition) => conditionDefinition.displayCondition.key = definition.key);
@@ -320,7 +320,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
                 fdnDefinition: JSON.stringify(form),
               }
 
-              this.templateService.updateFormTemplate(formTemplateUpdate).subscribe();
+              this.templateService.updateFormTemplate(formTemplateUpdate);
             }
           });
 

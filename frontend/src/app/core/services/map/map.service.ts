@@ -197,8 +197,8 @@ export class MapService {
       this.removeLoadingLayer.splice(removeIndex, 1);
     }
 
-    // Get all layers - the call can not be observable (thus the firstValueFrom) because of the resolve at the end
-    const layers = await firstValueFrom(this.layerService.getAllLayers());
+    // Get all layers
+    const layers = await this.layerService.getAllLayers();
 
     this.layersConfiguration = layers;
 

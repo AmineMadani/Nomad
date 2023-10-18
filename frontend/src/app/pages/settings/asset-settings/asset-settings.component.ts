@@ -45,13 +45,13 @@ export class AssetSettingsPage implements OnInit {
     });
 
     // Get the list of users
-    this.userService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
+    this.userService.getAllUserAccount().then((users: User[]) => this.users = users);
     // Get the asset filter
     this.getListAssetFilter();
   }
 
   getListAssetFilter() {
-    this.templateService.getFormsTemplate().subscribe((listFormTemplate) => {
+    this.templateService.getFormsTemplate().then((listFormTemplate) => {
       this.assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
       this.listFilterAsset = JSON.parse(this.assetFilter.definition);
       this.dataSource.data = this.listFilterAsset;
@@ -239,7 +239,7 @@ export class AssetSettingsPage implements OnInit {
         fdnDefinition: JSON.stringify(this.listFilterAsset),
       }
 
-      this.templateService.saveFormTemplateCustomUser({ formTemplate, userIds: listUserId }).subscribe(async () => {
+      this.templateService.saveFormTemplateCustomUser({ formTemplate, userIds: listUserId }).then(async () => {
         // Get the saved asset filter if the current user is in the list of user to have this customisation
         const currentUser = await this.userService.getCurrentUser();
         if (listUserId.includes(currentUser.id)) this.getListAssetFilter();
@@ -263,7 +263,7 @@ export class AssetSettingsPage implements OnInit {
 
       // Save in the database
       // A toast is automatically showed to the user when the api call is done.
-      this.templateService.deleteFormTemplateCustomUser({ id: this.assetFilter.fteId, userIds: listUserId }).subscribe(async () => {
+      this.templateService.deleteFormTemplateCustomUser({ id: this.assetFilter.fteId, userIds: listUserId }).then(async () => {
         // Get the default asset filter if the current user is in the list of user to have this customisation
         const currentUser = await this.userService.getCurrentUser();
         if (listUserId.includes(currentUser.id)) this.getListAssetFilter();

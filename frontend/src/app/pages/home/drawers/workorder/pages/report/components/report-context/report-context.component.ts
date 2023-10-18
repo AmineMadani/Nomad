@@ -33,7 +33,7 @@ export class ReportContextComponent implements OnInit {
   public querySearch: string = "";
 
   ngOnInit() {
-    this.layerService.getAllVLayerWtr().subscribe((res: VLayerWtr[]) => {
+    this.layerService.getAllVLayerWtr().then((res: VLayerWtr[]) => {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
 

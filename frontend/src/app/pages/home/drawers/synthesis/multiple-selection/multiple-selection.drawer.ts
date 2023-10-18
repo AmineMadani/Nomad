@@ -521,7 +521,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       );
       this.workorderService
         .getAllWorkorderTaskStatus()
-        .subscribe(async (lStatus) => {
+        .then(async (lStatus) => {
           for (let f of features) {
             if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
               wko.tasks.push({

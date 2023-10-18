@@ -16,17 +16,15 @@ export class CityService {
 
   cities: City[];
 
-  getAllCities(forceGetFromDb: boolean = false): Promise<City[]> {
-    if (this.cities && !forceGetFromDb) {
-      return Promise.resolve(this.cities);
+  async getAllCities(forceGetFromDb: boolean = false): Promise<City[]> {
+    if (!this.cities || forceGetFromDb) {
+      this.cities = await this.cacheService.fetchReferentialsData<City[]>(
+        ReferentialCacheKey.CITIES,
+        () => this.cityDataService.getAllCities()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<City[]>(
-      ReferentialCacheKey.CITIES,
-      () => this.cityDataService.getAllCities()
-    ).pipe(
-      tap((results => this.cities = results))
-    );
+    return this.cities;
   }
 
   /**

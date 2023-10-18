@@ -71,7 +71,7 @@ export class ReportEditComponent implements OnInit {
       await this.userService.currentUserHasPermission(PermissionCodeEnum.CUSTOMIZE_FORM_FIELDS);
 
     // ### Referential data ### //
-    this.listReportQuestion = await firstValueFrom(this.reportQuestionService.getListReportQuestion());
+    this.listReportQuestion = await this.reportQuestionService.getListReportQuestion();
     this.mapReportQuestionByRqnCode = {};
     this.listReportQuestion.forEach((reportQuestion) => {
       this.mapReportQuestionByRqnCode[reportQuestion.rqnCode] = {
@@ -147,7 +147,7 @@ export class ReportEditComponent implements OnInit {
       if (rqnCode != null) {
         // Get the report question
         const reportQuestion = this.mapReportQuestionByRqnCode[rqnCode];
-        
+
         if (reportQuestion) {
           // Set the label
           lineForm.get('label').setValue(reportQuestion.rqnLlabel);
@@ -175,7 +175,7 @@ export class ReportEditComponent implements OnInit {
           const lineIndex = this.lines.controls.indexOf(lineForm);
           for (let i = lineIndex; i < this.lines.length; i++) {
             const lineFormToCheck = this.lines.at(i);
-      
+
             // If there is a condition
             const questionCondition = lineFormToCheck.get('questionCondition').value;
             if (questionCondition != null) {
@@ -308,7 +308,7 @@ export class ReportEditComponent implements OnInit {
     const lineAtLineIndexMinusOne = listLine[lineIndex - 1];
     listLine[lineIndex] = lineAtLineIndexMinusOne;
     listLine[lineIndex - 1] = lineAtLineIndex;
-    
+
     // EmitEvent = false because otherwise valueChanged is activated and we don't want that
     this.lines.setValue(listLine, {emitEvent: false});
   }
@@ -384,8 +384,8 @@ export class ReportEditComponent implements OnInit {
   async duplicateFromReport() {
     // Select the type-motif from which to duplicate
     // Only display the ones with report
-    this.layerService.getAllVLayerWtr().subscribe((listAssetTypeWtr) => {
-      this.templateService.getFormsTemplate().subscribe( async (listFormTemplateReport) => {
+    this.layerService.getAllVLayerWtr().then((listAssetTypeWtr) => {
+      this.templateService.getFormsTemplate().then( async (listFormTemplateReport) => {
         let listAssetTypeWtrWithReport: ValueLabel[] = listAssetTypeWtr
           .filter((assetTypeWtr) => {
             return listFormTemplateReport.some((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + assetTypeWtr.astCode + '_' + assetTypeWtr.wtrCode);
@@ -550,11 +550,11 @@ export class ReportEditComponent implements OnInit {
 
     // Create
     if (formTemplate.fteId == null) {
-      this.templateService.createFormTemplate(formTemplate).subscribe((res: any) => {
+      this.templateService.createFormTemplate(formTemplate).then((res: any) => {
         this.modalController.dismiss(true);
       });
     } else {
-      this.templateService.updateFormTemplate(formTemplate).subscribe((res: any) => {
+      this.templateService.updateFormTemplate(formTemplate).then((res: any) => {
         this.modalController.dismiss(true);
       });
     }

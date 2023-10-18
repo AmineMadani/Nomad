@@ -30,36 +30,23 @@ export class FormHistoryComponent implements OnInit {
   ngOnInit() {
     this.isLoading = true;
 
-    this.workorderService
-      .getEquipmentWorkOrderHistory(
-        `${this.paramMap.get('lyrTableName')}`,
-        this.paramMap.get('id')
-      )
-      .pipe(
-        switchMap((wks: Workorder[]) => {
-          this.workorders = wks;
-          return forkJoin([
-            this.workorderService.getAllWorkorderTaskStatus(),
-            this.workorderService.getAllWorkorderTaskReasons(),
-          ]);
-        }),
-        finalize(() => (this.isLoading = false))
-      )
-      .subscribe((refs: any[][]) => {
-        // Saved for future implementation of pagination
-        this.statusRef = refs[0];
-        this.reasonRef = refs[1];
-
-        this.workorders.map((wk) => {
-          /* In the code, `wk` is a variable used in the `map` function to iterate over each element in
-          the `workorders` array. It represents an individual `Workorder` object in the array. */
-          wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
-          wk.wtrLabel = this.reasonRef.find(
-            (reason: { id: number; }) => reason.id === wk.tasks[0].wtrId
-          )?.wtrLlabel;
-          return wk;
-        });
+    Promise.all([
+      this.workorderService.getEquipmentWorkOrderHistory(`${this.paramMap.get('lyrTableName')}`, this.paramMap.get('id')),
+      this.workorderService.getAllWorkorderTaskStatus(),
+      this.workorderService.getAllWorkorderTaskReasons(),
+    ]).then((results) => {
+      this.workorders = (results[0] as any).map((wk) => {
+        /* In the code, `wk` is a variable used in the `map` function to iterate over each element in
+        the `workorders` array. It represents an individual `Workorder` object in the array. */
+        wk.status = this.statusRef.find((status) => status.id === wk.wtsId);
+        wk.wtrLabel = this.reasonRef.find(
+          (reason: { id: number; }) => reason.id === wk.tasks[0].wtrId
+        )?.wtrLlabel;
+        return wk;
       });
+      this.statusRef = results[1];
+      this.reasonRef = results[2];
+    });
   }
 
   /**

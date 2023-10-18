@@ -15,7 +15,7 @@ export class OrganizationalUnitService {
    * Method to get all the organizational units
    * @returns OrganizationalUnit[]
    */
-  getAllOrganizationalUnits(): Observable<OrganizationalUnit[]> {
+  getAllOrganizationalUnits(): Promise<OrganizationalUnit[]> {
     return this.organizationalUnitDataService.getAllOrganizationalUnits();
   }
 }

@@ -417,7 +417,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a report page with selected feature properties as query parameters.
    */
   public async onGenerateReport(): Promise<void> {
-    let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+    let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
     let ctrId = this.selectedFeature['properties']['ctrId'] ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0] : null;
     if(this.selectedFeature['id']) {
 
@@ -945,7 +945,7 @@ export class MapComponent implements OnInit, OnDestroy {
         &&
         this.customTileFilter(layer[0])
       ) {
-        this.getOverlapTileFromIndex(layer[0]).subscribe(async (res) => {
+        this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
           for (let str of res.listTile) {
             if (
               !this.mapService.loadedGeoJson.get(res.layer) ||
@@ -980,7 +980,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param {string} key - Layer index key
    * @returns a Promise that resolves to an array of strings.
    */
-  private getOverlapTileFromIndex(key: string): Observable<any> {
+  private async getOverlapTileFromIndex(key: string): Promise<any> {
     const listTile: string[] = [];
     const val: Maplibregl.LngLatBounds = this.map!.getBounds();
     const box1: Box = {
@@ -990,44 +990,43 @@ export class MapComponent implements OnInit, OnDestroy {
       y2: Math.max(val._sw.lng, val._ne.lng),
     };
 
-    return this.layerService.getLayerIndexes().pipe(
-      map((res) => {
-        const index: any[] = (res as any)['features'];
+    const layerIndexes = await this.layerService.getLayerIndexes();
 
-        if (index && index.length > 0) {
-          for (const coordRaw of index) {
-            const coords: string[] = (coordRaw['properties']['bbox'] as string)
-              .replace('POLYGON((', '')
-              .replace(')', '')
-              .split(',');
+    const index: any[] = (layerIndexes as any)['features'];
 
-            const box2: Box = {
-              y1: Math.max(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-              ),
-              y2: Math.min(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
-              ),
-              x1: Math.max(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-              ),
-              x2: Math.min(
-                ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
-              ),
-            };
+    if (index && index.length > 0) {
+      for (const coordRaw of index) {
+        const coords: string[] = (coordRaw['properties']['bbox'] as string)
+          .replace('POLYGON((', '')
+          .replace(')', '')
+          .split(',');
 
-            if (this.checkIfBoxesOverlap(box2, box1)) {
-              listTile.push(coordRaw['properties']['file']);
-            }
-          }
-        }
-        let result: any = {
-          layer: key,
-          listTile: listTile,
+        const box2: Box = {
+          y1: Math.max(
+            ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+          ),
+          y2: Math.min(
+            ...coords.map((coord) => parseFloat(coord.split(' ')[0]))
+          ),
+          x1: Math.max(
+            ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+          ),
+          x2: Math.min(
+            ...coords.map((coord) => parseFloat(coord.split(' ')[1]))
+          ),
         };
-        return result;
-      })
-    );
+
+        if (this.checkIfBoxesOverlap(box2, box1)) {
+          listTile.push(coordRaw['properties']['file']);
+        }
+      }
+    }
+    let result: any = {
+      layer: key,
+      listTile: listTile,
+    };
+
+    return result;
   }
 
   /**

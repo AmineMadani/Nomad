@@ -24,17 +24,15 @@ export class TemplateService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  getFormsTemplate(forceGetFromDb: boolean = false): Observable<FormTemplate[]> {
-    if (this.formsTemplate && !forceGetFromDb) {
-      return of(this.formsTemplate);
+  async getFormsTemplate(forceGetFromDb: boolean = false): Promise<FormTemplate[]> {
+    if (!this.formsTemplate || forceGetFromDb) {
+      this.formsTemplate = await this.cacheService.fetchReferentialsData<FormTemplate[]>(
+        ReferentialCacheKey.FORM_TEMPLATE,
+        () => this.templateDataService.getFormsTemplate()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<FormTemplate[]>(
-      ReferentialCacheKey.FORM_TEMPLATE,
-      () => this.templateDataService.getFormsTemplate()
-    ).pipe(
-      tap((results => this.formsTemplate = results))
-    );
+    return this.formsTemplate;
   }
 
   /**
@@ -42,7 +40,7 @@ export class TemplateService {
    * @param formTemplate the form template to create
    * @returns the form template
    */
-  public createFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+  public createFormTemplate(formTemplate: FormTemplateUpdate): Promise<any> {
     return this.templateDataService.createFormTemplate(formTemplate);
   }
 
@@ -51,7 +49,7 @@ export class TemplateService {
    * @param formTemplate the form template to update
    * @returns the form template
    */
-  public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
+  public updateFormTemplate(formTemplate: FormTemplateUpdate): Promise<any> {
     return this.templateDataService.updateFormTemplate(formTemplate);
   }
 
@@ -61,13 +59,12 @@ export class TemplateService {
    * @param payload: formTemplate to apply and userIds concerned.
    * @returns A response message if successfull, else return an error.
    */
-  public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }) {
-    return this.templateDataService.saveFormTemplateCustomUser(payload)
-      .pipe(
-        tap((successResponse: ApiSuccessResponse) => {
-          this.utilsService.showSuccessMessage(successResponse.message);
-        })
-      );
+  public async saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }): Promise<ApiSuccessResponse> {
+    const response = await this.templateDataService.saveFormTemplateCustomUser(payload)
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
@@ -76,12 +73,11 @@ export class TemplateService {
    * @param payload: id of the default template form and userIds concerned.
    * @returns A response message if successfull, else return an error.
    */
-  public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }) {
-    return this.templateDataService.deleteFormTemplateCustomUser(payload)
-      .pipe(
-        tap((successResponse: ApiSuccessResponse) => {
-          this.utilsService.showSuccessMessage(successResponse.message);
-        })
-      );
+  public async deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }): Promise<ApiSuccessResponse> {
+    const response = await this.templateDataService.deleteFormTemplateCustomUser(payload);
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 }

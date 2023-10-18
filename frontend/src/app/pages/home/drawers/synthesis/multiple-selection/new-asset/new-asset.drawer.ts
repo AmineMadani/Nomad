@@ -68,11 +68,11 @@ export class NewAssetDrawer implements OnInit {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.wkoStep = this.activatedRoute.snapshot.queryParams?.['step'];
 
-    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
+    const listFormTemplate = await this.templateService.getFormsTemplate();
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
     this.listFilterAsset = JSON.parse(assetFilter.definition);
 
-    this.listLayers = await firstValueFrom(this.layerService.getAllLayers());
+    this.listLayers = await this.layerService.getAllLayers();
   }
 
   ngOnDestroy(): void {
@@ -160,7 +160,7 @@ export class NewAssetDrawer implements OnInit {
       if (!this.form) {
         this.isLoading = true;
 
-        const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
+        const listFormTemplate = await this.templateService.getFormsTemplate();
         const newAsseTemplate = listFormTemplate.find(form => form.formCode === 'NEW_ASSET_' + this.selectedAsset.layerKey.toUpperCase());
         if (newAsseTemplate) {
           const newAssetForm: Form = JSON.parse(newAsseTemplate.definition);
@@ -171,7 +171,7 @@ export class NewAssetDrawer implements OnInit {
           for (const [index, definition] of this.listDefinition.entries()) {
             // Add the question to the form
             this.form.addControl(definition.key, new FormControl<any>(null))
-            
+
             // Add the validator if it is a required field
             if (definition.rules.some((rule) => rule.key === 'required')) {
               this.form.get(definition.key).addValidators([Validators.required]);
@@ -220,7 +220,7 @@ export class NewAssetDrawer implements OnInit {
 
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
-      const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+      const lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
       // When coming from the report and if there is only 1 task
       if (this.wkoStep === 'report' && wko.tasks.length === 1) {
@@ -308,7 +308,7 @@ export class NewAssetDrawer implements OnInit {
       this.addExistingCoords(map, geojson, linestring);
     }
 
-    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend')) 
+    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend'))
       .pipe(takeUntil(this.terminateDrawing$))
       .subscribe((e) => {
         const features = map.queryRenderedFeatures(e.point, {
@@ -462,7 +462,7 @@ export class NewAssetDrawer implements OnInit {
               definitions: [],
               relations: [],
             }
-        
+
             // Add the start definition
             const startDefinition: FormDefinition = {
               key: 'questionPrincipal',
@@ -478,7 +478,7 @@ export class NewAssetDrawer implements OnInit {
             // Add each definition
             for (let i = 0; i < lineLine.length; i++) {
               const line = lineLine[i];
-        
+
               const definition: FormDefinition = {
                 key: line['column_name'],
                 type: 'property',
@@ -491,7 +491,7 @@ export class NewAssetDrawer implements OnInit {
               }
 
               const dataType = line['data_type'];
-        
+
               // Component
               if (['text'].includes(dataType)) {
                 definition.component = FormPropertiesEnum.INPUT;
@@ -525,7 +525,7 @@ export class NewAssetDrawer implements OnInit {
                   multiple: false,
                 }
               }
-        
+
               // Rules
               if (line['Obligatoire ?'] === 'Oui') {
                 definition.rules.push({
@@ -534,7 +534,7 @@ export class NewAssetDrawer implements OnInit {
                   message: 'Ce champ est obligatoire',
                 });
               }
-        
+
               reportForm.definitions.push(definition);
             }
 

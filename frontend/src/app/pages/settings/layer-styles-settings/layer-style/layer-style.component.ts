@@ -46,7 +46,7 @@ export class LayerStyleComponent implements OnInit {
 
     if (!this.isCreation) {
       this.layerService.getLayerStyleById(this.lseId)
-        .subscribe((lse: LayerStyleDetail) => {
+        .then((lse: LayerStyleDetail) => {
           this.layerStyle = lse;
           this.layerStyle.listImage = lse.listImage;
 
@@ -119,12 +119,12 @@ export class LayerStyleComponent implements OnInit {
         this.layerService.createLayerStyle(
           layerStylePayload,
           this.layerStyle.lyrId
-        ).subscribe();
+        );
       } else {
         this.layerService.updateLayerStyle(
           layerStylePayload,
           this.layerStyle.lseId
-        ).subscribe();
+        );
       }
 
       this.reloadNeededInPreviousScreen = true;
