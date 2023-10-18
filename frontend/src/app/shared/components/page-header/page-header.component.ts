@@ -8,6 +8,8 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
@@ -19,7 +21,9 @@ export class PageHeaderComponent implements OnInit {
   constructor(
     private utils: UtilsService,
     private location: Location,
-    private router: Router
+    private router: Router,
+    private mapEventService: MapEventService,
+    private mapService: MapService,
   ) {}
 
   @Input() public headerLabel: string;
@@ -39,6 +43,10 @@ export class PageHeaderComponent implements OnInit {
   }
 
   public onCloseClick(): void {
-    this.router.navigate(['home'])
+    this.mapEventService.highlighSelectedFeatures(
+      this.mapService.getMap(),
+      undefined
+    );
+    this.router.navigate(['home']);
   }
 }

@@ -325,6 +325,24 @@ export class UtilsService {
     return Math.round(num * factor) / factor;
   }
 
+  public getAverageOfCoordinates(coordinates: [number, number][]): [number, number] {
+    let totalX = 0;
+    let totalY = 0;
+
+    // Calculate total x and y coordinates
+    coordinates.forEach(c => {
+        const [x, y] = c;
+        totalX += x;
+        totalY += y;
+    });
+
+    // Calculate average x and y coordinates
+    const averageX = totalX / coordinates.length;
+    const averageY = totalY / coordinates.length;
+
+    return [averageX, averageY];
+  }
+
   /**
    * Check if an error is due to a service unavailability.
    * @param error

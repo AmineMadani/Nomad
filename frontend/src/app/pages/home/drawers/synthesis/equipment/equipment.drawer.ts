@@ -80,7 +80,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       });
     } else if (ev.key === 'report') {
 
-      let lStatus  =  await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+      let lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
 
       let workorder: Workorder = {
         latitude: this.equipment.y,

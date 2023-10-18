@@ -6,6 +6,8 @@ import { FilterDataService } from 'src/app/core/services/dataservices/filter.dat
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from './workorder.service';
 import { MapLayerService } from './map/map-layer.service';
+import { TaskPaginated } from '../models/workorder.model';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +16,6 @@ export class FilterService {
   constructor(
     private mapService: MapService,
     private mapLayerService: MapLayerService,
-    private workorderService: WorkorderService,
     private filterDataService: FilterDataService
   ) { }
 
@@ -28,6 +29,30 @@ export class FilterService {
 
   public setFilterForm(filter: any): void {
     this.filterForm = filter;
+  }
+
+  public transformFilterForm(): TaskPaginated {
+    return {
+      wkoEmergeny: this.filterForm?.wkoEmergency ? true : null,
+      wkoAppointment: this.filterForm?.wkoAppointment ? true : null,
+      wkoPlanningStartDate: this.filterForm?.wkoPlanningStartDate
+        ? DateTime.fromFormat(
+            this.filterForm?.wkoPlanningStartDate,
+            'dd/MM/yyyy'
+          ).toISO()
+        : DateTime.now().minus({ months: 3 }).toISO(),
+      wkoPlanningEndDate:
+        this.filterForm?.wkoPlanningEndDate ||
+        this.filterForm?.wkoPlanningEndDate?.length > 0
+          ? DateTime.fromFormat(
+              this.filterForm?.wkoPlanningEndDate,
+              'dd/MM/yyyy'
+            ).toISO()
+          : null,
+      wtrIds: this.filterForm?.wtrIds,
+      wtsIds: this.filterForm?.wtsIds,
+      assObjTables: this.filterForm?.assObjTables,
+    };
   }
 
   /**
