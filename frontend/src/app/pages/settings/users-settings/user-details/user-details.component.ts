@@ -1,13 +1,34 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import {
+  AlertController,
+  ModalController,
+  ToastController,
+} from '@ionic/angular';
 import { Subscription, forkJoin, pairwise, startWith } from 'rxjs';
 import { ContractWithOrganizationalUnits } from 'src/app/core/models/contract.model';
-import { OrganizationalUnit, OutCodeEnum } from 'src/app/core/models/organizational-unit.model';
+import {
+  OrganizationalUnit,
+  OutCodeEnum,
+} from 'src/app/core/models/organizational-unit.model';
 import { ActionType } from 'src/app/core/models/settings.model';
-import { TableCell, Column, TableRow, TypeColumn, TableRowArray } from 'src/app/core/models/table/column.model';
+import {
+  TableCell,
+  Column,
+  TableRow,
+  TypeColumn,
+  TableRowArray,
+} from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
-import { Perimeter, PerimeterRow, Profile, User, PermissionCodeEnum, ProfileCodeEnum, UserStatus } from 'src/app/core/models/user.model';
+import {
+  Perimeter,
+  PerimeterRow,
+  Profile,
+  User,
+  PermissionCodeEnum,
+  ProfileCodeEnum,
+  UserStatus,
+} from 'src/app/core/models/user.model';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { OrganizationalUnitService } from 'src/app/core/services/organizational-unit.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -28,10 +49,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     private utilsService: UtilsService,
     private alertController: AlertController,
     private toastCtrl: ToastController
-  ) { }
+  ) {}
 
-  @Input("userId") userId: number;
-  @Input("actionType") actionType: ActionType;
+  @Input('userId') userId: number;
+  @Input('actionType') actionType: ActionType;
   public ActionType = ActionType;
 
   public isLoading: boolean = false;
@@ -62,11 +83,15 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         name: 'trash',
         onClick: () => {
           // Get the perimeter table
-          const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
+          const perimetersTable = this.userForm.get(
+            'perimeters'
+          ) as TableRowArray<PerimeterRow>;
 
           for (const row of this.selectedPerimetersRows) {
             // Find the index of the row in the perimetersTable
-            const index = perimetersTable.controls.findIndex(control => control === row);
+            const index = perimetersTable.controls.findIndex(
+              (control) => control === row
+            );
 
             if (index !== -1) {
               perimetersTable.removeAt(index);
@@ -76,8 +101,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           this.selectedPerimetersRows = [];
         },
         disableFunction: () => {
-          return this.selectedPerimetersRows.length === 0 || !this.userHasPermissionManageUser || !this.userHasPermissionSetUserRights;
-        }
+          return (
+            this.selectedPerimetersRows.length === 0 ||
+            !this.userHasPermissionManageUser ||
+            !this.userHasPermissionSetUserRights
+          );
+        },
       },
       {
         name: 'add',
@@ -85,11 +114,14 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           this.addPerimeterRow();
         },
         disableFunction: () => {
-          return !this.userHasPermissionManageUser || !this.userHasPermissionSetUserRights;
-        }
-      }
+          return (
+            !this.userHasPermissionManageUser ||
+            !this.userHasPermissionSetUserRights
+          );
+        },
+      },
     ],
-  }
+  };
   // Table Columns
   public columns: Column<PerimeterRow>[] = [
     {
@@ -104,8 +136,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         elements: [],
         elementLabelFunction: (profile: Profile) => {
           return profile.prfLlabel;
-        }
-      }
+        },
+      },
     },
     {
       key: 'regionIds',
@@ -117,7 +149,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         elements: [],
         elementLabelFunction: (org: OrganizationalUnit) => {
           return org.orgLlabel;
-        }
+        },
       },
     },
     {
@@ -133,10 +165,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         },
         elementFilterFunction: (row: PerimeterRow) => {
           return row.regionIds && row.regionIds.length > 0
-            ? this.territories.filter((org) => row.regionIds.includes(org.orgParentId))
+            ? this.territories.filter((org) =>
+                row.regionIds.includes(org.orgParentId)
+              )
             : this.territories;
         },
-      }
+      },
     },
     {
       key: 'contractIds',
@@ -150,13 +184,23 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           return contract.ctrLlabel;
         },
         elementFilterFunction: (row: PerimeterRow) => {
-          return row.territoryIds && row.territoryIds.length > 0
-            ? this.contracts.filter((ctr) =>
-                ctr.organizationalUnits.some((org) => row.territoryIds.includes(org.id))
+          if (row.territoryIds && row.territoryIds.length > 0) {
+            return this.contracts.filter((ctr) =>
+              ctr.organizationalUnits.some((org) =>
+                row.territoryIds.includes(org.id)
               )
-            : this.contracts;
+            );
+          } else if (row.regionIds && row.regionIds.length > 0) {
+            return this.contracts.filter((ctr) =>
+              ctr.organizationalUnits.some((org) =>
+                row.regionIds.includes(org.orgParentId)
+              )
+            );
+          } else {
+            return this.contracts;
+          }
         },
-      }
+      },
     },
   ];
 
@@ -172,9 +216,13 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
     // Permissions
     this.userHasPermissionManageUser =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.MANAGE_USER_PROFILE);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.MANAGE_USER_PROFILE
+      );
     this.userHasPermissionSetUserRights =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.SET_USER_RIGHTS);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.SET_USER_RIGHTS
+      );
 
     this.fetchInitData();
   }
@@ -210,15 +258,22 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private fetchInitData() {
     this.isLoading = true;
     forkJoin({
-      organizationalUnits: this.organizationalUnitService.getAllOrganizationalUnits(),
+      organizationalUnits:
+        this.organizationalUnitService.getAllOrganizationalUnits(),
       profiles: this.userService.getAllProfiles(),
       contracts: this.contractService.getAllContractsWithOrganizationalUnits(),
       user: this.userService.getUserDetailById(this.userId),
     }).subscribe(({ organizationalUnits, profiles, contracts, user }) => {
       // OrganizationalUnits
       this.organizationalUnits = organizationalUnits;
-      this.regions = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === OutCodeEnum.REGION);
-      this.territories = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === OutCodeEnum.TERRITORY);
+      this.regions = this.organizationalUnits.filter(
+        (organizationalUnit: OrganizationalUnit) =>
+          organizationalUnit.outCode === OutCodeEnum.REGION
+      );
+      this.territories = this.organizationalUnits.filter(
+        (organizationalUnit: OrganizationalUnit) =>
+          organizationalUnit.outCode === OutCodeEnum.TERRITORY
+      );
 
       // Profiles
       this.profiles = profiles;
@@ -227,10 +282,18 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       this.contracts = contracts;
 
       // Fill select data
-      this.columns.find((col) => col.key === 'profileId').selectProperties.elements = this.profiles;
-      this.columns.find((col) => col.key === 'regionIds').selectProperties.elements = this.regions;
-      this.columns.find((col) => col.key === 'territoryIds').selectProperties.elements = this.territories;
-      this.columns.find((col) => col.key === 'contractIds').selectProperties.elements = this.contracts;
+      this.columns.find(
+        (col) => col.key === 'profileId'
+      ).selectProperties.elements = this.profiles;
+      this.columns.find(
+        (col) => col.key === 'regionIds'
+      ).selectProperties.elements = this.regions;
+      this.columns.find(
+        (col) => col.key === 'territoryIds'
+      ).selectProperties.elements = this.territories;
+      this.columns.find(
+        (col) => col.key === 'contractIds'
+      ).selectProperties.elements = this.contracts;
 
       // User
       if (user) {
@@ -255,7 +318,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         if (!this.userHasPermissionManageUser) {
           this.userForm.disable();
         } else if (!this.userHasPermissionSetUserRights) {
-          const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
+          const perimetersTable = this.userForm.get(
+            'perimeters'
+          ) as TableRowArray<PerimeterRow>;
           perimetersTable.disable();
         }
       }
@@ -266,7 +331,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   private addPerimeterRow(perimeter?: PerimeterRow) {
     // Get the perimeter table
-    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
+    const perimetersTable = this.userForm.get(
+      'perimeters'
+    ) as TableRowArray<PerimeterRow>;
     // Create the row to add in the table
     const row = this.createTableRow();
     // Subscribe to changes in different rows
@@ -292,122 +359,198 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   }
 
   private subscribeToProfileValueChanges(row: TableRow<PerimeterRow>): void {
-    this.profileSubscription = row.get('profileId').valueChanges.subscribe((newProfileId) => {
-      // If a profile is selected
-      if (newProfileId) {
-        // If it's admin nat
-        const adminNatProfile = this.profiles.find((prf) => prf.prfCode === ProfileCodeEnum.ADMIN_NAT);
-        if (newProfileId === adminNatProfile.id) {
-          // We set to all contracts
-          row.get('contractIds').setValue(this.contracts.map((ctr) => ctr.id));
+    this.profileSubscription = row
+      .get('profileId')
+      .valueChanges.subscribe((newProfileId) => {
+        // If a profile is selected
+        if (newProfileId) {
+          // If it's admin nat
+          const adminNatProfile = this.profiles.find(
+            (prf) => prf.prfCode === ProfileCodeEnum.ADMIN_NAT
+          );
+          if (newProfileId === adminNatProfile.id) {
+            // We set to all contracts
+            row
+              .get('contractIds')
+              .setValue(this.contracts.map((ctr) => ctr.id));
+          }
         }
-      }
-    });
+      });
   }
 
   private subscribeToRegionValueChanges(row: TableRow<PerimeterRow>): void {
-    this.regionsSubscription = row.get('regionIds').valueChanges.pipe(
-      startWith(row.get('regionIds').value),
-      pairwise()
-    ).subscribe(([previousRegionsIds, currentRegionsIds]) => {
-      // Find removed (deselected) item(s)
-      const removedItems = previousRegionsIds?.filter(id => !currentRegionsIds?.includes(id));
+    this.regionsSubscription = row
+      .get('regionIds')
+      .valueChanges.pipe(startWith(row.get('regionIds').value), pairwise())
+      .subscribe(([previousRegionsIds, currentRegionsIds]) => {
+        // Find removed (deselected) item(s)
+        const removedItems = previousRegionsIds?.filter(
+          (id) => !currentRegionsIds?.includes(id)
+        );
 
-      // Handle a deselection
-      if (removedItems?.length > 0) {
-        // Get territories of the regions
-        const removedTerritoriesId = this.territories
-          .filter((ter) => removedItems.includes(ter.orgParentId))
-          .map((ter) => ter.id);
-        // Unselect them
-        const currentTerritoriesIds = row.get('territoryIds').value;
-        if (currentTerritoriesIds) {
-          const regionsTerritoriesIds = currentTerritoriesIds.filter((terId) => !removedTerritoriesId.includes(terId));
-          row.get('territoryIds').setValue(regionsTerritoriesIds);
+        // Handle a deselection
+        if (removedItems?.length > 0) {
+          // Get territories of the regions
+          const removedTerritoriesId = this.territories
+            .filter((ter) => removedItems.includes(ter.orgParentId))
+            .map((ter) => ter.id);
+          // Unselect them
+          const currentTerritoriesIds = row.get('territoryIds').value;
+          if (currentTerritoriesIds) {
+            const regionsTerritoriesIds = currentTerritoriesIds.filter(
+              (terId) => !removedTerritoriesId.includes(terId)
+            );
+            row.get('territoryIds').setValue(regionsTerritoriesIds);
+          }
         }
-      }
-    });
+      });
   }
 
   private subscribeToTerritoryValueChanges(row: TableRow<PerimeterRow>): void {
-    this.territoriesSubscription = row.get('territoryIds').valueChanges.pipe(
-      startWith(row.get('territoryIds').value),
-      pairwise()
-    ).subscribe(([previousTerritoriesIds, currentTerritoriesIds]) => {
-      // Find added (selected) item(s)
-      const addedItems = currentTerritoriesIds?.filter(id => !previousTerritoriesIds?.includes(id));
-      // Find removed (deselected) item(s)
-      const removedItems = previousTerritoriesIds?.filter(id => !currentTerritoriesIds?.includes(id));
+    this.territoriesSubscription = row
+      .get('territoryIds')
+      .valueChanges.pipe(startWith(row.get('territoryIds').value), pairwise())
+      .subscribe(([previousTerritoriesIds, currentTerritoriesIds]) => {
+        // Find added (selected) item(s)
+        const addedItems = currentTerritoriesIds?.filter(
+          (id) => !previousTerritoriesIds?.includes(id)
+        );
+        // Find removed (deselected) item(s)
+        const removedItems = previousTerritoriesIds?.filter(
+          (id) => !currentTerritoriesIds?.includes(id)
+        );
 
-      // Handle a selection
-      if (addedItems?.length > 0) {
-        const territories = this.territories.filter((t) => currentTerritoriesIds.includes(t.id));
+        // Handle a selection
+        if (addedItems?.length > 0) {
+          const territories = this.territories.filter((t) =>
+            currentTerritoriesIds.includes(t.id)
+          );
 
-        // Set automatically the region by orgParentId of the territory
-        row.get('regionIds').setValue([...new Set(territories.map(t => t.orgParentId))]);
+          // Set automatically the region by orgParentId of the territory
+          row
+            .get('regionIds')
+            .setValue([...new Set(territories.map((t) => t.orgParentId))]);
 
-        // If the form dirty (prevent to programatically change contracts at init)
-        if (this.userForm.dirty) {
-          // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
-          const profileIds = this.profiles
-            .filter((prf) => [ProfileCodeEnum.ADMIN_NAT, ProfileCodeEnum.ADMIN_LOC_1, ProfileCodeEnum.ADMIN_LOC_2].includes(prf.prfCode))
-            .map((prf) => prf.id);
+          // If the form dirty (prevent to programatically change contracts at init)
+          if (this.userForm.dirty) {
+            // If profiles is 'ADMIN_NAT' or 'ADMIN_LOC_1' or 'ADMIN_LOC_2'
+            const profileIds = this.profiles
+              .filter((prf) =>
+                [
+                  ProfileCodeEnum.ADMIN_NAT,
+                  ProfileCodeEnum.ADMIN_LOC_1,
+                  ProfileCodeEnum.ADMIN_LOC_2,
+                ].includes(prf.prfCode)
+              )
+              .map((prf) => prf.id);
 
-          if (profileIds.includes(row.get('profileId').value)) {
-            // Set automatically all contracts contains in the territory
-            const territoryContractIds = this.contracts
-              .filter((ctr) => ctr.organizationalUnits.some((org) => currentTerritoriesIds.includes(org.id)))
-              .map((ctr) => ctr.id);
+            if (profileIds.includes(row.get('profileId').value)) {
+              // Set automatically all contracts contained in the territory only if there no selected  contract  from the same contract
 
-            row.get('contractIds').setValue(territoryContractIds.length > 0 ? territoryContractIds : null);
+              const territoriesOfSelectedContracts = this.contracts
+                .filter((ter) =>
+                  row.get('contractIds').value?.some((ctr) => ter.id === ctr)
+                )
+                .map((ter) => ter.organizationalUnits[0].id);
+
+              const diff =  currentTerritoriesIds.filter(added => !territoriesOfSelectedContracts.some(current => current === added )
+              );
+              if (
+                //!territoriesOfSelectedContracts?.some((ctr) =>
+                // currentTerritoriesIds.some((trId) => ctr === trId)
+
+                  currentTerritoriesIds.filter(added => !territoriesOfSelectedContracts.some(current => current === added )
+                ).length > 0
+              ) {
+                let territoryContractIds = this.contracts
+                  .filter((ctr) =>
+                    ctr.organizationalUnits.some((org) =>
+                      addedItems.includes(org.id)
+                    )
+                  )
+                  .map((ctr) => ctr.id);
+                  territoryContractIds.push(...row.get('contractIds').value);
+                  console.log("",territoryContractIds);
+                row
+                  .get('contractIds')
+                  .setValue(
+                    territoryContractIds.length > 0
+                      ? territoryContractIds
+                      : null
+                  );
+              }
+            }
           }
         }
-      }
 
-      // Handle a deselection
-      if (removedItems?.length > 0) {
-        // Get contracts of the territories
-        const removeContractsIds =
-          this.contracts
-            .filter((ctr) => removedItems.some((territoryId) => ctr.organizationalUnits.map((org) => org.id).includes(territoryId)))
+        // Handle a deselection
+        if (removedItems?.length > 0) {
+          // Get contracts of the territories
+          const removeContractsIds = this.contracts
+            .filter((ctr) =>
+              removedItems.some((territoryId) =>
+                ctr.organizationalUnits
+                  .map((org) => org.id)
+                  .includes(territoryId)
+              )
+            )
             .map((ctr) => ctr.id);
-        // Unselect them
-        const currentContractsIds = row.get('contractIds').value;
-        if (currentContractsIds) {
-          const territoriesContractIds = currentContractsIds.filter((ctrId) => !removeContractsIds.includes(ctrId));
-          row.get('contractIds').setValue(territoriesContractIds);
+          // Unselect them
+          const currentContractsIds = row.get('contractIds').value;
+          if (currentContractsIds) {
+            const territoriesContractIds = currentContractsIds.filter(
+              (ctrId) => !removeContractsIds.includes(ctrId)
+            );
+            console.log("territoriesContractIds",territoriesContractIds);
+            row.get('contractIds').setValue(territoriesContractIds);
+          }
         }
-      }
-    });
+      });
   }
 
   private subscribeToContractValueChanges(row: TableRow<PerimeterRow>): void {
-    this.contractsSubscription = row.get('contractIds').valueChanges.pipe(
-      startWith(row.get('contractIds').value),
-      pairwise()
-    ).subscribe(([previousContractsIds, currentContractsIds]) => {
-      // Find added (selected) item(s)
-      const addedItems = currentContractsIds?.filter(id => !previousContractsIds?.includes(id));
-
-      // Handle a selection
-      if (addedItems?.length > 0) {
-        // Set automaticaly the territories of contracts selected
-        const selectedContracts = this.contracts.filter((ctr) => currentContractsIds.includes(ctr.id));
-        const contractsTerritories = this.territories.filter((territory) =>
-          selectedContracts.some((ctr) => ctr.organizationalUnits.some((org) => org.id === territory.id))
+    this.contractsSubscription = row
+      .get('contractIds')
+      .valueChanges.pipe(startWith(row.get('contractIds').value), pairwise())
+      .subscribe(([previousContractsIds, currentContractsIds]) => {
+        // Find added (selected) item(s)
+        const addedItems = currentContractsIds?.filter(
+          (id) => !previousContractsIds?.includes(id)
         );
-        row.get('territoryIds').setValue(contractsTerritories.map(t => t.id));
-      }
-    });
+         // Find removed (deselected) item(s)
+         const removedItems = previousContractsIds?.filter(
+          (id) => !currentContractsIds?.includes(id)
+        );
+        // Handle a selection
+        if (addedItems?.length > 0) {
+          // Set automaticaly the territories of contracts selected
+          const selectedContracts = this.contracts.filter((ctr) =>
+            currentContractsIds.includes(ctr.id)
+          );
+          const contractsTerritories = this.territories.filter((territory) =>
+            selectedContracts.some((ctr) =>
+              ctr.organizationalUnits.some((org) => org.id === territory.id)
+            )
+          );
+          row
+            .get('territoryIds')
+            .setValue(contractsTerritories.map((t) => t.id));
+        }
+      });
   }
 
-  private setPerimeterValues(row: TableRow<PerimeterRow>, perimeter: Perimeter): void {
+  private setPerimeterValues(
+    row: TableRow<PerimeterRow>,
+    perimeter: Perimeter
+  ): void {
     row.get('profileId').setValue(perimeter.profileId, { emitEvent: false });
     row.get('contractIds').setValue(perimeter.contractIds);
   }
 
   public getPerimetersControls(): TableRow<PerimeterRow>[] {
-    const perimetersTable = this.userForm.get('perimeters') as TableRowArray<PerimeterRow>;
+    const perimetersTable = this.userForm.get(
+      'perimeters'
+    ) as TableRowArray<PerimeterRow>;
     return perimetersTable.controls as TableRow<PerimeterRow>[];
   }
 
@@ -431,11 +574,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     // Keep the initial data and complete them with formValues
     const userToSave: User = {
       ...this.initialUser,
-      ...this.userForm.value
+      ...this.userForm.value,
     };
 
     // Check the user status by email.
-    this.userService.getUserStatusByEmail(userToSave.email)
+    this.userService
+      .getUserStatusByEmail(userToSave.email)
       .subscribe(async (userStatus) => {
         // If user exists and he deleted, alert info.
         if (userStatus && userStatus.deleted) {
@@ -454,29 +598,42 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             // Activate the user with the new email
             this.userService
               .updateUser(userToSave)
-              .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+              .subscribe((res: { message: string }) =>
+                this.showSuccessMessageAndClose(res)
+              );
           }
         }
         // If user exists and he not deleted and modification mode.
-        else if (userStatus && !userStatus.deleted && this.actionType === ActionType.MODIFICATION) {
+        else if (
+          userStatus &&
+          !userStatus.deleted &&
+          this.actionType === ActionType.MODIFICATION
+        ) {
           // We launch an update
           this.userService
             .updateUser(userToSave)
-            .subscribe((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+            .subscribe((res: { message: string }) =>
+              this.showSuccessMessageAndClose(res)
+            );
         }
         // Else the user doesn't exist
         else {
           // We launch a creation
           this.userService
             .createUser(userToSave)
-            .subscribe((res: { message: string }) => this.showSuccessMessageAndClose(res));
+            .subscribe((res: { message: string }) =>
+              this.showSuccessMessageAndClose(res)
+            );
         }
       });
   }
 
   private async showActivationAlert(userToSave: User): Promise<string> {
     const alert = await this.alertController.create({
-      header: 'Un utilisateur supprimé existe déjà avec l\'email "' + userToSave.email + ' ", voulez-vous le réactiver ?',
+      header:
+        'Un utilisateur supprimé existe déjà avec l\'email "' +
+        userToSave.email +
+        ' ", voulez-vous le réactiver ?',
       buttons: [
         {
           text: 'Non',
@@ -487,7 +644,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           role: 'confirm',
         },
       ],
-      cssClass: 'alert-modal'
+      cssClass: 'alert-modal',
     });
 
     await alert.present();
@@ -497,7 +654,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     return role;
   }
 
-  private showSuccessMessageAndClose(res: { message: string; }) {
+  private showSuccessMessageAndClose(res: { message: string }) {
     this.isSaving = false;
     this.savingToast.dismiss();
     this.utilsService.showSuccessMessage(res.message);
@@ -521,7 +678,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             role: 'confirm',
           },
         ],
-        cssClass: 'alert-modal'
+        cssClass: 'alert-modal',
       });
 
       await alert.present();
@@ -540,10 +697,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     const modal = await this.modalController.create({
       component: PermissionsSettingsPage,
       componentProps: {
-        showCloseBtn: true
+        showCloseBtn: true,
       },
       backdropDismiss: false,
-      cssClass: 'large-modal'
+      cssClass: 'large-modal',
     });
 
     return await modal.present();
