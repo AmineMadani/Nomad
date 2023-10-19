@@ -51,10 +51,13 @@ export class MobileHomeActionsComponent implements OnInit {
   public async onGenerateWorkOrder() {
     const centerMapPosition = this.mapService.getMap().getCenter();
 
-    forkJoin({
-      contractIds: this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
-      cityIds: this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
-    }).subscribe(({ contractIds, cityIds }) => {
+    Promise.all([
+      this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+      this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+    ]).then((results) => {
+      const contractIds = results[0];
+      const cityIds = results[0];
+
       let params: any = {};
       params.x = centerMapPosition.lng;
       params.y = centerMapPosition.lat;

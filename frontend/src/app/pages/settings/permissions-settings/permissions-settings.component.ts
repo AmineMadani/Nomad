@@ -47,10 +47,13 @@ export class PermissionsSettingsPage implements OnInit {
   private loadPermissions() {
     this.isLoading = true;
 
-    forkJoin({
-      permissions: this.userService.getAllPermissions(),
-      profiles: this.userService.getAllProfiles(),
-    }).subscribe(({ permissions, profiles }) => {
+    Promise.all([
+      this.userService.getAllPermissions(),
+      this.userService.getAllProfiles()
+    ]).then((results) => {
+      const permissions = results[0];
+      const profiles = results[1];
+
       let permissionRows = [];
 
       for (const profile of profiles) {

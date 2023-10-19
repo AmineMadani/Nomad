@@ -29,4 +29,7 @@ public interface UserRepository extends NomadRepository<Users, Long> {
 			"	LEFT JOIN FETCH p.profile " +
 			"WHERE u.id = :id")
 	Optional<Users> findUsrAndListOfUsrCtrPrfById(@Param("id") Long id);
+
+	@Query(value = "SELECT (pg_sequence_last_value('nomad.users_id_seq') + 1)", nativeQuery = true)
+	Long findNextId();
 }

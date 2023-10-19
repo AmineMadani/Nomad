@@ -62,22 +62,29 @@ export class WorkorderService {
       return workOrder;
     }
 
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.workorderDataService.getWorkorderById(id),
-      timeout: this.configurationService.offlineTimeoutWorkorder
-    }).catch(async (error) => {
-      const featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
-      if (featureTask) {
-        const workorder = buildWorkorderFromGeojson(featureTask);
-        const tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
-        for (const task of tasks) {
-          workorder.tasks.push(buildTaskFromGeojson(task));
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.TILES);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.getWorkorderById(id),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
+          if (featureTask) {
+            const workorder = buildWorkorderFromGeojson(featureTask);
+            const tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
+            for (const task of tasks) {
+              workorder.tasks.push(buildTaskFromGeojson(task));
+            }
+            return workorder;
+          }
         }
-        return workorder;
-      }
 
-      throw error;
-    });
+        throw error;
+      });
+    }
+
+    return this.workorderDataService.getWorkorderById(id);
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {
@@ -90,24 +97,28 @@ export class WorkorderService {
     return workorders.filter((wko) => wko?.syncOperation && wko?.id);
   }
 
-  public getTasksPaginated(
+  public async getTasksPaginated(
     limit: number,
     offset: number,
     search: any
   ): Promise<Task[]> {
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.workorderDataService.getTasksPaginated(limit, offset, search),
-      timeout: this.configurationService.offlineTimeoutWorkorder
-    }).catch(async (error) => {
-      const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.WORKORDERS);
-      if (isCacheDownload) {
-        const featureTasks: any[] = await this.cacheService.getPaginatedFeaturesByLayer('task', offset, limit);
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.getTasksPaginated(limit, offset, search),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const featureTasks: any[] = await this.cacheService.getPaginatedFeaturesByLayer('task', offset, limit);
 
-        return this.filterFeaturesTasks(featureTasks, search);
-      }
+          return this.filterFeaturesTasks(featureTasks, search);
+        }
 
-      throw error;
-    });
+        throw error;
+      });
+    }
+
+    return this.workorderDataService.getTasksPaginated(limit, offset, search);
   }
 
   public filterFeaturesTasks(featureTasks: any[], search: any): Task[] {
@@ -158,19 +169,24 @@ export class WorkorderService {
    * @param workorder the workorder to update
    * @returns the workorder
    */
-  public updateWorkOrder(workorder: Workorder): Promise<Workorder> {
+  public async updateWorkOrder(workorder: Workorder): Promise<Workorder> {
     workorder.syncOperation = undefined;
 
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.workorderDataService.updateWorkOrder(workorder),
-      timeout: this.configurationService.offlineTimeoutWorkorder
-    })
-      .then(async (newWko: Workorder) => {
-        // Save the workorder attachments if necessary
-        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
-        return newWko;
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.updateWorkOrder(workorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
       })
-      .catch((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder));
+        .then(async (newWko: Workorder) => {
+          // Save the workorder attachments if necessary
+          await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+          return newWko;
+        })
+        .catch((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder));
+    }
+
+    return this.workorderDataService.updateWorkOrder(workorder);
   }
 
   /**
@@ -187,27 +203,33 @@ export class WorkorderService {
    * @param workorder the workorder to create
    * @returns the workorder
    */
-  public createWorkOrder(workorder: Workorder): Promise<Workorder> {
+  public async createWorkOrder(workorder: Workorder): Promise<Workorder> {
     workorder.syncOperation = undefined;
 
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.workorderDataService.createWorkOrder(workorder),
-      timeout: this.configurationService.offlineTimeoutWorkorder
-    })
-      .then(async (newWko: Workorder) => {
-        // Save the workorder attachments if necessary
-        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
-        return newWko;
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.createWorkOrder(workorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
       })
-      .catch(async (error) => {
-        if (error?.name == 'TimeoutError') {
-          workorder.syncOperation = SyncOperations.CreateWorkorder;
-          workorder.isDraft = false;
-          this.saveCacheWorkorder(workorder);
-          return workorder;
-        }
-        throw error
-      });
+        .then(async (newWko: Workorder) => {
+          // Save the workorder attachments if necessary
+          await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+          return newWko;
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            workorder.syncOperation = SyncOperations.CreateWorkorder;
+            workorder.isDraft = false;
+            this.saveCacheWorkorder(workorder);
+            return workorder;
+          }
+
+          throw error
+        });
+    }
+
+    return this.workorderDataService.createWorkOrder(workorder);
   }
 
   /**
@@ -323,7 +345,7 @@ export class WorkorderService {
     * @returns The cached workorder object.
   */
   public async handleConnectionErrorOnWorkorderOperations(error: Error, workorder: Workorder, syncOperations: SyncOperations): Promise<Workorder> {
-    if (error.name === 'TimeoutError' || (error instanceof HttpErrorResponse && !navigator.onLine)) {
+    if (this.utilsService.isOfflineError(error)) {
       workorder.syncOperation = syncOperations;
       await this.saveCacheWorkorder(workorder);
       await this.startPeriodicSyncWorkorders();

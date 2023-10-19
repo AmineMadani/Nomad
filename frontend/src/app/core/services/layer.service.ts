@@ -3,7 +3,7 @@ import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetai
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
-import { CacheService, ReferentialCacheKey } from './cache.service';
+import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
@@ -36,13 +36,24 @@ export class LayerService {
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
 
-    const listLayerReferences = await this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.layerDataService.getUserLayerReferences(),
-      timeout: this.configurationService.offlineTimeoutEquipment
-    }).catch(async () => {
-      const feature = await this.getUserLayerReferences();
-      return feature;
-    });
+    let listLayerReferences: LayerReferences[] = [];
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      listLayerReferences = await this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getUserLayerReferences(),
+        timeout: this.configurationService.offlineTimeoutEquipment
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const feature = await this.getUserLayerReferences();
+          return feature;
+        }
+
+        throw error;
+      });
+    } else {
+      listLayerReferences = await this.layerDataService.getUserLayerReferences();
+    }
+
 
     if (listLayerReferences) {
       const layer = listLayerReferences.find((layer) => layer.layerKey === layerKey);

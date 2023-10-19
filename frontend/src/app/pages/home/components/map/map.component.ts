@@ -353,16 +353,19 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklongitute = e.lngLat.lng;
 
     if (!feature) {
-      forkJoin({
-        contractIds: this.contractService.getContractIdsByLatitudeLongitude(
+      Promise.all([
+        this.contractService.getContractIdsByLatitudeLongitude(
           e.lngLat.lat,
           e.lngLat.lng
         ),
-        cityIds: this.cityService.getCityIdsByLatitudeLongitude(
+        this.cityService.getCityIdsByLatitudeLongitude(
           e.lngLat.lat,
           e.lngLat.lng
-        ),
-      }).subscribe(({ contractIds, cityIds }) => {
+        )
+      ]).then((results) => {
+        const contractIds = results[0];
+        const cityIds = results[1];
+
         const params: any = {};
         params.x = e.lngLat.lng;
         params.y = e.lngLat.lat;

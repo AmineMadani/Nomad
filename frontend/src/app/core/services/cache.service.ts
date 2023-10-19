@@ -272,65 +272,69 @@ export class CacheService {
     return serviceCall();
   }
 
-  public fetchLayerFile(
+  public async fetchLayerFile(
     layerKey: string,
     featureNumber: number,
     file: string,
     params: any
   ): Promise<NomadGeoJson> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
 
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.layerDataService.getLayerFile(layerKey, featureNumber, params),
-      timeout: this.configurationService.offlineTimeoutTile
-    })
-      .then(async (req: NomadGeoJson) => {
-        const isMobile = this.utilsService.isMobilePlateform();
-
-        if (isMobile) {
-          await this.db.tiles.put({ data: req, key: file }, file);
-        }
-
-        return req;
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getLayerFile(layerKey, featureNumber, params),
+        timeout: this.configurationService.offlineTimeoutTile
       })
-      .catch(async (error) => {
-        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
-        if (isCacheDownload) {
-          const tile = await this.db.tiles.get(file);
-          if (tile) {
-            return tile.data;
-          }
-        }
-
-        throw error;
-      });
-  }
-
-  public fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
-    return this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.layerDataService.getEquipmentsByLayersAndIds(idsLayers),
-      timeout: this.configurationService.offlineTimeoutEquipment
-    })
-      .catch(async (error) => {
-        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
-        if (isCacheDownload) {
-          let res = [];
-          for (const idLayer of idsLayers) {
-            for (const ref of idLayer.equipmentIds) {
-              const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
-              if (feature) {
-                feature.properties = Object.assign(feature.properties, {
-                  lyrTableName: idLayer.lyrTableName,
-                  geom: feature.geometry
-                });
-                res.push(feature.properties);
-              }
+        .then(async (req: NomadGeoJson) => {
+          await this.db.tiles.put({ data: req, key: file }, file);
+          return req;
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            const tile = await this.db.tiles.get(file);
+            if (tile) {
+              return tile.data;
             }
           }
-          return res;
-        }
 
-        throw error;
-      });
+          throw error;
+        });
+    }
+
+    return this.layerDataService.getLayerFile(layerKey, featureNumber, params);
+  }
+
+  public async fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
+
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getEquipmentsByLayersAndIds(idsLayers),
+        timeout: this.configurationService.offlineTimeoutEquipment
+      })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            let res = [];
+            for (const idLayer of idsLayers) {
+              for (const ref of idLayer.equipmentIds) {
+                const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+                if (feature) {
+                  feature.properties = Object.assign(feature.properties, {
+                    lyrTableName: idLayer.lyrTableName,
+                    geom: feature.geometry
+                  });
+                  res.push(feature.properties);
+                }
+              }
+            }
+            return res;
+          }
+
+          throw error;
+        });
+    }
+
+    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers);
   }
 
 

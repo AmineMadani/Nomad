@@ -19,18 +19,18 @@ export class TaskCardComponent implements OnInit {
   @Input() tasks: any[];
   @Input() loading: boolean = false;
   @Output() public onPagination: EventEmitter<any> = new EventEmitter();
-  
+
   public status: WorkorderTaskStatus[];
   public actions: WorkorderTaskReason[];
 
   ngOnInit() {
-    forkJoin([
+    Promise.all([
       this.workorderService.getAllWorkorderTaskStatus(),
       this.workorderService.getAllWorkorderTaskReasons()
-    ]).subscribe((res: [WorkorderTaskStatus[], WorkorderTaskReason[]]) => {
+    ]).then((res: [WorkorderTaskStatus[], WorkorderTaskReason[]]) => {
       this.status = res[0];
       this.actions = res[1];
-    })
+    });
   }
 
   public getPaginationData(e: any): void {

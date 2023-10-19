@@ -66,6 +66,8 @@ public class UserService {
 		}
 
 		Users user = new Users();
+		// Get next id, the default generated value not working well when some users are created by the init script before
+		user.setId(this.userRepository.findNextId());
 		// Global info
 		user.setUsrFirstName(newAccount.getFirstName());
 		user.setUsrLastName(newAccount.getLastName());

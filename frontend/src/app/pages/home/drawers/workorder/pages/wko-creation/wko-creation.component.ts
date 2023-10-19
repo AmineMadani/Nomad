@@ -511,12 +511,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       funct = this.workorderService.createWorkOrder(this.workorder);
     }
 
-    funct.pipe(
-      finalize(() => {
-        this.isLoading = false;
-      })
-    )
-    .subscribe(async (res: Workorder) => {
+    funct.then(async (res: Workorder) => {
+      this.isLoading = false;
       this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
@@ -559,7 +555,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         }));
 
       // Use forkJoin to run all observables in parallel
-      forkJoin(promisesArray).subscribe(() => {
+      Promise.all(promisesArray).then(() => {
         if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
           this.equipmentModal.present();
         }
@@ -1038,10 +1034,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             taskId: t.id,
           };
         });
-      const assetsFromTasks =
-        await this.layerService.getEquipmentsByLayersAndIds(
-          this.transformTasks(this.workorder.tasks)
-        );
+
+      let assetsFromTasks = [];
+      const transformedTasks = this.transformTasks(this.workorder.tasks);
+      if (transformedTasks && transformedTasks.length > 0) {
+        assetsFromTasks =
+          await this.layerService.getEquipmentsByLayersAndIds(
+            transformedTasks
+          );
+      }
+
       return [...xyTasksAndNewAssets, ...assetsFromTasks];
     } else {
       this.drawerService.navigateTo(DrawerRouteEnum.HOME);
@@ -1057,15 +1059,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!transformedItems[item.assObjTable]) {
         transformedItems[item.assObjTable] = [];
       }
-      transformedItems[item.assObjTable].push(item.assObjRef);
+      if (item.assObjRef) {
+        transformedItems[item.assObjTable].push(item.assObjRef);
+      }
     });
 
     // Transform grouped items into the desired format
     return Object.keys(transformedItems).map((assObjTable) => {
-      return {
-        lyrTableName: assObjTable,
-        equipmentIds: transformedItems[assObjTable],
-      };
-    });
+      return transformedItems[assObjTable]?.length > 0 ?
+        {
+          lyrTableName: assObjTable,
+          equipmentIds: transformedItems[assObjTable],
+        } : null;
+    }).filter((item) => item !== null);
   }
 }

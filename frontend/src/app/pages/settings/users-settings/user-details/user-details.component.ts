@@ -209,12 +209,17 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   private fetchInitData() {
     this.isLoading = true;
-    forkJoin({
-      organizationalUnits: this.organizationalUnitService.getAllOrganizationalUnits(),
-      profiles: this.userService.getAllProfiles(),
-      contracts: this.contractService.getAllContractsWithOrganizationalUnits(),
-      user: this.userService.getUserDetailById(this.userId),
-    }).subscribe(({ organizationalUnits, profiles, contracts, user }) => {
+    Promise.all([
+      this.organizationalUnitService.getAllOrganizationalUnits(),
+      this.userService.getAllProfiles(),
+      this.contractService.getAllContractsWithOrganizationalUnits(),
+      this.userService.getUserDetailById(this.userId),
+    ]).then((results) => {
+      const organizationalUnits = results[0];
+      const profiles = results[1];
+      const contracts = results[2];
+      const user = results[3];
+
       // OrganizationalUnits
       this.organizationalUnits = organizationalUnits;
       this.regions = this.organizationalUnits.filter((organizationalUnit: OrganizationalUnit) => organizationalUnit.outCode === OutCodeEnum.REGION);

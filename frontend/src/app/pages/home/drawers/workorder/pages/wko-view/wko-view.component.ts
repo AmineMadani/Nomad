@@ -154,38 +154,38 @@ export class WkoViewComponent implements OnInit {
           this.appointmentHours = `${formattedStartDate} - ${formattedEndDate}`;
         }
 
-        forkJoin({
-          workorderTaskStatus:
-            this.workorderService.getAllWorkorderTaskStatus(),
-          workorderTaskReasons:
-            this.workorderService.getAllWorkorderTaskReasons(),
-          layers: this.layerService.getAllLayers(),
-        }).subscribe(
-          ({ workorderTaskStatus, workorderTaskReasons, layers }) => {
-            this.status = workorderTaskStatus.find(
-              (refStatus) => refStatus.id == wtsid
-            )?.wtsLlabel;
-            if(this.status) {
-              this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
-            }
+        Promise.all([
+          this.workorderService.getAllWorkorderTaskStatus(),
+          this.workorderService.getAllWorkorderTaskReasons(),
+          this.layerService.getAllLayers(),
+        ]).then((results) => {
+          const workorderTaskStatus = results[0];
+          const workorderTaskReasons = results[1];
+          const layers = results[2];
 
-            this.reason = workorderTaskReasons.find(
-              (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
-            )?.wtrLlabel;
-
-            const layer = lyrTableName
-              ? layers.find((asset) => asset.lyrTableName == lyrTableName)
-              : null;
-            this.assetLabel = layer
-              ? `${layer.domLLabel} - ${layer.lyrSlabel}` +
-                (this.selectedTask?.assObjRef
-                  ? ` - ${this.selectedTask?.assObjRef}`
-                  : '')
-              : null;
-            this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
-            this.loading = false;
+          this.status = workorderTaskStatus.find(
+            (refStatus) => refStatus.id == wtsid
+          )?.wtsLlabel;
+          if (this.status) {
+            this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
           }
-        );
+
+          this.reason = workorderTaskReasons.find(
+            (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
+          )?.wtrLlabel;
+
+          const layer = lyrTableName
+            ? layers.find((asset) => asset.lyrTableName == lyrTableName)
+            : null;
+          this.assetLabel = layer
+            ? `${layer.domLLabel} - ${layer.lyrSlabel}` +
+            (this.selectedTask?.assObjRef
+              ? ` - ${this.selectedTask?.assObjRef}`
+              : '')
+            : null;
+          this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
+          this.loading = false;
+        });
       });
   }
 
