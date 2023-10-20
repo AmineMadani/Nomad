@@ -32,7 +32,7 @@
           </ion-row>
           <ion-row>
             <ion-col>
-              <ion-select interface="popover" aria-label="status" label="Statut *" label-placement="floating" fill="outline" [value]="'interne'" formControlName="status">
+              <ion-select [interface]="isMobile ? 'action-sheet' : 'popover'" aria-label="status" label="Statut *" label-placement="floating" fill="outline" [value]="'interne'" formControlName="status">
                 <ion-select-option value="interne">Interne</ion-select-option>
                 <ion-select-option value="externe">Externe</ion-select-option>
               </ion-select>

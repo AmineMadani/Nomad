@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { forkJoin } from 'rxjs';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { Permission } from 'src/app/core/models/user.model';
 import { TableService } from 'src/app/core/services/table.service';
@@ -47,10 +46,13 @@ export class PermissionsSettingsPage implements OnInit {
   private loadPermissions() {
     this.isLoading = true;
 
-    forkJoin({
-      permissions: this.userService.getAllPermissions(),
-      profiles: this.userService.getAllProfiles(),
-    }).subscribe(({ permissions, profiles }) => {
+    Promise.all([
+      this.userService.getAllPermissions(),
+      this.userService.getAllProfiles()
+    ]).then((results) => {
+      const permissions = results[0];
+      const profiles = results[1];
+
       let permissionRows = [];
 
       for (const profile of profiles) {

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
+import { EMPTY, Subject, interval, switchMap, takeUntil } from 'rxjs';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson } from '../models/workorder.model';
+import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson, convertTasksToWorkorders } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
-import { CacheService, ReferentialCacheKey } from './cache.service';
-import { MapFeature } from '../models/map-feature.model';
-import { HttpErrorResponse } from '@angular/common/http';
+import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { MapService } from './map/map.service';
 import { AppDB } from '../models/app-db.model';
 import { AttachmentService } from './attachment.service';
+import { UtilsService } from './utils.service';
+import { FilterService } from './filter.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -20,7 +20,6 @@ export enum SyncOperations {
   providedIn: 'root',
 })
 export class WorkorderService {
-
   public activeWorkorderSwitch:boolean = false;
   public dateWorkorderSwitch: Date = null;
 
@@ -29,7 +28,9 @@ export class WorkorderService {
     private cacheService: CacheService,
     private configurationService: ConfigurationService,
     private mapService: MapService,
-    private attachmentService: AttachmentService
+    private attachmentService: AttachmentService,
+    private utilsService: UtilsService,
+    private filterService: FilterService
   ) {
     this.db = new AppDB();
   }
@@ -60,24 +61,29 @@ export class WorkorderService {
       return workOrder;
     }
 
-    return firstValueFrom(
-      this.workorderDataService.getWorkorderById(id).pipe(
-        timeout(this.configurationService.offlineTimeoutWorkorder),
-        catchError(async (error) => {
-          let featureWorkorder = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
-          if (featureWorkorder) {
-            let workorder = buildWorkorderFromGeojson(featureWorkorder);
-            let tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureWorkorder.properties['wkoId'].toString());
-            for (let task of tasks) {
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.TILES);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.getWorkorderById(id),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
+          if (featureTask) {
+            const workorder = buildWorkorderFromGeojson(featureTask);
+            const tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
+            for (const task of tasks) {
               workorder.tasks.push(buildTaskFromGeojson(task));
             }
             return workorder;
           }
+        }
 
-          throw error;
-        })
-      )
-    );
+        throw error;
+      });
+    }
+
+    return this.workorderDataService.getWorkorderById(id);
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {
@@ -90,31 +96,106 @@ export class WorkorderService {
     return workorders.filter((wko) => wko?.syncOperation && wko?.id);
   }
 
-  /**
-   * Get workorder with pagination
-   * @param key The layer key
-   * @param limit The limit
-   * @param offset The offset
-   * @param search The search parameters
-   * @returns the list of features
-   */
-  public getFeaturePagination(
-    key: string,
-    limit: number,
-    offset: number,
-    search: Map<string, string[]> | undefined
-  ): Observable<MapFeature[]> {
-    return this.workorderDataService
-      .getFeaturePagination(key, limit, offset, search)
-      .pipe(map((fs: any[]) => fs.map((f) => MapFeature.from(f))));
-  }
-
-  public getTasksPaginated(
+  public async getTasksPaginated(
     limit: number,
     offset: number,
     search: any
-  ): Observable<Task[]> {
+  ): Promise<Task[]> {
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.TILES);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.getTasksPaginated(limit, offset, search),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const featureTasks: any[] = await this.cacheService.getPaginatedFeaturesByLayer('task', offset, limit);
+
+          return this.filterFeaturesTasks(featureTasks, search);
+        }
+
+        throw error;
+      });
+    }
+
     return this.workorderDataService.getTasksPaginated(limit, offset, search);
+  }
+
+  public filterGeojsonFeatures(features: any[]): any {
+    if (!features || features.length === 0) {
+      return [];
+    }
+
+    const search = this.filterService.transformFilterForm();
+
+    return features.filter((a) => {
+      return (
+        (search.wtrIds === undefined ||
+          search.wtrIds.length === 0 ||
+          search.wtrIds.includes(a.properties.wtrId)) &&
+        (search.assObjTables === undefined ||
+          search.assObjTables.length === 0 ||
+          search.assObjTables.includes(
+            a.properties.assObjTable
+          )) &&
+        (search.wtrIds === undefined ||
+          search.wtsIds.length === 0 ||
+          search.wtsIds.includes(a.properties.wtsId)) &&
+        (search.wkoAppointment === null ||
+          a.properties.wkoAppointment ===
+            search.wkoAppointment) &&
+        (search.wkoEmergeny === null ||
+          a.properties.wkoEmergency ===
+            search.wkoEmergeny) &&
+        a.properties.wkoPlanningStartDate >=
+          search.wkoPlanningStartDate &&
+        (search.wkoPlanningEndDate === null ||
+          a.properties.wkoPlanningStartDate <=
+            search.wkoPlanningEndDate)
+      );
+    });
+  }
+
+  public filterFeaturesTasks(featureTasks: any[], search: any): Task[] {
+    const workorders: Workorder[] = convertTasksToWorkorders(featureTasks);
+
+    const result = workorders
+      .filter((wko: Workorder) => {
+        const tasksMatch = wko.tasks.some(task => (search.wtrIds === undefined || search.wtrIds.length === 0 || search.wtrIds.includes(task.wtrId)) &&
+          (search.assObjTables === undefined || search.assObjTables.length === 0 || search.assObjTables.includes(task.assObjTable))
+        );
+        return (
+          (search.wtrIds === undefined || search.wtsIds.length === 0 || search.wtsIds.includes(wko.wtsId)) &&
+          (search.wkoAppointment === null || wko.wkoAppointment === search.wkoAppointment) &&
+          (search.wkoEmergeny === null || wko.wkoEmergency === search.wkoEmergeny) &&
+          (wko.wkoPlanningStartDate >= search.wkoPlanningStartDate) &&
+          (search.wkoPlanningEndDate === null || wko.wkoPlanningStartDate <= search.wkoPlanningEndDate) &&
+          tasksMatch
+        );
+      })
+      .flatMap((workorder: Workorder) => {
+        return workorder.tasks.map(task => ({
+          id: task.id,
+          wkoId: workorder.id,
+          wkoName: workorder.wkoName,
+          wkoEmergency: workorder.wkoEmergency,
+          wkoAppointment: workorder.wkoAppointment,
+          ctyId: workorder.ctyId,
+          ctrId: task.ctrId,
+          wkoAddress: workorder.wkoAddress,
+          wkoPlanningStartDate: workorder.wkoPlanningStartDate,
+          wkoPlanningEndDate: workorder.wkoPlanningEndDate,
+          wtsId: workorder.wtsId,
+          wtrId: task.wtrId,
+          wkoCompletionStartDate: workorder.wkoCompletionStartDate,
+          wkoCompletionEndDate: workorder.wkoCompletionEndDate,
+          longitude: task.longitude,
+          latitude: task.latitude,
+          wkoAgentNb: workorder.wkoAgentNb,
+          wkoCreationComment: workorder.wkoCreationComment,
+          assObjTable: task.assObjTable
+        }));
+      });
+    return result;
   }
 
   /**
@@ -122,17 +203,24 @@ export class WorkorderService {
    * @param workorder the workorder to update
    * @returns the workorder
    */
-  public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
+  public async updateWorkOrder(workorder: Workorder): Promise<Workorder> {
     workorder.syncOperation = undefined;
-    return this.workorderDataService.updateWorkOrder(workorder).pipe(
-      timeout(this.configurationService.offlineTimeoutWorkorder),
-      catchError((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder)),
-      switchMap(async (newWko: Workorder) => {
-        // Save the workorder attachments if necessary
-        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
-        return newWko;
-      }),
-    );
+
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.updateWorkOrder(workorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      })
+        .then(async (newWko: Workorder) => {
+          // Save the workorder attachments if necessary
+          await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+          return newWko;
+        })
+        .catch((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder));
+    }
+
+    return this.workorderDataService.updateWorkOrder(workorder);
   }
 
   /**
@@ -140,7 +228,7 @@ export class WorkorderService {
    * @param workorder the workorder to terminate
    * @returns the workorder
    */
-  public terminateWorkOrder(workorder: Workorder): Observable<Workorder> {
+  public terminateWorkOrder(workorder: Workorder): Promise<Workorder> {
     return this.workorderDataService.terminateWorkOrder(workorder);
   }
 
@@ -149,25 +237,33 @@ export class WorkorderService {
    * @param workorder the workorder to create
    * @returns the workorder
    */
-  public createWorkOrder(workorder: Workorder): Observable<Workorder> {
+  public async createWorkOrder(workorder: Workorder): Promise<Workorder> {
     workorder.syncOperation = undefined;
-    return this.workorderDataService.createWorkOrder(workorder).pipe(
-      timeout(this.configurationService.offlineTimeoutWorkorder),
-      catchError(async (error) => {
-        if (error?.name == 'TimeoutError') {
-          workorder.syncOperation = SyncOperations.CreateWorkorder;
-          workorder.isDraft = false;
-          this.saveCacheWorkorder(workorder);
-          return workorder;
-        }
-        throw error
-      }),
-      switchMap(async (newWko: Workorder) => {
-        // Save the workorder attachments if necessary
-        await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
-        return newWko;
-      }),
-    );
+
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.createWorkOrder(workorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      })
+        .then(async (newWko: Workorder) => {
+          // Save the workorder attachments if necessary
+          await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+          return newWko;
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            workorder.syncOperation = SyncOperations.CreateWorkorder;
+            workorder.isDraft = false;
+            this.saveCacheWorkorder(workorder);
+            return workorder;
+          }
+
+          throw error
+        });
+    }
+
+    return this.workorderDataService.createWorkOrder(workorder);
   }
 
   /**
@@ -177,7 +273,7 @@ export class WorkorderService {
    */
   public cancelWorkorder(
     cancelPayload: CancelWorkOrder
-  ): Observable<Workorder> {
+  ): Promise<Workorder> {
     return this.workorderDataService.cancelWorkOrder(cancelPayload);
   }
 
@@ -188,7 +284,7 @@ export class WorkorderService {
    */
     public cancelTask(
       cancelPayload: CancelTask
-    ): Observable<Workorder> {
+    ): Promise<Workorder> {
       return this.workorderDataService.cancelTask(cancelPayload);
     }
 
@@ -221,8 +317,8 @@ export class WorkorderService {
   public getEquipmentWorkOrderHistory(
     assetTable: string,
     assetId: string
-  ): Observable<Workorder[]> {
-    return this.workorderDataService.getEquipmentWorkOrderHistory(
+  ): Promise<Workorder[]> {
+    return this.workorderDataService.getEquipmentWorkorderHistory(
       assetTable,
       assetId
     );
@@ -232,34 +328,30 @@ export class WorkorderService {
    * Get list of workorders task status
    * @returns an observable of the list of status
    */
-  public getAllWorkorderTaskStatus(forceGetFromDb: boolean = false): Observable<WorkorderTaskStatus[]> {
-    if (this.workorderTaskStatus && !forceGetFromDb) {
-      return of(this.workorderTaskStatus);
+  public async getAllWorkorderTaskStatus(forceGetFromDb: boolean = false): Promise<WorkorderTaskStatus[]> {
+    if (!this.workorderTaskStatus || forceGetFromDb) {
+      this.workorderTaskStatus = await this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
+        ReferentialCacheKey.WORKORDER_TASK_STATUS,
+        () => this.workorderDataService.getAllWorkorderTaskStatus()
+      )
     }
 
-    return this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
-      ReferentialCacheKey.WORKORDER_TASK_STATUS,
-      () => this.workorderDataService.getAllWorkorderTaskStatus()
-    ).pipe(
-      tap((results => this.workorderTaskStatus = results))
-    );
+    return this.workorderTaskStatus;
   }
 
   /**
    * Get list of workorders task reasons
    * @returns an observable of the list of reasons
    */
-  public getAllWorkorderTaskReasons(forceGetFromDb: boolean = false): Observable<WorkorderTaskReason[]> {
-    if (this.workorderTaskReasons && !forceGetFromDb) {
-      return of(this.workorderTaskReasons);
+  public async getAllWorkorderTaskReasons(forceGetFromDb: boolean = false): Promise<WorkorderTaskReason[]> {
+    if (!this.workorderTaskReasons || forceGetFromDb) {
+      this.workorderTaskReasons = await this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
+        ReferentialCacheKey.WORKORDER_TASK_REASON,
+        () => this.workorderDataService.getAllWorkorderTaskReasons()
+      )
     }
 
-    return this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
-      ReferentialCacheKey.WORKORDER_TASK_REASON,
-      () => this.workorderDataService.getAllWorkorderTaskReasons()
-    ).pipe(
-      tap((results => this.workorderTaskReasons = results))
-    );
+    return this.workorderTaskReasons;
   }
 
   /**
@@ -286,13 +378,13 @@ export class WorkorderService {
     * @param workorder - The workorder object to be cached.
     * @returns The cached workorder object.
   */
-  public handleConnectionErrorOnWorkorderOperations(error: Error, workorder: Workorder, syncOperations: SyncOperations): Observable<Workorder> {
-    if (error.name === 'TimeoutError' || (error instanceof HttpErrorResponse && !navigator.onLine)) {
+  public async handleConnectionErrorOnWorkorderOperations(error: Error, workorder: Workorder, syncOperations: SyncOperations): Promise<Workorder> {
+    if (this.utilsService.isOfflineError(error)) {
       workorder.syncOperation = syncOperations;
-      this.saveCacheWorkorder(workorder);
-      this.startPeriodicSyncWorkorders();
+      await this.saveCacheWorkorder(workorder);
+      await this.startPeriodicSyncWorkorders();
 
-      return of(workorder);
+      return workorder;
     }
 
     throw error;
@@ -327,32 +419,29 @@ export class WorkorderService {
         // Perform the synchronization
         switchMap(() => {
           // Create an array of observables to perform the synchronization
-          const syncsToPerform: Observable<any>[] = workordersToSync.map(
+          const syncsToPerform: Promise<any>[] = workordersToSync.map(
             (wko) => {
               // Get the right function to perform the synchronization
-              return this.syncOperations[wko.syncOperation](wko).pipe(
-                // If the synchronization is successful, delete the workorder from the cache
-                tap((workorder) => {
+              return this.syncOperations[wko.syncOperation](wko).then((workorder) => {
+                  // If the synchronization is successful, delete the workorder from the cache
                   console.log('Workorder updated successfully', workorder);
                   this.deleteCacheWorkorder(wko);
                   this.syncWorkorderDisplay(wko, workorder);
-                }),
-              );
+                });
             }
           );
 
           // Perform in parallel the synchronization of all workorders
           // and stop the interval when all workorders are synchronized
-          return forkJoin(syncsToPerform).pipe(
-            tap(() => {
+          return Promise.all(syncsToPerform)
+            .then(() => {
               this.stopSyncOperations$.next();
               this.stopSyncOperations$.complete();
-            }),
-            catchError((error) => {
+            })
+            .catch((error) => {
               console.error('Failed to perform the synchronization', error);
               return EMPTY;
-            })
-          );
+            });
         })
       ).subscribe();
     }

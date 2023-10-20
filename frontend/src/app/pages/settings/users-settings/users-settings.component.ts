@@ -114,7 +114,7 @@ export class UsersSettingsPage implements OnInit {
 
   private loadUsers() {
     this.isLoading = true;
-    this.userService.getAllUserAccount().subscribe((users: User[]) => {
+    this.userService.getAllUserAccount().then((users: User[]) => {
       this.usersRows = this.tableService.createReadOnlyRowsFromObjects(users);
       this.isLoading = false;
     });
@@ -173,7 +173,7 @@ export class UsersSettingsPage implements OnInit {
       const userIds: number[] =
         this.selectedUsersRows.map((userRow) => userRow.getRawValue().id);
 
-      this.userService.deleteUsers(userIds).subscribe(() => {
+      this.userService.deleteUsers(userIds).then(() => {
         this.selectedUsersRows = [];
         this.loadUsers();
       });

@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
 import { FormTemplate, FormTemplateUpdate } from '../../models/template.model';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 
 @Injectable({
@@ -24,23 +24,29 @@ export class TemplateDataService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  public getFormsTemplate(): Observable<FormTemplate[]> {
-    return this.http.get<FormTemplate[]>(`${this.configurationService.apiUrl}templates/forms`)
-  }
-
-  public createFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
-    return this.http.post<any>(
-      `${this.configurationService.apiUrl}templates/create`,
-      formTemplate,
-      this.httpOptions
+  public getFormsTemplate(): Promise<FormTemplate[]> {
+    return firstValueFrom(
+      this.http.get<FormTemplate[]>(`${this.configurationService.apiUrl}templates/forms`)
     );
   }
 
-  public updateFormTemplate(formTemplate: FormTemplateUpdate): Observable<any> {
-    return this.http.put<any>(
-      `${this.configurationService.apiUrl}templates/update`,
-      formTemplate,
-      this.httpOptions
+  public createFormTemplate(formTemplate: FormTemplateUpdate): Promise<any> {
+    return firstValueFrom(
+      this.http.post<any>(
+        `${this.configurationService.apiUrl}templates/create`,
+        formTemplate,
+        this.httpOptions
+      )
+    );
+  }
+
+  public updateFormTemplate(formTemplate: FormTemplateUpdate): Promise<any> {
+    return firstValueFrom(
+      this.http.put<any>(
+        `${this.configurationService.apiUrl}templates/update`,
+        formTemplate,
+        this.httpOptions
+      )
     );
   }
 
@@ -50,8 +56,10 @@ export class TemplateDataService {
    * @param payload: formTemplate to apply and userIds concerned.
    * @returns A response message if successfull, else return an error.
    */
-  public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/save`, payload);
+  public saveFormTemplateCustomUser(payload: { formTemplate: FormTemplateUpdate, userIds: number[] }): Promise<any> {
+    return firstValueFrom(
+      this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/save`, payload)
+    );
   }
 
   /**
@@ -60,8 +68,10 @@ export class TemplateDataService {
    * @param payload: id of the default template form and userIds concerned.
    * @returns A response message if successfull, else return an error.
    */
-  public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/delete`, payload);
+  public deleteFormTemplateCustomUser(payload: { id: number, userIds: number[] }): Promise<any> {
+    return firstValueFrom(
+      this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}templates/custom/users/delete`, payload)
+    );
   }
 }
 

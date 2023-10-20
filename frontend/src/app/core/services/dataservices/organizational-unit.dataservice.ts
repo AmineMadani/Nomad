@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { OrganizationalUnit } from '../../models/organizational-unit.model';
 
@@ -17,8 +17,10 @@ export class OrganizationalUnitDataService {
    * Method to get all the organizational units
    * @returns OrganizationalUnit[]
    */
-  getAllOrganizationalUnits(): Observable<OrganizationalUnit[]> {
-    return this.http.get<OrganizationalUnit[]>(`${this.configurationService.apiUrl}organizational-units`);
+  public getAllOrganizationalUnits(): Promise<OrganizationalUnit[]> {
+    return firstValueFrom(
+      this.http.get<OrganizationalUnit[]>(`${this.configurationService.apiUrl}organizational-units`)
+    );
   }
 }
 

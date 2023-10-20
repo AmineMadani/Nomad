@@ -1,3 +1,4 @@
+/venv/
 .serverless/
 /.serverless/
 /.terraform/
@@ -17,3 +18,4 @@ build/*
 *.log
 *.zip
 package-lock.json
+testApiCall.py

@@ -39,7 +39,7 @@ export class ReportAssetComponent implements OnInit {
 
     this.displayAndZoomToPlannedWko(this.workorder);
 
-    this.layerService.getAllLayers().subscribe((layers: Layer[]) => {
+    this.layerService.getAllLayers().then((layers: Layer[]) => {
       this.refLayers = layers;
     });
 
@@ -137,7 +137,7 @@ export class ReportAssetComponent implements OnInit {
         }
       }
     }
-    
+
     this.mapService.updateFeatureGeometry("task", feature);
     if (this.workorder.id > 0) {
       this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);

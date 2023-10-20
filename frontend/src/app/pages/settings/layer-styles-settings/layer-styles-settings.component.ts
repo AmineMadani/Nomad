@@ -81,9 +81,9 @@ export class LayerStylesSettingsPage implements OnInit {
 
     // Get datas
     // Layers
-    this.layerService.getAllLayers().subscribe((layers) => this.layers = layers);
+    this.layerService.getAllLayers().then((layers) => this.layers = layers);
     // Layer styles
-    this.layerService.getAllLayerStyles().subscribe((styles) => {
+    this.layerService.getAllLayerStyles().then((styles) => {
       this.allLayerStyles = styles;
     });
   }
@@ -109,7 +109,7 @@ export class LayerStylesSettingsPage implements OnInit {
 
   private async reloadLayerStyles() {
     // Get layer styles data
-    this.layerService.getAllLayerStyles().subscribe((styles) => {
+    this.layerService.getAllLayerStyles().then((styles) => {
       this.allLayerStyles = styles;
       // And update the styles for the selected layer
       if (this.currentLayerId) {
@@ -149,7 +149,7 @@ export class LayerStylesSettingsPage implements OnInit {
     const lseIds: number[] =
       this.selectedLayerStylesRows.map((row) => row.getRawValue().lseId);
 
-    this.layerService.deleteLayerStyle(lseIds).subscribe(() => {
+    this.layerService.deleteLayerStyle(lseIds).then(() => {
       this.selectedLayerStylesRows = [];
       this.reloadLayerStyles();
     });

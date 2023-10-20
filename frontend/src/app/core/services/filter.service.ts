@@ -6,6 +6,8 @@ import { FilterDataService } from 'src/app/core/services/dataservices/filter.dat
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from './workorder.service';
 import { MapLayerService } from './map/map-layer.service';
+import { TaskPaginated } from '../models/workorder.model';
+import { DateTime } from 'luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +16,6 @@ export class FilterService {
   constructor(
     private mapService: MapService,
     private mapLayerService: MapLayerService,
-    private workorderService: WorkorderService,
     private filterDataService: FilterDataService
   ) { }
 
@@ -28,6 +29,30 @@ export class FilterService {
 
   public setFilterForm(filter: any): void {
     this.filterForm = filter;
+  }
+
+  public transformFilterForm(): TaskPaginated {
+    return {
+      wkoEmergeny: this.filterForm?.wkoEmergency ? true : null,
+      wkoAppointment: this.filterForm?.wkoAppointment ? true : null,
+      wkoPlanningStartDate: this.filterForm?.wkoPlanningStartDate
+        ? DateTime.fromFormat(
+            this.filterForm?.wkoPlanningStartDate,
+            'dd/MM/yyyy'
+          ).toISO()
+        : DateTime.now().minus({ months: 3 }).toISO(),
+      wkoPlanningEndDate:
+        this.filterForm?.wkoPlanningEndDate ||
+        this.filterForm?.wkoPlanningEndDate?.length > 0
+          ? DateTime.fromFormat(
+              this.filterForm?.wkoPlanningEndDate,
+              'dd/MM/yyyy'
+            ).toISO()
+          : null,
+      wtrIds: this.filterForm?.wtrIds,
+      wtsIds: this.filterForm?.wtsIds,
+      assObjTables: this.filterForm?.assObjTables,
+    };
   }
 
   /**
@@ -51,37 +76,6 @@ export class FilterService {
   //  */
   public applyFilterOnMap(layerKey: string) {
     this.mapService.applyFilterOnMap(layerKey);
-  }
-
-  /**
-   * Method to switch source of data from map layer or backend DB with pagination system for the last one
-   * @param layerkey layer exploitation data
-   * @param toogle boolean true: map - false: DB
-   */
-/**
- * The function `setToggleLayer` is used to toggle the visibility of a layer on a map and fetch its
- * features if the layer is toggled on.
- * @param {string} layerkey - A string representing the key of the layer.
- * @param {boolean} toogle - A boolean value indicating whether to toggle the layer on or off.
- */
-  public setToggleLayer(layerkey: string, toogle: boolean): void {
-    this.filterDataService.getFilterData().delete(layerkey);
-    if (!toogle) {
-      this.mapService.removeEventLayer(layerkey);
-      this.isLoading = true;
-      this.workorderService
-        .getFeaturePagination(layerkey, 20, 0, this.filterDataService.getSearchFilterListData().get(layerkey))
-        .subscribe((features: MapFeature[]) => {
-          this.filterDataService.getFilterData().set(layerkey, features);
-          this.isLoading = false;
-        });
-    } else {
-      this.isLoading = true;
-      this.mapService.addEventLayer(layerkey).then(() => {
-        this.applyFilterOnMap(layerkey); 
-        this.isLoading = false;
-      });
-    }
   }
 
   /**
@@ -145,11 +139,6 @@ export class FilterService {
 
     // //Applied the filter on the map
     this.applyFilterOnMap(layerkey);
-
-    // In the case of the data from DB
-    // if (!this.mapService.getLayer(layerkey)) {
-    //   this.setToggleLayer(layerkey, false);
-    // }
   }
 
   /**

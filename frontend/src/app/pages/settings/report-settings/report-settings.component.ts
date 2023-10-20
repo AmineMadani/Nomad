@@ -114,14 +114,14 @@ export class ReportSettingsPage implements OnInit {
       this.listWtrReportRows = this.tableService.createReadOnlyRowsFromObjects(listWtrReport);
     });
 
-    this.layerService.getAllVLayerWtr().subscribe((vLayerWtrList) => {
+    this.layerService.getAllVLayerWtr().then((vLayerWtrList) => {
       this.listAssetTypeWtr = vLayerWtrList;
       this.listAssetType = this.utils.removeDuplicatesFromArr(this.listAssetTypeWtr, 'astId').sort((a, b) => {
         return a.astCode.localeCompare(b.astCode);
       });
     });
 
-    this.templateService.getFormsTemplate(true).subscribe((listFormTemplateReport) => {
+    this.templateService.getFormsTemplate(true).then((listFormTemplateReport) => {
       this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
     });
   }
@@ -140,7 +140,7 @@ export class ReportSettingsPage implements OnInit {
       const reloadNeeded: boolean = result['data'];
       // If some data changed
       if (reloadNeeded) {
-        this.templateService.getFormsTemplate(true).subscribe((listFormTemplateReport) => {
+        this.templateService.getFormsTemplate(true).then((listFormTemplateReport) => {
           this.listFormTemplateReport = listFormTemplateReport.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
           this.form.get('astId').updateValueAndValidity();
         });
@@ -208,7 +208,7 @@ export class ReportSettingsPage implements OnInit {
     });
 
     console.log(listQuestionDedoublon.sort((a, b) => {
-      if (a.label !== b.label) 
+      if (a.label !== b.label)
         return a.label.localeCompare(b.label);
       return a.component.localeCompare(b.component);
     }));

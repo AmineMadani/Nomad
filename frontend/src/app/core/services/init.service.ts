@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { LayerService } from './layer.service';
-import { firstValueFrom, forkJoin } from 'rxjs';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -14,11 +13,9 @@ export class InitService {
   ) { }
 
   async onAppInit(): Promise<void> {
-    await firstValueFrom(
-      forkJoin({
-        permissions: this.userService.getAllPermissions(),
-        layerReferences: this.layerService.getUserLayerReferences()
-      })
-    );
+    await Promise.all([
+      this.userService.getAllPermissions(),
+      this.layerService.getUserLayerReferences()
+    ]);
   }
 }

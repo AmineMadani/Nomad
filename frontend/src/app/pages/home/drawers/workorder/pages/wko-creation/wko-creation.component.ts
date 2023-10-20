@@ -17,17 +17,11 @@ import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepi
 import {
   Subject,
   filter,
-  map,
   switchMap,
   takeUntil,
-  forkJoin,
-  Observable,
-  tap,
   debounceTime,
-  firstValueFrom,
   fromEvent,
   Subscription,
-  finalize,
 } from 'rxjs';
 import { DateTime } from 'luxon';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -51,6 +45,7 @@ import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 
 const WTR_CODE_POSE = '10';
 
@@ -75,7 +70,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private userService: UserService,
     private cityService: CityService,
     private contractService: ContractService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private assetForSigService: AssetForSigService,
   ) {
     this.router.events
       .pipe(
@@ -172,6 +168,31 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe(async (equipments: any) => {
         this.equipments = equipments;
+
+        // Extract the temporary new asset from the url (when coming from multiple selection without a workorder)
+        // Add them to the list of asset
+        const urlParams = new URLSearchParams(window.location.search);
+        let listAssObjRef = [];
+        for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+          const listValue = value.split(',');
+          for (const v of listValue) {
+            if (!listAssObjRef.includes(v))
+              listAssObjRef.push(v);
+          }
+        }
+        for (const assObjRef of listAssObjRef) {
+          const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+          if (assetForSig != null) {
+            this.equipments.push({
+              id: assObjRef,
+              lyrTableName: assetForSig.assObjTable,
+              x: assetForSig.coords[0][0],
+              y: assetForSig.coords[0][1],
+              assetForSig: assetForSig,
+            });
+          }
+        }
+
         this.nbEquipments = this.equipments.length.toString();
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
@@ -205,6 +226,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 wtrId: null,
                 longitude: eq.x,
                 latitude: eq.y,
+                assetForSig: eq.assetForSig,
               };
             });
           }
@@ -495,7 +517,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       task.assObjRef = null;
 
       // Change the reason to be the 'Pose' reason of the layer selected
-      const listWtr = await firstValueFrom(this.layerService.getAllVLayerWtr());
+      const listWtr = await this.layerService.getAllVLayerWtr();
       const wtr = listWtr.find(
         (wtr) =>
           wtr.wtrCode === WTR_CODE_POSE && wtr.lyrTableName === task.assObjTable
@@ -511,12 +533,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       funct = this.workorderService.createWorkOrder(this.workorder);
     }
 
-    funct.pipe(
-      finalize(() => { 
-        this.isLoading = false;
-      })
-    )
-    .subscribe(async (res: Workorder) => {
+    funct.then(async (res: Workorder) => {
+      this.isLoading = false;
       this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
@@ -549,20 +567,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public async openEquipmentModal(): Promise<void> {
     if (this.equipmentsDetails.length === 0) {
       // Create an array of observables for each call to getEquipmentLabel
-      const observablesArray = this.equipments.map((eq) =>
-        this.getEquipmentLabel(eq).pipe(
-          tap((equipmentLabel) => {
-            this.equipmentsDetails.push([
-              equipmentLabel,
-              eq.id,
-              eq.lyrTableName,
-            ]);
-          })
-        )
-      );
+      const promisesArray = this.equipments.map((eq) => this.getEquipmentLabel(eq)
+        .then((equipmentLabel) => {
+          this.equipmentsDetails.push([
+            equipmentLabel,
+            eq.id,
+            eq.lyrTableName,
+          ]);
+        }));
 
-      // Use forkJoin to run all observables in parallel
-      forkJoin(observablesArray).subscribe(() => {
+      // Use promise.all to run all observables in parallel
+      Promise.all(promisesArray).then(() => {
         if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
           this.equipmentModal.present();
         }
@@ -649,7 +664,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     //set WTR
     this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
 
-    this.workorderService.getAllWorkorderTaskStatus().subscribe((status: WorkorderTaskStatus[]) => {
+    this.workorderService.getAllWorkorderTaskStatus().then((status: WorkorderTaskStatus[]) => {
       this.currentStatus = status.find((s) => s.id === this.workorder.wtsId)?.wtsLlabel;
     })
   }
@@ -661,7 +676,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // WKO Assets
       // If mono-equipment, we need the equipment name
       if (this.equipments.length === 1) {
-        this.getEquipmentLabel().subscribe((label: string) => {
+        this.getEquipmentLabel().then((label: string) => {
           this.equipmentName = label;
         });
       }
@@ -669,25 +684,45 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // Ctr and Cty are on the equipments
       contractsIds = this.equipments.map(
         (eq) => eq?.ctrId ?? +this.workorder.ctrId
-      );
+      )
+      .filter((ctrId) => !isNaN(ctrId));
 
-      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId);
+      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId).filter((ctyId) => !isNaN(ctyId));;
+
+      // If there is no contracts
+      if (contractsIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id != null && equipment.id.startsWith('TMP-')) {
+            // Get the list of contract for this X/Y
+            contractsIds = await this.contractService.getContractIdsByLatitudeLongitude(equipment.y, equipment.x);
+          }
+        }
+      }
+
+      // If there is no cities
+      if (cityIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id && equipment.id.startsWith('TMP-')) {
+            // Get the list of cities for this X/Y
+            cityIds = await this.cityService.getCityIdsByLatitudeLongitude(equipment.y, equipment.x);
+          }
+        }
+      }
     } else {
       // WKO XY
-      const layer = await firstValueFrom(
-        this.layerService
-          .getAllLayers()
-          .pipe(
-            map(
-              (ls: Layer[]) =>
-                ls.filter(
-                  (l: Layer) =>
-                    l.domCode === this.params.waterType &&
-                    l.lyrTableName.includes('xy')
-                )[0]
-            )
-          )
-      );
+      const layers = await this.layerService.getAllLayers();
+      const layer = layers.filter(
+        (l: Layer) =>
+          l.domCode === this.params.waterType &&
+          l.lyrTableName.includes('xy')
+      )[0];
+
       this.equipments = [
         {
           id: this.utils.createCacheId().toString(),
@@ -720,7 +755,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.params?.x ?? this.equipments[0].x,
         this.params?.y ?? this.equipments[0].y
       )
-      .subscribe((addresse) =>
+      .then((addresse) =>
         this.creationWkoForm.patchValue(
           {
             wkoAddress: addresse.features[0]?.properties['label'],
@@ -729,12 +764,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         )
       );
 
-    forkJoin({
-      freasons: this.layerService.getAllVLayerWtr(),
-      contracts: this.contractService.getAllContracts(),
-      cities: this.cityService.getAllCities(),
-      layers: this.layerService.getAllLayers(),
-    }).subscribe(async ({ freasons, contracts, cities, layers }) => {
+    Promise.all([
+      this.layerService.getAllVLayerWtr(),
+      this.contractService.getAllContracts(),
+      this.cityService.getAllCities(),
+      this.layerService.getAllLayers(),
+    ]).then(async (results) => {
+      const freasons: VLayerWtr[] = results[0];
+      const contracts: Contract[] = results[1];
+      const cities: City[] = results[2];
+      const layers: Layer[] = results[3];
+
       const reasons = freasons.filter((vlw: VLayerWtr) =>
         this.equipments.map((eq) => eq.lyrTableName).includes(vlw.lyrTableName)
       );
@@ -786,14 +826,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           this.nbEquipments = this.equipments.length.toString();
           if (this.nbEquipments === '1') {
-            this.getEquipmentLabel().subscribe((label) => {
+            this.getEquipmentLabel().then((label) => {
               this.equipmentName = label;
             });
           }
 
           if (this.workorder.ctrId.toString() !== this.contracts[0].id.toString()) {
             this.creationWkoForm.patchValue( { ctrId: this.contracts[0].id }, { emitEvent: true });
-          } 
+          }
 
           this.mapLayerService.fitBounds(
             this.equipments.map((eq) => {
@@ -871,15 +911,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return reason.wtrLlabel;
   }
 
-  public getEquipmentLabel(eq?: any): Observable<string> {
-    return this.layerService.getAllLayers().pipe(
-      map((layersRef) => {
-        const layer = layersRef.find(
-          (l) => l.lyrTableName === `${(eq ?? this.equipments[0]).lyrTableName}`
-        );
-        return `${layer.lyrSlabel} - ${layer.domLLabel} `;
-      })
+  public async getEquipmentLabel(eq?: any): Promise<string> {
+    const layers = await this.layerService.getAllLayers();
+    const layer = layers.find(
+      (l) => l.lyrTableName === `${(eq ?? this.equipments[0]).lyrTableName}`
     );
+    return `${layer.lyrSlabel} - ${layer.domLLabel} `;
   }
 
   public getLayerLabel(layer: Layer): string {
@@ -1051,10 +1088,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             taskId: t.id,
           };
         });
-      const assetsFromTasks =
-        await this.layerService.getEquipmentsByLayersAndIds(
-          this.transformTasks(this.workorder.tasks)
-        );
+
+      let assetsFromTasks = [];
+      const transformedTasks = this.transformTasks(this.workorder.tasks);
+      if (transformedTasks && transformedTasks.length > 0) {
+        assetsFromTasks =
+          await this.layerService.getEquipmentsByLayersAndIds(
+            transformedTasks
+          );
+      }
+
       return [...xyTasksAndNewAssets, ...assetsFromTasks];
     } else {
       this.drawerService.navigateTo(DrawerRouteEnum.HOME);
@@ -1070,15 +1113,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!transformedItems[item.assObjTable]) {
         transformedItems[item.assObjTable] = [];
       }
-      transformedItems[item.assObjTable].push(item.assObjRef);
+      if (item.assObjRef) {
+        transformedItems[item.assObjTable].push(item.assObjRef);
+      }
     });
 
     // Transform grouped items into the desired format
     return Object.keys(transformedItems).map((assObjTable) => {
-      return {
-        lyrTableName: assObjTable,
-        equipmentIds: transformedItems[assObjTable],
-      };
-    });
+      return transformedItems[assObjTable]?.length > 0 ?
+        {
+          lyrTableName: assObjTable,
+          equipmentIds: transformedItems[assObjTable],
+        } : null;
+    }).filter((item) => item !== null);
   }
 }

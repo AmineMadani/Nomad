@@ -15,6 +15,8 @@ import { Workorder } from 'src/app/core/models/workorder.model';
 import { ActivatedRoute } from '@angular/router';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 
 @Component({
   selector: 'app-new-asset',
@@ -32,7 +34,9 @@ export class NewAssetDrawer implements OnInit {
     private mapEventService: MapEventService,
     private activatedRoute: ActivatedRoute,
     private workorderService: WorkorderService,
-  ) { }
+    private assetForSigService: AssetForSigService,
+  ) {
+  }
 
   public drawerTitle: string = 'Nouveau Patrimoine';
 
@@ -57,6 +61,7 @@ export class NewAssetDrawer implements OnInit {
   public form: FormGroup;
   public isLoading: boolean = false;
   public listDefinition: FormDefinition[] = [];
+  public listOptionalDefinition: FormDefinition[] = [];
 
   public isSubmitting: boolean = false;
 
@@ -68,11 +73,11 @@ export class NewAssetDrawer implements OnInit {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.wkoStep = this.activatedRoute.snapshot.queryParams?.['step'];
 
-    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
+    const listFormTemplate = await this.templateService.getFormsTemplate();
     const assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
     this.listFilterAsset = JSON.parse(assetFilter.definition);
 
-    this.listLayers = await firstValueFrom(this.layerService.getAllLayers());
+    this.listLayers = await this.layerService.getAllLayers();
   }
 
   ngOnDestroy(): void {
@@ -160,23 +165,28 @@ export class NewAssetDrawer implements OnInit {
       if (!this.form) {
         this.isLoading = true;
 
-        const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate());
+        const listFormTemplate = await this.templateService.getFormsTemplate();
         const newAsseTemplate = listFormTemplate.find(form => form.formCode === 'NEW_ASSET_' + this.selectedAsset.layerKey.toUpperCase());
         if (newAsseTemplate) {
           const newAssetForm: Form = JSON.parse(newAsseTemplate.definition);
 
-          this.form = new FormGroup({});
+          this.form = new FormGroup({
+            additionalQuestions: new FormArray([]),
+          });
 
-          this.listDefinition = newAssetForm.definitions.filter((definition) => definition.type === 'property');
+          this.listDefinition = newAssetForm.definitions.filter((definition) => definition.type === 'property' && definition.isOptional !== true);
           for (const [index, definition] of this.listDefinition.entries()) {
             // Add the question to the form
             this.form.addControl(definition.key, new FormControl<any>(null))
-            
+
             // Add the validator if it is a required field
             if (definition.rules.some((rule) => rule.key === 'required')) {
               this.form.get(definition.key).addValidators([Validators.required]);
             }
           }
+
+          this.listOptionalDefinition = newAssetForm.definitions.filter((definition) => definition.type === 'property' && definition.isOptional === true);
+
         }
 
         this.isLoading = false;
@@ -202,6 +212,8 @@ export class NewAssetDrawer implements OnInit {
     const formValue = this.form.value;
 
     const listAssetProperties = [];
+
+    // Basic questions
     for (let definition of this.listDefinition) {
       listAssetProperties.push({
         key: definition.key,
@@ -210,17 +222,34 @@ export class NewAssetDrawer implements OnInit {
       });
     }
 
+    // Additional questions
+    for (let i = 0; i < this.additionalQuestions.length; i++) {
+      const additionalQuestionForm = this.additionalQuestions.at(i);
+      const key = additionalQuestionForm.get('key').value;
+      const value = additionalQuestionForm.get('value').value;
+      const definition = additionalQuestionForm.get('definition').value;
+      if (key !== null && value != null) {
+        listAssetProperties.push({
+          key: definition.key,
+          label: definition.label,
+          value: value instanceof Array ? value.join('; ') : value
+        });
+      }
+    }
+
     const assetForSig: AssetForSigDto = {
       id: this.utils.createCacheId(),
       lyrId: this.layer.id,
       afsGeom: null,
       afsInformations: JSON.stringify(listAssetProperties),
       coords: this.coords,
+      assObjTable: this.layer.lyrTableName,
     }
 
+    // If there is a related workorder
     if (this.wkoDraft) {
       const wko: Workorder = await this.workorderService.getWorkorderById(this.wkoDraft);
-      const lStatus = await firstValueFrom(this.workorderService.getAllWorkorderTaskStatus());
+      const lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
       // When coming from the report and if there is only 1 task
       if (this.wkoStep === 'report' && wko.tasks.length === 1) {
@@ -233,7 +262,7 @@ export class NewAssetDrawer implements OnInit {
         task.assetForSig = assetForSig;
         task.report = null;
       } else {
-        // Else add it
+        // Else add a new task
         wko.tasks.push({
           id: this.utils.createCacheId(),
           assObjTable: this.layer.lyrTableName,
@@ -247,6 +276,36 @@ export class NewAssetDrawer implements OnInit {
       }
 
       await this.workorderService.saveCacheWorkorder(wko);
+    } else {
+      // If no workorder, then create the new asset in the cache
+      await this.assetForSigService.saveCacheAssetForSig(assetForSig);
+
+      // Recreate the list of asset from the url
+      const urlParams = new URLSearchParams(window.location.search);
+      let equipments = [];
+      for (let [key, value] of Array.from(urlParams.entries())) {
+        const listValue = value.split(',');
+        for (const v of listValue) {
+          if (!equipments.some((eq) => eq.source === key && eq.id === v)) {
+            equipments.push({
+              source: key,
+              id: v,
+            });
+          }
+        }
+      }
+
+      // Add the new asset to the list of asset
+      equipments.push({
+        source: 'tmp',
+        id: "TMP-" + assetForSig.id,
+      })
+
+      this.drawerService.navigateWithEquipments(
+        DrawerRouteEnum.SELECTION,
+        equipments,
+      );
+      return;
     }
 
     this.drawerService.setLocationBack();
@@ -308,7 +367,7 @@ export class NewAssetDrawer implements OnInit {
       this.addExistingCoords(map, geojson, linestring);
     }
 
-    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend')) 
+    merge(fromEvent(map, 'click'), fromEvent(map, 'touchend'))
       .pipe(takeUntil(this.terminateDrawing$))
       .subscribe((e) => {
         const features = map.queryRenderedFeatures(e.point, {
@@ -418,6 +477,44 @@ export class NewAssetDrawer implements OnInit {
     this.mapEventService.isFeatureFiredEvent = false;
   }
 
+
+  get additionalQuestions(): FormArray<FormGroup> {
+    return this.form.controls["additionalQuestions"] as FormArray;
+  }
+
+  public addNewQuestion(): void {
+    const additionalQuestionForm = new FormGroup({
+      key: new FormControl(null),
+      definition: new FormControl(null),
+      value: new FormControl(null),
+    });
+
+    additionalQuestionForm.get('key').valueChanges.subscribe((key) => {
+      if (key != null) {
+        const definition = this.listOptionalDefinition.find((definition) => definition.key === key);
+        if (definition) {
+          additionalQuestionForm.get('definition').setValue(definition);
+        }
+
+        // Check if there is already a question for this key
+        for (let i = 0; i < this.additionalQuestions.length ; i++) {
+          const otherAdditionalQuestionForm = this.additionalQuestions.at(i);
+          if (otherAdditionalQuestionForm.get('key').value === key && additionalQuestionForm !== otherAdditionalQuestionForm) {
+            // If there is one, then deselect this question for this line
+            additionalQuestionForm.get('key').setValue(null);
+          }
+        }
+      } else {
+        additionalQuestionForm.get('definition').setValue(null);
+      }
+
+      // When changing the question, empty the previous value
+      additionalQuestionForm.get('value').setValue(null);
+    });
+
+    this.additionalQuestions.push(additionalQuestionForm);
+  }
+
   // ##### HIDDEN ##### //
   public createFormDefinitionFromCSVFile(event) {
     if (!event.target.files || event.target.files.length === 0) {
@@ -453,16 +550,15 @@ export class NewAssetDrawer implements OnInit {
         // For each layer
         for (let key of Object.keys(mapLineByLayer)) {
           // If there is data in the form
-          const listAllLine = mapLineByLayer[key];
-          const lineLine = listAllLine.filter((line) => line['Création patrimoine'] === 'Oui');
-          if (lineLine.length > 0) {
+          const listLine = mapLineByLayer[key];
+          if (listLine.length > 0) {
             const reportForm: Form = {
               key: 'NEW_ASSET_' + key.toUpperCase(),
               editable: true,
               definitions: [],
               relations: [],
             }
-        
+
             // Add the start definition
             const startDefinition: FormDefinition = {
               key: 'questionPrincipal',
@@ -476,9 +572,9 @@ export class NewAssetDrawer implements OnInit {
             reportForm.definitions.push(startDefinition);
 
             // Add each definition
-            for (let i = 0; i < lineLine.length; i++) {
-              const line = lineLine[i];
-        
+            for (let i = 0; i < listLine.length; i++) {
+              const line = listLine[i];
+
               const definition: FormDefinition = {
                 key: line['column_name'],
                 type: 'property',
@@ -488,10 +584,11 @@ export class NewAssetDrawer implements OnInit {
                 attributes: {},
                 rules: [],
                 section: startDefinition.key,
+                isOptional: line['Création patrimoine'] !== 'Oui'
               }
 
               const dataType = line['data_type'];
-        
+
               // Component
               if (['text'].includes(dataType)) {
                 definition.component = FormPropertiesEnum.INPUT;
@@ -525,7 +622,7 @@ export class NewAssetDrawer implements OnInit {
                   multiple: false,
                 }
               }
-        
+
               // Rules
               if (line['Obligatoire ?'] === 'Oui') {
                 definition.rules.push({
@@ -534,7 +631,7 @@ export class NewAssetDrawer implements OnInit {
                   message: 'Ce champ est obligatoire',
                 });
               }
-        
+
               reportForm.definitions.push(definition);
             }
 

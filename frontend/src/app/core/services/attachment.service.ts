@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { Attachment } from '../models/attachment.model';
 import { AttachmentDataService } from './dataservices/attachment.dataservice';
 import { AppDB } from '../models/app-db.model';
@@ -21,7 +20,7 @@ export class AttachmentService {
 
     if (attachments.length > 0) {
       for (const attachment of attachments) {
-        await firstValueFrom(this.attachmentDataService.addAttachment(objId, attachment.file));
+        await this.attachmentDataService.addAttachment(objId, attachment.file);
       }
 
       await this.db.attachments.delete(cacheId.toString());
@@ -53,7 +52,7 @@ export class AttachmentService {
   }
 
   private async getRemoteAttachmentsByObjId(objId: number): Promise<Attachment[]> {
-    let attachments = await firstValueFrom(this.attachmentDataService.getListAttachmentByWorkorderId(objId));
+    let attachments = await this.attachmentDataService.getListAttachmentByWorkorderId(objId);
     if (!attachments) {
       attachments = [];
     }

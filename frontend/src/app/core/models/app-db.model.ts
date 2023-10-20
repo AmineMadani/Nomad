@@ -15,6 +15,7 @@ export class AppDB extends Dexie {
       referentials: 'key',
       workorders: 'key',
       attachments: 'key',
+      assetForSig: 'key',
     });
   }
 
@@ -22,6 +23,7 @@ export class AppDB extends Dexie {
   referentials: Dexie.Table<any, string>;
   workorders: Dexie.Table<any, string>;
   attachments: Dexie.Table<any, string>;
+  assetForSig: Dexie.Table<any, string>;
 }
 
 export const db = new AppDB();

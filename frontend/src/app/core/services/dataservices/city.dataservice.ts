@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { City } from '../../models/city.model';
 
@@ -17,8 +17,10 @@ export class CityDataService {
     * Method to get all the cities from the server
     * @returns Profiles
     */
-  getAllCities(): Observable<City[]> {
-    return this.http.get<City[]>(`${this.configurationService.apiUrl}cities`);
+  public getAllCities(): Promise<City[]> {
+    return firstValueFrom(
+      this.http.get<City[]>(`${this.configurationService.apiUrl}cities`)
+    );
   }
 
   /**
@@ -27,8 +29,10 @@ export class CityDataService {
    * @param longitude The longitude
    * @returns A list of city id
    */
-  getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
-    return this.http.get<number[]>(`${this.configurationService.apiUrl}cities/coordinates?latitude=${latitude}&longitude=${longitude}`);
+  public getCityIdsByLatitudeLongitude(latitude: number, longitude: number): Promise<number[]> {
+    return firstValueFrom(
+      this.http.get<number[]>(`${this.configurationService.apiUrl}cities/coordinates?latitude=${latitude}&longitude=${longitude}`)
+    );
   }
 
   /**
@@ -36,8 +40,10 @@ export class CityDataService {
    * @param query the string query
    * @returns the adresses
    */
-  getAdressesByQuery(query: string): any {
-    return this.http.get<any>(this.configurationService.apiAdressesUrl.replace('{query}',query));
+  public getAdressesByQuery(query: string): Promise<any> {
+    return firstValueFrom(
+      this.http.get<any>(this.configurationService.apiAdressesUrl.replace('{query}', query))
+    );
   }
 }
 

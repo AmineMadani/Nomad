@@ -53,6 +53,20 @@
     }
   }
 
+  .additional-questions-div {
+    .line {
+      display: flex;
+      flex-direction: column;
+      margin: 0 8px 8px;
+      padding: 8px;
+      border: 1px dashed blue;
+
+      .additional-question-select {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
   .form-div {
     > .input-div {
       margin-bottom: 16px;

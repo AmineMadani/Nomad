@@ -8,7 +8,6 @@ import { PreferenceService } from './preference.service';
 import { ConfigurationService } from './configuration.service';
 import { NomadGeoJson } from '../models/geojson.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
-import { WorkorderDataService } from './dataservices/workorder.dataservice';
 
 export enum ReferentialCacheKey {
   CITIES = 'cities',
@@ -65,7 +64,7 @@ export class CacheService {
   /**
    * Check if offline mode enable
    */
-  private async isCacheDownload(key: CacheKey): Promise<boolean> {
+  public async isCacheDownload(key: CacheKey): Promise<boolean> {
     const downloadState = await this.getCacheDownloadState(key);
     const isDataCached = downloadState?.state === DownloadState.DONE;
 
@@ -94,6 +93,39 @@ export class CacheService {
 
   public setCacheDownloadState(cacheKey: CacheKey, cachedValue: OfflineDownload) {
     this.preferenceService.setPreference(cacheKey, JSON.stringify(cachedValue));
+  }
+
+  /**
+   * Return all the data for a feature in a layer
+   * @param featureId featureId the id aog the future, ex: IDF-000070151
+   * @param layerKey the key of the layer containing the feature, ex:aep_canalisation
+   * @returns
+   */
+  public async getPaginatedFeaturesByLayer(
+    layerKey: string,
+    offset: number,
+    limit: number
+  ): Promise<any[]> {
+    const tiles = await this.db.tiles
+      .where('key')
+      .startsWith(layerKey)
+      .offset(offset)
+      .limit(limit)
+      .toArray();
+
+    let result: any[] = [];
+    if (tiles.length > 0) {
+      for (let tile of tiles) {
+        if (tile.data?.features) {
+          result = [
+            ...result,
+            ...tile.data.features,
+          ];
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -208,90 +240,103 @@ export class CacheService {
    * @param serviceCall - A function that returns an Observable which fetches the data when the cache is empty.
    * @returns An Observable of the fetched data, either from the local cache or from the service call.
    */
-  public fetchReferentialsData<T>(
+  public async fetchReferentialsData<T>(
     referentialCacheKey: ReferentialCacheKey,
-    serviceCall: () => Observable<T>
-  ): Observable<T> {
-    return serviceCall().pipe(
-      timeout(this.configurationService.offlineTimeoutReferential),
-      tap(async (data) => {
-        const isMobile = this.utilsService.isMobilePlateform();
-        if (isMobile) {
+    serviceCall: () => Promise<T>
+  ): Promise<T> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
+
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: serviceCall(),
+        timeout: this.configurationService.offlineTimeoutReferential
+      })
+        .then(async (data) => {
           await this.db.referentials.put(
             { data: data, key: referentialCacheKey },
             referentialCacheKey
           );
-        }
-      }),
-      catchError(async () => {
-        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
-        if (isCacheDownload) {
-          const referentials = await this.db.referentials.get(referentialCacheKey);
-          if (referentials) {
-            return referentials.data;
-          }
-        }
 
-        throw new Error(`Failed to fetch referentials for ${referentialCacheKey}`);
-      })
-    )
+          return data;
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            const referentials = await this.db.referentials.get(referentialCacheKey);
+            if (referentials) {
+              return referentials.data;
+            }
+          }
+
+          throw error;
+        });
+    }
+
+    return serviceCall();
   }
 
-  public fetchLayerFile(
+  public async fetchLayerFile(
     layerKey: string,
     featureNumber: number,
     file: string,
     params: any
-  ): Observable<NomadGeoJson> {
-    return this.layerDataService.getLayerFile(layerKey, featureNumber, params)
-      .pipe(
-        timeout(this.configurationService.offlineTimeoutTile),
-        tap(async (req: NomadGeoJson) => {
-          const isMobile = this.utilsService.isMobilePlateform();
+  ): Promise<NomadGeoJson> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
 
-          if (isMobile) {
-            await this.db.tiles.put({ data: req, key: file }, file);
-          }
-        }),
-        catchError(async () => {
-          const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
-          if (isCacheDownload) {
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getLayerFile(layerKey, featureNumber, params),
+        timeout: this.configurationService.offlineTimeoutTile
+      })
+        .then(async (req: NomadGeoJson) => {
+          await this.db.tiles.put({ data: req, key: file }, file);
+          return req;
+        })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
             const tile = await this.db.tiles.get(file);
             if (tile) {
               return tile.data;
             }
           }
 
-          throw new Error(`Failed to fetch tile ${featureNumber} for ${layerKey}`);
-        })
-      );
+          throw error;
+        });
+    }
+
+    return this.layerDataService.getLayerFile(layerKey, featureNumber, params);
   }
 
-  public fetchEquipmentsByLayerIds(idsLayers: any): Observable<any> {
-    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers).pipe(
-      timeout(this.configurationService.offlineTimeoutEquipment),
-      catchError(async () => {
-        const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
-        if (isCacheDownload) {
-          let res = [];
-          for (const idLayer of idsLayers) {
-            for (const ref of idLayer.equipmentIds) {
-              const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
-              if (feature) {
-                feature.properties = Object.assign(feature.properties, {
-                  lyrTableName: idLayer.lyrTableName,
-                  geom: feature.geometry
-                });
-                res.push(feature.properties);
+  public async fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
+    const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
+
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getEquipmentsByLayersAndIds(idsLayers),
+        timeout: this.configurationService.offlineTimeoutEquipment
+      })
+        .catch(async (error) => {
+          if (this.utilsService.isOfflineError(error)) {
+            let res = [];
+            for (const idLayer of idsLayers) {
+              for (const ref of idLayer.equipmentIds) {
+                const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
+                if (feature) {
+                  feature.properties = Object.assign(feature.properties, {
+                    lyrTableName: idLayer.lyrTableName,
+                    geom: feature.geometry
+                  });
+                  res.push(feature.properties);
+                }
               }
             }
+            return res;
           }
-          return res;
-        }
 
-        throw new Error(`Failed to fetch the equipments of the following layer ids ${idsLayers}`);
-      })
-    );
+          throw error;
+        });
+    }
+
+    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers);
   }
 
 

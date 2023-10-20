@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { forkJoin } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';
@@ -51,10 +50,13 @@ export class MobileHomeActionsComponent implements OnInit {
   public async onGenerateWorkOrder() {
     const centerMapPosition = this.mapService.getMap().getCenter();
 
-    forkJoin({
-      contractIds: this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
-      cityIds: this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
-    }).subscribe(({ contractIds, cityIds }) => {
+    Promise.all([
+      this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+      this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+    ]).then((results) => {
+      const contractIds = results[0];
+      const cityIds = results[0];
+
       let params: any = {};
       params.x = centerMapPosition.lng;
       params.y = centerMapPosition.lat;

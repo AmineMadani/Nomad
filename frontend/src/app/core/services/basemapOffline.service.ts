@@ -114,12 +114,18 @@ export class BasemapOfflineService {
       onProgressPercentage(newPercentage);
     });
 
-    await Filesystem.downloadFile({
+    const result = await Filesystem.downloadFile({
       progress: true,
       directory: Directory.Data,
       path: 'territory',
       url: urlFile
     });
+
+    // Manage errors
+    const errorText = await result.blob.text();
+    if (errorText.includes('<Error>')) {
+      throw new Error('Basemap download failed');
+    }
 
     if (this.native) {
       await this.moveDatabasesAndAddSuffix();

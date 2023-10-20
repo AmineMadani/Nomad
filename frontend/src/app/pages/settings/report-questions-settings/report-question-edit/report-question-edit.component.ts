@@ -72,9 +72,9 @@ export class ReportQuestionEditComponent implements OnInit {
         // If it is changed from SELECT or SELECT_MULTIPLE to something else
         if (
           (
-            this.reportQuestion.rqnType === RqnTypeEnum.SELECT 
+            this.reportQuestion.rqnType === RqnTypeEnum.SELECT
             || this.reportQuestion.rqnType === RqnTypeEnum.SELECT_MULTIPLE
-          ) 
+          )
           && (
             rqnType !== RqnTypeEnum.SELECT
             && rqnType !== RqnTypeEnum.SELECT_MULTIPLE
@@ -112,11 +112,11 @@ export class ReportQuestionEditComponent implements OnInit {
     }
 
     // ### Data ### //
-    const listFormTemplate = await firstValueFrom(this.templateService.getFormsTemplate(true));
+    const listFormTemplate = await this.templateService.getFormsTemplate(true);
     const listFormTemplateReport = listFormTemplate.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
 
     if (this.id != null) {
-      this.reportQuestion = await firstValueFrom(this.reportQuestionService.getReportQuestionById(this.id));
+      this.reportQuestion = await this.reportQuestionService.getReportQuestionById(this.id);
       this.form.patchValue(this.reportQuestion);
 
       this.form.get('rqnSelectValues').setValue(
@@ -198,7 +198,7 @@ export class ReportQuestionEditComponent implements OnInit {
           this.listReportDefinition.forEach((reportDefinition) => {
             reportDefinition.listDefinitionLinkedToQuestion.forEach((definition) => {
               if (
-                definition.rqnCode !== this.reportQuestion.rqnCode 
+                definition.rqnCode !== this.reportQuestion.rqnCode
                 && definition.displayCondition?.value?.includes(value)
               ) {
                 const index = definition.displayCondition.value.indexOf(value);
@@ -226,7 +226,7 @@ export class ReportQuestionEditComponent implements OnInit {
     if (this.reportQuestion != null) {
       const listReportDefinitionWithCondition = this.listReportDefinition.filter((reportDefinition) => {
         return reportDefinition.listDefinitionLinkedToQuestion.some((definition) => {
-          return definition.rqnCode !== this.reportQuestion.rqnCode 
+          return definition.rqnCode !== this.reportQuestion.rqnCode
             && definition.displayCondition?.value?.includes(value)
         });
       });
@@ -280,7 +280,7 @@ export class ReportQuestionEditComponent implements OnInit {
       reportQuestion.rqnRequired = this.form.get('rqnRequired').value;
       reportQuestion.rqnSelectValues = rqnSelectValues.length > 0 ? JSON.stringify(rqnSelectValues) : null;
 
-      await firstValueFrom(this.reportQuestionService.updateReportQuestion(reportQuestion));
+      await this.reportQuestionService.updateReportQuestion(reportQuestion);
 
       // Reflect changes on forms that use that question
       const listFormToSave = [];
@@ -305,7 +305,7 @@ export class ReportQuestionEditComponent implements OnInit {
           reportDefinition.listDefinitionLinkedToQuestion.forEach((definition) => {
             if (definition.rqnCode === this.reportQuestion.rqnCode) {
               fillDefinitionComponentFromRqnType(definition, reportQuestion.rqnType as RqnTypeEnum, rqnSelectValues);
-              
+
               if (!listFormToSave.includes(reportDefinition.form.key))
                 listFormToSave.push(reportDefinition.form.key);
             }
@@ -317,7 +317,7 @@ export class ReportQuestionEditComponent implements OnInit {
       this.listReportDefinition.forEach((reportDefinition) => {
         reportDefinition.listDefinitionLinkedToQuestion.forEach((definition) => {
           if (
-            definition.rqnCode !== this.reportQuestion.rqnCode 
+            definition.rqnCode !== this.reportQuestion.rqnCode
             && (definition.displayCondition as any).hasChanges === true
           ) {
             if (!listFormToSave.includes(reportDefinition.form.key))
@@ -339,7 +339,7 @@ export class ReportQuestionEditComponent implements OnInit {
           fdnDefinition: JSON.stringify(reportDefinition.form),
         }
 
-        this.templateService.updateFormTemplate(formTemplate).subscribe();
+        this.templateService.updateFormTemplate(formTemplate);
       }
     } else {
       const reportQuestion: ReportQuestionDto = {
@@ -353,7 +353,7 @@ export class ReportQuestionEditComponent implements OnInit {
         rqnSelectValues: rqnSelectValues.length > 0 ? JSON.stringify(rqnSelectValues) : null,
       }
 
-      await firstValueFrom(this.reportQuestionService.createReportQuestion(reportQuestion));
+      await this.reportQuestionService.createReportQuestion(reportQuestion);
     }
 
     this.modalController.dismiss(true);

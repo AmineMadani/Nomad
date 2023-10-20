@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 import { AssetForSigDto } from '../../models/assetForSig.model';
 
@@ -26,7 +26,9 @@ export class AssetForSigDataService {
    * @param assetForSig: asset for sig
    * @returns A response message if successfull, else return an error.
    */
-  public createAssetForSig(assetForSig: AssetForSigDto):Observable<any> {
-    return this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}asset-for-sig/create`, assetForSig);
+  public createAssetForSig(assetForSig: AssetForSigDto): Promise<any> {
+    return firstValueFrom(
+      this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}asset-for-sig/create`, assetForSig)
+    );
   }
 }

@@ -9,7 +9,7 @@ import {
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
+import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import {
@@ -154,38 +154,38 @@ export class WkoViewComponent implements OnInit {
           this.appointmentHours = `${formattedStartDate} - ${formattedEndDate}`;
         }
 
-        forkJoin({
-          workorderTaskStatus:
-            this.workorderService.getAllWorkorderTaskStatus(),
-          workorderTaskReasons:
-            this.workorderService.getAllWorkorderTaskReasons(),
-          layers: this.layerService.getAllLayers(),
-        }).subscribe(
-          ({ workorderTaskStatus, workorderTaskReasons, layers }) => {
-            this.status = workorderTaskStatus.find(
-              (refStatus) => refStatus.id == wtsid
-            )?.wtsLlabel;
-            if(this.status) {
-              this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
-            }
+        Promise.all([
+          this.workorderService.getAllWorkorderTaskStatus(),
+          this.workorderService.getAllWorkorderTaskReasons(),
+          this.layerService.getAllLayers(),
+        ]).then((results) => {
+          const workorderTaskStatus = results[0];
+          const workorderTaskReasons = results[1];
+          const layers = results[2];
 
-            this.reason = workorderTaskReasons.find(
-              (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
-            )?.wtrLlabel;
-
-            const layer = lyrTableName
-              ? layers.find((asset) => asset.lyrTableName == lyrTableName)
-              : null;
-            this.assetLabel = layer
-              ? `${layer.domLLabel} - ${layer.lyrSlabel}` +
-                (this.selectedTask?.assObjRef
-                  ? ` - ${this.selectedTask?.assObjRef}`
-                  : '')
-              : null;
-            this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
-            this.loading = false;
+          this.status = workorderTaskStatus.find(
+            (refStatus) => refStatus.id == wtsid
+          )?.wtsLlabel;
+          if (this.status) {
+            this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
           }
-        );
+
+          this.reason = workorderTaskReasons.find(
+            (refReason) => refReason.id === this.workOrder.tasks[0].wtrId
+          )?.wtrLlabel;
+
+          const layer = lyrTableName
+            ? layers.find((asset) => asset.lyrTableName == lyrTableName)
+            : null;
+          this.assetLabel = layer
+            ? `${layer.domLLabel} - ${layer.lyrSlabel}` +
+            (this.selectedTask?.assObjRef
+              ? ` - ${this.selectedTask?.assObjRef}`
+              : '')
+            : null;
+          this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
+          this.loading = false;
+        });
       });
   }
 
@@ -265,7 +265,7 @@ export class WkoViewComponent implements OnInit {
       };
       this.workorderService
         .cancelWorkorder(cancelWko)
-        .subscribe(async (res) => {
+        .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
           this.getStatus(this.workOrder.wtsId);
@@ -330,7 +330,7 @@ export class WkoViewComponent implements OnInit {
         tskId: Number(this.taskId),
         cancelComment: data.values.cancelComment,
       };
-      this.workorderService.cancelTask(cancelTsk).subscribe(async (res) => {
+      this.workorderService.cancelTask(cancelTsk).then(async (res) => {
         this.displayCancelToast('Modification enregistré avec succès.');
         this.workOrder = res;
         const task = this.workOrder.tasks.find(
@@ -399,7 +399,7 @@ export class WkoViewComponent implements OnInit {
   private getStatus(wtsId: number): void {
     this.workorderService
       .getAllWorkorderTaskStatus()
-      .subscribe((statusList) => {
+      .then((statusList) => {
         this.status = statusList.find(
           (refStatus) => refStatus.id.toString() === wtsId.toString()
         ).wtsLlabel;

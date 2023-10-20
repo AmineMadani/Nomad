@@ -37,7 +37,7 @@ export class ActionsLayerMobileComponent implements OnInit {
   public onSearchInput(event) {
     const query = event.target.value.toLowerCase();
     if(query && query.length > 3) {
-      this.cityService.getAdressesByQuery(query).subscribe(res => {
+      this.cityService.getAdressesByQuery(query).then(res => {
         this.adresses = res.features;
       })
     } else {

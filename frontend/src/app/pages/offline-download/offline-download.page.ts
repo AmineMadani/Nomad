@@ -46,7 +46,7 @@ export class OfflineDownloadPage implements OnInit {
     this.basemapsOfflineDownload = await this.offlineDownloadService.getInitialBasemapsDownloadState();
 
     // Get required data for the basemaps selection
-    this.templateService.getFormsTemplate().subscribe((forms) => {
+    this.templateService.getFormsTemplate().then((forms) => {
       let formTemplate = forms.find(form => form.formCode === 'OFFLINE_BASEMAPS');
       if (formTemplate) {
         this.availableBasemaps = JSON.parse(formTemplate.definition);

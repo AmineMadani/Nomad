@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { MapFeature } from '../../models/map-feature.model';
+import { Observable, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
 import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
@@ -20,36 +19,17 @@ export class WorkorderDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
-  /**
-   * Get list of workorders on MapFeature format
-   * @param key
-   * @param limit
-   * @param offset
-   * @param search
-   * @returns an observable of the list of map features
-   */
-  public getFeaturePagination(
-    key: string,
-    limit: number,
-    offset: number,
-    search: Map<string, string[]> | undefined
-  ): Observable<MapFeature[]> {
-    return this.http.post<MapFeature[]>(
-      `${this.configurationService.apiUrl}exploitation/workorders/${key}/pagination/${limit}/${offset}`,
-      this.utilsService.mapToJson(search),
-      this.httpOptions
-    );
-  }
-
   public getTasksPaginated(
     limit: number,
     offset: number,
     searchParams: any
-  ): Observable<Task[]> {
-    return this.http.post<Task[]>(
+  ): Promise<Task[]> {
+    return firstValueFrom(
+      this.http.post<Task[]>(
       `${this.configurationService.apiUrl}exploitation/workorders/task/pagination/${limit}/${offset}`,
       searchParams,
       this.httpOptions
+      )
     );
   }
 
@@ -58,11 +38,13 @@ export class WorkorderDataService {
    * @param workorder The workorder to create
    * @returns
    */
-  public createWorkOrder(workorder: Workorder): Observable<Workorder> {
-    return this.http.post<Workorder>(
+  public createWorkOrder(workorder: Workorder): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.post<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/create`,
       workorder,
       this.httpOptions
+      )
     );
   }
 
@@ -71,11 +53,13 @@ export class WorkorderDataService {
    * @param workorder The workorder to update
    * @returns
    */
-  public updateWorkOrder(workorder: Workorder): Observable<Workorder> {
-    return this.http.put<Workorder>(
+  public updateWorkOrder(workorder: Workorder): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.put<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${workorder.id}/update`,
       workorder,
       this.httpOptions
+      )
     );
   }
 
@@ -84,11 +68,13 @@ export class WorkorderDataService {
    * @param workorder The workorder to terminate
    * @returns
    */
-  public terminateWorkOrder(workorder: Workorder): Observable<Workorder> {
-    return this.http.put<Workorder>(
+  public terminateWorkOrder(workorder: Workorder): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.put<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${workorder.id}/terminate`,
       workorder,
       this.httpOptions
+      )
     );
   }
 
@@ -97,11 +83,13 @@ export class WorkorderDataService {
    * @param cancelWko : input with workorder id and cancelation reason
    * @returns
    */
-  public cancelWorkOrder(cancelWko: CancelWorkOrder): Observable<Workorder> {
-    return this.http.put<Workorder>(
+  public cancelWorkOrder(cancelWko: CancelWorkOrder): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.put<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${cancelWko.id}/cancel`,
       cancelWko,
       this.httpOptions
+      )
     );
   }
 
@@ -110,11 +98,13 @@ export class WorkorderDataService {
    * @param cancelTsk : input with workorder id, task id and cancelation reason
    * @returns
    */
-  public cancelTask(cancelTsk: CancelTask): Observable<Workorder> {
-    return this.http.put<Workorder>(
+  public cancelTask(cancelTsk: CancelTask): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.put<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${cancelTsk.id}/task/${cancelTsk.tskId}/cancel`,
       cancelTsk,
       this.httpOptions
+      )
     );
   }
 
@@ -122,9 +112,11 @@ export class WorkorderDataService {
    * Get a workorder
    * @returns an observable of the workorder
    */
-  public getWorkorderById(id: number): Observable<Workorder> {
-    return this.http.get<Workorder>(
+  public getWorkorderById(id: number): Promise<Workorder> {
+    return firstValueFrom(
+      this.http.get<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${id}`
+      )
     );
   }
 
@@ -132,12 +124,14 @@ export class WorkorderDataService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkOrderHistory(
+  public getEquipmentWorkorderHistory(
     assetTable: string,
     assetId: string
-  ): Observable<Workorder[]> {
-    return this.http.get<Workorder[]>(
-      `${this.configurationService.apiUrl}layers/${assetTable}/equipments/${assetId}/history`
+  ): Promise<Workorder[]> {
+    return firstValueFrom(
+      this.http.get<Workorder[]>(
+        `${this.configurationService.apiUrl}layers/${assetTable}/equipments/${assetId}/history`
+      )
     );
   }
 
@@ -145,9 +139,11 @@ export class WorkorderDataService {
    * Get list of workorders task status
    * @returns an observable of the list of status
    */
-  public getAllWorkorderTaskStatus(): Observable<WorkorderTaskStatus[]> {
-    return this.http.get<WorkorderTaskStatus[]>(
-      `${this.configurationService.apiUrl}exploitation/workorders/tasks/status`
+  public getAllWorkorderTaskStatus(): Promise<WorkorderTaskStatus[]> {
+    return firstValueFrom(
+      this.http.get<WorkorderTaskStatus[]>(
+        `${this.configurationService.apiUrl}exploitation/workorders/tasks/status`
+      )
     );
   }
 
@@ -155,9 +151,11 @@ export class WorkorderDataService {
    * Get list of workorders task reasons
    * @returns an observable of the list of reasons
    */
-  public getAllWorkorderTaskReasons(): Observable<WorkorderTaskReason[]> {
-    return this.http.get<WorkorderTaskReason[]>(
+  public getAllWorkorderTaskReasons(): Promise<WorkorderTaskReason[]> {
+    return firstValueFrom(
+      this.http.get<WorkorderTaskReason[]>(
       `${this.configurationService.apiUrl}exploitation/workorders/tasks/reasons`
+      )
     );
   }
 }

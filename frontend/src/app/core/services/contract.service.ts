@@ -16,22 +16,22 @@ export class ContractService {
 
   contracts: Contract[];
 
-  getAllContracts(forceGetFromDb: boolean = false): Observable<Contract[]> {
-    if (this.contracts && !forceGetFromDb) {
-      return of(this.contracts);
+  async getAllContracts(forceGetFromDb: boolean = false): Promise<Contract[]> {
+    if (!this.contracts || forceGetFromDb) {
+      this.contracts = await this.cacheService.fetchReferentialsData<Contract[]>(
+        ReferentialCacheKey.CONTRACTS,
+        () => this.contractDataService.getAllContracts()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<Contract[]>(
-      ReferentialCacheKey.CONTRACTS,
-      () => this.contractDataService.getAllContracts()
-    ).pipe(tap(results => this.contracts = results));
+    return this.contracts;
   }
 
   /**
     * Method to get all the contract with organizational units associated from server
     * @returns Profiles
     */
-  getAllContractsWithOrganizationalUnits(): Observable<ContractWithOrganizationalUnits[]> {
+  getAllContractsWithOrganizationalUnits(): Promise<ContractWithOrganizationalUnits[]> {
     return this.contractDataService.getAllContractsWithOrganizationalUnits();
   }
 
@@ -41,7 +41,7 @@ export class ContractService {
    * @param longitude The longitude
    * @returns A list of contract id
    */
-  getContractIdsByLatitudeLongitude(latitude: number, longitude: number): Observable<number[]> {
+  getContractIdsByLatitudeLongitude(latitude: number, longitude: number): Promise<number[]> {
     return this.contractDataService.getContractIdsByLatitudeLongitude(latitude, longitude);
   }
 }

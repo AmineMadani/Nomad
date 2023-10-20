@@ -98,21 +98,19 @@ export class UserService {
    * @returns User information
    */
   private async getCurrentUserInformation(): Promise<User> {
-    const res = await lastValueFrom(
-      this.userDataService.getCurrentUserInformation()
-        .pipe(
-          timeout(this.configurationService.offlineTimeoutReferential),
-          catchError(async () => {
-            const forms = await this.preferenceService.getPreference(
-              LocalStorageUserKey.USER
-            );
-            if (forms) {
-              return forms.data;
-            }
-            return of(null);
-          })
-        )
-    );
+    const res = await this.utilsService.fetchPromiseWithTimeout({
+      fetchPromise: this.userDataService.getCurrentUserInformation(),
+      timeout: this.configurationService.offlineTimeoutReferential
+    }).catch(async () => {
+      const forms = await this.preferenceService.getPreference(
+        LocalStorageUserKey.USER
+      );
+      if (forms) {
+        return forms.data;
+      }
+
+      return null;
+    });
 
     if (!res) {
       this.router.navigate(['/error']);
@@ -143,7 +141,7 @@ export class UserService {
    * Create an user
    * @param user the user to create
    */
-  public createUser(user: User): Observable<ApiSuccessResponse> {
+  public createUser(user: User): Promise<ApiSuccessResponse> {
     return this.userDataService.createUser(user);
   }
 
@@ -151,7 +149,7 @@ export class UserService {
    * Update an user
    * @param user the user to update
    */
-  public updateUser(user: User): Observable<ApiSuccessResponse> {
+  public updateUser(user: User): Promise<ApiSuccessResponse> {
     if (this.currentUser && user.id === this.currentUser.id) {
       // Reset the current user to get updated information next time
       this.currentUser = undefined;
@@ -168,27 +166,25 @@ export class UserService {
     const usr: any = JSON.parse(JSON.stringify(user));
     usr.usrConfiguration = JSON.stringify(user.usrConfiguration);
     this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
-    this.updateUser(usr).subscribe({
-      error: (err) => console.error(err),
-    });
+    this.updateUser(usr).catch((error) => console.log(error));
   }
 
   /**
    * Delete a user.
    */
-  public deleteUsers(usersIds: number[]): Observable<ApiSuccessResponse> {
-    return this.userDataService.deleteUsers(usersIds).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async deleteUsers(usersIds: number[]): Promise<ApiSuccessResponse> {
+    const response = await this.userDataService.deleteUsers(usersIds)
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
    * Method to get all the users from server
    * @returns Users
    */
-  getAllUserAccount(): Observable<User[]> {
+  getAllUserAccount(): Promise<User[]> {
     return this.userDataService.getAllUserAccount();
   }
 
@@ -251,7 +247,7 @@ export class UserService {
     * Method to get all the profiles from server
     * @returns Profiles
     */
-  getAllProfiles(): Observable<Profile[]> {
+  getAllProfiles(): Promise<Profile[]> {
     return this.userDataService.getAllProfiles();
   }
 
@@ -260,28 +256,26 @@ export class UserService {
     * If a bad id is provided it returns null
     * @returns UserDetail
     */
-  getUserDetailById(userId: number): Observable<User> {
+  public async getUserDetailById(userId: number): Promise<User> {
     // We check undefined and null because if id is 0 it will not passed in the condition
     return userId !== undefined && userId !== null ?
-      this.userDataService.getUserDetailById(userId) :
-      of(null);
+      await this.userDataService.getUserDetailById(userId) :
+      null;
   }
 
   /**
     * Method to get all the permissions from server or cache
     * @returns Permissions
     */
-  getAllPermissions(forceGetFromDb: boolean = false): Observable<Permission[]> {
-    if (this.permissions && this.permissions.length > 0 && !forceGetFromDb) {
-      return of(this.permissions);
+  public async getAllPermissions(forceGetFromDb: boolean = false): Promise<Permission[]> {
+    if (!this.permissions || forceGetFromDb) {
+      this.permissions = await this.cacheService.fetchReferentialsData<Permission[]>(
+        ReferentialCacheKey.PERMISSIONS,
+        () => this.userDataService.getAllPermissions()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<Permission[]>(
-      ReferentialCacheKey.PERMISSIONS,
-      () => this.userDataService.getAllPermissions()
-    ).pipe(
-      tap((results) => this.permissions = results)
-    );
+    return this.permissions;
   }
 
   /**
@@ -294,7 +288,7 @@ export class UserService {
     const currentUser: User = await this.getCurrentUser();
 
     if (currentUser) {
-      const permissions: Permission[] = await firstValueFrom(this.getAllPermissions());
+      const permissions: Permission[] = await this.getAllPermissions();
       const permissionProfilesIds = permissions.find((prm) => prm.perCode === perCode).profilesIds;
       if (currentUser.perimeters.some((per) => permissionProfilesIds.includes(per.profileId))) {
         hasPermission = true;
@@ -312,7 +306,7 @@ export class UserService {
     const currentUser: User = await this.getCurrentUser();
     if (!currentUser) return false;
 
-    const permissions: Permission[] = await firstValueFrom(this.getAllPermissions());
+    const permissions: Permission[] = await this.getAllPermissions();
 
     return permissions.some(permission => {
       if (perCodes.includes(permission.perCode)) {
@@ -326,7 +320,7 @@ export class UserService {
     * Method to get the user status from server
     * @returns UserStatusDto
     */
-  getUserStatusByEmail(email: string): Observable<UserStatus> {
+  getUserStatusByEmail(email: string): Promise<UserStatus> {
     return this.userDataService.getUserStatusByEmail(email);
   }
 

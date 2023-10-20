@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
-import { Observable } from 'rxjs';
 import { Basemap } from '../../models/basemap.model';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +18,9 @@ export class BaseMapsDataService {
    * Method to get all the user informations from server
    * @returns User information
    */
-  getBaseMaps(): Observable<Basemap[]> {
-    return this.http.get<Basemap[]>(`${this.configurationService.apiUrl}basemaps`);
+  public getBasemaps(): Promise<Basemap[]> {
+    return firstValueFrom(
+      this.http.get<Basemap[]>(`${this.configurationService.apiUrl}basemaps`)
+    );
   }
 }

@@ -48,7 +48,7 @@
 
               <div class="line-bottom">
                 <div class="line-left">
-                  <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component" interface="popover">
+                  <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component" [interface]="isMobile ? 'action-sheet' : 'popover'">
                     <ion-select-option *ngFor="let componentType of LIST_RQN_TYPE" [value]="componentType.value">{{componentType.label}}</ion-select-option>
                   </ion-select>
 
@@ -57,11 +57,11 @@
                   </ion-checkbox>
 
                   <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
-                    <ion-select aria-label="parent" label="Conditionné par la question" label-placement="floating" fill="outline" formControlName="questionCondition" interface="popover">
+                    <ion-select aria-label="parent" label="Conditionné par la question" label-placement="floating" fill="outline" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
                       <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
                     </ion-select>
 
-                    <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" interface="popover">
+                    <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" [interface]="isMobile ? 'action-sheet' : 'popover'">
                       <ion-select-option *ngFor="let questionValue of lineForm.get('listAvailableQuestionValues').value" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>
                     </ion-select>
                   </ng-container>

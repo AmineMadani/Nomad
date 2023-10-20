@@ -20,7 +20,7 @@ export class ReportQuestionService {
    * Get the list of report question
    * @returns the list of report question
    */
-  public getListReportQuestion(): Observable<ReportQuestionDto[]> {
+  public getListReportQuestion(): Promise<ReportQuestionDto[]> {
     return this.reportQuestionDataService.getListReportQuestion();
   }
 
@@ -28,7 +28,7 @@ export class ReportQuestionService {
    * Get the a report question by its id
    * @returns the report question
    */
-  public getReportQuestionById(id: number): Observable<ReportQuestionDto> {
+  public getReportQuestionById(id: number): Promise<ReportQuestionDto> {
     return this.reportQuestionDataService.getReportQuestionById(id);
   }
 
@@ -37,12 +37,12 @@ export class ReportQuestionService {
    * @param reportQuestion the report question
    * @returns the id of the created report question
    */
-  public createReportQuestion(reportQuestion: ReportQuestionDto): Observable<ApiSuccessResponse> {
-    return this.reportQuestionDataService.createReportQuestion(reportQuestion).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async createReportQuestion(reportQuestion: ReportQuestionDto): Promise<ApiSuccessResponse> {
+    const response = await this.reportQuestionDataService.createReportQuestion(reportQuestion);
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
@@ -50,23 +50,23 @@ export class ReportQuestionService {
    * @param reportQuestion the report question
    * @returns the id of the updated report question
    */
-  public updateReportQuestion(reportQuestion: ReportQuestionDto): Observable<ApiSuccessResponse> {
-    return this.reportQuestionDataService.updateReportQuestion(reportQuestion).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async updateReportQuestion(reportQuestion: ReportQuestionDto): Promise<ApiSuccessResponse> {
+    const response = await this.reportQuestionDataService.updateReportQuestion(reportQuestion);
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
    * Delete a report question
    * @param listId the list of id of report questions to delete
    */
-  public deleteListReportQuestion(listId: number[]): Observable<ApiSuccessResponse> {
-    return this.reportQuestionDataService.deleteListReportQuestion(listId).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async deleteListReportQuestion(listId: number[]): Promise<ApiSuccessResponse> {
+    const response = await this.reportQuestionDataService.deleteListReportQuestion(listId)
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 }

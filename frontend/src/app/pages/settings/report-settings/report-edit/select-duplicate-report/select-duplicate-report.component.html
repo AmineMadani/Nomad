@@ -1,5 +1,5 @@
 <form [formGroup]="form" class="select-duplicate-report-div">
-  <ion-select aria-label="report" label="Type motif à copier" label-placement="floating" fill="outline" formControlName="report">
+  <ion-select aria-label="report" [interface]="isMobile ? 'action-sheet' : 'popover'" label="Type motif à copier" label-placement="floating" fill="outline" formControlName="report">
     <ion-select-option *ngFor="let assetTypeWtrReport of listAssetTypeWtrReport" [value]="assetTypeWtrReport.value">{{assetTypeWtrReport.label}}</ion-select-option>
   </ion-select>
 

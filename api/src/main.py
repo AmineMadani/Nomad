@@ -17,12 +17,11 @@ AWS_ACCESS_KEY = None
 logger = logging.getLogger()
 logger.setLevel(LOG_LEVEL)
 
-dynamodb = boto3.resource('dynamodb')
-
-table_incoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_INCOMING", ""))
-table_outcoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_OUTCOMING", ""))
-table_praxedo = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_PRAXEDO", "moveo-bouchon-praxedo-rec"))
-table_waterp = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_WATERP", "moveo-planif-rec"))
+# dynamodb = boto3.resource('dynamodb')
+# table_incoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_INCOMING", ""))
+# table_outcoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_OUTCOMING", ""))
+# table_praxedo = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_PRAXEDO", "moveo-bouchon-praxedo-rec"))
+# table_waterp = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_WATERP", "moveo-planif-rec"))
 
 
 # -------------------------------------UTILS----------------------------------
@@ -99,6 +98,14 @@ def update_wo_post_request(data, endpoint_part):
                 "success": True,
                 "body": {"status": "ok"}
             }
+
+        elif response.status_code == 404:
+            return {
+                "statusCode": 404,
+                "success": False,
+                "body": {"status": "ko"}
+            }
+
         else:
             logger.error('Nomad - update_wo_post_request - SEND - ' + json.dumps(data))
             logger.error('Nomad - update_wo_post_request - RECEIVE - ' + str(
@@ -130,7 +137,7 @@ def update_wo_post_request(data, endpoint_part):
         }
 
 
-def update_wo_lambda_handler(event, context):
+def update_dt_wo_lambda_handler(event, context):
 
     if is_property_missing('id', event["body"]) or event["body"]['id'].strip() == '':
         logger.debug('id is required')
@@ -166,7 +173,7 @@ def update_wo_lambda_handler(event, context):
 
     resp = update_wo_post_request(data=event["body"],
                                   endpoint_part='/api/nomad/v1/basic/external/exploitation/workorders/updateCompletion')
-    if resp['statusCode'] != 200:
+    if resp['statusCode'] != 200 and  resp['statusCode'] != 404:
         return {
             "statusCode": 500,
             "success": False,

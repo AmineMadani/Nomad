@@ -74,7 +74,7 @@ export class ReportCreateComponent implements OnInit {
       return;
     }
 
-    this.workorderService.getAllWorkorderTaskStatus().subscribe((workorderTaskStatus: WorkorderTaskStatus[]) => {
+    this.workorderService.getAllWorkorderTaskStatus().then((workorderTaskStatus: WorkorderTaskStatus[]) => {
       const status = workorderTaskStatus.find(sts => sts.id.toString() === this.workorder.wtsId.toString());
       switch (status.wtsCode) {
         case WkoStatus[WkoStatus.TERMINE]:
@@ -410,11 +410,11 @@ export class ReportCreateComponent implements OnInit {
 
     if(this.workorder.tasks.length == 1 || forced) {
       if(this.workorder.id > 0) {
-        this.workorderService.terminateWorkOrder(this.workorder).subscribe(() => {
+        this.workorderService.terminateWorkOrder(this.workorder).then(() => {
           this.closeReport();
         });
       } else {
-        this.workorderService.createWorkOrder(this.workorder).subscribe(res => {
+        this.workorderService.createWorkOrder(this.workorder).then(res => {
           this.closeReport(res);
         });
       }
@@ -431,9 +431,9 @@ export class ReportCreateComponent implements OnInit {
    */
   private async closeReport(unplanedWko: Workorder = null) {
     if (this.praxedoService.externalReport) {
-      this.layerService.getAllVLayerWtr().subscribe(vLayerWtrs => {
+      this.layerService.getAllVLayerWtr().then(vLayerWtrs => {
         const vLayerWtr = vLayerWtrs.find(val => val.wtrCode == this.workorder.tasks[0].wtrCode && val.astCode == this.workorder.tasks[0].astCode);
-        this.contractService.getAllContracts().subscribe(contracts => {
+        this.contractService.getAllContracts().then(contracts => {
           let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
           let comment = "";
           for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
@@ -632,12 +632,14 @@ export class ReportCreateComponent implements OnInit {
   }
 
   public onEditTask() {
-    let equipments = this.workorder.tasks.map((t) => {
-      return {
-        id: t.assObjRef,
-        lyrTableName: t.assObjTable,
-      };
-    });
+    let equipments = this.workorder.tasks
+      .filter((t) => t.assObjRef != null)
+      .map((t) => {
+        return {
+          id: t.assObjRef,
+          lyrTableName: t.assObjTable,
+        };
+      });
 
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,
@@ -668,7 +670,7 @@ export class ReportCreateComponent implements OnInit {
     if(this.workorder.isDraft) {
       this.hasXYInvalid =  false;
     } else {
-      const listWtr = await firstValueFrom(this.workorderService.getAllWorkorderTaskReasons());
+      const listWtr = await this.workorderService.getAllWorkorderTaskReasons();
       const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
 
       this.hasXYInvalid = this.workorder.tasks.some(task => {

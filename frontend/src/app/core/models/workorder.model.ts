@@ -29,7 +29,7 @@ export interface Workorder {
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
   return {
-    id: featureWorkorder.properties['id'],
+    id: featureWorkorder.properties['wkoId'],
     latitude: featureWorkorder.properties['y'],
     longitude: featureWorkorder.properties['x'],
     wkoAddress: featureWorkorder.properties['wkoAddress'],
@@ -100,6 +100,24 @@ export function buildTaskFromGeojson(task: any): Task {
     wtsId: task.properties['wtsId'],
     wkoId: task.properties['wkoId'],
   };
+}
+
+export function convertTasksToWorkorders(featureTasks: any[]): Workorder[] {
+  const workordersMap: { [key: number]: Workorder } = {};
+
+  for (const featureTask of featureTasks) {
+    const wkoId: number = featureTask.properties['wkoId'];
+
+    if (!workordersMap[wkoId]) {
+      workordersMap[wkoId] = buildWorkorderFromGeojson(featureTask);
+    }
+
+    workordersMap[wkoId].tasks.push(buildTaskFromGeojson(featureTask));
+  }
+
+  const workorders = Object.values(workordersMap);
+
+  return workorders;
 }
 
 export interface Report {

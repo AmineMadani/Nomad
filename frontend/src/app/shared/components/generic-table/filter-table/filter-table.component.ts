@@ -2,6 +2,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { IonInput, PopoverController } from '@ionic/angular';
 import { Column, FILTER_DATE_CONDITION, FILTER_NUMBER_CONDITION, FILTER_TEXT_CONDITION, FILTER_CONDITION, TypeColumn, FILTER_TYPE, FilterValueNumber, FilterValueDate } from 'src/app/core/models/table/column.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 export interface FilterResult {
   condition: FILTER_CONDITION,
@@ -60,11 +61,15 @@ export class FilterTableComponent implements OnInit {
   };
   // ###### //
 
+  public isMobile: boolean;
+
   constructor(
     private popoverController: PopoverController,
+    private utilsService: UtilsService
   ) { }
 
   ngOnInit() {
+    this.isMobile = this.utilsService.isMobilePlateform();
     this.filterType = this.column.filter.type;
 
     // ### TEXT ### //

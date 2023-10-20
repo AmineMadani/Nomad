@@ -38,11 +38,11 @@ export class LayerReferencesSettingsPage implements OnInit {
     });
 
     // Get the list of users
-    this.userService.getAllUserAccount().subscribe((users: User[]) => this.users = users);
+    this.userService.getAllUserAccount().then((users: User[]) => this.users = users);
     // Get the list of layers
-    this.layerService.getAllLayers().subscribe((layers: Layer[]) => this.layers = layers);
+    this.layerService.getAllLayers().then((layers: Layer[]) => this.layers = layers);
     // Get all layer references of the user
-    this.layerService.getUserLayerReferences().subscribe((layerReferences) => this.layerReferences = layerReferences);
+    this.layerService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
@@ -89,7 +89,7 @@ export class LayerReferencesSettingsPage implements OnInit {
 
       // Save in the database
       // A toast is automatically showed to the user when the api call is done.
-      this.layerService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId }).subscribe();
+      this.layerService.saveLayerReferencesUser({ layerReferences: this.userReferences, userIds: listUserId });
     } else {
       // Permit to show the current form errors to the user
       this.form.markAllAsTouched();

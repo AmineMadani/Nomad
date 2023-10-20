@@ -7,6 +7,7 @@ import { DrawerRouteEnum, DrawerTypeEnum, drawerRoutes } from '../models/drawer.
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from './workorder.service';
 import { DrawingService } from './map/drawing.service';
+import { AssetForSigService } from './assetForSig.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,8 @@ export class DrawerService {
     private utilsService: UtilsService,
     private nav: NavController,
     private workorderService: WorkorderService,
-    private drawingService: DrawingService
+    private drawingService: DrawingService,
+    private assetForSigService: AssetForSigService,
   ) {}
   private routerEventsSubscription: Subscription;
 
@@ -77,6 +79,7 @@ export class DrawerService {
       )
       .subscribe((currentRoute: any) => {
         this.workorderService.removeLocalUnusedWorkorderFromUrl(currentRoute.url);
+        this.assetForSigService.removeCacheUnusedAssetForSigFromUrl(currentRoute.url);
         const currentRouteName: DrawerRouteEnum = currentRoute.name;
         // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
         if (

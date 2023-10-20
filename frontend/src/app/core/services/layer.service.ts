@@ -3,7 +3,7 @@ import { UserReference, ReferenceDisplayType, LayerStyleSummary, LayerStyleDetai
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
-import { CacheService, ReferentialCacheKey } from './cache.service';
+import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
@@ -35,16 +35,26 @@ export class LayerService {
    */
   async getUserReferences(layerKey: string): Promise<UserReference[]> {
     let layerReferences: UserReference[] = [];
-    const listLayerReferences = await firstValueFrom(
-      this.layerDataService.getUserLayerReferences()
-      .pipe(
-        timeout(this.configurationService.offlineTimeoutEquipment),
-        catchError(async () => {
-          const feature = await firstValueFrom(this.getUserLayerReferences());
+
+    let listLayerReferences: LayerReferences[] = [];
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      listLayerReferences = await this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.layerDataService.getUserLayerReferences(),
+        timeout: this.configurationService.offlineTimeoutEquipment
+      }).catch(async (error) => {
+        if (this.utilsService.isOfflineError(error)) {
+          const feature = await this.getUserLayerReferences();
           return feature;
-        })
-      )
-    );
+        }
+
+        throw error;
+      });
+    } else {
+      listLayerReferences = await this.layerDataService.getUserLayerReferences();
+    }
+
+
     if (listLayerReferences) {
       const layer = listLayerReferences.find((layer) => layer.layerKey === layerKey);
       if (layer) {
@@ -69,17 +79,15 @@ export class LayerService {
    * If successful, it stores the layer in IndexedDB.
    * @returns The geojson of the index of the layer.
    */
-  public getLayerIndexes(forceGetFromDb: boolean = false): Observable<GeoJSONObject> {
-    if (this.layerIndexes && !forceGetFromDb) {
-      return of(this.layerIndexes);
+  public async getLayerIndexes(forceGetFromDb: boolean = false): Promise<GeoJSONObject> {
+    if (!this.layerIndexes || forceGetFromDb) {
+      this.layerIndexes = await this.cacheService.fetchReferentialsData<GeoJSONObject>(
+        ReferentialCacheKey.LAYER_INDEX,
+        () => this.layerDataService.getLayerIndexes()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<GeoJSONObject>(
-      ReferentialCacheKey.LAYER_INDEX,
-      () => this.layerDataService.getLayerIndexes()
-    ).pipe(
-      tap((results => this.layerIndexes = results))
-    );
+    return this.layerIndexes;
   }
 
   /**
@@ -104,11 +112,11 @@ export class LayerService {
       startDate: startDate
     }
 
-    return await lastValueFrom(
-      this.cacheService.fetchLayerFile(layerKey, featureNumber, file, params).pipe(
-        tap(() => this.listTileOnLoad.delete(layerKey))
-      )
-    );
+    const files = await this.cacheService.fetchLayerFile(layerKey, featureNumber, file, params);
+
+    this.listTileOnLoad.delete(layerKey);
+
+    return files;
   }
 
   /**
@@ -133,17 +141,15 @@ export class LayerService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public getAllLayers(forceGetFromDb: boolean = false): Observable<Layer[]> {
-    if (this.layers && !forceGetFromDb) {
-      return of(this.layers);
+  public async getAllLayers(forceGetFromDb: boolean = false): Promise<Layer[]> {
+    if (!this.layers || forceGetFromDb) {
+      this.layers = await this.cacheService.fetchReferentialsData<Layer[]>(
+        ReferentialCacheKey.LAYERS,
+        () => this.layerDataService.getAllLayers()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<Layer[]>(
-      ReferentialCacheKey.LAYERS,
-      () => this.layerDataService.getAllLayers()
-    ).pipe(
-      tap((results => this.layers = results))
-    );
+    return this.layers;
   }
 
   /**
@@ -151,7 +157,7 @@ export class LayerService {
    * @returns the selected layer
    */
   public async getLayerByKey(key: string): Promise<Layer> {
-    return (await firstValueFrom(this.getAllLayers())).find(layer => layer.lyrTableName == key);
+    return (await this.getAllLayers()).find(layer => layer.lyrTableName == key);
   }
 
   public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
@@ -164,17 +170,15 @@ export class LayerService {
     return response[0];
   }
 
-  public async getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    return firstValueFrom(
-      this.cacheService.fetchEquipmentsByLayerIds(idsLayers)
-    );
+  public getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
+    return this.cacheService.fetchEquipmentsByLayerIds(idsLayers);
   }
 
   /**
   * Get all layer styles.
   * @returns A promise that resolves to the list of layer styles.
   */
-  public getAllLayerStyles(): Observable<LayerStyleSummary[]> {
+  public getAllLayerStyles(): Promise<LayerStyleSummary[]> {
     return this.layerDataService.getAllLayerStyles();
   }
 
@@ -182,41 +186,41 @@ export class LayerService {
   * Get all layer styles.
   * @returns A promise that resolves to the list of layer styles.
   */
-  public getLayerStyleById(layerStyleId: number): Observable<LayerStyleDetail> {
+  public getLayerStyleById(layerStyleId: number): Promise<LayerStyleDetail> {
     return this.layerDataService.getLayerStyleById(layerStyleId);
   }
 
   /**
    * Create a layer style.
    */
-  public createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Observable<ApiSuccessResponse> {
-    return this.layerDataService.createLayerStyle(layerStyle, lyrId).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async createLayerStyle(layerStyle: SaveLayerStylePayload, lyrId: number): Promise<ApiSuccessResponse> {
+    const response = await this.layerDataService.createLayerStyle(layerStyle, lyrId);
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
    * Update a layer style.
    */
-  public updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Observable<ApiSuccessResponse> {
-    return this.layerDataService.updateLayerStyle(layerStyle, lseId).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
-        this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+  public async updateLayerStyle(layerStyle: SaveLayerStylePayload, lseId: number): Promise<ApiSuccessResponse> {
+    const response = await this.layerDataService.updateLayerStyle(layerStyle, lseId);
+
+    this.utilsService.showSuccessMessage(response.message);
+
+    return response;
   }
 
   /**
    * Delete a layer style.
    */
-  public deleteLayerStyle(lseIds: number[]): Observable<ApiSuccessResponse> {
-    return this.layerDataService.deleteLayerStyle(lseIds).pipe(
-      tap((successResponse: ApiSuccessResponse) => {
+  public deleteLayerStyle(lseIds: number[]): Promise<ApiSuccessResponse> {
+    return this.layerDataService.deleteLayerStyle(lseIds)
+      .then((successResponse: ApiSuccessResponse) => {
         this.utilsService.showSuccessMessage(successResponse.message);
-      })
-    );
+        return successResponse;
+      });
   }
 
   /**
@@ -224,17 +228,15 @@ export class LayerService {
  * @param userId The ID of the user to get the layer references for.
  * @returns An observable that resolves to the layer references.
  */
-  public getUserLayerReferences(forceGetFromDb: boolean = false): Observable<LayerReferences[]> {
-    if (this.layerReferences && !forceGetFromDb) {
-      return of(this.layerReferences);
+  public async getUserLayerReferences(forceGetFromDb: boolean = false): Promise<LayerReferences[]> {
+    if (!this.layerReferences || forceGetFromDb) {
+      this.layerReferences = await this.cacheService.fetchReferentialsData<LayerReferences[]>(
+        ReferentialCacheKey.LAYER_REFERENCES,
+        () => this.layerDataService.getUserLayerReferences()
+      )
     }
 
-    return this.cacheService.fetchReferentialsData<LayerReferences[]>(
-      ReferentialCacheKey.LAYER_REFERENCES,
-      () => this.layerDataService.getUserLayerReferences()
-    ).pipe(
-      tap(results => this.layerReferences = results)
-    );
+    return this.layerReferences;
   }
 
   /**
@@ -243,30 +245,27 @@ export class LayerService {
    * @param payload: layerReferences to apply and userIds concerned.
    * @returns A response message if successfull, else return an error.
    */
-  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }) {
+  public saveLayerReferencesUser(payload: { layerReferences: UserReference[], userIds: number[] }): Promise<any> {
     return this.layerDataService.saveLayerReferencesUser(payload)
-      .pipe(
-        tap((successResponse: ApiSuccessResponse) => {
-          this.utilsService.showSuccessMessage(successResponse.message);
-        })
-      );
+      .then((successResponse: ApiSuccessResponse) => {
+        this.utilsService.showSuccessMessage(successResponse.message);
+        return successResponse;
+      });
   }
 
   /**
   * Get all VLayerWtr.
   * @returns A promise that resolves to the list of VLayerWtr.
   */
-  public getAllVLayerWtr(forceGetFromDb: boolean = false): Observable<VLayerWtr[]> {
-    if (this.vLayerWtr && !forceGetFromDb) {
-      return of(this.vLayerWtr);
+  public async getAllVLayerWtr(forceGetFromDb: boolean = false): Promise<VLayerWtr[]> {
+    if (!this.vLayerWtr || forceGetFromDb) {
+      this.vLayerWtr = await this.cacheService.fetchReferentialsData<VLayerWtr[]>(
+        ReferentialCacheKey.V_LAYER_WTR,
+        () => this.layerDataService.getAllVLayerWtr()
+      );
     }
 
-    return this.cacheService.fetchReferentialsData<VLayerWtr[]>(
-      ReferentialCacheKey.V_LAYER_WTR,
-      () => this.layerDataService.getAllVLayerWtr()
-    ).pipe(
-      tap((results => this.vLayerWtr = results))
-    );
+    return this.vLayerWtr;
   }
 
 }
