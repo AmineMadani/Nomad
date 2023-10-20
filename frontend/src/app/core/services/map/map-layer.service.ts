@@ -209,6 +209,8 @@ export class MapLayerService {
     let bounds: any;
     if (r.geometry.type === 'Point') {
       bounds = new Maplibregl.LngLatBounds(coordinates, coordinates).toArray();
+    } else if(r.geometry.type === 'Polygon') {
+      bounds = new Maplibregl.LngLatBounds(coordinates[0][0], coordinates[0][0]).toArray();
     } else {
       bounds = coordinates.reduce((bounds: any, coord: any) => {
         return bounds.extend(coord);
