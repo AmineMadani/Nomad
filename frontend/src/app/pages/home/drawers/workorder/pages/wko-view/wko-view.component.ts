@@ -9,7 +9,7 @@ import {
 } from 'src/app/core/models/workorder.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
-import { Subject, filter, forkJoin, takeUntil } from 'rxjs';
+import { Subject, filter, takeUntil } from 'rxjs';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { AlertController, ToastController } from '@ionic/angular';
 import {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { CacheKey, CacheService } from './cache.service';
 import { CityService } from './city.service';
 import { ContractService } from './contract.service';

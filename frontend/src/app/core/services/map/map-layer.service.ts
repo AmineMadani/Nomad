@@ -9,14 +9,12 @@ import { UtilsService } from '../utils.service';
   providedIn: 'root',
 })
 export class MapLayerService {
-
   constructor(
     private mapService: MapService,
     private mapEvent: MapEventService,
     private cacheService: CacheService,
     private utilsService: UtilsService
-  ) {
-  }
+  ) {}
 
   /**
    * Get a feature by its ID on a given layer
@@ -38,50 +36,106 @@ export class MapLayerService {
   }
 
   /**
-     * Get feature by its ID on a given layer
-     * @param layerKey The key of the layer to get the feature from
-     * @param featureId The ID of the feature to get
-     * @returns The feature with the given ID, or null if there is no such feature
-     */
+   * Get feature by its ID on a given layer
+   * @param layerKey The key of the layer to get the feature from
+   * @param featureId The ID of the feature to get
+   * @returns The feature with the given ID, or null if there is no such feature
+   */
   public async getLocalFeatureById(
     layerKey: string,
     featureId: string
   ): Promise<any | null> {
     let feature;
-    await this.cacheService.getFeatureByLayerAndFeatureId(layerKey, featureId).then(r => feature = r);
+    await this.cacheService
+      .getFeatureByLayerAndFeatureId(layerKey, featureId)
+      .then((r) => (feature = r));
     return feature;
   }
 
   /**
-     * Update feature geometry by id and layer
-     * @param layerKey The key of the layer to get the feature from
-     * @param featureId The ID of the feature to get
-     */
+   * Update feature geometry by id and layer
+   * @param layerKey The key of the layer to get the feature from
+   * @param featureId The ID of the feature to get
+   */
   public async updateLocalGeometryFeatureById(
     layerKey: string,
     featureId: string,
     newGeometry: number[]
   ) {
-    await this.cacheService.updateCacheFeatureGeometry(featureId, layerKey, newGeometry);
+    await this.cacheService.updateCacheFeatureGeometry(
+      featureId,
+      layerKey,
+      newGeometry
+    );
   }
 
   /**
-   * Retrieves the MapGeoJSONFeatures that are currently in view for a given layer.
+   * Retrieves the MapGeoJSONFeatures that are currently in view for a given layer. If a cluster is in view
+   * then we check the children of every cluster and resolve when the loop is complete.
    * @param {string} layerKey - Key of a layer in the map.
    * @returns Returns the features currently in view on the map for a given layer key.
    * If the layer key is not found or the map is not initialized, an empty array is returned.
    */
-  public getFeaturesInView(layerKey: string): Maplibregl.MapGeoJSONFeature[] {
-    let f: Maplibregl.MapGeoJSONFeature[] = [];
-    if (
-      this.mapService.getMap() &&
-      this.mapService.getMap().getLayer(layerKey.toUpperCase())
-    ) {
-      f = this.mapService
-        .getMap()
-        .queryRenderedFeatures(null, { layers: [layerKey.toUpperCase()] });
-    }
-    return f;
+  public getFeaturesInView(
+    layerKey: string
+  ): Promise<Maplibregl.MapGeoJSONFeature[]> {
+    return new Promise((resolve, reject) => {
+      let f: Maplibregl.MapGeoJSONFeature[] = [];
+      if (
+        this.mapService.getMap() &&
+        this.mapService.getMap().getLayer(layerKey.toUpperCase())
+      ) {
+        f = this.mapService
+          .getMap()
+          .queryRenderedFeatures(null, { layers: [layerKey.toUpperCase()] });
+
+        const promises: Promise<any>[] = [];
+
+        for (const feature of f) {
+          if (feature.properties?.['cluster']) {
+            const clusterId = feature.properties['cluster_id'];
+            const pointCount = feature.properties['point_count'];
+
+            const promise = new Promise<void>(
+              (clusterResolve, clusterReject) => {
+                // Get the children of the cluster. The any is important because the Maplibre Source type is done badly
+                (
+                  this.mapService.getMap().getSource(layerKey) as any
+                ).getClusterLeaves(
+                  clusterId,
+                  pointCount,
+                  0,
+                  function (error, features) {
+                    if (error) {
+                      clusterReject(error);
+                    } else {
+                      if (features?.length > 0) {
+                        f = [...f, ...features];
+                      }
+                      clusterResolve();
+                    }
+                  }
+                );
+              }
+            );
+
+            promises.push(promise);
+          }
+        }
+
+        // Resolve the promises for every cluster
+        Promise.all(promises)
+          .then(() => {
+            resolve(f);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } else {
+        // If there were no cluster, resolve the first queryRenderedFeatures
+        resolve(f);
+      }
+    });
   }
 
   /**
@@ -96,9 +150,8 @@ export class MapLayerService {
     latitude: number,
     layerKey: string
   ): Promise<Maplibregl.MapGeoJSONFeature | null> {
+    let features = await this.getFeaturesInView(layerKey);
 
-    let features = this.getFeaturesInView(layerKey);
-    
     if (features.length === 0) {
       return null;
     }
@@ -107,7 +160,12 @@ export class MapLayerService {
     let shortestDistance = Infinity;
 
     for (const feature of features) {
-      const distance = await this.calculateDistance(layerKey,longitude, latitude, feature);
+      const distance = await this.calculateDistance(
+        layerKey,
+        longitude,
+        latitude,
+        feature
+      );
 
       if (distance < shortestDistance) {
         shortestDistance = distance;
@@ -131,8 +189,14 @@ export class MapLayerService {
     latitude: number,
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<number> {
-    let localFeature = await this.getLocalFeatureById(layerkey,feature.id.toString());
-    let nearestPoint = this.nearestPointOnLineString([longitude,latitude],localFeature.geometry.coordinates);
+    let localFeature = await this.getLocalFeatureById(
+      layerkey,
+      feature.id.toString()
+    );
+    let nearestPoint = this.nearestPointOnLineString(
+      [longitude, latitude],
+      localFeature.geometry.coordinates
+    );
     const dx = nearestPoint[0] - longitude;
     const dy = nearestPoint[1] - latitude;
     return Math.sqrt(dx * dx + dy * dy);
@@ -143,25 +207,28 @@ export class MapLayerService {
     const dy = p1[1] - p2[1];
     return dx * dx + dy * dy;
   }
-  
+
   private nearestPointOnLineString(referencePoint, lineString) {
     if (lineString.length === 0) {
       return null;
     }
-  
+
     let nearestPoint = lineString[0];
     let minDistance = this.distanceSquared(referencePoint, nearestPoint);
-  
+
     for (let i = 1; i < lineString.length; i++) {
       const currentPoint = lineString[i];
-      const currentDistance = this.distanceSquared(referencePoint, currentPoint);
-  
+      const currentDistance = this.distanceSquared(
+        referencePoint,
+        currentPoint
+      );
+
       if (currentDistance < minDistance) {
         nearestPoint = currentPoint;
         minDistance = currentDistance;
       }
     }
-  
+
     return nearestPoint;
   }
 
@@ -170,7 +237,11 @@ export class MapLayerService {
    * @param x longitude
    * @param y latitude
    */
-  public moveToXY(x: number, y: number, zoomLevel: number = 16): Promise<string> {
+  public moveToXY(
+    x: number,
+    y: number,
+    zoomLevel: number = 16
+  ): Promise<string> {
     if (this.mapService.getMap().getZoom() > zoomLevel) {
       zoomLevel = this.mapService.getMap().getZoom();
     }
@@ -197,7 +268,7 @@ export class MapLayerService {
   public async zoomOnXyToFeatureByIdAndLayerKey(
     layerKey: string,
     id: string,
-    minZoom:number=17
+    minZoom: number = 17
   ): Promise<void> {
     await this.mapService.addEventLayer(layerKey);
     const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
@@ -224,13 +295,12 @@ export class MapLayerService {
       padding: 20,
       maxZoom: currentZoom,
     });
-    this.mapEvent.highlighSelectedFeatures(
-      this.mapService.getMap(),
-      [{
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), [
+      {
         source: layerKey,
-        id: r.id.toString()
-      }]
-    );
+        id: r.id.toString(),
+      },
+    ]);
   }
 
   /**

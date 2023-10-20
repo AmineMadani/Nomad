@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, Subject, catchError, firstValueFrom, forkJoin, interval, map, of, switchMap, takeUntil, tap, timeout } from 'rxjs';
+import { EMPTY, Subject, interval, switchMap, takeUntil } from 'rxjs';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
 import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson, convertTasksToWorkorders } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
 import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
-import { MapFeature } from '../models/map-feature.model';
-import { HttpErrorResponse } from '@angular/common/http';
 import { MapService } from './map/map.service';
 import { AppDB } from '../models/app-db.model';
 import { AttachmentService } from './attachment.service';
 import { UtilsService } from './utils.service';
+import { FilterService } from './filter.service';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkOrder',
@@ -21,7 +20,6 @@ export enum SyncOperations {
   providedIn: 'root',
 })
 export class WorkorderService {
-
   public activeWorkorderSwitch:boolean = false;
   public dateWorkorderSwitch: Date = null;
 
@@ -31,7 +29,8 @@ export class WorkorderService {
     private configurationService: ConfigurationService,
     private mapService: MapService,
     private attachmentService: AttachmentService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private filterService: FilterService
   ) {
     this.db = new AppDB();
   }
@@ -102,7 +101,7 @@ export class WorkorderService {
     offset: number,
     search: any
   ): Promise<Task[]> {
-    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.TILES);
     if (isCacheDownload) {
       return this.utilsService.fetchPromiseWithTimeout({
         fetchPromise: this.workorderDataService.getTasksPaginated(limit, offset, search),
@@ -121,24 +120,59 @@ export class WorkorderService {
     return this.workorderDataService.getTasksPaginated(limit, offset, search);
   }
 
+  public filterGeojsonFeatures(features: any[]): any {
+    if (!features || features.length === 0) {
+      return [];
+    }
+
+    const search = this.filterService.transformFilterForm();
+
+    return features.filter((a) => {
+      return (
+        (search.wtrIds === undefined ||
+          search.wtrIds.length === 0 ||
+          search.wtrIds.includes(a.properties.wtrId)) &&
+        (search.assObjTables === undefined ||
+          search.assObjTables.length === 0 ||
+          search.assObjTables.includes(
+            a.properties.assObjTable
+          )) &&
+        (search.wtrIds === undefined ||
+          search.wtsIds.length === 0 ||
+          search.wtsIds.includes(a.properties.wtsId)) &&
+        (search.wkoAppointment === null ||
+          a.properties.wkoAppointment ===
+            search.wkoAppointment) &&
+        (search.wkoEmergeny === null ||
+          a.properties.wkoEmergency ===
+            search.wkoEmergeny) &&
+        a.properties.wkoPlanningStartDate >=
+          search.wkoPlanningStartDate &&
+        (search.wkoPlanningEndDate === null ||
+          a.properties.wkoPlanningStartDate <=
+            search.wkoPlanningEndDate)
+      );
+    });
+  }
+
   public filterFeaturesTasks(featureTasks: any[], search: any): Task[] {
     const workorders: Workorder[] = convertTasksToWorkorders(featureTasks);
 
     const result = workorders
-      .filter(workorders => {
-        const tasksMatch = workorders.tasks.some(task => (search.wtrIds === undefined || search.wtrIds.length === 0 || search.wtrIds.includes(task.wtrId)) &&
+      .filter((wko: Workorder) => {
+        const tasksMatch = wko.tasks.some(task => (search.wtrIds === undefined || search.wtrIds.length === 0 || search.wtrIds.includes(task.wtrId)) &&
           (search.assObjTables === undefined || search.assObjTables.length === 0 || search.assObjTables.includes(task.assObjTable))
         );
         return (
-          (search.wtrIds === undefined || search.wtsIds.length === 0 || search.wtsIds.includes(workorders.wtsId)) &&
-          (search.wkoAppointment === null || workorders.wkoAppointment === search.wkoAppointment) &&
-          (search.wkoEmergeny === null || workorders.wkoEmergency === search.wkoEmergeny) &&
-          (workorders.wkoPlanningStartDate >= search.wkoPlanningStartDate) &&
-          (search.wkoPlanningEndDate === null || workorders.wkoPlanningStartDate <= search.wkoPlanningEndDate) &&
+          (search.wtrIds === undefined || search.wtsIds.length === 0 || search.wtsIds.includes(wko.wtsId)) &&
+          (search.wkoAppointment === null || wko.wkoAppointment === search.wkoAppointment) &&
+          (search.wkoEmergeny === null || wko.wkoEmergency === search.wkoEmergeny) &&
+          (wko.wkoPlanningStartDate >= search.wkoPlanningStartDate) &&
+          (search.wkoPlanningEndDate === null || wko.wkoPlanningStartDate <= search.wkoPlanningEndDate) &&
           tasksMatch
         );
       })
-      .flatMap(workorder => {
+      .flatMap((workorder: Workorder) => {
         return workorder.tasks.map(task => ({
           id: task.id,
           wkoId: workorder.id,

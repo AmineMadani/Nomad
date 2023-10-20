@@ -116,10 +116,12 @@ export class CacheService {
     let result: any[] = [];
     if (tiles.length > 0) {
       for (let tile of tiles) {
-        result = [
-          ...result,
-          ...tile.data.features,
-        ];
+        if (tile.data?.features) {
+          result = [
+            ...result,
+            ...tile.data.features,
+          ];
+        }
       }
     }
 

@@ -167,7 +167,11 @@ export class UtilsService {
     const featureParams: any = {};
 
     features.forEach((feature) => {
-      const source = feature.lyrTableName || feature.source;
+      let source = feature.lyrTableName || feature.source;
+
+      if (feature.id.startsWith('TMP-')) {
+        source = 'tmp';
+      }
 
       if (!featureParams[source]) {
         featureParams[source] = new Set();
@@ -323,6 +327,24 @@ export class UtilsService {
   public roundToDecimalPlaces(num: number, decimalPlaces: number): number {
     const factor = Math.pow(10, decimalPlaces);
     return Math.round(num * factor) / factor;
+  }
+
+  public getAverageOfCoordinates(coordinates: [number, number][]): [number, number] {
+    let totalX = 0;
+    let totalY = 0;
+
+    // Calculate total x and y coordinates
+    coordinates.forEach(c => {
+        const [x, y] = c;
+        totalX += x;
+        totalY += y;
+    });
+
+    // Calculate average x and y coordinates
+    const averageX = totalX / coordinates.length;
+    const averageY = totalY / coordinates.length;
+
+    return [averageX, averageY];
   }
 
   /**

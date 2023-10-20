@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { forkJoin } from 'rxjs';
 import { Column, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { Permission } from 'src/app/core/models/user.model';
 import { TableService } from 'src/app/core/services/table.service';

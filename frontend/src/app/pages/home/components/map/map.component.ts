@@ -15,7 +15,7 @@ import { Box, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, forkJoin, switchMap, filter, Observable, map, firstValueFrom } from 'rxjs';
+import { debounceTime, first, switchMap, filter } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
@@ -377,7 +377,7 @@ export class MapComponent implements OnInit, OnDestroy {
           properties: params,
         };
         contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-        contextMenuCreateReport.innerHTML = "Saisir un compte-rendu XY";
+        contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
       });
     } else {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
@@ -397,11 +397,13 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    if(this.selectedFeature['id']) {
-     this.router.navigate(['/home/workorder'], {
-      queryParams: { [this.selectedFeature['source']]: this.selectedFeature['id'] },
-     });
-     document.getElementById('map-nomad-context-menu').className = 'hide';
+    if (this.selectedFeature['id']) {
+      this.router.navigate(['/home/workorder'], {
+        queryParams: {
+          [this.selectedFeature['source']]: this.selectedFeature['id'],
+        },
+      });
+      document.getElementById('map-nomad-context-menu').className = 'hide';
     } else {
       if (!this.selectedFeature['properties']['lyrTableName']) {
         this.selectedFeature['properties']['lyrTableName'] =
@@ -421,16 +423,26 @@ export class MapComponent implements OnInit, OnDestroy {
    */
   public async onGenerateReport(): Promise<void> {
     let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
-    let ctrId = this.selectedFeature['properties']['ctrId'] ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0] : null;
-    if(this.selectedFeature['id']) {
-
-      let equipment = await this.layerService.getEquipmentByLayerAndId(this.selectedFeature['source'],this.selectedFeature['id']);
-      const recalculateCoords = this.mapLayerService.findNearestPoint(equipment.geom.coordinates,[this.selectedFeature['properties']['x'],this.selectedFeature['properties']['y']]);
+    let ctrId = this.selectedFeature['properties']['ctrId']
+      ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0]
+      : null;
+    if (this.selectedFeature['id']) {
+      let equipment = await this.layerService.getEquipmentByLayerAndId(
+        this.selectedFeature['source'],
+        this.selectedFeature['id']
+      );
+      const recalculateCoords = this.mapLayerService.findNearestPoint(
+        equipment.geom.coordinates,
+        [
+          this.selectedFeature['properties']['x'],
+          this.selectedFeature['properties']['y'],
+        ]
+      );
 
       let workorder: Workorder = {
         latitude: recalculateCoords[1],
         longitude: recalculateCoords[0],
-        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+        wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
         ctyId: this.selectedFeature['properties']['ctyId'],
         id: this.utilsService.createCacheId(),
         isDraft: true,
@@ -439,21 +451,29 @@ export class MapComponent implements OnInit, OnDestroy {
             id: this.utilsService.createCacheId(),
             latitude: recalculateCoords[1],
             longitude: recalculateCoords[0],
-            assObjTable: this.selectedFeature['source'] ? this.selectedFeature['source']:'aep_xy',
-            assObjRef: this.selectedFeature['id'] ? this.selectedFeature['id'] : null,
-            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
-            ctrId: ctrId
-          }
-        ]
+            assObjTable: this.selectedFeature['source']
+              ? this.selectedFeature['source']
+              : 'aep_xy',
+            assObjRef: this.selectedFeature['id']
+              ? this.selectedFeature['id']
+              : null,
+            wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+            ctrId: ctrId,
+          },
+        ],
       };
       this.workorderService.saveCacheWorkorder(workorder);
       document.getElementById('map-nomad-context-menu').className = 'hide';
-      this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
+      this.router.navigate([
+        '/home/workorder/' + workorder.id.toString() + '/cr',
+      ]);
     } else {
       document.getElementById('map-nomad-context-menu').className = 'hide';
       this.selectedFeature['properties']['ctrId'] = ctrId;
       this.selectedFeature['properties']['target'] = 'report';
-      this.selectedFeature['properties']['wtsId'] = lStatus.find(status => status.wtsCode == 'CREE')?.id;
+      this.selectedFeature['properties']['wtsId'] = lStatus.find(
+        (status) => status.wtsCode == 'CREE'
+      )?.id;
       this.drawerService.navigateTo(
         DrawerRouteEnum.WORKORDER_WATER_TYPE,
         undefined,
@@ -602,7 +622,11 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureSelected(nearestFeature, e);
+        if (nearestFeature?.properties?.['cluster']) {
+          this.onClusterSelected(nearestFeature, e);
+        } else {
+          this.onFeatureSelected(nearestFeature, e);
+        }
       });
 
     fromEvent(this.map, 'touchend')
@@ -803,8 +827,12 @@ export class MapComponent implements OnInit, OnDestroy {
     for (const feature of features) {
       const distance = this.calculateDistance(mouseCoords, feature);
 
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
+      if (!Number.isNaN(distance)) {
+        if (distance < shortestDistance) {
+          shortestDistance = distance;
+          nearestPoint = feature;
+        }
+      } else {
         nearestPoint = feature;
       }
     }
@@ -832,7 +860,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param feature - Closest feature hovered on the map
    */
   private onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
-    if (!feature) {
+    if (!feature || feature.id == null) {
       this.map.getCanvas().style.cursor = '';
       this.mapEvent.highlightHoveredFeatures(this.map, undefined, true);
       return;
@@ -896,6 +924,28 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
+  private onClusterSelected(
+    feature: Maplibregl.MapGeoJSONFeature,
+    e: Maplibregl.MapMouseEvent
+  ): void {
+    const features = this.map.queryRenderedFeatures(e.point, {
+      layers: [feature.layer.id],
+    });
+    const clusterId = features[0].properties['cluster_id'];
+    const source = this.map.getSource(
+      features[0].source
+    ) as Maplibregl.GeoJSONSource;
+    source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+      if (err) return;
+      this.map.easeTo({
+        center: this.utilsService.getAverageOfCoordinates(
+          features.map((f) => f.geometry['coordinates'])
+        ),
+        zoom,
+      });
+    });
+  }
+
   /**
    * calculation of the resolution at level zero for 1 tile of 512
    * circumference of the earth (6,378,137 m)
@@ -944,8 +994,7 @@ export class MapComponent implements OnInit, OnDestroy {
     for (let layer of this.mapService.getCurrentLayers()) {
       if (
         this.map.getZoom() >=
-        Math.min(...layer[1].style.map((style) => style.minzoom))
-        &&
+          Math.min(...layer[1].style.map((style) => style.minzoom)) &&
         this.customTileFilter(layer[0])
       ) {
         this.getOverlapTileFromIndex(layer[0]).then(async (res) => {
@@ -974,7 +1023,10 @@ export class MapComponent implements OnInit, OnDestroy {
    * @returns The custom filter for the specific layer
    */
   private customTileFilter(layer: string): boolean {
-    return layer != 'task' || (layer == 'task' && this.workorderService.activeWorkorderSwitch)
+    return (
+      layer != 'task' ||
+      (layer == 'task' && this.workorderService.activeWorkorderSwitch)
+    );
   }
 
   /**
@@ -1058,7 +1110,23 @@ export class MapComponent implements OnInit, OnDestroy {
   private async loadNewTile(layerKey: string, file: string): Promise<void> {
     const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
     if (source) {
-      const newLayer = await this.layerService.getLayerFile(layerKey, file, this.customDateSearch(layerKey));
+      const newLayer = await this.layerService.getLayerFile(
+        layerKey,
+        file,
+        this.customDateSearch(layerKey)
+      );
+
+      // Filtering the new features with stored form
+      switch (layerKey) {
+        case 'task':
+          newLayer.features = this.workorderService.filterGeojsonFeatures(
+            newLayer.features
+          );
+          break;
+        default:
+          break;
+      }
+
       const addData: Maplibregl.GeoJSONSourceDiff = {
         add: newLayer.features,
       };
@@ -1081,10 +1149,10 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  private customDateSearch(layerkey:string): Date {
-    if(layerkey == 'task') {
+  private customDateSearch(layerkey: string): Date {
+    if (layerkey == 'task') {
       return this.workorderService.dateWorkorderSwitch;
     }
-    return null
+    return null;
   }
 }

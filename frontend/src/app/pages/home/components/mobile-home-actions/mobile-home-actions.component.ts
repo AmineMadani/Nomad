@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { forkJoin } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { CityService } from 'src/app/core/services/city.service';

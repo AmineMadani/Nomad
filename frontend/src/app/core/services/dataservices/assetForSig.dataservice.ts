@@ -20,4 +20,15 @@ export class AssetForSigDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
+  /**
+   * Create the asset for sig
+   * A toast is automatically showed to the user when the api call is done.
+   * @param assetForSig: asset for sig
+   * @returns A response message if successfull, else return an error.
+   */
+  public createAssetForSig(assetForSig: AssetForSigDto): Promise<any> {
+    return firstValueFrom(
+      this.http.post<ApiSuccessResponse>(`${this.configurationService.apiUrl}asset-for-sig/create`, assetForSig)
+    );
+  }
 }

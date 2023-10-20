@@ -18,6 +18,7 @@ export interface FormDefinition {
   rules: FormRule[];
   displayCondition?: FormDisplayCondition;
   rqnCode?: string; // For report, ID of the question
+  isOptional?: boolean; // For new asset, to allow the user to add this question
 }
 
 export interface FormSection {

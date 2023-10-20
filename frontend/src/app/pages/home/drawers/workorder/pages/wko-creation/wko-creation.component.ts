@@ -17,17 +17,11 @@ import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepi
 import {
   Subject,
   filter,
-  map,
   switchMap,
   takeUntil,
-  forkJoin,
-  Observable,
-  tap,
   debounceTime,
-  firstValueFrom,
   fromEvent,
   Subscription,
-  finalize,
 } from 'rxjs';
 import { DateTime } from 'luxon';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -51,6 +45,7 @@ import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
+import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 
 const WTR_CODE_POSE = '10';
 
@@ -75,7 +70,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private userService: UserService,
     private cityService: CityService,
     private contractService: ContractService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private assetForSigService: AssetForSigService,
   ) {
     this.router.events
       .pipe(
@@ -172,6 +168,31 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       )
       .subscribe(async (equipments: any) => {
         this.equipments = equipments;
+
+        // Extract the temporary new asset from the url (when coming from multiple selection without a workorder)
+        // Add them to the list of asset
+        const urlParams = new URLSearchParams(window.location.search);
+        let listAssObjRef = [];
+        for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+          const listValue = value.split(',');
+          for (const v of listValue) {
+            if (!listAssObjRef.includes(v))
+              listAssObjRef.push(v);
+          }
+        }
+        for (const assObjRef of listAssObjRef) {
+          const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+          if (assetForSig != null) {
+            this.equipments.push({
+              id: assObjRef,
+              lyrTableName: assetForSig.assObjTable,
+              x: assetForSig.coords[0][0],
+              y: assetForSig.coords[0][1],
+              assetForSig: assetForSig,
+            });
+          }
+        }
+
         this.nbEquipments = this.equipments.length.toString();
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
@@ -205,6 +226,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 wtrId: null,
                 longitude: eq.x,
                 latitude: eq.y,
+                assetForSig: eq.assetForSig,
               };
             });
           }
@@ -554,7 +576,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           ]);
         }));
 
-      // Use forkJoin to run all observables in parallel
+      // Use promise.all to run all observables in parallel
       Promise.all(promisesArray).then(() => {
         if (this.equipments?.[0] !== null && this.equipments.length >= 1) {
           this.equipmentModal.present();
@@ -662,9 +684,36 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // Ctr and Cty are on the equipments
       contractsIds = this.equipments.map(
         (eq) => eq?.ctrId ?? +this.workorder.ctrId
-      );
+      )
+      .filter((ctrId) => !isNaN(ctrId));
 
-      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId);
+      cityIds = this.equipments.map((eq) => eq?.ctyId ?? +this.workorder.ctyId).filter((ctyId) => !isNaN(ctyId));;
+
+      // If there is no contracts
+      if (contractsIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id != null && equipment.id.startsWith('TMP-')) {
+            // Get the list of contract for this X/Y
+            contractsIds = await this.contractService.getContractIdsByLatitudeLongitude(equipment.y, equipment.x);
+          }
+        }
+      }
+
+      // If there is no cities
+      if (cityIds.length === 0) {
+        // If there is only 1 asset
+        if (this.equipments.length === 1) {
+          const equipment = this.equipments[0];
+          // And this asset this a new asset
+          if (equipment.id && equipment.id.startsWith('TMP-')) {
+            // Get the list of cities for this X/Y
+            cityIds = await this.cityService.getCityIdsByLatitudeLongitude(equipment.y, equipment.x);
+          }
+        }
+      }
     } else {
       // WKO XY
       const layers = await this.layerService.getAllLayers();
@@ -715,12 +764,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         )
       );
 
-    forkJoin({
-      freasons: this.layerService.getAllVLayerWtr(),
-      contracts: this.contractService.getAllContracts(),
-      cities: this.cityService.getAllCities(),
-      layers: this.layerService.getAllLayers(),
-    }).subscribe(async ({ freasons, contracts, cities, layers }) => {
+    Promise.all([
+      this.layerService.getAllVLayerWtr(),
+      this.contractService.getAllContracts(),
+      this.cityService.getAllCities(),
+      this.layerService.getAllLayers(),
+    ]).then(async (results) => {
+      const freasons: VLayerWtr[] = results[0];
+      const contracts: Contract[] = results[1];
+      const cities: City[] = results[2];
+      const layers: Layer[] = results[3];
+
       const reasons = freasons.filter((vlw: VLayerWtr) =>
         this.equipments.map((eq) => eq.lyrTableName).includes(vlw.lyrTableName)
       );

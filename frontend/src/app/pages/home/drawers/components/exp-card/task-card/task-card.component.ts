@@ -3,7 +3,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { WorkorderTaskReason, WorkorderTaskStatus } from 'src/app/core/models/workorder.model';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-task-card',

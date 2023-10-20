@@ -125,7 +125,7 @@ public class LayerController {
         try {
             return this.layerService.getAssetByLayerAndIds(getEquipmentsPayload, account.getId());
         } catch (Exception e) {
-            throw new Exception("Error during the layer references saving");
+            throw new Exception("Error during the layer references recuperation");
         }
     }
     
