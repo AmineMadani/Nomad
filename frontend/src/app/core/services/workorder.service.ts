@@ -11,9 +11,9 @@ import { UtilsService } from './utils.service';
 import { FilterService } from './filter.service';
 
 export enum SyncOperations {
-  CreateWorkorder = 'createWorkOrder',
-  UpdateWorkorder = 'updateWorkOrder',
-  TerminateWorkorder = 'terminateWorkOrder',
+  CreateWorkorder = 'createWorkorder',
+  UpdateWorkorder = 'updateWorkorder',
+  TerminateWorkorder = 'terminateWorkorder'
 }
 
 @Injectable({
@@ -42,9 +42,9 @@ export class WorkorderService {
 
   private stopSyncOperations$: Subject<void> = new Subject<void>();
   private syncOperations = {
-    createWorkOrder: (workorder: Workorder) => this.workorderDataService.createWorkOrder(workorder),
-    updateWorkOrder: (workorder: Workorder) => this.workorderDataService.updateWorkOrder(workorder),
-    terminateWorkOrder: (workorder: Workorder) => this.workorderDataService.terminateWorkOrder(workorder),
+    createWorkorder: (workorder: Workorder) => this.workorderDataService.createWorkOrder(workorder),
+    updateWorkorder: (workorder: Workorder) => this.workorderDataService.updateWorkOrder(workorder),
+    terminateWorkorder: (workorder: Workorder) => this.workorderDataService.terminateWorkOrder(workorder),
   };
 
   /**
@@ -217,7 +217,9 @@ export class WorkorderService {
           await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
           return newWko;
         })
-        .catch((error) => this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder));
+        .catch(async (error) =>
+          this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.UpdateWorkorder)
+        )
     }
 
     return this.workorderDataService.updateWorkOrder(workorder);
@@ -228,7 +230,19 @@ export class WorkorderService {
    * @param workorder the workorder to terminate
    * @returns the workorder
    */
-  public terminateWorkOrder(workorder: Workorder): Promise<Workorder> {
+  public async terminateWorkOrder(workorder: Workorder): Promise<Workorder> {
+    workorder.syncOperation = undefined;
+
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.terminateWorkOrder(workorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) =>
+        this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.TerminateWorkorder)
+      );
+    }
+
     return this.workorderDataService.terminateWorkOrder(workorder);
   }
 
@@ -251,16 +265,9 @@ export class WorkorderService {
           await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
           return newWko;
         })
-        .catch(async (error) => {
-          if (this.utilsService.isOfflineError(error)) {
-            workorder.syncOperation = SyncOperations.CreateWorkorder;
-            workorder.isDraft = false;
-            this.saveCacheWorkorder(workorder);
-            return workorder;
-          }
-
-          throw error
-        });
+        .catch(async (error) =>
+          this.handleConnectionErrorOnWorkorderOperations(error, workorder, SyncOperations.CreateWorkorder)
+        );
     }
 
     return this.workorderDataService.createWorkOrder(workorder);
@@ -389,6 +396,7 @@ export class WorkorderService {
   public async handleConnectionErrorOnWorkorderOperations(error: Error, workorder: Workorder, syncOperations: SyncOperations): Promise<Workorder> {
     if (this.utilsService.isOfflineError(error)) {
       workorder.syncOperation = syncOperations;
+      workorder.isDraft = false;
       await this.saveCacheWorkorder(workorder);
       await this.startPeriodicSyncWorkorders();
 
@@ -421,7 +429,7 @@ export class WorkorderService {
       this.stopSyncOperations$ = new Subject<void>();
 
       // Listen changes every 5 minutes
-      interval(10000).pipe(
+      interval(300000).pipe(
         // Stop the interval when there are no more workorders to sync
         takeUntil(this.stopSyncOperations$),
         // Perform the synchronization
@@ -430,7 +438,9 @@ export class WorkorderService {
           const syncsToPerform: Promise<any>[] = workordersToSync.map(
             (wko) => {
               // Get the right function to perform the synchronization
-              return this.syncOperations[wko.syncOperation](wko).then((workorder) => {
+              return this.syncOperations[wko.syncOperation](wko).then(async (workorder) => {
+                  // Save the workorder attachments if necessary
+                  await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(wko.id, workorder.id);
                   // If the synchronization is successful, delete the workorder from the cache
                   console.log('Workorder updated successfully', workorder);
                   this.deleteCacheWorkorder(wko);

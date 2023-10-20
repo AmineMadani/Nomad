@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Attachment } from '../models/attachment.model';
 import { AttachmentDataService } from './dataservices/attachment.dataservice';
 import { AppDB } from '../models/app-db.model';
+import { UtilsService } from './utils.service';
+import { CacheKey, CacheService } from './cache.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +11,8 @@ import { AppDB } from '../models/app-db.model';
 export class AttachmentService {
   constructor(
     private attachmentDataService: AttachmentDataService,
+    private utilsService: UtilsService,
+    private cacheService: CacheService
   ) {
     this.db = new AppDB();
   }
@@ -61,7 +65,16 @@ export class AttachmentService {
 
   public async getAllAttachmentsByObjId(objId: number): Promise<Attachment[]> {
     // Get remote attachments
-    let attachments = await this.getRemoteAttachmentsByObjId(objId);
+    let attachments: Attachment[] = [];
+    try {
+      attachments = await this.getRemoteAttachmentsByObjId(objId);
+    } catch (error) {
+      const isCacheDownload = await this.cacheService.isCacheDownload(CacheKey.TILES);
+
+      if (!isCacheDownload || !this.utilsService.isOfflineError(error)) {
+        throw error;
+      }
+    }
 
     // Add local attachments
     const localAttachments = await this.getLocalAttachmentsByObjId(objId);
