@@ -267,11 +267,15 @@ export class UserService {
     * Method to get all the permissions from server or cache
     * @returns Permissions
     */
-  public async getAllPermissions(forceGetFromDb: boolean = false): Promise<Permission[]> {
+  public async getAllPermissions(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<Permission[]> {
     if (!this.permissions || forceGetFromDb) {
       this.permissions = await this.cacheService.fetchReferentialsData<Permission[]>(
         ReferentialCacheKey.PERMISSIONS,
-        () => this.userDataService.getAllPermissions()
+        () => this.userDataService.getAllPermissions(),
+        isDownloadMode
       );
     }
 

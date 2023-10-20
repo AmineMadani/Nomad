@@ -24,11 +24,15 @@ export class TemplateService {
    * Method to get all the forms template
    * @returns list of Forms
    */
-  async getFormsTemplate(forceGetFromDb: boolean = false): Promise<FormTemplate[]> {
+  async getFormsTemplate(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<FormTemplate[]> {
     if (!this.formsTemplate || forceGetFromDb) {
       this.formsTemplate = await this.cacheService.fetchReferentialsData<FormTemplate[]>(
         ReferentialCacheKey.FORM_TEMPLATE,
-        () => this.templateDataService.getFormsTemplate()
+        () => this.templateDataService.getFormsTemplate(),
+        isDownloadMode
       );
     }
 

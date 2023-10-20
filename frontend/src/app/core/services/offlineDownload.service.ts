@@ -99,19 +99,22 @@ export class OfflineDownloadService {
 
     const nbReferentialCalls: number = 10;
     Promise.all([
-      this.contractService.getAllContracts(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.cityService.getAllCities(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.layerService.getAllLayers(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.layerService.getAllVLayerWtr(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.layerService.getLayerIndexes(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.workorderService.getAllWorkorderTaskStatus(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.workorderService.getAllWorkorderTaskReasons(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.templateService.getFormsTemplate(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.userService.getAllPermissions(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
-      this.layerService.getUserLayerReferences(true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.contractService.getAllContracts(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.cityService.getAllCities(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.layerService.getAllLayers(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.layerService.getAllVLayerWtr(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.layerService.getLayerIndexes(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.workorderService.getAllWorkorderTaskStatus(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.workorderService.getAllWorkorderTaskReasons(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.templateService.getFormsTemplate(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.userService.getAllPermissions(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.layerService.getUserLayerReferences(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
     ])
       .then(async () => await this.onDownloadReferentialsSuccess())
-      .catch(() => this.onDownloadReferentialsError());
+      .catch((error) => {
+        this.onDownloadReferentialsError();
+        throw error;
+      });
   }
 
   /**
@@ -214,7 +217,7 @@ export class OfflineDownloadService {
         // Fill the list of 50 api calls
         for (const files of outputList) {
           const apiCalls: any[] = files.map((file) =>
-            this.layerService.getLayerFile(layer.lyrTableName, file)
+            this.layerService.getLayerFile(layer.lyrTableName, file, undefined, true)
               .then(() =>
                 this.increaseProgressPercentage(nbTiles, this.tilesOfflineDownload)
               )
@@ -325,8 +328,9 @@ export class OfflineDownloadService {
       );
 
       this.onDownloadBasemapSuccess(basemap);
-    } catch (e) {
+    } catch (error) {
       this.onDownloadBasemapsError();
+      throw error;
     }
   }
 

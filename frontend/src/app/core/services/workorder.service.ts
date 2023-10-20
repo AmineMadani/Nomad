@@ -328,11 +328,15 @@ export class WorkorderService {
    * Get list of workorders task status
    * @returns an observable of the list of status
    */
-  public async getAllWorkorderTaskStatus(forceGetFromDb: boolean = false): Promise<WorkorderTaskStatus[]> {
+  public async getAllWorkorderTaskStatus(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<WorkorderTaskStatus[]> {
     if (!this.workorderTaskStatus || forceGetFromDb) {
       this.workorderTaskStatus = await this.cacheService.fetchReferentialsData<WorkorderTaskStatus[]>(
         ReferentialCacheKey.WORKORDER_TASK_STATUS,
-        () => this.workorderDataService.getAllWorkorderTaskStatus()
+        () => this.workorderDataService.getAllWorkorderTaskStatus(),
+        isDownloadMode
       )
     }
 
@@ -343,11 +347,15 @@ export class WorkorderService {
    * Get list of workorders task reasons
    * @returns an observable of the list of reasons
    */
-  public async getAllWorkorderTaskReasons(forceGetFromDb: boolean = false): Promise<WorkorderTaskReason[]> {
+  public async getAllWorkorderTaskReasons(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<WorkorderTaskReason[]> {
     if (!this.workorderTaskReasons || forceGetFromDb) {
       this.workorderTaskReasons = await this.cacheService.fetchReferentialsData<WorkorderTaskReason[]>(
         ReferentialCacheKey.WORKORDER_TASK_REASON,
-        () => this.workorderDataService.getAllWorkorderTaskReasons()
+        () => this.workorderDataService.getAllWorkorderTaskReasons(),
+        isDownloadMode
       )
     }
 
