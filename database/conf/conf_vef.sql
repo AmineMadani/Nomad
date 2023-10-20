@@ -220,7 +220,7 @@ on conflict do nothing;
 
 insert into city(cty_code, cty_slabel, cty_llabel, geom)
 select
-cde_insee
+insee_code
 , libelle
 , lib_maj
 , st_transform(geom, 4326)
