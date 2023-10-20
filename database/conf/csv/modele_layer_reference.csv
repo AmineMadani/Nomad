@@ -191,7 +191,7 @@ aep_canalisation;exploitant;Exploitant;text;20;SYNTHETIC;Caractéristiques rése
 aep_canalisation;secteur;Secteur;text;21;DETAILED;Caractéristiques réseau;
 aep_canalisation;etage;Etage de pression;text;22;DETAILED;Caractéristiques réseau;
 aep_canalisation;type_eau;Type eau;text;23;DETAILED;Caractéristiques réseau;
-aep_canalisation;ecoulement;Ecoulement;text;24;DETAILED;Caractéristiques patrimoine;
+aep_canalisation;ecoulement;Ecoulement;text;24;SYNTHETIC;Caractéristiques patrimoine;
 aep_canalisation;prec_clas;Classe précision;text;30;DETAILED;Localisation;
 aep_canalisation;commune;Commune;text;31;DETAILED;Localisation;
 aep_canalisation;rue;Rue;text;32;DETAILED;Localisation;
@@ -417,23 +417,23 @@ aep_defense_incendie;choc;Choc;bool;;;;
 aep_defense_incendie;protection;Protection;bool;;;;
 aep_defense_incendie;conforme;Conforme;bool;;;;
 aep_defense_incendie;old_id;ID SIG Source;int4;;;;
-aep_emprise_ouvrage;commune;Commune;text;;;;
-aep_emprise_ouvrage;id;ID;text;;;;
-aep_emprise_ouvrage;contrat;Contrat;text;;;;
-aep_emprise_ouvrage;insee_code;Insee Code;text;;;;
-aep_emprise_ouvrage;rue;Rue;text;;;;
-aep_emprise_ouvrage;territoire;Code orga;text;;;;
-aep_emprise_ouvrage;domaine;Domanialité;text;;;;
-aep_emprise_ouvrage;date_abdn;Date abandon;date;;;;
-aep_emprise_ouvrage;statut;Statut;text;;;;
-aep_emprise_ouvrage;code_contrat;Code Contrat;text;;;;
-aep_emprise_ouvrage;cde_gmao;Code GMAO;text;;;;
-aep_emprise_ouvrage;type;Type;text;;;;
-aep_emprise_ouvrage;libelle;Libellé;text;;;;
-aep_emprise_ouvrage;prec_clas;Classe précision;text;;;;
-aep_emprise_ouvrage;date_serv;Date mise en service;date;;;;
-aep_emprise_ouvrage;lib_recol;Récolement;text;;;;
-aep_emprise_ouvrage;geom;Geom;geometry;;;;
+aep_emprise_ouvrage;commune;Commune;text;1;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;id;ID;text;2;SYNTHETIC;Identification;
+aep_emprise_ouvrage;contrat;Contrat;text;3;SYNTHETIC;Identification;
+aep_emprise_ouvrage;insee_code;Insee Code;text;4;SYNTHETIC;Identification;
+aep_emprise_ouvrage;rue;Rue;text;5;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;territoire;Code orga;text;6;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;domaine;Domanialité;text;7;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;date_abdn;Date abandon;date;8;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;statut;Statut;text;9;SYNTHETIC;Identification;
+aep_emprise_ouvrage;code_contrat;Code Contrat;text;10;SYNTHETIC;Identification;
+aep_emprise_ouvrage;cde_gmao;Code GMAO;text;11;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;type;Type;text;12;SYNTHETIC;Identification;
+aep_emprise_ouvrage;libelle;Libellé;text;13;SYNTHETIC;Identification;
+aep_emprise_ouvrage;prec_clas;Classe précision;text;14;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;date_serv;Date mise en service;date;15;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;lib_recol;Récolement;text;16;DETAILED;Caractéristiques patrimoine;
+aep_emprise_ouvrage;geom;Geom;geometry;17;DETAILED;Métadonnées;1
 aep_equipement;id;ID;text;1;SYNTHETIC;Identification;
 aep_equipement;contrat;Contrat;text;2;SYNTHETIC;Identification;
 aep_equipement;type;Type;text;3;SYNTHETIC;Identification;
@@ -449,7 +449,7 @@ aep_equipement;rue;Rue;text;32;DETAILED;Localisation;
 aep_equipement;comment;Commentaires;text;40;DETAILED;Complément;
 aep_equipement;territoire;Code orga;text;90;DETAILED;Métadonnées;1
 aep_equipement;insee_code;Insee Code;text;91;DETAILED;Métadonnées;1
-aep_equipement;angle;Angle;float8;92;DETAILED;Métadonnées;1
+aep_equipement;angle;Angle;float8;92;SYNTHETIC;Métadonnées;1
 aep_equipement;code_contrat;Code Contrat;text;93;DETAILED;Métadonnées;1
 aep_equipement;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 aep_equipement;uuid;UUID;uuid;;;;
@@ -627,7 +627,7 @@ aep_ouvrage;y;Y;numeric;34;DETAILED;Localisation;
 aep_ouvrage;comment;Commentaires;text;40;DETAILED;Complément;
 aep_ouvrage;territoire;Code orga;text;90;DETAILED;Métadonnées;1
 aep_ouvrage;insee_code;Insee Code;text;91;DETAILED;Métadonnées;1
-aep_ouvrage;angle;Angle;float8;92;DETAILED;Métadonnées;1
+aep_ouvrage;angle;Angle;float8;92;SYNTHETIC;Métadonnées;1
 aep_ouvrage;geom;Geom;geometry;93;DETAILED;Métadonnées;1
 aep_ouvrage;code_contrat;Code Contrat;text;94;DETAILED;Métadonnées;1
 aep_ouvrage;uuid;UUID;uuid;;;;
@@ -711,6 +711,7 @@ aep_point_releve;type_obj;Type objet;text;;;;
 aep_point_releve;id_objet;ID objet;int4;;;;
 aep_point_releve;etat_gref;Statut relève;text;;;;
 aep_point_releve;geom;Geom;geometry;;;;
+aep_purge;automatic;Automatique;bool;;SYNTHETIC;Caractéristiques patrimoine;
 aep_purge;id;ID;text;1;SYNTHETIC;Identification;
 aep_purge;contrat;Contrat;text;2;SYNTHETIC;Identification;
 aep_purge;type;Type;text;3;SYNTHETIC;Identification;
@@ -724,7 +725,7 @@ aep_purge;rue;Rue;text;32;DETAILED;Localisation;
 aep_purge;comment;Commentaires;text;40;DETAILED;Complément;
 aep_purge;territoire;Code orga;text;90;DETAILED;Métadonnées;1
 aep_purge;insee_code;Insee Code;text;91;DETAILED;Métadonnées;1
-aep_purge;angle;Angle;float8;92;DETAILED;Métadonnées;1
+aep_purge;angle;Angle;float8;92;SYNTHETIC;Métadonnées;1
 aep_purge;code_contrat;Code Contrat;text;93;DETAILED;Métadonnées;1
 aep_purge;geom;Geom;geometry;94;DETAILED;Métadonnées;1
 aep_purge;uuid;UUID;uuid;;;;
@@ -810,7 +811,7 @@ aep_regulation;z;Z relève (matrice sup.);numeric;35;DETAILED;Localisation;
 aep_regulation;comment;Commentaires;text;40;DETAILED;Complément;
 aep_regulation;territoire;Code orga;text;90;DETAILED;Métadonnées;1
 aep_regulation;insee_code;Insee Code;text;99;DETAILED;Métadonnées;1
-aep_regulation;angle;Angle;float8;99;DETAILED;Métadonnées;1
+aep_regulation;angle;Angle;float8;99;SYNTHETIC;Métadonnées;1
 aep_regulation;code_contrat;Code Contrat;text;99;DETAILED;Métadonnées;1
 aep_regulation;geom;Geom;geometry;99;DETAILED;Métadonnées;1
 aep_regulation;uuid;UUID;uuid;;;;

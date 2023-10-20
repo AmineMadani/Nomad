@@ -13,6 +13,7 @@ export interface FilterAsset {
     layerKey?: string;
     styleKey?: string;
     child?: FilterAsset[];
+    hideChild?: boolean;
     visible?: boolean;
     segmentVisible?: boolean;
 

@@ -24,7 +24,7 @@ export class AssetAccordionComponent implements OnInit {
 
   private initAccordionState() {
     this.filterSegment.child.forEach(item => {
-      if (item.child && item.child.length > 0 && !item.closedAccordion) {
+      if (!item.hideChild && item.child && item.child.length > 0 && !item.closedAccordion) {
         setTimeout(() => {
           const nativeEl = this.accordionGroup;
           nativeEl.value = item.name;
@@ -40,7 +40,7 @@ export class AssetAccordionComponent implements OnInit {
    * @param {MouseEvent} event - MouseEvent - the event that triggered the function.
    */
   public onCheckOpeningRule(data: FilterAsset, event: MouseEvent): void {
-    if (!data.child || data.child.length === 0) {
+    if (data.hideChild || !data.child || data.child.length === 0) {
       this.onItemSelected(data, event);
       event.stopPropagation();
     } else {
