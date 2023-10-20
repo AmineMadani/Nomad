@@ -242,7 +242,8 @@ export class CacheService {
    */
   public async fetchReferentialsData<T>(
     referentialCacheKey: ReferentialCacheKey,
-    serviceCall: () => Promise<T>
+    serviceCall: () => Promise<T>,
+    isDownloadMode: boolean = false,
   ): Promise<T> {
     const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.REFERENTIALS);
 
@@ -260,6 +261,7 @@ export class CacheService {
           return data;
         })
         .catch(async (error) => {
+          console.log(error);
           if (this.utilsService.isOfflineError(error)) {
             const referentials = await this.db.referentials.get(referentialCacheKey);
             if (referentials) {
@@ -271,14 +273,25 @@ export class CacheService {
         });
     }
 
-    return serviceCall();
+    const results = await serviceCall();
+
+    // We save in the cache in the case of download mode
+    if (isDownloadMode) {
+      await this.db.referentials.put(
+        { data: results, key: referentialCacheKey },
+        referentialCacheKey
+      );
+    }
+
+    return results;
   }
 
   public async fetchLayerFile(
     layerKey: string,
     featureNumber: number,
     file: string,
-    params: any
+    params: any,
+    isDownloadMode: boolean = false
   ): Promise<NomadGeoJson> {
     const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
 
@@ -292,6 +305,7 @@ export class CacheService {
           return req;
         })
         .catch(async (error) => {
+          console.log(error);
           if (this.utilsService.isOfflineError(error)) {
             const tile = await this.db.tiles.get(file);
             if (tile) {
@@ -303,7 +317,14 @@ export class CacheService {
         });
     }
 
-    return this.layerDataService.getLayerFile(layerKey, featureNumber, params);
+    const results = await this.layerDataService.getLayerFile(layerKey, featureNumber, params);
+
+    // We save in the cache in the case of download mode
+    if (isDownloadMode) {
+      await this.db.tiles.put({ data: results, key: file }, file);
+    }
+
+    return results;
   }
 
   public async fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {

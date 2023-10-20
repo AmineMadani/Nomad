@@ -79,11 +79,15 @@ export class LayerService {
    * If successful, it stores the layer in IndexedDB.
    * @returns The geojson of the index of the layer.
    */
-  public async getLayerIndexes(forceGetFromDb: boolean = false): Promise<GeoJSONObject> {
+  public async getLayerIndexes(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = true
+  ): Promise<GeoJSONObject> {
     if (!this.layerIndexes || forceGetFromDb) {
       this.layerIndexes = await this.cacheService.fetchReferentialsData<GeoJSONObject>(
         ReferentialCacheKey.LAYER_INDEX,
-        () => this.layerDataService.getLayerIndexes()
+        () => this.layerDataService.getLayerIndexes(),
+        isDownloadMode
       );
     }
 
@@ -101,7 +105,8 @@ export class LayerService {
   public async getLayerFile(
     layerKey: string,
     file: string,
-    startDate?: Date
+    startDate?: Date,
+    isDownloadMode: boolean = false
   ): Promise<NomadGeoJson> {
     this.listTileOnLoad.set(layerKey, 'Chargement de la couche ' + layerKey);
 
@@ -112,7 +117,7 @@ export class LayerService {
       startDate: startDate
     }
 
-    const files = await this.cacheService.fetchLayerFile(layerKey, featureNumber, file, params);
+    const files = await this.cacheService.fetchLayerFile(layerKey, featureNumber, file, params, isDownloadMode);
 
     this.listTileOnLoad.delete(layerKey);
 
@@ -141,11 +146,15 @@ export class LayerService {
    * Method to get the configuration all available layers including styles
    * @returns all available layers
    */
-  public async getAllLayers(forceGetFromDb: boolean = false): Promise<Layer[]> {
+  public async getAllLayers(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<Layer[]> {
     if (!this.layers || forceGetFromDb) {
       this.layers = await this.cacheService.fetchReferentialsData<Layer[]>(
         ReferentialCacheKey.LAYERS,
-        () => this.layerDataService.getAllLayers()
+        () => this.layerDataService.getAllLayers(),
+        isDownloadMode
       );
     }
 
@@ -228,11 +237,15 @@ export class LayerService {
  * @param userId The ID of the user to get the layer references for.
  * @returns An observable that resolves to the layer references.
  */
-  public async getUserLayerReferences(forceGetFromDb: boolean = false): Promise<LayerReferences[]> {
+  public async getUserLayerReferences(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<LayerReferences[]> {
     if (!this.layerReferences || forceGetFromDb) {
       this.layerReferences = await this.cacheService.fetchReferentialsData<LayerReferences[]>(
         ReferentialCacheKey.LAYER_REFERENCES,
-        () => this.layerDataService.getUserLayerReferences()
+        () => this.layerDataService.getUserLayerReferences(),
+        isDownloadMode
       )
     }
 
@@ -257,11 +270,15 @@ export class LayerService {
   * Get all VLayerWtr.
   * @returns A promise that resolves to the list of VLayerWtr.
   */
-  public async getAllVLayerWtr(forceGetFromDb: boolean = false): Promise<VLayerWtr[]> {
+  public async getAllVLayerWtr(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<VLayerWtr[]> {
     if (!this.vLayerWtr || forceGetFromDb) {
       this.vLayerWtr = await this.cacheService.fetchReferentialsData<VLayerWtr[]>(
         ReferentialCacheKey.V_LAYER_WTR,
-        () => this.layerDataService.getAllVLayerWtr()
+        () => this.layerDataService.getAllVLayerWtr(),
+        isDownloadMode
       );
     }
 

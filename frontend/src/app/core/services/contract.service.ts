@@ -16,11 +16,15 @@ export class ContractService {
 
   contracts: Contract[];
 
-  async getAllContracts(forceGetFromDb: boolean = false): Promise<Contract[]> {
+  async getAllContracts(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ): Promise<Contract[]> {
     if (!this.contracts || forceGetFromDb) {
       this.contracts = await this.cacheService.fetchReferentialsData<Contract[]>(
         ReferentialCacheKey.CONTRACTS,
-        () => this.contractDataService.getAllContracts()
+        () => this.contractDataService.getAllContracts(),
+        isDownloadMode
       );
     }
 
