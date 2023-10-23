@@ -246,6 +246,20 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           (c) => Number(c.id) === Number(contractId)
         );
       });
+
+      this.creationWkoForm
+      .get('wkoAgentNb')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((agentNb: number) => {
+        if (agentNb < 1) {
+          this.creationWkoForm.patchValue(
+            {
+              wkoAgentNb: 1,
+            },
+            { emitEvent: false }
+          )
+        }
+      });
   }
 
   ngAfterViewInit(): void {
