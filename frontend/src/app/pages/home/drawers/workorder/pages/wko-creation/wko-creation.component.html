@@ -57,10 +57,15 @@
         <ng-container
           *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoName'] }"></ng-container>
 
-        <ion-input labelPlacement="floating" fill="outline" label="Adresse *" placeholder="Adresse" type="text"
-          [formControlName]="'wkoAddress'"></ion-input>
-        <ng-container
-          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
+        <ng-container *ngIf="addressLoading; else addressForm">
+          <app-skeleton-loading [rows]="1"></app-skeleton-loading>
+        </ng-container>
+        <ng-template #addressForm>
+          <ion-input labelPlacement="floating" fill="outline" label="Adresse *" placeholder="Adresse" type="text"
+            [formControlName]="'wkoAddress'"></ion-input>
+          <ng-container
+            *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
+        </ng-template>
 
         <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
           type="number" formControlName="wkoAgentNb"></ion-input>

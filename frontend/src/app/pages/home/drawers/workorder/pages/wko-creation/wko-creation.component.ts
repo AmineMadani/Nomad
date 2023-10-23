@@ -109,6 +109,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public equipmentName: string;
 
   public isLoading: boolean = true;
+  public addressLoading: boolean = false;
 
   public creationButonLabel: string;
 
@@ -929,7 +930,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    * Case 2 : Marker on the map and draggable on all the map. Update the params if the position change (city&contract)
    */
   private async generateMarker(): Promise<void> {
-    for (let eq of this.equipments) {
+    let index: number = 0;
+    for (const eq of this.equipments) {
       if (!this.mapService.hasEventLayer(eq.lyrTableName)) {
         await this.mapService.addEventLayer(eq.lyrTableName);
       }
@@ -969,7 +971,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 eq.x,
                 eq.y,
                 geom ?? [eq.x, eq.y],
-                geom ? false : true
+                geom ? false : true,
+                index === 0 ? 'red' : ''
               )
             );
           }
@@ -982,7 +985,30 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           eq.y = this.markerCreation.get(eq.id).getLngLat().lat;
         })
       );
+      if (index === 0) {
+        this.markerSubscription.set(
+          `${eq.id}-address`,
+          fromEvent(this.markerCreation.get(eq.id), 'dragend').subscribe(
+            async () => {
+              this.addressLoading = true;
+              const address = await this.cityService.getAdressByXY(
+                this.markerCreation.get(eq.id).getLngLat().lng,
+                this.markerCreation.get(eq.id).getLngLat().lat
+              );
+              this.creationWkoForm.patchValue(
+                {
+                  wkoAddress: address.features[0]?.properties['label'],
+                },
+                { emitEvent: false }
+              );
+              this.addressLoading = false;
+            }
+          )
+        );
+      }
+      index++;
     }
+
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap(),
       this.equipments

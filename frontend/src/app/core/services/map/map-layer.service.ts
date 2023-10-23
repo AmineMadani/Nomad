@@ -3,7 +3,6 @@ import { MapService } from './map.service';
 import { MapEventService } from './map-event.service';
 import * as Maplibregl from 'maplibre-gl';
 import { CacheService } from '../cache.service';
-import { UtilsService } from '../utils.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +11,7 @@ export class MapLayerService {
   constructor(
     private mapService: MapService,
     private mapEvent: MapEventService,
-    private cacheService: CacheService,
-    private utilsService: UtilsService
+    private cacheService: CacheService
   ) {}
 
   /**
@@ -315,10 +313,12 @@ export class MapLayerService {
     x: number,
     y: number,
     geometry: Array<number[]>,
-    isXY?: boolean
+    isXY?: boolean,
+    color?: string
   ): Maplibregl.Marker {
     let marker: Maplibregl.Marker = new Maplibregl.Marker({
       draggable: geometry[0] instanceof Array ? true : isXY,
+      color: color ? color : ''
     })
       .setLngLat([x, y])
       .addTo(this.mapService.getMap());
