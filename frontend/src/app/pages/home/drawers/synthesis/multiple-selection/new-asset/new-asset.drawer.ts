@@ -515,6 +515,11 @@ export class NewAssetDrawer implements OnInit {
     this.additionalQuestions.push(additionalQuestionForm);
   }
 
+  public deleteQuestion(index: number) {
+    // Delete the question
+    this.additionalQuestions.removeAt(index);
+  }
+
   // ##### HIDDEN ##### //
   public createFormDefinitionFromCSVFile(event) {
     if (!event.target.files || event.target.files.length === 0) {
@@ -575,6 +580,8 @@ export class NewAssetDrawer implements OnInit {
             for (let i = 0; i < listLine.length; i++) {
               const line = listLine[i];
 
+              if (line['Champ à rajouter'] == "") continue;
+        
               const definition: FormDefinition = {
                 key: line['column_name'],
                 type: 'property',
@@ -584,13 +591,13 @@ export class NewAssetDrawer implements OnInit {
                 attributes: {},
                 rules: [],
                 section: startDefinition.key,
-                isOptional: line['Création patrimoine'] !== 'Oui'
+                isOptional: line['Champ à rajouter'] === 'Oui'
               }
 
               const dataType = line['data_type'];
 
               // Component
-              if (['text'].includes(dataType)) {
+              if (['text', 'varchar'].includes(dataType)) {
                 definition.component = FormPropertiesEnum.INPUT;
                 definition.attributes = {
                   type: 'text',
@@ -601,6 +608,13 @@ export class NewAssetDrawer implements OnInit {
                 definition.component = FormPropertiesEnum.INPUT;
                 definition.attributes = {
                   type: 'number',
+                  hiddenNull: false,
+                }
+              }
+              if (['date'].includes(dataType)) {
+                definition.component = FormPropertiesEnum.INPUT;
+                definition.attributes = {
+                  type: 'date',
                   hiddenNull: false,
                 }
               }
