@@ -89,18 +89,24 @@
           </ng-container>
         </ng-container>
         
-        <!--<div class="additional-questions-div">
+        <div class="additional-questions-div">
           <ng-container formArrayName="additionalQuestions">
             <ng-container *ngFor="let questionForm of additionalQuestions.controls; let i = index">
               <div [formGroup]="questionForm" class="line">
-                <ion-select label-placement="floating" fill="outline" class="additional-question-select"
-                  [interface]="isMobile ? 'action-sheet' : 'popover'"
-                  label="Information complémentaire"
-                  formControlName="key">
-                  <ion-select-option *ngFor="let optionalDefinition of listOptionalDefinition" [value]="optionalDefinition.key">
-                    {{optionalDefinition.label}}
-                  </ion-select-option>
-                </ion-select>
+                <div style="display: flex; flex-direction: row;">
+                  <ion-select label-placement="floating" fill="outline" class="additional-question-select"
+                    [interface]="isMobile ? 'action-sheet' : 'popover'"
+                    label="Information complémentaire"
+                    formControlName="key">
+                    <ion-select-option *ngFor="let optionalDefinition of listOptionalDefinition" [value]="optionalDefinition.key">
+                      {{optionalDefinition.label}}
+                    </ion-select-option>
+                  </ion-select>
+
+                  <ion-button fill="clear" (click)="deleteQuestion(i)">
+                    <ion-icon slot="icon-only" name="trash"></ion-icon>
+                  </ion-button>
+                </div>
               
                 <ng-container *ngIf="questionForm.get('definition').value != null">
                   <ng-container [ngSwitch]="questionForm.get('definition').value.component">
@@ -139,7 +145,7 @@
           <ion-button fill="clear" class="small-button" (click)="addNewQuestion()">
             <ion-icon slot="icon-only" name="add"></ion-icon>
           </ion-button>
-        </div>-->
+        </div>
       </form>
 
       <ng-container *ngIf="!form && !isLoading">
