@@ -66,6 +66,7 @@ insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'admi
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (1, 'external', 'external', 'external@veolia.com');
 insert into users(id, usr_first_name, usr_last_name, usr_email) values (2, 'migration', 'migration', 'migration@veolia.com');
 
+ALTER SEQUENCE nomad.users_id_seq RESTART WITH 2;
 
 ALTER TABLE users
 ADD CONSTRAINT fk_usr_ucre_id
