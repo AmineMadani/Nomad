@@ -1,31 +1,53 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Problème de contrats</ion-title>
+    <ion-title>Problème(s) rencontré(s) sur l'intervention</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
-  <ion-item>
-    <ion-label class="ion-text-wrap">
-      Impossible de déclencher une intervention multi-équipement sur une sélection de patrimoine appartenant à
-      des contrats différents.
-    </ion-label>
-  </ion-item>
+  <ng-container *ngIf="!loading; else loadingContainer">
+    <form [formGroup]="form">
+      <ion-item>
+        <ion-icon slot="start" name="warning-outline"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          Impossible de déclencher une intervention multi-équipements :
+        </ion-label>
+      </ion-item>
 
-  <ion-item lines="none">
-    <ion-label>Ne conserver que les interventions associées à ce contrat :</ion-label>
-  </ion-item>
+      <ng-container *ngIf="isMultiWater">
+        <ion-item lines="none">
+          <ion-label>Ne conserver que le domaine :</ion-label>
+        </ion-item>
 
-  <ion-select labelPlacement="floating" fill="outline" label="Contrat à conserver"
-    [interface]="isMobile ? 'action-sheet' : 'popover'" [(ngModel)]="contractSelected">
-    <ion-select-option *ngFor="let contract of contracts" [value]="contract">
-      {{ contract.ctrLlabel }} - {{ getNumberOfAssetsPerContract(contract) }} équipements
-    </ion-select-option>
-  </ion-select>
+        <ion-select labelPlacement="floating" fill="outline" label="Domaine à conserver"
+          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedDomain">
+          <ion-select-option value="dw">Eau potable</ion-select-option>
+          <ion-select-option value="ww">Assainissement</ion-select-option>
+        </ion-select>
+      </ng-container>
+
+      <ng-container *ngIf="isMultiContract">
+        <ion-item lines="none">
+          <ion-label>Ne conserver que les interventions associées à ce contrat :</ion-label>
+        </ion-item>
+
+        <ion-select labelPlacement="floating" fill="outline" label="Contrat à conserver"
+          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedContract">
+          <ion-select-option *ngFor="let contract of filteredContracts" [value]="contract">
+            {{ contract.ctrLlabel }} - {{ getNumberOfAssetsPerContract(contract) }} équipements
+          </ion-select-option>
+        </ion-select>
+      </ng-container>
+    </form>
+  </ng-container>
+
+  <ng-template #loadingContainer>
+    <app-skeleton-loading [rows]="2"></app-skeleton-loading>
+  </ng-template>
 </ion-content>
 
 <ion-footer class="ion-padding">
   <ion-toolbar>
     <ion-button slot="start" (click)="editEquipmentList()">Retour à la sélection</ion-button>
-    <ion-button slot="end" [disabled]="!contractSelected" (click)="confirmContract()">Confirmer</ion-button>
+    <ion-button slot="end" [disabled]="loading || !form.valid" (click)="confirmContract()">Confirmer</ion-button>
   </ion-toolbar>
 </ion-footer>
