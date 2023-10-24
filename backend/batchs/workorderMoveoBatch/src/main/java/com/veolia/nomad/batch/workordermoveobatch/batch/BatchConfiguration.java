@@ -51,64 +51,68 @@ public class BatchConfiguration {
         
         sqlPagingQueryProviderFactoryBean.setDataSource(dataSource);
         sqlPagingQueryProviderFactoryBean.setSelectClause(
-                "select "
-                + "	case "
-                + "		when wts.wts_code = 'ANNULE' then 'S' "
-                + "		else null "
-                + "	end as codeMvt, "
-                + "	'NOMAD' as origin, "
-                + "	case "
-                + "		when t.nbTsk > 1 then '38' "
-                + "		else ast.ast_code end as type, "
-                + "	wtr.wtr_code as reason, "
-                + "	wts.wts_code as status, "
-                + "	w.wko_address as street, "
-                + "	null as postalCode, "
-                + "	cty.cty_llabel as city, "
-                + "	w.id as id, "
-                + "	w.wko_planning_start_date as planningStartDate, "
-                + "	w.wko_planning_end_date as planningEndDate, "
-                + "	60 as duration, "
-                + "	w.wko_creation_comment as creationComment, "
-                + "	w.wko_appointment as appointment, "
-                + "	w.wko_emergency as emergency, "
-                + "	cty.cty_code as inseeCode, "
-                + "	ctr.ctr_code as contractCode, "
-                + "	null as worksiteCode, "
-                + "	w.wko_name as name, "
-                + "	ass.ass_obj_table as lyrTableName, "
-                + "	ass.ass_obj_ref as assetId, "
-                + "	w.latitude, "
-                + "	w.longitude, "
-                + "	w.wko_agent_nb as nbAgent, "
-                + "	t.nbTsk as nbTsk"
-                
+                "select " +
+                "	case " +
+                "		when wts.wts_code = 'ANNULE' then 'S' " +
+                "		else null " +
+                "	end as codeMvt, " +
+                "	'NOMAD' as origin, " +
+                "	case " +
+                "		when (" +
+                "           select count(distinct ass_obj_table) " +
+                "           from nomad.task t2 " +
+                "           inner join nomad.asset ass2 on ass2.id = t2.ass_id " +
+                "           where t2.wko_id = w.id " +
+                "       ) > 1 then " +
+                "           case " +
+                "             when dom.dom_type = 'dw' then '28' " +
+                "             else '38' " +
+                "           end " +
+                "		else ast.ast_code end as type, " +
+                "	wtr.wtr_code as reason, " +
+                "	wts.wts_code as status, " +
+                "	w.wko_address as street, " +
+                "	null as postalCode, " +
+                "	cty.cty_llabel as city, " +
+                "	w.id as id, " +
+                "	w.wko_planning_start_date as planningStartDate, " +
+                "	w.wko_planning_end_date as planningEndDate, " +
+                "	60 as duration, " +
+                "	w.wko_creation_comment as creationComment, " +
+                "	w.wko_appointment as appointment, " +
+                "	w.wko_emergency as emergency, " +
+                "	cty.cty_code as inseeCode, " +
+                "	ctr.ctr_code as contractCode, " +
+                "	null as worksiteCode, " +
+                "	w.wko_name as name, " +
+                "	ass.ass_obj_table as lyrTableName, " +
+                "	ass.ass_obj_ref as assetId, " +
+                "	w.latitude, " +
+                "	w.longitude, " +
+                "	w.wko_agent_nb as nbAgent "
         );
         sqlPagingQueryProviderFactoryBean.setFromClause(
-                " from "
-                + "	nomad.workorder w "
-                + "inner join  "
-                + "	(select t.*, tb.nbTsk  from nomad.task t "
-                + "	inner join (select wko_id, count(wko_id) as nbTsk from nomad.task group by wko_id) tb on tb.wko_id=t.wko_id "
-                + "	where t.id in (select max(id) from nomad.task group by wko_id)) as t on t.wko_id=w.id "
-                + "inner join nomad.asset ass on "
-                + "	ass.id = t.ass_id "
-                + "inner join nomad.layer l on "
-                + "	l.lyr_table_name = ass.ass_obj_table "
-                + "inner join nomad.asset_type ast on "
-                + "	ast.id = l.ast_id "
-                + "inner join nomad.workorder_task_reason wtr on "
-                + "	wtr.id = t.wtr_id "
-                + "inner join nomad.city cty on "
-                + "	cty.id = w.cty_id "
-                + "inner join nomad.contract ctr on "
-                + "	ctr.id = t.ctr_id "
-                + "inner join nomad.workorder_task_status wts on "
-                + "	wts.id = w.wts_id "
+                "from nomad.workorder w " +
+                "inner join ( " +
+                "   select t.* " +
+                "   from nomad.task t " +
+                "	where t.id in ( " +
+                "       select max(id) " +
+                "       from nomad.task " +
+                "       group by wko_id " +
+                "   )" +
+                ") as t on t.wko_id = w.id " +
+                "inner join nomad.asset ass on ass.id = t.ass_id " +
+                "inner join nomad.layer l on l.lyr_table_name = ass.ass_obj_table " +
+                "inner join nomad.asset_type ast on ast.id = l.ast_id " +
+                "inner join nomad.workorder_task_reason wtr on wtr.id = t.wtr_id " +
+                "inner join nomad.city cty on cty.id = w.cty_id " +
+                "inner join nomad.contract ctr on ctr.id = t.ctr_id " +
+                "inner join nomad.workorder_task_status wts on wts.id = w.wts_id " +
+                "inner join nomad.domains dom on dom.id = ast.dom_id "
         );
         sqlPagingQueryProviderFactoryBean.setWhereClause(
-                " where "
-                + "	w.wko_ext_to_sync is true "
+                "where w.wko_ext_to_sync is true "
         );
         
         sqlPagingQueryProviderFactoryBean.setSortKey("id");
