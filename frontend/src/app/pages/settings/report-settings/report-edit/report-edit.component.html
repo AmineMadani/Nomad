@@ -48,7 +48,7 @@
 
               <div class="line-bottom">
                 <div class="line-left">
-                  <ion-select aria-label="component-type" label="Type de champ *" label-placement="floating" fill="outline" formControlName="component" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                  <ion-select aria-label="component-type" label="Type de champ *" cancelText="Annuler" label-placement="floating" fill="outline" formControlName="component" [interface]="isMobile ? 'action-sheet' : 'popover'">
                     <ion-select-option *ngFor="let componentType of LIST_RQN_TYPE" [value]="componentType.value">{{componentType.label}}</ion-select-option>
                   </ion-select>
 
@@ -57,7 +57,7 @@
                   </ion-checkbox>
 
                   <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
-                    <ion-select aria-label="parent" label="Conditionné par la question" label-placement="floating" fill="outline" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                    <ion-select aria-label="parent" label="Conditionné par la question" cancelText="Annuler" label-placement="floating" fill="outline" cancelText="Annuler" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
                       <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
                     </ion-select>
 

@@ -81,7 +81,7 @@
             <div *ngSwitchCase="'select'" class="input-div">
               <ion-select label-placement="floating" fill="outline"
                 [interface]="isMobile ? 'action-sheet' : 'popover'"
-                [label]="definition.label"
+                [label]="definition.label" cancelText="Annuler"
                 [formControlName]="definition.key">
                 <ion-select-option *ngFor="let opt of definition.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
               </ion-select>
@@ -97,7 +97,7 @@
                   <ion-select label-placement="floating" fill="outline" class="additional-question-select"
                     [interface]="isMobile ? 'action-sheet' : 'popover'"
                     label="Information complémentaire"
-                    formControlName="key">
+                    formControlName="key" cancelText="Annuler">
                     <ion-select-option *ngFor="let optionalDefinition of listOptionalDefinition" [value]="optionalDefinition.key">
                       {{optionalDefinition.label}}
                     </ion-select-option>
@@ -131,7 +131,7 @@
                     <div *ngSwitchCase="'select'" class="input-div">
                       <ion-select label-placement="floating" fill="outline"
                         [interface]="isMobile ? 'action-sheet' : 'popover'"
-                        label="Valeur"
+                        label="Valeur" cancelText="Annuler"
                         formControlName="value">
                         <ion-select-option *ngFor="let opt of questionForm.get('definition').value.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
                       </ion-select>

@@ -1,5 +1,5 @@
 <ng-template #selectionTemplate>
-  <ion-select aria-label="Sources" [interface]="isMobile ? 'action-sheet' : 'popover'" label-placement="floating" fill="outline" placeholder="Sélectionner les sources"
+  <ion-select aria-label="Sources" [interface]="isMobile ? 'action-sheet' : 'popover'" label-placement="floating" fill="outline" cancelText="Annuler" placeholder="Sélectionner les sources"
   [multiple]="true" (ionChange)="handleChange($event)" [(ngModel)]="selectedSource" [disabled]="sources.length === 0">
   <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
   </ion-select>
