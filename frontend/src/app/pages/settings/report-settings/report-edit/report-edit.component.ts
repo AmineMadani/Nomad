@@ -303,14 +303,14 @@ export class ReportEditComponent implements OnInit {
     }
 
     // Invert both lines
-    const listLine = this.lines.getRawValue();
-    const lineAtLineIndex = listLine[lineIndex];
-    const lineAtLineIndexMinusOne = listLine[lineIndex - 1];
-    listLine[lineIndex] = lineAtLineIndexMinusOne;
-    listLine[lineIndex - 1] = lineAtLineIndex;
+    const line = this.lines.at(lineIndex);
+    this.lines.removeAt(lineIndex);
+    this.lines.insert(lineIndex - 1, line);
 
-    // EmitEvent = false because otherwise valueChanged is activated and we don't want that
-    this.lines.setValue(listLine, {emitEvent: false});
+    // Scroll to the question
+    const elementList = document.querySelectorAll('.line');
+    const element = elementList[lineIndex - 1] as HTMLElement;
+    element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
   }
 
   lineUp(lineIndex: number) {
@@ -344,14 +344,14 @@ export class ReportEditComponent implements OnInit {
     }
 
     // Invert both lines
-    const listLine = this.lines.getRawValue();
-    const lineAtLineIndex = listLine[lineIndex];
-    const lineAtLineIndexPlusOne = listLine[lineIndex + 1];
-    listLine[lineIndex] = lineAtLineIndexPlusOne;
-    listLine[lineIndex + 1] = lineAtLineIndex;
+    const line = this.lines.at(lineIndex);
+    this.lines.removeAt(lineIndex);
+    this.lines.insert(lineIndex + 1, line);
 
-    // EmitEvent = false because otherwise valueChanged is activated and we don't want that
-    this.lines.setValue(listLine, {emitEvent: false});
+    // Scroll to the question
+    const elementList = document.querySelectorAll('.line');
+    const element = elementList[lineIndex + 1] as HTMLElement;
+    element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
   }
 
   /**
