@@ -57,9 +57,14 @@
                   </ion-checkbox>
 
                   <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
-                    <ion-select aria-label="parent" label="Conditionné par la question" cancelText="Annuler" label-placement="floating" fill="outline" cancelText="Annuler" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
-                      <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
-                    </ion-select>
+                    <div style="display: flex; flex-direction: row; align-items: center;">
+                      <ion-select aria-label="parent" label="Conditionné par la question" cancelText="Annuler" label-placement="floating" fill="outline" cancelText="Annuler" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                        <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
+                      </ion-select>
+                      <ion-button fill="clear" class="small-button" (click)="removeCondition(i)" *ngIf="lineForm.get('questionCondition').value != null">
+                        <ion-icon slot="icon-only" name="trash"></ion-icon>
+                      </ion-button>
+                    </div>
 
                     <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" [interface]="isMobile ? 'action-sheet' : 'popover'">
                       <ion-select-option *ngFor="let questionValue of lineForm.get('listAvailableQuestionValues').value" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>

@@ -378,6 +378,11 @@ export class ReportEditComponent implements OnInit {
     return listAvailableQuestion;
   }
 
+  removeCondition(lineIndex: number): void {
+    const lineForm = this.lines.at(lineIndex);
+    lineForm.get('questionCondition').setValue(null);
+  }
+
   /**
    * Duplication another report into this one
    */
