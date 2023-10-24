@@ -137,6 +137,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public displayLayerSelect = false;
 
+  public autoGenerateLabel = true;
+
   async ngOnInit(): Promise<void> {
     this.createForm();
 
@@ -376,24 +378,59 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       )
     );
 
-    this.creationWkoForm.get('wtrId').valueChanges.subscribe((wtrId) => {
-      // Creation - If it is a XY asset with the 'Pose' reason then the asset type is required
-      if (this.isCreation && this.isXY) {
-        const wtr = this.wtrs.find((wtr) => wtr.wtrId === wtrId);
-        if (wtr.wtrCode === WTR_CODE_POSE) {
-          this.creationWkoForm
-            .get('lyrTableName')
-            .addValidators(Validators.required);
-          this.displayLayerSelect = true;
-        } else {
-          this.creationWkoForm
-            .get('lyrTableName')
-            .removeValidators(Validators.required);
-          this.displayLayerSelect = false;
+    this.creationWkoForm
+      .get('wtrId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((wtrId) => {
+        // Creation - If it is a XY asset with the 'Pose' reason then the asset type is required
+        if (this.isCreation && this.isXY) {
+          const wtr = this.wtrs.find((wtr) => wtr.wtrId === wtrId);
+          if (wtr.wtrCode === WTR_CODE_POSE) {
+            this.creationWkoForm
+              .get('lyrTableName')
+              .addValidators(Validators.required);
+            this.displayLayerSelect = true;
+          } else {
+            this.creationWkoForm
+              .get('lyrTableName')
+              .removeValidators(Validators.required);
+            this.displayLayerSelect = false;
+          }
+          this.creationWkoForm.get('lyrTableName').updateValueAndValidity();
         }
-        this.creationWkoForm.get('lyrTableName').updateValueAndValidity();
-      }
-    });
+      });
+
+    //Generation de label
+    this.creationWkoForm
+      .get('wtrId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+      });
+    this.creationWkoForm
+      .get('ctrId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+      });
+    this.creationWkoForm
+      .get('ctyId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+      });
+    this.creationWkoForm
+      .get('wkoPlanningStartDate')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+      });
+    this.creationWkoForm
+      .get('wkoName')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.autoGenerateLabel = false;
+      });
   }
 
   /**
@@ -1193,6 +1230,37 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       }
     }
+
+  }
+
+  /**
+   * If all required control are set
+   * generate label
+   */
+  public async generateLabel(){
+    if (this.autoGenerateLabel && this.isCreation &&
+      this.creationWkoForm.controls['ctrId'].status == "VALID" && 
+      this.creationWkoForm.controls['ctyId'].status == "VALID" &&
+      this.creationWkoForm.controls['wtrId'].status == "VALID" &&
+      this.creationWkoForm.controls['wkoPlanningStartDate'].status == "VALID"){
+      let contratId = this.creationWkoForm.controls['ctrId'].value;
+      let cityId = this.creationWkoForm.controls['ctyId'].value;
+      let actionId = this.creationWkoForm.controls['wtrId'].value;
+      let user = await this.userService.getCurrentUser();
+      let separator = '_';
+
+      let contratLabel = this.contracts.find(ctr => ctr.id.toString() == contratId).ctrSlabel;
+      let cityLabel = this.cities.find(ctr => ctr.id.toString() == cityId).ctySlabel;
+      let  actionLabel = this.wtrs.find(wtr => wtr.wtrId.toString() == actionId).wtrSlabel;
+
+      let label = user.firstName.slice(0,1) + user.lastName.slice(0,1) + 
+              separator + this.creationWkoForm.controls['wkoPlanningStartDate'].value + 
+              separator + actionLabel + 
+              separator + contratLabel + 
+              separator + cityLabel;
+      this.creationWkoForm.controls['wkoName'].setValue(label.toUpperCase());
+      this.autoGenerateLabel = true;  
+  }
 
   }
 }
