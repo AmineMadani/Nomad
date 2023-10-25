@@ -27,5 +27,5 @@
 
 <app-exp-card [features]="tasks" [type]="'workorder'" [titleTemplateRef]="titleTemplateRef" [isLoading]="loading"
   [subtitleTemplateRef]="subtitleTemplateRef" [labelTemplateRef]="labelTemplateRef" [chipTemplateRef]="chipTemplateRef"
-  [fromCache]="false" (onLoadingEvent)="getPaginationData($event)" (onFeatureSelected)="openTask($event)">
+  [fromCache]="isMapTasks" (onLoadingEvent)="getPaginationData($event)" (onFeatureSelected)="openTask($event)">
 </app-exp-card>

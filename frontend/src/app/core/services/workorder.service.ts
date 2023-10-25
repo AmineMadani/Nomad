@@ -126,7 +126,6 @@ export class WorkorderService {
     }
 
     const search = this.filterService.transformFilterForm();
-
     return features.filter((a) => {
       return (
         (search.wtrIds === undefined ||
@@ -134,23 +133,19 @@ export class WorkorderService {
           search.wtrIds.includes(a.properties.wtrId)) &&
         (search.assObjTables === undefined ||
           search.assObjTables.length === 0 ||
-          search.assObjTables.includes(
-            a.properties.assObjTable
-          )) &&
+          search.assObjTables.includes(a.properties.assObjTable)) &&
         (search.wtrIds === undefined ||
           search.wtsIds.length === 0 ||
           search.wtsIds.includes(a.properties.wtsId)) &&
         (search.wkoAppointment === null ||
-          a.properties.wkoAppointment ===
-            search.wkoAppointment) &&
+          a.properties.wkoAppointment === search.wkoAppointment) &&
         (search.wkoEmergeny === null ||
-          a.properties.wkoEmergency ===
-            search.wkoEmergeny) &&
-        a.properties.wkoPlanningStartDate >=
-          search.wkoPlanningStartDate &&
+          a.properties.wkoEmergency === search.wkoEmergeny) &&
+        (a.properties.wkoCompletionStartDate ??
+          a.properties.wkoPlanningStartDate) >= search.wkoPlanningStartDate &&
         (search.wkoPlanningEndDate === null ||
-          a.properties.wkoPlanningStartDate <=
-            search.wkoPlanningEndDate)
+          (a.properties.wkoCompletionStartDate ??
+            a.properties.wkoPlanningStartDate) <= search.wkoPlanningEndDate)
       );
     });
   }

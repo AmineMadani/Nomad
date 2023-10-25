@@ -16,6 +16,7 @@ export class TaskCardComponent implements OnInit {
   ) {}
 
   @Input() tasks: any[];
+  @Input() isMapTasks: boolean;
   @Input() loading: boolean = false;
   @Output() public onPagination: EventEmitter<any> = new EventEmitter();
 
