@@ -552,6 +552,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       this.workorderService
         .getAllWorkorderTaskStatus()
         .then(async (lStatus) => {
+          // When editing the asset of a workorder
+          // If the workorder has tasks on XY then remove them from the list
+          wko.tasks = wko.tasks.filter((t) => !t.assObjTable.includes('_xy'));
+
           for (let f of features) {
             if (!wko.tasks.find((t) => t.assObjRef === f.id)) {
               wko.tasks.push({
