@@ -428,6 +428,11 @@ ion-segment-button {
   color:red;
 }
 
+ion-alert.custom-alert-wko{
+  --max-width:max-content ;
+  --backdrop-opacity: 0.7;
+}
+
 .large-modal {
   --height: 90vh;
   --width: 95vw;

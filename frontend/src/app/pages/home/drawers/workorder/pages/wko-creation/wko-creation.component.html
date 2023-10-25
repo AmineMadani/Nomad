@@ -18,7 +18,7 @@
             }}</ion-note>
         </div>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities" 
           [control]="creationWkoForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
@@ -116,7 +116,7 @@
 </div>
 <div class="wko-footer">
   <ion-item [disabled]="isLoading || !creationWkoForm.valid">
-    <ion-button fill="clear" (click)="onSubmit()" class="save-mode"
+    <ion-button fill="clear" (click)="onValidate()" class="save-mode"
       [disabled]="isLoading || !creationWkoForm.valid || !userHasPermissionSendWorkorder">{{creationButonLabel}}</ion-button>
 
     <ion-select aria-label="Sélectionner une action" label-placement="fixed" justify="start" interface="popover"
@@ -125,9 +125,8 @@
         label=" ">{{defaultCreationLabel}}</ion-select-option>
       <ion-select-option value="CREE" aria-label="" fill="clear" label="" with="500px">
         <span>{{createWithoutSendToPlanning}}</span></ion-select-option>
-    </ion-select>
-
-
+      </ion-select>
+      
   </ion-item>
 </div>
 

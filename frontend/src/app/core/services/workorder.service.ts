@@ -63,27 +63,31 @@ export class WorkorderService {
 
     const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.TILES);
     if (isCacheDownload) {
-      return this.utilsService.fetchPromiseWithTimeout({
-        fetchPromise: this.workorderDataService.getWorkorderById(id),
-        timeout: this.configurationService.offlineTimeoutWorkorder
-      }).catch(async (error) => {
-        if (this.utilsService.isOfflineError(error)) {
-          const featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
-          if (featureTask) {
-            const workorder = buildWorkorderFromGeojson(featureTask);
-            const tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
-            for (const task of tasks) {
-              workorder.tasks.push(buildTaskFromGeojson(task));
-            }
-            return workorder;
-          }
-        }
-
-        throw error;
-      });
+      return this.getWorkorderByIdFromServer(id);
     }
 
     return this.workorderDataService.getWorkorderById(id);
+  }
+
+  public async getWorkorderByIdFromServer(id: number) : Promise<Workorder>{
+    return this.utilsService.fetchPromiseWithTimeout({
+      fetchPromise: this.workorderDataService.getWorkorderById(id),
+      timeout: this.configurationService.offlineTimeoutWorkorder
+    }).catch(async (error) => {
+      if (this.utilsService.isOfflineError(error)) {
+        const featureTask = await this.cacheService.getFeatureByLayerAndFeatureId('task', id.toString());
+        if (featureTask) {
+          const workorder = buildWorkorderFromGeojson(featureTask);
+          const tasks = await this.cacheService.getFeatureByLayerAndProperty('task', 'wkoId', featureTask.properties['wkoId'].toString());
+          for (const task of tasks) {
+            workorder.tasks.push(buildTaskFromGeojson(task));
+          }
+          return workorder;
+        }
+      }
+
+      throw error;
+    });
   }
 
   public async getLocalWorkorders(): Promise<Workorder[]> {

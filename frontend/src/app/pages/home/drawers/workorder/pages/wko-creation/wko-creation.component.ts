@@ -27,13 +27,13 @@ import { DateTime } from 'luxon';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { IonModal, ModalController } from '@ionic/angular';
+import { AlertController, IonModal, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
 import {
   Task,
-  Workorder,
-  WorkorderTaskStatus,
+  WkoStatus,
+  Workorder, WorkorderTaskStatus,
 } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -75,6 +75,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private cityService: CityService,
     private contractService: ContractService,
     private modalCtrl: ModalController,
+    private alertController: AlertController,
     private assetForSigService: AssetForSigService
   ) {
     this.router.events
@@ -110,12 +111,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public title: string;
 
   public workorder: Workorder;
+  //En mode édition: représente l'état du workorder en base - permet de comparer les champs qui ont été modifiés
+  public workorderInit: Workorder;
   public equipmentName: string;
 
   public isLoading: boolean = true;
   public addressLoading: boolean = false;
 
   public creationButonLabel: string;
+
+  public alerteMessage = '';
 
   // Permissions
   public userHasPermissionSendWorkorder: boolean = false;
@@ -500,6 +505,68 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+/**
+ * Retourne vrai si les tasks sont différents
+ * @param actualTasks 
+ * @param newTasks 
+ * @returns 
+ */
+  public checkTasksChanged(newTasks : Task[]) : boolean{
+    let hasChanged = false;
+    newTasks.forEach(task => {
+      if (task.id < 0){
+        hasChanged = true;
+      }
+    })
+    return hasChanged;
+  }
+
+  /**
+   * En édition, si les champs RDV, Contrat, Commune, Equipement, Nombre d'agent, Date , Motif sont modifiés
+   * Afficher un message d'alerte prévenant la déplanification de l'intervention
+   * @returns message d'alerte
+   */
+  public haveModifieldFieldUnscheduled(): boolean {
+    let hasChanged: boolean = false;
+    if (!this.isCreation && this.workorder != null) {
+      if (
+        this.workorder['wkoAppointment']?.toString() !=
+          this.workorderInit['wkoAppointment']?.toString() ||
+        this.workorder['ctrId']?.toString() !=
+          this.workorderInit['ctrId']?.toString() ||
+        this.workorder['ctyId']?.toString() !=
+          this.workorderInit['ctyId']?.toString() ||
+        this.workorder['wkoAgentNb']?.toString() !=
+          this.workorderInit['wkoAgentNb']?.toString() ||
+        this.checkTasksChanged(this.workorder.tasks)
+      ) {
+        this.alerteMessage =
+          'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+        hasChanged = true;
+      } else if (
+        DateTime.fromISO(this.workorder.wkoPlanningStartDate as any).toFormat(
+          'dd/MM/yyyy'
+        ) !=
+          DateTime.fromISO(
+            this.workorderInit.wkoPlanningStartDate as any
+          ).toFormat('dd/MM/yyyy') ||
+        DateTime.fromISO(this.workorder.wkoPlanningEndDate as any).toFormat(
+          'dd/MM/yyyy'
+        ) !=
+          DateTime.fromISO(
+            this.workorderInit.wkoPlanningEndDate as any
+          ).toFormat('dd/MM/yyyy') ||
+        this.workorder.tasks[0]?.wtrId?.toString() !=
+          this.workorderInit.tasks[0]?.wtrId?.toString()
+      ) {
+        this.alerteMessage =
+          'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+        hasChanged = true;
+      }
+    }
+    return hasChanged;
+  }
+
   public async onSubmit(): Promise<void> {
     this.creationWkoForm.markAllAsTouched();
     if (!this.creationWkoForm.valid) {
@@ -614,15 +681,52 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * En mode édition, affiche un message si l'intervention doit être déplanifié
+   */
+  public async onValidate(): Promise<void> {
+    if (!this.isCreation && this.wkoExtToSyncValue &&
+        this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
+        this.haveModifieldFieldUnscheduled()
+    ) {
+      const alert = await this.alertController.create({
+        header: 'Attention !',
+        subHeader: this.alerteMessage,
+        cssClass: 'custom-alert-wko',
+        buttons: [
+          {
+            text: 'Non',
+            role: 'cancel',
+            handler: () => {
+              //ne rien faire
+            },
+          },
+          {
+            text: 'Oui',
+            role: 'confirm',
+            handler: () => {
+              this.onSubmit();
+            },
+          },
+        ],
+      });
+
+      await alert.present();
+    } 
+    else {
+      this.onSubmit();
+    }
+  }
+
   public onCreationModeChange(event: any): void {
     if (event.target.value === 'CREE') {
       this.wkoExtToSyncValue = false;
-      this.creationButonLabel = this.createWithoutSendToPlanning;
+        this.creationButonLabel = this.createWithoutSendToPlanning;
     } else if (event.target.value === 'CREEAVECENVOIE') {
-      this.creationButonLabel = this.defaultCreationLabel;
+        this.creationButonLabel = this.defaultCreationLabel;
       this.wkoExtToSyncValue = true;
     }
-    this.onSubmit();
+    this.onValidate();
   }
 
   public async openEquipmentModal(): Promise<void> {
@@ -1132,6 +1236,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
+      this.workorderInit =
+        await this.workorderService.getWorkorderByIdFromServer(Number(wkoId));
       const xyTasksAndNewAssets = this.workorder.tasks
         .filter((t) => t.assObjRef == null || t.assObjRef.includes('TMP'))
         .map((t) => {
