@@ -528,7 +528,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   public haveModifieldFieldUnscheduled(): boolean {
     let hasChanged: boolean = false;
-    if (!this.isCreation && this.workorder != null) {
+    if (!this.isCreation && this.workorder != null && this.workorderInit) {
       if (
         this.workorder['wkoAppointment']?.toString() !=
           this.workorderInit['wkoAppointment']?.toString() ||
@@ -1236,8 +1236,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
-      this.workorderInit =
-        await this.workorderService.getWorkorderByIdFromServer(Number(wkoId));
+      if (Number(wkoId) > 0 && this.workorder.wtsId === WkoStatus.ENVOYEPLANIF) {
+        this.workorderInit = { ...this.workorder };
+      }
       const xyTasksAndNewAssets = this.workorder.tasks
         .filter((t) => t.assObjRef == null || t.assObjRef.includes('TMP'))
         .map((t) => {
