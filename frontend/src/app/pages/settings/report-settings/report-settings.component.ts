@@ -12,6 +12,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { VLayerWtr, getAssetTypeLabel } from 'src/app/core/models/layer.model';
 import { Form, FormPropertiesEnum, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
 import { RqnTypeEnum } from 'src/app/core/models/reportQuestion.model';
+import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
 
 export interface WtrReport extends VLayerWtr {
   fteId: number;
@@ -33,7 +34,8 @@ export class ReportSettingsPage implements OnInit {
     private utils: UtilsService,
     private templateService: TemplateService,
     private modalController: ModalController,
-    private tableService: TableService
+    private tableService: TableService,
+    private reportQuestionService: ReportQuestionService,
   ) { }
 
   public form: FormGroup;
@@ -306,5 +308,79 @@ export class ReportSettingsPage implements OnInit {
         }
       }
     }
+  }
+
+  async generateSqlPlusFix() {
+    // Replace the report question code that have cache id (ex: UUID-1697974646)
+    // With a correct number
+    const listInsertReportQuestion: string[] = [];
+    let seqRqnCode = 242;
+    let mapOldRqnCodeNewRqnCode = {};
+    let listReportQuestion = await this.reportQuestionService.getListReportQuestion();
+    listReportQuestion = listReportQuestion.sort((a, b) => a.id - b.id);
+    for (const reportQuestion of listReportQuestion) {
+      const rqnCodeNumber = Number(reportQuestion.rqnCode.substring('UUID-'.length));
+      if (rqnCodeNumber > 300) {
+        const oldRqnCode = reportQuestion.rqnCode;
+        const newRqnCode = 'UUID-' + seqRqnCode++;
+        mapOldRqnCodeNewRqnCode[oldRqnCode] = newRqnCode;
+        reportQuestion.rqnCode = newRqnCode;
+      }
+
+      const rqnCode: string = reportQuestion.rqnCode;
+      const rqnSlabel: string = reportQuestion.rqnSlabel.replace(/'/g, '\'\'');
+      const rqnLlabel: string = reportQuestion.rqnLlabel.replace(/'/g, '\'\'');
+      const rqnType: string = reportQuestion.rqnType;
+      const rqnRequired: boolean = reportQuestion.rqnRequired;
+      const rqnSelectValues: string = reportQuestion.rqnSelectValues != null ? '\'' + reportQuestion.rqnSelectValues.replace(/'/g, '\'\'') + '\'' : null;
+
+
+      listInsertReportQuestion.push(`('${rqnCode}', '${rqnSlabel}', '${rqnLlabel}', '${rqnType}', ${rqnRequired}, ${rqnSelectValues})`);
+    }
+
+    console.log('new sequence value :' + seqRqnCode);
+    console.log(
+      "INSERT INTO nomad.REPORT_QUESTION (RQN_CODE, RQN_SLABEL, RQN_LLABEL, RQN_TYPE, RQN_REQUIRED, RQN_SELECT_VALUES) values \n" +
+      listInsertReportQuestion.join(',\n') + ';'
+    );
+
+    // Replace the rqnCode that changed in the forms
+    const listInsertFormDefinition = [];
+    const listInsertFormTemplate = [];
+    for (let formTemplateReport of this.listFormTemplateReport) {
+      const form: Form = JSON.parse(formTemplateReport.definition);
+      const definitions = form.definitions;
+      const listDefinition = definitions.filter((definition) => definition.type === 'property');
+      for (const [index, definition] of listDefinition.entries()) {
+        if (definition.key !== 'questionPrincipal') {
+          const newRqnCode = mapOldRqnCodeNewRqnCode[definition.rqnCode];
+          if (newRqnCode != null) {
+            definition.rqnCode = newRqnCode;
+          }
+
+          /*definition.rules = [{
+            key: 'required',
+            value: 'Obligatoire',
+            message: 'Ce champ est obligatoire',
+          }];*/
+        }
+      }
+
+      const fdnCode = 'DEFAULT_' + formTemplateReport.formCode;
+      const fdnDefinition = JSON.stringify(form).replace(/'/g, '\'\'');
+      listInsertFormDefinition.push(`('${fdnCode}', '${fdnDefinition}')`);
+
+      listInsertFormTemplate.push(`('${formTemplateReport.formCode}', (select id from nomad.form_definition where fdn_code = '${fdnCode}'))`);
+    }
+
+    console.log(
+      "INSERT INTO nomad.FORM_DEFINITION (FDN_CODE, FDN_DEFINITION) values \n" +
+      listInsertFormDefinition.join(',\n') + ';'
+    );
+
+    console.log(
+      "INSERT INTO nomad.form_template (fte_code,fdn_id) VALUES \n" +
+      listInsertFormTemplate.join(',\n') + ';'
+    );
   }
 }

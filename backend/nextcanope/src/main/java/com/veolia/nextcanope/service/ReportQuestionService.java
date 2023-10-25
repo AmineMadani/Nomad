@@ -45,7 +45,7 @@ public class ReportQuestionService {
         Users user = userService.getUserById(userId);
 
         ReportQuestion reportQuestion = new ReportQuestion();
-        reportQuestion.setRqnCode(reportQuestionUpdateDto.getRqnCode());
+        reportQuestion.setRqnCode("UUID-" + reportQuestionRepository.getNextRqnCodeSequenceValue());
         reportQuestion.setRqnSlabel(reportQuestionUpdateDto.getRqnSlabel());
         reportQuestion.setRqnLlabel(reportQuestionUpdateDto.getRqnLlabel());
         reportQuestion.setRqnType(reportQuestionUpdateDto.getRqnType());
@@ -75,8 +75,7 @@ public class ReportQuestionService {
         ReportQuestion reportQuestion = reportQuestionRepository.findById(reportQuestionUpdateDto.getId()).orElse(null);
         if (reportQuestion == null)
             throw new FunctionalException("Question non trouvée : " + reportQuestionUpdateDto.getId());
-
-        reportQuestion.setRqnCode(reportQuestionUpdateDto.getRqnCode());
+        
         reportQuestion.setRqnSlabel(reportQuestionUpdateDto.getRqnSlabel());
         reportQuestion.setRqnLlabel(reportQuestionUpdateDto.getRqnLlabel());
         reportQuestion.setRqnType(reportQuestionUpdateDto.getRqnType());

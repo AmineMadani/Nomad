@@ -344,7 +344,7 @@ export class ReportQuestionEditComponent implements OnInit {
     } else {
       const reportQuestion: ReportQuestionDto = {
         id: null,
-        rqnCode: PREFIX_KEY_DEFINITION + this.utilsService.createUniqueId(),
+        rqnCode: null,
         //rqnSlabel: this.form.get('rqnSlabel').value,
         rqnSlabel: this.form.get('rqnLlabel').value,
         rqnLlabel: this.form.get('rqnLlabel').value,

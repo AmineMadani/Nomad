@@ -4,14 +4,12 @@ import { LIST_RQN_TYPE, ReportQuestionDto, RqnTypeEnum } from 'src/app/core/mode
 import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
 import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
 import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
-import { firstValueFrom } from 'rxjs';
 import { TableService } from 'src/app/core/services/table.service';
 import { ReportQuestionEditComponent } from './report-question-edit/report-question-edit.component';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { Form, FormDefinition, PREFIX_KEY_DEFINITION } from 'src/app/shared/form-editor/models/form.model';
-import { UtilsService } from 'src/app/core/services/utils.service';
 import { FormTemplate, FormTemplateUpdate } from 'src/app/core/models/template.model';
 import { DeleteReportQuestionConfirmationComponent } from './delete-report-question-confirmation/delete-report-question-confirmation.component';
 
@@ -36,7 +34,6 @@ export class ReportQuestionsSettingsComponent implements OnInit {
     private reportQuestionService: ReportQuestionService,
     private userService: UserService,
     private templateService: TemplateService,
-    private utilsService: UtilsService,
   ) { }
 
   public isLoading: boolean = false;

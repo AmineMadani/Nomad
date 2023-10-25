@@ -916,6 +916,8 @@ comment on column report_question.rqn_dcre is 'Creation date';
 comment on column report_question.rqn_dmod is 'Last modification date';
 comment on column report_question.rqn_dmod is 'Deletion date';
 
+create sequence nomad.report_question_rqn_code;
+
 -- Table form_definition
 -- Contains the forms content
 create table if not exists form_definition(
