@@ -5,11 +5,12 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
-import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { UserService } from 'src/app/core/services/user.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { Router, RoutesRecognized } from '@angular/router';
 import { LayerService } from 'src/app/core/services/layer.service';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
+import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +25,8 @@ export class HomePage implements OnInit, OnDestroy {
     private modalCtrl: ModalController,
     private userService: UserService,
     private router: Router,
-    private mapService: MapService
+    private mapService: MapService,
+    public drawingService: DrawingService
   ) {
     this.drawerService.initDrawerListener();
   }
@@ -65,6 +67,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.initDrawer();
     this.initRestoreUserContext();
+    this.measure = undefined;
   }
 
   ngOnDestroy(): void {
@@ -87,6 +90,8 @@ export class HomePage implements OnInit, OnDestroy {
   public openModal() {
     this.modal.present();
   }
+
+ public measure:string;
 
   public async openActionSheet(type: string) {
     const modal = await this.modalCtrl.create({
@@ -134,6 +139,7 @@ export class HomePage implements OnInit, OnDestroy {
           }, 1000);
         }
       });
+
   }
 
   private destroyDrawer() {

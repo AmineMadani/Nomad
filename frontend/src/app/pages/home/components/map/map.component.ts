@@ -5,8 +5,9 @@ import {
   ElementRef,
   HostListener,
   ViewChild,
+  AfterViewInit,
 } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import { IonModal, LoadingController, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -57,7 +58,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private basemapOfflineService: BasemapOfflineService,
     private layerService: LayerService,
     private workorderService: WorkorderService,
-    private mapLayerService: MapLayerService
+    private mapLayerService: MapLayerService,
+    private modalCtrl: ModalController,
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -67,6 +69,7 @@ export class MapComponent implements OnInit, OnDestroy {
       });
   }
 
+  @ViewChild('ionModalMeasure', { static: false }) ionModalMeasure: IonModal;
   /**
    * Method to hide the nomad context menu if the user click outside of the context menu
    */
@@ -118,6 +121,8 @@ export class MapComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
+    this.drawingService.isMobile = this.isMobile;
+    this.measure = undefined;
 
     // Init permissions
     this.userHasPermissionCreateXYWorkorder =
@@ -1154,5 +1159,17 @@ export class MapComponent implements OnInit, OnDestroy {
       return this.workorderService.dateWorkorderSwitch;
     }
     return null;
+  }
+
+  public getShouldOpenMobileMeasure(): boolean{
+    return this.drawingService.getIsMeasuring() && this.isMobile;
+  }
+
+  /**
+   * Stop the measure where the measure modal closed
+   * @param data event
+   */
+  public measureModalDismissed(data: any): void{
+    this.endMeasuring();
   }
 }

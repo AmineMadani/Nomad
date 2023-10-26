@@ -25,7 +25,7 @@ export class MobileHomeActionsComponent implements OnInit {
     private router: Router,
     private userService: UserService,
     private drawingService: DrawingService
-    ) {}
+  ) {}
 
   public type: 'DISPLAY' | 'ACTIONS' | 'TOOLS';
   public drawerRouteEnum = DrawerRouteEnum;
@@ -39,7 +39,9 @@ export class MobileHomeActionsComponent implements OnInit {
     }
 
     this.userHasPermissionCreateXYWorkorder =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_X_Y_WORKORDER);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CREATE_X_Y_WORKORDER
+      );
   }
 
   public navigateTo(location: DrawerRouteEnum): void {
@@ -61,12 +63,17 @@ export class MobileHomeActionsComponent implements OnInit {
       params.x = centerMapPosition.lng;
       params.y = centerMapPosition.lat;
       params.lyrTableName = 'xy';
-      if (contractIds && contractIds.length > 0) params.ctrId = contractIds.join(',');
+      if (contractIds && contractIds.length > 0)
+        params.ctrId = contractIds.join(',');
       if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
 
       this.modalCtlr.dismiss();
 
-      this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_WATER_TYPE, undefined, params);
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.WORKORDER_WATER_TYPE,
+        undefined,
+        params
+      );
     });
   }
 
@@ -103,16 +110,17 @@ export class MobileHomeActionsComponent implements OnInit {
   }
 
   /**
-  * Call mapservice to share the click position
-  */
-  public  async onShareLocalisation() {
+   * Call mapservice to share the click position
+   */
+  public async onShareLocalisation() {
     const centerMapPosition = this.mapService.getMap().getCenter();
     this.mapService.sharePosition(centerMapPosition.lat, centerMapPosition.lng);
   }
   /**
    * call mapservice to remone the pin of initial localisation
    */
-  public async onRemoveMarker(){
+  public async onRemoveMarker() {
     await this.mapService.removeLocalisationMarker();
   }
+
 }

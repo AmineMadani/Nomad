@@ -22,6 +22,7 @@ export class DrawingService {
   private drawActive: boolean = false;
   private isMeasuring: boolean = false;
   private shouldMooveResumeBox: boolean = false;
+   public isMobile: boolean;
 
   public getDraw(): MapboxDraw {
     return this.draw;
@@ -90,6 +91,11 @@ export class DrawingService {
     return this.utils.removeDuplicatesFromArr(features, 'id');
   }
 
+
+  private getEscapeMessage(): string {
+    return this.isMobile? '': "'Echap' pour terminer";
+  }
+
   /**
    * Calculate the area and the perimeter
    * @param feature a geometry collection
@@ -114,10 +120,14 @@ export class DrawingService {
     const perimeter = this.convertPerimeter(
       turf.length(turf.lineString(coordinates), { units: 'meters' })
     );
+    let measure = undefined
     if (convertedArea === '0.00 m²') {
-      return `<b>Longueur : </b>${perimeter}<br/><i>'Echap' pour terminer</i>`;
+      measure  =  `<b>Longueur : </b>${perimeter}<br/><i>${this.getEscapeMessage()}</i>`;
     }
-    return `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>'Echap' pour terminer</i>`;
+    else {
+      measure = `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>${this.getEscapeMessage()}</i>`;
+    }
+    return measure;
   }
 
   private convertArea(area: number): string {
