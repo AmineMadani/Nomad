@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import { Observable, ReplaySubject, firstValueFrom } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
@@ -243,7 +242,7 @@ export class MapService {
         this.map.once('idle', async (e) => {
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           for (let i = 0; i < 6; i++) {
-            if ((this.map.querySourceFeatures(layerKey).length > 0)) {
+            if (this.map.querySourceFeatures(layerKey).length > 0) {
               break;
             }
             await sleep(500);
@@ -301,15 +300,16 @@ export class MapService {
             this.map.setLayoutProperty(style.id, 'visibility', 'visible');
           }
         } else {
-          if((style as any).source == layerKey) {
-            if (
-              style.id.includes(styleLayer)
-            ) {
-              if(style.layout?.visibility === 'none' || !style.layout?.visibility) {
+          if ((style as any).source == layerKey) {
+            if (style.id.includes(styleLayer)) {
+              if (
+                style.layout?.visibility === 'none' ||
+                !style.layout?.visibility
+              ) {
                 this.map.setLayoutProperty(style.id, 'visibility', 'visible');
               }
             } else {
-              if(!style.layout?.visibility){
+              if (!style.layout?.visibility) {
                 this.map.setLayoutProperty(style.id, 'visibility', 'none');
               }
             }
@@ -326,23 +326,60 @@ export class MapService {
    * @returns
    */
   public applyFilterOnMap(layerKey: string, filters?: any): void {
-    if (!filters) filters = this.filterDataService.getSearchFilterListData();
+    if (!filters)
+      filters = this.filterDataService.getSearchFilterListData().get(layerKey);
     const layer = this.getLayer(layerKey);
     if (!layer || !filters) {
       return;
     }
 
-    const filter: any[] = ['all'];
+    const mapFilter: Map<string, any[]> = new Map<string, any[]>();
     if (filters && filters.size > 0) {
       for (const [key, values] of filters) {
         if (!key.toLowerCase().includes('date')) {
-          filter.push(['in', ['get', key], ['literal', values]]);
+          mapFilter.set('in' + JSON.stringify(['get', key]), [
+            'in',
+            ['get', key],
+            ['literal', values],
+          ]);
         }
       }
     }
 
     for (const style of layer.style) {
-      this.map.setFilter(style.id, filter as any);
+      let mapFilterStyle = new Map([...mapFilter]);
+
+      let styleFilter = this.map.getFilter(style.id) as any[];
+      if (styleFilter) {
+        if (styleFilter?.length > 2 && styleFilter[0] !== 'all') {
+          if (
+            !mapFilterStyle.has(styleFilter[0] + JSON.stringify(styleFilter[1]))
+          ) {
+            mapFilterStyle.set(
+              styleFilter[0] + JSON.stringify(styleFilter[1]),
+              styleFilter
+            );
+          }
+        } else {
+          for (const filter of styleFilter) {
+            if (typeof filter !== 'string' && filter?.length > 2) {
+              if (!mapFilterStyle.has(filter[0] + JSON.stringify(filter[1]))) {
+                mapFilterStyle.set(
+                  filter[0] + JSON.stringify(filter[1]),
+                  filter
+                );
+              }
+            }
+          }
+        }
+      }
+
+      const newStyleFilter = ['all', ...mapFilterStyle.values()];
+      this.map.setFilter(style.id, newStyleFilter as any);
+    }
+
+    for (const style of layer.style) {
+      this.map.getFilter(style.id);
     }
   }
 
@@ -501,7 +538,7 @@ export class MapService {
     const listProperties = new Array<{
       key: string;
       value: any;
-    }>;
+    }>();
     for (let key of Object.keys(feature.properties)) {
       listProperties.push({
         key: key,
@@ -526,7 +563,7 @@ export class MapService {
    * @param workOrder the workorder
    */
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
-    this.addEventLayer(layerKey,null).then(() => {
+    this.addEventLayer(layerKey, null).then(() => {
       for (let task of properties.tasks) {
         const taskProperties: any = task;
         taskProperties.id = task.id.toString();

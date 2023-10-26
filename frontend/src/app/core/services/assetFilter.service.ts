@@ -6,17 +6,14 @@ import { MapService } from './map/map.service';
 import { Favorite } from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 
 /**
  * Service of Asset
  */
 export class AssetFilterService {
-
-  constructor(
-    private mapService: MapService
-  ) { }
+  constructor(private mapService: MapService) {}
 
   public assetFilter: FilterAsset[];
   public dataSource: MatTreeNestedDataSource<FilterAsset>;
@@ -59,19 +56,23 @@ export class AssetFilterService {
     );
     this.dataSource.data = this.assetFilter;
     this.mapService.onMapLoaded().subscribe(() => {
-      const mapLayerLoaded: string[] = Object.keys(this.mapService.getMap().style._layers).map((key) => key);
-      if(mapLayerLoaded && mapLayerLoaded.length > 0) {
+      const mapLayerLoaded: string[] = Object.keys(
+        this.mapService.getMap().style._layers
+      ).map((key) => key);
+      if (mapLayerLoaded && mapLayerLoaded.length > 0) {
         let descendants: FilterAsset[] = [];
         for (let assetFilter of this.assetFilter) {
-          descendants = descendants.concat(this.treeControl.getDescendants(assetFilter));
+          descendants = descendants.concat(
+            this.treeControl.getDescendants(assetFilter)
+          );
         }
         for (let descendant of descendants) {
-          if(descendant.styleKey) {
-            if(mapLayerLoaded.includes(descendant.styleKey?.toUpperCase())) {
+          if (descendant.styleKey) {
+            if (mapLayerLoaded.includes(descendant.styleKey?.toUpperCase())) {
               this.selectAssetFilter(descendant, true);
             }
           } else {
-            if(mapLayerLoaded.includes(descendant.layerKey?.toUpperCase())) {
+            if (mapLayerLoaded.includes(descendant.layerKey?.toUpperCase())) {
               this.selectAssetFilter(descendant, true);
             }
           }
@@ -113,9 +114,9 @@ export class AssetFilterService {
         filters.concat(this.getFilterSegment(filter.child));
       }
     }
-    for(let filter of filters){
-      if(filter.customFilter) {
-        for(let custom of filter.customFilter) {
+    for (let filter of filters) {
+      if (filter.customFilter) {
+        for (let custom of filter.customFilter) {
           custom.checked = true;
         }
       }
@@ -128,18 +129,42 @@ export class AssetFilterService {
    * @param selectedSegment the selected segment target. If undefined search in all tree
    * @returns the selected layers
    */
-  public getselectedLayer(selectedSegment: FilterAsset | undefined): FilterAsset[] {
+  public getselectedLayer(
+    selectedSegment: FilterAsset | undefined
+  ): FilterAsset[] {
     let descendants: FilterAsset[] = [];
 
     if (selectedSegment) {
       descendants = this.treeControl.getDescendants(selectedSegment);
     } else {
       for (let assetFilter of this.assetFilter) {
-        descendants = descendants.concat(this.treeControl.getDescendants(assetFilter))
+        descendants = descendants.concat(
+          this.treeControl.getDescendants(assetFilter)
+        );
       }
     }
 
-    return descendants.filter(descendant => descendant.selected && descendant.layerKey)
+    return descendants.filter(
+      (descendant) => descendant.selected && descendant.layerKey
+    );
+  }
+
+  public getSegmentLayers(selectedSegment: FilterAsset | undefined): string[] {
+    let descendants: FilterAsset[] = [];
+
+    if (selectedSegment) {
+      descendants = this.treeControl.getDescendants(selectedSegment);
+    } else {
+      for (let assetFilter of this.assetFilter) {
+        descendants = descendants.concat(
+          this.treeControl.getDescendants(assetFilter)
+        );
+      }
+    }
+    
+    return descendants
+      .filter((descendant) => descendant.layerKey)
+      .map((layer) => layer.layerKey);
   }
 
   /**
@@ -164,13 +189,18 @@ export class AssetFilterService {
     this.reset();
     let descendants: FilterAsset[] = [];
     for (let assetFilter of this.assetFilter) {
-      descendants = descendants.concat(this.treeControl.getDescendants(assetFilter))
+      descendants = descendants.concat(
+        this.treeControl.getDescendants(assetFilter)
+      );
     }
 
     for (let layer of favorite.layers) {
       for (let descendant of descendants) {
         if (layer.styleKey) {
-          if (layer.styleKey == descendant.styleKey && layer.layerKey == descendant.layerKey) {
+          if (
+            layer.styleKey == descendant.styleKey &&
+            layer.layerKey == descendant.layerKey
+          ) {
             this.selectAssetFilter(descendant, true);
           }
         } else {
@@ -265,5 +295,4 @@ export class AssetFilterService {
       }
     }
   }
-
 }
