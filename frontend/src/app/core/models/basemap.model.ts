@@ -5,6 +5,7 @@ export interface Basemap {
   map_layer?: string;
   map_matrixset?: string;
   map_format?: string;
+  map_style?: string;
   map_origin?: number[];
   map_display: boolean;
   map_default: boolean;
