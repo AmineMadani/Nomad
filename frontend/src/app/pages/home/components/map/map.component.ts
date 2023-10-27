@@ -236,13 +236,15 @@ export class MapComponent implements OnInit, OnDestroy {
     let mapLayer: any;
     switch (layer.map_type) {
       case 'WMS':
+	    let var_style = ''
+		if (layer.map_style) {
+		  var_style = '&style=' + layer.map_style
+		}
         mapLayer = {
           tiles: [
             `${layer.map_url}layer=${
               layer.map_layer
-            }&style=${
-              layer.map_style
-            }&tilematrixset=${
+            }${var_style}&tilematrixset=${
               layer.map_matrixset
             }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
               layer.map_format
