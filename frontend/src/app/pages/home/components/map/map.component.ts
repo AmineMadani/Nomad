@@ -238,9 +238,11 @@ export class MapComponent implements OnInit, OnDestroy {
       case 'WMS':
         mapLayer = {
           tiles: [
-            `${layer.map_url}?layer=${
+            `${layer.map_url}layer=${
               layer.map_layer
-            }&style=normal&tilematrixset=${
+            }&style=${
+              layer.map_style
+            }&tilematrixset=${
               layer.map_matrixset
             }&Service=WMTS&Request=GetTile&Version=1.0.0&Format=${encodeURI(
               layer.map_format
