@@ -21,12 +21,12 @@ values
  null,
  null,
  null,
- True,
+ False,
  True),
 -----------------
 ('Satellite',
  'WMS',
- 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+ 'https://wxs.ign.fr/essentiels/geoportail/wmts?',
  'ORTHOIMAGERY.ORTHOPHOTOS',
  'PM',
  'image/jpeg',
@@ -40,7 +40,7 @@ values
 -----------------
 ('Plan IGN',
  'WMS',
- 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+ 'https://wxs.ign.fr/essentiels/geoportail/wmts?',
  'GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2',
  'PM',
  'image/png',
@@ -50,6 +50,20 @@ values
  '<a href="https://www.ign.fr/" target="_blank">' || chr(13) ||
  '<img src="https://wxs.ign.fr/static/logos/IGN/IGN.gif" title="Institut national de l''information géographique et forestière" alt="IGN"></a>',
  False,
+ True),
+-----------------
+('Plan Veolia',
+ 'WMS',
+ 'https://api.eau.veolia.fr/operations/v1/basemaps/sig/mapproxy/wmts/veolia/',
+ 'fond_de_plan_atlas',
+ 'atlas_simple',
+ 'png',
+ 'EPSG:3857',
+ 'tileGrid',
+ null,
+ '<a href="https://www.ign.fr/" target="_blank">' || chr(13) ||
+ '<img src="https://wxs.ign.fr/static/logos/IGN/IGN.gif" title="Institut national de l''information géographique et forestière" alt="IGN"></a>',
+ True,
  True)
 ;
 
