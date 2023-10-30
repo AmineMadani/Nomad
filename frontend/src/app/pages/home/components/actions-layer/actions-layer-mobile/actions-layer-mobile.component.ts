@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { IonModal, MenuController } from '@ionic/angular';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -20,6 +20,8 @@ export class ActionsLayerMobileComponent implements OnInit {
     private mapService: MapService
   ) {}
 
+  @ViewChild('searchModal') searchModal: IonModal;
+
   @Input() currentRoute: DrawerRouteEnum;
 
   private marker: Maplibregl.Marker;
@@ -32,6 +34,10 @@ export class ActionsLayerMobileComponent implements OnInit {
 
   public openMenu(): void {
     this.menuCtlr.open();
+  }
+
+  public openSearchModal(): void {
+    this.searchModal.present();
   }
 
   public onSearchInput(event) {

@@ -3,7 +3,7 @@
 
 <ion-tab-bar class="action-bar" slot="top">
   <ion-tab-button *ngIf="taskId || (!taskId && workOrder?.tasks?.length == 1)"
-    [disabled]="(loading || !userHasPermissionModifyReport) || ((taskId || workOrder?.tasks?.length === 1) && selectedTask?.report?.dateCompletion)"
+    [disabled]="(loading || !userHasPermissionModifyReport) || ((taskId || workOrder?.tasks?.length === 1) && selectedTask?.report?.reportValues)"
     (click)="onGenerateReport()">
     <ion-icon name="reader-outline"></ion-icon>
     Saisir un compte-rendu
@@ -53,7 +53,7 @@
     </ion-item>
 
     <ion-accordion-group [multiple]="true"
-      [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report?.dateCompletion && selectedTask?.report.reportValues) ? ['General','report','attachment'] : ['General','intervention','attachment']">
+      [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report.reportValues) ? ['General','report','attachment'] : ['General','intervention','attachment']">
       <ion-accordion value="General">
         <ion-item slot="header" color="light">
           <ion-label> Généralités </ion-label>
@@ -92,15 +92,15 @@
         </div>
       </ion-accordion>
       <ion-accordion value="report"
-        *ngIf="(taskId || workOrder.tasks.length === 1) && selectedTask?.report?.dateCompletion && selectedTask?.report.reportValues">
+        *ngIf="(taskId || workOrder.tasks.length === 1) && selectedTask?.report.reportValues">
         <ion-item slot="header" color="light" [disabled]="!userHasPermissionModifyReport">
-          <ion-label> Compte-rendu </ion-label>
+          <ion-label>Compte-rendu</ion-label>
         </ion-item>
         <div slot="content">
           <ion-item lines="none">
             <ion-label class="label">
               <h3>Date de réalisation</h3>
-              <p>{{ selectedTask.report.dateCompletion | date: 'dd/MM/yyyy'}}</p>
+              <p>{{ selectedTask.report?.dateCompletion ? (selectedTask.report.dateCompletion | date: 'dd/MM/yyyy') : 'Non défini'}}</p>
             </ion-label>
           </ion-item>
           <ion-item lines="none" *ngFor="let report of selectedTask.report.reportValues">
@@ -114,7 +114,7 @@
       </ion-accordion>
       <ion-accordion value="intervention" *ngIf="workOrder.wkoPlanningStartDate">
         <ion-item slot="header" color="light">
-          <ion-label> Interventions </ion-label>
+          <ion-label>Interventions</ion-label>
         </ion-item>
         <div slot="content">
           <ion-item lines="none">
