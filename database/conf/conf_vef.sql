@@ -823,7 +823,8 @@ INSERT INTO permissions(per_code, per_slabel, per_llabel, per_category) VALUES
 ('SET_USER_RIGHTS', 'Donner des droits à des utilisateurs sur un périmètre inclus ou équivalent à mon périmètre', 'Donner des droits à des utilisateurs sur un périmètre inclus ou équivalent à mon périmètre', 'Paramétrage'),
 ('CUSTOMIZE_FORM_FIELDS', 'Personnaliser les champs à afficher dans les différents formulaires sur un périmètre inclus dans mon périmètre et à partir des bibliothèques disponibles dans Nomad', 'Personnaliser les champs à afficher dans les différents formulaires sur un périmètre inclus dans mon périmètre et à partir des bibliothèques disponibles dans Nomad', 'Paramétrage'),
 ('CREATE_NEW_FORM_FIELDS', 'Créer de nouveaux champs pour les formulaires disponibles dans Nomad', 'Créer de nouveaux champs pour les formulaires disponibles dans Nomad', 'Paramétrage'),
-('MANAGE_USER_PROFILE', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Gestion des droits');
+('MANAGE_USER_PROFILE', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Création / Modification / Duplication et Suppression d''un profil utilisateur', 'Gestion des droits'),
+('VIEW_TECHNICAL_LAYER_REFERENCES', 'Visualiser les références de couche technique', 'Visualiser les références de couche technique', 'Paramétrage');
 
 -- Associate permissions to profiles
 WITH profile_codes AS (
@@ -959,7 +960,9 @@ WITH profile_codes AS (
     ('MANAGE_USER_PROFILE', 'ADMIN_NAT'),
     ('MANAGE_USER_PROFILE', 'ADMIN_LOC_1'),
     ('MANAGE_USER_PROFILE', 'ADMIN_LOC_2'),
-    ('MANAGE_USER_PROFILE', 'MANAGER')
+    ('MANAGE_USER_PROFILE', 'MANAGER'),
+    -- VIEW_TECHNICAL_LAYER_REFERENCES
+    ('VIEW_TECHNICAL_LAYER_REFERENCES', 'ADMIN_NAT')
 )
 INSERT INTO prf_per(prf_id, per_id)
 SELECT p.id, per.id

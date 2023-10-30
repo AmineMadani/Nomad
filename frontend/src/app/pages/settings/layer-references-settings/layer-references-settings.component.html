@@ -45,10 +45,10 @@
 
           <div class="synthetic-references-selection-content">
             <div *ngFor="let ref of userReferences" class="synthetic-references-selection-toggle">
-              <ion-toggle [disabled]="isToggleDisabled(ref)" aria-label="ion-toggle"
+              <ion-toggle [disabled]="isRequiredReference(ref)" aria-label="ion-toggle"
                 [checked]="ref.displayType === ReferenceDisplayType.SYNTHETIC"
                 (ionChange)="onUserReferencesChecked($event, ref)"></ion-toggle>
-              <ion-label>{{ ref.alias }}</ion-label>
+              <ion-label>{{ ref.alias }} <span class="technical-reference">{{ isTechnicalReference(ref) ? ' (Champ technique)' : ''}}</span></ion-label>
             </div>
           </div>
         </div>
