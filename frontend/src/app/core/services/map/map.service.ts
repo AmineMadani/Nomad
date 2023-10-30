@@ -565,7 +565,7 @@ export class MapService {
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
     this.addEventLayer(layerKey, null).then(() => {
       for (let task of properties.tasks) {
-        const taskProperties: any = task;
+        const taskProperties: any = {...task};
         taskProperties.id = task.id.toString();
         taskProperties.x = task.longitude;
         taskProperties.y = task.latitude;
