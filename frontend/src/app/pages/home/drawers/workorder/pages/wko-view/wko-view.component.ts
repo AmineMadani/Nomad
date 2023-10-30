@@ -259,12 +259,9 @@ export class WkoViewComponent implements OnInit {
     const { role, data } = await alertReason.onDidDismiss();
 
     if (role === 'confirm') {
-      const cancelWko: CancelWorkOrder = {
-        id: this.workOrder.id,
-        cancelComment: data.values.cancelComment,
-      };
+      this.workOrder.wkoCancelComment = data.values.cancelComment;
       this.workorderService
-        .cancelWorkorder(cancelWko)
+        .cancelWorkorder(this.workOrder)
         .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;

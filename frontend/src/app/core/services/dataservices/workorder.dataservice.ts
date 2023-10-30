@@ -83,7 +83,7 @@ export class WorkorderDataService {
    * @param cancelWko : input with workorder id and cancelation reason
    * @returns
    */
-  public cancelWorkOrder(cancelWko: CancelWorkOrder): Promise<Workorder> {
+  public cancelWorkOrder(cancelWko: Workorder): Promise<Workorder> {
     return firstValueFrom(
       this.http.put<Workorder>(
       `${this.configurationService.apiUrl}exploitation/workorders/${cancelWko.id}/cancel`,
