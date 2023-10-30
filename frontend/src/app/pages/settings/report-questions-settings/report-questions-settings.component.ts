@@ -38,7 +38,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
   public isLoading: boolean = false;
 
-  private userHasPermissionCustomizeFormField: boolean = false;
+  private isConsultation: boolean = true;
 
   private listFormTemplateReport: FormTemplate[] = [];
 
@@ -55,7 +55,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
           this.deleteListReportQuestion();
         },
         disableFunction: () => {
-          return this.selectedReportQuestionRows.length === 0 || !this.userHasPermissionCustomizeFormField;
+          return this.selectedReportQuestionRows.length === 0 || this.isConsultation;
         }
       },
       {
@@ -65,7 +65,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
           this.openReportQuestionDetails(null);
         },
         disableFunction: () => {
-          return !this.userHasPermissionCustomizeFormField;
+          return this.isConsultation;
         }
       }
     ],
@@ -142,8 +142,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
 
   async ngOnInit() {
     // ### Permissions ### //
-    this.userHasPermissionCustomizeFormField =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CUSTOMIZE_FORM_FIELDS);
+    this.isConsultation =
+      !await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
 
     // ### DATA ### //
     this.loadData();

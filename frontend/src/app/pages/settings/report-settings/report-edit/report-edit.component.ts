@@ -41,8 +41,7 @@ export class ReportEditComponent implements OnInit {
 
   private isInit: boolean = false;
 
-  public userHasPermissionCreateNewFormField: boolean = false;
-  public userHasPermissionCustomizeFormField: boolean = false;
+  public isConsultation: boolean = true;
 
   RqnTypeEnum = RqnTypeEnum;
 
@@ -65,10 +64,7 @@ export class ReportEditComponent implements OnInit {
     });
 
     // ### Permissions ### //
-    this.userHasPermissionCreateNewFormField =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
-    this.userHasPermissionCustomizeFormField =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CUSTOMIZE_FORM_FIELDS);
+    this.isConsultation = !await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
 
     // ### Referential data ### //
     this.listReportQuestion = await this.reportQuestionService.getListReportQuestion();
@@ -116,8 +112,8 @@ export class ReportEditComponent implements OnInit {
       });
     }
 
-    // Disable form if user hasn't right to customize
-    if (!this.userHasPermissionCustomizeFormField) {
+    // Disable form if user doesn't have the right
+    if (this.isConsultation) {
       this.form.disable();
     }
 
@@ -171,18 +167,20 @@ export class ReportEditComponent implements OnInit {
             }
           }
 
-          // If there is a question with a condition on this one
-          const lineIndex = this.lines.controls.indexOf(lineForm);
-          for (let i = lineIndex; i < this.lines.length; i++) {
-            const lineFormToCheck = this.lines.at(i);
+          if (!this.isInit) {
+            // If there is a question with a condition on this one
+            const lineIndex = this.lines.controls.indexOf(lineForm);
+            for (let i = lineIndex; i < this.lines.length; i++) {
+              const lineFormToCheck = this.lines.at(i);
 
-            // If there is a condition
-            const questionCondition = lineFormToCheck.get('questionCondition').value;
-            if (questionCondition != null) {
-              // If the condition is on this line
-              if (questionCondition === (lineIndex+1).toString()) {
-                // Delete the condition and condition values
-                lineFormToCheck.get('questionCondition').setValue(null);
+              // If there is a condition
+              const questionCondition = lineFormToCheck.get('questionCondition').value;
+              if (questionCondition != null) {
+                // If the condition is on this line
+                if (questionCondition === (lineIndex+1).toString()) {
+                  // Delete the condition and condition values
+                  lineFormToCheck.get('questionCondition').setValue(null);
+                }
               }
             }
           }
@@ -197,8 +195,10 @@ export class ReportEditComponent implements OnInit {
 
     // When changing the question condition
     lineForm.get('questionCondition').valueChanges.subscribe((questionCondition) => {
-      // Empty the list of selected values for the condition
-      lineForm.get('listQuestionConditionValues').setValue([]);
+      if (!this.isInit) {
+        // Empty the list of selected values for the condition
+        lineForm.get('listQuestionConditionValues').setValue([]);
+      }
 
       // If there is a question condition, question condition values has to be set
       if (questionCondition != null) {

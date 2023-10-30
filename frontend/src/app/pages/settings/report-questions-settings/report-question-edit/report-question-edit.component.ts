@@ -3,7 +3,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { firstValueFrom } from 'rxjs';
 import { LIST_RQN_TYPE, ReportQuestionDto, RqnTypeEnum } from 'src/app/core/models/reportQuestion.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
 import { UserService } from 'src/app/core/services/user.service';
@@ -39,7 +38,7 @@ export class ReportQuestionEditComponent implements OnInit {
 
   public isLoading: boolean = false;
 
-  public userHasPermissionCustomizeFormField: boolean = true;
+  public isConsultation: boolean = true;
 
   public form: FormGroup;
 
@@ -103,11 +102,11 @@ export class ReportQuestionEditComponent implements OnInit {
     });
 
     // ### Permissions ### //
-    this.userHasPermissionCustomizeFormField =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CUSTOMIZE_FORM_FIELDS);
+    this.isConsultation =
+      !await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
 
     // Disable form if user hasn't right to customize
-    if (!this.userHasPermissionCustomizeFormField) {
+    if (this.isConsultation) {
       this.form.disable();
     }
 

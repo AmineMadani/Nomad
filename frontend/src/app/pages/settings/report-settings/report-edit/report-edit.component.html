@@ -7,11 +7,11 @@
 
   <div class="report-edit-body">
     <div class="report-edit-actions-div">
-      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" [disabled]="!userHasPermissionCreateNewFormField" matTooltip="Dupliquer un autre formulaire">
+      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" [disabled]="isConsultation" matTooltip="Dupliquer un autre formulaire">
         <ion-icon slot="icon-only" name="copy"></ion-icon>
       </ion-button>
 
-      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" [disabled]="!userHasPermissionCustomizeFormField" matTooltip="Test le formulaire">
+      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" [disabled]="isConsultation" matTooltip="Test le formulaire">
         <ion-icon slot="icon-only" name="clipboard"></ion-icon>
       </ion-button>
     </div>
@@ -23,15 +23,15 @@
             <div class="number">
               {{i+1}}
 
-              <ion-button fill="clear" (click)="deleteLine(i)" [disabled]="!userHasPermissionCreateNewFormField">
+              <ion-button fill="clear" (click)="deleteLine(i)" [disabled]="isConsultation">
                 <ion-icon slot="icon-only" name="trash"></ion-icon>
               </ion-button>
 
               <div class="up-down-div">
-                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0 || !userHasPermissionCustomizeFormField">
+                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0 || isConsultation">
                   <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
                 </ion-button>
-                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1 || !userHasPermissionCustomizeFormField">
+                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1 || isConsultation">
                   <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
                 </ion-button>
               </div>
@@ -61,7 +61,7 @@
                       <ion-select aria-label="parent" label="Conditionné par la question" cancelText="Annuler" label-placement="floating" fill="outline" cancelText="Annuler" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
                         <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
                       </ion-select>
-                      <ion-button fill="clear" class="small-button" (click)="removeCondition(i)" *ngIf="lineForm.get('questionCondition').value != null">
+                      <ion-button fill="clear" class="small-button" (click)="removeCondition(i)" *ngIf="lineForm.get('questionCondition').value != null && !isConsultation">
                         <ion-icon slot="icon-only" name="trash"></ion-icon>
                       </ion-button>
                     </div>
@@ -91,7 +91,7 @@
 
       <div class="line">
         <div class="number">
-          <ion-button fill="clear" class="small-button" (click)="addLine()" [disabled]="!userHasPermissionCreateNewFormField || !userHasPermissionCustomizeFormField">
+          <ion-button fill="clear" class="small-button" (click)="addLine()" [disabled]="isConsultation">
             <ion-icon slot="icon-only" name="add"></ion-icon>
           </ion-button>
         </div>
@@ -101,7 +101,7 @@
   </div>
 
   <div class="report-edit-footer">
-    <ion-button fill="clear" (click)="save()" [disabled]="!userHasPermissionCustomizeFormField">
+    <ion-button fill="clear" (click)="save()" [disabled]="isConsultation">
       <ion-icon slot="icon-only" name="save"></ion-icon>
     </ion-button>
   </div>
