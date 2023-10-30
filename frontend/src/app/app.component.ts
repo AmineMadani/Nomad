@@ -12,6 +12,7 @@ import { UserService } from './core/services/user.service';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { WorkorderService } from './core/services/workorder.service';
 import { DateTime } from 'luxon';
+import packageInfo from '../../package.json';
 
 register();
 
@@ -59,6 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
   public realmRoles: string[] = [];
 
   public isMobile: boolean;
+
+  public version: string = packageInfo.version;
 
   private sub: Subscription = new Subscription();
 
