@@ -3,6 +3,7 @@
   <domain-config cleartextTrafficPermitted="true">
     <domain includeSubdomains="true">nomad-auth.hp.m-ve.com/</domain>
     <domain includeSubdomains="true">keycloak-hom.dir.istefr.fr/</domain>
+    <domain includeSubdomains="true">keycloak.istefr.fr/</domain>
     <domain includeSubdomains="true">localhost</domain>
   </domain-config>
 </network-security-config>
