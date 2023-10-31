@@ -1,0 +1,12 @@
+.select-duplicate-report-div {
+  display: flex;
+  flex-direction: column;
+  margin: 8px;
+  width: 500px;
+
+  .buttons-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}

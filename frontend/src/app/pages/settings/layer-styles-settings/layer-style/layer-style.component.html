@@ -1,0 +1,50 @@
+<div class="layer-style-content">
+  <app-settings-header
+    [title]="'Définition du style ' + form.get('lseCode')?.value"
+    [isModalHeader]="true"
+    (onModalClose)="onClose()"
+  >
+  </app-settings-header>
+  <div class="layer-style-body" *ngIf="layerStyle || isCreation">
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="layer-style-form">
+      <ion-input labelPlacement="stacked" fill="outline" label="Couche" placeholder="Couche" type="text"
+        formControlName="lyrTableName"></ion-input>
+
+      <ion-input labelPlacement="stacked" fill="outline" label="Code" placeholder="Code" type="text"
+        formControlName="lseCode"></ion-input>
+
+      <ion-textarea labelPlacement="stacked" fill="outline" label="Définition" placeholder="Définition" type="text-area"
+        formControlName="sydDefinition"></ion-textarea>
+
+      <input type="file" id="images" name="images" accept="image/svg+xml" multiple (change)="onFileChanged($event)">
+
+      <div class="swiper-container">
+        <swiper-container [modules]="swiperModules" [navigation]="true" [options]="opts">
+          <swiper-slide *ngFor="let img of layerStyle.listImage">
+            <div class="image-container">
+              <img [src]="img.source" />
+              <ion-label>{{ img.code }}</ion-label>
+            </div>
+          </swiper-slide>
+        </swiper-container>
+      </div>
+
+      <ion-button fill="clear" type="submit">
+        <ion-icon slot="icon-only" name="save"></ion-icon>
+      </ion-button>
+    </form>
+  </div>
+
+  <div class="layer-style-skeleton" *ngIf="!layerStyle && !isCreation">
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 150px"></ion-skeleton-text>
+
+    <ion-skeleton-text [animated]="true" style="height: 50px"></ion-skeleton-text>
+  </div>
+
+</div>
+
+

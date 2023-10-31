@@ -1,0 +1,10 @@
+<form [formGroup]="form" class="select-duplicate-report-div">
+  <ion-select aria-label="report" [interface]="isMobile ? 'action-sheet' : 'popover'" cancelText="Annuler" label="Type motif à copier" label-placement="floating" fill="outline" formControlName="report">
+    <ion-select-option *ngFor="let assetTypeWtrReport of listAssetTypeWtrReport" [value]="assetTypeWtrReport.value">{{assetTypeWtrReport.label}}</ion-select-option>
+  </ion-select>
+
+  <div class="buttons-div">
+    <ion-button (click)="cancel()">Annuler</ion-button>
+    <ion-button (click)="ok()">Ok</ion-button>
+  </div>
+</form>

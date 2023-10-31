@@ -1,0 +1,20 @@
+<ng-container *ngIf="edit; else labelTemplate">
+  <div class="form-property-select" [id]="definition.key">
+    <div class="question">{{definition.label}} {{checkIfRuleExist('required') ? '*':''}}</div>
+    <div class="answers">
+      <div *ngFor="let opt of attributes.options" class="answer" (click)="onSelectValue(opt.key)" [class.selected]="attributes.multiple === true ? control.value?.includes(opt.key):(control.value === opt.key)">
+        {{ opt.value }}
+      </div>
+    </div>
+    <ng-container *ngIf="control.touched">
+      <ng-container *ngFor="let val of control.errors | keyvalue">
+        <ion-label color="danger" lines="none">
+          {{ getMessageError(val) }}
+        </ion-label>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>
+<ng-template #labelTemplate>
+  <app-form-label [definition]="definition" [paramMap]="paramMap"></app-form-label>
+</ng-template>

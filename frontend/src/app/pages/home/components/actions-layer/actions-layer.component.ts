@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UtilsService } from 'src/app/services/utils.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { DrawerService } from 'src/app/core/services/drawer.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-actions-layer',
@@ -7,21 +9,22 @@ import { UtilsService } from 'src/app/services/utils.service';
   styleUrls: ['./actions-layer.component.scss'],
 })
 export class ActionsLayerComponent implements OnInit {
+  constructor(
+    private utilsService: UtilsService,
+    private drawerService: DrawerService
+  ) {}
 
-  constructor(private utilsService: UtilsService) { }
-
-  @Input() selectedAction: string = '';
-  @Output() selectedActionEvent = new EventEmitter<string>();
+  @Input() currentRoute: DrawerRouteEnum;
+  @Input() drawerHasBeenOpened: boolean;
 
   ngOnInit() {}
 
-  onSelectAction(selectedAction:string) {
-    this.selectedAction = selectedAction;
-    this.selectedActionEvent.emit(selectedAction);
+  onSelectAction(event: any) {
+    const route = event as DrawerRouteEnum;
+    this.drawerService.navigateTo(route);
   }
 
   isMobile(): boolean {
     return this.utilsService.isMobilePlateform();
   }
-
 }

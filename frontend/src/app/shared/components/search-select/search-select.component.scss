@@ -1,0 +1,79 @@
+.search-select-input {
+  display: flex;
+  flex-direction: column;
+
+  ion-label {
+    margin-bottom: 5px;
+  }
+
+  .classic-select {
+    margin-top: 10px;
+    padding-top: 8px;
+    min-width: 300px;
+  }
+
+  .table-select {
+    border-bottom: 1px solid var(--ion-color-border-light-1);
+    margin: 0px 10px 6px 10px;
+    height: 50px;
+
+    ion-icon {
+      cursor: pointer;
+    }
+
+    &.disabled {
+      ion-icon {
+        cursor: default;
+      }
+    }
+
+    &.invalid {
+      color: red;
+      border-color: red;
+      ion-icon {
+        color: red;
+      }
+    }
+
+    .input-table-select {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .classic-select-invalid {
+    --color: var(--ion-color-danger) !important;
+    --border-color: var(--ion-color-danger);
+  }
+}
+
+.search-select-modal {
+  --border-radius: 5px;
+
+  .search-select-modal-close {
+    margin-right: 15px;
+    cursor: pointer;
+  }
+
+  .search-select-list {
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    ion-checkbox, ion-radio {
+      margin-bottom: 5px;
+    }
+
+    ion-radio-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .select-all-color {
+      color: var(--ion-color-primary);
+    }
+  }
+}

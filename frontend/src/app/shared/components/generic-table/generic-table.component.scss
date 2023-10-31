@@ -1,0 +1,122 @@
+.table-component {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  ion-checkbox,
+  ion-icon {
+    --size: 15px;
+    font-size: 20px;
+  }
+
+  /** Toolbar **/
+  .toolbar-row {
+    flex: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+
+    .toolbar-title {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  /** Table **/
+  table,
+  th,
+  td {
+    border: 1px solid var(--ion-color-border-light-1);
+  }
+
+  table {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+    overflow: auto;
+    border-spacing: 0;
+  }
+
+  th,
+  td {
+    padding: 5px 10px;
+    border-top-width: 0;
+    border-left-width: 0;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background-color: var(--ion-color-surface-light-2);
+    font-weight: 600;
+    font-size: 14px;
+    min-height: 30px;
+
+    .column-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      &.sortable {
+        cursor: pointer;
+      }
+
+      .header-sort-arrow {
+        display: flex;
+        flex-direction: row;
+        margin-left: 4px;
+        width: 19px;
+        height: 19px;
+
+        .header-sort-arrow-number {
+          margin-left: -7px;
+          font-size: 10px;
+          margin-top: 12px;
+        }
+      }
+
+      .is-filtered {
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+
+  td {
+    font-weight: 400;
+    font-size: 14px;
+
+    &.button-cell {
+      text-align: center;
+      padding: 0px;
+    }
+
+    &.text-cell {
+      padding-left: 10px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    &.table-select {
+      width: 100%;
+    }
+  }
+
+  th:last-child,
+  td:last-child {
+    border-right-width: 0;
+  }
+
+  tr:last-child td {
+    border-bottom-width: 0;
+  }
+}

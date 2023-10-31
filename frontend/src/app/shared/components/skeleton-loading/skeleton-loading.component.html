@@ -1,0 +1,14 @@
+<ion-list>
+  <ng-container *ngFor="let r of rowsArray">
+    <ion-item lines="none" class="ion-no-margin">
+      <ion-label class="label">
+        <h3>
+          <ion-skeleton-text [animated]="true" style="width: 30%;"></ion-skeleton-text>
+        </h3>
+        <p *ngIf="subrows">
+          <ion-skeleton-text [animated]="true" style="width: 60%;"></ion-skeleton-text>
+        </p>
+      </ion-label>
+    </ion-item>
+  </ng-container>
+</ion-list>

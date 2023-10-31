@@ -1,0 +1,10 @@
+<ion-accordion-group>
+  <ion-accordion>
+    <ion-item slot="header" color="light">
+      <ion-label>{{ section.definition.label }}</ion-label>
+    </ion-item>
+    <div class="ion-padding" slot="content">
+      <ng-content></ng-content>
+    </div>
+  </ion-accordion>
+</ion-accordion-group>

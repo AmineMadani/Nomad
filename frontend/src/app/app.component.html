@@ -1,7 +1,7 @@
 <ion-app>
-  <ion-menu contentId="main-content" class="main-content-side-menu" type="overlay">
+  <ion-menu contentId="main-content" class="main-content-side-menu" type="overlay" swipe-gesture="false">
     <ion-content>
-      <div class="main-content-side-menu-header">
+      <div class="main-content-side-menu-header" id="main-content-side-menu-header">
         <ion-label class="main-content-side-menu-header-title">Menu</ion-label>
         <ion-menu-toggle>
           <ion-fab class="main-content-side-menu-header-close-button">
@@ -13,13 +13,17 @@
       </div>
       <ion-list id="inbox-list" class="main-content-side-list-menu">
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active">
+          <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active" (click)="onClick(p.url)">
             <ion-icon [ios]="p.icon" [md]="p.icon" class="main-content-side-list-menu-icon"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>
         </ion-menu-toggle>
       </ion-list>
+
+      <p class="main-content-version-number ">Version {{ version }}</p>
     </ion-content>
   </ion-menu>
-  <ion-router-outlet id="main-content"></ion-router-outlet>
+  <div class="main-container" [class.main-mobile-container]="isMobile" main>
+    <router-outlet id="main-content"></router-outlet>
+  </div>
 </ion-app>

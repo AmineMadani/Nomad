@@ -1,0 +1,69 @@
+<form [formGroup]="userForm" (ngSubmit)="save()" class="settings-template-content modal">
+  <!-- Header -->
+  <app-settings-header
+    [title]="actionType === ActionType.MODIFICATION ? 'Modification d\'un utilisateur' : 'Création d\'un nouvel utilisateur'"
+    [isModalHeader]="true"
+    (onModalClose)="onClose(false, true)"
+  ></app-settings-header>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+  <ng-container *ngIf="!isLoading">
+    <!-- Main content -->
+    <div class="settings-main-content modal">
+      <!-- User fields -->
+      <div  class="settings-user-form">
+        <ion-label class="label">
+          <h3>Généralité</h3>
+        </ion-label>
+
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-input aria-label="lastname" labelPlacement="floating" fill="outline" label="Nom *" formControlName="lastName" errorText="Le nom est obligatoire." />
+            </ion-col>
+            <ion-col>
+              <ion-input aria-label="firstname" labelPlacement="floating" fill="outline" label="Prénom *" formControlName="firstName" errorText="Le prénom est obligatoire." />
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+                <ion-input aria-label="mail" labelPlacement="floating" fill="outline" label="E-Mail *" formControlName="email" errorText="L'e-mail est obligatoire ou invalide." email />
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-select [interface]="isMobile ? 'action-sheet' : 'popover'" aria-label="status" cancelText="Annuler" label="Statut *" label-placement="floating" fill="outline" [value]="'interne'" formControlName="status">
+                <ion-select-option value="interne">Interne</ion-select-option>
+                <ion-select-option value="externe">Externe</ion-select-option>
+              </ion-select>
+            </ion-col>
+            <ion-col>
+              <ion-input aria-label="company" labelPlacement="floating" fill="outline" label="Société" formControlName="company" />
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <!-- Perimeters and Profil -->
+      <app-generic-table class="settings-table-content"
+        [toolbar]="toolbar"
+        [columns]="columns"
+        [rows]="getPerimetersControls()"
+        [selectedRows]="selectedPerimetersRows"
+        [moreInfoBtn]="true"
+        (onMoreInfoBtnPressed)="openPermissions()"
+      ></app-generic-table>
+    </div>
+
+    <!-- Footer -->
+    <div class="settings-footer">
+      <ion-button [disabled]="userForm.disabled || isLoading || isSaving" type="submit"
+        class="actions-layer-content-button-action actions-layer-content-button-action-active">
+        Enregistrer
+      </ion-button>
+    </div>
+  </ng-container>
+</form>
+
+
+

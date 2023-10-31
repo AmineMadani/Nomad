@@ -1,0 +1,21 @@
+<ng-template #demandeTemplate>
+  <ng-container *ngIf="demande">
+    <ion-item lines="none" class="ion-text-center">
+      <ion-label>
+        <ion-chip *ngIf="demande.urgent" [outline]="true" class="status">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <ion-label>Urgent</ion-label>
+        </ion-chip>
+        <ion-chip *ngIf="demande.appointment" [outline]="false" class="status">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <ion-label>Rendez-vous</ion-label>
+        </ion-chip>
+      </ion-label>
+    </ion-item>
+  </ng-container>
+  <app-form-editor *ngIf="demandeForm" [nomadForm]="demandeForm"></app-form-editor>
+</ng-template>
+
+<app-synthesis [drawerTitle]="'DI-' + demande.id" [sourceLayer]="'demande'" [hasFile]="true" [tabButtons]="buttons"
+  [contentTemplate]="demandeTemplate">
+</app-synthesis>

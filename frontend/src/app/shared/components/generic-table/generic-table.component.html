@@ -1,0 +1,130 @@
+<div class="table-component">
+  <!-- TOOLBAR -->
+  <div class="toolbar-row" *ngIf="toolbar">
+    <div class="toolbar-title">
+      <ion-label class="label">
+        <h3>{{ toolbar.title }}</h3>
+      </ion-label>
+      <ion-button *ngIf="moreInfoBtn" (click)="onMoreInfoBtnClicked()" fill="clear">
+        <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="toolbar-buttons">
+      <ion-button *ngFor="let button of toolbar.buttons"
+        [disabled]="button.disableFunction()" (click)="button.onClick()" fill="clear"
+        [matTooltip]="button.tooltip" [matTooltipDisabled]="!button.tooltip">
+        <ion-icon slot="icon-only" [name]="button.name"></ion-icon>
+      </ion-button>
+
+      <div *ngIf="toolbar.buttons && toolbar.buttons.length > 0">|</div>
+      <ion-button (click)="resetFilters()" fill="clear">
+        <ion-icon slot="icon-only" name="filter" class="strike-through"></ion-icon>
+      </ion-button>
+    </div>
+
+  </div>
+
+  <!-- FILTER CHIPS -->
+  <div class="chips-div">
+    <ng-container *ngFor="let column of columns">
+      <ng-container *ngIf="column.filter?.value">
+        <ion-chip (dblclick)="openFilter(column, $event)">
+          <ion-label>
+            {{getChipValue(column)}}
+          </ion-label>
+          <ion-icon name="close-circle" (click)="removeFilter(column)"></ion-icon>
+        </ion-chip>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <!-- Table header with column names -->
+    <thead>
+      <tr>
+        <ng-container *ngFor="let column of columns; let columnIndex = index">
+
+          <th [style]="getColumnStyle(column)" style="z-index: 10"> <!-- z-index 1 for button, 3 for checkbox-->
+            <ng-container [ngSwitch]="column.type">
+              <!-- CHECKBOX -->
+              <ng-container *ngSwitchCase="TypeColumn.CHECKBOX">
+                <ion-checkbox [checked]="isAllRowsSelected()" (ionChange)="onSelectAll()" aria-label="selection"></ion-checkbox>
+              </ng-container>
+
+              <!-- ACTION -->
+              <ng-container *ngSwitchCase="TypeColumn.ACTION">
+                {{ column.label }}
+              </ng-container>
+
+              <!-- OTHER (TEXT, SELECT, ...) -->
+              <ng-container *ngSwitchDefault>
+                <div class="column-header" [class.sortable]="column.sortOptions?.noSort !== true">
+                  <!-- Label -->
+                  <div class="column-label" (click)="column.sortOptions?.noSort !== true && onSort(column.key)">{{ column.label }}</div>
+
+                  <!-- Sort -->
+                  <div (click)="column.sortOptions?.noSort !== true && onSort(column.key)" class="header-sort-arrow">
+                    <!-- sort arrow and number -->
+                    <ion-icon *ngIf="getSortDirection(column.key) === 'asc'" slot="icon-only" name="arrow-up">
+                    </ion-icon>
+                    <ion-icon *ngIf="getSortDirection(column.key) === 'desc'" slot="icon-only" name="arrow-down">
+                    </ion-icon>
+                    <div *ngIf="getSortNumber(column.key) !== 0" class="header-sort-arrow-number">
+                      {{getSortNumber(column.key)}}
+                    </div>
+                  </div>
+
+                  <!-- Filter -->
+                  <ion-icon (click)="openFilter(column, $event)" slot="icon-only" name="filter"
+                    [class.is-filtered]="column.filter?.value !== null" *ngIf="column.filter?.type !== 'none'">
+                  </ion-icon>
+                </div>
+              </ng-container>
+            </ng-container>
+          </th>
+
+        </ng-container>
+      </tr>
+    </thead>
+
+    <!-- Table rows with data values -->
+    <tbody>
+      <tr *ngFor="let row of displayedRows; let rowIndex = index">
+        <ng-container *ngFor="let column of columns; let columnIndex = index">
+
+          <td class="button-cell" *ngIf="column.type === TypeColumn.CHECKBOX" [style]="getColumnStyle(column)">
+            <ion-checkbox [checked]="isRowSelected(row)" (ionChange)="onRowSelect(row)" aria-label="selection"></ion-checkbox>
+          </td>
+
+          <td class="button-cell" *ngIf="column.type === TypeColumn.ACTION" [style]="getColumnStyle(column)">
+            <ion-button (click)="column.onClick(row)" fill="clear">
+              <ion-icon slot="icon-only" name="eye"></ion-icon>
+            </ion-button>
+          </td>
+
+          <td class="text-cell" *ngIf="column.type === TypeColumn.TEXT" [style]="getColumnStyle(column)" [style.text-align]="column.centerText ? 'center' : ''">
+            {{ row.get(column.key).value }}
+          </td>
+
+          <td class="button-cell" *ngIf="column.type === TypeColumn.SELECT" [style]="getColumnStyle(column)">
+            <app-search-select class="table-select" [key]="column.selectProperties.key" [label]="column.label"
+              [elements]="column.selectProperties.elementFilterFunction ? column.selectProperties.elementFilterFunction(row.getRawValue()) : column.selectProperties.elements"
+              [control]="row.get(column.key)" [elementLabelFunction]="column.selectProperties.elementLabelFunction"
+              [isMultiSelection]="column.selectProperties.isMultiSelection" [isUsedInTable]="true">
+            </app-search-select>
+          </td>
+
+          <td class="text-cell" *ngIf="column.type === TypeColumn.DATE" [style]="getColumnStyle(column)" [style.text-align]="column.centerText ? 'center' : ''">
+            {{ row.get(column.key).value | date:'dd/MM/yyyy' }}
+          </td>
+
+          <td class="text-cell" *ngIf="column.type === TypeColumn.DATE_HOUR" [style]="getColumnStyle(column)" [style.text-align]="column.centerText ? 'center' : ''">
+            {{ row.get(column.key).value | date:'dd/MM/yyyy HH:mm' }}
+          </td>
+        </ng-container>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,38 @@
+.delete-report-question-confirmation-content {
+  height: 100%;
+  width: 100%;
+  padding: 20px 30px;
+
+  .delete-report-question-confirmation-body {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 44px - 54px); // 100% - header - footer
+    padding: 16px 0px;
+
+    > ion-list {
+      overflow: auto;
+    }
+
+    .acknowledge-div {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-top: 16px;
+
+      > ion-checkbox {
+        margin-right: 16px;
+      }
+
+      .message {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .delete-report-question-confirmation-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: 5px 0px;
+  }
+}

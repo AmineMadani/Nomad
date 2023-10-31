@@ -1,0 +1,33 @@
+ion-item-group {
+  border-bottom: 1px solid var(--ion-color-neutral-variant-80);
+
+  &:hover {
+    cursor: pointer;
+    background: var(--ion-color-secondary-variant-90);
+  }
+
+  &.feature-hovered {
+    background: var(--ion-color-secondary-variant-90);
+  }
+}
+
+
+ion-item {
+  ion-icon[slot=start] {
+    margin-inline-end: 8px;
+  }
+
+  --min-height: 30px;
+}
+
+.date-item {
+  min-height: 40px;
+}
+
+.intervention-date {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+  color: var(--ion-color-neutral-variant-50);
+}

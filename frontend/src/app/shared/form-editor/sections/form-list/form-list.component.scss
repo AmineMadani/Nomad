@@ -1,0 +1,18 @@
+ion-list-header.list-header {
+    height: 50px;
+    ion-item {
+        width: 100%;
+    }
+
+    ion-label {
+        font-weight: 600;
+        font-size: 22px;
+        --color: var(--ion-color-neutral-variant-30);
+    }
+}
+
+ion-list {
+    overflow: auto;
+    height: calc(100% - 50px);
+    padding: 15px;
+}

@@ -1,0 +1,20 @@
+ion-item-group {
+  border-bottom: 1px solid var(--ion-color-neutral-variant-80);
+
+  ion-item {
+    --min-height: 30px;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: var(--ion-color-secondary-variant-90);
+  }
+
+  .status {
+    text-transform: capitalize;
+  }
+
+  ion-item.cr {
+    pointer-events: none;
+  }
+}

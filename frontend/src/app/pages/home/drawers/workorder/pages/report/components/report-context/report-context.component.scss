@@ -1,0 +1,51 @@
+.report-context {
+    margin: 25px auto;
+    width: 90%;
+}
+
+.report-context-modal {
+    --border-radius: 5px;
+
+    .report-context-modal-radio {
+        padding-left: 20px;
+        padding-bottom: 15px;
+    }
+
+    .report-context-modal-close {
+        margin-right: 15px;
+        cursor: pointer;
+    }
+}
+
+.alert-radio-group {
+    height: 50px;
+    width: 100%;
+}
+
+.attachment-div {
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .preview-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 96px;
+    }
+
+    .informations-div {
+        display: flex;
+        flex-direction: column;
+        margin-left: 8px;
+        width: 100%;
+
+        .title {
+            font-weight: bold;
+        }
+    }
+}

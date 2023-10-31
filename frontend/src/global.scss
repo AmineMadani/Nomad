@@ -24,67 +24,504 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+@import "~swiper/swiper-bundle.min.css";
+
+@import '~maplibre-gl/dist/maplibre-gl.css';
+
+html, body { height: 100%; width: 100%; margin: 0; }
 
 /* font design */
 @font-face {
-    font-family: 'FS Sinclair Italic';
-    src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot');
-    src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix') format('embedded-opentype'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.woff2') format('woff2'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.woff') format('woff'),
-        url('assets/fonts/FSSinclair/FSSinclair-Italic.ttf') format('truetype');
-    font-weight: normal;
-    font-style: italic;
+  font-family: 'FS Sinclair Italic';
+  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot');
+  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix') format('embedded-opentype'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff2') format('woff2'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff') format('woff'),
+    url('assets/fonts/FSSinclair/FSSinclair-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: normal;
-    font-weight: normal;
-    src: url('assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf');
+  font-family: 'TheSans';
+  font-style: normal;
+  font-weight: normal;
+  src: url('assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: normal;
-    font-weight: bold;
-    src: url('assets/fonts/TheSans/TheSans-Bold.ttf');
+  font-family: 'TheSans';
+  font-style: normal;
+  font-weight: bold;
+  src: url('assets/fonts/TheSans/TheSans-Bold.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: italic;
-    font-weight: normal;
-    src: url('assets/fonts/TheSans/TheSans-Italic.ttf');
+  font-family: 'TheSans';
+  font-style: italic;
+  font-weight: normal;
+  src: url('assets/fonts/TheSans/TheSans-Italic.ttf');
 }
 
 @font-face {
-    font-family: 'TheSans';
-    font-style: italic;
-    font-weight: bold;
-    src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
+  font-family: 'TheSans';
+  font-style: italic;
+  font-weight: bold;
+  src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
+}
+
+// Hides elements during printing
+@media print {
+  .no-print,
+  // Specific Maplibre classes that should be hidden during print
+  .maplibregl-ctrl, .maplibregl-ctrl-scale {
+    display: none !important;
+  }
+  .main-container{
+    object-fit: contain;
+    //image-resolution: 300dpi;
+    width: 1280px !important;
+    height: 720px !important;
+  }
+  .maplibregl-canvas{
+    width: 1280px !important;
+    height: 720px !important;
+  }
+}
+
+.maplibregl-ctrl-top-right, .maplibregl-ctrl-top-left {
+  visibility: hidden;
+}
+
+.mobile-home-actions {
+  --border-radius: 28px 28px 0px 0px !important;
+  border-radius: 28px 28px 0px 0px !important;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--ion-color-neutral-variant-80);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--ion-color-neutral-variant-30);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ion-color-neutral-variant-50);
 }
 
 .scrolling-wrapper {
-    display: flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
-    &::-webkit-scrollbar {
-        display: none;
-    }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .actions-layer-content-button-action {
-    text-transform: none;
-    --border-radius: 25px;
-    --background: var(--ion-color-surface-light-1);
-    --color: var(--ion-color-primary);
+  text-transform: none;
+  --border-radius: 25px;
+  --background: var(--ion-color-surface-light-1);
+  --color: var(--ion-color-primary);
 }
 
 .actions-layer-content-button-action-active {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-surface-light-1);
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-surface-light-1);
+}
+
+.overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+// Overlay panel styling
+.overlay-panel {
+  margin-right: var(--width-right-panel-interactive--);
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  height: calc(100% - 56px);
+  margin-top: 56px;
+  width: var(--width-right-panel-interactive);
+  right: 0;
+  position: absolute !important;
+
+  -moz-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -webkit-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -o-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  -ms-animation: slideInRightPanel 0.5s ease 0.1s forwards;
+  animation: slideInRightPanel 0.5s ease 0.1s forwards;
+}
+
+ion-label.label {
+  h2 {
+      font-weight: 600;
+      font-size: 22px;
+      //line-height: 28px;
+      color: var(--ion-color-neutral-variant-10);
+  }
+
+  h3 {
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    color: var(--ion-color-neutral-variant-10);
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.25px;
+    color: var(--ion-color-neutral-variant-30);
+  }
+}
+
+.img-reader {
+  --background: transparent;
+  --box-shadow: unset;
+
+  &.web {
+    --height: 70vh;
+    --width: 70vw;
+  }
+}
+
+ion-chip.status {
+  margin: 5px;
+  border-radius: 8px;
+  margin-bottom: 9px;
+
+  &[ng-reflect-outline=true] {
+    border-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary);
+
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+
+  &[ng-reflect-outline=false] {
+    background-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+
+    ion-icon {
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+.status-TERMINE {
+  background-color: var(--ion-color-success) !important;
+  --color: var(--ion-color-success-contrast);
+
+  ion-icon {
+    color: var(--ion-color-success-contrast);
+  }
+}
+
+.status-ENVOYEPLANIF,
+.status-PLANIFIE {
+  background-color: var(--ion-color-secondary) !important;
+  --color: var(--ion-color-secondary-contrast);
+
+  ion-icon {
+    color: var(--ion-color-secondary-contrast);
+  }
+}
+
+.status-CREE {
+  background-color: var(--ion-color-tertiary) !important;
+  --color: var(--ion-color-tertiary-contrast);
+
+  ion-icon {
+    color: var(--ion-color-tertiary-contrast);
+  }
+}
+
+.status-ANNULE {
+  background-color: var(--ion-color-medium) !important;
+  --color: var(--ion-color-medium-contrast);
+
+  ion-icon {
+    color: var(--ion-color-medium-contrast);
+  }
+}
+
+ion-select::part(placeholder),
+ion-select::part(text) {
+  white-space: normal !important;
+}
+
+// Force text-wrap on <ion-select-option>'s when shown in an Ionic Alert
+ion-alert.select-alert {
+  // These widths are pretty arbitrary, so you're use-case(s) could required different widths:
+  --width: 30% !important;
+  --max-width: 66vw !important;
+
+  .select-interface-option .alert-radio-label,
+  .select-interface-option .alert-checkbox-label {
+    white-space: normal !important;
+  }
+}
+
+mat-tab-group.form-tabs {
+  height: 100%;
+
+  .mat-mdc-tab-header {
+    background-color: var(--ion-color-primary-contrast);
+
+    .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label,
+    .mat-mdc-tab-link:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
+      color: var(--ion-color-primary);
+    }
+
+    .mdc-tab-indicator__content {
+      border-color: var(--ion-color-primary);
+    }
+  }
+
+  .mat-mdc-tab-body-wrapper {
+    height: 100%;
+    background-color: var(--ion-color-primary-contrast);
+  }
+}
+
+mat-tab-group.mobile-tabs {
+  .mat-mdc-tab-body-wrapper {
+    margin-left: 16px;
+  }
+}
+
+.alert-checkbox-group.sc-ion-alert-md::-webkit-scrollbar,
+.alert-radio-group.sc-ion-alert-md::-webkit-scrollbar,
+.alert-message.sc-ion-alert-md::-webkit-scrollbar {
+    display: block;
+}
+
+.maplibregl-ctrl-bottom-left {
+  bottom: 6px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.maplibregl-ctrl-bottom-right {
+  .maplibregl-ctrl-scale {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    margin: 0 !important;
+  }
+  .maplibregl-zoom {
+    position: absolute;
+    right: -144px;
+    bottom: 60px;
+    transform-origin: bottom left;
+    transform: rotate(-90deg) translateY(100%);
+  }
+}
+
+.zoom-range {
+  margin: 0 16px 16px 0 !important;
+  width: 180px;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+
+  background: var(--ion-color-primary-contrast);
+
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+
+  input[type=range] {
+      width: 164px;
+      height: 4px;
+      margin: auto;
+      transform: rotate(360deg);
+  }
+}
+
+.settings-template-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0px 20px 0px 20px;
+  padding: 20px 30px 20px 30px; // top - right - bottom - left
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+
+  &.modal {
+    margin: 0;
+  }
+
+  .settings-header {
+    flex: 0;
+
+    ion-icon {
+      color: black;
+    }
+  }
+
+  .settings-main-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    &.modal {
+      padding: 15px 10px 20px 10px;
+    }
+
+    .settings-table-content {
+      margin-top: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .settings-select-content {
+      margin-top: 20px;
+      flex: 0;
+    }
+  }
+
+  .settings-footer {
+    width: 100%;
+    padding: 0px 10px 10px 0px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+}
+
+ion-segment-button {
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  letter-spacing: 0.1px;
+  text-transform: capitalize;
+  --color: var(--ion-color-neutral-variant-30);
+}
+
+.cursor-pointer {
+  cursor: crosshair;
+}
+
+.cursor-mesure {
+  cursor: url('/assets/icon/rule.svg'), auto;
+}
+
+.alert-message.sc-ion-alert-md {
+  font-size: 12px;
+  color:red;
+}
+
+ion-alert.custom-alert-wko{
+  --max-width:max-content ;
+  --backdrop-opacity: 0.7;
+}
+
+.large-modal {
+  --height: 90vh;
+  --width: 95vw;
+}
+
+.big-modal {
+  --height: 95vh;
+  --width: 95vw;
+}
+
+.adaptive-modal {
+  --height: unset;
+  --width: unset;
+}
+
+.stack-modal {
+  --backdrop-opacity: var(--ion-backdrop-opacity, 0.32) !important;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4) !important;
+}
+
+.alert-modal {
+  --width: 350px;
+  --max-width: 350px;
+
+  .alert-message {
+    color: black;
+    font-size: 14px;
+  }
+}
+
+.filter-popover {
+  --height: unset;
+  --width: unset;
+}
+
+ion-icon.strike-through {
+  position: relative;
+  transition: none;
+
+  &:after,
+  &:before {
+    display: block;
+    position: absolute;
+    content: '';
+    top: 8px;
+    width: 22px;
+    transform: rotate(45deg);
+  }
+
+  &:after {
+    height: 2px;
+    left: -2px;
+    background: black;
+  }
+
+  &:before {
+    height: 5px;
+    left: 0px;
+    background: rgb(240, 240, 240);
+  }
+}
+
+ion-icon.strike-inverted-through {
+  position: relative;
+  transition: none;
+
+  &:after,
+  &:before {
+    display: block;
+    position: absolute;
+    content: '';
+    top: 8px;
+    width: 22px;
+    transform: rotate(-45deg);
+  }
+
+  &:after {
+    height: 2px;
+    left: -2px;
+    background: black;
+  }
+
+  &:before {
+    height: 5px;
+    left: 0px;
+    background: rgb(240, 240, 240);
+  }
+}
+
+.mobile-area-measure{
+  text-align: center !important;
 }

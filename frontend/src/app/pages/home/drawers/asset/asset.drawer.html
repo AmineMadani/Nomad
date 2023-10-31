@@ -1,0 +1,82 @@
+<div class="asset-drawer">
+  <ion-item lines="none">
+    <ion-label class="header-label">{{ getTitle() }}</ion-label>
+    <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
+  </ion-item>
+
+  <div class="filter-content">
+    <ng-container *ngIf="!isLoading">
+      <ion-segment contentId="drawer" class="filter-segment" [(ngModel)]="selectedSegment"
+        (ionChange)="onSegmentChange($event)">
+        <div #scrolling class="scrolling-wrapper" [class.scrolling-wrapper-mobile]="isMobile">
+          <ion-segment-button *ngFor="let filterSegment of assetFilterSegment" [value]="filterSegment.name">
+            <ion-label>{{filterSegment.segmentName ? filterSegment.segmentName:filterSegment.name}}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="favorite">
+            <ion-label>Favoris</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="details">
+            <ion-label>Détailler</ion-label>
+          </ion-segment-button>
+        </div>
+      </ion-segment>
+
+      <div class="filter-segment-content">
+        <ion-content id="filter-content-scrollable" scrollbar [scrollbar]="onCustomScrollBarStyle()"
+          allowAllScreens='true'>
+          <ng-container *ngFor="let filterSegment of assetFilterSegment">
+            <ng-container *ngIf="selectedSegment === filterSegment.name">
+              <ng-container *ngIf="filterSegment.customFilter">
+                <ion-list>
+                  <ng-container *ngFor="let customFilter of filterSegment.customFilter">
+                    <ion-item>
+                      <ion-label>{{ customFilter.name }}</ion-label>
+                      <ion-toggle aria-label="toggle" slot="end" [checked]="customFilter.checked" (ionChange)="onToggleChange(filterSegment, customFilter, $event)"></ion-toggle>
+                    </ion-item>
+                  </ng-container>
+                </ion-list>
+              </ng-container>
+              <app-asset-accordion [filterSegment]="filterSegment" />
+            </ng-container>
+          </ng-container>
+          <ng-container *ngIf="selectedSegment === 'details'">
+            <app-asset-detail [filterTree]="assetFilterTree" />
+          </ng-container>
+          <ng-container *ngIf="selectedSegment === 'favorite'">
+            <app-asset-favorite />
+          </ng-container>
+        </ion-content>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="isLoading">
+      <ion-spinner style="margin-left: 50%;margin-top: 20px;" name="crescent"></ion-spinner>
+    </ng-container>
+  </div>
+
+  <ng-container *ngIf="!isMobile">
+    <div class="patrimony-footer-actions" lines="none">
+      <ion-button fill="clear" (click)="onReset()" [disabled]="!isSelectedData()">Réinitialiser</ion-button>
+      <ion-button fill="clear" (click)="onModifyFavorite()" *ngIf="isModifyFavorite()"
+        [disabled]="!isFavoriteDataChange()">Modifier le favori</ion-button>
+      <ion-button fill="clear" (click)="onAddFavorite()" *ngIf="!isFavoriteSegment()"
+        [disabled]="!isSelectedDataOnSegment()"><ion-icon slot="start" name="add-outline"></ion-icon>Créer un
+        favori</ion-button>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="isMobile">
+    <ion-tab-bar>
+      <ion-tab-button (click)="onReset()" [disabled]="!isSelectedData()">
+        <ion-icon name="refresh-outline"></ion-icon>
+        Réinitialiser
+      </ion-tab-button>
+      <ion-tab-button *ngIf="isModifyFavorite()" (click)="onModifyFavorite()" [disabled]="!isFavoriteDataChange()">
+        <ion-icon name="pencil-outline"></ion-icon>
+        Modifier le favori
+      </ion-tab-button>
+      <ion-tab-button *ngIf="!isFavoriteSegment()" (click)="onAddFavorite()" [disabled]="!isSelectedDataOnSegment()">
+        <ion-icon name="create-outline"></ion-icon>
+        Créer un favori
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ng-container>
+</div>

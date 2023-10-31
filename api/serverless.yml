@@ -1,0 +1,425 @@
+frameworkVersion: '3'
+service: nomad-api
+
+provider:
+  name: aws
+  region: eu-west-3
+  runtime: python3.7
+  endpointType: REGIONAL
+  stage: ${opt:stage, 'dev'}
+  tags: # Optional service wide function tags
+    Domaine: OPERATIONS
+    Chapter: PATRIMOINE
+    Application: NOMAD
+    Organization: VWIS
+    TypeEnv: H-PROD
+    Env: ${opt:stage}
+  stackName: nomad-api-${self:provider.stage}
+  apiName: nomad-api-${self:provider.stage}
+  tracing:
+    apiGateway: true
+    lambda: true
+  apiGateway:
+    # restApiId: nomad-api-${self:provider.stage}
+    minimumCompressionSize: 512
+    metrics: true
+    resourcePolicy: ${self:custom.resourcePolicies.${opt:stage, self:provider.stage}}
+
+package:
+  individually: true
+#  zip: true
+
+plugins:
+  - serverless-package-python-functions
+  - serverless-python-requirements
+  - serverless-s3-deploy
+  - serverless-api-gateway-caching
+  - serverless-stage-manager
+  - serverless-domain-manager
+  - serverless-apigateway-service-proxy
+custom:
+  stages:
+    - int
+    - for
+    - rec
+    - rec2
+    - rec3
+    - dev
+    - pilote
+    - prd
+  nomad_aws_security_group:
+    int: ${ssm:/operations/patrimoine/nomad/int/nomad_security_group, null}
+    for: ${ssm:/operations/patrimoine/nomad/for/nomad_security_group, null}
+    rec: ${ssm:/operations/patrimoine/nomad/rec/nomad_security_group, null}
+    rec2: ${ssm:/operations/patrimoine/nomad/rec2/nomad_security_group, null}
+    rec3: ${ssm:/operations/patrimoine/nomad/rec3/nomad_security_group, null}
+    dev: ${ssm:/operations/patrimoine/nomad/dev/nomad_security_group, null}
+    prd: ${ssm:/operations/patrimoine/nomad/prd/nomad_security_group, null}
+    pilote: ${ssm:/operations/patrimoine/nomad/pilote/nomad_security_group, null}
+  nomad_aws_subnet_a:
+    int: subnet-024ebfe2265dbe5e3
+    for: subnet-024ebfe2265dbe5e3
+    rec: subnet-024ebfe2265dbe5e3
+    rec2: subnet-024ebfe2265dbe5e3
+    rec3: subnet-024ebfe2265dbe5e3
+    dev: subnet-024ebfe2265dbe5e3
+    pilote: subnet-0515ea2461009a288
+    prd: subnet-0515ea2461009a288
+  nomad_aws_subnet_b:
+    int: subnet-0db57a1821dfd6e91
+    for: subnet-0db57a1821dfd6e91
+    rec: subnet-0db57a1821dfd6e91
+    rec2: subnet-0db57a1821dfd6e91
+    rec3: subnet-0db57a1821dfd6e91
+    dev: subnet-0db57a1821dfd6e91
+    pilote: subnet-0b14e9f6c06a6a72e
+    prd: subnet-0b14e9f6c06a6a72e
+  nomad_aws_account_id:
+    int: 883029375205
+    for: 883029375205
+    rec: 883029375205
+    rec2: 883029375205
+    rec3: 883029375205
+    dev: 883029375205
+    pilote: 709087168436
+    prd: 709087168436
+  nomad_backend_url:
+    int: ${ssm:/operations/patrimoine/nomad/int/batch_dns_name, null}
+    for: ${ssm:/operations/patrimoine/nomad/for/batch_dns_name, null}
+    rec: ${ssm:/operations/patrimoine/nomad/rec/batch_dns_name, null}
+    rec2: ${ssm:/operations/patrimoine/nomad/rec2/batch_dns_name, null}
+    rec3: ${ssm:/operations/patrimoine/nomad/rec3/batch_dns_name, null}
+    dev: ${ssm:/operations/patrimoine/nomad/dev/batch_dns_name, null}
+    pilote: ${ssm:/operations/patrimoine/nomad/pilote/batch_dns_name, null}
+    prd: ${ssm:/operations/patrimoine/nomad/prd/batch_dns_name, null}
+  nomad_backend_timeout:
+    int: 20
+    for: 20
+    rec: 20
+    rec2: 20
+    rec3: 20
+    dev: 20
+    pilote: 20
+    prd: 20
+  nomad_backend_credentials:
+    int: ${ssm:/operations/patrimoine/nomad/int/value_basic_authentication, null}
+    for: ${ssm:/operations/patrimoine/nomad/for/value_basic_authentication, null}
+    rec: ${ssm:/operations/patrimoine/nomad/rec/value_basic_authentication, null}
+    rec2: ${ssm:/operations/patrimoine/nomad/rec2/value_basic_authentication, null}
+    rec3: ${ssm:/operations/patrimoine/nomad/rec3/value_basic_authentication, null}
+    dev: ${ssm:/operations/patrimoine/nomad/dev/value_basic_authentication, null}
+    pilote: ${ssm:/operations/patrimoine/nomad/pilote/value_basic_authentication, null}
+    prd: ${ssm:/operations/patrimoine/nomad/prd/value_basic_authentication, null}
+  log_level:
+    int: 'DEBUG'
+    for: 'DEBUG'
+    rec: 'DEBUG'
+    rec2: 'DEBUG'
+    rec3: 'DEBUG'
+    dev: 'DEBUG'
+    pilote: 'INFO'
+    prd: 'INFO'
+  nomad_backend_domain_name:
+    rec: 'nomad-api-rec.hp.m-ve.com'
+    int: 'nomad-api-int.hp.m-ve.com'
+    for: 'nomad-api-for.hp.m-ve.com'
+    rec2: 'nomad-api-rec2.hp.m-ve.com'
+    rec3: 'nomad-api-rec3.hp.m-ve.com'
+    dev: 'nomad-api-dev.hp.m-ve.com'
+    prd: 'nomad-api-prd.m-ve.com'
+    pilote: 'nomad-api-pilote.m-ve.com'
+  nomad_backend_domain_path_custom:
+    rec: ''
+    int: ''
+    for: ''
+    rec2: ''
+    rec3: ''
+    dev: ''
+    prd: ''
+    pilote: ''
+
+  resourcePolicies:
+    int:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+
+    for:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+    rec:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+
+    rec2:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+
+    rec3:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+
+    dev:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::883029375205:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::883029375205:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::883029375205:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+
+    prd:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::709087168436:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::709087168436:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::709087168436:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::709087168436:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
+
+    pilote:
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::709087168436:user/hocine.mendaci@veolia.com
+            - arn:aws:iam::709087168436:user/alexandre.berriau.ext@veolia.com
+            - arn:aws:iam::709087168436:user/ahmed.ayed.ext@veolia.com
+        Action: execute-api:Invoke
+        Resource: '*'
+
+      - Effect: Allow
+        Principal:
+          AWS:
+            - arn:aws:iam::709087168436:user/apigeeuser
+        Action: execute-api:Invoke
+        Resource:
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-real'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
+          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
+
+  pkgPyFuncs: # plugin configuration
+    buildDir: build
+    requirementsFile: 'requirements.txt'
+    cleanup: true
+
+  apiGatewayCaching:
+    enabled: false
+    ttlInSecondy: 60
+
+  customDomain:
+    domainName: ${self:custom.nomad_backend_domain_name.${self:provider.stage}}
+    stage: ${self:provider.stage}
+    basePath: ${self:custom.nomad_backend_domain_path_custom.${self:provider.stage}}
+    certificateName: ${self:custom.nomad_backend_domain_name.${self:provider.stage}}
+    createRoute53Record: true
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+
+# AWS Lambda Functions
+functions:
+  - nomad-update-wo:
+      name: nomad-update-wo-${self:provider.stage}
+      handler: main.update_dt_wo_lambda_handler
+      memorySize: 128
+      timeout: 29
+      role: LambdaDefaultRole
+      vpc:
+        securityGroupIds:
+          - ${self:custom.nomad_aws_security_group.${self:provider.stage}}
+        subnetIds:
+          - ${self:custom.nomad_aws_subnet_a.${self:provider.stage}}
+          - ${self:custom.nomad_aws_subnet_b.${self:provider.stage}}
+      package:
+        include:
+          - src
+      tags:
+        Name: nomad-update-wo-${self:provider.stage}
+      environment:
+        NOMAD_BACKEND_URL: 'https://${self:custom.nomad_backend_url.${self:provider.stage}}'
+        NOMAD_BACKEND_TIMEOUT: ${self:custom.nomad_backend_timeout.${self:provider.stage}}
+        NOMAD_BACKEND_CREDENTIALS: ${self:custom.nomad_backend_credentials.${self:provider.stage}}
+        LOG_LEVEL: ${self:custom.log_level.${self:provider.stage}}
+      events:
+        - http:
+            path: wo-dt-real
+            method: POST
+            integration: lambda
+            private: false
+            cors: true
+            authorizer:
+              type: aws_iam
+            request:
+              template:
+                text/xhtml: '{ "stage" : "$context.stage" }'
+                application/json: '${file(templates/request.tpl)}'
+            response:
+              headers:
+                Access-Control-Allow-Origin: "'*'"
+              template:
+                application/json:
+                  "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                  \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                  statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                  statusCode\"))\r\n#end"
+              statusCodes:
+                200:
+                  pattern: ''
+                  template:
+                    application/json:
+                      "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                      \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                      statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                      statusCode\"))\r\n#end"
+
+# Other resources like IAM Roles & Policies
+resources:
+  Resources:
+    LambdaDefaultRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /
+        RoleName: nomad_data_integration_lambda_${self:provider.stage}
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: nomad_data_integration_lambda_${self:provider.stage}
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: 'arn:aws:logs:*:*:*'
+                - Effect: Allow
+                  Action:
+                    - ssm:Get*
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - s3:Get*
+                    - s3:List*
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - ec2:CreateNetworkInterface
+                    - ec2:DescribeNetworkInterfaces
+                    - ec2:DeleteNetworkInterface
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'xray:PutTraceSegments'
+                    - 'xray:PutTelemetryRecords'
+                    - 'xray:GetSamplingRulesr'
+                    - 'xray:GetSamplingTargets'
+                    - 'xray:GetSamplingStatisticSummaries'
+                  Resource:
+                    - '*'

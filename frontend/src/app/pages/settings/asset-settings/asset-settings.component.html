@@ -1,0 +1,113 @@
+<ion-content>
+  <div class="settings-flex">
+    <div class="settings-segments">
+      <app-settings-segment class="settings-segment-flex"
+        (settingsTypeChange)="onSettingsTypeChange($event)"></app-settings-segment>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="settings-template-content">
+      <div class="settings-content-header-height"
+          [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+        <div class="settings-content-template-header">
+          <ion-label class="label">
+            <h2>Affichage patrimoine</h2>
+          </ion-label>
+
+          <div class="settings-content-template-header-buttons">
+            <ion-button [disabled]="assetFilter?.ftcId == null"
+                class="actions-layer-content-button-action actions-layer-content-button-action-active" 
+                style="margin-right: 16px;"
+                (click)="deleteCustom()">
+              Réinitialiser
+            </ion-button>
+
+            <ion-button [disabled]="!hasChanged"
+                class="actions-layer-content-button-action actions-layer-content-button-action-active" 
+                type="submit">
+              Enregistrer
+            </ion-button>
+          </div>
+        </div>
+
+        <div class="separation-line"></div>
+
+        <app-search-select *ngIf="settingsType === SettingsTypeEnum.USERS_SETTINGS" class="users-multi-selection"
+          key="id" title="Filtre de sélection des utilisateurs" label="Utilisateurs"
+          [elements]="users" [control]="form.controls['listUserId']" [elementLabelFunction]="getUserEmail" [isMultiSelection]="true">
+        </app-search-select>
+      </div>
+
+      <div class="settings-layer-references" [class]="settingsType === SettingsTypeEnum.USERS_SETTINGS ? 'users-settings' : ''">
+        <div class="patrimony-references-selection">
+          <ion-segment value="default">
+            <ion-segment-button value="default">
+              <ion-label>Patrimoine à afficher</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+
+          <div class="patrimony-references-selection-content">
+            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="details-tree">
+              <!-- LEAF -->
+              <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle class="non-children-node" [class.hidden]="node.visible === false">
+                <ion-item lines="none">
+                  <!-- Order -->
+                  <div class="up-down-div">
+                    <ion-button fill="clear" class="small-button" (click)="nodeDown(node)" [disabled]="isNodeFirst(node)">
+                      <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" class="small-button" (click)="nodeUp(node)" [disabled]="isNodeLast(node)">
+                      <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+                    </ion-button>
+                  </div>
+
+                  <!-- Picture and label -->
+                  <img [src]="node.imgSource || 'assets/img/patrimony/detail_autre.png'" width="24" height="24" slot="end"  />
+                  <ion-label slot="end">{{ node.name }}</ion-label>
+                </ion-item>
+
+                <!-- Visibility -->
+                <ion-button fill="clear" (click)="changeVisibleState(node)">
+                  <ion-icon slot="icon-only" name="eye" [class.strike-through]="node.visible === false" style="font-size: 19px;"></ion-icon>
+                </ion-button>
+              </mat-tree-node>
+            
+              <!-- PARENT -->
+              <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                <div class="mat-tree-node" [class.hidden]="node.visible === false">
+                  <ion-item lines="none">
+                    <ion-button fill="clear" matTreeNodeToggle>
+                      <ion-icon [name]="treeControl.isExpanded(node) ? 'chevron-down-outline' : 'chevron-forward-outline'"></ion-icon>
+                    </ion-button>
+
+                    <!-- Order -->
+                    <div class="up-down-div">
+                      <ion-button fill="clear" class="small-button" (click)="nodeDown(node)" [disabled]="isNodeFirst(node)">
+                        <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+                      </ion-button>
+                      <ion-button fill="clear" class="small-button" (click)="nodeUp(node)" [disabled]="isNodeLast(node)">
+                        <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+                      </ion-button>
+                    </div>
+
+                    <!-- Picture and label -->
+                    <img [src]="node.imgSource || 'assets/img/patrimony/detail_secteur.png'" width="24" height="24"   />
+                    <ion-label slot="end">{{ node.name }}</ion-label>
+                  </ion-item>
+
+                  <!-- Visibility -->
+                  <ion-button fill="clear" (click)="changeVisibleState(node)">
+                    <ion-icon slot="icon-only" name="eye" [class.strike-through]="node.visible === false" style="font-size: 19px;"></ion-icon>
+                  </ion-button>
+                </div>
+
+                <div [class.details-tree-invisible]="!treeControl.isExpanded(node)" role="group">
+                  <ng-container matTreeNodeOutlet></ng-container>
+                </div>
+              </mat-nested-tree-node>
+            </mat-tree>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ion-content>

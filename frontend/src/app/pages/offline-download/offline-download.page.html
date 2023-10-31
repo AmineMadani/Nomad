@@ -1,0 +1,40 @@
+<app-page-header
+  [headerLabel]="'Données hors connexion'"
+  [displayBackButton]="true">
+</app-page-header>
+
+<ion-content>
+  <ion-card class="offline-card">
+    <ion-item button (click)="onDownloadAll()">
+      <ion-label>Tout télécharger/mettre à jour</ion-label>
+    </ion-item>
+    <ion-item button (click)="onDumpAll()">
+      <ion-label>Tout vider</ion-label>
+    </ion-item>
+    <ion-item button (click)="onClearLocalDb()">
+      <ion-icon color="danger" aria-hidden="true" name="alert-circle-outline" ></ion-icon>
+      <ion-label class="danger">Réinitialiser l'application</ion-label>
+    </ion-item>
+  </ion-card>
+
+  <ion-list>
+    <app-offline-download-item title="Référentiels"
+      [offlineDownload]="referentialsOfflineDownload"
+      (onDownload)="onReferentialsDownload()"
+      (onDump)="onReferentialsDump()">
+    </app-offline-download-item>
+
+    <app-offline-download-item title="Equipements"
+      [offlineDownload]="tilesOfflineDownload"
+      (onDownload)="onTilesDownload()"
+      (onDump)="onTilesDump()">
+    </app-offline-download-item>
+
+    <app-offline-download-item title="Fonds de plan"
+      [offlineDownload]="basemapsOfflineDownload"
+      [isDirectDownload]="false"
+      (onDownload)="onBasemapDownload()"
+      (onDump)="onBasemapDump()">
+    </app-offline-download-item>
+  </ion-list>
+</ion-content>

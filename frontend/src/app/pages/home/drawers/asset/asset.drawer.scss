@@ -1,0 +1,51 @@
+.asset-drawer {
+  display: block;
+  height: 100%;
+
+  .header-label {
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 48px;
+    letter-spacing: 0.1px;
+    height: 48px;
+    color: var(--ion-color-neutral-variant-30);
+  }
+
+  ion-icon {
+    cursor: pointer;
+  }
+
+  .filter-content {
+    display: block;
+    height: calc(100% - 160px);
+  }
+
+  .mobile-view {
+    height: calc(100% - 112px);
+  }
+
+  .patrimony-footer-actions {
+    border-top: solid 1px var(--ion-color-neutral-variant-80);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 27px 0px;
+  }
+
+  .filter-segment {
+    grid-auto-columns: auto;
+    border-bottom: solid 1px var(--ion-color-neutral-variant-80);
+
+    .scrolling-wrapper-mobile {
+      ion-segment-button {
+        flex: 0 0 auto;
+      }
+    }
+  }
+
+  .filter-segment-content {
+    overflow-y: auto;
+    display: block;
+    height: calc(100% - 49px);
+  }
+}

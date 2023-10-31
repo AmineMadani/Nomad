@@ -1,0 +1,21 @@
+ion-content {
+  --padding-start: var(--ion-padding, 16px);
+  --padding-end: var(--ion-padding, 16px);
+  --padding-top: var(--ion-padding, 0px);
+  --padding-bottom: var(--ion-padding, 0px);
+}
+
+.offline-card {
+  ion-icon {
+    margin-right: 5px;
+  }
+
+  ion-label {
+    font-size: 14px;
+    color: var(--ion-color-primary);
+
+    &.danger {
+      color: var(--ion-color-danger);
+    }
+  }
+}

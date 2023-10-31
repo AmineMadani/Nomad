@@ -1,3 +1,101 @@
-<div class="map-container">
-  <div id="map" style="width: 100%;height: 100%"></div>
+<div id="map-container" class="map-container">
+  <div id="map" style="width: 100%;height: 100%" [style.visibility]="displayMap ? 'visible' : 'hidden'"></div>
 </div>
+
+<div class="map-actions-container">
+  <ng-container *ngIf="!isMobile || (isMobile && currentRoute === 'HOME')">
+
+    <div *ngIf="isMobile" id="scale" class="custom-scale-mobile">{{scale}}</div>
+
+    <input *ngIf="!isMobile" #scaleInput type="text" id="scale" class="custom-scale" [(ngModel)]="scale"
+      (change)="onScaleChange(scaleInput.value)" />
+
+    <ion-fab class="layers-fab no-print" [class.mobile-layer]="isMobile">
+      <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
+        <ion-icon name="layers-outline"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-list [side]="isMobile? 'top' : 'end'">
+        <ion-fab-button *ngFor="let basemap of basemaps" [matTooltip]="basemap.map_slabel"
+          (click)="onBasemapChange(basemap.map_slabel)">
+          <ion-img [src]="'assets/img/map/' + getMapAlias(basemap.map_slabel) + '.png'"></ion-img>
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>
+    <ion-fab class="layers-fab-resume" *ngIf="isMobile && hasResumeReport()">
+      <ion-fab-button size="small" color="secondary" (click)="resumeReport()">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <div class="calculation-box  no-print" id="calculation-box" [class.calculation-box-mobile]="isMobile" *ngIf="getMeasuringCondition() && !isMobile">
+      <span [innerHTML]="measure"></span>
+    </div>
+  </ng-container>
+
+
+  <div *ngIf="map" class="right-buttons no-print" [class.mobile-buttons]="isMobile">
+      <ion-fab (click)="onResetRotation()">
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+        <ion-icon name="compass-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <ion-fab>
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="geolocate()">
+        <ion-icon name="locate-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+    <ng-container *ngIf="!isMobile">
+      <ion-fab (click)="onZoomChange(zoom + 1)">
+        <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+
+      <ion-fab>
+        <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="onZoomChange(zoom - 1)">
+          <ion-icon name="remove-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    </ng-container>
+  </div>
+</div>
+
+<div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide"
+  id="map-nomad-context-menu">
+  <ion-list style="border-radius: 0px 10px 10px;">
+    <ion-item button (click)="onPolygonalSelection()">
+      <ion-label>Sélection polygonale</ion-label>
+    </ion-item>
+    <ion-item button (click)="onRectangleSelection()">
+      <ion-label>Sélection rectangulaire</ion-label>
+    </ion-item>
+    <ion-item button (click)="onGenerateWorkOrder()" [disabled]="!userHasPermissionCreateXYWorkorder">
+      <ion-label id="map-nomad-context-menu-create-workorder">Générer une intervention XY</ion-label>
+    </ion-item>
+    <ion-item button (click)="onGenerateReport()" [disabled]="!userHasPermissionModifyReport">
+      <ion-label id="map-nomad-context-menu-create-report">Saisir un compte-rendu XY</ion-label>
+    </ion-item>
+    <ion-item button (click)="onShareLocalisation()">
+      <ion-label>Partager ma localisation </ion-label>
+    </ion-item>
+  </ion-list>
+</div>
+
+<ion-modal #ionModalMeasure
+  [backdropBreakpoint]="0.1"
+  [breakpoints]="[0,0.1,0.25]"
+  (didDismiss)="measureModalDismissed($event)"
+  [isOpen]="getShouldOpenMobileMeasure()"
+  [initialBreakpoint]="0.1"
+  [showBackdrop]="false"
+  >
+  <ng-template>
+    <ion-content class="ion-padding">
+    <div class="mobile-area-measure">
+      <span [innerHTML]="measure"></span>
+    </div>
+    </ion-content>
+    </ng-template>
+  </ion-modal>

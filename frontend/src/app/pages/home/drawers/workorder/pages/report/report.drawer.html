@@ -1,0 +1,8 @@
+<div class="report-drawer">
+  <ng-container *ngIf="workorder">
+    <app-report-create [workorder]="workorder"></app-report-create>
+  </ng-container>
+  <ng-container *ngIf="!workorder">
+    <ion-spinner color="primary" name="circular" style="margin-top: 20%;margin-left: calc(50% - 20px);"></ion-spinner>
+  </ng-container>
+</div>

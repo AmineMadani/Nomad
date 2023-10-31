@@ -1,0 +1,50 @@
+<div class="cr-container">
+  <div class="cr-stepper" *ngIf="!isMobile">
+    <div class="cr-step" [ngClass]="{'cr-step-done': step > 1, 'cr-step-current': step == 1}">
+      <div class="cr-step-number">1</div>
+      <div class="cr-step-title">Patrimoine</div>
+      <ion-icon *ngIf="step > 1" name="checkmark-outline"></ion-icon>
+    </div>
+    <div class="cr-step-divider">
+      <div class="cr-line"></div>
+    </div>
+    <div class="cr-step" [ngClass]="{'cr-step-done': step > 2, 'cr-step-current': step == 2}">
+      <div class="cr-step-number">2</div>
+      <div class="cr-step-title">Contexte</div>
+      <ion-icon *ngIf="step > 2" name="checkmark-outline"></ion-icon>
+    </div>
+    <div class="cr-step-divider">
+      <div class="cr-line"></div>
+    </div>
+    <div class="cr-step" [ngClass]="{'cr-step-done': step > 3, 'cr-step-current': step == 3}">
+      <div class="cr-step-number">3</div>
+      <div class="cr-step-title">Formulaire</div>
+      <ion-icon *ngIf="step > 3" name="checkmark-outline"></ion-icon>
+    </div>
+  </div>
+  <div *ngIf="isMobile">
+    <ion-list style="display: flex;justify-content: center">
+      <ng-container *ngIf="step == 1"  >
+        <ion-item lines="none">
+          <ion-badge slot="start">1/3</ion-badge>
+          <ion-label>Patrimoine</ion-label>
+        </ion-item>
+      </ng-container>
+      <ng-container *ngIf="step == 2">
+        <ion-item lines="none">
+          <ion-badge slot="start">2/3</ion-badge>
+          <ion-label>Contexte</ion-label>
+        </ion-item>
+      </ng-container>
+      <ng-container *ngIf="step == 3">
+        <ion-item lines="none">
+          <ion-badge slot="start">3/3</ion-badge>
+          <ion-label>Formulaire</ion-label>
+        </ion-item>
+      </ng-container>
+    </ion-list>
+    <div style="width: 100%;">
+      <ion-progress-bar [value]="step == 1 ? 0.33 : (step == 2 ? 0.66 : 1)"></ion-progress-bar>
+    </div>
+  </div>
+</div>

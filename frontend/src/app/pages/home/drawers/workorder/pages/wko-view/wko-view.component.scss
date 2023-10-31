@@ -1,0 +1,50 @@
+ion-item.skeleton-label {
+    transform: translateX(30%);
+}
+
+ion-item.skeleton-status {
+    transform: translateX(35%);
+}
+
+.wko-informations {
+    width: 100%;
+    overflow: auto;
+    height: calc(100% - 120px);
+}
+
+
+h3.break-line > span {
+    overflow: visible;
+    white-space: normal;
+    height: auto;
+    display: inline-block;
+    max-width: 100%;
+  } 
+
+.attachment-div {
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .preview-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 96px;
+    }
+
+    .informations-div {
+        display: flex;
+        flex-direction: column;
+        margin-left: 8px;
+        width: 100%;
+
+        .title {
+            font-weight: bold;
+        }
+    }
+}

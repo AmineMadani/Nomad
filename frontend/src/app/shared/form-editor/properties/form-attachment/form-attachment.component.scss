@@ -1,0 +1,16 @@
+ion-item.picture {
+  cursor: pointer;
+}
+
+ion-label {
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--ion-color-neutral-variant-10);
+}
+
+ion-button {
+  ion-icon {
+    color: var(--ion-color-neutral-variant-30);
+  }
+}

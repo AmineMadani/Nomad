@@ -1,0 +1,17 @@
+<div class="settings-template-content">
+  <app-settings-header
+      class="settings-header"
+      title="Gestion des utilisateurs">
+  </app-settings-header>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+
+  <div class="settings-main-content" *ngIf="!isLoading">
+    <app-generic-table class="settings-table-content"
+      [toolbar]="toolbar"
+      [columns]="columns"
+      [rows]="usersRows"
+      [selectedRows]="selectedUsersRows"
+    ></app-generic-table>
+  </div>
+</div>

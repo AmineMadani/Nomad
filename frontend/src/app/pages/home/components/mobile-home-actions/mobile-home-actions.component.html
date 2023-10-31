@@ -1,0 +1,43 @@
+<ion-item-group>
+  <ng-container [ngSwitch]="type">
+    <ng-container *ngSwitchCase="'DISPLAY'">
+      <ion-item button lines="none" color="none" (click)="navigateTo(drawerRouteEnum.ASSET)">
+        <ion-label>Patrimoine</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" (click)="navigateTo(drawerRouteEnum.EXPLOITATION)">
+        <ion-label>Exploitation</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none">
+        <ion-label>Périmètre</ion-label>
+      </ion-item>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'ACTIONS'">
+      <ion-item button lines="none" color="none" button (click)="onGenerateWorkOrder()" [disabled]="!userHasPermissionCreateXYWorkorder">
+        <ion-label>Générer une intervention XY</ion-label>
+      </ion-item>
+      <ion-item  button lines="none" color="none" button (click)="onShareLocalisation()">
+        <ion-label>Partager ma localisation </ion-label>
+      </ion-item>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'TOOLS'">
+      <ion-item button lines="none" color="none">
+        <ion-icon color="primary" name="share-social-outline"></ion-icon>
+        <ion-label>Partager</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" button (click)="onPolygonTool()">
+        <ion-icon src="assets/icon/polygonal.svg" color="primary"></ion-icon>
+        <ion-label>Polygone</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" button (click)="onClickDisplaySurfaceMesureTool()">
+        <ion-icon src="assets/icon/rule.svg" color="primary"></ion-icon>
+        <ion-label>Mesure surfacique</ion-label>
+      </ion-item>
+      <ion-item button lines="none" color="none" button (click)="onClickDisplayLinearMesureTool()">
+        <ion-icon src="assets/icon/rule.svg" color="primary"></ion-icon>
+        <ion-label>Mesure linéaire</ion-label>
+      </ion-item>
+    </ng-container>
+  </ng-container>
+</ion-item-group>

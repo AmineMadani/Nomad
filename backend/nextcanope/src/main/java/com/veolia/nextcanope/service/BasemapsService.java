@@ -1,26 +1,30 @@
 package com.veolia.nextcanope.service;
 
-import com.veolia.nextcanope.model.Basemaps;
-import com.veolia.nextcanope.repository.BasemapsRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import com.veolia.nextcanope.model.Basemaps;
+import com.veolia.nextcanope.repository.BasemapsRepository;
 
+/**
+ * BasemapsService is a service class for managing basemap-related data.
+ * It interacts with the basemapsRepository to access and manipulate the data.
+ */
 @Service
 public class BasemapsService {
+	
     @Autowired
     BasemapsRepository basemapsRepository;
 
+    /**
+     * Retrieves the visible basemaps.
+     *
+     * @return The visible basemap.
+     */
     public List<Basemaps> getVisibleBasemaps() {
         // TO DO - find by user's contracts ids
-        return this.basemapsRepository.findByDisplay(true);
+        return this.basemapsRepository.findByMapDisplay(true);
     }
 }

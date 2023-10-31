@@ -46,4 +46,22 @@
     }
   }
 
+  .main-content-version-number {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 10px;
+
+    font-size: 13px;
+    color: var(--ion-color-primary);
+  }
+}
+
+.main-container {
+  // Removing 56px from toolbar
+  height: 100vh;
+}
+
+.main-mobile-container {
+  height: 100%;
 }

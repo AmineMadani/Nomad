@@ -1,0 +1,72 @@
+:host {
+  height: -webkit-fill-available;
+}
+
+.filter-div {
+  display: flex;
+  flex-direction: row;
+  padding: 8px;
+  font-size: 14px;
+  height: calc(100% - 44px); // 100% - buttons
+  align-items: center;
+
+  .filter-select {
+    width: 220px;
+  }
+
+  .filter-input {
+    width: 200px;
+  }
+
+  .select-div {
+    display: flex;
+    flex-direction: column;
+
+    .select-actions-div {
+      color: #616161;
+      font-weight: 500;
+    }
+
+    .search-input {
+      --max-height: 10px;
+    }
+
+    .select-list {
+      height: calc(100% - 44px - 56px); // 100% - buttons - search input
+      overflow: auto;
+      box-sizing: border-box;
+
+      .item {
+        //font-size: 14px;
+
+        ion-icon {
+          color: transparent;
+
+          &.selected {
+            color: var(--ion-color-primary);
+          }
+        }
+
+        span {
+          padding: 0 8px;
+          width: 100%;
+
+          &.selected {
+            color: var(--ion-color-primary);
+          }
+        }
+      }
+    }
+  }
+}
+  
+.filter-actions-div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+
+  button {
+    margin: 6px 8px;
+    font-weight: bold;
+  }
+}

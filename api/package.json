@@ -1,0 +1,23 @@
+{
+  "name": "moveo-api",
+  "version": "1.0.0",
+  "description": "moveo's lambda",
+  "scripts": {
+    "serve": "serverless invoke local --function lerne-responsive-routes --stage rec",
+    "deploy-rec": "serverless deploy --function lerne-responsive-routes --stage rec",
+    "deploy-prod": "serverless deploy --function lerne-responsive-routes --stage prd"
+  },
+  "license": "@VEOLIA",
+  "devDependencies": {
+    "serverless-api-gateway-caching": "^1.10.2",
+    "serverless-apigateway-service-proxy": "^2.2.1",
+    "serverless-domain-manager": "^7.1.2",
+    "serverless-package-python-functions": "^0.7.0",
+    "serverless-python-requirements": "^6.0.0",
+    "serverless-s3-deploy": "^0.10.1",
+    "serverless-stage-manager": "^1.0.5"
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}

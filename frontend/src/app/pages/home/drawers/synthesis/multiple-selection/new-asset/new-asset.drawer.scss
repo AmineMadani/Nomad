@@ -1,0 +1,84 @@
+.new-asset-drawer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+
+  ion-item.header-item {
+    --min-height: 64px;
+    width: 100%;
+  
+    .header-label {
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: 0.15px;
+      color: var(--ion-color-neutral-variant-30);
+    }
+  
+    ion-icon {
+      color: var(--ion-color-neutral-variant-30);
+    }
+  }
+
+  .question {
+    flex: 0;
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 41px - 54px - 100px);
+    width: 100%;
+    overflow: auto;
+    padding-top: 5px; // For Form-editor, otherwise the label of the input is cut
+
+    .answer {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      height: 35px;
+      width: 100%;
+      border: 1px solid black;
+      margin-bottom: 32px;
+      cursor: pointer;
+
+      &.selected {
+        background-color: var(--ion-color-secondary-variant-90);
+      }
+    }
+  }
+
+  .additional-questions-div {
+    .line {
+      display: flex;
+      flex-direction: column;
+      margin: 0 8px 8px;
+      padding: 8px;
+      border: 1px dashed blue;
+
+      .additional-question-select {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  .form-div {
+    > .input-div {
+      margin-bottom: 16px;
+    }
+  }
+
+  .new-asset-footer-actions {
+    border-top: solid 1px var(--ion-color-neutral-variant-80);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding: 27px 0px;
+  }
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="true">nomad-auth.hp.m-ve.com/</domain>
+    <domain includeSubdomains="true">keycloak-hom.dir.istefr.fr/</domain>
+    <domain includeSubdomains="true">keycloak.istefr.fr/</domain>
+    <domain includeSubdomains="true">localhost</domain>
+  </domain-config>
+</network-security-config>

@@ -1,6 +1,44 @@
-<div class="actions-layer-desktop-content">
-  <ion-searchbar show-clear-button="always" placeholder="Recherche" class="actions-layer-desktop-content-button-search"></ion-searchbar>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('patrimony')" [ngClass]="selectedAction == 'patrimony' ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('intervention')" [ngClass]="selectedAction == 'intervention' ? 'actions-layer-content-button-action-active':''">Intervention</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction('perimeter')" [ngClass]="selectedAction == 'perimeter' ? 'actions-layer-content-button-action-active':''">Périmètre</ion-button>
+<div class="actions-layer-desktop-content"  id="actions-layer-desktop-content">
+  <div id="searchbar-autocomplete">
+    <ion-searchbar show-clear-button="always" placeholder="Recherche" [debounce]="500" (ionInput)="onSearchInput($event)" [value]="adress"
+      (ionBlur)="onSearchbarFocusOut()" (keyup.enter)="onSearchKeyEnter()" class="actions-layer-desktop-content-button-search">
+    </ion-searchbar>
+    <div id="autocomplete-panel" *ngIf="adresses && adresses.length > 0">
+      <div class="autocomplete-content" *ngFor="let adress of adresses" (click)="onAdressClick(adress)">
+        {{adress.properties.label}}
+      </div>
+    </div>
+  </div>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
+    [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"
+    [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
+  <ion-button (click)="displayToolbox($event)" class="actions-layer-content-button-action">Outils</ion-button>
 </div>
+
+<ion-popover #toolbox showBackdrop="false" [isOpen]="isToolboxOpen" (didDismiss)="isToolboxOpen = false">
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item lines="none" button (click)="onClickDrawingPolygone()">
+        <ion-icon slot="start" src="assets/icon/polygonal.svg" color="primary"></ion-icon>
+        <ion-label>Polygone</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="onClickDrawingRectangle()">
+        <ion-icon slot="start" src="assets/icon/rectangle.svg" color="primary"></ion-icon>
+        <ion-label>Rectangle</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="onClickDisplayPrintTool()" id="print-button">
+        <ion-icon slot="start" name="print-outline"></ion-icon>
+        <ion-label>Impression</ion-label>
+      </ion-item>
+    </ion-content>
+    <ion-item lines="none" button (click)="onClickDisplaySurfaceMesureTool()">
+      <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
+     <ion-label>Mesure surfacique</ion-label>
+    </ion-item>
+    <ion-item lines="none" button (click)="onClickDisplayLinearMesureTool()">
+      <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
+     <ion-label>Mesure linéaire</ion-label>
+    </ion-item>
+  </ng-template>
+</ion-popover>

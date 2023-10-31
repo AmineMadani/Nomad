@@ -1,0 +1,15 @@
+ion-radio-group {
+  ion-radio {
+    margin-bottom: 5px;
+  }
+
+  .label {
+    display: flex;
+    flex-direction: column;
+
+    .description {
+      font-size: 10px;
+      color: var(--ion-color-neutral-variant-50);
+    }
+  }
+}

@@ -1,0 +1,37 @@
+<ng-template #buttonsTemplate>
+  <div class="overflow-row">
+    <div class="equipment-drawer-action-button-row" [class.mobile]="isMobile">
+      <ion-tab-button *ngFor="let button of buttons" class="equipment-drawer-action-button" (click)="onTabButtonClicked(button)" [disabled]="!equipment || (button.disabledFunction ? button.disabledFunction() : false)">
+        <ion-icon [name]="button.icon"></ion-icon>
+        <span>{{ button.label }}</span>
+      </ion-tab-button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #equipmentTemplate>
+  <app-skeleton-loading *ngIf="!equipment" [rows]="8"></app-skeleton-loading>
+  <ng-container *ngIf="userReferences">
+    <ng-container *ngFor="let reference of userReferences">
+      <ng-container *ngIf="equipment && reference.displayType === ReferenceDisplayType.SYNTHETIC">
+          <ion-item lines="none" class="ion-no-margin">
+            <ion-label class="label">
+              <h3>{{ reference.alias }}</h3>
+              <p>{{ equipment[reference.referenceKey] }}</p>
+            </ion-label>
+          </ion-item>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template #footerTemplate>
+  <ion-item lines="none">
+      <ion-button fill="clear" slot="end" (click)="onNavigateToDetails()" [disabled]="!userHasPermissionViewAssetDetailled">Détails</ion-button>
+  </ion-item>
+</ng-template>
+
+<app-synthesis [drawerTitle]="assetLabel" [sourceLayer]="equipment?.layer" [hasFile]="true"
+  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [contentTemplate]="equipmentTemplate" [sourceLayer]="'assets'"
+  [footerTemplate]="footerTemplate" (onDetails)="onNavigateToDetails()" (onInitComponent)="onInitEquipment($event)">
+</app-synthesis>

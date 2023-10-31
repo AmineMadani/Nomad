@@ -1,84 +1,82 @@
+\encoding UTF8
+
 /****************************************************
  * Scripts to Create config objects in the database *
  ****************************************************/
 
-set search_path to config, public;
+set search_path to nomad, public;
 
+-- Float Setting
 create table float_setting (
     name text primary key
   , value double precision
 );
+/* Comments on table */
+comment on table float_setting is 'This table defines the float settings.';
+/* Comments on fields */
+comment on column float_setting.name is 'Setting name';
+comment on column float_setting.value is 'Setting value';
 
+-- Text Setting
 create table text_setting (
     name text primary key
   , value text
 );
+/* Comments on table */
+comment on table text_setting is 'This table defines the text settings.';
+/* Comments on fields */
+comment on column text_setting.name is 'Setting name';
+comment on column text_setting.value is 'Setting value';
 
 --
--- Get the current value of the given float setting name.
--- By default, it looks for the parameter in the float_settings table.
--- But the setting can be overriden by a SET command in the current session.
-create or replace function current_float(setting text) returns double precision
-language plpgsql
-immutable -- immutable is required to get good plans
-as
-$$
-begin
-  return current_setting(setting);
-exception when others then
-  return (select value from config.float_setting where name=setting);
-end;
-$$;
+-- User appication
+-- This table defines the application users.
+create table users
+(
+  id                bigserial primary key,
+  usr_first_name    text not null,
+  usr_last_name	    text not null,
+  usr_email	        text unique not null,
+  usr_status        text not null default 'interne',
+  usr_company       text,
+  -- Technical metadata
+  usr_valid         boolean default True,
+  usr_ucre_id       bigint default 0,
+  usr_umod_id       bigint default 0,
+  usr_dcre          timestamp without time zone  default current_timestamp,
+  usr_dmod          timestamp without time zone  default current_timestamp,
+  usr_ddel          timestamp without time zone default null,
+  usr_configuration text
+);
+/* Comments on table */
+comment on table users is 'This table defines the application users.';
+/* Comments on fields */
+comment on column users.id is 'Table unique ID';
+comment on column users.usr_first_name is 'First name';
+comment on column users.usr_last_name is 'Last name';
+comment on column users.usr_email is 'User email';
+comment on column users.usr_valid is 'If valid, true else false';
+comment on column users.usr_ucre_id is 'Creator Id';
+comment on column users.usr_umod_id is 'Last Modificator Id';
+comment on column users.usr_dcre is 'Creation date';
+comment on column users.usr_dmod is 'Last modification date';
+comment on column users.usr_configuration is 'User configuration';
 
---
--- Get the current value of the given text setting name.
--- By default, it looks for the parameter in the text_settings table.
--- But the setting can be overriden by a SET command in the current session.
-create or replace function current_text(setting text) returns text
-language plpgsql
-immutable -- immutable is required to get good plans
-as
-$$
-begin
-  return (select value from config.text_setting where name=setting);
-end;
-$$;
+insert into users(id, usr_first_name, usr_last_name, usr_email) values (0, 'administrator', 'administrator', 'administrator@veolia.com');
+insert into users(id, usr_first_name, usr_last_name, usr_email) values (1, 'external', 'external', 'external@veolia.com');
+insert into users(id, usr_first_name, usr_last_name, usr_email) values (2, 'migration', 'migration', 'migration@veolia.com');
 
---
--- Get the current version of product
-create or replace function get_product_version() returns text
-language plpgsql
-immutable -- immutable is required to get good plans
-as
-$$
-begin
-  return (select config.current_text('product.version'));
-end;
-$$;
+ALTER SEQUENCE nomad.users_id_seq RESTART WITH 2;
 
+ALTER TABLE users
+ADD CONSTRAINT fk_usr_ucre_id
+FOREIGN KEY (usr_ucre_id)
+REFERENCES users (id);
 
---
--- Get the current srid
-create or replace function get_srid() returns integer
-language plpgsql
-immutable -- immutable is required to get good plans
-as
-$$
-begin
-  return (select config.current_text('srid')::integer);
-end;
-$$;
---
--- Set the current version of product
-create or replace function set_product_version(version text) returns void
-language plpgsql
-as
-$$
-begin
-  insert into config.text_setting values ('product.version', version)
-         ON CONFLICT (name) DO UPDATE SET value=version;
-end;
-$$;
+ALTER TABLE users
+ADD CONSTRAINT fk_usr_umod_id
+FOREIGN KEY (usr_umod_id)
+REFERENCES users (id);
 
 --
 -- Domain appication type
@@ -86,65 +84,36 @@ $$;
 -- Layers and business objects are referenced to a domain
 -- A domain can have child domains, for example, the asset
 -- Domain can be divided in 2 sub domains : drinking water, ans waste water
-
-create table domain
-(
-    id serial primary key
-  , type text unique not null
-  , parent_type text  references domain(type)
-  , short text
-  , alias text
-);
-
-/* Comments on table */
-COMMENT ON TABLE domain IS 'This table lists up all the application domains: drinking water, sewage water...';
-/* Comments on fields */
-COMMENT ON COLUMN domain.id IS 'Table unique ID';
-COMMENT ON COLUMN domain.type IS 'Type of the domain, used to prefix domain related objects';
-COMMENT ON COLUMN domain.alias IS 'Alias of the domain';
-COMMENT ON COLUMN domain.short IS 'Short alias of the domain';
-
 --
--- User appication
--- This table defines the application users.
 
-create table app_user
+create table domains
 (
-    id serial primary key
-  , first_name text
-  , last_name text
-  , email text
+  id                           bigserial primary key,
+	dom_type                     text unique not null,
+	dom_parent_id                bigint  references domains(id),
+	dom_slabel                    text,
+	dom_llabel                    text,
+  -- Technical metadata
+  dom_valid                    boolean default True,
+	dom_ucre_id                  bigint references users(id) default 0,
+  dom_umod_id                  bigint references users(id) default 0,
+  dom_dcre                     timestamp without time zone  default current_timestamp,
+  dom_dmod                     timestamp without time zone  default current_timestamp
 );
 
 /* Comments on table */
-COMMENT ON TABLE app_user IS 'This table defines the application users.';
+comment on table domains is 'This table lists up all the application domains: drinking water, sewage water...';
 /* Comments on fields */
-COMMENT ON COLUMN app_user.id IS 'Table unique ID';
-COMMENT ON COLUMN app_user.first_name IS 'User first name';
-COMMENT ON COLUMN app_user.last_name IS 'User last nale';
-
--- Layer tree
--- This table defines the layer tree exposed in the application.
--- Each layer belongs to a group
-
-create table tree
-(
-    id serial primary key
-  , domain_type text references domain(type)
-  , parent_id integer references tree(id)
-  , num_order integer
-  , alias text
-  , short text
-);
-
-/* Comments on table */
-COMMENT ON TABLE tree IS 'This table defines all groups and sub-groups to generate the app layer tree';
-/* Comments on fields */
-COMMENT ON COLUMN tree.id IS 'Table unique ID';
-COMMENT ON COLUMN tree.domain_type IS 'Application domain (ie: drinking water, ...)';
-COMMENT ON COLUMN tree.parent_id IS 'Parent id';
-COMMENT ON COLUMN tree.alias IS 'Alias of the tree group';
-
+comment on column domains.id is 'Table unique ID';
+comment on column domains.dom_type is 'Type of the domain, used to prefix domain related objects';
+comment on column domains.dom_parent_id is 'Parent Id';
+comment on column domains.dom_slabel is 'Short label (alias) of the domain';
+comment on column domains.dom_llabel is 'Long label (alias) of the domain';
+comment on column domains.dom_valid is 'If valid, true else false';
+comment on column domains.dom_ucre_id is 'creator Id';
+comment on column domains.dom_umod_id is 'Last modificator Id';
+comment on column domains.dom_dcre is 'Creation date';
+comment on column domains.dom_dmod is 'Last Modification date';
 
 -- Value Lists
 -- List of topological famility
@@ -152,12 +121,29 @@ COMMENT ON COLUMN tree.alias IS 'Alias of the tree group';
 
 create table vl_topology_type
 (
-    id serial primary key
-  , type text unique not null
-  , required_fields text[]
+    id bigserial primary key,
+    tpt_type text unique not null,
+    tpt_required_fields text[],
+    -- Technical metadata
+    tpt_valid         boolean default True,
+	  tpt_ucre_id       bigint references users(id) default 0,
+    tpt_umod_id       bigint references users(id) default 0,
+    tpt_dcre          timestamp without time zone  default current_timestamp,
+    tpt_dmod          timestamp without time zone  default current_timestamp
 );
+/* Comments on table */
+comment on table vl_topology_type is 'This table defines List of topological familiy and gives topological behabiour for business object';
+/* Comments on fields */
+comment on column vl_topology_type.id is 'Table unique ID';
+comment on column vl_topology_type.tpt_type is 'Type Name';
+comment on column vl_topology_type.tpt_required_fields is 'List of topological behabiour for business object';
+comment on column vl_topology_type.tpt_valid is 'If valid, true else false';
+comment on column vl_topology_type.tpt_ucre_id is 'creator Id';
+comment on column vl_topology_type.tpt_umod_id is 'Last modificator Id';
+comment on column vl_topology_type.tpt_dcre is 'Creation date';
+comment on column vl_topology_type.tpt_dmod is 'Last modification date';
 
-insert into vl_topology_type(type, required_fields)
+insert into vl_topology_type(tpt_type, tpt_required_fields)
   values
   ('arc' , null)--'{start_node,end_node}')
 , ('node' , null)
@@ -166,157 +152,1208 @@ insert into vl_topology_type(type, required_fields)
 , ('lateral_node', null)
 , ('lateral_point', null);
 
--- Business objects
--- This table lists up the business objects.
--- A business object in the model can be linked to work order
-
-create table business_object
+-- asset_type
+-- This table defines the asset type, 
+create table asset_type
 (
-    id serial primary key
-  , domain_type text not null references config.domain(type)
-  , topology_type text references  config.vl_topology_type(type)
-  , type text unique not null
+    id bigserial primary key,
+    dom_id bigint references domains(id),
+    ast_code text unique not null, -- code hérité de CANOPE / PICRU (20, 21...)
+    ast_slabel text,
+    ast_llabel text,
+    ast_geom_type text default 'point',
+    -- Technical metadata
+    ast_valid         boolean default True,
+    ast_ucre_id       bigint references users(id) default 0,
+    ast_umod_id       bigint references users(id) default 0,
+    ast_dcre          timestamp without time zone  default current_timestamp,
+    ast_dmod          timestamp without time zone  default current_timestamp
 );
-
 /* Comments on table */
-COMMENT ON TABLE business_object IS 'This table defines all business objects in the Application';
+comment on table asset_type is 'This table defines all the different types of asset';
 /* Comments on fields */
-COMMENT ON COLUMN business_object.id IS 'Table unique ID';
-COMMENT ON COLUMN business_object.domain_type IS 'Application domain (ie: drinking water, ...)';
-COMMENT ON COLUMN business_object.type IS 'Object type';
-
-create unique index business_object_type_idx on business_object(domain_type, type);
-
+comment on column asset_type.id is 'Table unique ID';
+comment on column asset_type.dom_id is 'Application domain (ie: drinking water, ...) Id';
+comment on column asset_type.ast_code is 'Code asset type';
+comment on column asset_type.ast_slabel is 'Short label asset type';
+comment on column asset_type.ast_llabel is 'Long label asset type';
+comment on column asset_type.ast_llabel is 'Geometry type (point, line...)';
+comment on column asset_type.ast_valid is 'If valid, true else false';
+comment on column asset_type.ast_ucre_id is 'creator Id';
+comment on column asset_type.ast_umod_id is 'Last modificator Id';
+comment on column asset_type.ast_dcre is 'Creation date';
+comment on column asset_type.ast_dmod is 'Last modification date';
 
 -- Layer
 -- This table defines all the layers available in the app.
-
 create table layer
 (
-    id serial primary key
-  , num_order integer
-  , domain_type text references domain(type)
-  , business_object_type text references business_object(type)
-  , tree_group_id integer references tree(id)
-  , simplified_tree_group_id  integer references tree(id)
-  , pg_table regclass --FIXME not null
-  , geom_column_name text not null
-  , uuid_column_name text not null
-  , geom_srid text not null
-  , style text
-  , alias text
-  , display boolean default true
+    id                       bigserial primary key,
+    lyr_num_order            integer,
+    dom_id                   bigint references domains(id),
+    ast_id                   bigint references asset_type(id) ,-- code hérité de CANOPE / PICRU (20, 21...)
+    lyr_table_name           text unique not null,
+    lyr_geom_column_name     text not null,
+    lyr_uuid_column_name     text not null,
+    lyr_geom_srid            text not null,
+    lyr_slabel               text,
+	  lyr_llabel               text,
+	  lyr_display              boolean default True,
+	  -- Technical metadata
+    lyr_valid                boolean default True,
+    lyr_ucre_id              bigint references users(id) default 0,
+    lyr_umod_id              bigint references users(id) default 0,
+    lyr_dcre                 timestamp without time zone  default current_timestamp,
+    lyr_dmod                 timestamp without time zone  default current_timestamp
 );
 
 /* Comments on table */
-COMMENT ON TABLE layer IS 'This table defines all the layers available in the app';
+comment on table layer is 'This table defines all the layers available in the app';
 /* Comments on fields */
-COMMENT ON COLUMN layer.id IS 'Table unique ID';
-COMMENT ON COLUMN layer.tree_group_id IS 'Tree group';
-COMMENT ON COLUMN layer.simplified_tree_group_id IS 'Simplified grpoup ID';
-COMMENT ON COLUMN layer.pg_table IS 'PG table that contains the layer features';
-COMMENT ON COLUMN layer.geom_column_name IS 'Column name that contains features geometry';
-COMMENT ON COLUMN layer.uuid_column_name IS 'Column name that contains unique ID';
-COMMENT ON COLUMN layer.geom_srid IS 'SRID of the features geometry';
-COMMENT ON COLUMN layer.style IS 'Mapbox json style';
-COMMENT ON COLUMN layer.alias IS 'French alias of the layer';
+comment on column layer.id is 'Table unique ID';
+comment on column layer.lyr_num_order is 'lyr_num_order';
+comment on column layer.dom_id is 'Application domain (ie: drinking water, ...) Id';
+comment on column layer.lyr_table_name is 'Table that contains the layer features (regclass format)';
+comment on column layer.lyr_geom_column_name is  'Column name that contains features geometry';
+comment on column layer.lyr_uuid_column_name is 'Column name that contains unique ID';
+comment on column layer.lyr_geom_srid is  'SRID of the features geometry';
+comment on column layer.lyr_slabel is 'Short Label of the layer';
+comment on column layer.lyr_llabel is 'Long Label of the layer';
+comment on column layer.lyr_display is 'lyr_display';
+comment on column layer.lyr_valid is 'If valid, true else false';
+comment on column layer.lyr_ucre_id is 'creator Id';
+comment on column layer.lyr_umod_id is 'Last modificator Id';
+comment on column layer.lyr_dcre is 'Creation date';
+comment on column layer.lyr_dmod is 'Last modification date';
 
 -- Basemaps
 -- This table defines all the basemaps available in the app.
 
 create table basemaps
 (
-  id serial primary key
-  , alias text
-  , type  text
-  , url text
-  , layer text
-  , matrixset text
-  , format text
-  , projection text
-  , tilegrid text
-  , style text
-  , attributions text
-  , "default" boolean default false
-  , display boolean default false
-  , thumbnail bytea
+    id                bigserial primary key,
+    map_slabel        text,
+    map_llabel        text,
+    map_type          text,
+    map_url           text,
+    map_layer         text,
+    map_matrixset     text,
+    map_format        text,
+    map_projection    text,
+    map_tilegrid      text,
+    map_style         text,
+    map_attributions  text,
+    map_default       boolean default false,
+    map_display       boolean default false,
+    map_thumbnail     bytea,
+	  -- Technical metadata
+    map_valid         boolean default True,
+    map_ucre_id       bigint references users(id) default 0,
+    map_umod_id       bigint references users(id) default 0,
+    map_dcre          timestamp without time zone  default current_timestamp,
+    map_dmod          timestamp without time zone  default current_timestamp
 );
 
 /* Comments on table */
-COMMENT ON TABLE basemaps IS 'This table defines all the raster layers available in the app';
+comment on table basemaps is 'This table defines all the raster layers available in the app';
 /* Comments on fields */
-COMMENT ON COLUMN basemaps.id IS 'Table unique ID';
-COMMENT ON COLUMN basemaps.type IS 'Basemap  ty:pe (WMTS, WMS...)';
-COMMENT ON COLUMN basemaps.display IS 'Display basemap';
-COMMENT ON COLUMN basemaps.default IS 'Default basemap';
-COMMENT ON COLUMN basemaps.url IS 'Basemap URL';
-COMMENT ON COLUMN basemaps.layer IS 'Layer to display';
-COMMENT ON COLUMN basemaps.matrixset IS 'Matrix set';
-COMMENT ON COLUMN basemaps.format IS 'Format (png...)';
-COMMENT ON COLUMN basemaps.projection IS 'Projection system (EPSG: 3857)';
-COMMENT ON COLUMN basemaps.tilegrid IS 'Tile grid';
-COMMENT ON COLUMN basemaps.style IS 'Style';
-COMMENT ON COLUMN basemaps.attributions IS 'WS attributions';
-COMMENT ON COLUMN basemaps.thumbnail IS 'Image thumbnail';
+comment on column basemaps.id is 'Table unique ID';
+comment on column basemaps.map_slabel is 'Basemap Short Label';
+comment on column basemaps.map_llabel is 'Basemap Long Label';
+comment on column basemaps.map_type is 'Basemap  type (WMTS, WMS...)';
+comment on column basemaps.map_url is 'Basemap URL';
+comment on column basemaps.map_layer is 'Layer to display';
+comment on column basemaps.map_matrixset is 'Matrix set';
+comment on column basemaps.map_format is 'Format (png...)';
+comment on column basemaps.map_projection is 'Format (png...)';
+comment on column basemaps.map_tilegrid is 'Tile grid';
+comment on column basemaps.map_style is 'Style';
+comment on column basemaps.map_attributions is 'WS attributions';
+comment on column basemaps.map_default is 'Default basemap';
+comment on column basemaps.map_display is 'Display basemap';
+comment on column basemaps.map_thumbnail is 'Image thumbnail';
+comment on column basemaps.map_valid is 'If valid, true else false';
+comment on column basemaps.map_ucre_id is 'creator Id';
+comment on column basemaps.map_umod_id is 'Last modificator Id';
+comment on column basemaps.map_dcre is 'Creation date';
+comment on column basemaps.map_dmod is 'Last modification date';
 
--- Create view to generate simplified layer tree
--- Use config table that gives for each domain
--- the associated tabs and its layers
-create or replace view v_simplified_layer_tree as
-with recursive domains as
- (
- SELECT type as parent_domain_type, alias as parent_domain_alias, type as domain_type, alias as tab
-   FROM config.domain
-  where parent_type is null
-  union all
- select d1.parent_type as parent_domain_type, d2.parent_domain_alias, d1.type as domain_type, d1.alias as tab
-   from domains d2
-   join config.domain d1
-     on d1.parent_type = d2.domain_type
-)
-   select d.parent_domain_type, d.parent_domain_alias, d.tab, t.alias as tree_group,l.*
-     from config.layer l
-left join domains d on d.domain_type = l.domain_type
-left join config.tree t on t.id = l.simplified_tree_group_id
- order by l.num_order;
+-- Create table to store a grid that covers all asset
+-- Used to export GeoJson
+create table app_grid
+(
+    id                bigserial primary key,
+	  -- Technical metadata
+    agr_valid         boolean default True,
+    agr_ucre_id       bigint references users(id) default 0,
+    agr_umod_id       bigint references users(id) default 0,
+    agr_dcre          timestamp without time zone  default current_timestamp,
+    agr_dmod          timestamp without time zone  default current_timestamp,
+    -- Geometry
+    geom              geometry('Polygon', 4326)
+);
 
--- Create view to generate detailed layer tree
--- Use config table that gives for each domain
--- the associated layers group by group
-create or replace view v_detailed_layer_tree as
-with
-toc as
+create index on app_grid using gist(geom);
+
+/* Comments on table */
+comment on table app_grid is 'This table defines the grid to export geojson';
+/* Comments on fields */
+comment on column app_grid.id is 'Table unique ID';
+comment on column app_grid.agr_valid is 'If valid, true else false';
+comment on column app_grid.agr_ucre_id is 'creator Id';
+comment on column app_grid.agr_umod_id is 'Last modificator Id';
+comment on column app_grid.agr_dcre is 'Creation date';
+comment on column app_grid.agr_dmod is 'Last modification date';
+comment on column app_grid.geom is 'Geometry of the grid';;
+
+-- Create table layer_references to store the corresponding columns for each layers
+CREATE TABLE layer_references(
+    id                 bigserial PRIMARY KEY,
+    lyr_id             bigint NOT NULL REFERENCES layer(id),
+    lrf_reference_key  text NOT NULL,
+    lrf_slabel          text,
+    lrf_llabel          text,
+    -- Technical metadata
+    lrf_valid          boolean default True,
+    lrf_ucre_id        bigint references users(id) default 0,
+    lrf_umod_id        bigint references users(id) default 0,
+    lrf_dcre           timestamp without time zone  default current_timestamp,
+    lrf_dmod           timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table layer_references is 'This table defines the corresponding columns (reference_key) for each layers';
+/* Comments on fields */
+comment on column layer_references.id is 'Table unique ID';
+comment on column layer_references.lyr_id is 'Layer Id';
+comment on column layer_references.lrf_reference_key is 'Reference key. It is the column name in the layer table';
+comment on column layer_references.lrf_slabel is  'Short label to display in the app';
+comment on column layer_references.lrf_llabel is  'Long label (Alias) to display in the app';
+comment on column layer_references.lrf_valid is 'If valid, true else false';
+comment on column layer_references.lrf_ucre_id is 'creator Id';
+comment on column layer_references.lrf_umod_id is 'Last modificator Id';
+comment on column layer_references.lrf_dcre is 'Creation date';
+comment on column layer_references.lrf_dmod is 'Last modification date';
+
+CREATE TYPE layer_references_display_type AS ENUM ('SYNTHETIC','DETAILED');
+CREATE CAST (character varying AS nomad.layer_references_display_type)
+WITH INOUT AS IMPLICIT;
+
+-- Create table layer_references_default to store the default display_type and position for each layer_references
+CREATE TABLE layer_references_default(
+    id                bigserial PRIMARY KEY,
+    lrd_id            bigint not null references layer_references (id),
+    lrd_position      int not null,
+    lrd_section       text,
+    lrd_isvisible     boolean default true,
+    lrd_display_type  layer_references_display_type NOT NULL,
+    -- Technical metadata
+    lrd_valid         boolean default True,
+    lrd_ucre_id       bigint references users(id) default 0,
+    lrd_umod_id       bigint references users(id) default 0,
+    lrd_dcre          timestamp without time zone  default current_timestamp,
+    lrd_dmod          timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table layer_references_default is 'This table defines the default display_type and position for each layer_references in the app';
+/* Comments on fields */
+comment on column layer_references_default.id is 'Table unique ID';
+comment on column layer_references_default.lrd_id is 'Layer reference ID';
+comment on column layer_references_default.lrd_position is 'Position in the app';
+comment on column layer_references_default.lrd_section is 'Section to group properties';
+comment on column layer_references_default.lrd_isvisible is 'If visible, true else false';
+comment on column layer_references_default.lrd_display_type is  'Display type (SYNTHETIC or DETAILED)';
+comment on column layer_references_default.lrd_valid is 'If valid, true else false';
+comment on column layer_references_default.lrd_ucre_id is 'creator Id';
+comment on column layer_references_default.lrd_umod_id is 'Last modificator Id';
+comment on column layer_references_default.lrd_dcre is 'Creation date';
+comment on column layer_references_default.lrd_dmod is 'Last modification date';
+
+-- Create table layer_references_user to store the user display_type and position for each layer_references
+CREATE TABLE layer_references_user(
+    id               bigserial     PRIMARY KEY NOT NULL,
+    lrf_id           bigint NOT NULL REFERENCES layer_references (id),
+    lru_user_id      bigint NOT NULL REFERENCES users(id),
+    lru_position     INT NOT NULL,
+    lru_display_type layer_references_display_type NOT NULL,
+    lru_section      text,
+    lru_isvisible    boolean default true,
+    -- Technical metadata
+    lru_valid        boolean default True,
+    lru_ucre_id      bigint references users(id) default 0,
+    lru_umod_id      bigint references users(id) default 0,
+    lru_dcre         timestamp without time zone  default current_timestamp,
+    lru_dmod         timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table layer_references_user is 'This table defines the user display_type and position for each layer_references in the app';
+/* Comments on fields*/
+comment on column layer_references_user.id is 'Table unique ID';
+comment on column layer_references_user.lrf_id is 'Layer reference Id';
+comment on column layer_references_user.lru_user_id is 'User id';
+comment on column layer_references_user.lru_position is 'Position in the app';
+comment on column layer_references_user.lru_display_type is 'Display type (SYNTHETIC or DETAILED)';
+comment on column layer_references_user.lru_section is 'Section to group properties';
+comment on column layer_references_user.lru_isvisible is 'If visible, true else false';
+comment on column layer_references_user.lru_valid is 'If valid, true else false';
+comment on column layer_references_user.lru_ucre_id is 'creator Id';
+comment on column layer_references_user.lru_umod_id is 'Last modificator Id';
+comment on column layer_references_user.lru_dcre is 'Creation date';
+comment on column layer_references_user.lru_dmod is 'Last modification date';
+
+-- Table contract_activity
+-- Define the activity of a contract
+create table if not exists  contract_activity(
+  id          bigserial primary key,
+  cta_code    text unique not null,
+  cta_slabel  text,
+  cta_llabel	text,
+  -- Technical metadata
+  cta_valid   boolean default true,
+  cta_ucre_id bigint references users(id) default 0,
+  cta_umod_id bigint references users(id) default 0,
+  cta_dcre    timestamp without time zone  default current_timestamp,
+  cta_dmod    timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table contract_activity is 'This table defines the activity of a contract';
+/* Comments on fields*/
+comment on column contract_activity.id is 'Table unique ID';
+comment on column contract_activity.cta_code is 'Code of the activity';
+comment on column contract_activity.cta_slabel is 'Short label of the activity';
+comment on column contract_activity.cta_llabel is 'Long label of the activity';
+comment on column contract_activity.cta_valid is 'If valid, true else false';
+comment on column contract_activity.cta_ucre_id is 'creator Id';
+comment on column contract_activity.cta_umod_id is 'Last modificator Id';
+comment on column contract_activity.cta_dcre is 'Creation date';
+comment on column contract_activity.cta_dmod is 'Last modification date';
+
+-- Table contract
+-- Contains the contracts 
+--FIXME manque la notion d'exploitant / de DICT / DSP ou Hors DSP / statut . Type client
+create table if not exists contract(
+  id                           bigserial primary key,
+  ctr_code                     text unique,
+  ctr_slabel	        	       text,
+  ctr_llabel	        	       text,
+  ctr_start_date               timestamp without time zone,
+  ctr_end_date                 timestamp without time zone,
+  cta_id                       bigint references contract_activity(id),
+  -- Technical metadata
+  ctr_valid                    boolean default True,
+  ctr_ucre_id                  bigint references users(id) default 0,
+  ctr_umod_id                  bigint references users(id) default 0,
+  ctr_dcre                     timestamp without time zone  default current_timestamp,
+  ctr_dmod                     timestamp without time zone  default current_timestamp,
+  -- Geometry
+  geom                         geometry('MULTIPOLYGON', 4326)
+);
+create index on contract using gist(geom);
+/* Comments on table */
+comment on table contract is 'This table contains the contracts';
+/* Comments on fields */
+comment on column contract.id is 'Table unique ID';
+comment on column contract.ctr_code is 'Code of the contract';
+comment on column contract.ctr_slabel is 'short label of the contract';
+comment on column contract.ctr_llabel is 'long label of the contract';
+comment on column contract.ctr_start_date is 'Start date of the contract';
+comment on column contract.ctr_end_date is 'Start date of the contract';
+comment on column contract.ctr_valid is 'If valid, true else false';
+comment on column contract.ctr_ucre_id is 'creator Id';
+comment on column contract.ctr_umod_id is 'Last modificator Id';
+comment on column contract.ctr_dcre is 'Creation date';
+comment on column contract.ctr_dmod is 'Last modification date';
+comment on column contract.cta_id is 'Activity of the contract';
+comment on column contract.geom is 'geometry of the contract';
+
+-- Table contract
+-- Contains the cities
+create table if not exists city(
+  id           bigserial primary key,
+  cty_code     text unique,
+  cty_slabel   text,
+  cty_llabel   text,
+  -- Technical metadata
+  cty_valid    boolean default True, 
+  cty_ucre_id  bigint references users(id) default 0,
+  cty_umod_id  bigint references users(id) default 0,
+  cty_dcre     timestamp without time zone  default current_timestamp,
+  cty_dmod     timestamp without time zone  default current_timestamp,
+  -- Geometry
+  geom         geometry('MULTIPOLYGON', 4326)
+);
+create index on city using gist(geom);
+
+/* Comments on table */
+comment on table city is 'This table contains the cities';
+/* Comments on fields */
+comment on column city.id is 'Table unique ID';
+comment on column city.cty_code is 'Insee code of the city';
+comment on column city.cty_slabel is 'Short name of the city';
+comment on column city.cty_llabel is 'Long name of the city';
+comment on column city.cty_valid is 'If valid, true else false';
+comment on column city.cty_ucre_id is 'creator Id';
+comment on column city.cty_umod_id is 'Last modificator Id';
+comment on column city.cty_dcre is 'Creation date';
+comment on column city.cty_dmod is 'Last modification date';
+comment on column city.geom is 'Geometry of the city';
+
+-- Table street
+-- Contains the streets
+create table if not exists street(
+id           bigserial primary key,
+cty_id       bigint references city(id),
+str_code     text,
+str_slabel	 text,
+str_llabel	 text,
+str_source	 text,
+-- Technical metadata
+str_valid    boolean default True,
+str_ucre_id  bigint references users(id) default 0,
+str_umod_id  bigint references users(id) default 0,
+str_dcre     timestamp without time zone  default current_timestamp,
+str_dmod     timestamp without time zone  default current_timestamp,
+-- Geometry
+geom         geometry('multilinestring', :srid)
+);
+create index on street using gist(geom);
+
+/* Comments on table */
+comment on table street is 'This table contains the streets';
+/* Comments on fields */
+comment on column street.id is 'Table unique ID';
+comment on column street.cty_id is 'Id of the city';
+comment on column street.str_code is 'Code of the street';
+comment on column street.str_slabel is 'Short label of the street';
+comment on column street.str_llabel is 'Long label of the street';
+comment on column street.str_source is 'Source of the data';
+comment on column street.str_valid is 'If valid, true else false';
+comment on column street.str_ucre_id is 'creator Id';
+comment on column street.str_umod_id is 'Last modificator Id';
+comment on column street.str_dcre is 'Creation date';
+comment on column street.str_dmod is 'Last modification date';
+comment on column street.geom is 'Geometry of the street';
+
+-- Table workorder_task_status
+-- Contains the status of the workorder and task
+create table if not exists workorder_task_status
 (
-with recursive tree_orga as
-  (
-  SELECT id,  id  as parent, domain_type, num_order as num_order , alias as parent_tree_group , alias as tree_group
-   FROM config.tree
-  where parent_id is null
-  union all
-  select lg.id, parent, lg.domain_type, lg.num_order, parent_tree_group, lg.alias as tree_group
-   from tree_orga g
-   join config.tree lg
-     on lg.parent_id = g.id
-  )
-  select * from tree_orga
-),
-domains as
+  id           bigserial primary key,
+  wts_code     text unique not null,
+  wts_slabel   text not null,
+  wts_llabel   text,
+  wts_wo       boolean default True,
+  wts_task     boolean default True,
+  -- Technical metadata
+  wts_valid    boolean default True,
+  wts_ucre_id  bigint references users(id) default 0,
+  wts_umod_id  bigint references users(id) default 0,
+  wts_dcre     timestamp without time zone  default current_timestamp,
+  wts_dmod     timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table workorder_task_status is 'This table contains the status of the workorder and task';
+/* Comments on fields */
+comment on column workorder_task_status.id is 'Table unique ID';
+comment on column workorder_task_status.wts_code is 'Code of the status';
+comment on column workorder_task_status.wts_slabel is 'Short label of status';
+comment on column workorder_task_status.wts_llabel is 'Long label of status';
+comment on column workorder_task_status.wts_wo is 'If workorders use this status, true else false';
+comment on column workorder_task_status.wts_task is 'If tasks use this status';
+comment on column workorder_task_status.wts_valid is 'If valid, true else false';
+comment on column workorder_task_status.wts_ucre_id is 'creator Id';
+comment on column workorder_task_status.wts_umod_id is 'Last modificator Id';
+comment on column workorder_task_status.wts_dcre is 'Creation date';
+comment on column workorder_task_status.wts_dmod is 'Last modification date';
+
+-- Table workorder_task_reason
+-- Contains the reason of the workorder and task
+create table if not exists workorder_task_reason
 (
-  with recursive domains as
-  (
-  SELECT type as parent_domain_type, alias as parent_domain_alias, type as domain_type, alias as tab
-   FROM config.domain
-  where parent_type is null
-  union all
-  select d1.parent_type as parent_domain_type, d2.parent_domain_alias, d1.type as domain_type, d1.alias as tab
-   from domains d2
-   join config.domain d1
-     on d1.parent_type = d2.domain_type
-  )
-  select * from domains
-)
-    select d.parent_domain_type, d.parent_domain_alias,  t.parent_tree_group, t.tree_group, l.*
-      from config.layer l
- left join domains d on d.domain_type = l.domain_type
- left join toc t on t.id = l.tree_group_id
-  order by l.num_order;
+  id                bigserial primary key,
+  wtr_code          text not null,
+  wtr_slabel        text not null,
+  wtr_llabel        text,
+  wtr_work_request  boolean default True,
+  wtr_report        boolean default True,
+  wtr_wo            boolean default True,
+  wtr_task          boolean default True,
+  wtr_no_xy         boolean default False,
+  -- Technical metadata
+  wtr_valid         boolean default True,
+  wtr_ucre_id       bigint references users(id) default 0,
+  wtr_umod_id       bigint references users(id) default 0,
+  wtr_dcre          timestamp without time zone  default current_timestamp,
+  wtr_dmod          timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table workorder_task_reason is 'This table contains the reason of the workorder and task';
+/* Comments on fields */
+comment on column workorder_task_reason.id is 'Table unique ID';
+comment on column workorder_task_reason.wtr_code is 'Code of the reason';
+comment on column workorder_task_reason.wtr_slabel is 'Short label of reason';
+comment on column workorder_task_reason.wtr_llabel is 'Long label of reason';
+comment on column workorder_task_reason.wtr_work_request is 'If work request use the reason, true else false';
+comment on column workorder_task_reason.wtr_report is 'If report request use the reason, true else false';
+comment on column workorder_task_reason.wtr_wo is 'If workorder use the reason, true else false';
+comment on column workorder_task_reason.wtr_task is 'If task reason, true else false';
+comment on column workorder_task_reason.wtr_valid is 'If valid, true else false';
+comment on column workorder_task_reason.wtr_ucre_id is 'creator Id';
+comment on column workorder_task_reason.wtr_umod_id is 'Last modificator Id';
+comment on column workorder_task_reason.wtr_dcre is 'Creation date';
+comment on column workorder_task_reason.wtr_dmod is 'Last modification date';
+
+-- Table ast_wtr
+-- Contains the link between workorder_task reason and asset type
+create table if not exists ast_wtr
+(
+  wtr_id       bigint not null references workorder_task_reason(id),
+  ast_id       bigint not null references asset_type(id),
+  -- Technical metadata
+  asw_valid    boolean default True,
+  asw_ucre_id  bigint references users(id),
+  asw_umod_id  bigint references users(id),
+  asw_dcre     timestamp without time zone  default current_timestamp,
+  asw_dmod     timestamp without time zone  default current_timestamp,
+  primary key (wtr_id, ast_id)
+);
+/* Comments on table */
+comment on table ast_wtr is 'This table contains the reason of the workorder and task';
+/* Comments on fields */
+comment on column ast_wtr.wtr_id is 'workerorder/Task Reason id';
+comment on column ast_wtr.ast_id is 'asset id';
+comment on column ast_wtr.asw_valid is 'If valid, true else false';
+comment on column ast_wtr.asw_ucre_id is 'creator Id';
+comment on column ast_wtr.asw_umod_id is 'Last modificator Id';
+comment on column ast_wtr.asw_dcre is 'Creation date';
+comment on column ast_wtr.asw_dmod is 'Last modification date';
+
+
+-- Table asset
+-- Contains the assets referenced in a workorder or a task
+create table if not exists asset(
+id                           bigserial primary key,
+ass_obj_ref                  text,
+ass_obj_table                text NOT NULL REFERENCES layer(lyr_table_name),
+-- Technical metadata
+ass_valid                    boolean default True,
+ass_ucre_id                  bigint references users(id) default 0,
+ass_umod_id                  bigint references users(id) default 0,
+ass_dcre                     timestamp without time zone  default current_timestamp,
+ass_dmod                     timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table asset is 'This table containsthe assets referenced in a workorder or a task';
+/* Comments on fields */
+comment on column asset.id is 'Table unique ID';
+comment on column asset.ass_obj_ref is 'Patrimo,ial Object Reference (uuid)';
+comment on column asset.ass_obj_table is 'Associated table in the patrimonial schema';
+comment on column asset.ass_valid is 'If valid, true else false';
+comment on column asset.ass_ucre_id is 'creator Id';
+comment on column asset.ass_umod_id is 'Last modificator Id';
+comment on column asset.ass_dcre is 'Creation date';
+comment on column asset.ass_dmod is 'Last modification date';
+
+-- Table workorder
+-- Contains the workorders
+create table if not exists workorder
+(
+  id                           bigserial primary key,
+  wko_cache_id                 bigint unique,
+  -- Work order properties
+  wko_name                     text,
+  wko_external_app		         text,
+  wko_external_id	             text,
+  wko_creation_cell            text,
+  wko_creation_comment         text,
+  wko_emergency                boolean default False,
+  wko_appointment              boolean default False,
+  wko_address                  text,
+  wko_street_number            text,
+  wko_planning_start_date	     timestamp without time zone,
+  wko_planning_end_date	       timestamp without time zone,
+  wko_completion_start_date	         timestamp without time zone,
+  wko_completion_end_date	         timestamp without time zone,
+  wko_realization_user         text,
+  wko_realization_cell         text,
+  wko_realization_comment      text,
+  wko_agent_nb                 INT,
+  wko_cancel_comment		       text,
+  ------
+  cty_id                       bigint references city(id),
+  cty_llabel                   text,
+  ------
+  wts_id                       bigint references workorder_task_status(id), -- status
+  ------
+  str_id                       bigint references street(id),
+  str_llabel                   text,
+  ------
+  /*
+  water_stop_id                bigint,
+  program_id                   bigint,
+  worksite_id                  bigint, -- FIXME: territoirre ? pourquoi le mettre dans les workorder ?
+  delivery_point_id            bigint,
+  */
+  ------
+  -- Technical metadata
+  wko_ucre_id                  bigint references users(id) default 0,
+  wko_umod_id                  bigint references users(id) default 0,
+  wko_dmod                     timestamp without time zone  default current_timestamp,
+  wko_dcre        	           timestamp without time zone  default current_timestamp,
+  wko_ddel                     timestamp without time zone default null,
+  ------
+  -- Geometry
+  longitude                    numeric,
+  latitude                     numeric,
+  geom                         geometry('POINT', 4326),
+  -- external app
+  wko_ext_ref                  text,
+  wko_ext_date_sync            timestamp without time zone default null,
+  wko_ext_error                text,
+  wko_ext_to_sync              boolean default False,
+  wko_attachment               boolean default False
+);
+create index on workorder using gist(geom);
+/* Comments on table */
+comment on table workorder is 'This table contains the workorders';
+/* Comments on fields */
+comment on column workorder.id is 'Table unique ID';
+comment on column workorder.wko_cache_id is 'Table unique cache ID';
+comment on column workorder.wko_name is 'Name of the workorder';
+comment on column workorder.wko_external_app is 'External application';
+comment on column workorder.wko_external_id is 'External id of the workorder';
+comment on column workorder.wko_creation_cell is 'Creation cell of the workorder';
+comment on column workorder.wko_creation_comment is 'comment of the workorder';
+comment on column workorder.wko_emergency is 'If emergency, true else false'; 
+comment on column workorder.wko_appointment is 'If appointment, true else false'; 
+comment on column workorder.wko_address is 'Address of the workorder';
+comment on column workorder.wko_street_number is 'Street number of the workorder';
+comment on column workorder.wko_planning_start_date is 'Planning start date of the workorder';
+comment on column workorder.wko_planning_end_date is 'Planning end date of the workorder';
+comment on column workorder.wko_completion_start_date is 'Completion start date of the workorder';
+comment on column workorder.wko_completion_end_date is 'Completion end date of the workorder';
+comment on column workorder.wko_realization_user is 'Realization user of the workorder';
+comment on column workorder.wko_realization_cell is 'Realization cell of the workorder';
+comment on column workorder.wko_realization_comment is 'Realization comment of the workorder';
+comment on column workorder.cty_id is 'City';
+comment on column workorder.cty_llabel is 'Long label of the city';
+comment on column workorder.wts_id is 'Workorder status ';
+comment on column workorder.str_id is 'Street';
+comment on column workorder.str_llabel is 'Long label of the street';
+COMMENT ON COLUMN workorder.wko_agent_nb IS 'Number of agent';
+comment on column workorder.wko_cancel_comment is 'Cancellation comment of the workorder';
+comment on column workorder.wko_ucre_id is 'creator Id';
+comment on column workorder.wko_umod_id is 'Last modificator Id';
+comment on column workorder.wko_dmod is 'Last modification date';
+comment on column workorder.wko_dcre is 'Creation date';
+comment on column workorder.wko_ddel is 'Deletion date';
+comment on column workorder.longitude is 'longitude';
+comment on column workorder.latitude is 'latitude';
+comment on column workorder.geom is 'Geometry of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_ref IS 'External reference of the workorder';
+COMMENT ON COLUMN workorder.wko_ext_date_sync IS 'Last date of synchronization with an external application';
+COMMENT ON COLUMN workorder.wko_ext_to_sync IS 'True if there is a need to synchronize the workorder with the external app';
+COMMENT ON COLUMN workorder.wko_ext_error IS 'Error message during synchronisation';
+
+-- Table task
+-- Contains the tasks
+create table if not exists task
+(
+  id                       bigserial primary key,
+  tsk_cache_id             bigint unique,
+  wko_id		               bigint references workorder(id),
+  tsk_name                 text,
+  wts_id                   bigint references workorder_task_status(id), -- status
+  wtr_id                   bigint references workorder_task_reason(id), -- reason
+  tsk_comment              text,
+  ctr_id                   bigint references contract(id),
+  ass_id                   bigint references  asset(id), 
+  tsk_planning_start_date  timestamp without time zone,
+  tsk_planning_end_date	   timestamp without time zone,
+  tsk_completion_start_date	     timestamp without time zone,
+  tsk_completion_end_date	     timestamp without time zone,
+  tsk_realization_user     bigint,
+  tsk_report_date          timestamp without time zone,
+  tsk_cancel_comment		       text,
+  -- Technical metadata
+  tsk_ucre_id              bigint references users(id) default 0,
+  tsk_umod_id              bigint references users(id) default 0,
+  tsk_dcre        	       timestamp without time zone  default current_timestamp,
+  tsk_dmod                 timestamp without time zone  default current_timestamp,
+  tsk_ddel                 timestamp without time zone default null,
+  --------
+  longitude                numeric,
+  latitude                 numeric,
+  geom                     geometry('POINT', 4326)
+);
+create index on task using gist(geom);
+/* Comments on table */
+comment on table workorder is 'This table contains the workorders';
+/* Comments on fields */
+comment on column task.id is 'Table unique ID';
+comment on column task.tsk_cache_id is 'Table unique cache ID';
+comment on column task.wko_id is 'Workorder';
+comment on column task.tsk_name is 'Name of the task';
+comment on column task.wts_id is 'Task status';
+comment on column task.wtr_id is 'Task reason';
+comment on column task.tsk_comment is 'Comment of the task';
+comment on column task.ctr_id is 'Contract';
+comment on column task.ass_id is 'Asset';
+comment on column task.tsk_planning_start_date is 'Planning start date of the task';
+comment on column task.tsk_planning_end_date is 'Planning end date of the task';
+comment on column task.tsk_completion_start_date is 'Completion start date of the task';
+comment on column task.tsk_completion_end_date is 'Completion end date of the task';
+comment on column task.tsk_realization_user is 'Realization user of the task';
+comment on column task.tsk_report_date is 'Date of the report';
+comment on column task.tsk_ucre_id is 'creator Id';
+comment on column task.tsk_umod_id is 'Last modificator Id';
+comment on column task.tsk_dcre is 'Creation date';
+comment on column task.tsk_dmod is 'Last modification date';
+comment on column task.tsk_ddel is 'Deletion date';
+comment on column task.longitude is 'longitude';
+comment on column task.latitude is 'latitude';
+comment on column task.geom is 'Geometry of the task';
+
+-- Table task
+-- Contains the reports
+create table if not exists report(
+  id                           bigserial primary key,
+  tsk_id                       bigint references task(id),
+  rpt_key                      text,
+  rpt_label                    text,
+  rpt_value                    text,
+  -- Technical metadata
+  rpt_ucre_id                   bigint references users(id) default 0,
+  rpt_umod_id                   bigint references users(id) default 0,
+  rpt_dcre                     timestamp without time zone  default current_timestamp,
+  rpt_dmod                     timestamp without time zone  default current_timestamp,
+  rpt_ddel                     timestamp without time zone default null
+);
+/* Comments on table */
+comment on table report is 'This table contains the reports';
+/* Comments on fields */
+comment on column report.id is 'Table unique ID';
+comment on column report.tsk_id is 'Task';
+comment on column report.rpt_key is 'Report key';
+comment on column report.rpt_label is 'Report question';
+comment on column report.rpt_value is 'Report answer';
+comment on column report.rpt_ucre_id is 'creator Id';
+comment on column report.rpt_umod_id is 'Last modificator Id';
+comment on column report.rpt_dcre is 'Creation date';
+comment on column report.rpt_dmod is 'Last modification date';
+comment on column report.rpt_ddel is 'Deletion date';
+
+
+/*
+create table if not exists report_field(
+  id                           bigserial primary key,
+  rpf_code                     text,
+  rpf_slabel	        	   text,
+  rpf_llabel	        	   text,
+  rpf_valid                    boolean default true,
+  rpf_cre_id                   bigint references users(id) default 0,
+  rpf_mod_id                   bigint references users(id) default 0,
+  rpf_dcre                     timestamp without time zone  default current_timestamp,
+  rpf_dmod                     timestamp without time zone  default current_timestamp
+);
+
+
+create table if not exists report_form(
+  id                        bigserial primary key,
+  wtr_id                    bigint ,
+  frm_code                  text,
+  frm_slabel	        	text,
+  frm_llabel	        	text,
+  frm_valid                 boolean default true,
+  frm_cre_id                bigint references users(id) default 0,
+  frm_mod_id                bigint references users(id) default 0,
+  frm_dcre                  timestamp without time zone  default current_timestamp,
+  frm_dmod                  timestamp without time zone  default current_timestamp
+);
+
+
+create table if not exists frm_rpf(
+  frm_id                       bigint,
+  rpf_id	        	       bigint,
+  frf_ucre_id                  bigint references users(id) default 0,
+  frf_umod_id                  bigint references users(id) default 0,
+  frf_dcre                     timestamp without time zone  default current_timestamp,
+  frf_dmod                     timestamp without time zone  default current_timestamp,
+  primary key (frm_id, rpf_id)
+);
+*/
+
+-- Table report_question
+-- Contains the questions that can be in a report form
+create table if not exists report_question
+(
+  id                bigserial primary key,
+  rqn_code          text not null,
+  rqn_slabel        text not null,
+  rqn_llabel        text not null,
+  rqn_type          text not null,
+  rqn_required      boolean default False,
+  rqn_select_values text,
+  -- Technical metadata
+  rqn_ucre_id       bigint references users(id) default 0,
+  rqn_umod_id       bigint references users(id) default 0,
+  rqn_dcre          timestamp without time zone  default current_timestamp,
+  rqn_dmod          timestamp without time zone  default current_timestamp,
+  rqn_ddel          timestamp without time zone  default null
+);
+/* Comments on table */
+comment on table report_question is 'This table contains the questions available for a report form';
+/* Comments on fields */
+comment on column report_question.id is 'Table unique ID';
+comment on column report_question.rqn_code is 'Code of the reason';
+comment on column report_question.rqn_slabel is 'Short label of reason';
+comment on column report_question.rqn_llabel is 'Long label of reason';
+comment on column report_question.rqn_type is 'Type of the question';
+comment on column report_question.rqn_required is 'Is the question required';
+comment on column report_question.rqn_select_values is 'List of the possible anwsers for the type select in a json format';
+comment on column report_question.rqn_ucre_id is 'creator Id';
+comment on column report_question.rqn_umod_id is 'Last modificator Id';
+comment on column report_question.rqn_dcre is 'Creation date';
+comment on column report_question.rqn_dmod is 'Last modification date';
+comment on column report_question.rqn_dmod is 'Deletion date';
+
+create sequence nomad.report_question_rqn_code;
+
+-- Table form_definition
+-- Contains the forms content
+create table if not exists form_definition(
+  id                           bigserial primary key,
+  fdn_code                     text not null,
+  fdn_definition               text not null,
+  -- Technical metadata
+  fdn_ucre_id                  bigint references users(id) default 0,
+  fdn_umod_id                  bigint references users(id) default 0,
+  fdn_dcre                     timestamp without time zone  default current_timestamp,
+  fdn_dmod                     timestamp without time zone  default current_timestamp,
+  fdn_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_definition is 'This table contains the form definition';
+/* Comments on fields */
+comment on column form_definition.id is 'Table unique ID';
+comment on column form_definition.fdn_code is 'The definition code';
+comment on column form_definition.fdn_definition is 'The json definition';
+comment on column form_definition.fdn_ucre_id is 'creator Id';
+comment on column form_definition.fdn_umod_id is 'Last modificator Id';
+comment on column form_definition.fdn_dcre is 'Creation date';
+comment on column form_definition.fdn_dmod is 'Last modification date';
+comment on column form_definition.fdn_ddel is 'Deletion date';
+
+
+-- Table form_template
+-- Contains the form template
+create table if not exists form_template(
+  id                           bigserial primary key,
+  fte_code                     text not null,
+  fdn_id                       bigint references form_definition(id) not null,
+  -- Technical metadata
+  fte_ucre_id                  bigint references users(id) default 0,
+  fte_umod_id                  bigint references users(id) default 0,
+  fte_dcre                     timestamp without time zone  default current_timestamp,
+  fte_dmod                     timestamp without time zone  default current_timestamp,
+  fte_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_template is 'This table contains the form template';
+/* Comments on fields */
+comment on column form_template.id is 'Table unique ID';
+comment on column form_template.fte_code is 'Code template';
+comment on column form_template.fdn_id is 'The form definition';
+comment on column form_template.fte_ucre_id is 'creator Id';
+comment on column form_template.fte_umod_id is 'Last modificator Id';
+comment on column form_template.fte_dcre is 'Creation date';
+comment on column form_template.fte_dmod is 'Last modification date';
+comment on column form_template.fte_ddel is 'Deletion date';
+
+-- Table form_template_custom
+-- Contains the form template custom
+create table if not exists form_template_custom(
+  id                           bigserial primary key,
+  fte_id                       bigint references form_template(id) not null,
+  usr_id                       bigint references users(id) not null,
+  fdn_id                       bigint references form_definition(id) not null,
+  -- Technical metadata
+  ftc_ucre_id                  bigint references users(id) default 0,
+  ftc_umod_id                  bigint references users(id) default 0,
+  ftc_dcre                     timestamp without time zone  default current_timestamp,
+  ftc_dmod                     timestamp without time zone  default current_timestamp,
+  ftc_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table form_template_custom is 'This table contains the form template custom';
+/* Comments on fields */
+comment on column form_template_custom.id is 'Table unique ID';
+comment on column form_template_custom.fte_id is 'Form template ID';
+comment on column form_template_custom.usr_id is 'User ID';
+comment on column form_template_custom.fdn_id is 'The form definition';
+comment on column form_template_custom.ftc_ucre_id is 'creator Id';
+comment on column form_template_custom.ftc_umod_id is 'Last modificator Id';
+comment on column form_template_custom.ftc_dcre is 'Creation date';
+comment on column form_template_custom.ftc_dmod is 'Last modification date';
+comment on column form_template_custom.ftc_ddel is 'Deletion date';
+
+-- Table style definition
+-- Contains the style definition
+create table if not exists style_definition (
+  id                           bigserial primary key,
+  syd_code                     text not null,
+  syd_definition               text not null,
+  -- Technical metadata
+  syd_ucre_id                  bigint references users(id) default 0,
+  syd_umod_id                  bigint references users(id) default 0,
+  syd_dcre                     timestamp without time zone  default current_timestamp,
+  syd_dmod                     timestamp without time zone  default current_timestamp,
+  syd_ddel                     timestamp without time zone default null
+);
+
+-- Table style image
+-- Contains the style image
+create table if not exists style_image (
+  id                           bigserial primary key,
+  syd_id                       bigint references style_definition(id) not null,
+  syi_code                     text not null,
+  syi_source                   text not null,
+  -- Technical metadata
+  syi_ucre_id                  bigint references users(id) default 0,
+  syi_umod_id                  bigint references users(id) default 0,
+  syi_dcre                     timestamp without time zone  default current_timestamp,
+  syi_dmod                     timestamp without time zone  default current_timestamp,
+  syi_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table style_image is 'This table contains the style image';
+/* Comments on fields */
+comment on column style_image.id is 'Table unique ID';
+comment on column style_image.syd_id is 'The style definition';
+comment on column style_image.syi_code is 'The image code';
+comment on column style_image.syi_source is 'The source';
+comment on column style_image.syi_ucre_id is 'creator Id';
+comment on column style_image.syi_umod_id is 'Last modificator Id';
+comment on column style_image.syi_dcre is 'Creation date';
+comment on column style_image.syi_dmod is 'Last modification date';
+comment on column style_image.syi_ddel is 'Deletion date';
+
+-- Table layer_style
+-- Contains the styles for layers
+create table if not exists layer_style (
+  id                           bigserial primary key,
+  lse_code                     text not null,
+  syd_id                       bigint references style_definition(id) not null,
+  lyr_id                       bigint references layer(id) not null,
+  -- Technical metadata
+  lse_ucre_id                  bigint references users(id) default 0,
+  lse_umod_id                  bigint references users(id) default 0,
+  lse_dcre                     timestamp without time zone  default current_timestamp,
+  lse_dmod                     timestamp without time zone  default current_timestamp,
+  lse_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style is 'This table contains the form template';
+/* Comments on fields */
+comment on column layer_style.id is 'Table unique ID';
+comment on column layer_style.lse_code is 'Code layer';
+comment on column layer_style.syd_id is 'The style definition';
+comment on column layer_style.lyr_id is 'The layer id';
+comment on column layer_style.lse_ucre_id is 'creator Id';
+comment on column layer_style.lse_umod_id is 'Last modificator Id';
+comment on column layer_style.lse_dcre is 'Creation date';
+comment on column layer_style.lse_dmod is 'Last modification date';
+comment on column layer_style.lse_ddel is 'Deletion date';
+
+-- Table layer_style_custom
+-- Contains the layer style custom
+create table if not exists layer_style_custom (
+  id                           bigserial primary key,
+  lse_id                       bigint references layer_style(id) not null,
+  usr_id                       bigint references users(id) not null,
+  syd_id                       bigint references style_definition(id) not null,
+  -- Technical metadata
+  lsc_ucre_id                  bigint references users(id) default 0,
+  lsc_umod_id                  bigint references users(id) default 0,
+  lsc_dcre                     timestamp without time zone  default current_timestamp,
+  lsc_dmod                     timestamp without time zone  default current_timestamp,
+  lsc_ddel                     timestamp without time zone default null
+);
+
+/* Comments on table */
+comment on table layer_style_custom is 'This table contains the layer style custom';
+/* Comments on fields */
+comment on column layer_style_custom.id is 'Table unique ID';
+comment on column layer_style_custom.lse_id is 'Layer style id';
+comment on column layer_style_custom.usr_id is 'User ID';
+comment on column layer_style_custom.syd_id is 'The style definition';
+comment on column layer_style_custom.lsc_ucre_id is 'creator Id';
+comment on column layer_style_custom.lsc_umod_id is 'Last modificator Id';
+comment on column layer_style_custom.lsc_dcre is 'Creation date';
+comment on column layer_style_custom.lsc_dmod is 'Last modification date';
+comment on column layer_style_custom.lsc_ddel is 'Deletion date';
+
+-- Table organizational_unit_type
+-- This table contains the organizational hierachy of units types.
+create table if not exists organizational_unit_type
+(
+  id                bigserial primary key,
+  out_code          text unique not null,
+  out_slabel        text not null,
+  out_llabel        text,
+  out_valid         boolean default True,
+  out_ucre_id       bigint references users(id) default 0,
+  out_umod_id       bigint references users(id) default 0,
+  out_dcre          timestamp without time zone  default current_timestamp,
+  out_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table organizational_unit_type is 'This table contains the organizational hierachy of units types.';
+/* Comments on fields */
+comment on column organizational_unit_type.id is 'Table unique ID';
+comment on column organizational_unit_type.out_code is 'code of the unit type';
+comment on column organizational_unit_type.out_slabel is 'short label';
+comment on column organizational_unit_type.out_llabel is 'long label';
+comment on column organizational_unit_type.out_valid is 'If valid, true else false';
+comment on column organizational_unit_type.out_ucre_id is 'Creator Id';
+comment on column organizational_unit_type.out_umod_id is 'Last Modificator Id';
+comment on column organizational_unit_type.out_dcre is 'Creation date';
+comment on column organizational_unit_type.out_dmod is 'Last modification date';
+
+ALTER TABLE organizational_unit_type
+ADD CONSTRAINT fk_out_out_ucre_id
+FOREIGN KEY (out_ucre_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit_type
+ADD CONSTRAINT fk_out_out_umod_id
+FOREIGN KEY (out_umod_id)
+REFERENCES users (id);
+
+insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('REGION','Region','Région');
+insert into organizational_unit_type(out_code, out_slabel, out_llabel) values ('TERRITORY','Territoire','Territoire');
+
+-- Table organizational_unit
+-- This table contains the organizational hierachy of units.
+create table if not exists organizational_unit
+(
+  id                bigserial primary key,
+  org_code          text not null,
+  org_slabel        text not null,
+  org_llabel        text,
+  org_parent_id     bigint,
+  out_id            bigint,
+  -- Technical metadata
+  org_valid         boolean default True,
+  org_ucre_id       bigint references users(id) default 0,
+  org_umod_id       bigint references users(id) default 0,
+  org_dcre          timestamp without time zone  default current_timestamp,
+  org_dmod          timestamp without time zone  default current_timestamp,
+  unique (org_code, out_id)
+);
+
+/* Comments on table */
+comment on table organizational_unit is 'This table contains the organizational hierachy of units.';
+/* Comments on fields */
+comment on column organizational_unit.id is 'Table unique ID';
+comment on column organizational_unit.org_code is 'code of the unit';
+comment on column organizational_unit.org_slabel is 'short label';
+comment on column organizational_unit.org_llabel is 'long label';
+comment on column organizational_unit.org_valid is 'If valid, true else false';
+comment on column organizational_unit.org_ucre_id is 'Creator Id';
+comment on column organizational_unit.org_umod_id is 'Last Modificator Id';
+comment on column organizational_unit.org_dcre is 'Creation date';
+comment on column organizational_unit.org_dmod is 'Last modification date';
+comment on column organizational_unit.org_parent_id is 'If valid, true else false';
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_ucre_id
+FOREIGN KEY (org_ucre_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_umod_id
+FOREIGN KEY (org_umod_id)
+REFERENCES users (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_org_parent_id
+FOREIGN KEY (org_parent_id)
+REFERENCES organizational_unit (id);
+
+ALTER TABLE organizational_unit
+ADD CONSTRAINT fk_org_out_id
+FOREIGN KEY (out_id)
+REFERENCES organizational_unit_type (id);
+
+-- Table profile
+-- This table contains the profiles.
+create table if not exists profile
+(
+  id                bigserial primary key,
+  prf_code          text unique not null,
+  prf_slabel        text not null,
+  prf_llabel        text,
+  prf_valid         boolean default True,
+  prf_ucre_id       bigint references users(id) default 0,
+  prf_umod_id       bigint references users(id) default 0,
+  prf_dcre          timestamp without time zone  default current_timestamp,
+  prf_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table profile is 'This table contains the profiles..';
+/* Comments on fields */
+comment on column profile.id is 'Table unique ID';
+comment on column profile.prf_code is 'code of the profile';
+comment on column profile.prf_slabel is 'short label';
+comment on column profile.prf_llabel is 'long label';
+comment on column profile.prf_valid is 'If valid, true else false';
+comment on column profile.prf_ucre_id is 'Creator Id';
+comment on column profile.prf_umod_id is 'Last Modificator Id';
+comment on column profile.prf_dcre is 'Creation date';
+comment on column profile.prf_dmod is 'Last modification date';
+
+/* Profile values */
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_NAT','Administrateur national','Administrateur national');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_1','Administrateur local 1','Administrateur local 1');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('ADMIN_LOC_2','Administrateur local 2','Administrateur local 2');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('MANAGER','Manager / Responsable','Manager / Responsable');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('DESKTOP_AGENT','Agent Bureau - Mobile','Agent Bureau - Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('MOBILE_AGENT','Agent Mobile','Agent Mobile');
+insert into profile(prf_code, prf_slabel, prf_llabel) values ('SUBCONTRACTOR','Sous-traitant','Sous-traitant');
+
+-- Table org_ctr
+-- Contains the link between organizational units and their contracts
+create table if not exists org_ctr
+(
+  org_id       bigint not null references organizational_unit(id),
+  ctr_id       bigint not null references contract(id),
+  -- Technical metadata
+  orc_ucre_id  bigint references users(id),
+  orc_umod_id  bigint references users(id),
+  orc_dcre     timestamp without time zone  default current_timestamp,
+  orc_dmod     timestamp without time zone  default current_timestamp,
+  primary key (org_id, ctr_id)
+);
+/* Comments on table */
+comment on table org_ctr is 'This table Contains the link between organizational units and their contracts';
+/* Comments on fields */
+comment on column org_ctr.org_id is 'organizational unit id';
+comment on column org_ctr.ctr_id is 'contract id';
+comment on column org_ctr.orc_ucre_id is 'creator Id';
+comment on column org_ctr.orc_umod_id is 'Last modificator Id';
+comment on column org_ctr.orc_dcre is 'Creation date';
+comment on column org_ctr.orc_dmod is 'Last modification date';
+
+-- Table usr_ctr_prf
+-- Contains the link between users and their contracts
+create table if not exists usr_ctr_prf
+(
+  usr_id       bigint not null references users(id),
+  ctr_id       bigint not null references contract(id),
+  prf_id       bigint not null references profile(id),
+  -- Technical metadata
+  usc_ucre_id bigint references users(id) default 0,
+  usc_umod_id bigint references users(id) default 0,
+  usc_dcre     timestamp without time zone  default current_timestamp,
+  usc_dmod     timestamp without time zone  default current_timestamp,
+  usc_ddel     timestamp without time zone default null,
+  primary key (usr_id, ctr_id)
+);
+/* Comments on table */
+comment on table usr_ctr_prf is 'This table contains the link between users and their contracts';
+/* Comments on fields */
+comment on column usr_ctr_prf.usr_id is 'user id';
+comment on column usr_ctr_prf.ctr_id is 'contract id';
+comment on column usr_ctr_prf.usc_ucre_id is 'creator Id';
+comment on column usr_ctr_prf.usc_umod_id is 'Last modificator Id';
+comment on column usr_ctr_prf.usc_dcre is 'Creation date';
+comment on column usr_ctr_prf.usc_dmod is 'Last modification date';
+
+-- Table permissions
+-- This table contains the permissions.
+create table if not exists permissions
+(
+  id                bigserial primary key,
+  per_code          text unique not null,
+  per_slabel        text not null,
+  per_llabel        text,
+  per_category      text not null,
+  per_valid         boolean default True,
+  per_ucre_id       bigint references users(id) default 0,
+  per_umod_id       bigint references users(id) default 0,
+  per_dcre          timestamp without time zone  default current_timestamp,
+  per_dmod          timestamp without time zone  default current_timestamp
+);
+
+/* Comments on table */
+comment on table permissions is 'This table contains the permissions..';
+/* Comments on fields */
+comment on column permissions.id is 'Table unique ID';
+comment on column permissions.per_code is 'code of the permission';
+comment on column permissions.per_slabel is 'short label';
+comment on column permissions.per_llabel is 'long label';
+comment on column permissions.per_valid is 'If valid, true else false';
+comment on column permissions.per_ucre_id is 'Creator Id';
+comment on column permissions.per_umod_id is 'Last Modificator Id';
+comment on column permissions.per_dcre is 'Creation date';
+comment on column permissions.per_dmod is 'Last modification date';
+
+-- Table prf_per
+-- Contains the link between profile and permissions
+create table if not exists prf_per
+(
+  prf_id       bigint not null references profile(id),
+  per_id       bigint not null references permissions(id),
+  -- Technical metadata
+  prp_ucre_id  bigint references users(id) default 0,
+  prp_umod_id  bigint references users(id) default 0,
+  prp_dcre     timestamp without time zone  default current_timestamp,
+  prp_dmod     timestamp without time zone  default current_timestamp,
+  primary key (prf_id, per_id)
+);
+/* Comments on table */
+comment on table prf_per is 'This table contains the link between profile and permissions';
+/* Comments on fields */
+comment on column prf_per.prf_id is 'profile id';
+comment on column prf_per.per_id is 'permission id';
+comment on column prf_per.prp_ucre_id is 'creator Id';
+comment on column prf_per.prp_umod_id is 'Last modificator Id';
+comment on column prf_per.prp_dcre is 'Creation date';
+comment on column prf_per.prp_dmod is 'Last modification date';
+
+-- set the default organization of 
+alter table users add column usr_default_org_id bigint references organizational_unit(id);
+
+-- Table asset for sig
+-- Contains the assets to be create by sig
+create table if not exists asset_for_sig(
+id                           bigserial primary key,
+lyr_id                       bigint NOT NULL REFERENCES layer(id),
+afs_geom                     geometry NOT NULL,
+afs_informations             text NOT NULL,
+afs_cache_id                 bigint unique,
+-- Technical metadata
+afs_ucre_id                  bigint references users(id) default 0,
+afs_umod_id                  bigint references users(id) default 0,
+afs_dcre                     timestamp without time zone  default current_timestamp,
+afs_dmod                     timestamp without time zone  default current_timestamp
+);
+/* Comments on table */
+comment on table asset_for_sig is 'This table contains the assets to be send to SIG';
+/* Comments on fields */
+comment on column asset_for_sig.id is 'Table unique ID';
+comment on column asset_for_sig.lyr_id is 'Layer Id';
+comment on column asset_for_sig.afs_geom is 'Geometry of the asset';
+comment on column asset_for_sig.afs_informations is 'Informations about the asset';
+comment on column asset_for_sig.afs_cache_id is 'Table unique cache ID';
+comment on column asset_for_sig.afs_ucre_id is 'creator Id';
+comment on column asset_for_sig.afs_umod_id is 'Last modificator Id';
+comment on column asset_for_sig.afs_dcre is 'Creation date';
+comment on column asset_for_sig.afs_dmod is 'Last modification date';

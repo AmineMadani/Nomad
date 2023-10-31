@@ -1,0 +1,11 @@
+<form [formGroup]="form" class="value-label-div">
+  <ion-input #label aria-label="label" labelPlacement="floating" 
+    fill="outline" label="Valeur *" formControlName="label" 
+    errorText="La valeur est obligatoire."
+    (keydown.enter)="ok()" />
+
+  <div class="buttons-div">
+    <ion-button (click)="cancel()">Annuler</ion-button>
+    <ion-button (click)="ok()">Ok</ion-button>
+  </div>
+</form>

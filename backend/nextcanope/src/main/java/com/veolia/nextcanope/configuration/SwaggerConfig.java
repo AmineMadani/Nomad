@@ -8,14 +8,20 @@ import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.veolia.nextcanope.constants.ConfigConstants;
+
 @Configuration
 @OpenAPIDefinition(security = {@SecurityRequirement(name = "bearer-key")})
 public class SwaggerConfig {
 
+	/**
+	 * Swagger configuration
+	 * @return Custom API configuration
+	 */
     @Bean
     public OpenApiCustomizer customerGlobalHeaderOpenApiCustomiser() {
         return openApi -> openApi.getComponents()
-            .addSecuritySchemes("bearer-key",
-                new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
+            .addSecuritySchemes(ConfigConstants.LABEL_BEARER_KEY,
+                new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme(ConfigConstants.LABEL_BEARER).bearerFormat(ConfigConstants.LABEL_JWT));
     }
 }

@@ -1,0 +1,178 @@
+<div class="new-asset-drawer">
+  <ion-item class="header-item" lines="none">
+    <ion-button fill="clear" slot="start" (click)="onDrawerBack()">
+        <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
+    </ion-button>
+    <ion-label class="header-label">
+        {{ drawerTitle }}
+    </ion-label>
+    <!-- HIDE THIS BUTTON, ITS FOR DEV ONLY-->
+    <ion-button mat-stroked-button (click)="fileUpload.click()" fill="clear" style="display:none">
+      Import
+      <input #fileUpload type="file" value="Upload" (change)="createFormDefinitionFromCSVFile($event)" style="display:none" accept=".csv" />
+    </ion-button>
+    
+    <ion-button fill="clear" slot="end" (click)="onDrawerClose()">
+        <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <!-- First step - Type of asset to create -->
+  <ng-container *ngIf="step === 1 && indexFilterAssetSelection === 0">
+    <div class="question">Sur quelle activité souhaitez-vous ajouter un patrimoine ?</div>
+    <div class="answers">
+      <div *ngFor="let filterAsset of listFilterAsset" 
+          (click)="selectFilterAsset(filterAsset)"
+          class="answer"
+          [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
+        {{ filterAsset.name }}
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="step === 1 && indexFilterAssetSelection > 0">
+    <div class="question">Quel patrimoine souhaitez-vous créer ?</div>
+    <div class="answers">
+      <div *ngFor="let filterAsset of listChildFilterAsset" 
+          (click)="selectFilterAsset(filterAsset)"
+          class="answer"
+          [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
+        {{ filterAsset.name }}
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Second step - Select where the asset is -->
+  <ng-container *ngIf="step === 2">
+    <div class="question">Selection de la position de {{selectedAsset.layerKey}}</div>
+    <div class="answers">
+      <ng-container *ngFor="let coord of coords; let i = index">
+        <p>Point {{i + 1}} - Lng: {{coord[0].toFixed(5)}} / Lat: {{coord[1].toFixed(5)}}</p> 
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- Third step - Fill the data bout the asset -->
+  <ng-container *ngIf="step === 3">
+    <div class="question">Remplir les informations de {{selectedAsset.layerKey}}</div>
+
+    <div class="answers no-scroll-mobile">
+      <form *ngIf="form && !isLoading" [formGroup]="form" class="form-div">
+        <ng-container *ngFor="let definition of listDefinition">
+          <ng-container [ngSwitch]="definition.component">
+            <div *ngSwitchCase="'input'" class="input-div">
+              <ion-input labelPlacement="floating" fill="outline"
+                [label]="definition.label"
+                [placeholder]="definition.attributes?.placeholder" 
+                [formControlName]="definition.key" 
+                [type]="definition.attributes?.type" />
+
+              <ng-container *ngIf="definition.rules">
+                <ng-container *ngFor="let rule of definition.rules">
+                  <ng-container *ngIf="form.controls[definition.key].hasError(rule.key) && form.controls[definition.key].touched">
+                    <ion-label color="danger" lines="none">
+                      {{ rule.message }}
+                    </ion-label>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </div>
+
+            <div *ngSwitchCase="'select'" class="input-div">
+              <ion-select label-placement="floating" fill="outline"
+                [interface]="isMobile ? 'action-sheet' : 'popover'"
+                [label]="definition.label" cancelText="Annuler"
+                [formControlName]="definition.key">
+                <ion-select-option *ngFor="let opt of definition.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
+              </ion-select>
+            </div>
+          </ng-container>
+        </ng-container>
+        
+        <div class="additional-questions-div">
+          <ng-container formArrayName="additionalQuestions">
+            <ng-container *ngFor="let questionForm of additionalQuestions.controls; let i = index">
+              <div [formGroup]="questionForm" class="line">
+                <div style="display: flex; flex-direction: row;">
+                  <ion-select label-placement="floating" fill="outline" class="additional-question-select"
+                    [interface]="isMobile ? 'action-sheet' : 'popover'"
+                    label="Information complémentaire"
+                    formControlName="key" cancelText="Annuler">
+                    <ion-select-option *ngFor="let optionalDefinition of listOptionalDefinition" [value]="optionalDefinition.key">
+                      {{optionalDefinition.label}}
+                    </ion-select-option>
+                  </ion-select>
+
+                  <ion-button fill="clear" (click)="deleteQuestion(i)">
+                    <ion-icon slot="icon-only" name="trash"></ion-icon>
+                  </ion-button>
+                </div>
+              
+                <ng-container *ngIf="questionForm.get('definition').value != null">
+                  <ng-container [ngSwitch]="questionForm.get('definition').value.component">
+                    <div *ngSwitchCase="'input'" class="input-div">
+                      <ion-input labelPlacement="floating" fill="outline"
+                        label="Valeur"
+                        [placeholder]="questionForm.get('definition').value.attributes?.placeholder" 
+                        formControlName="value" 
+                        [type]="questionForm.get('definition').value.attributes?.type" />
+        
+                      <ng-container *ngIf="questionForm.get('definition').value.rules">
+                        <ng-container *ngFor="let rule of questionForm.get('definition').value.rules">
+                          <ng-container *ngIf="form.controls[questionForm.get('definition').value.key].hasError(rule.key) && form.controls[questionForm.get('definition').value.key].touched">
+                            <ion-label color="danger" lines="none">
+                              {{ rule.message }}
+                            </ion-label>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+    
+                    <div *ngSwitchCase="'select'" class="input-div">
+                      <ion-select label-placement="floating" fill="outline"
+                        [interface]="isMobile ? 'action-sheet' : 'popover'"
+                        label="Valeur" cancelText="Annuler"
+                        formControlName="value">
+                        <ion-select-option *ngFor="let opt of questionForm.get('definition').value.attributes?.options" [value]="opt.key">{{opt.value}}</ion-select-option>
+                      </ion-select>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <ion-button fill="clear" class="small-button" (click)="addNewQuestion()">
+            <ion-icon slot="icon-only" name="add"></ion-icon>
+          </ion-button>
+        </div>
+      </form>
+
+      <ng-container *ngIf="!form && !isLoading">
+        Pas de formulaire disponible.
+        Veuillez contacter votre responsable.
+      </ng-container>
+
+      <ng-container *ngIf="isLoading">
+        <ion-spinner color="primary" name="circular" style="margin-top: 20%;margin-left: calc(50% - 20px);"></ion-spinner>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- Actions -->
+  <div class="new-asset-footer-actions">
+    <ng-container *ngIf="!isSubmitting">
+      <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
+      <ion-button *ngIf="step === 1" [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 2" [style.visibility]="coords.length === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Valider</ion-button>
+    </ng-container>
+    <ng-container *ngIf="isSubmitting">
+      <ion-item lines="none" style="margin: auto;">
+        <ion-spinner name="circular" color="primary" style="margin-right: 10px;"></ion-spinner>
+        <ion-label>Clôture en cours...</ion-label>
+      </ion-item>
+    </ng-container>
+  </div>
+</div>
+

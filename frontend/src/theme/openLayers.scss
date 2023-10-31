@@ -13,20 +13,30 @@
 .ol-scale-line {
     background: rgba(0, 60, 136, .3);
     border-radius: 4px;
-    bottom: 8px;
-    left: 8px;
-    padding: 2px;
-    position: absolute
+    bottom: 1.5em;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+}
+
+.ol-zoom-level {
+    text-align: center;
+    color: #000;
+    bottom: 0em;
+    width: 150px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
 }
 
 .ol-scale-line-inner {
-    border: 1px solid #eee;
+    border: 1px solid #fff;
     border-top: none;
-    color: #eee;
+    color: #fff;
     font-size: 10px;
     text-align: center;
     margin: 1px;
-    will-change: contents, width
+    will-change: contents, width;
 }
 
 .ol-overlay-container {

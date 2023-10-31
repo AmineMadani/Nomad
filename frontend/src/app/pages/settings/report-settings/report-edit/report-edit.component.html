@@ -1,0 +1,108 @@
+<div class="report-edit-content">
+  <app-settings-header
+    [title]="'Formulaire pour ' + wtrReport.astCode + ' - ' + wtrReport.astSlabel + ' - ' + wtrReport.wtrCode + ' - ' + wtrReport.wtrSlabel"
+    [isModalHeader]="true"
+    (onModalClose)="close()"
+  ></app-settings-header>
+
+  <div class="report-edit-body">
+    <div class="report-edit-actions-div">
+      <ion-button fill="clear" class="medium-button" (click)="duplicateFromReport()" [disabled]="isConsultation" matTooltip="Dupliquer un autre formulaire">
+        <ion-icon slot="icon-only" name="copy"></ion-icon>
+      </ion-button>
+
+      <ion-button id="hover-test-trigger" fill="clear" class="medium-button" (click)="testReport()" [disabled]="isConsultation" matTooltip="Test le formulaire">
+        <ion-icon slot="icon-only" name="clipboard"></ion-icon>
+      </ion-button>
+    </div>
+
+    <form [formGroup]="form" class="report-edit-form">
+      <ng-container formArrayName="lines">
+        <ng-container *ngFor="let lineForm of lines.controls; let i = index">
+          <div [formGroup]="lineForm" class="line">
+            <div class="number">
+              {{i+1}}
+
+              <ion-button fill="clear" (click)="deleteLine(i)" [disabled]="isConsultation">
+                <ion-icon slot="icon-only" name="trash"></ion-icon>
+              </ion-button>
+
+              <div class="up-down-div">
+                <ion-button fill="clear" class="small-button" (click)="lineDown(i)" [disabled]="i === 0 || isConsultation">
+                  <ion-icon slot="icon-only" name="arrow-up"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" class="small-button" (click)="lineUp(i)" [disabled]="i === lines.length - 1 || isConsultation">
+                  <ion-icon slot="icon-only" name="arrow-down"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+
+            <div class="line-question">
+              <div class="line-top">
+                <app-search-select 
+                  key="rqnCode" label="Question *" style="width: 100%"
+                  [elements]="listReportQuestion" [control]="lineForm.controls['rqnCode']" 
+                  [elementLabelFunction]="getReportQuestionLabel">
+                </app-search-select>
+              </div>
+
+              <div class="line-bottom">
+                <div class="line-left">
+                  <ion-select aria-label="component-type" label="Type de champ *" cancelText="Annuler" label-placement="floating" fill="outline" formControlName="component" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                    <ion-select-option *ngFor="let componentType of LIST_RQN_TYPE" [value]="componentType.value">{{componentType.label}}</ion-select-option>
+                  </ion-select>
+
+                  <ion-checkbox aria-label="required" formControlName="isRequired" labelPlacement="end" justify="start">
+                    Champ obligatoire
+                  </ion-checkbox>
+
+                  <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
+                    <div style="display: flex; flex-direction: row; align-items: center;">
+                      <ion-select aria-label="parent" label="Conditionné par la question" cancelText="Annuler" label-placement="floating" fill="outline" cancelText="Annuler" formControlName="questionCondition" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                        <ion-select-option *ngFor="let question of getListAvailableQuestion(i)" [value]="question.value">{{question.label}}</ion-select-option>
+                      </ion-select>
+                      <ion-button fill="clear" class="small-button" (click)="removeCondition(i)" *ngIf="lineForm.get('questionCondition').value != null && !isConsultation">
+                        <ion-icon slot="icon-only" name="trash"></ion-icon>
+                      </ion-button>
+                    </div>
+
+                    <ion-select aria-label="parent-values" label="Conditionné par les valeurs de la question" label-placement="floating" fill="outline" formControlName="listQuestionConditionValues" [multiple]="true" [interface]="isMobile ? 'action-sheet' : 'popover'">
+                      <ion-select-option *ngFor="let questionValue of lineForm.get('listAvailableQuestionValues').value" [value]="questionValue.value">{{questionValue.label}}</ion-select-option>
+                    </ion-select>
+                  </ng-container>
+                </div>
+
+                <div class="line-right" *ngIf="[RqnTypeEnum.SELECT, RqnTypeEnum.SELECT_MULTIPLE].includes(lineForm.get('component').value)">
+                  <div class="add-button-line">
+                    <div>Liste des valeurs :</div>
+                  </div>
+
+                  <div class="values-div">
+                    <div *ngFor="let value of lineForm.get('listValue').value; let j = index" class="value-line">
+                      <div class="value">{{value}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <div class="line">
+        <div class="number">
+          <ion-button fill="clear" class="small-button" (click)="addLine()" [disabled]="isConsultation">
+            <ion-icon slot="icon-only" name="add"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="report-edit-footer">
+    <ion-button fill="clear" (click)="save()" [disabled]="isConsultation">
+      <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+  </div>
+</div>

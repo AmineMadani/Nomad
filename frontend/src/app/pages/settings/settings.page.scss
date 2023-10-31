@@ -1,0 +1,40 @@
+.settings-page {
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+  margin: 0;
+
+  .settings-page-content {
+    height: calc(100vh - 56px - 50px);
+
+    .settings-menu {
+      padding-left: 20px;
+
+      max-height: calc(100vh - 56px - 50px);
+      overflow-y: auto;
+
+      &.no-scrollbar {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      &.no-scrollbar::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+
+      .ion-activated-background {
+        --ion-item-background: var(--ion-color-activated-menu-item);
+      }
+
+      .line-delimiter {
+        border: 1px solid var(--ion-color-neutral-variant-80);
+        margin-bottom: 30px;
+        margin-top: 10px;
+      }
+    }
+
+    .settings-content {
+      max-height: calc(100vh - 56px - 50px);
+    }
+  }
+}

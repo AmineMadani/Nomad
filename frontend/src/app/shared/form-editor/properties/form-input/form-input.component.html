@@ -1,0 +1,17 @@
+<ng-container *ngIf="edit; else labelTemplate">
+  <ion-input aria-label="def-input" labelPlacement="floating" fill="outline" [id]="definition.key" [label]="definition.label+(checkIfRuleExist('required') ? '*':'')"
+    [placeholder]="attributes.placeholder" [formControl]="control" [type]="attributes.type" />
+
+  <ng-container *ngIf="definition.rules">
+    <ng-container *ngFor="let rule of definition.rules">
+      <ng-container *ngIf="control.hasError(rule.key) && control.touched">
+        <ion-label color="danger" lines="none">
+          {{ rule.message }}
+        </ion-label>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-container>
+<ng-template #labelTemplate>
+  <app-form-label [definition]="definition" [paramMap]="paramMap"></app-form-label>
+</ng-template>

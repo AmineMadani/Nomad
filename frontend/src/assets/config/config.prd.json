@@ -1,0 +1,19 @@
+{
+  "apiUrl": "https://nomad-prd-backend.m-ve.com/api/nomad/v1/",
+  "externalApiUrl": "https://nomad-prd-backend.m-ve.com/api/nomad-api/v1/",
+  "keycloak": {
+    "active": true,
+    "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
+    "redirectUri": "https://nomad.eau.veolia.fr/login",
+    "redirectUriIos": "myschema://login",
+    "redirectUriAndroid": "https://nomad.eau.veolia.fr/login",
+    "clientId": "nomad",
+    "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
+  },
+  "host":"https://nomad.eau.veolia.fr/",
+  "offlineTimeoutReferential":15000,
+  "offlineTimeoutEquipment":2000,
+  "offlineTimeoutTile":15000,
+  "offlineTimeoutWorkorder":3000,
+  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}"
+}

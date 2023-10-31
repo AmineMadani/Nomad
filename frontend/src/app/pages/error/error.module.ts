@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ErrorPageRoutingModule } from './error-routing.module';
 
 import { ErrorPage } from './error.page';
-import { SharedModule } from 'src/app/modules/shared.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [

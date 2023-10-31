@@ -1,18 +1,25 @@
 
-# GMAO Réseau
-
-Nouveau projet GMAO réseau sur l'écriture de l'application en version Bureau et Mobile.
+# Nomad V1.0.0
 
 
+New CMMS application
+
+- Improve network performance to preserve resources
+- Adapt to local issues
+- Well informed to secure interventions
+- Communicate better with our customers and consumers
+- Lay the foundations for a network asset management offering
 
 
-## Technologie
+## Technologies
 
 #### Frontend
 
-- Ionic v6.1.9
-- CapacitorJs v4.6.2
-- OpenLayer v7.2.2
+- Ionic v7.0.2
+- Angular v15.0.0
+- Capacitor v5.0.0
+- MapLibre v3.2.2
+- angular-oauth2-oidc v15.0.1
 
 #### Backend
 
@@ -20,39 +27,40 @@ Nouveau projet GMAO réseau sur l'écriture de l'application en version Bureau e
 - Swagger UI v4.15.5
 
 
-
-
-
 ## Installation
-
-note : Modifier les variables d'environnement
 
 #### Frontend (Desktop)
 
 - npm intall
-- ionic serve
+- ionic serve -c local
 
 #### Frontend (Mobile - apk)
 
 - npm install
 - ionic build
-- npx cap add android (Unique pour la Création du projet android)
-- npx cap sync (synchronise le dossier www avec le projet android)
-- npx cap open android (ouvre android studio avec le projet)
+- npx cap sync (synchronize the www folder with the android project)
+- npx cap open android (open android studio)
 
 #### Backend
 
 - Installation basic
 
-Note : Swagger disponible à l'url /api/gmao/swagger-ui.html
+Note : Swagger uri /api/gmao/swagger-ui.html
+
+#### Keycloak local
+
+ - command start : kc.bat start-dev --http-port 9191
+
+
+#### Convention Nommage Angular
+ - attribute$ => Subject, Observable
+ - onFunction => Event action (click, output, observable)
+ - setFunction => Setter value
+ - getFunction => Getter value
+ - isFunction/hasFunction => Function return a boolean
+ - function => Basic function
 
 
 ## Authors
 
 - [Veolia](https://www.service.eau.veolia.fr/home.html)
-
-
-
-
-![Logo](https://www.1min30.com/wp-content/uploads/2018/04/logo-Veolia.jpg)
-
