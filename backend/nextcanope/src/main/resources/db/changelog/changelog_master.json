@@ -1,0 +1,17 @@
+{
+    "databaseChangeLog": [
+        {
+            "changeSet": {
+                "id": "tag_v1.0.0",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "tagDatabase": {
+                            "tag": "V-1.0.0"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
