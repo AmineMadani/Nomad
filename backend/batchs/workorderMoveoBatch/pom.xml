@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.veolia.nomad.batch</groupId>
 	<artifactId>workorder-moveo-batch</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>workorder-moveo-batch</name>
 	<description>workorder-moveo-batch</description>
 	<properties>
