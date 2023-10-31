@@ -6,7 +6,7 @@
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
     "redirectUri": "https://nomad-rec.hp.m-ve.com/login",
     "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
+    "redirectUriAndroid": "https://nomad-rec.hp.m-ve.com/login",
     "clientId": "nomad",
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },

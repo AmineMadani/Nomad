@@ -6,7 +6,7 @@
     "issuer": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad",
     "redirectUri": "https://nomad.eau.veolia.fr/login",
     "redirectUriIos": "myschema://login",
-    "redirectUriAndroid": "myschema://login",
+    "redirectUriAndroid": "https://nomad.eau.veolia.fr/login",
     "clientId": "nomad",
     "revocationEndpoint": "https://nomad-auth.hp.m-ve.com/auth/realms/nomad/protocol/openid-connect/revoke"
   },
