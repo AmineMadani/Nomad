@@ -145,11 +145,14 @@ export class WorkorderService {
           a.properties.wkoAppointment === search.wkoAppointment) &&
         (search.wkoEmergeny === null ||
           a.properties.wkoEmergency === search.wkoEmergeny) &&
-        (a.properties.tskCompletionStartDate ??
-          a.properties.wkoPlanningStartDate) >= search.wkoPlanningStartDate &&
-        (search.wkoPlanningEndDate === null ||
-          (a.properties.tskCompletionStartDate ??
-            a.properties.wkoPlanningStartDate) <= search.wkoPlanningEndDate)
+        ((a.properties.wkoPlanningStartDate === null &&
+          a.properties.tskCompletionStartDate === null) ||
+          ((a.properties.tskCompletionStartDate ??
+            a.properties.wkoPlanningStartDate) >= search.wkoPlanningStartDate &&
+            (search.wkoPlanningEndDate === null ||
+              (a.properties.tskCompletionStartDate ??
+                a.properties.wkoPlanningStartDate) <=
+                search.wkoPlanningEndDate)))
       );
     });
   }

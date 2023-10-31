@@ -88,8 +88,9 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 			"and (COALESCE(:assObjTables, NULL) is null or ass.ass_obj_table in :assObjTables) " +
 			"and (:appointment is null or w.wko_appointment = :appointment) " +
 			"and (:emergency is null or w.wko_emergency = :emergency) " +
-			"AND (COALESCE(t.tsk_completion_start_date, t.tsk_planning_start_date)  >= :beginDate) " +
-			"AND (COALESCE(:endDate, NULL) is null or COALESCE(t.tsk_completion_start_date, t.tsk_planning_start_date)  <= :endDate) " +
+			"AND (t.tsk_planning_start_date is null or t.tsk_completion_start_date is null OR " +
+			"((COALESCE(t.tsk_completion_start_date, t.tsk_planning_start_date)  >= :beginDate) " +
+			"AND (COALESCE(:endDate, NULL) is null or COALESCE(t.tsk_completion_start_date, t.tsk_planning_start_date)  <= :endDate))) " +
 			"order by wko_planning_start_date desc " +
 			"limit :nbLimit offset :nbOffset", nativeQuery = true)
 	List<TaskSearchDto> getTaskWithPaginationAndFilters(@Param("wtsIds") List<Long> wtsIds, @Param("wtrIds") List<Long> wtrIds, @Param("appointment") Boolean appointment, @Param("emergency") Boolean emergency, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, @Param("assObjTables") List<String> assObjTables, @Param("nbLimit") Long nbLimit, @Param("nbOffset") Long nbOffset, @Param("userId") Long userId);
