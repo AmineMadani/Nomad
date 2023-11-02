@@ -62,6 +62,7 @@ export class WkoViewComponent implements OnInit {
 
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
+  public userHasPermissionCancelWorkorder: boolean = false;
 
   public canEdit(): boolean {
     return (
@@ -84,7 +85,7 @@ export class WkoViewComponent implements OnInit {
       wtsId = task?.wtsId;
     }
 
-    return wtsId !== WkoStatus.TERMINE && wtsId !== WkoStatus.ANNULE;
+    return this.userHasPermissionCancelWorkorder && wtsId !== WkoStatus.ANNULE;
   }
 
   public isCancelled(): boolean {
@@ -107,6 +108,10 @@ export class WkoViewComponent implements OnInit {
     this.userHasPermissionCreateProgram =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CREATE_PROGRAM_MY_AREA
+      );
+    this.userHasPermissionCancelWorkorder = 
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CANCEL_WORKORDER
       );
 
     this.mapService
