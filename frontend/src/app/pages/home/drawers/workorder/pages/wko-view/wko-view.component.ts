@@ -273,6 +273,13 @@ export class WkoViewComponent implements OnInit {
         .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
+          if (this.taskId) {
+            this.selectedTask = this.workOrder.tasks.find(
+              (task) => task.id.toString() == this.taskId
+            );
+          } else {
+            this.selectedTask = this.workOrder.tasks[0];
+          }
           this.getStatus(this.workOrder.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
           for (let task of res.tasks) {
