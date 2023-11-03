@@ -173,3 +173,22 @@ export interface TaskPaginated {
   wtsIds?: number[];
   assObjTables?: string[];
 }
+
+export interface TravoPayload {
+  wkoAffair: string;
+  ctyCode: string; // Pas besoin
+  wkoAdress?: string; // Pas besoin
+  x: number;
+  y: number;
+  astCode?: string;
+  wtrCode?: string;
+  // constructionSite: string; // Need to be create in a specific US
+  ctrCode?: string; // Filtrer la liste dispo sur le XY
+  wkoPlanningStartDate?: string;
+  wkoPlanningEndDate?: string;
+  wkoAppointment?: boolean;
+  wkoEmergency?: boolean;
+  wkoAgentNb?: number;
+  wkoCreationComment?: string;
+  callbackUrl: string;
+}

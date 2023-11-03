@@ -38,15 +38,89 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private drawingService: DrawingService,
     private assetForSigService: AssetForSigService,
   ) {
+  }
+
+  @ViewChild('popover', { static: true }) popover: IonPopover;
+
+  public buttons: SynthesisButton[] = [];
+
+  public featuresSelected: any[] = [];
+  public filteredFeatures: any[] = [];
+  public sources: { key: string; label: string }[] = [];
+  public selectedSource: any;
+  public isLoading: boolean = false;
+  public isMobile: boolean;
+  public addToSelection: boolean = false;
+  public updateUrl: boolean = false;
+  public wkoDraft: number;
+  public featureIdSelected: string = '';
+  public featuresHighlighted: any[] = [];
+  public userHasPermissionCreateAssetWorkorder: boolean = false;
+  public userHasPermissionRequestUpdateAsset: boolean = false;
+
+  private layersConf: Layer[] = [];
+  private ngUnsubscribe$: Subject<void> = new Subject();
+  private paramFeatures: any;
+  private step: string;
+
+
+  async ngOnInit() {
+    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
+    this.step = this.activatedRoute.snapshot.queryParams?.['step'];
+    this.buttons = [
+      { key: 'add', label: 'Ajouter un élement', icon: 'add' },
+      {
+        key: 'create',
+        label: this.wkoDraft
+          ? this.step == 'report'
+            ? 'Reprendre le CR'
+            : "Reprendre l'intervention"
+          : 'Générer une intervention',
+        icon: 'person-circle',
+        disabledFunction: () =>
+          !this.userHasPermissionCreateAssetWorkorder ||
+          this.filteredFeatures.length === 0,
+      },
+      {
+        key: 'new-asset',
+        label: 'Créer un patrimoine',
+        icon: 'refresh',
+        disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
+      },
+      {
+        key: 'showSelectedFeatures',
+        label: 'Afficher toutes les sélections',
+        icon: 'locate',
+      },
+    ];
+    this.isMobile = this.utilsService.isMobilePlateform();
+
+    // Permissions
+    this.userHasPermissionCreateAssetWorkorder =
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CREATE_ASSET_WORKORDER
+      );
+    this.userHasPermissionRequestUpdateAsset =
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.REQUEST_UPDATE_ASSET
+      );
+
     // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
     this.router.events
       .pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        // filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         switchMap(() => {
           const urlParams = new URLSearchParams(window.location.search);
           this.paramFeatures = this.utilsService.transformMap(
             new Map(urlParams.entries())
           );
+          console.log('WoW');
+          console.log(this.paramFeatures);
+          // if (this.paramFeatures[0].lyrTableName === 'aep_xy' || this.paramFeatures[0].lyrTableName === 'ass_xy') {
+          //   console.log('là');
+          //   return [];
+          // }
+
           return this.layerService.getEquipmentsByLayersAndIds(
             this.paramFeatures
           );
@@ -54,6 +128,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         takeUntil(this.ngUnsubscribe$)
       )
       .subscribe((features: any[]) => {
+        console.log(features);
         this.featuresSelected = [];
         this.filteredFeatures = [];
         this.sources = [];
@@ -105,71 +180,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       });
   }
 
-  @ViewChild('popover', { static: true }) popover: IonPopover;
-
-  public buttons: SynthesisButton[] = [];
-
-  public featuresSelected: any[] = [];
-  public filteredFeatures: any[] = [];
-  public sources: { key: string; label: string }[] = [];
-  public selectedSource: any;
-  public isLoading: boolean = false;
-  public isMobile: boolean;
-  public addToSelection: boolean = false;
-  public updateUrl: boolean = false;
-  public wkoDraft: number;
-  public featureIdSelected: string = '';
-  public featuresHighlighted: any[] = [];
-  public userHasPermissionCreateAssetWorkorder: boolean = false;
-  public userHasPermissionRequestUpdateAsset: boolean = false;
-
-  private layersConf: Layer[] = [];
-  private ngUnsubscribe$: Subject<void> = new Subject();
-  private paramFeatures: any;
-  private step: string;
-
-  async ngOnInit() {
-    this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
-    this.step = this.activatedRoute.snapshot.queryParams?.['step'];
-    this.buttons = [
-      { key: 'add', label: 'Ajouter un élement', icon: 'add' },
-      {
-        key: 'create',
-        label: this.wkoDraft
-          ? this.step == 'report'
-            ? 'Reprendre le CR'
-            : "Reprendre l'intervention"
-          : 'Générer une intervention',
-        icon: 'person-circle',
-        disabledFunction: () =>
-          !this.userHasPermissionCreateAssetWorkorder ||
-          this.filteredFeatures.length === 0,
-      },
-      {
-        key: 'new-asset',
-        label: 'Créer un patrimoine',
-        icon: 'refresh',
-        disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
-      },
-      {
-        key: 'showSelectedFeatures',
-        label: 'Afficher toutes les sélections',
-        icon: 'locate',
-      },
-    ];
-    this.isMobile = this.utilsService.isMobilePlateform();
-
-    // Permissions
-    this.userHasPermissionCreateAssetWorkorder =
-      await this.userService.currentUserHasPermission(
-        PermissionCodeEnum.CREATE_ASSET_WORKORDER
-      );
-    this.userHasPermissionRequestUpdateAsset =
-      await this.userService.currentUserHasPermission(
-        PermissionCodeEnum.REQUEST_UPDATE_ASSET
-      );
-  }
-
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
@@ -185,6 +195,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
+    console.log('add layer to maaap');
     if (abstractFeatures == null) abstractFeatures = [];
 
     // Add tempory new asset
@@ -266,6 +277,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         equipmentIds: value,
       });
     }
+
+    console.log('Whaaaaaaaat');
 
     const searchEquipmentsRes =
       await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
@@ -508,6 +521,27 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       } else {
         this.hightlightFeatures();
       }
+    }
+  }
+
+  private async zoomToFeature(feature: any, lyrTableName: string) {
+    // Mono-Equipment
+    if (!Array.isArray(feature)) {
+      const layers = await this.layerService.getLayerByKey(lyrTableName);
+      const minZoom = (JSON.parse(layers.listStyle[0].sydDefinition)[0].minzoom) + 1
+      await this.mapLayerService.moveToXY(feature.x, feature.y, minZoom);
+      await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
+        lyrTableName,
+        feature.id
+      );
+
+      // Multi-Equipment
+    } else {
+      this.mapLayerService.fitBounds(
+        feature.map((f) => {
+          return [+f.x, +f.y];
+        })
+      );
     }
   }
 

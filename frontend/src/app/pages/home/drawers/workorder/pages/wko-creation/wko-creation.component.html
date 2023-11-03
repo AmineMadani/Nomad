@@ -18,7 +18,7 @@
             }}</ion-note>
         </div>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities" 
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
           [control]="creationWkoForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
@@ -47,7 +47,7 @@
               (click)="openEquipmentModal()" [disabled]="assets?.[0] === null"></ion-input>
           </ng-container>
           <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()"
-            [disabled]="assets[0].isXY === true">
+            [disabled]="false">
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
@@ -126,7 +126,7 @@
       <ion-select-option value="CREE" aria-label="" fill="clear" label="" with="500px">
         <span>{{createWithoutSendToPlanning}}</span></ion-select-option>
       </ion-select>
-      
+
   </ion-item>
 </div>
 

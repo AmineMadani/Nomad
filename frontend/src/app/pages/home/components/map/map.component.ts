@@ -361,33 +361,16 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklatitude = e.lngLat.lat;
     this.clicklongitute = e.lngLat.lng;
 
+    console.log('feature', feature);
     if (!feature) {
-      Promise.all([
-        this.contractService.getContractIdsByLatitudeLongitude(
-          e.lngLat.lat,
-          e.lngLat.lng
-        ),
-        this.cityService.getCityIdsByLatitudeLongitude(
-          e.lngLat.lat,
-          e.lngLat.lng
-        )
-      ]).then((results) => {
-        const contractIds = results[0];
-        const cityIds = results[1];
-
-        const params: any = {};
-        params.x = e.lngLat.lng;
-        params.y = e.lngLat.lat;
-        params.lyrTableName = 'aep_xy';
-        if (contractIds && contractIds.length > 0)
-          params.ctrId = contractIds.join(',');
-        if (cityIds && cityIds.length > 0) params.ctyId = cityIds.join(',');
-        this.selectedFeature = {
-          properties: params,
-        };
-        contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-        contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
-      });
+      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
+      this.selectedFeature = {
+        properties: {
+          x: e.lngLat.lng,
+          y: e.lngLat.lat
+        },
+      };
     } else {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
       contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
@@ -406,7 +389,9 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
+    console.log('on generate', this.selectedFeature);
     if (this.selectedFeature['id']) {
+      console.log('if');
       this.router.navigate(['/home/workorder'], {
         queryParams: {
           [this.selectedFeature['source']]: this.selectedFeature['id'],

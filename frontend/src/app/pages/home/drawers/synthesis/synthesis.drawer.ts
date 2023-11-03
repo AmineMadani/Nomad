@@ -102,61 +102,70 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private zoomToFeature(params: Map<string, string>): void {
-    this.route.params
-      .pipe(
-        switchMap((param: Params) => {
-          if (params.has('lyrTableName') && !params.get('lyrTableName').includes('_xy') && params.size === 1) {
-            return from(
-              this.layerService.getEquipmentByLayerAndId(
-                params.get('lyrTableName'),
-                param['id']
-              )
-            );
-          } else {
-            return this.layerService.getEquipmentsByLayersAndIds(
-              this.utils.transformMap(params)
-            );
-          }
-        })
-      )
-      .subscribe(async (feature: any | any[]) => {
-        if (!feature || feature.length === 0) {
-          this.onInitComponent.emit(null);
-          return;
-        }
+    // this.route.params
+    //   .pipe(
+    //     switchMap((param: Params) => {
+    //       console.log(params);
+    //       if (params.has('lyrTableName') && !params.get('lyrTableName').includes('_xy') && params.size === 1) {
+    //         return from(
+    //           this.layerService.getEquipmentByLayerAndId(
+    //             params.get('lyrTableName'),
+    //             param['id']
+    //           )
+    //         );
+    //       }
+    //       else if (params.has('aep_xy') || params.has('ass_xy')) {
+    //         console.log('coucou');
+    //         return [];
+    //       }
+    //       else {
+    //         console.log('WooooooooooooooooooW');
+    //         return this.layerService.getEquipmentsByLayersAndIds(
+    //           this.utils.transformMap(params)
+    //         );
+    //       }
+    //     })
+    //   )
+    //   .subscribe(async (feature: any | any[]) => {
+    //     console.log('in subscribe');
+    //     if (!feature || feature.length === 0) {
+    //       this.onInitComponent.emit(null);
+    //       console.log('return');
+    //       return;
+    //     }
 
-        // Mono-Equipment
-        if (!Array.isArray(feature)) {
-          const  layers = await this.layerService.getLayerByKey(params.get('lyrTableName'));
-          const minZoom = (JSON.parse(layers.listStyle[0].sydDefinition)[0].minzoom)+1
-          await this.mapLayerService.moveToXY(feature.x, feature.y,minZoom);
-          await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
-            params.get('lyrTableName'),
-            feature.id
-          );
-          this.onInitComponent.emit({
-            ...feature,
-            lyrTableName: params.get('lyrTableName'),
-          });
+    //     // Mono-Equipment
+    //     if (!Array.isArray(feature)) {
+    //       const  layers = await this.layerService.getLayerByKey(params.get('lyrTableName'));
+    //       const minZoom = (JSON.parse(layers.listStyle[0].sydDefinition)[0].minzoom)+1
+    //       await this.mapLayerService.moveToXY(feature.x, feature.y,minZoom);
+    //       await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
+    //         params.get('lyrTableName'),
+    //         feature.id
+    //       );
+    //       this.onInitComponent.emit({
+    //         ...feature,
+    //         lyrTableName: params.get('lyrTableName'),
+    //       });
 
-          // Multi-Equipment
-        } else {
-          this.mapLayerService.fitBounds(
-            feature.map((f) => {
-              return [+f.x, +f.y];
-            })
-          );
-          this.onInitComponent.emit(
-            feature.map((f) => {
-              return {
-                ...f,
-                lyrTableName: this.utils
-                  .transformMap(params)
-                  .find((map) => map.equipmentIds.includes(f.id)).lyrTableName,
-              };
-            })
-          );
-        }
-      });
+    //       // Multi-Equipment
+    //     } else {
+    //       this.mapLayerService.fitBounds(
+    //         feature.map((f) => {
+    //           return [+f.x, +f.y];
+    //         })
+    //       );
+    //       this.onInitComponent.emit(
+    //         feature.map((f) => {
+    //           return {
+    //             ...f,
+    //             lyrTableName: this.utils
+    //               .transformMap(params)
+    //               .find((map) => map.equipmentIds.includes(f.id)).lyrTableName,
+    //           };
+    //         })
+    //       );
+    //     }
+    //   });
   }
 }

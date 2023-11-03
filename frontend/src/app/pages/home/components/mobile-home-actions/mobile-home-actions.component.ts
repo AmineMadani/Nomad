@@ -51,11 +51,12 @@ export class MobileHomeActionsComponent implements OnInit {
 
   public async onGenerateWorkOrder() {
     const centerMapPosition = this.mapService.getMap().getCenter();
-
+    console.log('on generate');
     Promise.all([
       this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
       this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
     ]).then((results) => {
+      console.log(results);
       const contractIds = results[0];
       const cityIds = results[0];
 
