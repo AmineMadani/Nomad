@@ -46,6 +46,7 @@ import { WorkorderListComponent } from './drawers/exploitation/components/workor
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
+import { ReportDateComponent } from './drawers/workorder/pages/report/components/report-date/report-date.component';
 
 @NgModule({
   imports: [
@@ -89,6 +90,7 @@ import { MulticontractModalComponent } from './drawers/workorder/pages/multicont
     ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,
+    ReportDateComponent,
     ReportContextComponent,
     ReportFormComponent,
     NewAssetDrawer,

@@ -55,6 +55,7 @@ export class ReportCreateComponent implements OnInit {
   public isSubmit: boolean = false;
   public isSubmitting: boolean = false;
   public hasXYInvalid: boolean = false;
+  public isCompletionDate: boolean = false;
 
   @ViewChild('stepForm') stepForm: ReportFormComponent;
   @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
@@ -330,7 +331,8 @@ export class ReportCreateComponent implements OnInit {
   public submitForm(closeCircuit:boolean = false) {
     if(closeCircuit) {
       if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform()) {
-        this.openCompleteModal();
+        this.step = 4;
+        //this.openCompleteModal();
       }
       else {
         this.onClosedWko(true);
@@ -340,7 +342,8 @@ export class ReportCreateComponent implements OnInit {
       this.stepForm.formEditor.form.markAllAsTouched();
 
       if (this.completeModalForm !== undefined && !this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
-        this.openCompleteModal();
+        this.step = 4;
+        //this.openCompleteModal();
       }
       else {
         this.completeForm();

@@ -21,6 +21,9 @@
       (goToNextQuestion)="nextFormQuestion()"
       [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
+  <ng-container *ngIf="step == 4">
+    <app-report-date></app-report-date>
+  </ng-container>
   <div *ngIf="step == 3" class="form-questions-count">
     {{getFormQuestionLabel()}}
   </div>
@@ -34,6 +37,7 @@
     <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile" [disabled]="hasXYInvalid">Etape suivante</ion-button>
     <ion-button *ngIf="(step == 3) && hasPreviousQuestion" fill="clear" (click)="previousFormQuestion()" [class.font-mobile]="isMobile">Question précédente</ion-button>
     <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()" [class.font-mobile]="isMobile">Question suivante</ion-button>
+    <ion-button *ngIf="step == 4" fill="clear" [class.font-mobile]="isMobile">Valider</ion-button>
     <ion-button *ngIf="isSubmit && !isTest" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>
     <ion-fab *ngIf="(step == 1 && hasReportClosed())" class="fab-terminate">
       <ion-fab-button color="danger" (click)="submitForm(true)">

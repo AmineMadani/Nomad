@@ -1,0 +1,14 @@
+.wko-calendar {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+
+    ion-button {
+        margin: auto 0;
+    }
+
+    ion-input {
+        margin-top: 0;
+    }
+}
