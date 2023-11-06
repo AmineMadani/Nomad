@@ -42,7 +42,6 @@ export class PraxedoService {
 
         if(res.extras.TYPE) {
           const typeCode = res.extras.TYPE.toString().split('-')[0];
-          layer = lLayerWtr.find(layerWtr => layerWtr.astCode == typeCode)?.lyrTableName;
           layers = lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName);
         }
         if(res.extras.MOTIF) {
