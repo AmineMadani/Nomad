@@ -66,13 +66,18 @@ export class AttachmentService {
   public async getAllAttachmentsByObjId(objId: number): Promise<Attachment[]> {
     // Get remote attachments
     let attachments: Attachment[] = [];
-    try {
-      attachments = await this.getRemoteAttachmentsByObjId(objId);
-    } catch (error) {
-      const isCacheDownload = await this.cacheService.isCacheDownload(CacheKey.TILES);
 
-      if (!isCacheDownload || !this.utilsService.isOfflineError(error)) {
-        throw error;
+    // If the oject is already created
+    if (objId >= 0) {
+      try {
+        attachments = await this.getRemoteAttachmentsByObjId(objId);
+      } catch (error) {
+        const isCacheDownload = await this.cacheService.isCacheDownload(CacheKey.TILES);
+
+        if (!isCacheDownload || !this.utilsService.isOfflineError(error)) {
+          // There's an error during the object attachments recuperation
+          console.error(error);
+        }
       }
     }
 

@@ -224,7 +224,11 @@ export class WorkorderService {
         )
     }
 
-    return this.workorderDataService.updateWorkOrder(workorder);
+    return this.workorderDataService.updateWorkOrder(workorder).then(async (newWko: Workorder) => {
+      // Save the workorder attachments if necessary
+      await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+      return newWko;
+    });
   }
 
   /**
@@ -272,7 +276,11 @@ export class WorkorderService {
         );
     }
 
-    return this.workorderDataService.createWorkOrder(workorder);
+    return this.workorderDataService.createWorkOrder(workorder).then(async (newWko: Workorder) => {
+      // Save the workorder attachments if necessary
+      await this.attachmentService.saveLocalAttachmentsByCacheIdAndObjId(workorder.id, newWko.id);
+      return newWko;
+    });
   }
 
   /**
