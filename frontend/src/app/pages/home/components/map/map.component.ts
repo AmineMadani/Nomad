@@ -361,7 +361,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklatitude = e.lngLat.lat;
     this.clicklongitute = e.lngLat.lng;
 
-    console.log('feature', feature);
     if (!feature) {
       contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
       contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
@@ -389,9 +388,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigates to a work order page with selected feature properties as query parameters.
    */
   public onGenerateWorkOrder(): void {
-    console.log('on generate', this.selectedFeature);
     if (this.selectedFeature['id']) {
-      console.log('if');
       this.router.navigate(['/home/workorder'], {
         queryParams: {
           [this.selectedFeature['source']]: this.selectedFeature['id'],

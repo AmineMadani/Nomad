@@ -312,7 +312,7 @@ export class MapLayerService {
   public addMarker(
     x: number,
     y: number,
-    geometry: Array<number[]>,
+    geometry: Array<number[]> | number[],
     isXY?: boolean,
     color?: string
   ): Maplibregl.Marker {
@@ -323,8 +323,8 @@ export class MapLayerService {
       .setLngLat([x, y])
       .addTo(this.mapService.getMap());
     if (geometry[0] instanceof Array) {
-      this.limitDragMarker(geometry, marker);
-      marker.on('drag', () => this.limitDragMarker(geometry, marker));
+      this.limitDragMarker(geometry as any, marker);
+      marker.on('drag', () => this.limitDragMarker(geometry as any, marker));
     } else {
       marker.setLngLat([geometry[0] as any, geometry[1] as any]);
     }

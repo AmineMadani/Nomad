@@ -328,7 +328,6 @@ export class CacheService {
   }
 
   public async fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
-    console.log('cached one');
     const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
 
     if (isCacheDownload) {

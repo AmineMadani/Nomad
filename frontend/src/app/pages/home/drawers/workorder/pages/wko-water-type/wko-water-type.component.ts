@@ -36,7 +36,6 @@ export class WkoWaterTypeComponent implements OnInit {
 
   public onWaterTypeChosen(waterType: 'aep_xy' | 'ass_xy'): void {
     const parameters = { ...this.activatedRoute.snapshot.queryParams, lyrTableName: waterType };
-    console.log('parameters', parameters);
 
     if(this.type == 'wko') {
       this.drawerService.navigateTo(

@@ -62,7 +62,6 @@ export class LayerDataService {
   }
 
   public getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    console.log('used');
     return firstValueFrom(
       this.http.post(`${this.configurationService.apiUrl}layers/equipments`, idsLayers)
     );

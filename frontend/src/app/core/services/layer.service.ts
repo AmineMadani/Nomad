@@ -170,8 +170,6 @@ export class LayerService {
   }
 
   public async getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
-    console.log('whaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-
     let searchEquipment:SearchEquipments[] = [{
       lyrTableName: layer,
       equipmentIds: [id],
@@ -182,8 +180,6 @@ export class LayerService {
   }
 
   public getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
-    console.log('utiliser');
-
     return this.cacheService.fetchEquipmentsByLayerIds(idsLayers);
   }
 

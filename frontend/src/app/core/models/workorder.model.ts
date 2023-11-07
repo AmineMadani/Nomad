@@ -174,21 +174,42 @@ export interface TaskPaginated {
   assObjTables?: string[];
 }
 
-export interface TravoPayload {
-  wkoAffair: string;
-  ctyCode: string; // Pas besoin
-  wkoAdress?: string; // Pas besoin
-  x: number;
-  y: number;
+export interface CreateWorkorderUrlPayload {
+  lyrTableName?: string;
+  x?: number;
+  y?: number;
+}
+
+export interface UpdateWorkorderUrlPayload {
+  [key: string]: any;
+}
+
+export interface TravoUrlPayload {
+  wkoAffair?: string;
+  wkoName?: string;
+  x?: number;
+  y?: number;
   astCode?: string;
   wtrCode?: string;
-  // constructionSite: string; // Need to be create in a specific US
+  wkoChantier?: string; // Need to be create in a specific US
   ctrCode?: string; // Filtrer la liste dispo sur le XY
   wkoPlanningStartDate?: string;
   wkoPlanningEndDate?: string;
-  wkoAppointment?: boolean;
-  wkoEmergency?: boolean;
-  wkoAgentNb?: number;
   wkoCreationComment?: string;
-  callbackUrl: string;
+  callbackUrl?: string;
+
+  // Not asked but set after with astCode and wtrCode in the app
+  lyrTableName?: string;
+}
+export function isUrlFromTravo(obj: any): obj is TravoUrlPayload {
+  return 'wkoAffair' in obj;
+}
+
+export function isUrlFromTravoValid(obj: TravoUrlPayload): boolean {
+  return 'wkoAffair' in obj &&
+    'x' in obj &&
+    'y' in obj &&
+    'astCode' in obj &&
+    'wtrCode' in obj &&
+    'callbackUrl' in obj;
 }

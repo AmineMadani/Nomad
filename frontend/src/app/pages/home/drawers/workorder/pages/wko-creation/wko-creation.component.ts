@@ -32,9 +32,9 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
 import {
   Task,
-  TravoPayload,
+  TravoUrlPayload,
   WkoStatus,
-  Workorder, WorkorderTaskStatus,
+  Workorder, CreateWorkorderUrlPayload, WorkorderTaskStatus, isUrlFromTravo, isUrlFromTravoValid, UpdateWorkorderUrlPayload,
 } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -96,7 +96,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public assets: any[];
 
   public creationWkoForm: FormGroup;
-  public params: any;
+  public currentUrlParams: TravoUrlPayload | CreateWorkorderUrlPayload | UpdateWorkorderUrlPayload;
 
   public currentContract: Contract;
   public currentStatus: string;
@@ -158,11 +158,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       );
 
     // Url parameters recuperation
-    let paramMap = new Map<string, string>(
+    const paramsMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
     );
+    // Build the current url param obj
+    for (let [key, value] of paramsMap) {
+      if (!this.currentUrlParams) {
+        this.currentUrlParams = {};
+      }
 
-    const params = this.utils.transformMap(paramMap, true);
+      this.currentUrlParams[key] = value;
+    }
 
     this.mapService
       .onMapLoaded()
@@ -170,21 +176,22 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
         switchMap(async () => {
-          console.log(paramMap);
-          if (paramMap.size > 0) {
+          if (this.currentUrlParams) {
             // Handle travo case
-            if (paramMap.has('wkoAffair')) {
-              paramMap = await this.buildParamFromTravoUrl(paramMap);
+            if (isUrlFromTravo(this.currentUrlParams)) {
+              // Set params if we are on travo url
+              // It permits to set the lyrTableName properly
+              await this.checkAndSetParamsToHandleTravoUrl();
             }
 
             // XY case
-            if (paramMap.has('lyrTableName')) {
+            if (this.currentUrlParams.lyrTableName) {
               this.isXY = true;
               return [];
             }
             // Other cases
             else {
-              console.log(' wesh alors ');
+              const params = this.utils.transformMap(paramsMap, true);
               return this.layerService.getEquipmentsByLayersAndIds(params);
             }
           } else {
@@ -247,9 +254,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             wkoAttachment: false,
             tasks: [],
           };
-          if (this.isXY) {
-            this.params = { ...this.activatedRoute.snapshot.queryParams };
-          } else {
+          if (!this.isXY) {
             this.workorder.tasks = this.assets.map((ast) => {
               return {
                 id: this.utils.createCacheId(),
@@ -907,9 +912,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.assets = [
         {
           id: this.utils.createCacheId().toString(),
-          lyrTableName: this.params.lyrTableName,
-          x: this.params.x,
-          y: this.params.y,
+          lyrTableName: this.currentUrlParams.lyrTableName,
+          x: this.currentUrlParams.x,
+          y: this.currentUrlParams.y,
           assetForSig: undefined,
           taskId: undefined,
           isXY: true,
@@ -919,7 +924,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // This is completetly overkill, just to get domLlabel
       const layers = await this.layerService.getAllLayers();
       const layer = layers.filter(
-        (l: Layer) => l.lyrTableName === this.params.lyrTableName
+        (l: Layer) => l.lyrTableName === this.currentUrlParams.lyrTableName
       )[0];
 
       this.equipmentName = `XY - ${layer.domLLabel}`;
@@ -927,12 +932,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       // Ctr and Cty are from the XY
       contractsIds =
         await this.contractService.getContractIdsByLatitudeLongitude(
-          this.params.y,
-          this.params.x
+          this.currentUrlParams.y,
+          this.currentUrlParams.x
         );
       cityIds = await this.cityService.getCityIdsByLatitudeLongitude(
-        this.params.y,
-        this.params.x
+        this.currentUrlParams.y,
+        this.currentUrlParams.x
       );
     }
     await this.initEquipmentsLayers();
@@ -946,8 +951,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   ): Promise<void> {
     this.cityService
       .getAdressByXY(
-        this.params?.x ?? this.assets[0].x,
-        this.params?.y ?? this.assets[0].y
+        this.currentUrlParams?.x ?? this.assets[0].x,
+        this.currentUrlParams?.y ?? this.assets[0].y
       )
       .then((addresse) =>
         this.creationWkoForm.patchValue(
@@ -1017,7 +1022,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
           // Get layers for the right domains without the xy ones
           // The domCode recuperation is not smart as all
-          const domCode = this.params.lyrTableName.includes('aep') ? 'dw' : 'ww';
+          const domCode = this.currentUrlParams.lyrTableName.includes('aep') ? 'dw' : 'ww';
           this.layers = layers.filter(
             (layer) =>
               layer.domCode === domCode &&
@@ -1104,9 +1109,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             this.markerCreation.set(
               ast.id,
               this.mapLayerService.addMarker(
-                this.params.x,
-                this.params.y,
-                [this.params.x, this.params.y],
+                this.currentUrlParams.x,
+                this.currentUrlParams.y,
+                [this.currentUrlParams.x, this.currentUrlParams.y],
                 true
               )
             );
@@ -1366,26 +1371,22 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  private async buildParamFromTravoUrl(paramMap: Map<string, string>): Promise<Map<string, string>> {
-    console.log(paramMap);
+  private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
+    this.currentUrlParams = (this.currentUrlParams as TravoUrlPayload);
 
-    // Classic case
-    if (paramMap.has('astCode')) {
-      console.log('classic case');
+    // Check if all necessary parameters are provided
+    if (isUrlFromTravoValid(this.currentUrlParams)) {
+      // Get lyrTableName from astCode and wtrCode
+      const lyrTableName = "aep_canalisation";
 
-      // The goal is to add in param map something like that:
-      // aep_canalisation=IDF-000138538
-      // We calculate the equipment with the astCode AND the nearest from the X and Y
-      const layers = await this.layerService.getAllLayers();
+      await this.mapService.addEventLayer(lyrTableName);
 
-      const astLayers =
-        layers.filter((layer) => layer.astCode === paramMap.get('astCode'));
-
-      //this.layerService.getNearestEquipmentByAstCodeAndXY();
-
+      this.currentUrlParams.lyrTableName = 'aep_xy';
+    } else {
+      this.utils.showErrorMessage("Certains paramètres obligatoires n'ont pas été renseigné par Travo.", 5000);
+      this.drawerService.navigateTo(DrawerRouteEnum.HOME);
+      throw new Error("Certains paramètres obligatoires n'ont pas été renseigné par Travo.");
     }
-
-    return paramMap;
   }
 
   /**

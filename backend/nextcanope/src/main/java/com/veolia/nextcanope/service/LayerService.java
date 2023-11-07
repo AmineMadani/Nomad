@@ -97,16 +97,18 @@ public class LayerService {
     }
     
     public String getAssetByLayerAndIds(List<GetEquipmentsPayload> equipmentsPayload, Long userId) {
-    	String assets = "";
-        for(GetEquipmentsPayload payload : equipmentsPayload) {
-            String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
-            res = res.substring(1, res.length() - 1);
-            if(res.length() > 0) {
-            	assets += (assets.length() > 0 ? ",":"")+res;
+    	StringBuilder assets = new StringBuilder();
+        for (GetEquipmentsPayload payload : equipmentsPayload) {
+            if (!payload.getLyrTableName().contains("_xy")) {
+                String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
+                res = res.substring(1, res.length() - 1);
+                if (!res.isEmpty()) {
+                    assets.append(!assets.isEmpty() ? "," : "").append(res);
+                }
             }
         }
-        assets = "["+assets+"]";
-        return assets;
+        assets = new StringBuilder("[" + assets + "]");
+        return assets.toString();
     }
 
     public Layer getLayerByLyrTableName(String lyrTableName) {
