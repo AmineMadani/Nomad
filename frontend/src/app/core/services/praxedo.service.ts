@@ -26,6 +26,8 @@ export class PraxedoService {
 
   public praxedoListener() {
     IntentAction.addListener('appActionIntent', async res => {
+      
+      let layers = [];
       if(res.extras.REFEXTINT) {
         this.externalReport = res.extras.REFEXTINT;
       } else {
@@ -40,7 +42,7 @@ export class PraxedoService {
 
         if(res.extras.TYPE) {
           const typeCode = res.extras.TYPE.toString().split('-')[0];
-          layer = lLayerWtr.find(layerWtr => layerWtr.astCode == typeCode)?.lyrTableName;
+          layers = lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName);
         }
         if(res.extras.MOTIF) {
           const reasonCode = res.extras.MOTIF.toString().split('-')[0];
@@ -88,7 +90,11 @@ export class PraxedoService {
         this.externalReport = workorder.id.toString();
       }
       if(this.externalReport){
-        this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
+        if(layers.length > 0) {
+          this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"], { queryParams: { layers: layers.toString() }});
+        } else {
+          this.router.navigate(["/home/workorder/"+this.externalReport+"/cr"]);
+        }
       }
     });
   }

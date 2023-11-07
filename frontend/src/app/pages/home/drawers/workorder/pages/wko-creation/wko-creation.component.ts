@@ -32,6 +32,7 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
 import {
   Task,
+  WTR_CODE_POSE,
   WkoStatus,
   Workorder, WorkorderTaskStatus,
 } from 'src/app/core/models/workorder.model';
@@ -50,8 +51,6 @@ import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
-
-const WTR_CODE_POSE = '10';
 
 @Component({
   selector: 'app-wko-creation',

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
 import { VLayerWtr } from 'src/app/core/models/layer.model';
-import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { Task, WTR_CODE_POSE, Workorder } from 'src/app/core/models/workorder.model';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -44,6 +44,12 @@ export class ReportContextComponent implements OnInit {
         this.valueKey = this.tasks[0].wtrId;
         this.tasks[0].wtrCode = this.originalOptions.find(val => val.wtrId === this.tasks[0].wtrId).wtrCode;
         this.tasks[0].astCode = this.originalOptions.find(val => val.lyrTableName === this.tasks[0].assObjTable).astCode;
+      }
+
+      // The 'Pose' reason is only accessible if its the initial value
+      if (this.tasks[0].wtrCode !== WTR_CODE_POSE) {
+        // Else filter it from the list
+        this.originalOptions = this.originalOptions.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
       }
 
       //Check if the label is editable

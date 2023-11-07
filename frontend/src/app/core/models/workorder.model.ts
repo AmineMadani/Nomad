@@ -158,6 +158,8 @@ export interface WorkorderTaskReason {
     wtrNoXy: boolean;
 }
 
+export const WTR_CODE_POSE = '10';
+
 export enum WorkorderType {
     DRAFT = 'DRAFT',
     UNPLANNED = 'UNPLANNED',

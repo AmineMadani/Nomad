@@ -23,12 +23,22 @@ export class FilterService {
 
   private filterForm: any;
 
+  private filterITV: any;
+
   public getFilterForm(): any {
     return this.filterForm;
   }
 
   public setFilterForm(filter: any): void {
     this.filterForm = filter;
+  }
+
+  public getFilterITV(): any {
+    return this.filterITV;
+  }
+
+  public setFilterITV(filter: any): void {
+    this.filterITV = filter;
   }
 
   public transformFilterForm(): TaskPaginated {

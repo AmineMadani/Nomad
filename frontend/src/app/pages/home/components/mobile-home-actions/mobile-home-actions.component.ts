@@ -57,7 +57,7 @@ export class MobileHomeActionsComponent implements OnInit {
       this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
     ]).then((results) => {
       const contractIds = results[0];
-      const cityIds = results[0];
+      const cityIds = results[1];
 
       let params: any = {};
       params.x = centerMapPosition.lng;

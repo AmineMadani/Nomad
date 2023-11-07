@@ -338,6 +338,17 @@ export class ReportCreateComponent implements OnInit {
         this.onClosedWko(true);
       }
     } else {
+      let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexQuestion];
+      let childrens = child.children ? child.children : [child];
+      let valid: boolean = true;
+      for (let children of childrens) {
+        this.stepForm.formEditor.form.get(children.definition.key).updateValueAndValidity();
+        this.stepForm.formEditor.form.get(children.definition.key).markAsTouched();
+        valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
+      }
+
+      if (!valid) return;
+      
       this.stepForm.formEditor.form.updateValueAndValidity();
       this.stepForm.formEditor.form.markAllAsTouched();
 
