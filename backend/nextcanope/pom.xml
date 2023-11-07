@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.veolia</groupId>
 	<artifactId>nomad</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>nomad</name>
 	<description>Service backend for nomad</description>
 	<properties>
