@@ -68,6 +68,10 @@ private Long id;
     @JsonProperty("lyr_valid")
     private Boolean lyrValid;
 
+    @Column(name="lyr_geom_type", length=2147483647)
+    @JsonProperty("lyr_geom_type")
+    private String lyrGeomType;
+
     @Column(name="lyr_display")
     @JsonProperty("lyr_display")
     private Boolean lyrDisplay;
@@ -194,6 +198,14 @@ private Long id;
 
 	public void setLyrValid( Boolean lyrValid ) {
         this.lyrValid = lyrValid ;
+    }
+
+    public String getLyrGeomType() {
+        return this.lyrGeomType;
+    }
+
+    public void setLyrGeomType( String lyrGeomType ) {
+        this.lyrGeomType = lyrGeomType ;
     }
 
     public Boolean getLyrDisplay() {

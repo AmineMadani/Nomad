@@ -13,6 +13,18 @@
         </ion-label>
       </ion-item>
 
+      <ng-container *ngIf="isMultiGeomType">
+        <ion-item lines="none">
+          <ion-label>Ne conserver que le type d'équipements :</ion-label>
+        </ion-item>
+
+        <ion-select labelPlacement="floating" fill="outline" cancelText="Annuler" label="Type d'équipements à conserver"
+          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedGeomType">
+          <ion-select-option *ngFor="let geomType of geomTypes" [value]="geomType.type">{{ geomType.label
+            }}</ion-select-option>
+        </ion-select>
+      </ng-container>
+
       <ng-container *ngIf="isMultiWater">
         <ion-item lines="none">
           <ion-label>Ne conserver que le domaine :</ion-label>
@@ -41,7 +53,7 @@
   </ng-container>
 
   <ng-template #loadingContainer>
-    <app-skeleton-loading [rows]="2"></app-skeleton-loading>
+    <app-skeleton-loading [rows]="3"></app-skeleton-loading>
   </ng-template>
 </ion-content>
 

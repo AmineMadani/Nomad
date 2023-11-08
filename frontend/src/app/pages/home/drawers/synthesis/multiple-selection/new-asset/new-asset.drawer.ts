@@ -149,9 +149,9 @@ export class NewAssetDrawer implements OnInit {
         // Otherwise, select the asset and go to the next step
         this.selectedAsset = selectedFilterAsset;
         this.layer = this.listLayers.find((layer) => layer.lyrTableName === this.selectedAsset.layerKey);
-        if (this.layer.astGeomType === GEOM_TYPE.POINT) {
+        if (this.layer.lyrGeomType === GEOM_TYPE.POINT) {
           this.addDrawingLayer(1);
-        } else if (this.layer.astGeomType === GEOM_TYPE.LINE) {
+        } else if (this.layer.lyrGeomType === GEOM_TYPE.LINE) {
           this.addDrawingLayer();
         }
         this.step++;

@@ -10,7 +10,6 @@ public class LayerDto {
     private String domCode;
     private Long astId;
     private String astCode;
-    private String astGeomType;
     private String lyrTableName;
     private String lyrGeomColumnName;
     private String lyrUuidColumnName;
@@ -19,6 +18,7 @@ public class LayerDto {
     private String lyrLlabel;
     private Boolean lyrDisplay;
     private Boolean lyrValid;
+    private String lyrGeomType;
 
     public LayerDto(Layer layer) {
         this.id = layer.getId();
@@ -32,7 +32,6 @@ public class LayerDto {
         if (layer.getAssetType() != null) {
             this.astId = layer.getAssetType().getId();
             this.astCode = layer.getAssetType().getAstCode();
-            this.astGeomType = layer.getAssetType().getAstGeomType();
         }
         this.lyrTableName = layer.getLyrTableName();
         this.lyrGeomColumnName = layer.getLyrGeomColumnName();
@@ -42,6 +41,7 @@ public class LayerDto {
         this.lyrLlabel = layer.getLyrLlabel();
         this.lyrDisplay = layer.getLyrDisplay();
         this.lyrValid = layer.getLyrValid();
+        this.lyrGeomType = layer.getLyrGeomType();
     }
 
     public Long getId() {
@@ -82,14 +82,6 @@ public class LayerDto {
 
     public void setAstCode(String astCode) {
         this.astCode = astCode;
-    }
-
-    public String getAstGeomType() {
-        return astGeomType;
-    }
-
-    public void setAstGeomType(String astGeomType) {
-        this.astGeomType = astGeomType;
     }
 
     public String getLyrTableName() {
@@ -170,5 +162,13 @@ public class LayerDto {
 
     public void setDomCode(String domCode) {
         this.domCode = domCode;
+    }
+
+    public String getLyrGeomType() {
+        return lyrGeomType;
+    }
+
+    public void setLyrGeomType(String domCode) {
+        this.lyrGeomType = lyrGeomType;
     }
 }
