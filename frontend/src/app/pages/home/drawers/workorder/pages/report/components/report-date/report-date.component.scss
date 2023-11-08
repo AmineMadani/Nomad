@@ -1,7 +1,7 @@
 .wko-calendar {
     margin-top: 30px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     column-gap: 10px;
 
     ion-button {
@@ -10,5 +10,11 @@
 
     ion-input {
         margin-top: 0;
+    }
+}
+
+.error-message {
+    ion-note {
+        --color: var(--ion-color-danger);
     }
 }
