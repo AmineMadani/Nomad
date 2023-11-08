@@ -7,6 +7,7 @@ import { LayerService } from './layer.service';
 import { Workorder } from '../models/workorder.model';
 import { Geolocation } from '@capacitor/geolocation';
 import { UtilsService } from './utils.service';
+import { TemplateService } from './template.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class PraxedoService {
     private router: Router,
     private workorderService: WorkorderService,
     private layerService: LayerService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private templateService: TemplateService
   ) {}
 
   public externalReport: string | undefined;
@@ -42,11 +44,29 @@ export class PraxedoService {
 
         if(res.extras.TYPE) {
           const typeCode = res.extras.TYPE.toString().split('-')[0];
-          layers = lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName);
+          if(typeCode == '29' || typeCode == '39'){
+            let forms = await this.templateService.getFormsTemplate();
+            const assetFilterTree = JSON.parse(forms.find((form) => form.formCode === 'ASSET_FILTER').definition);
+            let layerKeys = [];
+            JSON.parse(JSON.stringify(assetFilterTree), function(key, value) {
+              if (key == 'layerKey') {
+                if(!layerKeys.includes(value)){
+                  layerKeys.push(value)
+                }
+              }
+            });
+            if(typeCode == '29') {
+              layers = layerKeys.filter(layerKey => layerKey.includes('aep_'));
+            } else {
+              layers = layerKeys.filter(layerKey => layerKey.includes('ass_'));
+            }
+          } else {
+            layers = lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName);
+          }
         }
         if(res.extras.MOTIF) {
           const reasonCode = res.extras.MOTIF.toString().split('-')[0];
-          reasonId = lLayerWtr.find(layerWtr => layerWtr.wtrCode == reasonCode)?.wtrId;
+          reasonId = lLayerWtr.find(layerWtr => layerWtr.wtrCode == reasonCode)?.wtrId; 
         }
         if(res.extras.GPS_RI) {
           try {
