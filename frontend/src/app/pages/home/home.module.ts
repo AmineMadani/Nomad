@@ -45,6 +45,7 @@ import { WorkorderListComponent } from './drawers/exploitation/segments/workorde
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
+import { ReportDateComponent } from './drawers/workorder/pages/report/components/report-date/report-date.component';
 import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
 import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
@@ -91,6 +92,7 @@ import { ItvSearchComponent } from './drawers/exploitation/components/itv-search
     ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,
+    ReportDateComponent,
     ReportContextComponent,
     ReportFormComponent,
     NewAssetDrawer,

@@ -79,6 +79,7 @@ export class ReportAssetComponent implements OnInit {
       }
     } else {
       this.currentTasksSelected.push(task);
+      task.isSelectedTask = true;
       this.layerSelected = task.assObjTable;
     }
     this.onSelectedTaskChange.emit(this.currentTasksSelected);
