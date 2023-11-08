@@ -6,13 +6,8 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { ReportFormComponent } from '../report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
 import { Router } from '@angular/router';
-import { AlertController, IonModal } from '@ionic/angular';
-import { DialogService } from 'src/app/core/services/dialog.service';
-import { DatepickerComponent } from 'src/app/shared/components/datepicker/datepicker.component';
-import { filter, firstValueFrom } from 'rxjs';
+import { AlertController } from '@ionic/angular';
 import { DateTime } from 'luxon';
-import { DatePipe } from '@angular/common';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
@@ -38,8 +33,6 @@ export class ReportCreateComponent implements OnInit {
     private router: Router,
     private contractService: ContractService,
     private alertController: AlertController,
-    private dialogService: DialogService,
-    private datePipe: DatePipe,
     private praxedoService: PraxedoService,
     private mapService: MapService,
     private layerService: LayerService
