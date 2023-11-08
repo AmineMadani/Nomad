@@ -236,18 +236,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
 
-        // Edit Mode
-        if (!this.isCreation) {
-          if (wkoId > 0) {
-            this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
-            this.createWithoutSendToPlanning =
-              'Sans envoyer pour planification';
-            this.creationButonLabel = 'Modifer';
-          }
-          await this.initializeFormWithWko();
-        }
         // Creation Mode
-        else {
+        if (this.isCreation) {
           this.workorder = {
             id: this.utils.createCacheId(),
             isDraft: true,
@@ -267,7 +257,19 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               };
             });
           }
+
+          await this.initializeFormWithTravoInfo();
         }
+        // Edit Mode
+        else {
+          if (wkoId > 0) {
+            this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
+            this.createWithoutSendToPlanning =
+              'Sans envoyer pour planification';
+            this.creationButonLabel = 'Modifer';
+          }
+        }
+
         await this.initializeEquipments();
 
         await this.saveWorkOrderInCache();
@@ -854,6 +856,34 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
+  private async initializeFormWithTravoInfo(): Promise<void> {
+    const travoInfo: TravoUrlPayload = this.currentUrlParams;
+
+    if (travoInfo.ctrCode) {
+      this.creationWkoForm.get('ctrId').setValue(
+        this.contracts.find((ctr) => ctr.ctrCode === travoInfo.ctrCode)?.id
+      );
+    }
+
+    if (travoInfo.wtrCode) {
+      this.creationWkoForm.get('wtrId').setValue(
+        this.wtrs.find((wtr) => wtr.wtrCode === travoInfo.wtrCode)?.wtrId
+      );
+    }
+
+    if (travoInfo.wkoPlanningStartDate) {
+      this.creationWkoForm.get('wkoPlanningStartDate').setValue(travoInfo.wkoPlanningStartDate);
+    }
+
+    if (travoInfo.wkoPlanningEndDate) {
+      this.creationWkoForm.get('wkoPlanningEndDate').setValue(travoInfo.wkoPlanningEndDate);
+    }
+
+    if (travoInfo.wkoCreationComment) {
+      this.creationWkoForm.get('wkoCreationComment').setValue(travoInfo.wkoCreationComment);
+    }
+  }
+
   private async initializeEquipments(): Promise<void> {
     let contractsIds: number[];
     let cityIds: number[];
@@ -963,104 +993,106 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         )
       );
 
-    Promise.all([
+    const results = await Promise.all([
       this.layerService.getAllVLayerWtr(),
       this.contractService.getAllContracts(),
       this.cityService.getAllCities(),
       this.layerService.getAllLayers(),
-    ]).then(async (results) => {
-      const freasons: VLayerWtr[] = results[0];
-      const contracts: Contract[] = results[1];
-      const cities: City[] = results[2];
-      const layers: Layer[] = results[3];
+    ]);
 
-      const reasons = freasons.filter((vlw: VLayerWtr) =>
-        this.assets.map((ast) => ast.lyrTableName).includes(vlw.lyrTableName)
+    const freasons: VLayerWtr[] = results[0];
+    const contracts: Contract[] = results[1];
+    const cities: City[] = results[2];
+    const layers: Layer[] = results[3];
+
+    const reasons = freasons.filter((vlw: VLayerWtr) =>
+      this.assets.map((ast) => ast.lyrTableName).includes(vlw.lyrTableName)
+    );
+
+    this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+
+    if (
+      !this.wtrs.some(
+        (v) => v.wtrId === this.creationWkoForm.get('wtrId').value
+      )
+    ) {
+      this.creationWkoForm.patchValue(
+        { wtrId: undefined },
+        { emitEvent: false }
       );
+    }
 
-      this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+    this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
+    this.cities = cities.filter((c) => cityIds.includes(c.id));
 
-      if (
-        !this.wtrs.some(
-          (v) => v.wtrId === this.creationWkoForm.get('wtrId').value
-        )
-      ) {
-        this.creationWkoForm.patchValue(
-          { wtrId: undefined },
-          { emitEvent: false }
-        );
-      }
-
-      this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
-      this.cities = cities.filter((c) => cityIds.includes(c.id));
-
-      // Creation
-      if (this.isCreation) {
-        if (!this.isXY) {
-          // The 'Pose' reason is only accessible to the XY asset so we filter it
-          this.wtrs = this.wtrs.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
-        } else {
-          // The 'pose' reason does not exist for XY so we add it
-          if (!this.wtrs.some((wtr) => wtr.wtrCode === WTR_CODE_POSE)) {
-            this.wtrs.push({
-              astCode: null,
-              astSlabel: null,
-              astLlabel: null,
-              lyrTableName: null,
-              wtrSlabel: 'Poser',
-              wtrLlabel: 'Poser',
-              wtrCode: WTR_CODE_POSE,
-              wtrId: -1,
-              astId: null,
-              aswValid: null,
-              aswUcreId: null,
-              aswUmodId: null,
-              aswDcre: null,
-              aswDmod: null,
-            });
-          }
-
-          // Get layers for the right domains without the xy ones
-          // The domCode recuperation is not smart as all
-          const domCode = this.currentUrlParams.lyrTableName.includes('aep') ? 'dw' : 'ww';
-          this.layers = layers.filter(
-            (layer) =>
-              layer.domCode === domCode &&
-              !layer.lyrTableName.includes('_xy')
-          );
+    // Creation
+    if (this.isCreation) {
+      if (!this.isXY) {
+        // The 'Pose' reason is only accessible to the XY asset so we filter it
+        this.wtrs = this.wtrs.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
+      } else {
+        // The 'pose' reason does not exist for XY so we add it
+        if (!this.wtrs.some((wtr) => wtr.wtrCode === WTR_CODE_POSE)) {
+          this.wtrs.push({
+            astCode: null,
+            astSlabel: null,
+            astLlabel: null,
+            lyrTableName: null,
+            wtrSlabel: 'Poser',
+            wtrLlabel: 'Poser',
+            wtrCode: WTR_CODE_POSE,
+            wtrId: -1,
+            astId: null,
+            aswValid: null,
+            aswUcreId: null,
+            aswUmodId: null,
+            aswDcre: null,
+            aswDmod: null,
+          });
         }
-      }
 
-      // We don't want to erase possible draft entries
-      if (
-        this.creationWkoForm.controls['ctyId'].value?.length === 0 ||
-        !cityIds.includes(this.creationWkoForm.controls['ctyId'].value)
-      ) {
-        this.creationWkoForm.controls['ctyId'].setValue(
-          cityIds.length === 1
-            ? cityIds[0]
-            : this.utils.findMostFrequentValue(cityIds)
+        // Get layers for the right domains without the xy ones
+        // The domCode recuperation is not smart as all
+        const domCode = this.currentUrlParams.lyrTableName.includes('aep') ? 'dw' : 'ww';
+        this.layers = layers.filter(
+          (layer) =>
+            layer.domCode === domCode &&
+            !layer.lyrTableName.includes('_xy')
         );
       }
+    }
 
-      if (
-        this.creationWkoForm.controls['ctrId'].value?.length === 0 ||
-        !contractsIds.includes(this.creationWkoForm.controls['ctrId'].value)
-      ) {
-        this.creationWkoForm.controls['ctrId'].setValue(
-          contractsIds.length === 1
-            ? contractsIds[0]
-            : this.utils.findMostFrequentValue(contractsIds)
-        );
-      }
+    // We don't want to erase possible draft entries
+    if (
+      this.creationWkoForm.controls['ctyId'].value?.length === 0 ||
+      !cityIds.includes(this.creationWkoForm.controls['ctyId'].value)
+    ) {
+      this.creationWkoForm.controls['ctyId'].setValue(
+        cityIds.length === 1
+          ? cityIds[0]
+          : this.utils.findMostFrequentValue(cityIds)
+      );
+    }
 
-      await this.generateMarker();
+    if (
+      this.creationWkoForm.controls['ctrId'].value?.length === 0 ||
+      !contractsIds.includes(this.creationWkoForm.controls['ctrId'].value)
+    ) {
+      this.creationWkoForm.controls['ctrId'].setValue(
+        contractsIds.length === 1
+          ? contractsIds[0]
+          : this.utils.findMostFrequentValue(contractsIds)
+      );
+    }
 
-      this.isLoading = false;
+    await this.generateMarker();
 
-      // We listen to the changes only after the form is set
-      this.listenToFormChanges();
-    });
+    this.isLoading = false;
+
+    // We listen to the changes only after the form is set
+    this.listenToFormChanges();
+
+    await this.initializeFormWithWko();
   }
 
   public getContractLabel(contract: any): string {
