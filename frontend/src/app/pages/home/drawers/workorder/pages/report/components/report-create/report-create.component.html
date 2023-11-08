@@ -22,7 +22,7 @@
       [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
   <div *ngIf="step == 3" class="form-questions-count">
-    {{getFormQuestionLabel()}}
+    <ion-progress-bar [value]="getReportProgress()"></ion-progress-bar>
   </div>
 </div>
 <div class="report-footer-actions" lines="none">

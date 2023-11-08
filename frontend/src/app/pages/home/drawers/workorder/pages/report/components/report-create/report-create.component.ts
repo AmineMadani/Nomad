@@ -523,15 +523,17 @@ export class ReportCreateComponent implements OnInit {
    * count form question label
    * @return the label
    */
-  public getFormQuestionLabel(): string {
+  public getReportProgress(): number {
     if (this.stepForm?.formEditor?.sections[0]?.children) {
+      const total = this.stepForm.formEditor.sections[0].children.length;
+      let current = 0;
+
       if (this.selectedTasks && this.selectedTasks[0]?.report?.questionIndex) {
-        return (this.selectedTasks[0].report.questionIndex + 1) + " sur " + this.stepForm.formEditor.sections[0].children.length;
-      } else if (this.selectedTasks && this.selectedTasks.length > 0 && this.step == 3) {
-        return '1 sur ' + this.stepForm.formEditor.sections[0].children.length;
+        current = this.selectedTasks[0].report.questionIndex;
       }
+      return current / total;
     }
-    return "";
+    return 0;
   }
 
   /**
