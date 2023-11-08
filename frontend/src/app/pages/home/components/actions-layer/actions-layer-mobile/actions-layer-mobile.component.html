@@ -1,10 +1,10 @@
-<ion-item *ngIf="currentRoute === drawerRouteEnum.HOME" lines="none" color="none">
-  <ion-fab (click)="openMenu()">
+<ion-item lines="none" color="none">
+  <ion-fab (click)="openMenu()" *ngIf="currentRoute === drawerRouteEnum.HOME">
     <ion-fab-button size="small" class="ion-no-margin ion-no-padding ion-fab">
       <ion-icon name="menu-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ion-fab class="ion-fab-search">
+  <ion-fab class="ion-fab-search" [style.margin-left]="currentRoute === drawerRouteEnum.HOME ? '15px' : '0px'">
     <ion-fab-button (click)="openSearchModal()" [color]="(adress && adress.length > 0) ? 'secondary':'light'" size="small" class="ion-no-margin ion-no-padding ion-fab">
       <ion-icon name="search-outline"></ion-icon>
     </ion-fab-button>
