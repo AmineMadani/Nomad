@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Layer } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
@@ -18,7 +19,8 @@ export class ReportAssetComponent implements OnInit {
     private maplayerService: MapLayerService,
     private mapService: MapService,
     private mapEventService: MapEventService,
-    private layerService: LayerService
+    private layerService: LayerService,
+    private route: ActivatedRoute
   ) { }
 
   @Input() workorder: Workorder;
@@ -77,6 +79,7 @@ export class ReportAssetComponent implements OnInit {
       }
     } else {
       this.currentTasksSelected.push(task);
+      task.isSelectedTask = true;
       this.layerSelected = task.assObjTable;
     }
     this.onSelectedTaskChange.emit(this.currentTasksSelected);
@@ -218,6 +221,17 @@ export class ReportAssetComponent implements OnInit {
 
     this.mapService.onMapLoaded().subscribe(() => {
       this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
+        
+        //Case display layers in params
+        this.route.queryParams.subscribe(params => {
+          if(params['layers']){
+            const layers: string[] = params['layers'].split(',');
+            for(let layer of layers){
+              this.mapService.addEventLayer(layer);
+            }
+          }
+        })
+        
         this.mapService.addEventLayer('task').then(() => {
           for (let task of workorder.tasks) {
             this.mapService.addEventLayer(task.assObjTable).then(async () => {

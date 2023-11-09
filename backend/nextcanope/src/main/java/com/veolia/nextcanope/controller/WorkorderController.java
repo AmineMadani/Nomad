@@ -110,12 +110,12 @@ public class WorkorderController {
     })
     public WorkorderDto cancelWorkOrder(
         @PathVariable Long wkoId,
-        @RequestBody CancelWorkorderPayload cancelWorkorderPayload,
+        @RequestBody WorkorderDto cancelWorkorderDto,
         AccountTokenDto account
     ) {
         return this.workOrderService.cancelWorkOrder(
                 wkoId,
-                cancelWorkorderPayload,
+                cancelWorkorderDto,
                 account.getId()
         );
     }

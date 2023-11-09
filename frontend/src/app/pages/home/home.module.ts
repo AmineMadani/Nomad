@@ -19,10 +19,9 @@ import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
-import { ExpCardComponent } from './drawers/components/exp-card/exp-card.component';
-import { ExpSearchComponent } from './drawers/exploitation/components/exp-search/exp-search.component';
-
-import { TaskCardComponent } from './drawers/components/exp-card/task-card/task-card.component';
+import { ExpCardComponent } from './drawers/exploitation/components/exp-card/exp-card.component';
+import { TaskSearchComponent } from './drawers/exploitation/components/task-search/task-search.component';
+import { TaskCardComponent } from './drawers/exploitation/components/exp-card/task-card/task-card.component';
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
@@ -42,10 +41,14 @@ import { ReportCreateComponent } from './drawers/workorder/pages/report/componen
 import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-context/report-context.component';
 import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
 import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
-import { WorkorderListComponent } from './drawers/exploitation/components/workorder-list/workorder-list.component';
+import { WorkorderListComponent } from './drawers/exploitation/segments/workorder-list/workorder-list.component';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
+import { ReportDateComponent } from './drawers/workorder/pages/report/components/report-date/report-date.component';
+import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
+import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
+import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
 
 @NgModule({
   imports: [
@@ -70,7 +73,7 @@ import { MulticontractModalComponent } from './drawers/workorder/pages/multicont
     AssetDrawer,
     ExploitationDrawer,
     ExpCardComponent,
-    ExpSearchComponent,
+    TaskSearchComponent,
     TaskCardComponent,
     SynthesisDrawer,
     WorkOrderDrawer,
@@ -89,11 +92,15 @@ import { MulticontractModalComponent } from './drawers/workorder/pages/multicont
     ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,
+    ReportDateComponent,
     ReportContextComponent,
     ReportFormComponent,
     NewAssetDrawer,
     WkoWaterTypeComponent,
     MulticontractModalComponent,
+    ItvListComponent,
+    ItvCardComponent,
+    ItvSearchComponent,
   ],
   exports: [ReportCreateComponent]
 })

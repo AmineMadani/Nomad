@@ -97,7 +97,7 @@ export class OfflineDownloadService {
       progressPercentage: 0
     });
 
-    const nbReferentialCalls: number = 10;
+    const nbReferentialCalls: number = 11;
     Promise.all([
       this.contractService.getAllContracts(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
       this.cityService.getAllCities(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
@@ -109,6 +109,7 @@ export class OfflineDownloadService {
       this.templateService.getFormsTemplate(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
       this.userService.getAllPermissions(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
       this.layerService.getUserLayerReferences(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
+      this.layerService.getAllLayerGrpActions(true, true).then(() => this.increaseProgressPercentage(nbReferentialCalls, this.referentialsOfflineDownload)),
     ])
       .then(async () => await this.onDownloadReferentialsSuccess())
       .catch((error) => {

@@ -19,7 +19,8 @@ export enum ReferentialCacheKey {
   WORKORDER_TASK_REASON = 'workorder_task_reason',
   PERMISSIONS = 'permissions',
   FORM_TEMPLATE = 'form_template',
-  LAYER_REFERENCES = 'layer_references'
+  LAYER_REFERENCES = 'layer_references',
+  LAYER_GRP_ACTION = 'layer_grp_action',
 }
 
 export enum CacheKey {

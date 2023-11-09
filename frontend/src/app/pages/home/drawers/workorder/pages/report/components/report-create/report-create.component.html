@@ -21,20 +21,24 @@
       (goToNextQuestion)="nextFormQuestion()"
       [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
+  <ng-container *ngIf="step == 4">
+    <app-report-date #reportDate></app-report-date>
+  </ng-container>
   <div *ngIf="step == 3" class="form-questions-count">
-    {{getFormQuestionLabel()}}
+    <ion-progress-bar [value]="getReportProgress()"></ion-progress-bar>
   </div>
 </div>
 <div class="report-footer-actions" lines="none">
   <ng-container *ngIf="!isSubmitting">
     <ion-button *ngIf="step == 1 && !workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onEditTask()" [class.font-mobile]="isMobile">Editer les équipements</ion-button>
     <ion-button *ngIf="step == 1 && workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onNewAsset()" [class.font-mobile]="isMobile">Créer un patrimoine</ion-button>
-    <ion-button *ngIf="step >= 2 && !hasPreviousQuestion && !isTest" fill="clear" style="float: left;" (click)="onBack()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
+    <ion-button *ngIf="(step >= 2 && !hasPreviousQuestion && !isTest) || step == 4" fill="clear" style="float: left;" (click)="onBack()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
     <div *ngIf="step >= 2 && !hasPreviousQuestion && isTest"></div>
     <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile" [disabled]="hasXYInvalid">Etape suivante</ion-button>
     <ion-button *ngIf="(step == 3) && hasPreviousQuestion" fill="clear" (click)="previousFormQuestion()" [class.font-mobile]="isMobile">Question précédente</ion-button>
     <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()" [class.font-mobile]="isMobile">Question suivante</ion-button>
-    <ion-button *ngIf="isSubmit && !isTest" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>
+    <ion-button *ngIf="step == 4" fill="clear" (click)="onConfirmDate()" [class.font-mobile]="isMobile">Valider</ion-button>
+    <ion-button *ngIf="isSubmit && !isTest && step != 4" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>
     <ion-fab *ngIf="(step == 1 && hasReportClosed())" class="fab-terminate">
       <ion-fab-button color="danger" (click)="submitForm(true)">
         <ion-icon name="close-outline"></ion-icon>
@@ -56,53 +60,3 @@
     </ion-item>
   </ng-container>
 </div>
-<ion-modal #completeModal id="modal-complete">
-  <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Clôture</ion-title>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content class="ion-padding">
-      <form *ngIf="completeModalForm" [formGroup]="completeModalForm">
-        <ion-grid>
-          <ion-row>
-            Réalisation de l'intervention
-          </ion-row>
-          <ion-row>
-            <ion-row>
-              <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début *" placeholder="JJ/MM/AAAA"
-                formControlName="realisationStartDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
-            </ion-row>
-            <ion-row>
-              <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
-                formControlName="realisationEndDate" (keydown)="onDateKeyDown($event)" (keyup)="onDateKeyUp($event)"></ion-input>
-            </ion-row>
-            <ion-col size="1">
-              <ion-button fill="clear" color="primary" (click)="openCalendar()">
-                <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <div *ngIf="completeModalForm.hasError('dateCompareInvalid')" class="error-message">
-              <ion-note>La date de fin ne peut être inférieure à la date de début</ion-note>
-            </div>
-          </ion-row>
-        </ion-grid>
-      </form>
-    </ion-content>
-    <ion-footer>
-      <ion-grid>
-        <ion-row class="modal-footer-buttons">
-          <ion-button fill="clear" color="primary" (click)="cancelCompleteModal()">
-            Annuler
-          </ion-button>
-          <ion-button fill="clear" color="primary" [disabled]="!completeModalForm.valid" (click)="validCompleteModal()">
-              Valider
-          </ion-button>
-        </ion-row>
-      </ion-grid>
-    </ion-footer>
-  </ng-template>
-</ion-modal>

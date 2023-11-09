@@ -7,6 +7,7 @@ import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
+import { LayerGrpAction } from '../models/layer-gp-action.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ export class LayerService {
   private layers: Layer[];
   private vLayerWtr: VLayerWtr[];
   private layerReferences: LayerReferences[];
+  private layerGrpActions: LayerGrpAction[];
 
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
@@ -285,4 +287,18 @@ export class LayerService {
     return this.vLayerWtr;
   }
 
+  public async getAllLayerGrpActions(
+    forceGetFromDb: boolean = false,
+    isDownloadMode: boolean = false
+  ) {
+    if (!this.vLayerWtr || forceGetFromDb) {
+      this.layerGrpActions = await this.cacheService.fetchReferentialsData<LayerGrpAction[]>(
+        ReferentialCacheKey.LAYER_GRP_ACTION,
+        () => this.layerDataService.getAllLayerGrpActions(),
+        isDownloadMode
+      );
+    }
+
+    return this.layerGrpActions;
+  }
 }

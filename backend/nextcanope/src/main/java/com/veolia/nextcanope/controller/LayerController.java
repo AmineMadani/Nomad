@@ -2,6 +2,7 @@ package com.veolia.nextcanope.controller;
 
 import java.util.List;
 
+import com.veolia.nextcanope.dto.LayerGrpActionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -232,5 +233,16 @@ public class LayerController {
     })
     public List<VLayerWtrDto> getVLayerWtr() {
         return this.layerService.getAllVLayerWtr();
+    }
+
+    @GetMapping(path = "/groups")
+    @Operation(summary = "Get the groups of layers by action")
+    @ApiResponses(value = {
+            @ApiResponse(description= "Get all lyr_grp_action", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<LayerGrpActionDTO> getLayerGroupActions() {
+        return this.layerService.getAllLayerGroups();
     }
 }

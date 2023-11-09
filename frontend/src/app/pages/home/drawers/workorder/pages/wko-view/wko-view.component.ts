@@ -62,6 +62,7 @@ export class WkoViewComponent implements OnInit {
 
   public userHasPermissionModifyReport: boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
+  public userHasPermissionCancelWorkorder: boolean = false;
 
   public canEdit(): boolean {
     return (
@@ -84,7 +85,7 @@ export class WkoViewComponent implements OnInit {
       wtsId = task?.wtsId;
     }
 
-    return wtsId !== WkoStatus.TERMINE && wtsId !== WkoStatus.ANNULE;
+    return this.userHasPermissionCancelWorkorder && wtsId !== WkoStatus.ANNULE;
   }
 
   public isCancelled(): boolean {
@@ -107,6 +108,10 @@ export class WkoViewComponent implements OnInit {
     this.userHasPermissionCreateProgram =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CREATE_PROGRAM_MY_AREA
+      );
+    this.userHasPermissionCancelWorkorder = 
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CANCEL_WORKORDER
       );
 
     this.mapService
@@ -259,15 +264,19 @@ export class WkoViewComponent implements OnInit {
     const { role, data } = await alertReason.onDidDismiss();
 
     if (role === 'confirm') {
-      const cancelWko: CancelWorkOrder = {
-        id: this.workOrder.id,
-        cancelComment: data.values.cancelComment,
-      };
+      this.workOrder.wkoCancelComment = data.values.cancelComment;
       this.workorderService
-        .cancelWorkorder(cancelWko)
+        .cancelWorkorder(this.workOrder)
         .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
+          if (this.taskId) {
+            this.selectedTask = this.workOrder.tasks.find(
+              (task) => task.id.toString() == this.taskId
+            );
+          } else {
+            this.selectedTask = this.workOrder.tasks[0];
+          }
           this.getStatus(this.workOrder.wtsId);
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
           for (let task of res.tasks) {
