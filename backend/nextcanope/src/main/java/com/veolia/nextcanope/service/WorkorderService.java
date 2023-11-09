@@ -468,7 +468,7 @@ public class WorkorderService {
 	 */
 	public WorkorderDto cancelWorkOrder(
 			Long wkoId,
-			CancelWorkorderPayload cancelWorkorderPayload,
+			WorkorderDto cancelWorkorderDto,
 			Long userId
 	) {
 		Users user = userService.getUserById(userId);
@@ -478,7 +478,7 @@ public class WorkorderService {
 		WorkorderTaskStatus oldStatus = statusService.getStatus(workorder.getWorkorderTaskStatus().getId());
 		WorkorderTaskStatus newStatus = statusService.getStatus(WorkOrderStatusCode.ANNULE.toString());
 		workorder.setWorkorderTaskStatus(newStatus);
-		workorder.setWkoCancelComment(cancelWorkorderPayload.getCancelComment());
+		workorder.setWkoCancelComment(cancelWorkorderDto.getWkoCancelComment());
 		workorder.setModifiedBy(user);
 
 		for (Task task : workorder.getListOfTask()) {
@@ -487,7 +487,7 @@ public class WorkorderService {
 			// Copy the cancel comment on all task, except if it is already cancel
 			if (!WorkOrderStatusCode.ANNULE.toString().equals(oldTaskStatus.getWtsCode())) {
 				task.setWorkorderTaskStatus(newStatus);
-				task.setTskCancelComment(cancelWorkorderPayload.getCancelComment());
+				task.setTskCancelComment(cancelWorkorderDto.getWkoCancelComment());
 				task.setModifiedBy(user);
 			}
 		}

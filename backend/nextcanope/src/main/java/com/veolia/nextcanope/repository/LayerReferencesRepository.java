@@ -22,7 +22,6 @@ public interface LayerReferencesRepository extends JpaRepository<LayerReferences
      */
     @Query(
             value = "SELECT * FROM nomad.f_get_layer_references_user(:userId) " +
-                    "where \"isVisible\" = true " +
                     "order by position",
             nativeQuery = true
     )

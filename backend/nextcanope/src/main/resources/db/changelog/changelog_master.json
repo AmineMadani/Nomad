@@ -72,6 +72,21 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_view_technical_references_right",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_view_technical_references_right.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

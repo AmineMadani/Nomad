@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, Subject, interval, switchMap, takeUntil } from 'rxjs';
 import { WorkorderDataService } from './dataservices/workorder.dataservice';
-import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson, convertTasksToWorkorders } from '../models/workorder.model';
+import { CancelTask, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus, buildTaskFromGeojson, buildWorkorderFromGeojson, convertTasksToWorkorders } from '../models/workorder.model';
 import { ConfigurationService } from './configuration.service';
 import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { MapService } from './map/map.service';
@@ -13,7 +13,8 @@ import { FilterService } from './filter.service';
 export enum SyncOperations {
   CreateWorkorder = 'createWorkorder',
   UpdateWorkorder = 'updateWorkorder',
-  TerminateWorkorder = 'terminateWorkorder'
+  TerminateWorkorder = 'terminateWorkorder',
+  CancelWorkorder = 'cancelWorkorder'
 }
 
 @Injectable({
@@ -45,6 +46,7 @@ export class WorkorderService {
     createWorkorder: (workorder: Workorder) => this.workorderDataService.createWorkOrder(workorder),
     updateWorkorder: (workorder: Workorder) => this.workorderDataService.updateWorkOrder(workorder),
     terminateWorkorder: (workorder: Workorder) => this.workorderDataService.terminateWorkOrder(workorder),
+    cancelWorkorder: (workorder: Workorder) => this.workorderDataService.cancelWorkOrder(workorder),
   };
 
   /**
@@ -288,10 +290,22 @@ export class WorkorderService {
    * @param workorder the workorder to cancel
    * @returns the workorder
    */
-  public cancelWorkorder(
-    cancelPayload: CancelWorkOrder
+  public async cancelWorkorder(
+    cancelWorkorder: Workorder
   ): Promise<Workorder> {
-    return this.workorderDataService.cancelWorkOrder(cancelPayload);
+    cancelWorkorder.syncOperation = undefined;
+
+    const isCacheDownload: boolean = await this.cacheService.isCacheDownload(CacheKey.REFERENTIALS);
+    if (isCacheDownload) {
+      return this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.workorderDataService.cancelWorkOrder(cancelWorkorder),
+        timeout: this.configurationService.offlineTimeoutWorkorder
+      }).catch(async (error) =>
+        this.handleConnectionErrorOnWorkorderOperations(error, cancelWorkorder, SyncOperations.CancelWorkorder)
+      );
+    }
+
+    return this.workorderDataService.cancelWorkOrder(cancelWorkorder);
   }
 
   /**
