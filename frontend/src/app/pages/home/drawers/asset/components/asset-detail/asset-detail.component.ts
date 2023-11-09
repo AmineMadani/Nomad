@@ -23,6 +23,11 @@ export class AssetDetailComponent implements OnInit {
     !!node.child && node.child.length > 0;
 
   onCheckboxChange(e: Event, node: FilterAsset): void {
-    this.assetFilterService.selectAssetFilter(node,(e as CustomEvent).detail.checked)
+    this.assetFilterService.selectAssetFilter(node, (e as CustomEvent).detail.checked)
+  }
+
+  setChange(node: FilterAsset) : void {
+    node.selected = !node.selected;
+    this.assetFilterService.selectAssetFilter(node, node.selected)
   }
 }
