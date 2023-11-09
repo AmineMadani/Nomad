@@ -97,7 +97,7 @@ public class DDTaskRepository {
         " inner join nomad.asset ass on ass.id = tsk.ass_id "+
         " left join nomad.city cty on cty.id = wko.cty_id  "+
         " inner join nomad.workorder_task_status wts2 on wts2.id = wko.wts_id "+
-        " left join nomad.street str on str.id = wko.str_id " + clauseWhere + " limit 2000 " +
+         clauseWhere + " limit 2000 " +
         " ) "+
         " select jsonb_agg(tache) from tasks",
                 String.class
