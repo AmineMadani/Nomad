@@ -105,11 +105,11 @@ public class DDTaskRepository {
 	}
 
     public String getReportByTaskId(
-                        Long task_id, 
+                        Long task_id 
                         ) {
         StringBuilder clauseWhere = new StringBuilder();
 
-        clauseWhere.append(" where rpt.rsk_id = ");
+        clauseWhere.append(" where rpt.tsk_id = ");
         clauseWhere.append(task_id);
 
         return this.jdbcTemplate.queryForObject(" WITH reports AS ( " +
@@ -118,7 +118,7 @@ public class DDTaskRepository {
                 " from nomad.report rpt" +
                 clauseWhere + 
                 ")"+
-                "select jsonb_agg(report) from reports "
+                "select jsonb_agg(report) from reports ",
                 String.class
         );
 	}
