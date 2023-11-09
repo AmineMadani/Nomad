@@ -84,17 +84,6 @@ private Long id;
     @JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-
-    @Column(name="wko_completion_start_date")
-    @JsonProperty("wko_completion_start_date")
-    private Date wkoCompletionStartDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="wko_completion_end_date")
-    @JsonProperty("wko_completion_end_date")
-    private Date wkoCompletionEndDate;
-
     @Column(name="wko_realization_user", length=2147483647)
     @JsonProperty("wko_realization_user")
     private String wkoRealizationUser;
@@ -102,6 +91,11 @@ private Long id;
     @Column(name="wko_realization_cell", length=2147483647)
     @JsonProperty("wko_realization_cell")
     private String wkoRealizationCell;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="wko_completion_end_date")
+    @JsonProperty("wko_completion_end_date")
+    private Date wkoCompletionEndDate;
 
     @Column(name="wko_realization_comment", length=2147483647)
     @JsonProperty("wko_realization_comment")
@@ -176,18 +170,28 @@ private Long id;
     @JsonProperty("wko_ext_error")
     private String wkoExtError;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="wko_completion_start_date")
+    @JsonProperty("wko_completion_start_date")
+    private Date wkoCompletionStartDate;
+
+    @Column(name="wko_affair")
+    @JsonProperty("wko_affair")
+    private Integer wkoAffair;
+
+
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wko_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="workorder")
-    private List<Task> listOfTask;
-
     @ManyToOne
     @JoinColumn(name="wts_id", referencedColumnName="id")
     private WorkorderTaskStatus workorderTaskStatus;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="workorder")
+    private List<Task> listOfTask;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wko_ucre_id", referencedColumnName="id")
@@ -306,19 +310,6 @@ private Long id;
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
     }
 
-    public Date getWkoCompletionStartDate() { return this.wkoCompletionStartDate; }
-
-    public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) { this.wkoCompletionStartDate = wkoCompletionStartDate ; }
-
-    public Date getWkoCompletionEndDate() {
-        return this.wkoCompletionEndDate;
-
-    }
-
-	public void setWkoCompletionEndDate( Date wkoCompletionEndDate ) {
-        this.wkoCompletionEndDate = wkoCompletionEndDate ;
-    }
-
     public String getWkoRealizationUser() {
         return this.wkoRealizationUser;
     }
@@ -333,6 +324,14 @@ private Long id;
 
 	public void setWkoRealizationCell( String wkoRealizationCell ) {
         this.wkoRealizationCell = wkoRealizationCell ;
+    }
+
+    public Date getWkoCompletionEndDate() {
+        return this.wkoCompletionEndDate;
+    }
+
+	public void setWkoCompletionEndDate( Date wkoCompletionEndDate ) {
+        this.wkoCompletionEndDate = wkoCompletionEndDate ;
     }
 
     public String getWkoRealizationComment() {
@@ -476,6 +475,22 @@ private Long id;
         this.wkoExtError = wkoExtError ;
     }
 
+    public Date getWkoCompletionStartDate() {
+        return this.wkoCompletionStartDate;
+    }
+
+	public void setWkoCompletionStartDate( Date wkoCompletionStartDate ) {
+        this.wkoCompletionStartDate = wkoCompletionStartDate ;
+    }
+
+    public Integer getWkoAffair() {
+        return this.wkoAffair;
+    }
+
+	public void setWkoAffair( Integer wkoAffair ) {
+        this.wkoAffair = wkoAffair ;
+    }
+
     //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
@@ -483,6 +498,14 @@ private Long id;
 
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+
+    public WorkorderTaskStatus getWorkorderTaskStatus() {
+        return this.workorderTaskStatus;
+    }
+
+    public void setWorkorderTaskStatus(WorkorderTaskStatus workorderTaskStatus) {
+        this.workorderTaskStatus = workorderTaskStatus;
     }
 
     public List<Task> getListOfTask() {
@@ -501,14 +524,6 @@ private Long id;
 
     public void setListOfTask(List<Task> listOfTask) {
         this.listOfTask = listOfTask;
-    }
-
-    public WorkorderTaskStatus getWorkorderTaskStatus() {
-        return this.workorderTaskStatus;
-    }
-
-    public void setWorkorderTaskStatus(WorkorderTaskStatus workorderTaskStatus) {
-        this.workorderTaskStatus = workorderTaskStatus;
     }
 
     public Users getCreatedBy() {

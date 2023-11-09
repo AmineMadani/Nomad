@@ -179,12 +179,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         takeUntil(this.ngUnsubscribe$),
         switchMap(async () => {
           if (this.currentUrlParams) {
-            // Handle travo case
-            if (isUrlFromTravo(this.currentUrlParams)) {
-              // Set params if we are on travo url
-              // It permits to set the lyrTableName properly
-              await this.checkAndSetParamsToHandleTravoUrl();
-            }
+            // Handle travo case if necessary
+            await this.checkAndSetParamsToHandleTravoUrl();
 
             // XY case
             if (this.currentUrlParams.lyrTableName) {
@@ -389,6 +385,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }),
       wkoPlanningEndHour: new FormControl('', {
         validators: TimeValidator.isHourValid,
+        updateOn: 'blur',
+      }),
+      wkoAffair: new FormControl({
+        value: '',
+        disabled: true
+      }, {
         updateOn: 'blur',
       }),
     });
@@ -1491,28 +1493,35 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   // http://localhost:8100/home/workorder?x=2.7040775629933194&y=48.41150005974143&wkoAffair=coucou&astCode=23&wtrCode=20&wkoName=salut&wkoCreationComment=cmagnifique&callbackUrl=encore&ctrCode=E4221&wkoPlanningStartDate=06%2F07%2F2001&wkoPlanningEndDate=06%2F08%2F2001
 
   private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
-    // Check if all necessary parameters are provided
-    if (isUrlFromTravoValid(this.currentUrlParams)) {
-      const travoParams = this.currentUrlParams as TravoUrlPayload;
+    // Set params if we are on travo url
+    // It permits to set the lyrTableName properly
+    if (isUrlFromTravo(this.currentUrlParams)) {
+      // Check if all necessary parameters are provided
+      if (isUrlFromTravoValid(this.currentUrlParams)) {
+        // We start by set the wkoAffair field required
+        this.creationWkoForm.get('wkoAffair').setValidators([Validators.required]);
 
-      // Get layers to show on the map from the astCode
-      const layers = await this.layerService.getAllLayers();
-      const astLayers = layers.filter((layer) => layer.astCode === travoParams.astCode);
-      for (let layer of astLayers) {
-        await this.mapService.addEventLayer(layer.lyrTableName);
-      }
+        const travoParams = this.currentUrlParams as TravoUrlPayload;
 
-      // All travo workorder is by default an xy
-      // We get the current domCode from the first layer because an astCode can't be on 2 different domains.
-      if (astLayers[0].domCode === 'dw') {
-        this.currentUrlParams.lyrTableName = 'aep_xy';
+        // Get layers to show on the map from the astCode
+        const layers = await this.layerService.getAllLayers();
+        const astLayers = layers.filter((layer) => layer.astCode === travoParams.astCode);
+        for (let layer of astLayers) {
+          await this.mapService.addEventLayer(layer.lyrTableName);
+        }
+
+        // All travo workorder is by default an xy
+        // We get the current domCode from the first layer because an astCode can't be on 2 different domains.
+        if (astLayers[0].domCode === 'dw') {
+          this.currentUrlParams.lyrTableName = 'aep_xy';
+        } else {
+          this.currentUrlParams.lyrTableName = 'ass_xy';
+        }
       } else {
-        this.currentUrlParams.lyrTableName = 'ass_xy';
+        this.utils.showErrorMessage("Certains paramètres obligatoires n'ont pas été renseigné par Travo.", 5000);
+        this.drawerService.navigateTo(DrawerRouteEnum.HOME);
+        throw new Error("Certains paramètres obligatoires n'ont pas été renseigné par Travo.");
       }
-    } else {
-      this.utils.showErrorMessage("Certains paramètres obligatoires n'ont pas été renseigné par Travo.", 5000);
-      this.drawerService.navigateTo(DrawerRouteEnum.HOME);
-      throw new Error("Certains paramètres obligatoires n'ont pas été renseigné par Travo.");
     }
   }
 
@@ -1546,6 +1555,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.creationWkoForm.get('ctrId').setValue(
           this.contracts.find((ctr) => ctr.ctrCode === travoInfo.ctrCode)?.id
         );
+      }
+
+      if (travoInfo.wkoAffair) {
+        this.creationWkoForm.get('wkoAffair').setValue(travoInfo.wkoAffair);
       }
 
       // Workorder task reason

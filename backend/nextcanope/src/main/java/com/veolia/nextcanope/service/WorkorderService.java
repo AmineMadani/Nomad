@@ -154,6 +154,7 @@ public class WorkorderService {
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
+		workorder.setWkoAffair(customWorkorderDto.getWkoAffair());
 		workorder.setCreatedBy(user);
 		workorder.setModifiedBy(user);
 

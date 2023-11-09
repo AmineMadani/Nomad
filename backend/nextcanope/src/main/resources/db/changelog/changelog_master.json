@@ -87,6 +87,21 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_column_wko_affair_workorker",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_column_wko_affair_workorker.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

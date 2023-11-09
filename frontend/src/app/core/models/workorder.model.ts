@@ -25,6 +25,7 @@ export interface Workorder {
     wkoDmod?: Date;
     syncOperation?: SyncOperations; // A value wich indicates the method necessary to perform synchronization with the server
     isDraft?: boolean;
+    wkoAffair?: number;
     // Specific frontend variables for travo
     tempTravoWtrId?: number;
     travoCallbackUrl?: string;

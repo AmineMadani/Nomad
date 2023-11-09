@@ -83,6 +83,12 @@
               <p>{{ reason }}</p>
             </ion-label>
           </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoAffair">
+            <ion-label class="label">
+              <h3>Numéro de dossier travO</h3>
+              <p>{{ workOrder.wkoAffair }}</p>
+            </ion-label>
+          </ion-item>
           <ion-item lines="none">
             <ion-label class="label">
               <h3>Adresse</h3>

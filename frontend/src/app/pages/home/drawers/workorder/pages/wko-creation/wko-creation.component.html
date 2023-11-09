@@ -52,6 +52,11 @@
           </ion-button>
         </div>
 
+        <ion-input labelPlacement="floating" fill="outline" label="Numéro de dossier travO *" *ngIf="creationWkoForm.get('wkoAffair').value"
+          placeholder="Numéro de dossier travO" type="text" formControlName="wkoAffair"></ion-input>
+        <ng-container
+          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAffair'] }"></ng-container>
+
         <ion-input labelPlacement="floating" fill="outline" label="Libelle *" placeholder="Libelle" type="text"
           formControlName="wkoName"></ion-input>
         <ng-container

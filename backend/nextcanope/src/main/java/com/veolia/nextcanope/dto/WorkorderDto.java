@@ -52,7 +52,9 @@ public class WorkorderDto {
 
     private boolean wkoExtToSync;
     
-    private Date wkoDmod; 
+    private Date wkoDmod;
+
+    private Integer wkoAffair;
 
     public Long getId() {
         return id;
@@ -230,6 +232,14 @@ public class WorkorderDto {
 		this.wkoCacheId = wkoCacheId;
 	}
 
+    public Integer getWkoAffair() {
+        return wkoAffair;
+    }
+
+    public void setWkoAffair(Integer wkoAffair) {
+        this.wkoAffair = wkoAffair;
+    }
+
 	public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
@@ -263,5 +273,6 @@ public class WorkorderDto {
         	}
         }
         this.wkoExtToSync=workorder.getWkoExtToSync();
+        this.wkoAffair= workorder.getWkoAffair();
     }
 }
