@@ -4,11 +4,6 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { ActivatedRoute, Params } from '@angular/router';
-import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { filter, from, switchMap } from 'rxjs';
-import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
-import { LayerService } from 'src/app/core/services/layer.service';
 
 export interface SynthesisButton {
   key: string;

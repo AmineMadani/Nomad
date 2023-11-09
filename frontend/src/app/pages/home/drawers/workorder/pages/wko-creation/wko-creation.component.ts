@@ -104,6 +104,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public contracts: Contract[];
   public cities: City[];
   public wtrs: VLayerWtr[];
+  public allWtrs: VLayerWtr[];
   public assetsDetails: any[] = [];
   public layers: Layer[];
 
@@ -257,8 +258,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               };
             });
           }
-
-          await this.initializeFormWithTravoInfo();
         }
         // Edit Mode
         else {
@@ -268,6 +267,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               'Sans envoyer pour planification';
             this.creationButonLabel = 'Modifer';
           }
+
+          await this.initializeFormWithWko();
         }
 
         await this.initializeEquipments();
@@ -666,8 +667,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       task.assObjRef = null;
 
       // Change the reason to be the 'Pose' reason of the layer selected
-      const listWtr = await this.layerService.getAllVLayerWtr();
-      const wtr = listWtr.find(
+      const wtr = this.allWtrs.find(
         (wtr) =>
           wtr.wtrCode === WTR_CODE_POSE && wtr.lyrTableName === task.assObjTable
       );
@@ -696,6 +696,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
+
+      // Redirect to travo if necessary.
+      await this.redirectToTravoAfterSave(res);
+
       if (!res.syncOperation) {
         this.workorderService.deleteCacheWorkorder(this.workorder);
       }
@@ -856,34 +860,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private async initializeFormWithTravoInfo(): Promise<void> {
-    const travoInfo: TravoUrlPayload = this.currentUrlParams;
-
-    if (travoInfo.ctrCode) {
-      this.creationWkoForm.get('ctrId').setValue(
-        this.contracts.find((ctr) => ctr.ctrCode === travoInfo.ctrCode)?.id
-      );
-    }
-
-    if (travoInfo.wtrCode) {
-      this.creationWkoForm.get('wtrId').setValue(
-        this.wtrs.find((wtr) => wtr.wtrCode === travoInfo.wtrCode)?.wtrId
-      );
-    }
-
-    if (travoInfo.wkoPlanningStartDate) {
-      this.creationWkoForm.get('wkoPlanningStartDate').setValue(travoInfo.wkoPlanningStartDate);
-    }
-
-    if (travoInfo.wkoPlanningEndDate) {
-      this.creationWkoForm.get('wkoPlanningEndDate').setValue(travoInfo.wkoPlanningEndDate);
-    }
-
-    if (travoInfo.wkoCreationComment) {
-      this.creationWkoForm.get('wkoCreationComment').setValue(travoInfo.wkoCreationComment);
-    }
-  }
-
   private async initializeEquipments(): Promise<void> {
     let contractsIds: number[];
     let cityIds: number[];
@@ -951,11 +927,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       ];
 
-      // This is completetly overkill, just to get domLlabel
+      // Get the current layer with lyrTableName
       const layers = await this.layerService.getAllLayers();
-      const layer = layers.filter(
+      const layer = layers.find(
         (l: Layer) => l.lyrTableName === this.currentUrlParams.lyrTableName
-      )[0];
+      );
 
       this.equipmentName = `XY - ${layer.domLLabel}`;
 
@@ -1009,6 +985,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.assets.map((ast) => ast.lyrTableName).includes(vlw.lyrTableName)
     );
 
+    this.allWtrs = this.utils.removeDuplicatesFromArr(freasons, 'wtrId');
     this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
 
     if (
@@ -1092,7 +1069,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     // We listen to the changes only after the form is set
     this.listenToFormChanges();
 
-    await this.initializeFormWithWko();
+    // We precomplete form info if it's a travo url
+    await this.initializeFormWithTravoInfo();
   }
 
   public getContractLabel(contract: any): string {
@@ -1402,25 +1380,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-
-  private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
-    this.currentUrlParams = (this.currentUrlParams as TravoUrlPayload);
-
-    // Check if all necessary parameters are provided
-    if (isUrlFromTravoValid(this.currentUrlParams)) {
-      // Get lyrTableName from astCode and wtrCode
-      const lyrTableName = "aep_canalisation";
-
-      await this.mapService.addEventLayer(lyrTableName);
-
-      this.currentUrlParams.lyrTableName = 'aep_xy';
-    } else {
-      this.utils.showErrorMessage("Certains paramètres obligatoires n'ont pas été renseigné par Travo.", 5000);
-      this.drawerService.navigateTo(DrawerRouteEnum.HOME);
-      throw new Error("Certains paramètres obligatoires n'ont pas été renseigné par Travo.");
-    }
-  }
-
   /**
    * If all required control are set
    * generate label
@@ -1450,5 +1409,98 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.autoGenerateLabel = true;
     }
 
+  }
+
+
+  // ### Travo management methods ### ///
+  // http://localhost:8100/home/workorder?x=2.7040775629933194&y=48.41150005974143&wkoAffair=coucou&astCode=23&wtrCode=20&wkoName=salut&wkoCreationComment=cmagnifique&callbackUrl=encore&ctrCode=E4221&wkoPlanningStartDate=06%2F07%2F2001&wkoPlanningEndDate=06%2F08%2F2001
+
+  private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
+    // Check if all necessary parameters are provided
+    if (isUrlFromTravoValid(this.currentUrlParams)) {
+      const travoParams = this.currentUrlParams as TravoUrlPayload;
+
+      // Get layers to show on the map from the astCode
+      const layers = await this.layerService.getAllLayers();
+      const astLayers = layers.filter((layer) => layer.astCode === travoParams.astCode);
+      for (let layer of astLayers) {
+        await this.mapService.addEventLayer(layer.lyrTableName);
+      }
+
+      // All travo workorder is by default an xy
+      // We get the current domCode from the first layer because an astCode can't be on 2 different domains.
+      if (astLayers[0].domCode === 'dw') {
+        this.currentUrlParams.lyrTableName = 'aep_xy';
+      } else {
+        this.currentUrlParams.lyrTableName = 'ass_xy';
+      }
+    } else {
+      this.utils.showErrorMessage("Certains paramètres obligatoires n'ont pas été renseigné par Travo.", 5000);
+      this.drawerService.navigateTo(DrawerRouteEnum.HOME);
+      throw new Error("Certains paramètres obligatoires n'ont pas été renseigné par Travo.");
+    }
+  }
+
+  private async initializeFormWithTravoInfo(): Promise<void> {
+    if (this.workorder.tempTravoWtrId) {
+      this.creationWkoForm.get('wtrId').setValue(this.workorder.tempTravoWtrId);
+      this.creationWkoForm.updateValueAndValidity();
+      this.workorder.tempTravoWtrId = undefined;
+    }
+
+    if (isUrlFromTravo(this.currentUrlParams)) {
+      const travoInfo: TravoUrlPayload = this.currentUrlParams;
+
+      if (travoInfo.wkoName) {
+        this.creationWkoForm.get('wkoName').setValue(travoInfo.wkoName);
+      }
+
+      if (travoInfo.wkoPlanningStartDate) {
+        this.creationWkoForm.get('wkoPlanningStartDate').setValue(travoInfo.wkoPlanningStartDate);
+      }
+
+      if (travoInfo.wkoPlanningEndDate) {
+        this.creationWkoForm.get('wkoPlanningEndDate').setValue(travoInfo.wkoPlanningEndDate);
+      }
+
+      if (travoInfo.wkoCreationComment) {
+        this.creationWkoForm.get('wkoCreationComment').setValue(travoInfo.wkoCreationComment);
+      }
+
+      if (travoInfo.ctrCode) {
+        this.creationWkoForm.get('ctrId').setValue(
+          this.contracts.find((ctr) => ctr.ctrCode === travoInfo.ctrCode)?.id
+        );
+      }
+
+      // Workorder task reason
+      const wtrIdInExistingList = this.wtrs.find((wtr) => wtr.wtrCode === travoInfo.wtrCode)?.wtrId;
+      if (wtrIdInExistingList) {
+        this.creationWkoForm.get('wtrId').setValue(wtrIdInExistingList);
+      } else {
+        // We enter in the case where the xy asset doesn't include the wtrCode of the asset provide in the url
+        // So we stock a temp travo wtr id, and we will use it then to complete the automatically the type when a new equipment selected.
+        const wtrIdInAllList = this.allWtrs.find((wtr) => wtr.wtrCode === travoInfo.wtrCode && wtr.astCode === travoInfo.astCode)?.wtrId;
+        this.workorder.tempTravoWtrId = wtrIdInAllList;
+      }
+
+      // Callback url, stock directly in workorder to retrieve it during the save
+      // Even if the user changed of page during the creation process
+      this.workorder.travoCallbackUrl = travoInfo.callbackUrl;
+    }
+  }
+
+  private async redirectToTravoAfterSave(res: Workorder) {
+    const cachedWorkorder = await this.workorderService.getWorkorderById(this.workorder.id);
+    if (cachedWorkorder.travoCallbackUrl) {
+      this.utils.showSuccessMessage("Redirection vers Travo en cours...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      if (!res.syncOperation) {
+        this.workorderService.deleteCacheWorkorder(this.workorder);
+      }
+
+      window.location.href = cachedWorkorder.travoCallbackUrl;
+    }
   }
 }

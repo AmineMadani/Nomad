@@ -25,6 +25,9 @@ export interface Workorder {
     wkoDmod?: Date;
     syncOperation?: SyncOperations; // A value wich indicates the method necessary to perform synchronization with the server
     isDraft?: boolean;
+    // Specific frontend variables for travo
+    tempTravoWtrId?: number;
+    travoCallbackUrl?: string;
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
@@ -202,7 +205,7 @@ export interface TravoUrlPayload {
   lyrTableName?: string;
 }
 export function isUrlFromTravo(obj: any): obj is TravoUrlPayload {
-  return 'wkoAffair' in obj;
+  return obj && 'wkoAffair' in obj;
 }
 
 export function isUrlFromTravoValid(obj: TravoUrlPayload): boolean {
