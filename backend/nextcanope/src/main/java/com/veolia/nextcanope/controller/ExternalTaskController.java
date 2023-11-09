@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/basic/external/exploitation/tasks")
+@RequestMapping("/basic/external/exploitation")
 @Tag(name = "Exploitation - Tasks for External call", description = "Operations pertaining to workOrder in the WorkOrder Management System for/from External application")
 public class ExternalTaskController {
 
@@ -23,7 +23,7 @@ public class ExternalTaskController {
     DDTaskRepository  dDTaskRepository;
 
 
-    @GetMapping(path = "/ddList")
+    @GetMapping(path = "/DDtasks")
     @Operation(summary = "Get a list of tasks according to the filter")
     @ApiResponses(value = {
     			@ApiResponse(description= "@PathVariable String modificationDateRef,", content =  {
@@ -37,4 +37,20 @@ public class ExternalTaskController {
     ) {
         return this.dDTaskRepository.getTasksForDD(modificationDateRef,contractsList,statusList);
     }
+
+
+
+    @GetMapping(path = "/DDreport")
+    @Operation(summary = "Get the report of a task")
+    @ApiResponses(value = {
+    			@ApiResponse(description= "@PathVariable String taskId,", content =  {
+    						@Content(schema = @Schema(implementation = String.class))
+    					})
+    			})
+    public String getReportByTaskIdForDD(
+            @RequestParam(name ="taskId", required=true) Long taskId
+    ) {
+        return this.dDTaskRepository.getReportByTaskId(taskId);
+    }
+
 }

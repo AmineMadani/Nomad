@@ -104,6 +104,24 @@ public class DDTaskRepository {
         );
 	}
 
+    public String getReportByTaskId(
+                        Long task_id, 
+                        ) {
+        StringBuilder clauseWhere = new StringBuilder();
+
+        clauseWhere.append(" where rpt.rsk_id = ");
+        clauseWhere.append(task_id);
+
+        return this.jdbcTemplate.queryForObject(" WITH reports AS ( " +
+                " select  distinct ON (id) " +
+                " json_build_object( 'rpt_id',id,'tsk_id',tsk_id,'rpt_key',rpt_key,'rpt_label',rpt_label,'rpt_value',rpt_value,'rpt_dcre',rpt_dcre) AS report "+
+                " from nomad.report rpt" +
+                clauseWhere + 
+                ")"+
+                "select jsonb_agg(report) from reports "
+                String.class
+        );
+	}
 
 
 }
