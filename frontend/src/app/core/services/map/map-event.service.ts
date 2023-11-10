@@ -115,7 +115,7 @@ export class MapEventService {
       return;
     }
 
-    if (features) {
+    if (features && !this.isFeatureFiredEvent) {
       this.highlighSelectedFeatures(mapLibre, undefined);
 
       if (this.selectedFeatureId) {
