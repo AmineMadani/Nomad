@@ -280,8 +280,7 @@ public class WorkorderService {
 		workorder.setWkoAgentNb(customWorkorderDto.getWkoAgentNb());
 		workorder.setWkoAttachment(customWorkorderDto.getWkoAttachment());
 		workorder.setModifiedBy(user);
-		WorkorderTaskStatus status = statusService.getStatus(WorkOrderStatusCode.CREE.toString());
-		workorder.setWorkorderTaskStatus(status);
+		workorder.setWorkorderTaskStatus(statusService.getStatus(customWorkorderDto.getWtsId()));
 
 		City city = cityService.getCityById(customWorkorderDto.getCtyId());
 		workorder.setCity(city);

@@ -556,13 +556,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isCreation && this.workorder != null && this.workorderInit) {
       if (
         this.workorder['wkoAppointment']?.toString() !=
-        this.workorderInit['wkoAppointment']?.toString() ||
+        this.creationWkoForm.controls['wkoAppointment']?.toString() ||
         this.workorder['ctrId']?.toString() !=
-        this.workorderInit['ctrId']?.toString() ||
+        this.creationWkoForm.controls['ctrId']?.toString() ||
         this.workorder['ctyId']?.toString() !=
-        this.workorderInit['ctyId']?.toString() ||
+        this.creationWkoForm.controls['ctyId']?.toString() ||
         this.workorder['wkoAgentNb']?.toString() !=
-        this.workorderInit['wkoAgentNb']?.toString() ||
+        this.creationWkoForm.controls['wkoAgentNb']?.toString() ||
         this.checkTasksChanged(this.workorder.tasks)
       ) {
         this.alerteMessage =
@@ -572,17 +572,17 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         DateTime.fromISO(this.workorder.wkoPlanningStartDate as any).toFormat(
           'dd/MM/yyyy'
         ) !=
-        DateTime.fromISO(
-          this.workorderInit.wkoPlanningStartDate as any
-        ).toFormat('dd/MM/yyyy') ||
+          DateTime.fromISO(
+            this.creationWkoForm.controls['wkoPlanningStartDate'] as any
+          ).toFormat('dd/MM/yyyy') ||
         DateTime.fromISO(this.workorder.wkoPlanningEndDate as any).toFormat(
           'dd/MM/yyyy'
         ) !=
-        DateTime.fromISO(
-          this.workorderInit.wkoPlanningEndDate as any
-        ).toFormat('dd/MM/yyyy') ||
+          DateTime.fromISO(
+            this.creationWkoForm.controls['wkoPlanningEndDate'] as any
+          ).toFormat('dd/MM/yyyy') ||
         this.workorder.tasks[0]?.wtrId?.toString() !=
-        this.workorderInit.tasks[0]?.wtrId?.toString()
+        this.creationWkoForm.controls['tasks'][0]?.wtrId?.toString()
       ) {
         this.alerteMessage =
           'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
@@ -661,6 +661,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
+    this.workorder.wtsId =  this.workorderInit['wtsId'];
 
     // Creation - Case of a 'Pose' reason on a XY asset
     if (this.isCreation && this.isXY && wtrId === -1) {
@@ -713,11 +714,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    * En mode édition, affiche un message si l'intervention doit être déplanifié
    */
   public async onValidate(): Promise<void> {
-    if (
-      !this.isCreation &&
-      this.wkoExtToSyncValue &&
-      this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
-      this.haveModifieldFieldUnscheduled()
+    if (!this.isCreation
+      && (this.workorder.wtsId === WkoStatus.ENVOYEPLANIF )
+      && this.haveModifieldFieldUnscheduled()
     ) {
       const alert = await this.alertController.create({
         header: 'Attention !',
@@ -735,6 +734,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             text: 'Oui',
             role: 'confirm',
             handler: () => {
+              this.wkoExtToSyncValue= true;
               this.onSubmit();
             },
           },
@@ -742,7 +742,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       await alert.present();
-    } else {
+    }
+    else {
       this.onSubmit();
     }
   }
