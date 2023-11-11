@@ -4,13 +4,11 @@ android{
   namespace "com.veolia.nomad"
   compileSdkVersion rootProject.ext.compileSdkVersion
   defaultConfig {
+    // applicationId "com.veolia.nomad"
     minSdkVersion rootProject.ext.minSdkVersion
     targetSdkVersion rootProject.ext.targetSdkVersion
-    // versionCode 104
-    versionName "1.0.4"
-    // buildConfigField 'int', 'VERSION_CODE', System.getenv("versionCode")
-    buildConfigField "int", "versionCode", System.getenv("versionCode")
-    buildConfigField "String", "versionName", "\"${System.env.versionName}\""
+    versionCode 103
+    versionName "1.0.3"
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     flavorDimensions "default"
     aaptOptions {
@@ -28,18 +26,16 @@ android{
   signingConfigs {
     release {
       storeFile file("../../nomad-mobile.keystore")
-      storePassword System.getenv("releaseStorePassword")
-      keyAlias System.getenv('releaseKeyAlias')
-      keyPassword System.getenv('releaseKeyPassword')
+      storePassword 'Xh2zNF04Bb1ibi7H6QJeDhNSJid6f4vY'
+      keyAlias 'nomad-mobile'
+      keyPassword 'Xh2zNF04Bb1ibi7H6QJeDhNSJid6f4vY'
     }
-
     debug {
       storeFile file("../../nomad-mobile-hors-prod.keystore")
-      storePassword System.getenv("debugStorePassword")
-      keyAlias System.getenv('debugKeyAlias')
-      keyPassword System.getenv('debugKeyPassword')
+      storePassword '6qa6dJL0wzCS3SjVF80LiBn4l6Da2lfDUVuB'
+      keyAlias 'nomad-mobile-hp'
+      keyPassword '6qa6dJL0wzCS3SjVF80LiBn4l6Da2lfDUVuB'
     }
-
   }
 
   buildTypes {
@@ -65,11 +61,6 @@ android{
       applicationId "com.veolia.nomad.rec"
       manifestPlaceholders = [displayName:"Nomad Rec", backendhostName:"nomad-rec.hp.m-ve.com"]
       buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.rec"'
-    }
-    "rec2"{
-      applicationId "com.veolia.nomad.rec2"
-      manifestPlaceholders = [displayName:"Nomad Rec2", backendhostName:"nomad-rec2.hp.m-ve.com"]
-      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.rec2"'
     }
     "int" {
       applicationId "com.veolia.nomad.int"

@@ -155,7 +155,9 @@ public class TaskDto {
         this.assObjRef = task.getAsset().getAssObjRef();
         this.tskReportDate = task.getTskReportDate();
         this.assObjTable = task.getAsset().getLayer().getLyrTableName();
-        this.wtrId = task.getWorkorderTaskReason().getId();
+        if(task.getWorkorderTaskReason() != null) {
+        	this.wtrId = task.getWorkorderTaskReason().getId();
+        }
         if(task.getContract() != null) {
         	this.ctrId = task.getContract().getId();
         }

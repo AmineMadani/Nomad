@@ -199,8 +199,11 @@ public class WorkorderService {
 			}
 
 			// Get Reason
-			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
-			task.setWorkorderTaskReason(wtr);
+			if(taskDto.getWtrId() != null) {
+				WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
+				task.setWorkorderTaskReason(wtr);
+			}
+			
 			// Get Contract
 			if(customWorkorderDto.getCtrId() != null || taskDto.getCtrId() != null) {
 				Contract contract = contractService.getContractById((customWorkorderDto.getCtrId() != null ? customWorkorderDto.getCtrId() : taskDto.getCtrId()));
@@ -322,8 +325,10 @@ public class WorkorderService {
 			}
 
 			// Get Reason
-			WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
-			task.setWorkorderTaskReason(wtr);
+			if(taskDto.getWtrId() != null) {
+				WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
+				task.setWorkorderTaskReason(wtr);
+			}
 			// Get Contract
 			Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
 			task.setContract(contract);
@@ -439,8 +444,11 @@ public class WorkorderService {
 			Asset asset = assetService.getNewOrExistingAsset(taskDto.getAssObjRef(), taskDto.getAssObjTable(), userId);
 			task.setAsset(asset);
 			// Set reason
-			WorkorderTaskReason wtr = this.getWorkOrderTaskReasonById(taskDto.getWtrId());
-			task.setWorkorderTaskReason(wtr);
+			// Get Reason
+			if(taskDto.getWtrId() != null) {
+				WorkorderTaskReason wtr = getWorkOrderTaskReasonById(taskDto.getWtrId());
+				task.setWorkorderTaskReason(wtr);
+			}
 		}
 
 		// Gestion des task à supprimer
