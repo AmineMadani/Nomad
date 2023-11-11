@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.veolia.nomad",
+    "package_name": "com.veolia.nomad.rec",
     "sha256_cert_fingerprints":
     ["38:BE:A7:83:81:15:B8:89:C7:47:27:F9:03:36:C5:E0:84:5C:22:28:F2:A5:49:A5:4B:C3:96:34:DB:29:5E:C9"]
   }
