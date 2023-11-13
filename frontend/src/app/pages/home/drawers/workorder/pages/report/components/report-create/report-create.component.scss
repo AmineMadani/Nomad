@@ -1,73 +1,47 @@
 .header-label {
-    font-weight: 300;
-    font-size: 14px;
-    line-height: 48px;
-    letter-spacing: 0.1px;
-    height: 48px;
-    color: var(--ion-color-neutral-variant-30);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 48px;
+  letter-spacing: 0.1px;
+  height: 48px;
+  color: var(--ion-color-neutral-variant-30);
 }
 
 ion-icon {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .filter-content {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 160px);
-    overflow-y: auto;
-}
-
-.report-footer-actions {
-    border-top: solid 1px var(--ion-color-neutral-variant-80);
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 27px 0px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 160px);
+  overflow-y: auto;
 }
 
 .font-mobile {
-    font-size: 10px;
+  font-size: 10px;
 }
 
 app-report-form {
-    flex: 1;
+  flex: 1;
 }
 
 .form-questions-count {
-    text-align-last: center;
-    font-size: 13px;
-    color: grey;
+  text-align-last: center;
+  font-size: 13px;
+  color: grey;
 }
 
 #modal-complete {
-    --height: 300px;
+  --height: 300px;
 }
 .modal-footer-buttons {
-    display: flex; 
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
 }
 .error-message {
-    ion-note {
-        --color: var(--ion-color-danger);
-    }
+  ion-note {
+    --color: var(--ion-color-danger);
+  }
 }
 
-.fab-return {
-    margin-top: -56px;
-    margin-left: 15px;
-}
-
-.fab-terminate {
-    margin-top: -56px;
-    margin-left: calc(50% - 55px);
-    width: 110px;
-
-    ion-fab-button {
-        margin: auto;
-    }
-
-    .fab-terminate-text {
-        text-align: center;
-    }
-}

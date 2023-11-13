@@ -49,6 +49,7 @@ import { ReportDateComponent } from './drawers/workorder/pages/report/components
 import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
 import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
+import { ReportFooterActionsComponent } from './drawers/workorder/pages/report/components/report-footer-actions/report-footer-actions.component';
 
 @NgModule({
   imports: [
@@ -101,6 +102,7 @@ import { ItvSearchComponent } from './drawers/exploitation/components/itv-search
     ItvListComponent,
     ItvCardComponent,
     ItvSearchComponent,
+    ReportFooterActionsComponent
   ],
   exports: [ReportCreateComponent]
 })
