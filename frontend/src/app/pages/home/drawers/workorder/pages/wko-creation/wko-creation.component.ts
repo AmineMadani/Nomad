@@ -661,7 +661,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
-    this.workorder.wtsId =  this.workorderInit['wtsId'];
+    if (this.workorderInit) {
+      this.workorder.wtsId = this.workorderInit['wtsId'];
+    }
 
     // Creation - Case of a 'Pose' reason on a XY asset
     if (this.isCreation && this.isXY && wtrId === -1) {
