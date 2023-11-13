@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { Task } from 'src/app/core/models/workorder.model';
+import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { FormEditorComponent } from 'src/app/shared/form-editor/form-editor.component';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
@@ -18,6 +18,7 @@ export class ReportFormComponent implements OnInit {
   @Input() tasks: Task[];
   @Input() reportForm: Form = null;
   @Input() isTest = false;
+  @Input() workorder: Workorder;
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
   @Output() goToNextQuestion: EventEmitter<void> = new EventEmitter();
 

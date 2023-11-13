@@ -5,7 +5,6 @@ import { DateTime } from 'luxon';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { Navigation } from 'swiper';
 import { AttachmentImageViewerComponent } from './attachment-image-viewer/attachment-image-viewer.component';
 import { Attachment } from 'src/app/core/models/attachment.model';
 

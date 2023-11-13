@@ -18,7 +18,7 @@
   </ng-container>
   <ng-container *ngIf="step == 3">
     <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
-      (goToNextQuestion)="nextFormQuestion()"
+      (goToNextQuestion)="nextFormQuestion()" [workorder]="workorder"
       [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
   </ng-container>
   <ng-container *ngIf="step == 4">

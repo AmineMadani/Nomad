@@ -14,7 +14,7 @@ import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { ReportValue } from 'src/app/core/models/workorder.model';
+import { ReportValue, Workorder } from 'src/app/core/models/workorder.model';
 
 export interface FormNode {
   definition: FormDefinition;
@@ -39,6 +39,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() editMode: boolean;
   @Input() indexQuestion = 0;
   @Input() resumeQuestions: ReportValue[];
+  @Input() workorder: Workorder;
   @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
   @Output() goToNextQuestion: EventEmitter<void> = new EventEmitter();
 
