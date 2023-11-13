@@ -128,7 +128,7 @@ export class ReportQuestionEditComponent implements OnInit {
       this.listReportDefinition = [];
       listFormTemplateReport.forEach((formTemplate) => {
         const form: Form = JSON.parse(formTemplate.definition);
-        const listDefinitionForQuestion = form.definitions.filter((definition) => definition.rqnCode === this.reportQuestion.rqnCode);
+        const listDefinitionForQuestion = form.definitions.filter((definition) => definition.rqnCode === this.reportQuestion.rqnCode && definition.isOptional !== true);
         const listDefinitionWithConditionOnQuestion = form.definitions.filter((definition) => listDefinitionForQuestion.some((d) => d.key === definition.displayCondition?.key));
         const reportDefinition: FormWithLinkedToDefinition = {
           formTemplate: formTemplate,

@@ -103,6 +103,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   public buildTree(definitions: FormDefinition[], section?: string): FormNode[] {
     const nodes: FormNode[] = [];
     for (const definition of definitions) {
+      if (definition.isOptional === true) continue;
+
       if (definition.section === section) {
         const node: FormNode = { definition };
         const children = this.buildTree(definitions, definition.key);
@@ -121,20 +123,22 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @returns A FormGroup object is being returned.
    */
   public buildForm(): FormGroup {
-    const controlsArray = this.nomadForm.definitions.map((field) => {
-      const validators = [];
-      if (field.rules) {
-        for (const rule of field.rules) {
-          validators.push(
-            this.rulesService.createValidators(rule.key, rule.value, rule.message)
-          );
+    const controlsArray = this.nomadForm.definitions
+      .filter((definition) => definition.isOptional !== true)
+      .map((field) => {
+        const validators = [];
+        if (field.rules) {
+          for (const rule of field.rules) {
+            validators.push(
+              this.rulesService.createValidators(rule.key, rule.value, rule.message)
+            );
+          }
         }
-      }
-      return [
-        field.key,
-        new FormControl(field.attributes.value, { validators }),
-      ];
-    });
+        return [
+          field.key,
+          new FormControl(field.attributes.value, { validators }),
+        ];
+      });
     const controls = Object.fromEntries(controlsArray);
     return this.fb.group(controls);
   }

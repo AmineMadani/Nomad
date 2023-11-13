@@ -18,7 +18,8 @@ export interface FormDefinition {
   rules: FormRule[];
   displayCondition?: FormDisplayCondition;
   rqnCode?: string; // For report, ID of the question
-  isOptional?: boolean; // For new asset, to allow the user to add this question
+  isOptional?: boolean; // For new asset, to allow the user to add this question. Or for report, can the question be added to the form when a user created a custom form from this one
+  canBeDeleted?: boolean; // For report, can the question be removed from the form when a user created a custom form from this one
 }
 
 export interface FormSection {

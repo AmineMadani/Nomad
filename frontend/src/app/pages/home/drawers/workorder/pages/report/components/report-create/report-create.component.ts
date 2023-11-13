@@ -301,7 +301,7 @@ export class ReportCreateComponent implements OnInit {
       questionIndex: this.stepForm.formEditor.indexQuestion
     };
     for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-      if (definition.type == 'property') {
+      if (definition.type == 'property' && definition.isOptional !== true) {
         report.reportValues.push({
           key: definition.key,
           question: definition.label,
@@ -364,7 +364,7 @@ export class ReportCreateComponent implements OnInit {
       questionIndex: this.stepForm.formEditor.indexQuestion
     };
     for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-      if (definition.type == 'property') {
+      if (definition.type == 'property' && definition.isOptional !== true) {
         report.reportValues.push({
           key: definition.rqnCode + '_' + definition.key,
           question: definition.label,

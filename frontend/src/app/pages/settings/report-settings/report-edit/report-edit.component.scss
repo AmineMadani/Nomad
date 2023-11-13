@@ -118,6 +118,22 @@
           }
         }
       }
+
+      .fieldset-class {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border: 1px dashed blue;
+      }
+
+      .optional-question-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 300px;
+        width: 100%;
+      }
     }
   }
 
