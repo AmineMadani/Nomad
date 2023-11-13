@@ -111,10 +111,7 @@
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
           placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
 
-        <ion-accordion-group [multiple]="false" value="attachment">
-          <app-attachment-accordion [workorder]="workorder"></app-attachment-accordion>
-        </ion-accordion-group>
-
+        <app-attachment-accordion [workorder]="workorder"></app-attachment-accordion>
       </ion-list>
     </form>
   </ng-container>

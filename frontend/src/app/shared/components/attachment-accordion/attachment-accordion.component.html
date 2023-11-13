@@ -1,82 +1,87 @@
-<ion-accordion value="attachment" class="attachment-accordion">
-  <ion-item slot="header" color="light">
-    <ion-label> Pièces jointes </ion-label>
+<ion-accordion-group [multiple]="false" [value]="listAttachment.length > 0 ? 'attachment' : ''">
+  <ion-accordion value="attachment" class="attachment-accordion">
+    <ion-item slot="header" color="light">
+      <ion-label> Pièces jointes </ion-label>
 
-    <ng-container *ngIf="!isReadOnly">
-      <ion-button fill="clear" (click)="fileUpload.click()" [matTooltip]="'Ajouter une pièce jointe'">
-        <ion-icon slot="icon-only" name="attach"></ion-icon>
-      </ion-button>
-      <input #fileUpload type="file" value="Upload" (change)="addAttachment($event)" style="display:none" accept="*"
-        multiple />
+      <ng-container *ngIf="!isReadOnly">
+        <ion-button fill="clear" (click)="fileUpload.click()" [matTooltip]="'Ajouter une pièce jointe'">
+          <ion-icon slot="icon-only" name="attach"></ion-icon>
+        </ion-button>
+        <input #fileUpload type="file" value="Upload" (change)="addAttachment($event)" style="display:none" accept="*"
+          multiple />
 
-      <ion-button *ngIf="isMobile" fill="clear" (click)="addPicture()">
-        <ion-icon slot="icon-only" name="camera"></ion-icon>
-      </ion-button>
-    </ng-container>
-  </ion-item>
-  <div slot="content">
-    <ng-container *ngIf="isAttachmentLoaded">
-      <ion-item lines="none" *ngFor="let attachment of listAttachment">
-        <div class="attachment-div">
-          <ng-container [ngSwitch]="getFileExtension(attachment.informations?.filename)">
-            <!-- Images -->
-            <ng-container *ngIf="isFileImage(attachment.informations?.filename); else elseBlock">
-              <div class="preview-div" (click)="openImgReader(attachment)">
-                <img *ngSwitchCase="'png'" src="{{attachment.url}}" onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
-                <img *ngSwitchCase="'jpg'" src="{{attachment.url}}" onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
-                <img *ngSwitchCase="'img'" src="{{attachment.url}}" onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
-              </div>
+        <ion-button *ngIf="isMobile" fill="clear" (click)="addPicture()">
+          <ion-icon slot="icon-only" name="camera"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-item>
+    <div slot="content">
+      <ng-container *ngIf="isAttachmentLoaded">
+        <ion-item lines="none" *ngFor="let attachment of listAttachment">
+          <div class="attachment-div">
+            <ng-container [ngSwitch]="getFileExtension(attachment.informations?.filename)">
+              <!-- Images -->
+              <ng-container *ngIf="isFileImage(attachment.informations?.filename); else elseBlock">
+                <div class="preview-div" (click)="openImgReader(attachment)">
+                  <img *ngSwitchCase="'png'" src="{{attachment.url}}"
+                    onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
+                  <img *ngSwitchCase="'jpg'" src="{{attachment.url}}"
+                    onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
+                  <img *ngSwitchCase="'img'" src="{{attachment.url}}"
+                    onerror="this.onerror=null;this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC';" />
+                </div>
+              </ng-container>
+
+              <!-- Others -->
+              <ng-template #elseBlock>
+                <a class="preview-div" target="_blank" href="{{attachment.url}}">
+                  <!-- Excel -->
+                  <img *ngSwitchCase="'xls'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACcklEQVR4nGNgGAWjYBSMgmEJDOsNpfRqDX11aw0bdGsNN+vWGj5jGIzAvt6eRb9GX1uvxiBOt8Zwol6t0W69WsM3erVG/9HxQLuVQb3Uilev2thGt9YoDeRY3RrDI3o1ht+xOXbAPaBboSsIdmyNUb5ujdEi3Rqjq3o1Rn+JdeyAe0CPAofiwj7rA8jC3uv9jwxpD/isDyA99kY9UDsaA/8HXRJCBjCH4QOjHtBDCr3Obd0ooVO+qgpF3q7d6f+XH1/g8j07+gZXDBjWm/6/9eI23PC7r+7+N6gzgcsvPb4cLnfn5Z3/Rg1mg68YTZmfjhJCuUsKwOIevT7/f/7+CRb79+/f/+R5aYO3Hth7bT/cA5ceXwaLbbmwFS62+cKWwZ2Jvfp8//+AhjYIlKws///3318w+9P3T/8dO10Gtwf0ao3+zzowB27Jx28f4ez2LZ1Doxg1b7b+//LjSxTLrj+78d+gHpGpB20e0Ks1+m/VaofhgWfvn/03a7IaGh5YfXot3OGvP7+Bs2funz34k1Di3BRwUQkC3399/5+3tBBuIago9Z0QOHg9YNJo8f/uq3twC+YcnAcWP3r7GFzs2J0Tg9cDMw/MRil9bNscwOKhUyPgRSkIlK6sGHx5IGhy6P9ff37hbOvsvLwLJV+AMvqg8YBBncn/8w8vwB0IKoFMmyxRHTch4P+fv3/gahYfWzr4kpAehXjUAwMdA4OmItMb9UDAaAwMqSTkvd7/MMOIG9zFNbyuW2tkDJsLGNTD6+RMcOjVGnWAZmMG7QQHCYBRq95QRbfOOFS31rBNr8Zom16N4XNSDBgFo2AUjAKGIQEAkqNB3aFhJ4wAAAAASUVORK5CYII=">
+                  <img *ngSwitchCase="'xlsx'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACcklEQVR4nGNgGAWjYBSMgmEJDOsNpfRqDX11aw0bdGsNN+vWGj5jGIzAvt6eRb9GX1uvxiBOt8Zwol6t0W69WsM3erVG/9HxQLuVQb3Uilev2thGt9YoDeRY3RrDI3o1ht+xOXbAPaBboSsIdmyNUb5ujdEi3Rqjq3o1Rn+JdeyAe0CPAofiwj7rA8jC3uv9jwxpD/isDyA99kY9UDsaA/8HXRJCBjCH4QOjHtBDCr3Obd0ooVO+qgpF3q7d6f+XH1/g8j07+gZXDBjWm/6/9eI23PC7r+7+N6gzgcsvPb4cLnfn5Z3/Rg1mg68YTZmfjhJCuUsKwOIevT7/f/7+CRb79+/f/+R5aYO3Hth7bT/cA5ceXwaLbbmwFS62+cKWwZ2Jvfp8//+AhjYIlKws///3318w+9P3T/8dO10Gtwf0ao3+zzowB27Jx28f4ez2LZ1Doxg1b7b+//LjSxTLrj+78d+gHpGpB20e0Ks1+m/VaofhgWfvn/03a7IaGh5YfXot3OGvP7+Bs2funz34k1Di3BRwUQkC3399/5+3tBBuIago9Z0QOHg9YNJo8f/uq3twC+YcnAcWP3r7GFzs2J0Tg9cDMw/MRil9bNscwOKhUyPgRSkIlK6sGHx5IGhy6P9ff37hbOvsvLwLJV+AMvqg8YBBncn/8w8vwB0IKoFMmyxRHTch4P+fv3/gahYfWzr4kpAehXjUAwMdA4OmItMb9UDAaAwMqSTkvd7/MMOIG9zFNbyuW2tkDJsLGNTD6+RMcOjVGnWAZmMG7QQHCYBRq95QRbfOOFS31rBNr8Zom16N4XNSDBgFo2AUjAKGIQEAkqNB3aFhJ4wAAAAASUVORK5CYII=">
+                  <!-- PDF -->
+                  <img *ngSwitchCase="'pdf'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACIklEQVR4nO3Xz0sUYRzH8flX/EWidkihgymeBDt4dbRskTLBxENkIBGUEGR2i4oQC0IXL+IhCnQR0VsImh6ENsNCyeUxYoksf637jseHddLFIvN5dh96PjDM7GHh+5r5PvN9xvNcXPQGPxctR11Ot7WAZOsZcwg0ALbfzpK8UmEGoQUgYuYQ6AKYQqATIAwgtAOEZoQRgNCIMAYQmhBGAUIDwjhA7EdkJeBvDs8BfPcEsK+F7oRgZRF+rEG420LAlxh7Se5Aa7lFgEulQfHzr9W557JFgPMnYCehCl9+ZyHAz4UP80H7yHTWWgYI3wvaKJGAULFlgOYy2NpQgPdzRy6ejE7imXEFiE5DfZ5lgIYCiK8GbdR308JBJrO9tXvaHWjtVRYBJoZU4cMPYSqirmMfoeW0BYDmMtj4rmZBWyVcPAXLCwqx8EY9nWe3YeQ5jA1CJAyPrsG5giwBDD1QxcpFLH931EBkgD9mcjgLAE0n4VtcFRSdAbG0v8jUmkhlZRGWoup6cz3DALmFeNmXfmdl+7zoha4GaCxUQ04u6oOZncwQoD4fem/A509BMbJA2d+HbSHkhu9xB7x6CqP96v+hkgwArlarhflr5OSVrXSUt5dvEnCrDta+pvf49bPHVjzaAHLSplomLoJd5+D9Yy0ebYALRelvFDm8/mHPg/EWetKp7r78fOy/e+ggyl6Ab+bwHMB3TwDXQv91C7m4eL/NT9rWaYTkzttuAAAAAElFTkSuQmCC">
+                  <!-- Word -->
+                  <img *ngSwitchCase="'doc'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC+UlEQVR4nO1ZXUhUQRTeoJfojktFPUgPLvXQz1MJvRT1UncWxIUSI/ojLCSin4dAsEKUwCQMEUrQrO5cf9I0TAzNv7TaUlxds0W0skI0bTcT9a5r26oT96w7pCS4FuxY88EwZ85cDt+558yZe2cMBgEBAYF/Eiv25oajfWo0wiRZwkoFkpUBA5fY07B8JVa2Ilk5LskkE8lKrYSVIYQJndtCTdWwxpKLJDPZJclKPJDFxIowmfgd2ZA7YIwqWKWTRVi5IMmKimSlE8lkaqFkQ+4A+gOi8zVTlraoFnFLsy5pB0xZWvDREw5gEQHKXQoFC5NwABO680wFeyNJd9pmvdGOnm+g901O07XR+Ux/vfAN6IfHvtMwc4ir0OqoPOrxTgKhgpoeRmadpQCIB7D73GM2V27tBV1d62c+ymhLlwsItb39ynT4YtWsfD2b8YrNdfeOgE6PBBdrILu8Cwy6PT6WEonZNtBpnh/Q51R0s4h5fVOgO5zSwIcDp9OtzOiWY6WgK238BONaWz/0zZ0u0EeeesSe3XSkhI8U2hFfzkgduFIHut4vGozPZzZBPz7ho0azCm9dh3N4gp9PCaNZZalyKcdGTQeLQR51e+n6mPt0emYtbz9ZRlPu2UGuau7jax946XCCUfXJexqbVA/yU/sAzPX0j8L4ROozWlT/AeTUvNd8OXDzYScY1SvStfwOkNOL/FWmpMG/Hm4UOWj7uyGQY2ZSjYsUQpjQuLTnbHOqbOoD+ejVRpi7fLsVxtUt/XRs3J9qGw4V8+XAtrgyIKbn+8eBMZA3z1SkqIRqGPc53f7e5ebvWyjMTOiI5mXGf60y4fsL6VRgJVMKOzF3DiBMaGP7IDM+t8oEFrKO5Lt2Pv/IMh44GMm5VSawkHVYEmv4dACJ/4HgYOItAks+hUzCgSAgIoD/XgpFZGkvDP/d4e58x+tGWYlkdwE8H68v5oIDYZKm38Zwe8GxcNBlYbK6UTKrsUgmqRImlUgmg0EYEBAQEDAsDfwEy+4aiiOUSdwAAAAASUVORK5CYII=">
+                  <img *ngSwitchCase="'docx'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC+UlEQVR4nO1ZXUhUQRTeoJfojktFPUgPLvXQz1MJvRT1UncWxIUSI/ojLCSin4dAsEKUwCQMEUrQrO5cf9I0TAzNv7TaUlxds0W0skI0bTcT9a5r26oT96w7pCS4FuxY88EwZ85cDt+558yZe2cMBgEBAYF/Eiv25oajfWo0wiRZwkoFkpUBA5fY07B8JVa2Ilk5LskkE8lKrYSVIYQJndtCTdWwxpKLJDPZJclKPJDFxIowmfgd2ZA7YIwqWKWTRVi5IMmKimSlE8lkaqFkQ+4A+gOi8zVTlraoFnFLsy5pB0xZWvDREw5gEQHKXQoFC5NwABO680wFeyNJd9pmvdGOnm+g901O07XR+Ux/vfAN6IfHvtMwc4ir0OqoPOrxTgKhgpoeRmadpQCIB7D73GM2V27tBV1d62c+ymhLlwsItb39ynT4YtWsfD2b8YrNdfeOgE6PBBdrILu8Cwy6PT6WEonZNtBpnh/Q51R0s4h5fVOgO5zSwIcDp9OtzOiWY6WgK238BONaWz/0zZ0u0EeeesSe3XSkhI8U2hFfzkgduFIHut4vGozPZzZBPz7ho0azCm9dh3N4gp9PCaNZZalyKcdGTQeLQR51e+n6mPt0emYtbz9ZRlPu2UGuau7jax946XCCUfXJexqbVA/yU/sAzPX0j8L4ROozWlT/AeTUvNd8OXDzYScY1SvStfwOkNOL/FWmpMG/Hm4UOWj7uyGQY2ZSjYsUQpjQuLTnbHOqbOoD+ejVRpi7fLsVxtUt/XRs3J9qGw4V8+XAtrgyIKbn+8eBMZA3z1SkqIRqGPc53f7e5ebvWyjMTOiI5mXGf60y4fsL6VRgJVMKOzF3DiBMaGP7IDM+t8oEFrKO5Lt2Pv/IMh44GMm5VSawkHVYEmv4dACJ/4HgYOItAks+hUzCgSAgIoD/XgpFZGkvDP/d4e58x+tGWYlkdwE8H68v5oIDYZKm38Zwe8GxcNBlYbK6UTKrsUgmqRImlUgmg0EYEBAQEDAsDfwEy+4aiiOUSdwAAAAASUVORK5CYII=">
+                  <!-- Powerpoint -->
+                  <img *ngSwitchCase="'ppt'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACL0lEQVR4nO2ZPUgcQRTHV0hrEVJkR6KF2NkELdIEhBTqzBFBxE4EwQuBQATBtBoLUUkRTTrPJlUQC+EgjSCIV52FFkogabLqzLqeGs9PdHZ9YRQ3l7Cre3fc3q47f3jNFMv7vY95d/MURUpKSupeSmurrtpqrXpJMRqiBCUpQUwJoqBJeaC3PK5nWO1mWJ1gWJ1nWN1lBMH/Vm5flUzbo0raip6zGHp15SxRU4yoZ07Olh1Ai9U8FM5SjPooRl8oQesUI8urs2UHYEU46mYwHi/MxuKpcAOMx/PPngQg3jLAqQbm+jJYyWmAD6/DlwFu6LaZ31cAPvcHF0BEWURbRN0JgN9AOGQiEAC5jroBcEMHK5koHYCTLs/PgG/+hOO5Kdjuelo0gLmW9hcgV9bvHTB6nhUFwLc0fwAOJgcgOzUEp4tzAJZpn58uzHoGAL/nQK5yz49mPv2ThdAB7A12/e0JfnEngHPp/CofQDbx3j43t7WCAEyH5i0pQOZtC+y+a4dsYhguTw7tc1FOhQBYDten77fQxY9V0Dvq8gYwXQaYbwDWvgFHXz+C3l7raQ54/QkBpS6hzJsXYHQ3eJrEokREnYt7Xpi5lr4um1si71sTh+b/QKQB+F1zwHAfdBKA5RntwJYQizIAD0IPsCgDQNhLCKIL0LsUvcddt+d1FkON9i4gyM/rBS44RsU2JrALDq8CRanYaH5Sp8fUTkbUEUrQN4qR7vkDUlJSUkpY9AftBucgjxwAFwAAAABJRU5ErkJggg==">
+                  <img *ngSwitchCase="'pptx'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACL0lEQVR4nO2ZPUgcQRTHV0hrEVJkR6KF2NkELdIEhBTqzBFBxE4EwQuBQATBtBoLUUkRTTrPJlUQC+EgjSCIV52FFkogabLqzLqeGs9PdHZ9YRQ3l7Cre3fc3q47f3jNFMv7vY95d/MURUpKSupeSmurrtpqrXpJMRqiBCUpQUwJoqBJeaC3PK5nWO1mWJ1gWJ1nWN1lBMH/Vm5flUzbo0raip6zGHp15SxRU4yoZ07Olh1Ai9U8FM5SjPooRl8oQesUI8urs2UHYEU46mYwHi/MxuKpcAOMx/PPngQg3jLAqQbm+jJYyWmAD6/DlwFu6LaZ31cAPvcHF0BEWURbRN0JgN9AOGQiEAC5jroBcEMHK5koHYCTLs/PgG/+hOO5Kdjuelo0gLmW9hcgV9bvHTB6nhUFwLc0fwAOJgcgOzUEp4tzAJZpn58uzHoGAL/nQK5yz49mPv2ThdAB7A12/e0JfnEngHPp/CofQDbx3j43t7WCAEyH5i0pQOZtC+y+a4dsYhguTw7tc1FOhQBYDten77fQxY9V0Dvq8gYwXQaYbwDWvgFHXz+C3l7raQ54/QkBpS6hzJsXYHQ3eJrEokREnYt7Xpi5lr4um1si71sTh+b/QKQB+F1zwHAfdBKA5RntwJYQizIAD0IPsCgDQNhLCKIL0LsUvcddt+d1FkON9i4gyM/rBS44RsU2JrALDq8CRanYaH5Sp8fUTkbUEUrQN4qR7vkDUlJSUkpY9AftBucgjxwAFwAAAABJRU5ErkJggg==">
+                  <!-- Text -->
+                  <img *ngSwitchCase="'txt'"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAsElEQVR4nO3VMQpCMRCE4b3Gu6hnsNxab7SVWNnuDWwsfKCxtxBCmCWGf2AP8JEZYkaINh7PJrrj3wJOl70O4QLA7f5q5yqECwD5eNchXAQoQ7gQkBUINSDViApAKhFVgFQhKgGpQFQD8gsxJaDnDEDwAo0KjYQKxeQV2g7X4XMAP8IGYsENOICOsIFYcAMb/0BH2EAsuAEH0BE2EJNvwMVnAIIXaFRoJFQoqBAhJswHu0l6yts65YIAAAAASUVORK5CYII=">
+                  <!-- Unknown -->
+                  <img *ngSwitchDefault
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC">
+                </a>
+              </ng-template>
             </ng-container>
 
-            <!-- Others -->
-            <ng-template #elseBlock>
-              <a class="preview-div" target="_blank" href="{{attachment.url}}">
-                <!-- Excel -->
-                <img *ngSwitchCase="'xls'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACcklEQVR4nGNgGAWjYBSMgmEJDOsNpfRqDX11aw0bdGsNN+vWGj5jGIzAvt6eRb9GX1uvxiBOt8Zwol6t0W69WsM3erVG/9HxQLuVQb3Uilev2thGt9YoDeRY3RrDI3o1ht+xOXbAPaBboSsIdmyNUb5ujdEi3Rqjq3o1Rn+JdeyAe0CPAofiwj7rA8jC3uv9jwxpD/isDyA99kY9UDsaA/8HXRJCBjCH4QOjHtBDCr3Obd0ooVO+qgpF3q7d6f+XH1/g8j07+gZXDBjWm/6/9eI23PC7r+7+N6gzgcsvPb4cLnfn5Z3/Rg1mg68YTZmfjhJCuUsKwOIevT7/f/7+CRb79+/f/+R5aYO3Hth7bT/cA5ceXwaLbbmwFS62+cKWwZ2Jvfp8//+AhjYIlKws///3318w+9P3T/8dO10Gtwf0ao3+zzowB27Jx28f4ez2LZ1Doxg1b7b+//LjSxTLrj+78d+gHpGpB20e0Ks1+m/VaofhgWfvn/03a7IaGh5YfXot3OGvP7+Bs2funz34k1Di3BRwUQkC3399/5+3tBBuIago9Z0QOHg9YNJo8f/uq3twC+YcnAcWP3r7GFzs2J0Tg9cDMw/MRil9bNscwOKhUyPgRSkIlK6sGHx5IGhy6P9ff37hbOvsvLwLJV+AMvqg8YBBncn/8w8vwB0IKoFMmyxRHTch4P+fv3/gahYfWzr4kpAehXjUAwMdA4OmItMb9UDAaAwMqSTkvd7/MMOIG9zFNbyuW2tkDJsLGNTD6+RMcOjVGnWAZmMG7QQHCYBRq95QRbfOOFS31rBNr8Zom16N4XNSDBgFo2AUjAKGIQEAkqNB3aFhJ4wAAAAASUVORK5CYII=">
-                <img *ngSwitchCase="'xlsx'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACcklEQVR4nGNgGAWjYBSMgmEJDOsNpfRqDX11aw0bdGsNN+vWGj5jGIzAvt6eRb9GX1uvxiBOt8Zwol6t0W69WsM3erVG/9HxQLuVQb3Uilev2thGt9YoDeRY3RrDI3o1ht+xOXbAPaBboSsIdmyNUb5ujdEi3Rqjq3o1Rn+JdeyAe0CPAofiwj7rA8jC3uv9jwxpD/isDyA99kY9UDsaA/8HXRJCBjCH4QOjHtBDCr3Obd0ooVO+qgpF3q7d6f+XH1/g8j07+gZXDBjWm/6/9eI23PC7r+7+N6gzgcsvPb4cLnfn5Z3/Rg1mg68YTZmfjhJCuUsKwOIevT7/f/7+CRb79+/f/+R5aYO3Hth7bT/cA5ceXwaLbbmwFS62+cKWwZ2Jvfp8//+AhjYIlKws///3318w+9P3T/8dO10Gtwf0ao3+zzowB27Jx28f4ez2LZ1Doxg1b7b+//LjSxTLrj+78d+gHpGpB20e0Ks1+m/VaofhgWfvn/03a7IaGh5YfXot3OGvP7+Bs2funz34k1Di3BRwUQkC3399/5+3tBBuIago9Z0QOHg9YNJo8f/uq3twC+YcnAcWP3r7GFzs2J0Tg9cDMw/MRil9bNscwOKhUyPgRSkIlK6sGHx5IGhy6P9ff37hbOvsvLwLJV+AMvqg8YBBncn/8w8vwB0IKoFMmyxRHTch4P+fv3/gahYfWzr4kpAehXjUAwMdA4OmItMb9UDAaAwMqSTkvd7/MMOIG9zFNbyuW2tkDJsLGNTD6+RMcOjVGnWAZmMG7QQHCYBRq95QRbfOOFS31rBNr8Zom16N4XNSDBgFo2AUjAKGIQEAkqNB3aFhJ4wAAAAASUVORK5CYII=">
-                <!-- PDF -->
-                <img *ngSwitchCase="'pdf'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACIklEQVR4nO3Xz0sUYRzH8flX/EWidkihgymeBDt4dbRskTLBxENkIBGUEGR2i4oQC0IXL+IhCnQR0VsImh6ENsNCyeUxYoksf637jseHddLFIvN5dh96PjDM7GHh+5r5PvN9xvNcXPQGPxctR11Ot7WAZOsZcwg0ALbfzpK8UmEGoQUgYuYQ6AKYQqATIAwgtAOEZoQRgNCIMAYQmhBGAUIDwjhA7EdkJeBvDs8BfPcEsK+F7oRgZRF+rEG420LAlxh7Se5Aa7lFgEulQfHzr9W557JFgPMnYCehCl9+ZyHAz4UP80H7yHTWWgYI3wvaKJGAULFlgOYy2NpQgPdzRy6ejE7imXEFiE5DfZ5lgIYCiK8GbdR308JBJrO9tXvaHWjtVRYBJoZU4cMPYSqirmMfoeW0BYDmMtj4rmZBWyVcPAXLCwqx8EY9nWe3YeQ5jA1CJAyPrsG5giwBDD1QxcpFLH931EBkgD9mcjgLAE0n4VtcFRSdAbG0v8jUmkhlZRGWoup6cz3DALmFeNmXfmdl+7zoha4GaCxUQ04u6oOZncwQoD4fem/A509BMbJA2d+HbSHkhu9xB7x6CqP96v+hkgwArlarhflr5OSVrXSUt5dvEnCrDta+pvf49bPHVjzaAHLSplomLoJd5+D9Yy0ebYALRelvFDm8/mHPg/EWetKp7r78fOy/e+ggyl6Ab+bwHMB3TwDXQv91C7m4eL/NT9rWaYTkzttuAAAAAElFTkSuQmCC">
-                <!-- Word -->
-                <img *ngSwitchCase="'doc'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC+UlEQVR4nO1ZXUhUQRTeoJfojktFPUgPLvXQz1MJvRT1UncWxIUSI/ojLCSin4dAsEKUwCQMEUrQrO5cf9I0TAzNv7TaUlxds0W0skI0bTcT9a5r26oT96w7pCS4FuxY88EwZ85cDt+558yZe2cMBgEBAYF/Eiv25oajfWo0wiRZwkoFkpUBA5fY07B8JVa2Ilk5LskkE8lKrYSVIYQJndtCTdWwxpKLJDPZJclKPJDFxIowmfgd2ZA7YIwqWKWTRVi5IMmKimSlE8lkaqFkQ+4A+gOi8zVTlraoFnFLsy5pB0xZWvDREw5gEQHKXQoFC5NwABO680wFeyNJd9pmvdGOnm+g901O07XR+Ux/vfAN6IfHvtMwc4ir0OqoPOrxTgKhgpoeRmadpQCIB7D73GM2V27tBV1d62c+ymhLlwsItb39ynT4YtWsfD2b8YrNdfeOgE6PBBdrILu8Cwy6PT6WEonZNtBpnh/Q51R0s4h5fVOgO5zSwIcDp9OtzOiWY6WgK238BONaWz/0zZ0u0EeeesSe3XSkhI8U2hFfzkgduFIHut4vGozPZzZBPz7ho0azCm9dh3N4gp9PCaNZZalyKcdGTQeLQR51e+n6mPt0emYtbz9ZRlPu2UGuau7jax946XCCUfXJexqbVA/yU/sAzPX0j8L4ROozWlT/AeTUvNd8OXDzYScY1SvStfwOkNOL/FWmpMG/Hm4UOWj7uyGQY2ZSjYsUQpjQuLTnbHOqbOoD+ejVRpi7fLsVxtUt/XRs3J9qGw4V8+XAtrgyIKbn+8eBMZA3z1SkqIRqGPc53f7e5ebvWyjMTOiI5mXGf60y4fsL6VRgJVMKOzF3DiBMaGP7IDM+t8oEFrKO5Lt2Pv/IMh44GMm5VSawkHVYEmv4dACJ/4HgYOItAks+hUzCgSAgIoD/XgpFZGkvDP/d4e58x+tGWYlkdwE8H68v5oIDYZKm38Zwe8GxcNBlYbK6UTKrsUgmqRImlUgmg0EYEBAQEDAsDfwEy+4aiiOUSdwAAAAASUVORK5CYII=">
-                <img *ngSwitchCase="'docx'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAC+UlEQVR4nO1ZXUhUQRTeoJfojktFPUgPLvXQz1MJvRT1UncWxIUSI/ojLCSin4dAsEKUwCQMEUrQrO5cf9I0TAzNv7TaUlxds0W0skI0bTcT9a5r26oT96w7pCS4FuxY88EwZ85cDt+558yZe2cMBgEBAYF/Eiv25oajfWo0wiRZwkoFkpUBA5fY07B8JVa2Ilk5LskkE8lKrYSVIYQJndtCTdWwxpKLJDPZJclKPJDFxIowmfgd2ZA7YIwqWKWTRVi5IMmKimSlE8lkaqFkQ+4A+gOi8zVTlraoFnFLsy5pB0xZWvDREw5gEQHKXQoFC5NwABO680wFeyNJd9pmvdGOnm+g901O07XR+Ux/vfAN6IfHvtMwc4ir0OqoPOrxTgKhgpoeRmadpQCIB7D73GM2V27tBV1d62c+ymhLlwsItb39ynT4YtWsfD2b8YrNdfeOgE6PBBdrILu8Cwy6PT6WEonZNtBpnh/Q51R0s4h5fVOgO5zSwIcDp9OtzOiWY6WgK238BONaWz/0zZ0u0EeeesSe3XSkhI8U2hFfzkgduFIHut4vGozPZzZBPz7ho0azCm9dh3N4gp9PCaNZZalyKcdGTQeLQR51e+n6mPt0emYtbz9ZRlPu2UGuau7jax946XCCUfXJexqbVA/yU/sAzPX0j8L4ROozWlT/AeTUvNd8OXDzYScY1SvStfwOkNOL/FWmpMG/Hm4UOWj7uyGQY2ZSjYsUQpjQuLTnbHOqbOoD+ejVRpi7fLsVxtUt/XRs3J9qGw4V8+XAtrgyIKbn+8eBMZA3z1SkqIRqGPc53f7e5ebvWyjMTOiI5mXGf60y4fsL6VRgJVMKOzF3DiBMaGP7IDM+t8oEFrKO5Lt2Pv/IMh44GMm5VSawkHVYEmv4dACJ/4HgYOItAks+hUzCgSAgIoD/XgpFZGkvDP/d4e58x+tGWYlkdwE8H68v5oIDYZKm38Zwe8GxcNBlYbK6UTKrsUgmqRImlUgmg0EYEBAQEDAsDfwEy+4aiiOUSdwAAAAASUVORK5CYII=">
-                <!-- Powerpoint -->
-                <img *ngSwitchCase="'ppt'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACL0lEQVR4nO2ZPUgcQRTHV0hrEVJkR6KF2NkELdIEhBTqzBFBxE4EwQuBQATBtBoLUUkRTTrPJlUQC+EgjSCIV52FFkogabLqzLqeGs9PdHZ9YRQ3l7Cre3fc3q47f3jNFMv7vY95d/MURUpKSupeSmurrtpqrXpJMRqiBCUpQUwJoqBJeaC3PK5nWO1mWJ1gWJ1nWN1lBMH/Vm5flUzbo0raip6zGHp15SxRU4yoZ07Olh1Ai9U8FM5SjPooRl8oQesUI8urs2UHYEU46mYwHi/MxuKpcAOMx/PPngQg3jLAqQbm+jJYyWmAD6/DlwFu6LaZ31cAPvcHF0BEWURbRN0JgN9AOGQiEAC5jroBcEMHK5koHYCTLs/PgG/+hOO5Kdjuelo0gLmW9hcgV9bvHTB6nhUFwLc0fwAOJgcgOzUEp4tzAJZpn58uzHoGAL/nQK5yz49mPv2ThdAB7A12/e0JfnEngHPp/CofQDbx3j43t7WCAEyH5i0pQOZtC+y+a4dsYhguTw7tc1FOhQBYDten77fQxY9V0Dvq8gYwXQaYbwDWvgFHXz+C3l7raQ54/QkBpS6hzJsXYHQ3eJrEokREnYt7Xpi5lr4um1si71sTh+b/QKQB+F1zwHAfdBKA5RntwJYQizIAD0IPsCgDQNhLCKIL0LsUvcddt+d1FkON9i4gyM/rBS44RsU2JrALDq8CRanYaH5Sp8fUTkbUEUrQN4qR7vkDUlJSUkpY9AftBucgjxwAFwAAAABJRU5ErkJggg==">
-                <img *ngSwitchCase="'pptx'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACL0lEQVR4nO2ZPUgcQRTHV0hrEVJkR6KF2NkELdIEhBTqzBFBxE4EwQuBQATBtBoLUUkRTTrPJlUQC+EgjSCIV52FFkogabLqzLqeGs9PdHZ9YRQ3l7Cre3fc3q47f3jNFMv7vY95d/MURUpKSupeSmurrtpqrXpJMRqiBCUpQUwJoqBJeaC3PK5nWO1mWJ1gWJ1nWN1lBMH/Vm5flUzbo0raip6zGHp15SxRU4yoZ07Olh1Ai9U8FM5SjPooRl8oQesUI8urs2UHYEU46mYwHi/MxuKpcAOMx/PPngQg3jLAqQbm+jJYyWmAD6/DlwFu6LaZ31cAPvcHF0BEWURbRN0JgN9AOGQiEAC5jroBcEMHK5koHYCTLs/PgG/+hOO5Kdjuelo0gLmW9hcgV9bvHTB6nhUFwLc0fwAOJgcgOzUEp4tzAJZpn58uzHoGAL/nQK5yz49mPv2ThdAB7A12/e0JfnEngHPp/CofQDbx3j43t7WCAEyH5i0pQOZtC+y+a4dsYhguTw7tc1FOhQBYDten77fQxY9V0Dvq8gYwXQaYbwDWvgFHXz+C3l7raQ54/QkBpS6hzJsXYHQ3eJrEokREnYt7Xpi5lr4um1si71sTh+b/QKQB+F1zwHAfdBKA5RntwJYQizIAD0IPsCgDQNhLCKIL0LsUvcddt+d1FkON9i4gyM/rBS44RsU2JrALDq8CRanYaH5Sp8fUTkbUEUrQN4qR7vkDUlJSUkpY9AftBucgjxwAFwAAAABJRU5ErkJggg==">
-                <!-- Text -->
-                <img *ngSwitchCase="'txt'"
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAsElEQVR4nO3VMQpCMRCE4b3Gu6hnsNxab7SVWNnuDWwsfKCxtxBCmCWGf2AP8JEZYkaINh7PJrrj3wJOl70O4QLA7f5q5yqECwD5eNchXAQoQ7gQkBUINSDViApAKhFVgFQhKgGpQFQD8gsxJaDnDEDwAo0KjYQKxeQV2g7X4XMAP8IGYsENOICOsIFYcAMb/0BH2EAsuAEH0BE2EJNvwMVnAIIXaFRoJFQoqBAhJswHu0l6yts65YIAAAAASUVORK5CYII=">
-                <!-- Unknown -->
-                <img *ngSwitchDefault
-                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACK0lEQVR4nO2YPYsUQRCG6/RARMVMDMRg3e2aW8FAA0MD8QIjIwMj/4CoFwiabCRo5AcqrtVzwl1yjrpVux6CoAiCIIjGggp+BWoqiAbrSl8iwtTMcd7OdGM/ULCw0z3v21XdUzMAkUhk1eg2ezss8hlCXiSUD4Ty3YU1/N4auUdJ/3TautMA36CE91jkR4T8y6KMisJdQygPZ5PB7rp1Q2ff40kyfNGiDMuE58SQUC5kkK2tRfyl5v111vDtFQj/OyOG+9m2bH3lBixy9q/i7Z9YqFQ8IR9ZRfEjF6npHa5EvKtZQnmrl4S8Sw2fuDHV3zm368EGF+43GTm5dBppJgy/7kBnzdgNUIsP6iJkYFE2aWPdf+44VccnvenxG0C5qgh4c6WdbSwb767RMkhGLldggJ8pBo4vdw5rZEbJ4NMqMvA1d/VavanlzpE2pa0swpfxGzDyU7m5Wvu5eyF3Dv4BIXCzvbhVKaFvEAIW+ah2lILvXGvc3ULIn5QSmgef6TayzWT4ecHD7BB4vfKGX+hPcH5VW2daRrc92O4EFvRCQ2t4P/iIRcHCHgiXVv8UePuKafhzSSdK4OuGdcdioXgj3Uo60JVAKLdKVv78CEYT4COU9A8U1jzKOfAZQn5ZUDYz4DNpS/YWiL8OvkNGzmp9jvuSAb5jUZ4ofc4xCAGL8lEpIYQQIPctNMdAEOXj0DYwhIIN3UAk8r/vARsN1EzMQN0En4FIBMLiN0CWk/gpUqAmAAAAAElFTkSuQmCC">
-              </a>
-            </ng-template>
-          </ng-container>
-
-          <div class="informations-div">
-            <span class="title">{{attachment.informations?.filename}}</span>
-            <span>Taille du fichier :</span>
-            <span>{{convertBitsToBytes(attachment.informations?.filesize)}}</span>
+            <div class="informations-div">
+              <span class="title">{{attachment.informations?.filename}}</span>
+              <span>Taille du fichier :</span>
+              <span>{{convertBitsToBytes(attachment.informations?.filesize)}}</span>
+            </div>
           </div>
-        </div>
-      </ion-item>
-    </ng-container>
+        </ion-item>
+      </ng-container>
 
-    <ng-container *ngIf="!isAttachmentLoaded">
-      <ion-item lines="none" class="attachment-div">
-        <ion-skeleton-text [animated]="true" class="preview-div" style="height: 58px"></ion-skeleton-text>
-        <div class="informations-div">
-          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
-        </div>
-      </ion-item>
-    </ng-container>
-  </div>
-</ion-accordion>
+      <ng-container *ngIf="!isAttachmentLoaded">
+        <ion-item lines="none" class="attachment-div">
+          <ion-skeleton-text [animated]="true" class="preview-div" style="height: 58px"></ion-skeleton-text>
+          <div class="informations-div">
+            <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          </div>
+        </ion-item>
+      </ng-container>
+    </div>
+  </ion-accordion>
+</ion-accordion-group>
