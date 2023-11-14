@@ -361,16 +361,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklatitude = e.lngLat.lat;
     this.clicklongitute = e.lngLat.lng;
 
-    if (!feature) {
-      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
-      this.selectedFeature = {
-        properties: {
-          x: e.lngLat.lng,
-          y: e.lngLat.lat
-        },
-      };
-    } else {
+    if (feature && feature.source !== 'task') {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
       contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
       this.selectedFeature = {
@@ -379,6 +370,15 @@ export class MapComponent implements OnInit, OnDestroy {
           ...feature.properties,
           x: e.lngLat.lng,
           y: e.lngLat.lat,
+        },
+      };
+    } else {
+      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
+      this.selectedFeature = {
+        properties: {
+          x: e.lngLat.lng,
+          y: e.lngLat.lat
         },
       };
     }
