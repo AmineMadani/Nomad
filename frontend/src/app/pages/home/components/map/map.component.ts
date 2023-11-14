@@ -725,9 +725,6 @@ export class MapComponent implements OnInit, OnDestroy {
       }),
       'bottom-right'
     );
-    if (this.isMobile) {
-      this.map.addControl(new CustomZoomControl(), 'bottom-right');
-    }
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
