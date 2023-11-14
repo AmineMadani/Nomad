@@ -11,14 +11,12 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
   styleUrls: ['./report.drawer.scss'],
 })
 export class ReportDrawer implements OnInit {
-
   constructor(
     private router: ActivatedRoute,
     private mapService: MapService,
     private mapEvent: MapEventService,
     private workorderService: WorkorderService
-  ) {
-  }
+  ) {}
 
   public workorder: Workorder;
 
@@ -27,8 +25,17 @@ export class ReportDrawer implements OnInit {
     if (id) {
       // ### PLANNED CASE ### //
 
-      this.workorderService.getWorkorderById(id).then(workorder => {
+      this.workorderService.getWorkorderById(id).then((workorder) => {
         this.workorder = workorder;
+        let taskId = Number.parseInt(
+          this.router.snapshot.paramMap.get('taskid')
+        );
+        if (taskId) {
+          const task = this.workorder.tasks.find((task) => task.id === taskId);
+          task.isSelectedTask = true;
+          task.report.questionIndex = 0;
+          this.workorder.isUpdateReport = true;
+        }
       });
     }
   }

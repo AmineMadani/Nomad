@@ -21,7 +21,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
 import { ValueLabel } from 'src/app/core/models/util.model';
@@ -44,7 +43,6 @@ export class WkoViewComponent implements OnInit {
     private drawerService: DrawerService,
     private userService: UserService,
     private utilsService: UtilsService,
-    private attachmentService: AttachmentService,
     private layerService: LayerService
   ) {}
 
@@ -61,6 +59,7 @@ export class WkoViewComponent implements OnInit {
   public listInformationAssetForSig: ValueLabel[] = null;
 
   public userHasPermissionModifyReport: boolean = false;
+  public userHasPermissionModifyReportCompletedStatus : boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
   public userHasPermissionCancelWorkorder: boolean = false;
 
@@ -72,6 +71,10 @@ export class WkoViewComponent implements OnInit {
         this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF ||
         this.workOrder.wtsId === WkoStatus.ERREUR)
     );
+  }
+
+  public canEditReport(): boolean {
+    return !this.loading && this.userHasPermissionModifyReportCompletedStatus;
   }
 
   public canCancel(): boolean {
@@ -104,6 +107,10 @@ export class WkoViewComponent implements OnInit {
     this.userHasPermissionModifyReport =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.MODIFY_REPORT_MY_AREA
+      );
+    this.userHasPermissionModifyReportCompletedStatus =
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.MODIFY_REPORT_COMPLETED_STATUS
       );
     this.userHasPermissionCreateProgram =
       await this.userService.currentUserHasPermission(
@@ -364,6 +371,9 @@ export class WkoViewComponent implements OnInit {
     this.router.navigate(['/home/workorder/' + this.workOrder.id + '/cr']);
   }
 
+  public onUpdateReport(): void {
+    this.router.navigate(['/home/workorder/' + this.workOrder.id + '/task/'+ this.selectedTask.id +'/cr']);
+  }
   public onDisplayWorkorder(): void {
     this.router.navigate(['/home/workorder/' + this.workOrder.id]);
   }

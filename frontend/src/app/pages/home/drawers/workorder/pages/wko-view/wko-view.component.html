@@ -14,7 +14,13 @@
     Ajouter à un programme
   </ion-tab-button>
   -->
-  <ion-tab-button [disabled]="!canEdit()" (click)="updateWorkorder()">
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId !==4"
+  [disabled]="!canEdit()" (click)="updateWorkorder()">
+    <ion-icon name="pencil-outline"></ion-icon>
+    Modifier
+  </ion-tab-button>
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId ===4"
+  [disabled]="!canEditReport()" (click)="onUpdateReport()">
     <ion-icon name="pencil-outline"></ion-icon>
     Modifier
   </ion-tab-button>

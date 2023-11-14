@@ -29,6 +29,7 @@ export interface Workorder {
     // Specific frontend variables for travo
     tempTravoWtrId?: number;
     travoCallbackUrl?: string;
+    isUpdateReport?: boolean;
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
