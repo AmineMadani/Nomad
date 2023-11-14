@@ -115,20 +115,22 @@ export class MapEventService {
       return;
     }
 
-    if (features && !this.isFeatureFiredEvent) {
+    if (features) {
       this.highlighSelectedFeatures(mapLibre, undefined);
 
       if (this.selectedFeatureId) {
         this.highlighSelectedFeatures(mapLibre, undefined);
       }
 
-      features.forEach((f: MultiSelection) => {
-        this.multiSelection.push(f);
-        mapLibre.setFeatureState(
-          { source: f.source, id: f.id },
-          { selected: true }
-        );
-      });
+      if (!this.isFeatureFiredEvent) {
+        features.forEach((f: MultiSelection) => {
+          this.multiSelection.push(f);
+          mapLibre.setFeatureState(
+            { source: f.source, id: f.id },
+            { selected: true }
+            );
+          });
+        }
 
       if (fireEvent) {
         if(features && features.length == 1) {
