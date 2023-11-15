@@ -7,6 +7,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-report-asset',
@@ -20,13 +21,16 @@ export class ReportAssetComponent implements OnInit {
     private mapService: MapService,
     private mapEventService: MapEventService,
     private layerService: LayerService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private utils: UtilsService
   ) { }
 
   @Input() workorder: Workorder;
   @Input() selectedTasks: Task[];
   @Output() onSelectedTaskChange: EventEmitter<Task[]> = new EventEmitter();
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
+  @Output() onClosedWko: EventEmitter<boolean> = new EventEmitter();
+  @Output() goToDateStep: EventEmitter<void> = new EventEmitter();
 
   public currentTasksSelected: Task[];
   public editTaskEquipment: Task;
@@ -211,6 +215,23 @@ export class ReportAssetComponent implements OnInit {
   }
 
   /**
+   * Check terminated report
+   * @returns True if a task has a terminated report
+   */
+  public hasReportClosed() {
+    return this.workorder.tasks.some(tsk => tsk.report?.dateCompletion);
+  }
+
+  public onCloseCircuit() {
+    if (!this.utils.isMobilePlateform()) {
+      this.goToDateStep.emit();
+    }
+    else {
+      this.onClosedWko.emit(true);
+    }
+  }
+
+  /**
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
@@ -221,7 +242,7 @@ export class ReportAssetComponent implements OnInit {
 
     this.mapService.onMapLoaded().subscribe(() => {
       this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
-        
+
         //Case display layers in params
         this.route.queryParams.subscribe(params => {
           if(params['layers']){
@@ -231,7 +252,7 @@ export class ReportAssetComponent implements OnInit {
             }
           }
         })
-        
+
         this.mapService.addEventLayer('task').then(() => {
           for (let task of workorder.tasks) {
             this.mapService.addEventLayer(task.assObjTable).then(async () => {

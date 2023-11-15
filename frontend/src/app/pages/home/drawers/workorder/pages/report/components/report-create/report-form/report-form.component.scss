@@ -1,0 +1,46 @@
+.report-form {
+  display: flex;
+  flex-direction: column;
+
+  .report-progress-bar {
+    text-align-last: center;
+    font-size: 13px;
+    color: grey;
+  }
+
+  .report-header-actions {
+    border-top: solid 1px var(--ion-color-neutral-variant-80);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 0px;
+
+    .align-right {
+      margin-left: auto;
+    }
+
+    &.is-mobile {
+      padding-top: 10px;
+      padding-bottom: 0px;
+      border-top: none;
+
+      ion-button {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .form-editor {
+    margin: 10px auto;
+    width: 90%;
+
+    ion-spinner {
+      margin-top: 20%;
+      margin-left: calc(50% - 20px);
+    }
+
+    &.is-mobile {
+      margin: 25px auto;
+    }
+  }
+}

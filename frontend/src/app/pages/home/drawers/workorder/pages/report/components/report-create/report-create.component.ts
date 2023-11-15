@@ -3,20 +3,27 @@ import { Task, Workorder, Report, WorkorderTaskStatus, WkoStatus } from 'src/app
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { ReportFormComponent } from '../report-form/report-form.component';
+import { ReportFormComponent } from './report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { DateTime } from 'luxon';
 import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
-import { ReportAssetComponent } from '../report-asset/report-asset.component';
+import { ReportAssetComponent } from './report-asset/report-asset.component';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { ReportDateComponent } from '../report-date/report-date.component';
+import { ReportDateComponent } from './report-date/report-date.component';
+
+export enum ReportStepEnum {
+  ASSET = 1,
+  CONTEXT = 2,
+  FORM = 3,
+  DATE = 4
+}
 
 @Component({
   selector: 'app-report-create',
@@ -35,7 +42,7 @@ export class ReportCreateComponent implements OnInit {
     private alertController: AlertController,
     private praxedoService: PraxedoService,
     private mapService: MapService,
-    private layerService: LayerService
+    private layerService: LayerService,
   ) { }
 
   @Input() workorder: Workorder;
@@ -43,17 +50,14 @@ export class ReportCreateComponent implements OnInit {
   @Input() isTest = false;
 
   public isMobile: boolean;
-  public step: number = 1;
+  public step: ReportStepEnum = ReportStepEnum.ASSET;
   public selectedTasks: Task[];
-  public hasPreviousQuestion: boolean = false;
-  public isSubmit: boolean = false;
-  public isSubmitting: boolean = false;
   public hasXYInvalid: boolean = false;
   public isCompletionDate: boolean = false;
 
-  @ViewChild('stepForm') stepForm: ReportFormComponent;
+  public ReportStepEnum = ReportStepEnum;
+
   @ViewChild('stepAsset') stepAsset: ReportAssetComponent;
-  @ViewChild('reportDate') stepDate: ReportDateComponent;
 
   private currentDateValue: string;
 
@@ -62,7 +66,7 @@ export class ReportCreateComponent implements OnInit {
 
     // Case on admin screen to test forms
     if (this.isTest) {
-      this.step = 3;
+      this.step = ReportStepEnum.FORM;
       return;
     }
 
@@ -81,15 +85,9 @@ export class ReportCreateComponent implements OnInit {
 
     this.selectedTasks = this.workorder.tasks.filter(task => task.isSelectedTask);
     if (this.selectedTasks && this.selectedTasks.length > 0) {
-      this.step = 2;
+      this.step = ReportStepEnum.CONTEXT;
       if (this.selectedTasks[0].report?.questionIndex) {
-        this.step = 3;
-        if (this.selectedTasks[0].report.questionIndex > 0) {
-          this.hasPreviousQuestion = true;
-        }
-        if (this.selectedTasks[0].report.questionIndex == this.selectedTasks[0].report.reportValues.length - 1) {
-          this.isSubmit = true;
-        }
+        this.step = ReportStepEnum.FORM;
       }
     } else {
       await this.checkHasXYInvalid();
@@ -114,158 +112,15 @@ export class ReportCreateComponent implements OnInit {
    * Next step
    */
   public onNext() {
-    if (this.step <= 3) {
+    if (this.step <= ReportStepEnum.FORM) {
       this.step++;
-      if (this.step == 2) {
-        for(let task of this.selectedTasks){
+      if (this.step == ReportStepEnum.CONTEXT) {
+        for (let task of this.selectedTasks) {
           task.isSelectedTask = true;
         }
       }
       this.onSaveWorkOrderState();
     }
-  }
-
-  /**
-   * Go to first step
-   */
-  public onGoToFirstStep() {
-    this.isSubmit=false;
-    this.step=1;
-  }
-
-  /**
-   * Action on click for the previous question
-   */
-  public previousFormQuestion() {
-    if (this.stepForm.formEditor.indexQuestion > 0) {
-      this.stepForm.formEditor.indexQuestion = this.getPreviousValidQuestionIndex(this.stepForm.formEditor.indexQuestion);
-
-      if (this.stepForm.formEditor.indexQuestion == 0) {
-        this.hasPreviousQuestion = false
-      }
-      this.isSubmit = false;
-    }
-    this.saveWorkorderState();
-  }
-
-  /**
-   * Return the index of the previous valid question
-   * It depends of the previous answer
-   * @param currentIndex current question index
-   * @returns the index of the preivous valide question
-   */
-  getPreviousValidQuestionIndex(currentIndex: number): number {
-    let previousValidQuestionIndex = currentIndex - 1;
-
-    // Check if the previous question can be skip (depending on previous answers)
-    // If there is a previous question
-    if (previousValidQuestionIndex > 0) {
-      // Get the previous question
-      let previousChild = this.stepForm.formEditor.sections[0].children[previousValidQuestionIndex];
-
-      // If there is a condition
-      if (previousChild.definition.displayCondition != null) {
-        // Get the answer of the question of the condition
-        const answer = this.stepForm.formEditor.form.get(previousChild.definition.displayCondition.key).value;
-
-        // List of correct answer needed to display the question
-        const listCorrectAnswer = previousChild.definition.displayCondition.value;
-
-        let conditionIsMet = false;
-
-        // If the question can have multiple value selected
-        if (answer instanceof Array) {
-          // Transform the answer into a list
-          let listAnswer: string[] = [];
-          if (answer != null) listAnswer = answer as Array<string>;
-
-          // If the condition is not met
-          conditionIsMet = listCorrectAnswer.some((correctAnswer) => listAnswer.includes(correctAnswer));
-        } else {
-          conditionIsMet = listCorrectAnswer.includes(answer);
-        }
-
-        if (!conditionIsMet) {
-          // Skip the previous question
-          // So we search the index of the previous valid question
-          previousValidQuestionIndex = this.getPreviousValidQuestionIndex(previousValidQuestionIndex);
-        }
-      }
-    }
-
-    return previousValidQuestionIndex;
-  }
-
-  /**
-   * Action on click for the next question
-   */
-  public nextFormQuestion() {
-    let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexQuestion];
-    let childrens = child.children ? child.children : [child];
-    let valid: boolean = true;
-    for (let children of childrens) {
-      this.stepForm.formEditor.form.get(children.definition.key).updateValueAndValidity();
-      this.stepForm.formEditor.form.get(children.definition.key).markAsTouched();
-      valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
-    }
-    if (valid) {
-      // Get the index of the next valid question
-      this.stepForm.formEditor.indexQuestion = this.getNextValidQuestionIndex(this.stepForm.formEditor.indexQuestion);
-
-      this.hasPreviousQuestion = true;
-      if (this.stepForm.formEditor.indexQuestion + 1 >= this.stepForm.formEditor.sections[0].children.length) {
-        this.isSubmit = true;
-      }
-      this.saveWorkorderState();
-    }
-  }
-
-  /**
-   * Return the index of the next valid question
-   * It depends of the previous answer
-   * @param currentIndex current question index
-   * @returns the index of the next valide question
-   */
-  getNextValidQuestionIndex(currentIndex: number): number {
-    let nextValidQuestionIndex = currentIndex + 1;
-
-    // Check if the next question can be skip (depending on previous answers)
-    // If there is a next question
-    if (nextValidQuestionIndex < this.stepForm.formEditor.sections[0].children.length) {
-      // Get the next question
-      let nextChild = this.stepForm.formEditor.sections[0].children[nextValidQuestionIndex];
-
-      // If there is a condition
-      if (nextChild.definition.displayCondition != null) {
-        // Get the answer of the question of the condition
-        const answer = this.stepForm.formEditor.form.get(nextChild.definition.displayCondition.key).value;
-
-        // List of correct answer needed to display the question
-        const listCorrectAnswer = nextChild.definition.displayCondition.value;
-
-        let conditionIsMet = false;
-
-        // If the question can have multiple value selected
-        if (answer instanceof Array) {
-          // Transform the answer into a list
-          let listAnswer: string[] = [];
-          if (answer != null) listAnswer = answer as Array<string>;
-
-          // If the condition is not met
-          conditionIsMet = listCorrectAnswer.some((correctAnswer) => listAnswer.includes(correctAnswer));
-        } else {
-          conditionIsMet = listCorrectAnswer.includes(answer);
-        }
-
-        if (!conditionIsMet) {
-          // Skip the next question
-          // So we search the index of the next valid question
-          nextValidQuestionIndex = this.getNextValidQuestionIndex(nextValidQuestionIndex);
-        }
-      }
-    }
-
-    return nextValidQuestionIndex;
   }
 
   /**
@@ -275,7 +130,7 @@ export class ReportCreateComponent implements OnInit {
    */
   public onDateKeyDown(event: any) {
     this.currentDateValue = event.target.value;
-    if (!DateValidator.isKeyValid(event, this.currentDateValue)){
+    if (!DateValidator.isKeyValid(event, this.currentDateValue)) {
       event.preventDefault();
     }
   }
@@ -289,116 +144,27 @@ export class ReportCreateComponent implements OnInit {
     event.target.value = DateValidator.formatDate(event, this.currentDateValue);
   }
 
-  /**
-   * Save the state of a workorder in cache
-   */
-  private saveWorkorderState() {
-    if (this.isTest) return;
-
-    let report: Report = {
-      dateCompletion: null,
-      reportValues: [],
-      questionIndex: this.stepForm.formEditor.indexQuestion
-    };
-    for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-      if (definition.type == 'property' && definition.isOptional !== true) {
-        report.reportValues.push({
-          key: definition.key,
-          question: definition.label,
-          answer: this.stepForm.formEditor.form.value[definition.key]
-        });
-      }
-    }
-    for(let task of this.selectedTasks) {
-      task.report = report;
-    }
-    this.onSaveWorkOrderState();
-  }
-
-  /**
-   * Send the form
-   */
-  public submitForm(closeCircuit:boolean = false) {
-    if(closeCircuit) {
-      if (!this.utils.isMobilePlateform()) {
-        this.step = 4;
-      }
-      else {
-        this.onClosedWko(true);
-      }
-    } else {
-      let child = this.stepForm.formEditor.sections[0].children[this.stepForm.formEditor.indexQuestion];
-      let childrens = child.children ? child.children : [child];
-      let valid: boolean = true;
-      for (let children of childrens) {
-        this.stepForm.formEditor.form.get(children.definition.key).updateValueAndValidity();
-        this.stepForm.formEditor.form.get(children.definition.key).markAsTouched();
-        valid = valid && this.stepForm.formEditor.form.get(children.definition.key).valid;
-      }
-
-      if (!valid) return;
-      
-      this.stepForm.formEditor.form.updateValueAndValidity();
-      this.stepForm.formEditor.form.markAllAsTouched();
-
-      if (!this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
-        this.completeForm();
-        this.step = 4;
-      }
-      else {
-        this.completeForm();
-        this.onClosedWko();
-      }
-    }
-  }
-
-  /**
-   * Complete the workorder with report validation
-   */
-  private completeForm(): void {
-    let comment = "";
-
-    let report: Report = {
-      dateCompletion: new Date(),
-      reportValues: [],
-      questionIndex: this.stepForm.formEditor.indexQuestion
-    };
-    for (let definition of this.stepForm.formEditor.nomadForm.definitions) {
-      if (definition.type == 'property' && definition.isOptional !== true) {
-        report.reportValues.push({
-          key: definition.rqnCode + '_' + definition.key,
-          question: definition.label,
-          answer: this.stepForm.formEditor.form.value[definition.key] instanceof Array ?
-            this.stepForm.formEditor.form.value[definition.key].join('; ')
-            : this.stepForm.formEditor.form.value[definition.key]
-        });
-        if (definition.key == 'COMMENT' && this.stepForm.formEditor.form.value[definition.key]) {
-          comment = this.stepForm.formEditor.form.value[definition.key];
-        }
-      }
-    }
-    for(let task of this.selectedTasks) {
-      task.report = report;
-      task.isSelectedTask = false;
-    }
-    this.onSaveWorkOrderState();
+  public goToDateStep() {
+    this.step = ReportStepEnum.DATE;
   }
 
   /**
    * Closed the wko -> status to terminate
    * Sync with the server
    */
-  public onClosedWko(forced:boolean=false) {
-    this.isSubmitting = true;
+  public onClosedWko(forced: boolean = false) {
+    console.log('on closed wko');
+    console.log(forced);
+
     //Remove partial report
-    for(let task of this.workorder.tasks){
-      if(!task.report?.dateCompletion) {
+    for (let task of this.workorder.tasks) {
+      if (!task.report?.dateCompletion) {
         task.report = null;
       }
     }
 
-    if(this.workorder.tasks.length == 1 || forced) {
-      if(this.workorder.id > 0) {
+    if (this.workorder.tasks.length == 1 || forced) {
+      if (this.workorder.id > 0) {
         this.workorderService.terminateWorkOrder(this.workorder).then(() => {
           this.closeReport();
         });
@@ -408,10 +174,8 @@ export class ReportCreateComponent implements OnInit {
         });
       }
     } else {
-      this.step = 1;
+      this.step = ReportStepEnum.ASSET;
       this.selectedTasks = [];
-      this.isSubmitting = false;
-      this.isSubmit = false;
     }
   }
 
@@ -419,6 +183,8 @@ export class ReportCreateComponent implements OnInit {
    * List of action after the workorder is send
    */
   private async closeReport(unplanedWko: Workorder = null) {
+    console.log(unplanedWko);
+
     if (this.praxedoService.externalReport) {
       this.layerService.getAllVLayerWtr().then(vLayerWtrs => {
         const vLayerWtr = vLayerWtrs.find(val => val.wtrCode == this.workorder.tasks[0].wtrCode && val.astCode == this.workorder.tasks[0].astCode);
@@ -433,29 +199,28 @@ export class ReportCreateComponent implements OnInit {
           IntentAction.closeIntent(
             {
               value:
-                {
-                  'RETOUR': 'ok',
-                  'CONTRAT': (contract ? contract.ctrCode : ''),
-                  'COMMENTAIRE': comment,
-                  'GPS_RI': this.workorder.tasks[0].latitude+';'+this.workorder.tasks[0].longitude,
-                  'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
-                  'TYPE': (this.workorder.tasks.length > 1 ? '38-Multi équipements':this.workorder.tasks[0].astCode+'-'+vLayerWtr.astLlabel),
-                  'MOTIF': this.workorder.tasks[0].wtrCode+'-'+vLayerWtr.wtrLlabel,
-                  'REFEXTINT': this.workorder.id,
-                  'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
-                }
+              {
+                'RETOUR': 'ok',
+                'CONTRAT': (contract ? contract.ctrCode : ''),
+                'COMMENTAIRE': comment,
+                'GPS_RI': this.workorder.tasks[0].latitude + ';' + this.workorder.tasks[0].longitude,
+                'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
+                'TYPE': (this.workorder.tasks.length > 1 ? '38-Multi équipements' : this.workorder.tasks[0].astCode + '-' + vLayerWtr.astLlabel),
+                'MOTIF': this.workorder.tasks[0].wtrCode + '-' + vLayerWtr.wtrLlabel,
+                'REFEXTINT': this.workorder.id,
+                'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
+              }
             }
           );
-          this.isSubmitting = false;
           if (!this.workorder.syncOperation) {
             this.exploitationService.deleteCacheWorkorder(this.workorder);
           }
         });
       });
     } else {
+      console.log('navigate...', this.workorder);
       this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
-      this.isSubmitting = false;
-      if(!this.workorder.syncOperation) {
+      if (!this.workorder.syncOperation) {
         this.exploitationService.deleteCacheWorkorder(this.workorder);
       }
     }
@@ -484,34 +249,9 @@ export class ReportCreateComponent implements OnInit {
   public onSaveWorkOrderState() {
     this.exploitationService.saveCacheWorkorder(this.workorder);
 
-    if (this.step === 1) {
+    if (this.step === ReportStepEnum.ASSET) {
       this.checkHasXYInvalid();
     }
-  }
-
-  /**
-   * Check terminated report
-   * @returns True if a task has a terminated report
-   */
-  public hasReportClosed() {
-    return this.workorder.tasks.some(tsk => tsk.report?.dateCompletion);
-  }
-
-  /**
-   * count form question label
-   * @return the label
-   */
-  public getReportProgress(): number {
-    if (this.stepForm?.formEditor?.sections[0]?.children) {
-      const total = this.stepForm.formEditor.sections[0].children.length;
-      let current = 0;
-
-      if (this.selectedTasks && this.selectedTasks[0]?.report?.questionIndex) {
-        current = this.selectedTasks[0].report.questionIndex;
-      }
-      return current / total;
-    }
-    return 0;
   }
 
   /**
@@ -543,15 +283,15 @@ export class ReportCreateComponent implements OnInit {
     const { role } = await alert.onDidDismiss();
 
     if (role === 'confirm') {
-      if(this.stepAsset?.draggableMarker) {
+      if (this.stepAsset?.draggableMarker) {
         this.stepAsset.draggableMarker.remove();
       }
       this.exploitationService.deleteCacheWorkorder(this.workorder);
-      for(let task of this.workorder.tasks) {
-        this.mapService.removePoint('task',task.id.toString());
+      for (let task of this.workorder.tasks) {
+        this.mapService.removePoint('task', task.id.toString());
       }
       if (this.praxedoService.externalReport) {
-        IntentAction.closeIntent({ value: {'RETOUR': 'ko'} });
+        IntentAction.closeIntent({ value: { 'RETOUR': 'ko' } });
       } else {
         this.router.navigate(['/home']);
       }
@@ -594,8 +334,8 @@ export class ReportCreateComponent implements OnInit {
    * The user must choose an existing asset or create a new one
    */
   private async checkHasXYInvalid() {
-    if(this.workorder.isDraft) {
-      this.hasXYInvalid =  false;
+    if (this.workorder.isDraft) {
+      this.hasXYInvalid = false;
     } else {
       const listWtr = await this.workorderService.getAllWorkorderTaskReasons();
       const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
@@ -608,25 +348,10 @@ export class ReportCreateComponent implements OnInit {
     }
   }
 
-  public onConfirmDate() {
-    this.stepDate.dateForm.markAsTouched();
-    if(this.stepDate.dateForm.valid) {
-      if(this.stepDate.dateForm.controls["realisationStartDate"].value) {
-        this.workorder.wkoCompletionStartDate = DateTime.fromFormat(this.stepDate.dateForm.controls["realisationStartDate"].value, "dd/MM/yyyy").toJSDate();
-      }
-      this.workorder.wkoCompletionEndDate = DateTime.fromFormat(this.stepDate.dateForm.controls["realisationEndDate"].value, "dd/MM/yyyy").toJSDate();
-      for(let task of this.selectedTasks) {
-        task.tskCompletionStartDate = this.workorder.wkoCompletionStartDate;
-        task.tskCompletionEndDate = this.workorder.wkoCompletionEndDate;
-      }
-      this.onClosedWko(true);
-    }
-  }
-
   ngOnDestroy(): void {
-    if(this.workorder.isDraft) {
-      for(let task of this.workorder.tasks) {
-        this.mapService.removePoint('task',task.id.toString());
+    if (this.workorder.isDraft) {
+      for (let task of this.workorder.tasks) {
+        this.mapService.removePoint('task', task.id.toString());
       }
     }
   }

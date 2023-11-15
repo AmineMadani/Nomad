@@ -1,47 +1,87 @@
-.header-label {
-  font-weight: 300;
-  font-size: 14px;
-  line-height: 48px;
-  letter-spacing: 0.1px;
-  height: 48px;
-  color: var(--ion-color-neutral-variant-30);
-}
+.report-create {
+  .header-label {
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 48px;
+    letter-spacing: 0.1px;
+    height: 48px;
+    color: var(--ion-color-neutral-variant-30);
+  }
 
-ion-icon {
-  cursor: pointer;
-}
+  ion-icon {
+    cursor: pointer;
+  }
 
-.filter-content {
-  display: flex;
-  flex-direction: column;
-  height: calc(100% - 160px);
-  overflow-y: auto;
-}
+  .report-content {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 
-.font-mobile {
-  font-size: 10px;
-}
+    .stepper {
+      width: 100%;
+      color: var(--ion-color-primary);
 
-app-report-form {
-  flex: 1;
-}
+      ion-list {
+        display: flex;
+        justify-content: center;
+        padding-top: 0;
 
-.form-questions-count {
-  text-align-last: center;
-  font-size: 13px;
-  color: grey;
-}
+        .stepper-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          width: 100%;
 
-#modal-complete {
-  --height: 300px;
-}
-.modal-footer-buttons {
-  display: flex;
-  justify-content: flex-end;
-}
-.error-message {
-  ion-note {
-    --color: var(--ion-color-danger);
+          .stepper-title {
+            display: flex;
+            gap: 10px;
+
+            ion-badge {
+              margin: 1px 0;
+            }
+
+            ion-button {
+              margin: 0;
+            }
+          }
+
+          .step-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2px;
+            border-radius: 5px;
+            width: 80px;
+            height: 36px;
+            cursor: pointer;
+            background-color: white;
+            color: var(--ion-primary-color);
+            gap: 2px;
+
+            &:disabled {
+              opacity: 0.3;
+              cursor: not-allowed;
+
+              ion-icon {
+                cursor: not-allowed;
+              }
+            }
+
+            &:hover {
+              background-color: var(--ion-color-primary-hover);
+            }
+
+            span {
+              font-size: 10px;
+            }
+          }
+        }
+      }
+
+      .separation-line {
+        border-bottom: 1px solid var(--ion-color-neutral-variant-80);
+        width: 100%;
+      }
+    }
   }
 }
-

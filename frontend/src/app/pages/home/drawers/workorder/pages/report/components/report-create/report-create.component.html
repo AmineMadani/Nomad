@@ -1,50 +1,105 @@
-<ion-item lines="none" *ngIf="!isTest">
-  <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
-    <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
-  </ion-button>
-  <ion-label class="header-label">Compte-rendu</ion-label>
-  <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
+<div class="report-create">
+  <ion-item lines="none" *ngIf="!isTest">
+    <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
+      <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
+    </ion-button>
+    <ion-label class="header-label">Compte-rendu</ion-label>
+    <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
 
-  <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
-</ion-item>
+    <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
+  </ion-item>
 
-<div class="filter-content">
-  <app-report-stepper [step]="step" *ngIf="!isTest"></app-report-stepper>
+  <div class="report-content">
+    <!-- Stepper which permit to navigate between the steps -->
+    <div *ngIf="!isTest" class="stepper">
+      <ion-list>
+        <ng-container *ngIf="step === 1">
+          <div class="stepper-header">
+            <div class="step-button" style="visibility: hidden;">
+              <ion-icon size="small" slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+              <span>Etape précédente</span>
+            </div>
 
-  <!-- We place the footer below the stepper in mobile mode -->
-  <app-report-footer-actions *ngIf="isMobile" [isMobile]="isMobile" [isSubmitting]="isSubmitting" [step]="step"
-    [workorder]="workorder" [hasPreviousQuestion]="hasPreviousQuestion" [isTest]="isTest" [hasXYInvalid]="hasXYInvalid"
-    [isSubmit]="isSubmit" [selectedTasks]="selectedTasks" [hasReportClosed]="hasReportClosed()"
-    (onEditTask)="onEditTask()" (onNewAsset)="onNewAsset()" (onBack)="onBack()" (onNext)="onNext()"
-    (onPreviousFormQuestion)="previousFormQuestion()" (onNextFormQuestion)="nextFormQuestion()"
-    (onConfirmDate)="onConfirmDate()" (onFormSubmit)="submitForm($event)" (onGoToFirstStep)="onGoToFirstStep()">
-  </app-report-footer-actions>
+            <div class="stepper-title">
+              <ion-badge>1/3</ion-badge>
+              <ion-label>Patrimoine</ion-label>
+            </div>
 
-  <ng-container *ngIf="step === 1">
-    <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepAsset></app-report-asset>
-  </ng-container>
-  <ng-container *ngIf="step === 2">
-    <app-report-context [workorder]="workorder" [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
-  </ng-container>
-  <ng-container *ngIf="step === 3">
-    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
-      (goToNextQuestion)="nextFormQuestion()" [workorder]="workorder"
-      [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
-  </ng-container>
-  <ng-container *ngIf="step === 4">
-    <app-report-date #reportDate></app-report-date>
-  </ng-container>
-  <div *ngIf="step === 3" class="form-questions-count">
-    <ion-progress-bar [value]="getReportProgress()"></ion-progress-bar>
+            <button type="button" class="step-button" (click)="onNext()"
+              [disabled]="!selectedTasks || selectedTasks.length === 0">
+              <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
+              <span>Etape suivante</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step === 2">
+          <div class="stepper-header">
+            <button type="button" class="step-button" (click)="onBack()">
+              <ion-icon size="small" slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+              <span>Etape précédente</span>
+            </button>
+
+            <div class="stepper-title">
+              <ion-badge>2/3</ion-badge>
+              <ion-label>Contexte</ion-label>
+            </div>
+
+            <button type="button" class="step-button" (click)="onNext()"
+              [disabled]="!selectedTasks || selectedTasks.length === 0 || !selectedTasks[0].wtrId">
+              <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
+              <span>Etape suivante</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step === 3">
+          <div class="stepper-header">
+            <button type="button" class="step-button" (click)="onBack()">
+              <ion-icon size="small" slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+              <span>Etape précédente</span>
+            </button>
+
+            <div class="stepper-title">
+              <ion-badge>3/3</ion-badge>
+              <ion-label>Formulaire</ion-label>
+            </div>
+
+            <div class="step-button" style="visibility: hidden;">
+              <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
+              <span>Etape suivante</span>
+            </div>
+          </div>
+        </ng-container>
+      </ion-list>
+
+      <hr *ngIf="step < 3" class="separation-line" />
+    </div>
+
+    <!-- Main content which is different in terms of the current step -->
+    <ng-container [ngSwitch]="step">
+      <ng-container *ngSwitchCase="ReportStepEnum.ASSET">
+        <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks"
+          (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+          (onClosedWko)="onClosedWko($event)" (goToDateStep)="goToDateStep()"
+          #stepAsset>
+        </app-report-asset>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.CONTEXT">
+        <app-report-context [workorder]="workorder" [tasks]="selectedTasks"
+          (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.FORM">
+        <app-report-form [selectedTasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+          (onClosedWko)="onClosedWko($event)"  (goToDateStep)="goToDateStep()"
+          [workorder]="workorder" [reportForm]="reportForm" [isTest]="isTest">
+        </app-report-form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.DATE">
+        <app-report-date [workorder]="workorder" [selectedTasks]="selectedTasks"
+          (onClosedWko)="onClosedWko($event)"></app-report-date>
+      </ng-container>
+    </ng-container>
   </div>
 </div>
-
-<!-- We place the footer below all the drawer in web mode -->
-<app-report-footer-actions *ngIf="!isMobile" [isMobile]="isMobile" [isSubmitting]="isSubmitting" [step]="step"
-  [workorder]="workorder" [hasPreviousQuestion]="hasPreviousQuestion" [isTest]="isTest"
-  [hasXYInvalid]="hasXYInvalid" [isSubmit]="isSubmit" [selectedTasks]="selectedTasks" [hasReportClosed]="hasReportClosed()"
-  (onEditTask)="onEditTask()" (onNewAsset)="onNewAsset()"
-  (onBack)="onBack()" (onNext)="onNext()" (onPreviousFormQuestion)="previousFormQuestion()"
-  (onNextFormQuestion)="nextFormQuestion()" (onConfirmDate)="onConfirmDate()"
-  (onFormSubmit)="submitForm($event)" (onGoToFirstStep)="onGoToFirstStep()">
-</app-report-footer-actions>

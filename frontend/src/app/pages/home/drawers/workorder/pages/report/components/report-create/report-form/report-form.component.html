@@ -1,0 +1,33 @@
+<div class="report-form">
+
+  <div class="report-progress-bar">
+    <ion-progress-bar [value]="getReportProgress()"></ion-progress-bar>
+  </div>
+
+  <div [class]="isMobile ? 'report-header-actions is-mobile' : 'report-header-actions'" lines="none">
+    <ion-button *ngIf="hasPreviousQuestion" slot="start" fill="clear" (click)="onPreviousFormQuestion()">
+      Question précédente
+    </ion-button>
+
+    <ion-button *ngIf="!canBeClosed" fill="clear" class="align-right" (click)="onNextFormQuestion()">
+      Question suivante
+    </ion-button>
+
+    <ion-button *ngIf="canBeClosed && !isTest" fill="clear" class="align-right" (click)="onFormSubmit()">
+      Clôturer
+    </ion-button>
+  </div>
+
+  <div [class]="isMobile ? 'form-editor is-mobile' : 'form-editor'">
+    <app-form-editor *ngIf="form && !isLoading" [nomadForm]="form" [editMode]="true" [indexQuestion]="indexQuestion"
+      [resumeQuestions]="isTest ? null : selectedTasks[0]?.report?.reportValues" #formEditor
+      (goToNextQuestion)="onNextFormQuestion()" [workorder]="workorder"></app-form-editor>
+    <ng-container *ngIf="!form && !isLoading">
+      Pas de formulaire disponible.
+      Veuillez contacter votre responsable.
+    </ng-container>
+    <ng-container *ngIf="isLoading">
+      <ion-spinner color="primary" name="circular"></ion-spinner>
+    </ng-container>
+  </div>
+</div>
