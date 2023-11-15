@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelTask,
   CancelWorkOrder,
+  ReportValue,
   Task,
   WkoStatus,
   Workorder,
@@ -413,6 +414,28 @@ export class WkoViewComponent implements OnInit {
         }
       );
     }
+  }
+
+  public getReportValuesSorted(): ReportValue[] {
+    const compareReportKeyFn = (a: ReportValue, b: ReportValue): number => {
+      const nA = parseInt(a.key.split('-')[1], 10);
+      const nB = parseInt(b.key.split('-')[1], 10);
+      return nA - nB;
+    }
+
+    const reportValues: ReportValue[] = this.selectedTask.report.reportValues.filter((rv) => !rv.key.includes('COMMENT')).sort(compareReportKeyFn);
+
+    const commentQuestion = this.selectedTask.report.reportValues.find((rv) => rv.key.includes('COMMENT'));
+
+    if (commentQuestion) {
+      reportValues.push(commentQuestion);
+    }
+
+    return reportValues;
+  }
+
+  public trackByReportFn(index: number, reportValue: ReportValue): string {
+    return reportValue.key;
   }
 
   private getStatus(wtsId: number): void {

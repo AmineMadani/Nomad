@@ -117,7 +117,7 @@
                 'Non défini'}}</p>
             </ion-label>
           </ion-item>
-          <ng-container *ngFor="let report of selectedTask.report?.reportValues">
+          <ng-container *ngFor="let report of getReportValuesSorted(); trackBy: trackByReportFn">
             <ion-item lines="none" *ngIf="report.answer">
               <ion-label class="label">
                 <h3 class="break-line"> <span>{{ report.question }}</span></h3>
