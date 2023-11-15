@@ -70,6 +70,7 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 			"wko_address as wkoAddress," +
 			"wko_planning_start_date as wkoPlanningStartDate," +
 			"wko_planning_end_date as wkoPlanningEndDate," +
+			"wko_planning_duration as wkoPlanningDuration," +
 			"w.wts_id as wtsId," +
 			"t.wtr_id as wtrId," +
 			"wko_completion_start_date as wkoCompletionStartDate," +

@@ -5,6 +5,7 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
 import { SearchEquipments } from '../models/layer.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { isNumber } from '@turf/turf';
 
 @Injectable({
   providedIn: 'root',
@@ -300,6 +301,45 @@ export class UtilsService {
     );
     return dateLuxon.toJSDate();
   }
+
+    /**
+   * 
+   * @param num Convert Number of minutes to time HH:MM
+   * @returns 
+   */
+    public convertNumberToTimeString(num : number) : string{
+      const hours = Math.floor(num / 60);  
+      const minutes = num % 60;
+      let hoursString = hours.toString();
+      if (hours < 10){
+        hoursString = '0' + hoursString;
+      }
+      let minutesString = minutes.toString();
+      if (minutes < 10){
+        minutesString = '0' + minutesString;
+      }
+      return hoursString + ':' + minutesString;
+    }
+  
+    /**
+     * Convert the time HH:MM to number of minutes
+     * @param value 
+     * @returns 
+     */
+    public convertStringToNumber(value : string) : number{
+      if (!value){
+        return 0;
+      }
+      const arraySplit = value.split(':');
+      let hours, minutes  : number = 0; 
+      if (isNumber(arraySplit[0])){
+        hours = Number(arraySplit[0]) * 60;
+      }
+      if (isNumber(arraySplit[1])){
+        minutes = Number(arraySplit[1]);
+      }
+      return hours + minutes;
+    }
 
   public createCacheId(): number {
     return (

@@ -147,6 +147,7 @@ public class WorkorderService {
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setWkoPlanningDuration(customWorkorderDto.getWkoPlanningDuration());
 		workorder.setWkoCompletionStartDate(customWorkorderDto.getWkoCompletionStartDate());
 		workorder.setWkoCompletionEndDate(customWorkorderDto.getWkoCompletionEndDate());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
@@ -277,6 +278,7 @@ public class WorkorderService {
 		workorder.setWkoAddress(customWorkorderDto.getWkoAddress());
 		workorder.setWkoPlanningStartDate(customWorkorderDto.getWkoPlanningStartDate());
 		workorder.setWkoPlanningEndDate(customWorkorderDto.getWkoPlanningEndDate());
+		workorder.setWkoPlanningDuration(customWorkorderDto.getWkoPlanningDuration());
 		workorder.setLongitude(customWorkorderDto.getLongitude());
 		workorder.setLatitude(customWorkorderDto.getLatitude());
 		workorder.setWkoCreationComment(customWorkorderDto.getWkoCreationComment());

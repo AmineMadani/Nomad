@@ -57,6 +57,9 @@
         <ng-container
           *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAffair'] }"></ng-container>
 
+          <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
+          type="number" formControlName="wkoAgentNb" min="1"></ion-input>
+
         <ng-container *ngIf="addressLoading; else addressForm">
           <app-skeleton-loading [rows]="1"></app-skeleton-loading>
         </ng-container>
@@ -66,9 +69,6 @@
           <ng-container
             *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
         </ng-template>
-
-        <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
-          type="number" formControlName="wkoAgentNb" min="1"></ion-input>
 
         <div class="wko-calendar">
           <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *"
@@ -84,7 +84,12 @@
         <div *ngIf="creationWkoForm.hasError('dateCompareInvalid')" class="error-message">
           <ion-note>La date de fin ne peut être inférieure à la date de début</ion-note>
         </div>
-
+          <ion-input type="time" aria-label="time" labelPlacement="floating" fill="outline" label="Durée de l'intervention"
+          placeholder="HH:MM" formControlName="wkoPlanningDuration" (click)="setDefaultDuration($event)"
+         ></ion-input>
+        <div *ngIf="creationWkoForm.hasError('durationInvalid') && workorder?.wkoAppointment" class="error-message">
+          <ion-note>La durée de l'intervention est supérieur à la durée du planning</ion-note>
+        </div>
         <div class="radio-group">
           <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false"
             formControlName="wkoEmergency">Urgent</ion-checkbox>
