@@ -16,31 +16,30 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/basic/external/exploitation")
-@Tag(name = "Exploitation - Tasks for External call", description = "Operations pertaining to workOrder in the WorkOrder Management System for/from External application")
+@Tag(name = "Exploitation - Tasks for External call", description = "tasks Management for/from External application")
 public class ExternalTaskController {
 
     @Autowired
     DDTaskRepository  dDTaskRepository;
 
-
-    @GetMapping(path = "/DDtasks")
+    @GetMapping(path = "task/list")
     @Operation(summary = "Get a list of tasks according to the filter")
     @ApiResponses(value = {
     			@ApiResponse(description= "@PathVariable String modificationDateRef,", content =  {
     						@Content(schema = @Schema(implementation = String.class))
     					})
     			})
-    public String getTasksForDD(
+    public String getTasks(
             @RequestParam(name ="modificationDateRef", required=true) String modificationDateRef,
             @RequestParam(name ="contractsList", required=true) String contractsList,
             @RequestParam(name ="statusList", required=false) String statusList
     ) {
-        return this.dDTaskRepository.getTasksForDD(modificationDateRef,contractsList,statusList);
+        return this.dDTaskRepository.getTasks(modificationDateRef,contractsList,statusList);
     }
 
 
 
-    @GetMapping(path = "/DDreport")
+    @GetMapping(path = "task/report")
     @Operation(summary = "Get the report of a task")
     @ApiResponses(value = {
     			@ApiResponse(description= "@PathVariable String taskId,", content =  {
