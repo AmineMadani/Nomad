@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Context, Permission, Profile, User, PermissionCodeEnum, UserStatus } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
-import { MapService } from './map/map.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
-import { Observable, catchError, firstValueFrom, lastValueFrom, of, tap, timeout } from 'rxjs';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
-import { LayerService } from './layer.service';
+import { BehaviorSubject, Observable, debounceTime, of } from 'rxjs';
+import { MapService } from './map/map.service';
 
 /**
  * Enum of cache items in local storage
@@ -25,45 +24,20 @@ export enum LocalStorageUserKey {
 export class UserService {
   constructor(
     private userDataService: UserDataService,
-    private mapService: MapService,
     private router: Router,
     private preferenceService: PreferenceService,
     private utilsService: UtilsService,
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
-  ) { }
+    private mapService: MapService,
+    private route: Router,
+  ) {
+    this.initUserEventContext();
+  }
 
   private currentUser: User;
   private permissions: Permission[];
-
-  /**
-   * Create UserContext on Home page
-   * @returns
-   */
-  public async getCurrentUserContext(): Promise<User> {
-    const mapLibre: maplibregl.Map = this.mapService.getMap();
-    const user: User = await this.getCurrentUser();
-    if (!user) {
-      throw new Error('failed to load user informations');
-    }
-
-    const context = <Context>{
-      zoom: mapLibre.getZoom(),
-      lng: mapLibre.getCenter().lng,
-      lat: mapLibre.getCenter().lat,
-      url: this.router.url,
-    }
-
-    const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
-      .filter((value) => !value['source'].startsWith('mapbox'))
-      .map((value) => [value['source'], value['id']]);
-    mapLayerLoaded.shift();
-    context.layers = mapLayerLoaded;
-
-    user.usrConfiguration.context = context;
-
-    return user;
-  }
+  private contextEvent$ = new BehaviorSubject(null);
 
   /**
    * Get the current user from local storage.
@@ -98,19 +72,20 @@ export class UserService {
    * @returns User information
    */
   private async getCurrentUserInformation(): Promise<User> {
-    const res = await this.utilsService.fetchPromiseWithTimeout({
-      fetchPromise: this.userDataService.getCurrentUserInformation(),
-      timeout: this.configurationService.offlineTimeoutReferential
-    }).catch(async () => {
+    let res = null;
+    try {
+      res = await this.utilsService.fetchPromiseWithTimeout({
+        fetchPromise: this.userDataService.getCurrentUserInformation(),
+        timeout: this.configurationService.offlineTimeoutReferential
+      })
+    } catch(error) {
       const forms = await this.preferenceService.getPreference(
         LocalStorageUserKey.USER
       );
       if (forms) {
-        return forms.data;
+        res=forms;
       }
-
-      return null;
-    });
+    }
 
     if (!res) {
       this.router.navigate(['/error']);
@@ -189,58 +164,10 @@ export class UserService {
   }
 
   /**
-   * Restoring users view preferences
-   */
-  public async restoreUserContextNavigation(context: Context): Promise<void> {
-    if (!context) {
-      return;
-    }
-    if (context.url) {
-      this.router.navigateByUrl(context.url).then(() => {
-        this.restoreFilter(context);
-      });
-    }
-    else {
-      this.restoreFilter(context);
-    }
-  }
-
-  /**
-   * Restore te user context from base
-   */
-  public async restoreUserContextFromBase(): Promise<void> {
-    const usr: User = await this.getCurrentUser();
-    this.restoreFilter(usr.usrConfiguration.context);
-  }
-
-  /**
-   * Restore te user context from local storage
-   * On le met ici sinon ca fait une dependance circulaire
-   */
-  public async restoreUserContextFromLocalStorage(): Promise<void> {
-    const user: User = await this.getCurrentUser();
-    if (user.usrConfiguration.context) {
-      await this.restoreUserContextNavigation(user.usrConfiguration.context);
-    }
-  }
-
-  /**
    * Delete the user context in local storage
    */
   public resetUserContext() {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER_CONTEXT);
-  }
-
-  private restoreFilter(context: Context): void {
-    if (context) {
-      this.mapService.setZoom(context.zoom);
-      this.mapService.setCenter([context.lng, context.lat]);
-      if (context.layers && context.layers.length > 0) {
-        for (let layer of context.layers) {
-          this.mapService.addEventLayer(layer[0], layer[1]);
-        }
-      }
-    }
   }
 
   /**
@@ -286,7 +213,7 @@ export class UserService {
    * Check if the current user has a specific permission
    * @param perCode The permission code to check
    */
-  async currentUserHasPermission(perCode: PermissionCodeEnum): Promise<boolean> {
+  public async currentUserHasPermission(perCode: PermissionCodeEnum): Promise<boolean> {
     let hasPermission: boolean = false;
 
     const currentUser: User = await this.getCurrentUser();
@@ -306,7 +233,7 @@ export class UserService {
    * Check if the current user has any permission
    * @param listPerCode The list of permissions code to check
    */
-  async currentUserHasAnyPermission(perCodes: PermissionCodeEnum[]): Promise<boolean> {
+  public async currentUserHasAnyPermission(perCodes: PermissionCodeEnum[]): Promise<boolean> {
     const currentUser: User = await this.getCurrentUser();
     if (!currentUser) return false;
 
@@ -324,7 +251,7 @@ export class UserService {
     * Method to get the user status from server
     * @returns UserStatusDto
     */
-  getUserStatusByEmail(email: string): Promise<UserStatus> {
+  public getUserStatusByEmail(email: string): Promise<UserStatus> {
     return this.userDataService.getUserStatusByEmail(email);
   }
 
@@ -332,7 +259,7 @@ export class UserService {
  * Update the last viewed asset drawer
  * @param drawerLabel the last viewed asset drawer
  */
-  async setLastSelectedDrawer(drawerLabel: string): Promise<void>{
+  public async setLastSelectedDrawer(drawerLabel: string): Promise<void>{
     const currentUser: User = await this.getCurrentUser();
     if (currentUser.usrConfiguration.context) {
       currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
@@ -343,4 +270,56 @@ export class UserService {
     }
     this.setUser(currentUser);
   }
+
+  /**
+   * Save user context
+   */
+  public async saveUserContext(){
+    this.contextEvent$.next(null);
+  }
+
+  private initUserEventContext() {
+    this.contextEvent$.pipe(debounceTime(3000)).subscribe(() => {
+      this.getContext().subscribe(async context => {
+        //const user: User = await this.getCurrentUser();
+        console.log(context);
+      })
+    })
+    this.route.events.subscribe(val => {
+      if(val instanceof NavigationEnd) {
+        if(val.url.includes('/home')) {
+          this.getContext().subscribe(async context => {
+            //const user: User = await this.getCurrentUser();
+            console.log(context);
+          })
+        }
+      }
+    })
+  }
+
+  /**
+   * 
+   * @returns 
+   */
+  private getContext(): Observable<Context> {
+    let context = null;
+    if(this.mapService.getMap()) {
+      const mapLibre = this.mapService.getMap();
+
+      context = <Context>{
+        zoom: mapLibre.getZoom(),
+        lng: mapLibre.getCenter().lng,
+        lat: mapLibre.getCenter().lat,
+        url: this.router.url,
+      }
+      console.log(this.mapService.getCurrentLayersIds());
+      const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
+        .filter((value) => !value['source'].startsWith('mapbox') && value['visibility'] != "none")
+        .map((value) => [value['source'], value['id']]);
+      mapLayerLoaded.shift();
+      context.layers = mapLayerLoaded;
+    }
+    return of(context);
+  }
+ 
 }

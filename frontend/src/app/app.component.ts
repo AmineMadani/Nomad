@@ -6,9 +6,6 @@ import { Subscription } from 'rxjs/internal/Subscription';
 import { DialogService } from './core/services/dialog.service';
 import { register } from 'swiper/element/bundle';
 import { UtilsService } from './core/services/utils.service';
-import { Router } from '@angular/router';
-import { DrawerRouteEnum } from './core/models/drawer.model';
-import { UserService } from './core/services/user.service';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { WorkorderService } from './core/services/workorder.service';
 import { DateTime } from 'luxon';
@@ -47,8 +44,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private platform: Platform,
     private utils: UtilsService,
-    private userService : UserService,
-    private router: Router,
     private workorderService: WorkorderService
   ) {
     this.keycloakService.configure();
@@ -94,19 +89,5 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
-  }
-
-  /**
-   * Click on page navigation
-   * @param url : page we are navigating to
-   */
-  async onClick(url : string){
-
-    const navigatePageFrom = this.utils.getMainPageName(this.router.url);
-    //save user context when we quit the Home Page
-    if (navigatePageFrom == DrawerRouteEnum.HOME){
-      let user = await this.userService.getCurrentUserContext();
-      this.userService.updateCurrentUser(user);
-    }
   }
 }

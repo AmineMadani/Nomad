@@ -982,6 +982,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * already been loaded.
    */
   public onMoveEnd(): void {
+    this.userService.saveUserContext();
     for (let layer of this.mapService.getCurrentLayers()) {
       if (
         this.map.getZoom() >=

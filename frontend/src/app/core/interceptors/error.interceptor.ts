@@ -40,9 +40,8 @@ export class ErrorInterceptor implements HttpInterceptor {
         // If an error functional or technical appear, it shows a toast
         if ((err.status === 400 || err.status === 500)) {
           const apiError: ApiErrorResponse = err.error;
-
           const toast = await this.toastController.create({
-            message: apiError.message,
+            message: apiError.message ? apiError.message:apiError.error_description,
             duration: 2000,
             color: err.status === 400 ? 'warning' : 'danger'
           });

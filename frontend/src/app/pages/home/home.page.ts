@@ -1,16 +1,15 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MapComponent } from './components/map/map.component';
-import { Subject, filter, first, pairwise, switchMap, take, takeUntil, tap } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { IonModal, ModalController, createAnimation } from '@ionic/angular';
 import { DrawerRouteEnum, DrawerTypeEnum } from 'src/app/core/models/drawer.model';
-import { UserService } from 'src/app/core/services/user.service';
 import { MapService } from 'src/app/core/services/map/map.service';
-import { Router, RoutesRecognized } from '@angular/router';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -23,10 +22,9 @@ export class HomePage implements OnInit, OnDestroy {
     public drawerService: DrawerService,
     private layerService: LayerService,
     private modalCtrl: ModalController,
-    private userService: UserService,
-    private router: Router,
     private mapService: MapService,
-    public drawingService: DrawingService
+    public drawingService: DrawingService,
+    public route: Router,
   ) {
     this.drawerService.initDrawerListener();
   }
@@ -66,7 +64,6 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.initDrawer();
-    this.initRestoreUserContext();
     this.measure = undefined;
   }
 
@@ -148,26 +145,5 @@ export class HomePage implements OnInit, OnDestroy {
     this.drawerUnsubscribe.complete();
     // Destroy drawer listener
     this.drawerService.destroyDrawerListener();
-  }
-
-  private initRestoreUserContext(): void {
-    this.router.events
-      .pipe(
-        filter((e): e is RoutesRecognized => e instanceof RoutesRecognized),
-        pairwise(),
-        filter((events: RoutesRecognized[]) => {
-          return (
-            !events[0].url.includes('/home/') &&
-            events[1].url ===
-              this.utilsService.getPagePath(DrawerRouteEnum.HOME)
-          );
-        }),
-        switchMap(() => this.mapService.onMapLoaded()),
-        filter((mapLoaded: boolean) => mapLoaded),
-        first()
-      )
-      .subscribe(() => {
-        this.userService.restoreUserContextFromLocalStorage();
-      });
   }
 }

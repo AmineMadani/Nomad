@@ -2,7 +2,7 @@ import { Platform } from '@angular/cdk/platform';
 import { Injectable, NgZone } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { AuthConfig, OAuthService, TokenResponse } from 'angular-oauth2-oidc';
 import { ConfigurationService } from './configuration.service';
 import { UserService } from './user.service';
 import { PraxedoService } from './praxedo.service';
@@ -27,6 +27,7 @@ export class KeycloakService {
   public realmRoles: string[] = [];
   public initialState: string | undefined;
   private mobileUrlState: string | undefined;
+  private isOauthServiceInitialized = false;
 
   configure(){
     if(this.configurationService.keycloak.active) {
@@ -41,39 +42,43 @@ export class KeycloakService {
   }
 
   initialisation() {
-    if(this.configurationService.keycloak.active) {
-      this.oauthService.events.subscribe(eventResult => {
-        if (eventResult.type == 'token_refreshed') {
-          //console.log("token : " + this.oauthService.getAccessToken());
+    this.oauthService.events.subscribe(eventResult => {
+      if(eventResult.type == 'token_received') {
+        if(this.oauthService.state) {
+          this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
+          this.oauthService.state=null;
         }
-        if(eventResult.type == 'token_received') {
-          //console.log("token : " + this.oauthService.getAccessToken());
-          if(this.oauthService.state) {
-            this.router.navigateByUrl(decodeURIComponent(this.oauthService.state));
-            this.oauthService.state=null;
-          }
-        }
-      })
+      }
+    })
       
-      this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
-        this.oauthService.tryLogin().then(tryLoginResult => {
-          //console.log(tryLoginResult)
-          if (this.oauthService.hasValidAccessToken()) {
-            this.loadUserProfile();
-            this.realmRoles = this.getRealmRoles();
-          }
-        }).catch(err => {
-          this.router.navigate(["/error"]);
-        });
-      }).catch(error => {
-        console.error("loadDiscoveryDocument", error);
-        this.router.navigate(["/error"]);
-      });
+    if (this.oauthService.getRefreshToken() && this.isTokenExpired()) {
+      this.refreshToken();
     }
   }
 
   public hasValidToken(): boolean {
     return this.oauthService.hasValidAccessToken();
+  }
+
+  public async refreshToken(): Promise<TokenResponse> {
+    try {
+      if(!this.isOauthServiceInitialized) {
+        await this.oauthService.loadDiscoveryDocument();
+        await this.oauthService.tryLogin();
+        this.isOauthServiceInitialized = true;
+      }
+    } catch(error) {
+      console.error("OAuth initialisation issue",error);
+    }
+    return this.oauthService.refreshToken();
+  }
+
+  public getRefreshToken(): String {
+    return this.oauthService.getRefreshToken();
+  }
+
+  public isTokenExpired(): boolean {
+    return this.oauthService.getIdTokenExpiration() < new Date().getTime();
   }
 
   public login(): void {
@@ -102,33 +107,7 @@ export class KeycloakService {
     })
   }
 
-  public loadUserProfile(): void {
-    this.oauthService.loadUserProfile()
-      .then(loadUserProfileResult => {
-        this.userProfile = loadUserProfileResult;
-      })
-      .catch(error => {
-        console.error("loadUserProfile", error);
-      });
-  }
-
-  public getRealmRoles(): string[] {
-    let idClaims = this.oauthService.getIdentityClaims()
-    if (!idClaims) {
-      console.error("Couldn't get identity claims, make sure the user is signed in.")
-      return [];
-    }
-    if (!idClaims.hasOwnProperty("realm_roles")) {
-      console.error("Keycloak didn't provide realm_roles in the token. Have you configured the predefined mapper realm roles correct?")
-      return [];
-    }
-
-    let realmRoles = idClaims["realm_roles"]
-    return realmRoles ?? [];
-  }
-
   private configureWeb(): void {
-    console.log("Using web configuration")
     let authConfig: AuthConfig = {
       issuer: this.configurationService.keycloak.issuer,
       redirectUri: this.configurationService.keycloak.redirectUri,
@@ -140,7 +119,6 @@ export class KeycloakService {
       requireHttps: false
     }
     this.oauthService.configure(authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
   }
 
   private configureAndroid(): void {
@@ -155,7 +133,6 @@ export class KeycloakService {
       requireHttps: false
     }
     this.oauthService.configure(authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
 
     this.praxedoService.praxedoListener();
 
@@ -189,28 +166,21 @@ export class KeycloakService {
             queryParamsHandling: 'merge', // remove to replace all query params by provided
           })
           .then(navigateResult => {
-            // After updating the route, trigger login in oauthlib and
-            this.oauthService.tryLogin().then(tryLoginResult => {
-              if (this.oauthService.hasValidAccessToken()) {
-                if(!this.praxedoService.externalReport) {
-                  if(!url.href.replace(url.origin,'').includes('/login')) {
-                    this.router.navigateByUrl(url.href.replace(url.origin,''));
-                  } else {
-                    if(this.mobileUrlState){
-                      this.router.navigateByUrl(this.mobileUrlState);
-                      this.mobileUrlState=undefined;
-                    }
-                  }
-                } else {
-                  if(this.mobileUrlState){
-                    this.mobileUrlState=undefined;
-                  }
-                  this.router.navigate(["/home/workorder/"+this.praxedoService.externalReport+"/cr"]);
+            if(!this.praxedoService.externalReport) {
+              if(!url.href.replace(url.origin,'').includes('/login')) {
+                this.router.navigateByUrl(url.href.replace(url.origin,''));
+              } else {
+                if(this.mobileUrlState){
+                  this.router.navigateByUrl(this.mobileUrlState);
+                  this.mobileUrlState=undefined;
                 }
-                this.loadUserProfile();
-                this.realmRoles = this.getRealmRoles();
               }
-            })
+            } else {
+              if(this.mobileUrlState){
+                this.mobileUrlState=undefined;
+              }
+              this.router.navigate(["/home/workorder/"+this.praxedoService.externalReport+"/cr"]);
+            }
           })
           .catch(error => console.error(error));
       });

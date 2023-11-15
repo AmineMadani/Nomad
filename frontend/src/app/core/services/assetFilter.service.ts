@@ -4,6 +4,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MapService } from './map/map.service';
 import { Favorite } from '../models/user.model';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,10 @@ import { Favorite } from '../models/user.model';
  * Service of Asset
  */
 export class AssetFilterService {
-  constructor(private mapService: MapService) {}
+  constructor(
+    private mapService: MapService,
+    private userService: UserService
+  ) {}
 
   public assetFilter: FilterAsset[];
   public dataSource: MatTreeNestedDataSource<FilterAsset>;
@@ -174,9 +178,12 @@ export class AssetFilterService {
   private displayNode(node: FilterAsset) {
     if (node.layerKey) {
       if (node.selected) {
-        this.mapService.addEventLayer(node.layerKey, node.styleKey);
+        this.mapService.addEventLayer(node.layerKey, node.styleKey).then(() => {
+          this.userService.saveUserContext();
+        });
       } else {
         this.mapService.removeEventLayer(node.layerKey, node.styleKey);
+        this.userService.saveUserContext();
       }
     }
   }

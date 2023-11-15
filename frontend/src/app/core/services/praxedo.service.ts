@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { IntentAction } from 'plugins/intent-action/src';
 import { WorkorderService } from './workorder.service';
-import { firstValueFrom } from 'rxjs';
 import { LayerService } from './layer.service';
 import { Workorder } from '../models/workorder.model';
 import { Geolocation } from '@capacitor/geolocation';

@@ -9,7 +9,7 @@ import { KeycloakService } from 'src/app/core/services/keycloak.service';
 export class LoginPage implements OnInit {
 
   constructor(
-    private keycloakService: KeycloakService,
+    private keycloakService: KeycloakService
   ) { }
 
   ngOnInit() {
