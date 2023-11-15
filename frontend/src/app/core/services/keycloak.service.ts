@@ -53,6 +53,21 @@ export class KeycloakService {
       
     if (this.oauthService.getRefreshToken() && this.isTokenExpired()) {
       this.refreshToken();
+    } 
+    
+    if(!this.hasValidToken()) {
+      this.oauthService.loadDiscoveryDocument().then(document => {
+        console.log("[Keycloak] - Initialisation - document");
+        this.oauthService.tryLogin().then(trylogin => {
+          console.log("[Keycloak] - Initialisation - trylogin");
+        }).catch(error => {
+          console.error("[Keycloak] - Initialisation - trylogin",error);
+          this.router.navigate(['/error']);
+        })
+      }).catch(error => {
+        console.error("[Keycloak] - Initialisation - document",error);
+        this.router.navigate(['/error']);
+      })
     }
   }
 
@@ -166,21 +181,27 @@ export class KeycloakService {
             queryParamsHandling: 'merge', // remove to replace all query params by provided
           })
           .then(navigateResult => {
-            if(!this.praxedoService.externalReport) {
-              if(!url.href.replace(url.origin,'').includes('/login')) {
-                this.router.navigateByUrl(url.href.replace(url.origin,''));
-              } else {
-                if(this.mobileUrlState){
-                  this.router.navigateByUrl(this.mobileUrlState);
-                  this.mobileUrlState=undefined;
+            // After updating the route, trigger login in oauthlib and
+            this.oauthService.tryLogin().then(tryLoginResult => {
+              if (this.oauthService.hasValidAccessToken()) {
+                if(!this.praxedoService.externalReport) {
+                  if(!url.href.replace(url.origin,'').includes('/login')) {
+                    this.router.navigateByUrl(url.href.replace(url.origin,''));
+                  } else {
+                    console.log(6);
+                    if(this.mobileUrlState){
+                      this.router.navigateByUrl(this.mobileUrlState);
+                      this.mobileUrlState=undefined;
+                    }
+                  }
+                } else {
+                  if(this.mobileUrlState){
+                    this.mobileUrlState=undefined;
+                  }
+                  this.router.navigate(["/home/workorder/"+this.praxedoService.externalReport+"/cr"]);
                 }
               }
-            } else {
-              if(this.mobileUrlState){
-                this.mobileUrlState=undefined;
-              }
-              this.router.navigate(["/home/workorder/"+this.praxedoService.externalReport+"/cr"]);
-            }
+            })
           })
           .catch(error => console.error(error));
       });
