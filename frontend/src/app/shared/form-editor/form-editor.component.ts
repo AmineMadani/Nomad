@@ -66,10 +66,25 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     setTimeout(() => {
-      if(this.resumeQuestions){
-        for(let question of this.resumeQuestions) {
-          this.form.get(question.key).setValue(question.answer);
-        }
+      if (this.resumeQuestions) {
+        for (let question of this.resumeQuestions) {
+          if (question.answer != null) {
+            let key = question.key;
+            if (question.key.includes('_')) {
+              let keySplited = question.key.split('_');
+              key = keySplited[1];
+            }
+            if (
+              this.nomadForm.definitions.find((d) => d.key === key)
+                .attributes?.['multiple']
+            ) {
+              const answers = question.answer.split('; ');
+              this.form.get(key).setValue(answers);
+            } else {
+              this.form.get(key).setValue(question.answer);
+            }
+          }   
+      }
       }
     });
   }

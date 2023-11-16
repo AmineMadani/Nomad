@@ -361,16 +361,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.clicklatitude = e.lngLat.lat;
     this.clicklongitute = e.lngLat.lng;
 
-    if (!feature) {
-      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
-      this.selectedFeature = {
-        properties: {
-          x: e.lngLat.lng,
-          y: e.lngLat.lat
-        },
-      };
-    } else {
+    if (feature && feature.source !== 'task') {
       contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
       contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
       this.selectedFeature = {
@@ -379,6 +370,15 @@ export class MapComponent implements OnInit, OnDestroy {
           ...feature.properties,
           x: e.lngLat.lng,
           y: e.lngLat.lat,
+        },
+      };
+    } else {
+      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
+      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
+      this.selectedFeature = {
+        properties: {
+          x: e.lngLat.lng,
+          y: e.lngLat.lat
         },
       };
     }
@@ -422,14 +422,20 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'],
         this.selectedFeature['id']
       );
-      const recalculateCoords = this.mapLayerService.findNearestPoint(
-        equipment.geom.coordinates,
-        [
-          this.selectedFeature['properties']['x'],
-          this.selectedFeature['properties']['y'],
-        ]
-      );
-
+      let recalculateCoords : number[];
+      //Equipments have fixed coordinates
+      if (equipment.geom.type == "Point"){
+        recalculateCoords = [this.selectedFeature['properties']['x'], this.selectedFeature['properties']['y']];
+      }
+      else{
+        recalculateCoords = this.mapLayerService.findNearestPoint(
+          equipment.geom.coordinates,
+          [
+            this.selectedFeature['properties']['x'],
+            this.selectedFeature['properties']['y'],
+          ]
+        );
+      }
       let workorder: Workorder = {
         latitude: recalculateCoords[1],
         longitude: recalculateCoords[0],
@@ -725,9 +731,6 @@ export class MapComponent implements OnInit, OnDestroy {
       }),
       'bottom-right'
     );
-    if (this.isMobile) {
-      this.map.addControl(new CustomZoomControl(), 'bottom-right');
-    }
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {

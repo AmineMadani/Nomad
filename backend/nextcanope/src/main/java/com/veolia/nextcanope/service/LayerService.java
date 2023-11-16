@@ -122,6 +122,17 @@ public class LayerService {
         return this.layerRepository.getAllVLayerWtr();
     }
 
+    /**
+     * Search in all visible assets  with a matching id and for contract of the user
+     * @param partialAssetId   A piece of the asset id
+     * @param userId The user id
+     * @return Json of all matching with partialAssetID assets
+     */
+    public  String getAssetFromPartialId(String partialAssetId, Long userId)
+    {
+        return this.layerRepositoryImpl.searchAssetById(partialAssetId,userId);
+    }
+
     public List<LayerGrpActionDTO> getAllLayerGroups() {
         List<LayerGrpAction> lyrGrpActions = this.layerGrpActionRepository.findAll();
 

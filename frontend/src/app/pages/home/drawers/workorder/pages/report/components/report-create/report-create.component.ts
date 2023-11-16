@@ -1,13 +1,16 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Task, Workorder, Report, WorkorderTaskStatus, WkoStatus } from 'src/app/core/models/workorder.model';
+import {
+  Task,
+  Workorder,
+  WorkorderTaskStatus,
+  WkoStatus,
+} from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { ReportFormComponent } from './report-form/report-form.component';
 import { IntentAction } from 'plugins/intent-action/src';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
-import { DateTime } from 'luxon';
 import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 import { Form } from 'src/app/shared/form-editor/models/form.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
@@ -16,7 +19,6 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { ReportDateComponent } from './report-date/report-date.component';
 
 export enum ReportStepEnum {
   ASSET = 1,
@@ -24,14 +26,12 @@ export enum ReportStepEnum {
   FORM = 3,
   DATE = 4
 }
-
 @Component({
   selector: 'app-report-create',
   templateUrl: './report-create.component.html',
   styleUrls: ['./report-create.component.scss'],
 })
 export class ReportCreateComponent implements OnInit {
-
   constructor(
     private drawerService: DrawerService,
     private utils: UtilsService,
@@ -43,7 +43,7 @@ export class ReportCreateComponent implements OnInit {
     private praxedoService: PraxedoService,
     private mapService: MapService,
     private layerService: LayerService,
-  ) { }
+  ) {}
 
   @Input() workorder: Workorder;
   @Input() reportForm: Form = null;
@@ -70,25 +70,37 @@ export class ReportCreateComponent implements OnInit {
       return;
     }
 
-    this.workorderService.getAllWorkorderTaskStatus().then((workorderTaskStatus: WorkorderTaskStatus[]) => {
-      const status = workorderTaskStatus.find(sts => sts.id.toString() === this.workorder.wtsId.toString());
-      switch (status.wtsCode) {
-        case WkoStatus[WkoStatus.TERMINE]:
-          this.endProcess();
-          break;
-        case WkoStatus[WkoStatus.CREE]:
-          break;
-        default:
-          break;
-      }
-    });
-
-    this.selectedTasks = this.workorder.tasks.filter(task => task.isSelectedTask);
+    this.workorderService
+      .getAllWorkorderTaskStatus()
+      .then((workorderTaskStatus: WorkorderTaskStatus[]) => {
+        const status = workorderTaskStatus.find(
+          (sts) => sts.id.toString() === this.workorder.wtsId.toString()
+        );
+        switch (status.wtsCode) {
+          case WkoStatus[WkoStatus.TERMINE]:
+            if (!this.workorder.isUpdateReport) {
+              this.endProcess();
+            }
+            break;
+          case WkoStatus[WkoStatus.CREE]:
+            break;
+          default:
+            break;
+        }
+      });
+    this.selectedTasks = this.workorder.tasks.filter(
+      (task) => task.isSelectedTask
+    );
     if (this.selectedTasks && this.selectedTasks.length > 0) {
       this.step = ReportStepEnum.CONTEXT;
-      if (this.selectedTasks[0].report?.questionIndex) {
-        this.step = ReportStepEnum.FORM;
-      }
+      setTimeout(() => {
+        if (this.selectedTasks[0].report?.questionIndex) {
+          this.step = ReportStepEnum.FORM;
+        }
+        if (this.workorder.isUpdateReport) {
+          this.onSaveWorkOrderState();
+        }
+      });
     } else {
       await this.checkHasXYInvalid();
     }
@@ -169,7 +181,7 @@ export class ReportCreateComponent implements OnInit {
           this.closeReport();
         });
       } else {
-        this.workorderService.createWorkOrder(this.workorder).then(res => {
+        this.workorderService.createWorkOrder(this.workorder).then((res) => {
           this.closeReport(res);
         });
       }
@@ -186,40 +198,54 @@ export class ReportCreateComponent implements OnInit {
     console.log(unplanedWko);
 
     if (this.praxedoService.externalReport) {
-      this.layerService.getAllVLayerWtr().then(vLayerWtrs => {
-        const vLayerWtr = vLayerWtrs.find(val => val.wtrCode == this.workorder.tasks[0].wtrCode && val.astCode == this.workorder.tasks[0].astCode);
-        this.contractService.getAllContracts().then(contracts => {
-          let contract = contracts.find(ctr => ctr.id === this.workorder.tasks[0].ctrId);
-          let comment = "";
-          for (let reportValue of this.workorder.tasks[0].report?.reportValues) {
+      this.layerService.getAllVLayerWtr().then((vLayerWtrs) => {
+        const vLayerWtr = vLayerWtrs.find(
+          (val) =>
+            val.wtrCode == this.workorder.tasks[0].wtrCode &&
+            val.astCode == this.workorder.tasks[0].astCode
+        );
+        this.contractService.getAllContracts().then((contracts) => {
+          let contract = contracts.find(
+            (ctr) => ctr.id === this.workorder.tasks[0].ctrId
+          );
+          let comment = '';
+          for (let reportValue of this.workorder.tasks[0].report
+            ?.reportValues) {
             if (reportValue.key == 'COMMENT') {
               comment = reportValue.answer;
             }
           }
-          IntentAction.closeIntent(
-            {
-              value:
-              {
-                'RETOUR': 'ok',
-                'CONTRAT': (contract ? contract.ctrCode : ''),
-                'COMMENTAIRE': comment,
-                'GPS_RI': this.workorder.tasks[0].latitude + ';' + this.workorder.tasks[0].longitude,
-                'ADRESSE': this.workorder.wkoAddress ? this.workorder.wkoAddress : 'NA',
-                'TYPE': (this.workorder.tasks.length > 1 ? '38-Multi équipements' : this.workorder.tasks[0].astCode + '-' + vLayerWtr.astLlabel),
-                'MOTIF': this.workorder.tasks[0].wtrCode + '-' + vLayerWtr.wtrLlabel,
-                'REFEXTINT': this.workorder.id,
-                'ID_RI': unplanedWko ? unplanedWko.id : this.workorder.id
-              }
-            }
-          );
+          IntentAction.closeIntent({
+            value: {
+              RETOUR: 'ok',
+              CONTRAT: contract ? contract.ctrCode : '',
+              COMMENTAIRE: comment,
+              GPS_RI:
+                this.workorder.tasks[0].latitude +
+                ';' +
+                this.workorder.tasks[0].longitude,
+              ADRESSE: this.workorder.wkoAddress
+                ? this.workorder.wkoAddress
+                : 'NA',
+              TYPE:
+                this.workorder.tasks.length > 1
+                  ? '38-Multi équipements'
+                  : this.workorder.tasks[0].astCode + '-' + vLayerWtr.astLlabel,
+              MOTIF:
+                this.workorder.tasks[0].wtrCode + '-' + vLayerWtr.wtrLlabel,
+              REFEXTINT: this.workorder.id,
+              ID_RI: unplanedWko ? unplanedWko.id : this.workorder.id,
+            },
+          });
           if (!this.workorder.syncOperation) {
             this.exploitationService.deleteCacheWorkorder(this.workorder);
           }
         });
       });
     } else {
-      console.log('navigate...', this.workorder);
-      this.router.navigate(['/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id)]);
+      this.router.navigate([
+        '/home/workorder/' + (unplanedWko ? unplanedWko.id : this.workorder.id),
+      ]);
       if (!this.workorder.syncOperation) {
         this.exploitationService.deleteCacheWorkorder(this.workorder);
       }
@@ -268,14 +294,16 @@ export class ReportCreateComponent implements OnInit {
     const alert = await this.alertController.create({
       backdropDismiss: false,
       header: 'Souhaitez-vous supprimer cette intervention opportuniste ?',
-      buttons: [{
-        text: 'Oui',
-        role: 'confirm',
-      },
-      {
-        text: 'Non',
-        role: 'stop',
-      }]
+      buttons: [
+        {
+          text: 'Oui',
+          role: 'confirm',
+        },
+        {
+          text: 'Non',
+          role: 'stop',
+        },
+      ],
     });
 
     await alert.present();
@@ -291,7 +319,7 @@ export class ReportCreateComponent implements OnInit {
         this.mapService.removePoint('task', task.id.toString());
       }
       if (this.praxedoService.externalReport) {
-        IntentAction.closeIntent({ value: { 'RETOUR': 'ko' } });
+        IntentAction.closeIntent({ value: { RETOUR: 'ko' } });
       } else {
         this.router.navigate(['/home']);
       }
@@ -313,7 +341,7 @@ export class ReportCreateComponent implements OnInit {
       equipments,
       {
         draft: this.workorder.id,
-        step: 'report'
+        step: 'report',
       }
     );
   }
@@ -329,9 +357,11 @@ export class ReportCreateComponent implements OnInit {
       const listWtr = await this.workorderService.getAllWorkorderTaskReasons();
       const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
 
-      this.hasXYInvalid = this.workorder.tasks.some(task => {
-        return task.assObjRef == null && (
-          task.wtrId == null || listWtrNoXy.some((wtr) => wtr.id === task.wtrId)
+      this.hasXYInvalid = this.workorder.tasks.some((task) => {
+        return (
+          task.assObjRef == null &&
+          (task.wtrId == null ||
+            listWtrNoXy.some((wtr) => wtr.id === task.wtrId))
         );
       });
     }

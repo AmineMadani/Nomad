@@ -287,6 +287,11 @@ export class LayerService {
     return this.vLayerWtr;
   }
 
+
+  public getAssetByPartialId(assetPartialId: string): Observable<string[]> {
+    return this.layerDataService.getAssetByPartialId(assetPartialId);
+  }
+
   public async getAllLayerGrpActions(
     forceGetFromDb: boolean = false,
     isDownloadMode: boolean = false

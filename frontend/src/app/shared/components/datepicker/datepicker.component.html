@@ -5,17 +5,17 @@
   <ion-label slot="end">Sélectionner une plage de dates</ion-label>
 </ion-item>
 
+<ion-item lines="none" class="ion-text-center">
+  <ion-label>Année</ion-label>
+  <ion-button fill="clear" (click)="changeYear(-1)">
+    <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+  </ion-button>
+  <ion-label>{{ year }}</ion-label>
+  <ion-button fill="clear" (click)="changeYear(1)">
+    <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+  </ion-button>
+</ion-item>
 <div class="calendar-months" *ngIf="calendar.get(year)" [class.months-mobile]="isMobile">
-  <ion-item lines="none" class="ion-text-center">
-    <ion-label>Année</ion-label>
-    <ion-button fill="clear" (click)="changeYear(-1)">
-      <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
-    </ion-button>
-    <ion-label>{{ year }}</ion-label>
-    <ion-button fill="clear" (click)="changeYear(1)">
-      <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
   <ion-item-group *ngFor="let month of calendar.get(year)?.months">
     <ion-item [id]="year+month.name" lines="none" class="ion-text-center">
       <ion-label>

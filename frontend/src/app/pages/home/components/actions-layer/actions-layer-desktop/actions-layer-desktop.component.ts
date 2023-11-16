@@ -1,5 +1,6 @@
 import {
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -8,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { IonPopover } from '@ionic/angular';
+import { IonPopover, IonRadioGroup, IonSearchbar } from '@ionic/angular';
 import { Subject } from 'rxjs';
 
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
@@ -16,6 +17,8 @@ import { CityService } from 'src/app/core/services/city.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import * as Maplibregl from 'maplibre-gl';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -23,15 +26,17 @@ import { MapService } from 'src/app/core/services/map/map.service';
   styleUrls: ['./actions-layer-desktop.component.scss'],
 })
 export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
-
   constructor(
     private cityService: CityService,
     private drawingService: DrawingService,
     private mapLayerService: MapLayerService,
-    private mapService: MapService
+    private mapService: MapService,
+    private layerService: LayerService,
+    private router: Router
   ) {}
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
+  @ViewChild('searchbar', { static: true }) searchbar: IonSearchbar;
 
   @Input() currentRoute: DrawerRouteEnum;
   @Output() selectedActionEvent: EventEmitter<DrawerRouteEnum> =
@@ -44,9 +49,21 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   private marker: Maplibregl.Marker;
 
   public adresses: any[] = [];
-  public adress: string = "";
+  public adress: string = '';
+  public genericSearResult: any;
+  public isSearching = false;
+  public isSearchOption = false;
+  public patrimonySearchInput: string = '';
+  public modeVisible: boolean = true;
+  public searchModeLibelle: string= 'Adr';
+  public selectedsearchMode: string;
 
-  ngOnInit() {}
+
+  private patrimonyMinimunLengh: number = 8;
+
+  ngOnInit() {
+    this.selectedsearchMode = 'Adresse';
+  }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
@@ -75,6 +92,19 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
     this.isToolboxOpen = true;
   }
 
+  public modeChange(data: any): void {
+    const t= this.searchbar.value='';
+    this.modeVisible = true;
+    this.selectedsearchMode = data?.detail?.value;
+    this.searchModeLibelle = this.selectedsearchMode ==='Patrimoine' ? 'Patr.' : 'Adr.';
+  }
+
+  public optionChanged (e: Event): void {
+    this.modeVisible = false;
+    this.adresses = [];
+    this.genericSearResult = undefined;
+  }
+
   public async onClickDisplayPrintTool(): Promise<void> {
     // Allows waiting for the action selection toolbox to be hidden
     this.toolboxPopover.dismiss();
@@ -98,50 +128,109 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   }
 
   public onSearchInput(event) {
+    this.modeVisible = true;
     const query = event.target.value.toLowerCase();
-    if(query && query.length > 3) {
-      this.cityService.getAdressesByQuery(query).then(res => {
-        console.log(res);
-        this.adresses = res.features;
-      })
-    } else {
-      this.adresses = [];
+    switch (this.selectedsearchMode) {
+      case 'Patrimoine':
+        if ( query && query.length > this.patrimonyMinimunLengh){
+          // this.isGenericSearching = true;
+          this.layerService.getAssetByPartialId(query).subscribe((res) => {
+            if (res) {
+              this.genericSearResult = res;
+            }
+            else {
+              this.genericSearResult = undefined;
+            }
+        });
+      }
+        break;
+      default:
+        if(query && query.length > 3) {
+          this.cityService.getAdressesByQuery(query).then(res => {
+            console.log(res);
+            this.adresses = res.features;
+          })
+        } else {
+          this.adresses = [];
+        }
+        break;
     }
-    if(this.marker) {
+    if (this.marker) {
       this.marker.remove();
     }
   }
 
+  public onSeachEnter() {
+    this.modeVisible = true;
+    this.isSearching = true;
+  }
+
+  public onFilterOptionClick() {
+    this.isSearchOption = true;
+  }
+
+
+  public ionChanged(data: any) {
+    this.selectedsearchMode = data?.detail?.value;
+  }
   public onAdressClick(adress: any) {
     this.adress = adress.properties.label;
-    this.mapLayerService.moveToXY(adress.geometry.coordinates[0],adress.geometry.coordinates[1],19);
-    if(this.marker) {
+    this.mapLayerService.moveToXY(
+      adress.geometry.coordinates[0],
+      adress.geometry.coordinates[1],
+      19
+    );
+    if (this.marker) {
       this.marker.remove();
     }
     this.marker = new Maplibregl.Marker({
-      color: "#ea4335",
-      draggable: false
-      }).setLngLat([adress.geometry.coordinates[0],adress.geometry.coordinates[1]])
+      color: '#ea4335',
+      draggable: false,
+    })
+      .setLngLat([
+        adress.geometry.coordinates[0],
+        adress.geometry.coordinates[1],
+      ])
       .addTo(this.mapService.getMap());
     this.adresses = [];
+  }
+
+  public onResultClick(result: any) {
+    if (result) {
+      const id= result.id;
+      const layer =  result.asset_tbl.replace('asset.','');
+      this.router.navigate(['home/equipment/'+ id], {queryParams: {lyrTableName  :layer  }} );
+      this.genericSearResult = [];
+    }
   }
 
   public onSearchbarFocusOut() {
     setTimeout(() => {
       this.adresses = [];
     }, 200);
+    setTimeout(() => {
+      this.isSearching = false;
+    }, 500);
   }
 
   public onSearchKeyEnter() {
-    if(this.adresses && this.adresses.length > 0) {
-      this.mapLayerService.moveToXY(this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1],19);
-      if(this.marker) {
+    if (this.adresses && this.adresses.length > 0) {
+      this.mapLayerService.moveToXY(
+        this.adresses[0].geometry.coordinates[0],
+        this.adresses[0].geometry.coordinates[1],
+        19
+      );
+      if (this.marker) {
         this.marker.remove();
       }
       this.marker = new Maplibregl.Marker({
-        color: "#ea4335",
-        draggable: false
-        }).setLngLat([this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1]])
+        color: '#ea4335',
+        draggable: false,
+      })
+        .setLngLat([
+          this.adresses[0].geometry.coordinates[0],
+          this.adresses[0].geometry.coordinates[1],
+        ])
         .addTo(this.mapService.getMap());
       this.adress = this.adresses[0].properties.label;
       this.adresses = [];

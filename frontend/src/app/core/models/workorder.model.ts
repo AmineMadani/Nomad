@@ -10,6 +10,7 @@ export interface Workorder {
     wkoCreationComment?: string;
     wkoPlanningStartDate?: Date;
     wkoPlanningEndDate?: Date;
+    wkoPlanningDuration?: number;
     wtsId?: number;
     wkoCompletionStartDate?: Date;
     wkoCompletionEndDate?: Date;
@@ -29,6 +30,7 @@ export interface Workorder {
     // Specific frontend variables for travo
     tempTravoWtrId?: number;
     travoCallbackUrl?: string;
+    isUpdateReport?: boolean;
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
@@ -45,6 +47,7 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     wkoCompletionEndDate: featureWorkorder.properties['wkoCompletionEndDate'],
     wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
     wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+    wkoPlanningDuration: featureWorkorder.properties['wkoPlanningDuration'],
     wtsId: featureWorkorder.properties['wkoWtsId'],
     wkoCreationComment: featureWorkorder.properties['wkoCreationComment'],
     wkoCancelComment: featureWorkorder.properties['wkoCancelComment'],

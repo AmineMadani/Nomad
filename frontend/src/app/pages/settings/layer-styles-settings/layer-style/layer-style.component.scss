@@ -28,6 +28,13 @@
         margin-top: 30px;
         width: 100%;
 
+        .layer-zoom {
+          display: flex;
+          flex-direction: row;
+          column-gap: 10px;
+          margin-bottom: 20px;
+        }
+        
         input[type="file"] {
           display: inline-block;
           padding: 0.5em 1em;
@@ -36,7 +43,7 @@
           border-radius: 0.2em;
           font-size: 1em;
         }
-
+        
         ion-input {
           margin-bottom: 20px;
         }

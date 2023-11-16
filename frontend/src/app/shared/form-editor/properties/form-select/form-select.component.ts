@@ -56,6 +56,7 @@ export class FormSelectComponent implements OnInit {
   onSelectValue(key: string){
     if(this.attributes.multiple) {
       let values = this.control.value;
+      console.log(values);
       if(values) {
         if(values.includes(key)) {
           this.control.setValue(values.filter(val => val != key));

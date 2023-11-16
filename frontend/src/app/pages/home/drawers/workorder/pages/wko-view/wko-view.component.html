@@ -14,7 +14,13 @@
     Ajouter à un programme
   </ion-tab-button>
   -->
-  <ion-tab-button [disabled]="!canEdit()" (click)="updateWorkorder()">
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId !==4"
+  [disabled]="!canEdit()" (click)="updateWorkorder()">
+    <ion-icon name="pencil-outline"></ion-icon>
+    Modifier
+  </ion-tab-button>
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId ===4"
+  [disabled]="!canEditReport()" (click)="onUpdateReport()">
     <ion-icon name="pencil-outline"></ion-icon>
     Modifier
   </ion-tab-button>
@@ -111,7 +117,7 @@
                 'Non défini'}}</p>
             </ion-label>
           </ion-item>
-          <ng-container *ngFor="let report of selectedTask.report?.reportValues">
+          <ng-container *ngFor="let report of getReportValuesSorted(); trackBy: trackByReportFn">
             <ion-item lines="none" *ngIf="report.answer">
               <ion-label class="label">
                 <h3 class="break-line"> <span>{{ report.question }}</span></h3>
