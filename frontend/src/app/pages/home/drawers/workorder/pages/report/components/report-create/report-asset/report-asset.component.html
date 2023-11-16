@@ -1,9 +1,15 @@
 <div class="report-asset">
   <!-- action buttons -->
   <ion-tab-bar class="action-buttons">
-    <ion-tab-button *ngIf="workorder.tasks.length === 1" (click)="onEditEquipment(workorder.tasks[0])">
+    <ion-tab-button *ngIf="workorder.tasks.length === 1 && !inEditMode"
+      (click)="onEditEquipment(workorder.tasks[0])">
       <ion-icon name="pencil-outline"></ion-icon>
       Modifier le patrimoine
+    </ion-tab-button>
+    <ion-tab-button *ngIf="workorder.tasks.length === 1 && inEditMode"
+      [class]="draggableMarker ? 'selected' : ''" (click)="onRemoveChangeEquipment(workorder.tasks[0])">
+      <ion-icon name="close-outline" color="red"></ion-icon>
+      Annuler la modification
     </ion-tab-button>
     <ion-tab-button>
       <ion-icon src="assets/icon/polygonal.svg"></ion-icon>
@@ -36,23 +42,6 @@
           </ion-note>
         </ion-label>
       </div>
-      <ng-container
-        *ngIf="!draggableMarker && !editTaskEquipment && (workorder.tasks.length === 1 || !workorder.wkoPlanningStartDate) && !tsk.report?.dateCompletion">
-        <ion-button slot="end" fill="clear" (click)="onEditEquipment(tsk)">
-          <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-        </ion-button>
-      </ng-container>
-      <ng-container *ngIf="editTaskEquipment && editTaskEquipment.id === tsk.id">
-        <ion-button slot="end" fill="clear" (click)="onValidateChangeEquipment(tsk)">
-          <ion-icon slot="icon-only" color="success" name="checkmark-circle-outline"></ion-icon>
-        </ion-button>
-        <ion-button slot="end" fill="clear" (click)="onRemoveChangeEquipment(tsk)">
-          <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
-        </ion-button>
-        <ion-button *ngIf="tsk.assObjRef" slot="end" fill="clear" (click)="onXyEquipment(tsk)">
-          <ion-icon slot="icon-only" color="secondary" name="pin-sharp" class="strike-through"></ion-icon>
-        </ion-button>
-      </ng-container>
     </ion-item>
   </div>
 </div>

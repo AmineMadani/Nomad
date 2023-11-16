@@ -124,6 +124,10 @@ export class ReportCreateComponent implements OnInit {
    * Next step
    */
   public onNext() {
+    if (this.step === ReportStepEnum.ASSET) {
+      this.stepAsset.onValidateChangeEquipment();
+    }
+
     if (this.step <= ReportStepEnum.FORM) {
       this.step++;
       if (this.step == ReportStepEnum.CONTEXT) {

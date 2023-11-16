@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -10,6 +10,8 @@ import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-e
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
+import * as Maplibregl from 'maplibre-gl';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-report-asset',
@@ -25,7 +27,8 @@ export class ReportAssetComponent implements OnInit {
     private layerService: LayerService,
     private route: ActivatedRoute,
     private utils: UtilsService,
-    private drawerService: DrawerService
+    private drawerService: DrawerService,
+    private toastController: ToastController
   ) { }
 
   @Input() workorder: Workorder;
@@ -37,9 +40,10 @@ export class ReportAssetComponent implements OnInit {
 
   public currentTasksSelected: Task[];
   public editTaskEquipment: Task;
-  public draggableMarker: any;
-  public layerSelected: string;
+  public draggableMarker: Maplibregl.Marker;
+  public currentSelectionMessage: any;
   public inEditMode: boolean = false;
+  public layerSelected: string;
 
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -64,7 +68,13 @@ export class ReportAssetComponent implements OnInit {
           this.draggableMarker.remove();
           this.draggableMarker = null;
         }
-        this.draggableMarker = this.maplayerService.addMarker(res.x ? res.x : this.editTaskEquipment.longitude, res.y ? res.y : this.editTaskEquipment.latitude, asset.geom.coordinates);
+        this.draggableMarker = this.maplayerService.addMarker(
+          res.x ? res.x : this.editTaskEquipment.longitude,
+          res.y ? res.y : this.editTaskEquipment.latitude,
+          asset.geom.coordinates,
+          false,
+          'green'
+        );
       }
     });
 
@@ -75,8 +85,14 @@ export class ReportAssetComponent implements OnInit {
     if (this.workorder.tasks.length === 1 && this.selectedTasks.length === 0) {
       setTimeout(() => {
         this.onSelectTask(this.workorder.tasks[0]);
+        // We set by default to edit mode if it's an xy
+        if (this.workorder.tasks[0].assObjTable.includes('_xy')) {
+          this.onEditEquipment(this.workorder.tasks[0]);
+        }
       });
     }
+
+
   }
 
   /**
@@ -129,11 +145,13 @@ export class ReportAssetComponent implements OnInit {
    */
   public onEditEquipment(tsk: Task) {
     this.inEditMode = true;
+    this.showSelectionMessage();
 
     // Si ce n'est pas un xy ou un equipement temporaire
     // On place le marqueur sur les coordonnées de l'équipement en base
     if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
-      this.layerService.getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef).then(result => {
+      this.layerService.getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef).then(async (result) => {
+        // this.maplayerService.hideFeature('workorder', tsk.id.toString());
         this.draggableMarker = this.maplayerService.addMarker(
           tsk.longitude,
           tsk.latitude,
@@ -167,35 +185,41 @@ export class ReportAssetComponent implements OnInit {
    * Validate the equipment change
    * @param tsk the task to update
    */
-  public onValidateChangeEquipment(tsk: Task) {
-    let feature: any = this.maplayerService.getFeatureById("task", tsk.id + '');
-    tsk.longitude = this.draggableMarker.getLngLat().lng;
-    tsk.latitude = this.draggableMarker.getLngLat().lat;
-    if(feature) {
-      feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
-    } else {
-      feature = {
-        id: tsk.id +'',
-        geometry: {
-          coordinates : [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat],
-          type: "Point"
+  public onValidateChangeEquipment() {
+    if (this.inEditMode) {
+      const tsk = this.workorder.tasks[0];
+
+      let feature: any = this.maplayerService.getFeatureById("task", tsk.id + '');
+      tsk.longitude = this.draggableMarker.getLngLat().lng;
+      tsk.latitude = this.draggableMarker.getLngLat().lat;
+      if (feature) {
+        feature.geometry.coordinates = [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat];
+      } else {
+        feature = {
+          id: tsk.id + '',
+          geometry: {
+            coordinates: [this.draggableMarker.getLngLat().lng, this.draggableMarker.getLngLat().lat],
+            type: "Point"
+          }
         }
       }
-    }
 
-    this.mapService.updateFeatureGeometry("task", feature);
-    if (this.workorder.id > 0) {
-      this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
+      this.mapService.updateFeatureGeometry("task", feature);
+      if (this.workorder.id > 0) {
+        this.maplayerService.updateLocalGeometryFeatureById("task", tsk.id + '', feature.geometry.coordinates);
+      }
+      this.workorder.latitude = tsk.latitude;
+      this.workorder.longitude = tsk.longitude;
+      if (this.draggableMarker) {
+        this.draggableMarker.remove();
+        this.draggableMarker = null;
+      }
+      this.mapEventService.isFeatureFiredEvent = false;
+      this.editTaskEquipment = null;
+      this.onSaveWorkOrderState.emit();
+
+      this.removeSelectionMessage();
     }
-    this.workorder.latitude = tsk.latitude;
-    this.workorder.longitude = tsk.longitude;
-    if (this.draggableMarker) {
-      this.draggableMarker.remove();
-      this.draggableMarker = null;
-    }
-    this.mapEventService.isFeatureFiredEvent = false;
-    this.editTaskEquipment = null;
-    this.onSaveWorkOrderState.emit();
   }
 
   /**
@@ -203,6 +227,8 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk task change to remove
    */
   public onRemoveChangeEquipment(tsk: Task) {
+    this.inEditMode = false;
+
     if (!tsk.assObjTable.includes('_xy')) {
       this.mapService.getMap().setFeatureState(
         { source: tsk.assObjTable, id: tsk.assObjRef },
@@ -217,21 +243,6 @@ export class ReportAssetComponent implements OnInit {
       this.draggableMarker.remove();
       this.draggableMarker = null;
     }
-  }
-
-  /**
-   * Edit task to x y one
-   * @param tsk task change to xy
-   */
-  public onXyEquipment(tsk: Task) {
-    this.draggableMarker.remove();
-    this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, [tsk.longitude as any, tsk.latitude as any], true);
-    this.mapService.getMap().setFeatureState(
-      { source: tsk.assObjTable, id: tsk.assObjRef },
-      { selected: false }
-    );
-    tsk.assObjTable = 'aep_xy';
-    tsk.assObjRef = null;
   }
 
   /**
@@ -326,6 +337,21 @@ export class ReportAssetComponent implements OnInit {
         });
       });
     })
+  }
+
+  private async showSelectionMessage() {
+    this.currentSelectionMessage = await this.toastController.create({
+      message: 'Sélectionner patrimoine sur la carte',
+      position: 'top',
+      color: 'light'
+    });
+    await this.currentSelectionMessage.present();
+  }
+
+  private removeSelectionMessage() {
+    if (this.currentSelectionMessage) {
+      this.currentSelectionMessage.remove();
+    }
   }
 
   ngOnDestroy(): void {

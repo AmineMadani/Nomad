@@ -26,7 +26,7 @@
             </div>
 
             <button type="button" class="step-button" (click)="onNext()"
-              [disabled]="!selectedTasks || selectedTasks.length === 0">
+              [disabled]="!selectedTasks || selectedTasks.length === 0 || hasXYInvalid">
               <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
               <span>Etape suivante</span>
             </button>
