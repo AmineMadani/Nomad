@@ -22,7 +22,7 @@ export class ReportContextComponent implements OnInit {
   ) { }
 
   @Input() workorder: Workorder;
-  @Input() tasks: Task[];
+  @Input() selectedTasks: Task[];
   @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('modalReportContext') modal: IonModal;
@@ -37,17 +37,17 @@ export class ReportContextComponent implements OnInit {
       //Keep all the original options for the user before any filter
       this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
 
-      if (!this.originalOptions.find(option => this.tasks[0].assObjTable == option.lyrTableName && option.wtrId === this.tasks[0].wtrId)) {
-        this.tasks[0].wtrId = null;
+      if (!this.originalOptions.find(option => this.selectedTasks[0].assObjTable == option.lyrTableName && option.wtrId === this.selectedTasks[0].wtrId)) {
+        this.selectedTasks[0].wtrId = null;
       } else {
         //In case if the attribute value exist, it take the priority
-        this.valueKey = this.tasks[0].wtrId;
-        this.tasks[0].wtrCode = this.originalOptions.find(val => val.wtrId === this.tasks[0].wtrId).wtrCode;
-        this.tasks[0].astCode = this.originalOptions.find(val => val.lyrTableName === this.tasks[0].assObjTable).astCode;
+        this.valueKey = this.selectedTasks[0].wtrId;
+        this.selectedTasks[0].wtrCode = this.originalOptions.find(val => val.wtrId === this.selectedTasks[0].wtrId).wtrCode;
+        this.selectedTasks[0].astCode = this.originalOptions.find(val => val.lyrTableName === this.selectedTasks[0].assObjTable).astCode;
       }
 
       // The 'Pose' reason is only accessible if its the initial value
-      if (this.tasks[0].wtrCode !== WTR_CODE_POSE) {
+      if (this.selectedTasks[0].wtrCode !== WTR_CODE_POSE) {
         // Else filter it from the list
         this.originalOptions = this.originalOptions.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
       }
@@ -56,7 +56,7 @@ export class ReportContextComponent implements OnInit {
       this.getValueLabel();
     });
 
-    this.displayAndZoomTo(this.tasks[0]);
+    this.displayAndZoomTo(this.selectedTasks[0]);
   }
 
   /**
@@ -83,7 +83,7 @@ export class ReportContextComponent implements OnInit {
    * @returns the list of options
    */
   public getFilterOptions(querySearch: string): any[] {
-    let options = this.originalOptions?.filter(option => this.tasks[0].assObjTable == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
+    let options = this.originalOptions?.filter(option => this.selectedTasks[0].assObjTable == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
     return options;
   }
 
@@ -103,7 +103,7 @@ export class ReportContextComponent implements OnInit {
   public onRadioChange(event) {
     const obj = this.originalOptions.find(val => val.wtrId === event.detail.value);
     this.valueKey = obj.wtrId;
-    for(let task of this.tasks) {
+    for(let task of this.selectedTasks) {
       task.wtrId = obj.wtrId;
       task.wtrCode = this.originalOptions.find(val => val.wtrId === task.wtrId).wtrCode;
       task.astCode = this.originalOptions.find(val => val.lyrTableName === task.assObjTable).astCode;
@@ -117,8 +117,8 @@ export class ReportContextComponent implements OnInit {
    * @returns the label
    */
   public getValueLabel(): string {
-    if (this.tasks[0].wtrId && this.originalOptions?.length > 0) {
-      return this.originalOptions.find(opt => opt.wtrId === this.tasks[0].wtrId).wtrLlabel;
+    if (this.selectedTasks[0].wtrId && this.originalOptions?.length > 0) {
+      return this.originalOptions.find(opt => opt.wtrId === this.selectedTasks[0].wtrId).wtrLlabel;
     }
     return "";
   }

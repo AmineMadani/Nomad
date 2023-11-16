@@ -318,17 +318,6 @@ export class ReportCreateComponent implements OnInit {
     );
   }
 
-  public onNewAsset() {
-    this.drawerService.navigateTo(
-      DrawerRouteEnum.NEW_ASSET,
-      [],
-      {
-        draft: this.workorder.id,
-        step: 'report'
-      }
-    );
-  }
-
   /**
    * If there is a XY Asset with reason other than 'Enquête' (16 or 19) and 'Réaliser un métré' (13)
    * The user must choose an existing asset or create a new one

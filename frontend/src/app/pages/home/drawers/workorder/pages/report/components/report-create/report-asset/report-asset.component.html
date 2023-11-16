@@ -1,16 +1,16 @@
 <div class="report-asset">
   <!-- action buttons -->
   <ion-tab-bar class="action-buttons">
-    <ion-tab-button *ngIf="workorder.tasks.length === 1">
+    <ion-tab-button *ngIf="workorder.tasks.length === 1" (click)="onEditEquipment(workorder.tasks[0])">
       <ion-icon name="pencil-outline"></ion-icon>
       Modifier le patrimoine
     </ion-tab-button>
     <ion-tab-button>
-      <ion-icon name="aperture-outline"></ion-icon>
+      <ion-icon src="assets/icon/polygonal.svg"></ion-icon>
       Multi-sélection
     </ion-tab-button>
-    <ion-tab-button>
-      <ion-icon name="add-outline"></ion-icon>
+    <ion-tab-button (click)="onNewAsset()">
+      <ion-icon name="refresh-outline"></ion-icon>
       Créer un patrimoine
     </ion-tab-button>
     <ion-tab-button *ngIf="hasReportClosed()" class="close-report-button" (click)="onCloseCircuit()">
@@ -24,7 +24,7 @@
     <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
       (mouseleave)="onItemHoverLeave(tsk)">
       <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
-        [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask($event,tsk)"
+        [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
         [disabled]="(layerSelected ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
       <div style="display: inline-block;">
         <ion-label>

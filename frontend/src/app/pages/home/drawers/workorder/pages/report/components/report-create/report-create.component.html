@@ -85,7 +85,7 @@
       </ng-container>
 
       <ng-container *ngSwitchCase="ReportStepEnum.CONTEXT">
-        <app-report-context [workorder]="workorder" [tasks]="selectedTasks"
+        <app-report-context [workorder]="workorder" [selectedTasks]="selectedTasks"
           (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
       </ng-container>
 

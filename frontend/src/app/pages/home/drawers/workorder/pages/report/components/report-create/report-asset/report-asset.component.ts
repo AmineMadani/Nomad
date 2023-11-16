@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { Layer } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
+import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -22,7 +24,8 @@ export class ReportAssetComponent implements OnInit {
     private mapEventService: MapEventService,
     private layerService: LayerService,
     private route: ActivatedRoute,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private drawerService: DrawerService
   ) { }
 
   @Input() workorder: Workorder;
@@ -36,13 +39,13 @@ export class ReportAssetComponent implements OnInit {
   public editTaskEquipment: Task;
   public draggableMarker: any;
   public layerSelected: string;
+  public inEditMode: boolean = false;
 
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private oldEquipment: any;
 
   ngOnInit() {
-
     this.displayAndZoomToPlannedWko(this.workorder);
 
     this.layerService.getAllLayers().then((layers: Layer[]) => {
@@ -67,6 +70,13 @@ export class ReportAssetComponent implements OnInit {
 
     this.currentTasksSelected = this.selectedTasks;
     this.layerSelected = this.selectedTasks[0]?.assObjTable;
+
+    // We select by default the asset in a mono case.
+    if (this.workorder.tasks.length === 1 && this.selectedTasks.length === 0) {
+      setTimeout(() => {
+        this.onSelectTask(this.workorder.tasks[0]);
+      });
+    }
   }
 
   /**
@@ -74,7 +84,7 @@ export class ReportAssetComponent implements OnInit {
    * @param e event
    * @param task selected task
    */
-  public onSelectTask(e: Event, task: Task) {
+  public onSelectTask(task: Task) {
     if (this.currentTasksSelected && this.currentTasksSelected.find(tsk => tsk.id == task.id)) {
       this.currentTasksSelected.find(tsk => tsk.id == task.id).isSelectedTask = false;
       this.currentTasksSelected = this.currentTasksSelected.filter(tsk => tsk.id != task.id);
@@ -102,18 +112,46 @@ export class ReportAssetComponent implements OnInit {
     }
   }
 
+  public onNewAsset() {
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.NEW_ASSET,
+      [],
+      {
+        draft: this.workorder.id,
+        step: 'report'
+      }
+    );
+  }
+
   /**
    * Edit equipment
    * @param tsk  Task equipment to edit
    */
   public onEditEquipment(tsk: Task) {
+    this.inEditMode = true;
 
+    // Si ce n'est pas un xy ou un equipement temporaire
+    // On place le marqueur sur les coordonnées de l'équipement en base
     if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
       this.layerService.getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef).then(result => {
-        this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, result.geom.coordinates);
-      })
-    } else {
-      this.draggableMarker = this.maplayerService.addMarker(tsk.longitude, tsk.latitude, [tsk.longitude as any, tsk.latitude as any], true);
+        this.draggableMarker = this.maplayerService.addMarker(
+          tsk.longitude,
+          tsk.latitude,
+          result.geom.coordinates,
+          false,
+          'green'
+        );
+      });
+    }
+    // Sinon on place sur les coordonnées de la tâche
+    else {
+      this.draggableMarker = this.maplayerService.addMarker(
+        tsk.longitude,
+        tsk.latitude,
+        [tsk.longitude as any, tsk.latitude as any],
+        true,
+        'green'
+      );
     }
     this.mapEventService.isFeatureFiredEvent = true;
     this.editTaskEquipment = tsk;
