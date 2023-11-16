@@ -132,6 +132,37 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_function_patrimony_search",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_function_patrimony_search.sql",
+                            "splitStatements": "false"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_update_visible_layer_configuration",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/update_visible_layer_configuration.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

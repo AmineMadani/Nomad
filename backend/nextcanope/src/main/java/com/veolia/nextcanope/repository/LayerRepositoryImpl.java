@@ -63,4 +63,17 @@ public class LayerRepositoryImpl {
         );
     }
 
+	/**
+	 * Search in all visible assets  with a matching id and for contract of the user
+	 * @param partialAssetId   A piece of the asset id
+	 * @param userId The user id
+	 * @return Json of all matching with partialAssetID assets
+	 */
+	public String searchAssetById(String partialAssetId, Long userId){
+
+		return  this.jdbcTemplate.queryForObject(
+				"SELECT * FROM nomad.f_get_search_asset_from_id(?,?)",
+				String.class,partialAssetId, userId.intValue()
+		);
+	}
 }
