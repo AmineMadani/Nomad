@@ -5,15 +5,17 @@ import {
   HttpEvent,
   HttpInterceptor,
 } from '@angular/common/http';
-import { Observable, from, lastValueFrom } from 'rxjs';
+import { EMPTY, Observable, from, lastValueFrom } from 'rxjs';
 import { ConfigurationService } from '../services/configuration.service';
 import { KeycloakService } from '../services/keycloak.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   constructor(
     private configurationService: ConfigurationService,
-    private keycloakService: KeycloakService
+    private keycloakService: KeycloakService,
+    private route: Router
   ) {}
 
   public intercept(
@@ -31,7 +33,10 @@ export class TokenInterceptor implements HttpInterceptor {
         try {
           await this.keycloakService.refreshToken();
         } catch (error) {
-          console.error("Error token refreshed in interceptor",error);
+          if(error.error?.error && error.error?.error == 'invalid_grant') {
+            this.route.navigate(['error'],{queryParams:{error:'invalid_grant'}});
+            return lastValueFrom(EMPTY);
+          }
         }
       }
       const token = this.keycloakService.getAccessToken();

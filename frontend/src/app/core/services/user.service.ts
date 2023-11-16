@@ -15,7 +15,8 @@ import { MapService } from './map/map.service';
  */
 export enum LocalStorageUserKey {
   USER = 'user',
-  USER_CONTEXT = 'userContext'
+  USER_CONTEXT = 'userContext',
+  STORAGE_OAUTH = 'storage_oauth'
 }
 
 @Injectable({
@@ -87,10 +88,6 @@ export class UserService {
       }
     }
 
-    if (!res) {
-      this.router.navigate(['/error']);
-    }
-
     this.preferenceService.setPreference(LocalStorageUserKey.USER, res);
 
     return res;
@@ -110,6 +107,14 @@ export class UserService {
    */
   public resetUser(): void {
     this.preferenceService.deletePreference(LocalStorageUserKey.USER);
+  }
+
+  /**
+   * Remove the local user session from local storage.
+   */
+  public resetLocalSession(): void {
+    this.preferenceService.deletePreference(LocalStorageUserKey.USER);
+    this.preferenceService.deletePreference(LocalStorageUserKey.STORAGE_OAUTH);
   }
 
   /**

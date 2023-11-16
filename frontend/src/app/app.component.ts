@@ -51,7 +51,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public userProfile: any;
-  public hasValidAccessToken = false;
   public realmRoles: string[] = [];
 
   public isMobile: boolean;

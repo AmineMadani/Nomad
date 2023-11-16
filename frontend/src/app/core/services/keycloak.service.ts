@@ -55,24 +55,28 @@ export class KeycloakService {
       this.refreshToken();
     } 
     
-    if(!this.hasValidToken()) {
+    if(!this.hasValidRefreshToken()) {
       this.oauthService.loadDiscoveryDocument().then(document => {
         console.log("[Keycloak] - Initialisation - document");
         this.oauthService.tryLogin().then(trylogin => {
           console.log("[Keycloak] - Initialisation - trylogin");
         }).catch(error => {
           console.error("[Keycloak] - Initialisation - trylogin",error);
-          this.router.navigate(['/error']);
+          this.router.navigate(['/error'],{queryParams:{error:'keycloak_off'}});
         })
       }).catch(error => {
         console.error("[Keycloak] - Initialisation - document",error);
-        this.router.navigate(['/error']);
+        this.router.navigate(['/error'],{queryParams:{error:'keycloak_off'}});
       })
     }
   }
 
   public hasValidToken(): boolean {
     return this.oauthService.hasValidAccessToken();
+  }
+
+  public hasValidRefreshToken(): boolean {
+    return this.oauthService.getRefreshToken() != null
   }
 
   public async refreshToken(): Promise<TokenResponse> {
@@ -157,7 +161,7 @@ export class KeycloakService {
         // Only interested in redirects to myschema://login
         return;
       } else {
-        if(!this.oauthService.hasValidAccessToken()){
+        if(!this.hasValidRefreshToken()){
           if(!url.href.replace(url.origin,'').includes('/login')) {
             this.mobileUrlState=url.href.replace(url.origin,''); //Save the last state url in mobile case
           }
@@ -183,7 +187,7 @@ export class KeycloakService {
           .then(navigateResult => {
             // After updating the route, trigger login in oauthlib and
             this.oauthService.tryLogin().then(tryLoginResult => {
-              if (this.oauthService.hasValidAccessToken()) {
+              if (this.hasValidRefreshToken()) {
                 if(!this.praxedoService.externalReport) {
                   if(!url.href.replace(url.origin,'').includes('/login')) {
                     this.router.navigateByUrl(url.href.replace(url.origin,''));

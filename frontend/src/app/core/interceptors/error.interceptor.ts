@@ -34,7 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           const isApiUrl = request.url.startsWith(this.configurationService.apiUrl);
           if (isApiUrl) {
             this.userService.resetUser();
-            this.router.navigate(['/error']);
+            this.router.navigate(['/error'],{queryParams:{error:'not_authorized'}});
           }
         }
         // If an error functional or technical appear, it shows a toast
