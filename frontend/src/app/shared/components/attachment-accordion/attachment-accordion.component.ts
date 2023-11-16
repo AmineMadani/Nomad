@@ -31,7 +31,9 @@ export class AttachmentAccordionComponent implements OnInit {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
 
-    this.getListAttachment();
+    if (this.workorder) {
+      this.getListAttachment();
+    }
   }
 
   public convertBitsToBytes(x): string {

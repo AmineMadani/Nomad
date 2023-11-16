@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Report, Task, Workorder } from 'src/app/core/models/workorder.model';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -10,11 +10,12 @@ import { Form } from 'src/app/shared/form-editor/models/form.model';
   templateUrl: './report-form.component.html',
   styleUrls: ['./report-form.component.scss'],
 })
-export class ReportFormComponent implements OnInit {
+export class ReportFormComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private templateService: TemplateService,
-    private utils: UtilsService
+    private utils: UtilsService,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   @Input() selectedTasks: Task[];
@@ -32,26 +33,20 @@ export class ReportFormComponent implements OnInit {
   public isLoading: boolean = true;
   public isMobile: boolean = false;
   public hasPreviousQuestion: boolean = false;
-
-  // To delete
   public canBeClosed: boolean = false;
 
   ngOnInit() {
     this.isMobile = this.utils.isMobilePlateform();
 
-    // Check if there's a previous question
-    if (this.selectedTasks[0].report && this.selectedTasks[0].report.questionIndex > 0) {
-      this.hasPreviousQuestion = true;
-    }
-    // // Check if the cr can be closed by verifying if the current question is the last one
-    // if (this.formEditor.indexQuestion + 1 >= this.formEditor.sections[0].children.length) {
-    //   this.canBeClosed = true;
-    // }
-
     if (this.isTest) {
       this.form = this.reportForm;
       this.isLoading = false;
       return;
+    }
+
+    // Check if there's a previous question
+    if (this.selectedTasks[0].report && this.selectedTasks[0].report.questionIndex > 0) {
+      this.hasPreviousQuestion = true;
     }
 
     this.templateService.getFormsTemplate().then(forms => {
@@ -64,6 +59,24 @@ export class ReportFormComponent implements OnInit {
       }
       this.isLoading = false;
     });
+  }
+
+  // After the view is checked we look the form editor component
+  // It permits to get the current question index
+  // And then to check if the cr can be closed
+  // We used the cdRef.detectChanges to avoid the NG0100 error
+  // And the formEditorChecked variable permit to made the action only one time
+  // To avoid performance issues
+  private formEditorChecked = false;
+  ngAfterViewChecked(): void {
+    if (!this.formEditorChecked && this.formEditor) {
+      if (this.formEditor.indexQuestion + 1 >= this.formEditor.sections[0].children.length) {
+        this.canBeClosed = true;
+        this.cdRef.detectChanges();
+      }
+
+      this.formEditorChecked = true;
+    }
   }
 
   /**
