@@ -422,14 +422,20 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'],
         this.selectedFeature['id']
       );
-      const recalculateCoords = this.mapLayerService.findNearestPoint(
-        equipment.geom.coordinates,
-        [
-          this.selectedFeature['properties']['x'],
-          this.selectedFeature['properties']['y'],
-        ]
-      );
-
+      let recalculateCoords : number[];
+      //Equipments have fixed coordinates
+      if (equipment.geom.type == "Point"){
+        recalculateCoords = [this.selectedFeature['properties']['x'], this.selectedFeature['properties']['y']];
+      }
+      else{
+        recalculateCoords = this.mapLayerService.findNearestPoint(
+          equipment.geom.coordinates,
+          [
+            this.selectedFeature['properties']['x'],
+            this.selectedFeature['properties']['y'],
+          ]
+        );
+      }
       let workorder: Workorder = {
         latitude: recalculateCoords[1],
         longitude: recalculateCoords[0],
