@@ -31,6 +31,10 @@ export interface Workorder {
     tempTravoWtrId?: number;
     travoCallbackUrl?: string;
     isUpdateReport?: boolean;
+    // end specific frontend variables for travo
+    wkoRealizationUser?: string;
+    wkoExtError?: string;
+
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
@@ -56,6 +60,8 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     ctrId: '',
     wkoAttachment: featureWorkorder.properties['wkoAttachment'],
     wkoExtToSync: featureWorkorder.properties['wkoExtSoSync'],
+    wkoRealizationUser: featureWorkorder.properties['wkoRealizationUser'],
+    wkoExtError: featureWorkorder.properties['wkoExtError'],
   };
 }
 

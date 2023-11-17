@@ -101,6 +101,15 @@
               <p>{{ workOrder.wkoAddress }}</p>
             </ion-label>
           </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoExtError">
+            <ion-label class="label">
+              <div class="item-rejet-synchro">
+                <h3>Motif de rejet</h3>
+                <ion-icon slot="start" size="medium"  name="alert-circle"></ion-icon>
+              </div>
+              <p>{{workOrder.wkoExtError}}</p>
+            </ion-label>
+          </ion-item>
         </div>
       </ion-accordion>
 
@@ -161,6 +170,18 @@
             <ion-label class="label">
               <h3>Commentaire</h3>
               <p>{{ workOrder.wkoCreationComment }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoCompletionEndDate">
+            <ion-label class="label">
+              <h3>Date de réalisation</h3>
+              <p>{{ workOrder.wkoCompletionEndDate | date: 'dd/MM/yyyy' }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoRealizationUser">
+            <ion-label class="label">
+              <h3>Agent</h3>
+              <p>{{workOrder.wkoRealizationUser}}</p>
             </ion-label>
           </ion-item>
         </div>

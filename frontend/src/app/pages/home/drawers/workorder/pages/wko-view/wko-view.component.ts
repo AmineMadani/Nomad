@@ -117,7 +117,7 @@ export class WkoViewComponent implements OnInit {
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CREATE_PROGRAM_MY_AREA
       );
-    this.userHasPermissionCancelWorkorder = 
+    this.userHasPermissionCancelWorkorder =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CANCEL_WORKORDER
       );
@@ -198,6 +198,7 @@ export class WkoViewComponent implements OnInit {
             : null;
           this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
           this.loading = false;
+
         });
       });
   }

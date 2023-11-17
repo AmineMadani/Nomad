@@ -19,7 +19,7 @@ h3.break-line > span {
     height: auto;
     display: inline-block;
     max-width: 100%;
-  } 
+  }
 
 .attachment-div {
     display: flex;
@@ -47,4 +47,14 @@ h3.break-line > span {
             font-weight: bold;
         }
     }
+  }
+.item-rejet-synchro {
+    display: flex;
+    flex-direction: row !important;
+    ion-icon{
+      color: var(--ion-color-tertiary-tint);
+      padding-top: 5px;
+      padding-left: 5px;
+    }
+
 }

@@ -58,6 +58,27 @@ public class WorkorderDto {
 
     private Integer wkoAffair;
 
+    private String wkoRealizationUser;
+
+    private String wkoExtError;
+
+    public String getWkoExtError() {
+        return wkoExtError;
+    }
+
+    public void setWkoExtError(String wkoExtError) {
+        this.wkoExtError = wkoExtError;
+    }
+
+    public String getWkoRealizationUser() {
+        return wkoRealizationUser;
+    }
+
+    public void setWkoRealizationUser(String wkoRealizationUser) {
+        this.wkoRealizationUser = wkoRealizationUser;
+    }
+
+
     public Long getId() {
         return id;
     }
@@ -160,23 +181,23 @@ public class WorkorderDto {
         this.wkoAgentNb = wkoAgentNb;
     }
 
-	public List<TaskDto> getTasks() {
-		return tasks;
-	}
+    public List<TaskDto> getTasks() {
+        return tasks;
+    }
 
     public boolean getWkoExtToSync() { return  wkoExtToSync;}
 
-	public void setTasks(List<TaskDto> tasks) {
-		this.tasks = tasks;
-	}
+    public void setTasks(List<TaskDto> tasks) {
+        this.tasks = tasks;
+    }
 
-	public Boolean getWkoAppointment() {
-		return wkoAppointment;
-	}
+    public Boolean getWkoAppointment() {
+        return wkoAppointment;
+    }
 
-	public void setWkoAppointment(Boolean wkoAppointment) {
-		this.wkoAppointment = wkoAppointment;
-	}
+    public void setWkoAppointment(Boolean wkoAppointment) {
+        this.wkoAppointment = wkoAppointment;
+    }
 
     public Long getCtrId() {
         return ctrId;
@@ -202,9 +223,9 @@ public class WorkorderDto {
         this.wkoCancelComment = wkoCancelComment;
     }
 
-	public WorkorderDto() {
-		super();
-	}
+    public WorkorderDto() {
+        super();
+    }
 
     public Long getCtyId() {
         return ctyId;
@@ -227,20 +248,20 @@ public class WorkorderDto {
     }
 
     public Date getWkoDmod() {
-		return wkoDmod;
-	}
+        return wkoDmod;
+    }
 
-	public void setWkoDmod(Date wkoDmod) {
-		this.wkoDmod = wkoDmod;
-	}
-	
-	public Long getWkoCacheId() {
-		return wkoCacheId;
-	}
+    public void setWkoDmod(Date wkoDmod) {
+        this.wkoDmod = wkoDmod;
+    }
 
-	public void setWkoCacheId(Long wkoCacheId) {
-		this.wkoCacheId = wkoCacheId;
-	}
+    public Long getWkoCacheId() {
+        return wkoCacheId;
+    }
+
+    public void setWkoCacheId(Long wkoCacheId) {
+        this.wkoCacheId = wkoCacheId;
+    }
 
     public Integer getWkoAffair() {
         return wkoAffair;
@@ -250,7 +271,7 @@ public class WorkorderDto {
         this.wkoAffair = wkoAffair;
     }
 
-	public WorkorderDto(Workorder workorder) {
+    public WorkorderDto(Workorder workorder) {
         super();
         this.id = workorder.getId();
         this.wkoName = workorder.getWkoName();
@@ -270,20 +291,22 @@ public class WorkorderDto {
         this.wkoDmod = workorder.getWkoDmod();
         this.wkoCacheId = workorder.getWkoCacheId();
         if(workorder.getCity() != null) {
-        	this.ctyId = workorder.getCity().getId();
+            this.ctyId = workorder.getCity().getId();
         }
         this.tasks = new ArrayList<>();
         this.wkoCreationComment = workorder.getWkoCreationComment();
         this.wkoCancelComment = workorder.getWkoCancelComment();
         this.wkoAttachment = workorder.getWkoAttachment();
         for(Task task: workorder.getListOfTask()) {
-        	TaskDto taskDto = new TaskDto(task);
-        	this.tasks.add(taskDto);
-        	if(taskDto.getCtrId() != null) {
-        		this.ctrId = taskDto.getCtrId();
-        	}
+            TaskDto taskDto = new TaskDto(task);
+            this.tasks.add(taskDto);
+            if(taskDto.getCtrId() != null) {
+                this.ctrId = taskDto.getCtrId();
+            }
         }
         this.wkoExtToSync=workorder.getWkoExtToSync();
         this.wkoAffair= workorder.getWkoAffair();
+        this.wkoExtError = workorder.getWkoExtError();
+        this.wkoRealizationUser = workorder.getWkoRealizationUser();
     }
 }
