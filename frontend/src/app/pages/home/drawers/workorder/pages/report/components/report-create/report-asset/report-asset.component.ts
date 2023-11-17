@@ -517,7 +517,9 @@ export class ReportAssetComponent implements OnInit {
 
             this.workorder.tasks.push(task);
 
-            this.onSelectTask(task);
+            if (!this.layerSelected || task.assObjTable === this.layerSelected) {
+              this.onSelectTask(task);
+            }
           }
         }
 
