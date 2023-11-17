@@ -145,8 +145,8 @@ export class WorkorderService {
           search.wtsIds.includes(a.properties.wtsId)) &&
         (search.wkoAppointment === null ||
           a.properties.wkoAppointment === search.wkoAppointment) &&
-        (search.wkoEmergeny === null ||
-          a.properties.wkoEmergency === search.wkoEmergeny) &&
+        (search.wkoEmergency === null ||
+          a.properties.wkoEmergency === search.wkoEmergency) &&
         ((a.properties.wkoPlanningStartDate === null &&
           a.properties.tskCompletionStartDate === null) ||
           ((a.properties.tskCompletionStartDate ??

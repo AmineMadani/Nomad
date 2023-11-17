@@ -52,9 +52,15 @@
                     <ion-select-option *ngFor="let componentType of LIST_RQN_TYPE" [value]="componentType.value">{{componentType.label}}</ion-select-option>
                   </ion-select>
 
-                  <ion-checkbox aria-label="required" formControlName="isRequired" labelPlacement="end" justify="start">
-                    Champ obligatoire
-                  </ion-checkbox>
+                  <div>
+                    <ion-checkbox aria-label="required" formControlName="isRequired" labelPlacement="end" justify="start">
+                      Champ obligatoire
+                    </ion-checkbox>
+
+                    <ion-checkbox aria-label="canBeDeleted" formControlName="canBeDeleted" labelPlacement="end" justify="start" style="margin-left: 24px;">
+                      Question supprimable
+                    </ion-checkbox>
+                  </div>
 
                   <ng-container *ngIf="getListAvailableQuestion(i).length > 0">
                     <div style="display: flex; flex-direction: row; align-items: center;">
@@ -97,6 +103,35 @@
         </div>
       </div>
 
+      <!-- Optional Question -->
+      <fieldset class="fieldset-class">
+        <legend align="left">Questions paramétrables</legend>
+
+        <div class="optional-question-div">
+          <app-search-select 
+            key="id" label="Question *" style="width: 40%"
+            [elements]="listAvailableOptionalQuestion" [control]="form.controls['optionalReportQuestionId']" 
+            [elementLabelFunction]="getReportQuestionLabel">
+          </app-search-select>
+
+          <ion-button fill="clear" class="small-button" (click)="addOptionalQuestion()" 
+              [disabled]="form.get('optionalReportQuestionId').value == null || isConsultation"
+              style="margin: 0 16px;">
+            Ajouter
+          </ion-button>
+
+          <div style="display: flex; flex-direction: column; height: 100%; width: 50%">
+            <app-generic-table style="flex: 1; min-height: 0;"
+              [toolbar]="toolbar"
+              [columns]="columns"
+              [rows]="listOptionalQuestionRows"
+              [selectedRows]="listSelectedOptionalQuestionRows"
+              [listColumnSort]="listColumnSort">
+            </app-generic-table>
+          </div>
+        </div>
+      </fieldset>
+      
     </form>
   </div>
 

@@ -3,7 +3,6 @@
     label="Action" [value]="getValueLabel()" (click)="onOpenModal()" [readonly]="true" />
 </div>
 
-
 <ion-accordion-group [multiple]="true" [value]="workorder.wkoCreationComment ? 'General' : ''">
   <ion-accordion value="General" *ngIf="workorder.wkoPlanningStartDate">
     <ion-item slot="header" color="light">
@@ -19,7 +18,7 @@
     </div>
   </ion-accordion>
   <!-- Attachments -->
-  <app-attachment-accordion [workorder]="workorder"></app-attachment-accordion>
+  <app-attachment-accordion [isReadOnly]="true" [workorder]="workorder"></app-attachment-accordion>
 </ion-accordion-group>
 
 <ion-modal class="report-context-modal"  #modalReportContext>

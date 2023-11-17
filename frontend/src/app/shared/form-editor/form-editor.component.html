@@ -134,7 +134,7 @@
     </ng-container>
     <ng-container *ngSwitchCase="'comment'">
       <app-form-comment [definition]="definition" [control]="form.controls[definition.key]"
-        [edit]="editMode"></app-form-comment>
+        [edit]="editMode" [workorder]="workorder"></app-form-comment>
     </ng-container>
   </ng-container>
 </ng-template>

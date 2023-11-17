@@ -13,6 +13,18 @@
       <ion-input labelPlacement="stacked" fill="outline" label="Code" placeholder="Code" type="text"
         formControlName="lseCode"></ion-input>
 
+      <div class= "layer-zoom" >
+        <ion-select [interface]="isMobile ? 'action-sheet' : 'popover'" aria-label="status" cancelText="Annuler" label="Definition Id" label-placement="floating" 
+          fill="outline" formControlName="definitionIdName" (ionChange)="selectedDefinitionId($event)"> 
+          <ion-select-option *ngFor="let source of definitionIdList" [value]="source.id">{{ source.label }}</ion-select-option>
+        </ion-select>
+
+        <ion-select [interface]="isMobile ? 'action-sheet' : 'popover'" aria-label="status" cancelText="Annuler" label="Zoom minimum" label-placement="floating" 
+          fill="outline" formControlName="minzoomValue" (ionChange)="selectedMinZoom($event)"> 
+          <ion-select-option *ngFor="let zoomValue of zoomValues" [value]="zoomValue">{{ zoomValue }}</ion-select-option>
+        </ion-select>
+      </div>
+
       <ion-textarea labelPlacement="stacked" fill="outline" label="Définition" placeholder="Définition" type="text-area"
         formControlName="sydDefinition"></ion-textarea>
 

@@ -11,17 +11,37 @@
       Import
       <input #fileUpload type="file" value="Upload" (change)="createFormDefinitionFromCSVFile($event)" style="display:none" accept=".csv" />
     </ion-button>
-    
+
     <ion-button fill="clear" slot="end" (click)="onDrawerClose()">
         <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
     </ion-button>
   </ion-item>
 
+  <!-- Actions -->
+  <div class="new-asset-footer-actions">
+    <ng-container *ngIf="!isSubmitting">
+      <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear"
+        (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
+      <ion-button *ngIf="step === 1"
+        [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'"
+        fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 2" [style.visibility]="coords.length === 0 ? 'hidden' : 'inherit'" fill="clear"
+        (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
+      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Valider</ion-button>
+    </ng-container>
+    <ng-container *ngIf="isSubmitting">
+      <ion-item lines="none" style="margin: auto;">
+        <ion-spinner name="circular" color="primary" style="margin-right: 10px;"></ion-spinner>
+        <ion-label>Clôture en cours...</ion-label>
+      </ion-item>
+    </ng-container>
+  </div>
+
   <!-- First step - Type of asset to create -->
   <ng-container *ngIf="step === 1 && indexFilterAssetSelection === 0">
     <div class="question">Sur quelle activité souhaitez-vous ajouter un patrimoine ?</div>
     <div class="answers">
-      <div *ngFor="let filterAsset of listFilterAsset" 
+      <div *ngFor="let filterAsset of listFilterAsset"
           (click)="selectFilterAsset(filterAsset)"
           class="answer"
           [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
@@ -33,7 +53,7 @@
   <ng-container *ngIf="step === 1 && indexFilterAssetSelection > 0">
     <div class="question">Quel patrimoine souhaitez-vous créer ?</div>
     <div class="answers">
-      <div *ngFor="let filterAsset of listChildFilterAsset" 
+      <div *ngFor="let filterAsset of listChildFilterAsset"
           (click)="selectFilterAsset(filterAsset)"
           class="answer"
           [class.selected]="listSelectedFilterAsset[indexFilterAssetSelection] === filterAsset">
@@ -47,7 +67,7 @@
     <div class="question">Selection de la position de {{selectedAsset.layerKey}}</div>
     <div class="answers">
       <ng-container *ngFor="let coord of coords; let i = index">
-        <p>Point {{i + 1}} - Lng: {{coord[0].toFixed(5)}} / Lat: {{coord[1].toFixed(5)}}</p> 
+        <p>Point {{i + 1}} - Lng: {{coord[0].toFixed(5)}} / Lat: {{coord[1].toFixed(5)}}</p>
       </ng-container>
     </div>
   </ng-container>
@@ -63,8 +83,8 @@
             <div *ngSwitchCase="'input'" class="input-div">
               <ion-input labelPlacement="floating" fill="outline"
                 [label]="definition.label"
-                [placeholder]="definition.attributes?.placeholder" 
-                [formControlName]="definition.key" 
+                [placeholder]="definition.attributes?.placeholder"
+                [formControlName]="definition.key"
                 [type]="definition.attributes?.type" />
 
               <ng-container *ngIf="definition.rules">
@@ -88,7 +108,7 @@
             </div>
           </ng-container>
         </ng-container>
-        
+
         <div class="additional-questions-div">
           <ng-container formArrayName="additionalQuestions">
             <ng-container *ngFor="let questionForm of additionalQuestions.controls; let i = index">
@@ -107,16 +127,16 @@
                     <ion-icon slot="icon-only" name="trash"></ion-icon>
                   </ion-button>
                 </div>
-              
+
                 <ng-container *ngIf="questionForm.get('definition').value != null">
                   <ng-container [ngSwitch]="questionForm.get('definition').value.component">
                     <div *ngSwitchCase="'input'" class="input-div">
                       <ion-input labelPlacement="floating" fill="outline"
                         label="Valeur"
-                        [placeholder]="questionForm.get('definition').value.attributes?.placeholder" 
-                        formControlName="value" 
+                        [placeholder]="questionForm.get('definition').value.attributes?.placeholder"
+                        formControlName="value"
                         [type]="questionForm.get('definition').value.attributes?.type" />
-        
+
                       <ng-container *ngIf="questionForm.get('definition').value.rules">
                         <ng-container *ngFor="let rule of questionForm.get('definition').value.rules">
                           <ng-container *ngIf="form.controls[questionForm.get('definition').value.key].hasError(rule.key) && form.controls[questionForm.get('definition').value.key].touched">
@@ -127,7 +147,7 @@
                         </ng-container>
                       </ng-container>
                     </div>
-    
+
                     <div *ngSwitchCase="'select'" class="input-div">
                       <ion-select label-placement="floating" fill="outline"
                         [interface]="isMobile ? 'action-sheet' : 'popover'"
@@ -158,21 +178,5 @@
       </ng-container>
     </div>
   </ng-container>
-
-  <!-- Actions -->
-  <div class="new-asset-footer-actions">
-    <ng-container *ngIf="!isSubmitting">
-      <ion-button [style.visibility]="step === 1 && indexFilterAssetSelection === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="previous()" [class.font-mobile]="isMobile">Précédent</ion-button>
-      <ion-button *ngIf="step === 1" [style.visibility]="indexFilterAssetSelection >= listSelectedFilterAsset.length ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
-      <ion-button *ngIf="step === 2" [style.visibility]="coords.length === 0 ? 'hidden' : 'inherit'" fill="clear" (click)="next()" [class.font-mobile]="isMobile">Suivant</ion-button>
-      <ion-button *ngIf="step === 3" fill="clear" (click)="create()" [class.font-mobile]="isMobile">Valider</ion-button>
-    </ng-container>
-    <ng-container *ngIf="isSubmitting">
-      <ion-item lines="none" style="margin: auto;">
-        <ion-spinner name="circular" color="primary" style="margin-right: 10px;"></ion-spinner>
-        <ion-label>Clôture en cours...</ion-label>
-      </ion-item>
-    </ng-container>
-  </div>
 </div>
 

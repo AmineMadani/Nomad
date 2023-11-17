@@ -1,62 +1,99 @@
-<ion-item lines="none" *ngIf="!isTest">
-  <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
-    <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
-  </ion-button>
-  <ion-label class="header-label">Compte-rendu</ion-label>
-  <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
+<div class="report-create">
+  <ion-item lines="none" *ngIf="!isTest">
+    <ion-button *ngIf="!isMobile" fill="clear" slot="start" (click)="onDrawerBack()">
+      <ion-icon size="small" slot="icon-only" name="arrow-back"></ion-icon>
+    </ion-button>
+    <ion-label class="header-label">Compte-rendu</ion-label>
+    <ion-icon *ngIf="workorder.id < 0" size="small" slot="end" name="trash-outline" (click)="onDelete()"></ion-icon>
 
-  <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
-</ion-item>
+    <ion-icon size="small" slot="end" name="close-outline" (click)="onClose()"></ion-icon>
+  </ion-item>
 
-<div class="filter-content">
-  <app-report-stepper [step]="step" *ngIf="!isTest"></app-report-stepper>
-  <ng-container *ngIf="step == 1">
-    <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks" (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()" #stepAsset></app-report-asset>
-  </ng-container>
-  <ng-container *ngIf="step == 2">
-    <app-report-context [workorder]="workorder" [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
-  </ng-container>
-  <ng-container *ngIf="step == 3">
-    <app-report-form [tasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
-      (goToNextQuestion)="nextFormQuestion()"
-      [reportForm]="reportForm" [isTest]="isTest" #stepForm></app-report-form>
-  </ng-container>
-  <ng-container *ngIf="step == 4">
-    <app-report-date #reportDate></app-report-date>
-  </ng-container>
-  <div *ngIf="step == 3" class="form-questions-count">
-    <ion-progress-bar [value]="getReportProgress()"></ion-progress-bar>
+  <div class="report-content">
+    <!-- Stepper which permit to navigate between the steps -->
+    <div *ngIf="!isTest" class="stepper">
+      <ion-list>
+        <ng-container *ngIf="step === 1">
+          <div class="stepper-header">
+            <div class="step-button" style="visibility: hidden;"></div>
+
+            <div class="stepper-title">
+              <ion-badge>1/3</ion-badge>
+              <ion-label>Patrimoine</ion-label>
+            </div>
+
+            <button type="button" class="step-button" (click)="onNext()"
+              [disabled]="!selectedTasks || selectedTasks.length === 0 || hasXYInvalid">
+              <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
+              <span>Etape suivante</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step === 2">
+          <div class="stepper-header">
+            <button type="button" class="step-button" (click)="onBack()">
+              <ion-icon size="small" slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+              <span>Etape précédente</span>
+            </button>
+
+            <div class="stepper-title">
+              <ion-badge>2/3</ion-badge>
+              <ion-label>Contexte</ion-label>
+            </div>
+
+            <button type="button" class="step-button" (click)="onNext()"
+              [disabled]="!selectedTasks || selectedTasks.length === 0 || !selectedTasks[0].wtrId">
+              <ion-icon size="small" slot="icon-only" name="chevron-forward-outline" color="primary"></ion-icon>
+              <span>Etape suivante</span>
+            </button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="step === 3">
+          <div class="stepper-header">
+            <button type="button" class="step-button" (click)="onBack()">
+              <ion-icon size="small" slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+              <span>Etape précédente</span>
+            </button>
+
+            <div class="stepper-title">
+              <ion-badge>3/3</ion-badge>
+              <ion-label>Formulaire</ion-label>
+            </div>
+
+            <div class="step-button" style="visibility: hidden;"></div>
+          </div>
+        </ng-container>
+      </ion-list>
+
+      <hr *ngIf="step < 3" class="separation-line" />
+    </div>
+
+    <!-- Main content which is different in terms of the current step -->
+    <ng-container [ngSwitch]="step">
+      <ng-container *ngSwitchCase="ReportStepEnum.ASSET">
+        <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks"
+          (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+          (onClosedWko)="onClosedWko($event)" (goToDateStep)="goToDateStep()"
+          #stepAsset>
+        </app-report-asset>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.CONTEXT">
+        <app-report-context [workorder]="workorder" [selectedTasks]="selectedTasks"
+          (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.FORM">
+        <app-report-form [selectedTasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+          (onClosedWko)="onClosedWko($event)"  (goToDateStep)="goToDateStep()"
+          [workorder]="workorder" [reportForm]="reportForm" [isTest]="isTest">
+        </app-report-form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="ReportStepEnum.DATE">
+        <app-report-date [workorder]="workorder" [selectedTasks]="selectedTasks"
+          (onClosedWko)="onClosedWko($event)"></app-report-date>
+      </ng-container>
+    </ng-container>
   </div>
-</div>
-<div class="report-footer-actions" lines="none">
-  <ng-container *ngIf="!isSubmitting">
-    <ion-button *ngIf="step == 1 && !workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onEditTask()" [class.font-mobile]="isMobile">Editer les équipements</ion-button>
-    <ion-button *ngIf="step == 1 && workorder.wkoPlanningStartDate" fill="clear" style="float: left;" (click)="onNewAsset()" [class.font-mobile]="isMobile">Créer un patrimoine</ion-button>
-    <ion-button *ngIf="(step >= 2 && !hasPreviousQuestion && !isTest) || step == 4" fill="clear" style="float: left;" (click)="onBack()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
-    <div *ngIf="step >= 2 && !hasPreviousQuestion && isTest"></div>
-    <ion-button *ngIf="(step == 1 && selectedTasks && selectedTasks.length > 0) || (step == 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)" fill="clear" style="margin-left: auto;" (click)="onNext()" [class.font-mobile]="isMobile" [disabled]="hasXYInvalid">Etape suivante</ion-button>
-    <ion-button *ngIf="(step == 3) && hasPreviousQuestion" fill="clear" (click)="previousFormQuestion()" [class.font-mobile]="isMobile">Question précédente</ion-button>
-    <ion-button *ngIf="step == 3 && !isSubmit" fill="clear" (click)="nextFormQuestion()" [class.font-mobile]="isMobile">Question suivante</ion-button>
-    <ion-button *ngIf="step == 4" fill="clear" (click)="onConfirmDate()" [class.font-mobile]="isMobile">Valider</ion-button>
-    <ion-button *ngIf="isSubmit && !isTest && step != 4" fill="clear" (click)="submitForm()" [class.font-mobile]="isMobile">Clôturer</ion-button>
-    <ion-fab *ngIf="(step == 1 && hasReportClosed())" class="fab-terminate">
-      <ion-fab-button color="danger" (click)="submitForm(true)">
-        <ion-icon name="close-outline"></ion-icon>
-      </ion-fab-button>
-      <div *ngIf="!isMobile" class="fab-terminate-text">
-        Clôturer circuit
-      </div>
-    </ion-fab>
-    <ion-fab *ngIf="(step == 3 && !isSubmitting && !this.isTest)" (click)="onGoToFirstStep()" class="fab-return">
-      <ion-fab-button color="secondary" size="small">
-        <ion-icon name="arrow-undo-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
-  </ng-container>
-  <ng-container *ngIf="isSubmitting">
-    <ion-item lines="none" style="margin: auto;">
-      <ion-spinner name="circular" color="primary" style="margin-right: 10px;"></ion-spinner>
-      <ion-label>Clôture en cours...</ion-label>
-    </ion-item>
-  </ng-container>
 </div>

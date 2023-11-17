@@ -27,14 +27,15 @@
       </ion-fab-button>
     </ion-fab>
 
-    <div class="calculation-box  no-print" id="calculation-box" [class.calculation-box-mobile]="isMobile" *ngIf="getMeasuringCondition() && !isMobile">
+    <div class="calculation-box  no-print" id="calculation-box" [class.calculation-box-mobile]="isMobile"
+      *ngIf="getMeasuringCondition() && !isMobile">
       <span [innerHTML]="measure"></span>
     </div>
   </ng-container>
 
 
-  <div *ngIf="map" class="right-buttons no-print" [class.mobile-buttons]="isMobile">
-      <ion-fab (click)="onResetRotation()">
+  <div *ngIf="map" class="right-buttons no-print">
+    <ion-fab (click)="onResetRotation()">
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
         <ion-icon name="compass-outline"></ion-icon>
       </ion-fab-button>
@@ -46,19 +47,17 @@
       </ion-fab-button>
     </ion-fab>
 
-    <ng-container *ngIf="!isMobile">
-      <ion-fab (click)="onZoomChange(zoom + 1)">
-        <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
-          <ion-icon name="add-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
+    <ion-fab (click)="onZoomChange(zoom + 1)">
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
 
-      <ion-fab>
-        <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="onZoomChange(zoom - 1)">
-          <ion-icon name="remove-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
-    </ng-container>
+    <ion-fab>
+      <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="onZoomChange(zoom - 1)">
+        <ion-icon name="remove-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
   </div>
 </div>
 
@@ -83,19 +82,14 @@
   </ion-list>
 </div>
 
-<ion-modal #ionModalMeasure
-  [backdropBreakpoint]="0.1"
-  [breakpoints]="[0,0.1,0.25]"
-  (didDismiss)="measureModalDismissed($event)"
-  [isOpen]="getShouldOpenMobileMeasure()"
-  [initialBreakpoint]="0.1"
-  [showBackdrop]="false"
-  >
+<ion-modal #ionModalMeasure [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1,0.25]"
+  (didDismiss)="measureModalDismissed($event)" [isOpen]="getShouldOpenMobileMeasure()" [initialBreakpoint]="0.1"
+  [showBackdrop]="false">
   <ng-template>
     <ion-content class="ion-padding">
-    <div class="mobile-area-measure">
-      <span [innerHTML]="measure"></span>
-    </div>
+      <div class="mobile-area-measure">
+        <span [innerHTML]="measure"></span>
+      </div>
     </ion-content>
-    </ng-template>
-  </ion-modal>
+  </ng-template>
+</ion-modal>

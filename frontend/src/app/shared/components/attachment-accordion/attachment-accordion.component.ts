@@ -5,7 +5,6 @@ import { DateTime } from 'luxon';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { Navigation } from 'swiper';
 import { AttachmentImageViewerComponent } from './attachment-image-viewer/attachment-image-viewer.component';
 import { Attachment } from 'src/app/core/models/attachment.model';
 
@@ -23,6 +22,7 @@ export class AttachmentAccordionComponent implements OnInit {
 
   @Input("workorder") workorder: Workorder;
   @Input("isReadOnly") isReadOnly: boolean = false;
+  @Input("showOnlyCurrentImages") showOnlyCurrentImages: boolean = false;
 
   public isMobile: boolean;
 
@@ -32,7 +32,9 @@ export class AttachmentAccordionComponent implements OnInit {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
 
-    this.getListAttachment();
+    if (this.workorder) {
+      this.getListAttachment();
+    }
   }
 
   public convertBitsToBytes(x): string {
@@ -79,7 +81,12 @@ export class AttachmentAccordionComponent implements OnInit {
     this.attachmentService
       .getAllAttachmentsByObjId(this.workorder.id)
       .then((listAttachment) => {
-        this.listAttachment = listAttachment;
+        if (this.showOnlyCurrentImages) {
+          this.listAttachment = listAttachment.filter((attachment) => attachment.url.startsWith('blob'));
+        } else {
+          this.listAttachment = listAttachment;
+        }
+
         this.isAttachmentLoaded = true;
       })
       .catch((error) => {

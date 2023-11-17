@@ -26,6 +26,10 @@ export class SearchSelectComponent implements OnInit {
   @Input() elements: any[] = [];
   // Function which permit to print the element with the properties we wanted. Take one param which corresponds to an element of the original list.
   @Input() elementLabelFunction: Function;
+  // Function which permit to define a specific style of the element  with the properties we want. Take one param which corresponds to an element of the original list.
+  @Input() elementStyleFunction: Function;
+  // Function which permit to Disable the element  with the properties we want. Take one param which corresponds to an element of the original list.
+  @Input() elementDisableFunction: Function;
   // Permit to show the multiselection as a number with the title (eg: Title (x2))
   @Input() showMultiSelectionAsNumber: boolean = true;
 

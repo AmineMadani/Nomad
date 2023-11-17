@@ -235,6 +235,18 @@ public class LayerController {
         return this.layerService.getAllVLayerWtr();
     }
 
+
+    @GetMapping(path = "/search/{partialId}")
+    @Operation(summary = "Search an asset by partial id")
+    @ApiResponses(value = {
+            @ApiResponse(description= "Search Asset by partial id", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public String getAssetFromPartialId(@PathVariable String partialId, AccountTokenDto account) {
+        return this.layerService.getAssetFromPartialId(partialId, account.getId());
+    }
+
     @GetMapping(path = "/groups")
     @Operation(summary = "Get the groups of layers by action")
     @ApiResponses(value = {

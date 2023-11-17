@@ -14,7 +14,7 @@ import { FormRulesService } from './services/form-rules.service';
 import { FormRelationService } from './services/form-relation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { ReportValue } from 'src/app/core/models/workorder.model';
+import { ReportValue, Workorder } from 'src/app/core/models/workorder.model';
 
 export interface FormNode {
   definition: FormDefinition;
@@ -39,6 +39,7 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() editMode: boolean;
   @Input() indexQuestion = 0;
   @Input() resumeQuestions: ReportValue[];
+  @Input() workorder: Workorder;
   @Output() submitAction: EventEmitter<FormGroup> = new EventEmitter();
   @Output() goToNextQuestion: EventEmitter<void> = new EventEmitter();
 
@@ -65,10 +66,25 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     setTimeout(() => {
-      if(this.resumeQuestions){
-        for(let question of this.resumeQuestions) {
-          this.form.get(question.key).setValue(question.answer);
-        }
+      if (this.resumeQuestions) {
+        for (let question of this.resumeQuestions) {
+          if (question.answer != null) {
+            let key = question.key;
+            if (question.key.includes('_')) {
+              let keySplited = question.key.split('_');
+              key = keySplited[1];
+            }
+            if (
+              this.nomadForm.definitions.find((d) => d.key === key)
+                .attributes?.['multiple']
+            ) {
+              const answers = question.answer.split('; ');
+              this.form.get(key).setValue(answers);
+            } else {
+              this.form.get(key).setValue(question.answer);
+            }
+          }   
+      }
       }
     });
   }
@@ -102,6 +118,8 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
   public buildTree(definitions: FormDefinition[], section?: string): FormNode[] {
     const nodes: FormNode[] = [];
     for (const definition of definitions) {
+      if (definition.isOptional === true) continue;
+
       if (definition.section === section) {
         const node: FormNode = { definition };
         const children = this.buildTree(definitions, definition.key);
@@ -120,20 +138,22 @@ export class FormEditorComponent implements OnInit, OnChanges, OnDestroy {
    * @returns A FormGroup object is being returned.
    */
   public buildForm(): FormGroup {
-    const controlsArray = this.nomadForm.definitions.map((field) => {
-      const validators = [];
-      if (field.rules) {
-        for (const rule of field.rules) {
-          validators.push(
-            this.rulesService.createValidators(rule.key, rule.value, rule.message)
-          );
+    const controlsArray = this.nomadForm.definitions
+      .filter((definition) => definition.isOptional !== true)
+      .map((field) => {
+        const validators = [];
+        if (field.rules) {
+          for (const rule of field.rules) {
+            validators.push(
+              this.rulesService.createValidators(rule.key, rule.value, rule.message)
+            );
+          }
         }
-      }
-      return [
-        field.key,
-        new FormControl(field.attributes.value, { validators }),
-      ];
-    });
+        return [
+          field.key,
+          new FormControl(field.attributes.value, { validators }),
+        ];
+      });
     const controls = Object.fromEntries(controlsArray);
     return this.fb.group(controls);
   }

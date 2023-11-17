@@ -148,13 +148,17 @@ export class LayerDataService {
     );
   }
 
-    /**
-    * Get all VLayerWtr.
-    * @returns A promise that resolves to the list of VLayerWtr.
-    */
-    public getAllLayerGrpActions(): Promise<LayerGrpAction[]> {
-      return firstValueFrom(
-        this.http.get<LayerGrpAction[]>(`${this.configurationService.apiUrl}layers/groups`)
-      );
-    }
+  public getAssetByPartialId(partialId: string): Observable<string[]>{
+    return this.http.get<string[]>(`${this.configurationService.apiUrl}layers/search/${partialId}`);
+  }
+
+  /**
+  * Get all VLayerWtr.
+  * @returns A promise that resolves to the list of VLayerWtr.
+  */
+  public getAllLayerGrpActions(): Promise<LayerGrpAction[]> {
+    return firstValueFrom(
+      this.http.get<LayerGrpAction[]>(`${this.configurationService.apiUrl}layers/groups`)
+    );
+  }
 }

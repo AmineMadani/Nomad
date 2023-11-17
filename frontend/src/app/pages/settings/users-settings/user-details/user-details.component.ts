@@ -183,6 +183,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         elementLabelFunction: (contract: ContractWithOrganizationalUnits) => {
           return contract.ctrLlabel;
         },
+        elementStyleFunction: (contract: ContractWithOrganizationalUnits) => {
+          return contract.ctrExpired ? 'Expired' : null;
+        },
         elementFilterFunction: (row: PerimeterRow) => {
           if (row.territoryIds && row.territoryIds.length > 0) {
             return this.contracts.filter((ctr) =>
@@ -457,13 +460,21 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                 )
                 .map((ter) => ter.organizationalUnits[0].id);
 
-              const diff =  currentTerritoriesIds.filter(added => !territoriesOfSelectedContracts.some(current => current === added )
+              const diff = currentTerritoriesIds.filter(
+                (added) =>
+                  !territoriesOfSelectedContracts.some(
+                    (current) => current === added
+                  )
               );
               if (
                 //!territoriesOfSelectedContracts?.some((ctr) =>
                 // currentTerritoriesIds.some((trId) => ctr === trId)
 
-                  currentTerritoriesIds.filter(added => !territoriesOfSelectedContracts.some(current => current === added )
+                currentTerritoriesIds.filter(
+                  (added) =>
+                    !territoriesOfSelectedContracts.some(
+                      (current) => current === added
+                    )
                 ).length > 0
               ) {
                 let territoryContractIds = this.contracts
@@ -473,8 +484,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                     )
                   )
                   .map((ctr) => ctr.id);
-                  territoryContractIds.push(...row.get('contractIds').value);
-                  console.log("",territoryContractIds);
+                territoryContractIds.push(...row.get('contractIds').value);
+                console.log('', territoryContractIds);
                 row
                   .get('contractIds')
                   .setValue(
@@ -505,7 +516,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             const territoriesContractIds = currentContractsIds.filter(
               (ctrId) => !removeContractsIds.includes(ctrId)
             );
-            console.log("territoriesContractIds",territoriesContractIds);
+            console.log('territoriesContractIds', territoriesContractIds);
             row.get('contractIds').setValue(territoriesContractIds);
           }
         }
@@ -521,8 +532,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         const addedItems = currentContractsIds?.filter(
           (id) => !previousContractsIds?.includes(id)
         );
-         // Find removed (deselected) item(s)
-         const removedItems = previousContractsIds?.filter(
+        // Find removed (deselected) item(s)
+        const removedItems = previousContractsIds?.filter(
           (id) => !currentContractsIds?.includes(id)
         );
         // Handle a selection
@@ -571,7 +582,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       message: 'Sauvegarde en cours...',
       color: 'primary',
       position: 'bottom',
-      duration: 2000
+      duration: 2000,
     });
     this.savingToast.present();
 
@@ -582,7 +593,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     };
 
     // Check the user status by email.
-    this.userService.getUserStatusByEmail(userToSave.email)
+    this.userService
+      .getUserStatusByEmail(userToSave.email)
       .then(async (userStatus) => {
         // If user exists and he deleted, alert info.
         if (userStatus && userStatus.deleted) {
@@ -601,7 +613,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             // Activate the user with the new email
             this.userService
               .updateUser(userToSave)
-              .then((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+              .then((res: { message: string }) =>
+                this.showSuccessMessageAndClose(res)
+              );
           }
         }
         // If user exists and he not deleted and modification mode.
@@ -613,14 +627,18 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           // We launch an update
           this.userService
             .updateUser(userToSave)
-            .then((res: { message: string; }) => this.showSuccessMessageAndClose(res));
+            .then((res: { message: string }) =>
+              this.showSuccessMessageAndClose(res)
+            );
         }
         // Else the user doesn't exist
         else {
           // We launch a creation
           this.userService
             .createUser(userToSave)
-            .then((res: { message: string }) => this.showSuccessMessageAndClose(res));
+            .then((res: { message: string }) =>
+              this.showSuccessMessageAndClose(res)
+            );
         }
       });
   }

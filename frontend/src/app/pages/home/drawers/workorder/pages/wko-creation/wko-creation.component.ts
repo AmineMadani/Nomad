@@ -53,6 +53,7 @@ import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
+import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
 
 @Component({
@@ -376,6 +377,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         '',
         Validators.compose([Validators.required, DateValidator.isDateValid])
       ),
+      wkoPlanningDuration : new FormControl(''),
       wkoEmergency: new FormControl(false, { updateOn: 'blur' }),
       wkoAppointment: new FormControl(false, { updateOn: 'blur' }),
       wkoCreationComment: new FormControl('', { updateOn: 'blur' }),
@@ -404,6 +406,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       TimeValidator.compareTimeValidatorWithTrigger(
         'wkoPlanningStartHour',
         'wkoPlanningEndHour',
+        'wkoAppointment'
+      )
+    );
+    this.creationWkoForm.addValidators(
+      TimeValidator.compareTimeDurationValidatorWithTrigger(
+        'wkoPlanningStartDate',
+        'wkoPlanningEndDate',
+        'wkoPlanningStartHour',
+        'wkoPlanningEndHour',
+        'wkoPlanningDuration',
         'wkoAppointment'
       )
     );
@@ -473,6 +485,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!DateValidator.isKeyValid(event, this.currentDateValue)) {
       event.preventDefault();
     }
+  }
+
+  /**
+   * Set Default Duration on click
+   */
+  public setDefaultDuration(event: any) {
+      if (!this.creationWkoForm.get('wkoPlanningDuration').value){
+        this.creationWkoForm.get('wkoPlanningDuration').setValue('01:00');
+      }
   }
 
   /**
@@ -639,6 +660,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.workorder.latitude = assets?.[0]?.latitude;
     this.workorder.longitude = assets?.[0]?.longitude;
+    this.workorder.wkoPlanningDuration =this.utils.convertStringToNumber(form.wkoPlanningDuration);
 
     if (this.workorder.tasks?.length == 0) {
       this.workorder.tasks = assets;
@@ -824,7 +846,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!control) {
         return;
       }
-
       if (this.workorder[key] != null) {
         if (key == 'wkoPlanningStartDate') {
           control.setValue(
@@ -849,7 +870,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             ? (this.workorder[key] = false)
             : true;
           control.setValue(this.workorder[key], { emitEvent: false });
-        } else {
+        }
+        else if (key == 'wkoPlanningDuration' &&  isNumber(this.workorder[key]) && Number(this.workorder[key]) > 0 ) {
+          this.creationWkoForm.get('wkoPlanningDuration').setValue(this.utils.convertNumberToTimeString(this.workorder[key]));
+        }
+        else {
           control.setValue(this.workorder[key], { emitEvent: false });
         }
       }
@@ -956,6 +981,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     await this.initEquipmentsLayers();
     // Get referentials data
     await this.fetchReferentialsData(contractsIds, cityIds);
+
   }
 
   private async fetchReferentialsData(
@@ -1041,7 +1067,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       );
     }
 
-    this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
+    this.contracts = contracts.filter((c) => this.isCreation ? (contractsIds.includes(c.id) && !c.ctrExpired) : contractsIds.includes(c.id));
     this.cities = cities.filter((c) => cityIds.includes(c.id));
 
     // Creation
@@ -1118,7 +1144,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public getContractLabel(contract: any): string {
     return contract.ctrLlabel;
   }
-
+  public getContractStyle (contract: any) : string {
+    return contract.ctrExpired ? 'Expired' : null;
+  }
+  public getContractDisable(contract: any) : Boolean {
+    return contract.ctrExpired;
+  }
   public getCityLabel(city: any): string {
     return city.ctyLlabel;
   }
@@ -1307,6 +1338,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder.wkoPlanningEndDate as any,
       'dd/MM/yyyy'
     ).toISO() as any;
+    const duration =  this.utils.convertStringToNumber(this.creationWkoForm.value['wkoPlanningDuration']);
+    if (duration > 0 ){
+      this.workorder.wkoPlanningDuration = duration
+    }
     await this.workorderService.saveCacheWorkorder(this.workorder);
   }
 
@@ -1318,9 +1353,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         Number(wkoId)
       );
       if (
-        Number(wkoId) > 0 &&
-        this.workorder.wtsId === WkoStatus.ENVOYEPLANIF
-      ) {
+        Number(wkoId) > 0 ) {
         this.workorderInit = { ...this.workorder };
       }
       const xyTasksAndNewAssets = this.workorder.tasks

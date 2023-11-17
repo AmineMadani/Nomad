@@ -1,0 +1,27 @@
+<div class="report-date">
+  <form [formGroup]="dateForm" class="wko-calendar">
+    <div>
+      Dates de réalisation :
+    </div>
+    <div class="realisation-date-inputs">
+      <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date début" placeholder="JJ/MM/AAAA"
+        formControlName="realisationStartDate" (keydown)="onDateKeyDown($event)"
+        (keyup)="onDateKeyUp($event)"></ion-input>
+      <ion-input aria-label="date" labelPlacement="floating" fill="outline" label="Date fin *" placeholder="JJ/MM/AAAA"
+        formControlName="realisationEndDate" (keydown)="onDateKeyDown($event)"
+        (keyup)="onDateKeyUp($event)"></ion-input>
+      <ion-button fill="clear" slot="end" color="primary" (click)="openCalendar()">
+        <ion-icon name="calendar-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+  </form>
+  <div *ngIf="dateForm.hasError('dateCompareInvalid')" class="error-message">
+    <ion-note>La date de fin ne peut être inférieure à la date de début</ion-note>
+  </div>
+  <div *ngIf="dateForm.controls['realisationEndDate'].hasError('required')" class="error-message">
+    <ion-note>La date de fin est obligatoire</ion-note>
+  </div>
+
+  <ion-button class="validate-button" fill="clear" (click)="onConfirmDate()"
+    [class.font-mobile]="isMobile">Valider</ion-button>
+</div>

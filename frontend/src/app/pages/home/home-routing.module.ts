@@ -127,6 +127,13 @@ const routes: Routes = [
             },
           },
           {
+            path: ':id/task/:taskid/cr',
+            component: ReportDrawer,
+            data: {
+              name: DrawerRouteEnum.REPORT,
+            },
+          },
+          {
             path: ':id/task/:taskid',
             component: WkoViewComponent,
             data: {

@@ -10,6 +10,7 @@ export interface Workorder {
     wkoCreationComment?: string;
     wkoPlanningStartDate?: Date;
     wkoPlanningEndDate?: Date;
+    wkoPlanningDuration?: number;
     wtsId?: number;
     wkoCompletionStartDate?: Date;
     wkoCompletionEndDate?: Date;
@@ -29,6 +30,11 @@ export interface Workorder {
     // Specific frontend variables for travo
     tempTravoWtrId?: number;
     travoCallbackUrl?: string;
+    isUpdateReport?: boolean;
+    // end specific frontend variables for travo
+    wkoRealizationUser?: string;
+    wkoExtError?: string;
+
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
@@ -45,6 +51,7 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     wkoCompletionEndDate: featureWorkorder.properties['wkoCompletionEndDate'],
     wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
     wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+    wkoPlanningDuration: featureWorkorder.properties['wkoPlanningDuration'],
     wtsId: featureWorkorder.properties['wkoWtsId'],
     wkoCreationComment: featureWorkorder.properties['wkoCreationComment'],
     wkoCancelComment: featureWorkorder.properties['wkoCancelComment'],
@@ -53,6 +60,8 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     ctrId: '',
     wkoAttachment: featureWorkorder.properties['wkoAttachment'],
     wkoExtToSync: featureWorkorder.properties['wkoExtSoSync'],
+    wkoRealizationUser: featureWorkorder.properties['wkoRealizationUser'],
+    wkoExtError: featureWorkorder.properties['wkoExtError'],
   };
 }
 
@@ -171,7 +180,7 @@ export enum WorkorderType {
 }
 
 export interface TaskPaginated {
-  wkoEmergeny?: boolean;
+  wkoEmergency?: boolean;
   wkoAppointment?: boolean;
   wkoPlanningStartDate?: string;
   wkoPlanningEndDate?: string;

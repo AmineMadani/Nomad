@@ -84,6 +84,10 @@ private Long id;
     @JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate;
 
+    @Column(name="wko_planning_duration")
+    @JsonProperty("wko_planning_duration")
+    private Integer wkoPlanningDuration;
+
     @Column(name="wko_realization_user", length=2147483647)
     @JsonProperty("wko_realization_user")
     private String wkoRealizationUser;
@@ -308,6 +312,14 @@ private Long id;
 
 	public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
+    }
+
+    public Integer getWkoPlanningDuration() {
+        return this.wkoPlanningDuration;
+    }
+
+    public void setWkoPlanningDuration(Integer wkoPlanningDuration ) {
+        this.wkoPlanningDuration = wkoPlanningDuration ;
     }
 
     public String getWkoRealizationUser() {

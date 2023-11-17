@@ -8,6 +8,7 @@ export interface Contract {
   ctrValid: boolean;
   ctrStartDate: Date;
   ctrEndDate: Date;
+  ctrExpired:boolean;
 }
 
 export interface ContractWithOrganizationalUnits {
@@ -16,5 +17,6 @@ export interface ContractWithOrganizationalUnits {
   ctrSlabel: string;
   ctrLlabel: string;
   ctrValid: boolean;
+  ctrExpired:boolean;
   organizationalUnits: OrganizationalUnit[];
 }
