@@ -9,6 +9,7 @@ import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
 import { Subject } from 'rxjs';
 import { MapService } from './map/map.service';
+import { PraxedoService } from './praxedo.service';
 
 /**
  * Enum of cache items in local storage
@@ -30,7 +31,8 @@ export class UserService {
     private utilsService: UtilsService,
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
-    private mapService: MapService
+    private mapService: MapService,
+    private praxedoService: PraxedoService
   ) {}
 
   private currentUser: User;
@@ -304,7 +306,11 @@ export class UserService {
       context.zoom = mapLibre.getZoom();
       context.lng = mapLibre.getCenter().lng;
       context.lat = mapLibre.getCenter().lat;
-      context.url = this.router.url;
+      if(!this.praxedoService.externalReport) {
+        context.url = this.router.url;
+      } else {
+        context.url = '/home';
+      }
       context.basemap = mapLibre.getLayer('basemap').source
 
       const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)

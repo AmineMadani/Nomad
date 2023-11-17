@@ -612,10 +612,14 @@ export class MapComponent implements OnInit, OnDestroy {
               }
             }
             if(user.usrConfiguration.context?.zoom){
-              this.mapService.setZoom(user.usrConfiguration.context?.zoom);
+              if(!this.praxedoService.externalReport){
+                this.mapService.setZoom(user.usrConfiguration.context?.zoom);
+              }
             }
             if(user.usrConfiguration.context?.lat){
-              this.mapService.getMap().jumpTo({center: [user.usrConfiguration.context?.lng,user.usrConfiguration.context?.lat]});
+              if(!this.praxedoService.externalReport){
+                this.mapService.getMap().jumpTo({center: [user.usrConfiguration.context?.lng,user.usrConfiguration.context?.lat]});
+              }
             }
             if(user.usrConfiguration.context?.basemap) {
               if(this.basemaps.find(bm => bm.map_slabel.replace(/\s/g, '') == user.usrConfiguration.context?.basemap)) {
@@ -624,7 +628,8 @@ export class MapComponent implements OnInit, OnDestroy {
             }
             if(user.usrConfiguration.context?.url && this.router.url == '/home' 
               && user.usrConfiguration.context?.url != '/home/asset' 
-              && user.usrConfiguration.context?.url != '/home/exploitation') {
+              && user.usrConfiguration.context?.url != '/home/exploitation'
+              && !this.praxedoService.externalReport) {
               this.router.navigateByUrl(user.usrConfiguration.context?.url);
             }
             this.initUserEventContext();
