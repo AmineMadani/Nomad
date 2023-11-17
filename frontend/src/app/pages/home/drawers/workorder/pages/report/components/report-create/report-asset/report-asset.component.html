@@ -1,17 +1,17 @@
 <div class="report-asset">
   <!-- action buttons -->
   <ion-tab-bar class="action-buttons">
-    <ion-tab-button *ngIf="workorder.tasks.length === 1 && !inEditMode"
-      (click)="onEditEquipment(workorder.tasks[0])">
+    <ion-tab-button *ngIf="workorder.tasks.length === 1 && !inAssetEditMode"
+      (click)="startAssetEditMode()">
       <ion-icon name="pencil-outline"></ion-icon>
       Modifier le patrimoine
     </ion-tab-button>
-    <ion-tab-button *ngIf="workorder.tasks.length === 1 && inEditMode"
-      [class]="draggableMarker ? 'selected' : ''" (click)="onRemoveChangeEquipment(workorder.tasks[0])">
+    <ion-tab-button *ngIf="workorder.tasks.length === 1 && inAssetEditMode"
+      [class]="draggableMarker ? 'selected' : ''" (click)="cancelAssetEditMode()">
       <ion-icon name="close-outline" color="red"></ion-icon>
       Annuler la modification
     </ion-tab-button>
-    <ion-tab-button>
+    <ion-tab-button (click)="onMultiSelection()">
       <ion-icon src="assets/icon/polygonal.svg"></ion-icon>
       Multi-sélection
     </ion-tab-button>
@@ -27,11 +27,17 @@
 
 
   <div class="asset-list" *ngIf="workorder">
+    <ion-item>
+      <ion-checkbox *ngIf="workorder.tasks.length > 1" (ionChange)="onAllSelectedChange()" labelPlacement="end"
+        justify="start" aria-label="checkbox" [checked]="isAllElementSelected()">
+        <span class="select-all-color">Tout sélectionner</span>
+      </ion-checkbox>
+    </ion-item>
     <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
       (mouseleave)="onItemHoverLeave(tsk)">
       <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
         [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
-        [disabled]="(layerSelected ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
+        [disabled]="(layerSelected && !layerSelected.includes('_xy') ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
       <div style="display: inline-block;">
         <ion-label>
           <ion-label class="ion-no-margin">
@@ -45,4 +51,52 @@
     </ion-item>
   </div>
 </div>
+
+
+<ion-popover #drawingSelectionPopover>
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('unit')">
+        <ion-icon slot="start" name="pin-outline"></ion-icon>
+        <ion-label>Unitaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('rect')">
+        <ion-icon slot="start" name="crop-outline"></ion-icon>
+        <ion-label>Rectangulaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('polygon')">
+        <ion-icon slot="start" name="logo-web-component"></ion-icon>
+        <ion-label>Polygonale</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+
+
+<ion-modal #assetTypeSelectionModal>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Liste des équipements</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="assetTypeSelectionModal.dismiss()">Fermer</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-item>
+        <ion-label position="stacked">coucou</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">coucou</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">coucou</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">coucou</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-modal>
 

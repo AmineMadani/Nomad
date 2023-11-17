@@ -22,6 +22,7 @@ export class AttachmentAccordionComponent implements OnInit {
 
   @Input("workorder") workorder: Workorder;
   @Input("isReadOnly") isReadOnly: boolean = false;
+  @Input("showOnlyCurrentImages") showOnlyCurrentImages: boolean = false;
 
   public isMobile: boolean;
 
@@ -80,7 +81,12 @@ export class AttachmentAccordionComponent implements OnInit {
     this.attachmentService
       .getAllAttachmentsByObjId(this.workorder.id)
       .then((listAttachment) => {
-        this.listAttachment = listAttachment;
+        if (this.showOnlyCurrentImages) {
+          this.listAttachment = listAttachment.filter((attachment) => attachment.url.startsWith('blob'));
+        } else {
+          this.listAttachment = listAttachment;
+        }
+
         this.isAttachmentLoaded = true;
       })
       .catch((error) => {

@@ -94,7 +94,7 @@ export class ReportCreateComponent implements OnInit {
     if (this.selectedTasks && this.selectedTasks.length > 0) {
       this.step = ReportStepEnum.CONTEXT;
       setTimeout(() => {
-        if (this.selectedTasks[0].report?.questionIndex) {
+        if (this.selectedTasks[0].report?.reportValues) {
           this.step = ReportStepEnum.FORM;
         }
         if (this.workorder.isUpdateReport) {
@@ -169,9 +169,6 @@ export class ReportCreateComponent implements OnInit {
    * Sync with the server
    */
   public onClosedWko(forced: boolean = false) {
-    console.log('on closed wko');
-    console.log(forced);
-
     //Remove partial report
     for (let task of this.workorder.tasks) {
       if (!task.report?.dateCompletion) {
@@ -199,8 +196,6 @@ export class ReportCreateComponent implements OnInit {
    * List of action after the workorder is send
    */
   private async closeReport(unplanedWko: Workorder = null) {
-    console.log(unplanedWko);
-
     if (this.praxedoService.externalReport) {
       this.layerService.getAllVLayerWtr().then((vLayerWtrs) => {
         const vLayerWtr = vLayerWtrs.find(

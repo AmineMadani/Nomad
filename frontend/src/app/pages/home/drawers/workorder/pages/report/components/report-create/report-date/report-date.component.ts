@@ -101,7 +101,7 @@ export class ReportDateComponent implements OnInit {
         task.tskCompletionEndDate = this.workorder.wkoCompletionEndDate;
       }
 
-      this.onClosedWko.emit();
+      this.onClosedWko.emit(true);
     }
   }
 }

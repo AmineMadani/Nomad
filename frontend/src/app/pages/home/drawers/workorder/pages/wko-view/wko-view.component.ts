@@ -117,7 +117,7 @@ export class WkoViewComponent implements OnInit {
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CREATE_PROGRAM_MY_AREA
       );
-    this.userHasPermissionCancelWorkorder = 
+    this.userHasPermissionCancelWorkorder =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CANCEL_WORKORDER
       );

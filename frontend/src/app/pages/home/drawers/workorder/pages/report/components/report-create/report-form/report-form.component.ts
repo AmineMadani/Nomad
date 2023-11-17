@@ -263,7 +263,6 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
    * Send the form
    */
   public onFormSubmit() {
-    console.log('on form submit');
     let child = this.formEditor.sections[0].children[this.formEditor.indexQuestion];
     let childrens = child.children ? child.children : [child];
     let valid: boolean = true;
@@ -292,8 +291,6 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
    * Complete the workorder with report validation
    */
   private completeForm(): void {
-    console.log('complete form');
-
     let report: Report = {
       dateCompletion: new Date(),
       reportValues: [],

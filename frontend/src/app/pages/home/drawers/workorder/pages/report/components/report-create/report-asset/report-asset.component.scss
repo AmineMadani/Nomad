@@ -4,11 +4,12 @@
     height: 70px;
 
     .selected {
-      color: var(--ion-color-danger)!important;
+      color: var(--ion-color-danger);
       border-radius: 5px;
 
       &:hover {
         background-color: var(--ion-color-danger-hover);
+        --color-selected: var(--ion-color-danger);
       }
     }
 
@@ -16,7 +17,7 @@
       color: var(--ion-color-success);
 
       &:hover {
-        color: var(--ion-color-success)!important;
+        --color-selected: var(--ion-color-success);
       }
     }
   }

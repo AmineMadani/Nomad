@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
@@ -11,7 +11,9 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import * as Maplibregl from 'maplibre-gl';
-import { ToastController } from '@ionic/angular';
+import { IonPopover, ToastController } from '@ionic/angular';
+import { DrawingService } from 'src/app/core/services/map/drawing.service';
+import { WorkorderService } from 'src/app/core/services/workorder.service';
 
 @Component({
   selector: 'app-report-asset',
@@ -28,8 +30,13 @@ export class ReportAssetComponent implements OnInit {
     private route: ActivatedRoute,
     private utils: UtilsService,
     private drawerService: DrawerService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private drawingService: DrawingService,
+    private workorderService: WorkorderService,
   ) { }
+
+  @ViewChild('drawingSelectionPopover', { static: true }) drawingSelectionPopover: IonPopover;
+  @ViewChild('assetTypeSelectionModal', { static: true }) assetTypeSelectionModal: IonPopover;
 
   @Input() workorder: Workorder;
   @Input() selectedTasks: Task[];
@@ -42,7 +49,8 @@ export class ReportAssetComponent implements OnInit {
   public editTaskEquipment: Task;
   public draggableMarker: Maplibregl.Marker;
   public currentSelectionMessage: any;
-  public inEditMode: boolean = false;
+  public inAssetEditMode: boolean = false;
+  public inMultiSelectionEditMode: boolean = false;
   public layerSelected: string;
 
   private refLayers: Layer[];
@@ -50,32 +58,14 @@ export class ReportAssetComponent implements OnInit {
   private oldEquipment: any;
 
   ngOnInit() {
-    this.displayAndZoomToPlannedWko(this.workorder);
+    this.mapService.onMapLoaded().subscribe(() => {
+      this.displayAndZoomToPlannedWko(this.workorder);
+
+      this.initFeatureSelectionListeners();
+    });
 
     this.layerService.getAllLayers().then((layers: Layer[]) => {
       this.refLayers = layers;
-    });
-
-    this.mapEventService.onFeatureSelected().pipe(takeUntil(this.ngUnsubscribe$)).subscribe(async res => {
-      if (this.editTaskEquipment) {
-        this.editTaskEquipment.assObjRef = res.featureId;
-        this.editTaskEquipment.assObjTable = res.layerKey;
-        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = res.featureId);
-        this.editTaskEquipment.ctrId = asset.ctrId;
-        this.workorder.ctrId = asset.ctrId;
-        this.workorder.ctyId = asset.ctyId;
-        if (this.draggableMarker) {
-          this.draggableMarker.remove();
-          this.draggableMarker = null;
-        }
-        this.draggableMarker = this.maplayerService.addMarker(
-          res.x ? res.x : this.editTaskEquipment.longitude,
-          res.y ? res.y : this.editTaskEquipment.latitude,
-          asset.geom.coordinates,
-          false,
-          'green'
-        );
-      }
     });
 
     this.currentTasksSelected = this.selectedTasks;
@@ -87,12 +77,50 @@ export class ReportAssetComponent implements OnInit {
         this.onSelectTask(this.workorder.tasks[0]);
         // We set by default to edit mode if it's an xy
         if (this.workorder.tasks[0].assObjTable.includes('_xy')) {
-          this.onEditEquipment(this.workorder.tasks[0]);
+          this.startAssetEditMode();
         }
       });
     }
+  }
 
+  private initFeatureSelectionListeners() {
+    this.mapEventService.onFeatureSelected().pipe(takeUntil(this.ngUnsubscribe$)).subscribe(async (feature) => {
+      // Multiselection
+      if (this.inMultiSelectionEditMode) {
+        await this.addNewFeatures(feature);
+      }
+      // Asset selection
+      else if (this.inAssetEditMode) {
+        this.editTaskEquipment.assObjRef = feature.featureId;
+        this.editTaskEquipment.assObjTable = feature.layerKey;
+        const asset = await this.layerService.getEquipmentByLayerAndId(this.editTaskEquipment.assObjTable, this.editTaskEquipment.assObjRef = feature.featureId);
+        this.editTaskEquipment.ctrId = asset.ctrId;
+        this.workorder.ctrId = asset.ctrId;
+        this.workorder.ctyId = asset.ctyId;
+        if (this.draggableMarker) {
+          this.draggableMarker.remove();
+          this.draggableMarker = null;
+        }
+        this.draggableMarker = this.maplayerService.addMarker(
+          feature.x ? feature.x : this.editTaskEquipment.longitude,
+          feature.y ? feature.y : this.editTaskEquipment.latitude,
+          asset.geom.coordinates,
+          false,
+          'green'
+        );
+      }
+    });
 
+    this.mapEventService
+      .onMultiFeaturesSelected()
+      .pipe(
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(async (features) => {
+        if (this.inMultiSelectionEditMode) {
+          await this.addNewFeatures(features);
+        }
+      });
   }
 
   /**
@@ -103,8 +131,8 @@ export class ReportAssetComponent implements OnInit {
   public onSelectTask(task: Task) {
     if (this.currentTasksSelected && this.currentTasksSelected.find(tsk => tsk.id == task.id)) {
       this.currentTasksSelected.find(tsk => tsk.id == task.id).isSelectedTask = false;
-      this.currentTasksSelected = this.currentTasksSelected.filter(tsk => tsk.id != task.id);
-      if(this.currentTasksSelected && this.currentTasksSelected.length == 0){
+      this.currentTasksSelected = this.currentTasksSelected.filter(tsk => tsk.id != task.id && !tsk.report?.dateCompletion);
+      if (this.currentTasksSelected && this.currentTasksSelected.length == 0){
         this.layerSelected = null;
       }
     } else {
@@ -144,14 +172,10 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk  Task equipment to edit
    */
   public onEditEquipment(tsk: Task) {
-    this.inEditMode = true;
-    this.showSelectionMessage();
-
     // Si ce n'est pas un xy ou un equipement temporaire
     // On place le marqueur sur les coordonnées de l'équipement en base
     if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
       this.layerService.getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef).then(async (result) => {
-        // this.maplayerService.hideFeature('workorder', tsk.id.toString());
         this.draggableMarker = this.maplayerService.addMarker(
           tsk.longitude,
           tsk.latitude,
@@ -186,7 +210,8 @@ export class ReportAssetComponent implements OnInit {
    * @param tsk the task to update
    */
   public onValidateChangeEquipment() {
-    if (this.inEditMode) {
+    // If we are in asset modification
+    if (this.inAssetEditMode) {
       const tsk = this.workorder.tasks[0];
 
       let feature: any = this.maplayerService.getFeatureById("task", tsk.id + '');
@@ -216,9 +241,21 @@ export class ReportAssetComponent implements OnInit {
       }
       this.mapEventService.isFeatureFiredEvent = false;
       this.editTaskEquipment = null;
+
+      const taskOnTheSameEquipmentIndex = this.workorder.tasks.findIndex((t) => t.assObjRef === tsk.assObjRef && t.id !== tsk.id);
+      if (taskOnTheSameEquipmentIndex > -1) {
+        this.mapService.removePoint('task', this.workorder.tasks[taskOnTheSameEquipmentIndex].id.toString());
+        this.workorder.tasks.splice(taskOnTheSameEquipmentIndex, 1);
+      }
+
       this.onSaveWorkOrderState.emit();
 
-      this.removeSelectionMessage();
+      this.stopAssetEditMode();
+    }
+
+    // We stop edit mode for the multi selection
+    if (this.inMultiSelectionEditMode) {
+      this.stopMultiSelectionEditMode();
     }
   }
 
@@ -226,22 +263,24 @@ export class ReportAssetComponent implements OnInit {
    * Remove the equipment change
    * @param tsk task change to remove
    */
-  public onRemoveChangeEquipment(tsk: Task) {
-    this.inEditMode = false;
+  public onRemoveChangeEquipment() {
+    if (this.inAssetEditMode) {
+      const tsk = this.workorder.tasks[0];
 
-    if (!tsk.assObjTable.includes('_xy')) {
-      this.mapService.getMap().setFeatureState(
-        { source: tsk.assObjTable, id: tsk.assObjRef },
-        { selected: false }
-      );
-    }
-    tsk.assObjRef = this.oldEquipment.featureId;
-    tsk.assObjTable = this.oldEquipment.layerKey;
-    this.mapEventService.isFeatureFiredEvent = false;
-    this.editTaskEquipment = null;
-    if (this.draggableMarker) {
-      this.draggableMarker.remove();
-      this.draggableMarker = null;
+      if (!tsk.assObjTable.includes('_xy')) {
+        this.mapService.getMap().setFeatureState(
+          { source: tsk.assObjTable, id: tsk.assObjRef },
+          { selected: false }
+        );
+      }
+      tsk.assObjRef = this.oldEquipment.featureId;
+      tsk.assObjTable = this.oldEquipment.layerKey;
+      this.mapEventService.isFeatureFiredEvent = false;
+      this.editTaskEquipment = null;
+      if (this.draggableMarker) {
+        this.draggableMarker.remove();
+        this.draggableMarker = null;
+      }
     }
   }
 
@@ -280,40 +319,41 @@ export class ReportAssetComponent implements OnInit {
     }
   }
 
+  public onMultiSelection() {
+    this.drawingSelectionPopover.present();
+  }
+
   /**
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
   private displayAndZoomToPlannedWko(workorder: Workorder) {
-
     let featuresSelection: MultiSelection[] = [];
     let geometries = [];
 
-    this.mapService.onMapLoaded().subscribe(() => {
-      this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
-
-        //Case display layers in params
-        this.route.queryParams.subscribe(params => {
-          if(params['layers']){
-            const layers: string[] = params['layers'].split(',');
-            for(let layer of layers){
-              this.mapService.addEventLayer(layer);
-            }
+    this.maplayerService.moveToXY(this.workorder.longitude, this.workorder.latitude).then(() => {
+      //Case display layers in params
+      this.route.queryParams.subscribe(params => {
+        if (params['layers']) {
+          const layers: string[] = params['layers'].split(',');
+          for (let layer of layers) {
+            this.mapService.addEventLayer(layer);
           }
-        })
+        }
+      });
 
-        this.mapService.addEventLayer('task').then(() => {
-          for (let task of workorder.tasks) {
-            this.mapService.addEventLayer(task.assObjTable).then(async () => {
+      this.mapService.addEventLayer('task').then(() => {
+        for (let task of workorder.tasks) {
+          this.mapService.addEventLayer(task.assObjTable).then(async () => {
+            if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
+              task.assObjTable = 'aep_xy';
+              this.onEditEquipment(task);
+            }
 
-              if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
-                task.assObjTable = 'aep_xy';
-                this.onEditEquipment(task);
-              }
-
-              this.mapService.addGeojsonToLayer(this.workorder, 'task');
-              setTimeout(() => {
-                let feature: any = this.maplayerService.getFeatureById("task", task.id + '');
+            this.mapService.addGeojsonToLayer(this.workorder, 'task');
+            setTimeout(() => {
+              let feature: any = this.maplayerService.getFeatureById("task", task.id + '');
+              if (feature) {
                 feature.geometry.coordinates = [task.longitude, task.latitude];
                 this.mapService.updateFeatureGeometry("task", feature);
                 geometries.push(feature.geometry.coordinates);
@@ -322,24 +362,103 @@ export class ReportAssetComponent implements OnInit {
                   source: 'task'
                 });
                 this.maplayerService.fitBounds(geometries, 19);
-              }, 500);
-
-              if (!task.assObjTable.includes('_xy')) {
-                featuresSelection.push({
-                  id: task.assObjRef,
-                  source: task.assObjTable
-                });
               }
+            }, 500);
 
-              this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
-            });
-          }
-        });
+            if (!task.assObjTable.includes('_xy')) {
+              featuresSelection.push({
+                id: task.assObjRef,
+                source: task.assObjTable
+              });
+            }
+
+            this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
+          });
+        }
       });
-    })
+    });
+  }
+
+  public startAssetEditMode() {
+    this.onEditEquipment(this.workorder.tasks[0]);
+    this.inAssetEditMode = true;
+    this.showSelectionMessage();
+  }
+
+  public startMultiSelectionEditMode(mode: string): void {
+    this.mapEventService.isFeatureFiredEvent = true;
+
+    switch (mode) {
+      case 'polygon':
+        this.drawingService.setDrawMode('draw_polygon');
+        break;
+      case 'rect':
+        this.drawingService.setDrawMode('draw_rectangle');
+        break;
+    }
+
+    this.drawingSelectionPopover.dismiss();
+
+    this.inMultiSelectionEditMode = true;
+    this.showSelectionMessage();
+  }
+
+  private stopAssetEditMode() {
+    if (!this.inMultiSelectionEditMode) {
+      this.removeSelectionMessage();
+    }
+
+    this.inAssetEditMode = false;
+    this.onSaveWorkOrderState.emit();
+  }
+
+  public cancelAssetEditMode() {
+    this.onRemoveChangeEquipment()
+    this.stopAssetEditMode();
+  }
+
+  public onAllSelectedChange() {
+    if (this.isAllElementSelected()) {
+      // Unselect all task
+      for (const task of this.workorder.tasks.filter((tsk) => tsk.isSelectedTask && !tsk.report?.dateCompletion)) {
+        this.onSelectTask(task);
+      }
+    } else {
+      // Only select the all the tasks of the first layer key find
+      const layerKey = this.workorder.tasks[0].assObjTable;
+      for (const task of this.workorder.tasks.filter((tsk) => !tsk.isSelectedTask && tsk.assObjTable === layerKey)) {
+        this.onSelectTask(task);
+      }
+    }
+  }
+
+  public isAllElementSelected() {
+    const tasks = this.workorder.tasks.filter((tsk) => tsk.assObjTable === this.layerSelected);
+    if (tasks.length > 0) {
+      return tasks.every((tsk) => tsk.isSelectedTask);
+    } else {
+      return false;
+    }
+  }
+
+  private stopMultiSelectionEditMode() {
+    if (!this.inAssetEditMode) {
+      this.removeSelectionMessage();
+      this.mapEventService.isFeatureFiredEvent = false;
+    }
+
+    this.inMultiSelectionEditMode = false;
+    this.drawingService.deleteDrawing();
+    this.drawingService.setDrawActive(false);
+    this.displayAndZoomToPlannedWko(this.workorder);
+    this.onSaveWorkOrderState.emit();
   }
 
   private async showSelectionMessage() {
+    if (this.currentSelectionMessage) {
+      this.removeSelectionMessage();
+    }
+
     this.currentSelectionMessage = await this.toastController.create({
       message: 'Sélectionner patrimoine sur la carte',
       position: 'top',
@@ -348,10 +467,62 @@ export class ReportAssetComponent implements OnInit {
     await this.currentSelectionMessage.present();
   }
 
-  private removeSelectionMessage() {
-    if (this.currentSelectionMessage) {
-      this.currentSelectionMessage.remove();
+  private async removeSelectionMessage() {
+    this.currentSelectionMessage.remove();
+  }
+
+  private async addNewFeatures(features: any | any[]): Promise<void> {
+    if (!Array.isArray(features)) {
+      features = [
+        {
+          ...this.maplayerService.getFeatureById(
+            features.layerKey,
+            features.featureId
+          )['properties'],
+          lyrTableName: features.layerKey,
+        },
+      ];
+    } else {
+      features = features.map((f) => {
+        return {
+          ...this.maplayerService.getFeatureById(f.source, f.id)['properties'],
+          lyrTableName: f.source,
+        };
+      });
     }
+
+    features = this.utils.removeDuplicatesFromArr(
+      [...features],
+      'id'
+    ).filter((feature) => feature.lyrTableName !== 'task');
+
+    this.workorderService
+      .getAllWorkorderTaskStatus()
+      .then(async (lStatus) => {
+        // When editing the asset of a workorder
+        // If the workorder has tasks on XY then remove them from the list
+        this.workorder.tasks = this.workorder.tasks.filter((t) => !t.assObjTable.includes('_xy'));
+
+        for (let f of features) {
+          if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
+            const task = {
+              id: this.utils.createCacheId(),
+              assObjTable: f.lyrTableName,
+              assObjRef: f.id,
+              latitude: f.y,
+              longitude: f.x,
+              wtrId: this.workorder.tasks[0]?.wtrId ?? null,
+              wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+            };
+
+            this.workorder.tasks.push(task);
+
+            this.onSelectTask(task);
+          }
+        }
+
+        this.stopMultiSelectionEditMode();
+      });
   }
 
   ngOnDestroy(): void {
