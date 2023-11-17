@@ -174,7 +174,7 @@ export enum WorkorderType {
 }
 
 export interface TaskPaginated {
-  wkoEmergeny?: boolean;
+  wkoEmergency?: boolean;
   wkoAppointment?: boolean;
   wkoPlanningStartDate?: string;
   wkoPlanningEndDate?: string;
