@@ -612,7 +612,9 @@ export class MapComponent implements OnInit, OnDestroy {
               this.mapService.getMap().jumpTo({center: [user.usrConfiguration.context?.lng,user.usrConfiguration.context?.lat]});
             }
             if(user.usrConfiguration.context?.basemap) {
-              this.onBasemapChange(user.usrConfiguration.context?.basemap);
+              if(this.basemaps.find(bm => bm.map_slabel.replace(/\s/g, '') == user.usrConfiguration.context?.basemap)) {
+                this.onBasemapChange(user.usrConfiguration.context?.basemap);
+              }
             }
             if(user.usrConfiguration.context?.url && this.router.url == '/home' 
               && user.usrConfiguration.context?.url != '/home/asset' 
