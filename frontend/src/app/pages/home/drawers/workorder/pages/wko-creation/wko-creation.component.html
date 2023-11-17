@@ -12,7 +12,7 @@
 
         <div class="select-search">
           <app-search-select [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
-            [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
+            [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel" [elementStyleFunction]="getContractStyle" [elementDisableFunction]="getContractDisable">
           </app-search-select>
           <ion-note *ngIf="currentContract">Fin le {{ currentContract.ctrEndDate | date:'dd/MM/yyyy'
             }}</ion-note>

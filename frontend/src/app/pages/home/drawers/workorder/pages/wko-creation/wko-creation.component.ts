@@ -1067,7 +1067,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       );
     }
 
-    this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
+    this.contracts = contracts.filter((c) => this.isCreation ? (contractsIds.includes(c.id) && !c.ctrExpired) : contractsIds.includes(c.id));
     this.cities = cities.filter((c) => cityIds.includes(c.id));
 
     // Creation
@@ -1144,7 +1144,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public getContractLabel(contract: any): string {
     return contract.ctrLlabel;
   }
-
+  public getContractStyle (contract: any) : string {
+    return contract.ctrExpired ? 'Expired' : null;
+  }
+  public getContractDisable(contract: any) : Boolean {
+    return contract.ctrExpired;
+  }
   public getCityLabel(city: any): string {
     return city.ctyLlabel;
   }

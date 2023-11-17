@@ -5,7 +5,7 @@
     <ion-button *ngIf="step === 1 && workorder.wkoPlanningStartDate" fill="clear" style="float: left;"
       (click)="onNewAssetEmit()" [class.font-mobile]="isMobile">Créer un patrimoine</ion-button>
     <ion-button *ngIf="(step >= 2 && !hasPreviousQuestion && !isTest) || step === 4" fill="clear" style="float: left;"
-      (click)="onBackEmit()" [class.font-mobile]="isMobile">Etape précédente</ion-button>
+      (click)="onBackEmit()" [disabled]="workorder.isUpdateReport && step != 4" [class.font-mobile]="isMobile">Etape précédente</ion-button>
     <div *ngIf="step >= 2 && !hasPreviousQuestion && isTest"></div>
     <ion-button
       *ngIf="(step === 1 && selectedTasks && selectedTasks.length > 0) || (step === 2 && selectedTasks && selectedTasks.length > 0 && selectedTasks[0].wtrId)"
@@ -27,7 +27,7 @@
         Clôturer circuit
       </div>
     </ion-fab>
-    <ion-fab *ngIf="(step === 3 && !isSubmitting && !this.isTest)" (click)="onGoToFirstStepEmit()" [class]="isMobile ? 'fab-return is-mobile' : 'fab-return'">
+    <ion-fab *ngIf="(step === 3 && !isSubmitting && !this.isTest && !workorder.isUpdateReport)" (click)="onGoToFirstStepEmit()" [class]="isMobile ? 'fab-return is-mobile' : 'fab-return'">
       <ion-fab-button color="secondary" size="small">
         <ion-icon name="arrow-undo-outline"></ion-icon>
       </ion-fab-button>
