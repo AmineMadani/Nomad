@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Context, Permission, Profile, User, PermissionCodeEnum, UserStatus } from '../models/user.model';
 import { UserDataService } from './dataservices/user.dataservice';
-import { NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { PreferenceService } from './preference.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { ConfigurationService } from './configuration.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
-import { BehaviorSubject, Observable, debounceTime, of } from 'rxjs';
+import { Subject } from 'rxjs';
 import { MapService } from './map/map.service';
 
 /**
@@ -30,15 +30,12 @@ export class UserService {
     private utilsService: UtilsService,
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
-    private mapService: MapService,
-    private route: Router,
-  ) {
-    this.initUserEventContext();
-  }
+    private mapService: MapService
+  ) {}
 
   private currentUser: User;
   private permissions: Permission[];
-  private contextEvent$ = new BehaviorSubject(null);
+  private contextEvent$: Subject<void> = new Subject();
 
   /**
    * Get the current user from local storage.
@@ -98,8 +95,8 @@ export class UserService {
    * @param user The user to store in local storage.
    */
   public setUser(user: User): void {
-    this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
-    this.updateCurrentUser(user);
+    this.currentUser = user;
+    this.updateCurrentUser();
   }
 
   /**
@@ -142,11 +139,11 @@ export class UserService {
    * Update the current user data
    * @param user New user data
    */
-  public updateCurrentUser(user: User): void {
-    const usr: any = JSON.parse(JSON.stringify(user));
-    usr.usrConfiguration = JSON.stringify(user.usrConfiguration);
-    this.preferenceService.setPreference(LocalStorageUserKey.USER, user);
-    this.updateUser(usr).catch((error) => console.log(error));
+  public updateCurrentUser(): void {
+    const usr: any = JSON.parse(JSON.stringify(this.currentUser));
+    usr.usrConfiguration = JSON.stringify(this.currentUser.usrConfiguration);
+    this.preferenceService.setPreference(LocalStorageUserKey.USER, this.currentUser);
+    this.userDataService.updateUser(usr).catch((error) => console.log(error));
   }
 
   /**
@@ -265,66 +262,62 @@ export class UserService {
  * @param drawerLabel the last viewed asset drawer
  */
   public async setLastSelectedDrawer(drawerLabel: string): Promise<void>{
-    const currentUser: User = await this.getCurrentUser();
-    if (currentUser.usrConfiguration.context) {
-      currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
+    if (this.currentUser.usrConfiguration?.context) {
+      this.currentUser.usrConfiguration.context.lastDrawerSegment = drawerLabel;
     } else {
-      currentUser.usrConfiguration.context = {
+      this.currentUser.usrConfiguration.context = {
         lastDrawerSegment: drawerLabel,
       };
     }
-    this.setUser(currentUser);
   }
 
   /**
    * Save user context
    */
   public async saveUserContext(){
-    this.contextEvent$.next(null);
-  }
-
-  private initUserEventContext() {
-    this.contextEvent$.pipe(debounceTime(3000)).subscribe(() => {
-      this.getContext().subscribe(async context => {
-        //const user: User = await this.getCurrentUser();
-        console.log(context);
-      })
-    })
-    this.route.events.subscribe(val => {
-      if(val instanceof NavigationEnd) {
-        if(val.url.includes('/home')) {
-          this.getContext().subscribe(async context => {
-            //const user: User = await this.getCurrentUser();
-            console.log(context);
-          })
-        }
-      }
-    })
+    this.contextEvent$.next();
   }
 
   /**
-   * 
-   * @returns 
+   * Get the user event context observable
+   * @returns user context observable
    */
-  private getContext(): Observable<Context> {
-    let context = null;
-    if(this.mapService.getMap()) {
-      const mapLibre = this.mapService.getMap();
+  public onInitUserContextEvent() {
+    return this.contextEvent$.asObservable();
+  }
 
-      context = <Context>{
-        zoom: mapLibre.getZoom(),
-        lng: mapLibre.getCenter().lng,
-        lat: mapLibre.getCenter().lat,
-        url: this.router.url,
-      }
-      console.log(this.mapService.getCurrentLayersIds());
+  /**
+   * Get the user context
+   * @returns return the context
+   */
+  public onUserContextEvent() {
+    let context: Context = null;
+    if(this.currentUser.usrConfiguration?.context) {
+      context = this.currentUser.usrConfiguration.context;
+    } else {
+      context = {};
+    }
+
+    if(this.mapService.getMap()) {
+
+      const mapLibre = this.mapService.getMap();
+      context.zoom = mapLibre.getZoom();
+      context.lng = mapLibre.getCenter().lng;
+      context.lat = mapLibre.getCenter().lat;
+      context.url = this.router.url;
+      context.basemap = mapLibre.getLayer('basemap').source
+
       const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
         .filter((value) => !value['source'].startsWith('mapbox') && value['visibility'] != "none")
         .map((value) => [value['source'], value['id']]);
       mapLayerLoaded.shift();
       context.layers = mapLayerLoaded;
     }
-    return of(context);
+
+    if(this.currentUser){
+      this.currentUser.usrConfiguration.context = context;
+      this.updateCurrentUser();
+    }
   }
  
 }

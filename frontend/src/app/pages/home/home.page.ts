@@ -10,6 +10,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { Router } from '@angular/router';
+import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-home',
@@ -25,6 +26,7 @@ export class HomePage implements OnInit, OnDestroy {
     private mapService: MapService,
     public drawingService: DrawingService,
     public route: Router,
+    public userService: UserService
   ) {
     this.drawerService.initDrawerListener();
   }

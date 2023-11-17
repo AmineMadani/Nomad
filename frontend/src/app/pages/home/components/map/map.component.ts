@@ -1,12 +1,4 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  ElementRef,
-  HostListener,
-  ViewChild,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { IonModal, LoadingController, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -16,8 +8,8 @@ import { Box, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, switchMap, filter } from 'rxjs';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { debounceTime, first, switchMap, filter, take } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import { CustomZoomControl } from './zoom.control';
 import * as Maplibregl from 'maplibre-gl';
@@ -26,8 +18,6 @@ import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
-import { ContractService } from 'src/app/core/services/contract.service';
-import { CityService } from 'src/app/core/services/city.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { BasemapOfflineService } from 'src/app/core/services/basemapOffline.service';
 import { LayerService } from 'src/app/core/services/layer.service';
@@ -48,8 +38,6 @@ export class MapComponent implements OnInit, OnDestroy {
     private loadingCtrl: LoadingController,
     private router: Router,
     private elem: ElementRef,
-    private contractService: ContractService,
-    private cityService: CityService,
     private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
     private praxedoService: PraxedoService,
@@ -59,7 +47,6 @@ export class MapComponent implements OnInit, OnDestroy {
     private layerService: LayerService,
     private workorderService: WorkorderService,
     private mapLayerService: MapLayerService,
-    private modalCtrl: ModalController,
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -123,6 +110,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.drawingService.isMobile = this.isMobile;
     this.measure = undefined;
+    this.loadUserContext();
 
     // Init permissions
     this.userHasPermissionCreateXYWorkorder =
@@ -288,6 +276,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.addOfflineLayer();
     }
     this.map.zoomTo(this.map.getZoom() + 0.001);
+    this.userService.saveUserContext();
   }
 
   private async removeOfflineLayer() {
@@ -565,6 +554,75 @@ export class MapComponent implements OnInit, OnDestroy {
 
   public endMeasuring(): void {
     this.drawingService.endMesure(true);
+  }
+
+  public getShouldOpenMobileMeasure(): boolean{
+    return this.drawingService.getIsMeasuring() && this.isMobile;
+  }
+
+  /**
+   * Stop the measure where the measure modal closed
+   * @param data event
+   */
+  public measureModalDismissed(data: any): void{
+    this.endMeasuring();
+  }
+
+  /**
+   * Init the user context save on home
+   */
+  private initUserEventContext() {
+      this.userService.onInitUserContextEvent()
+      .pipe(
+        debounceTime(2000),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(() => {
+        this.userService.onUserContextEvent();
+      })
+
+      this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        filter((val) => val.url.includes('/home')),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(() => {
+        this.userService.onUserContextEvent();
+      });        
+  }
+
+  private loadUserContext() {
+    this.mapService.onMapLoaded()
+      .pipe(
+        take(1)
+      )
+      .subscribe(() => {
+        this.userService.getCurrentUser().then(user => {
+          setTimeout(() => {
+            if(user.usrConfiguration.context?.layers) {
+              for(let layer of user.usrConfiguration.context?.layers) {
+                this.mapService.addEventLayer(layer[0],layer[1]);
+              }
+            }
+            if(user.usrConfiguration.context?.zoom){
+              this.mapService.setZoom(user.usrConfiguration.context?.zoom);
+            }
+            if(user.usrConfiguration.context?.lat){
+              this.mapService.getMap().jumpTo({center: [user.usrConfiguration.context?.lng,user.usrConfiguration.context?.lat]});
+            }
+            if(user.usrConfiguration.context?.basemap) {
+              this.onBasemapChange(user.usrConfiguration.context?.basemap);
+            }
+            if(user.usrConfiguration.context?.url && this.router.url == '/home' 
+              && user.usrConfiguration.context?.url != '/home/asset' 
+              && user.usrConfiguration.context?.url != '/home/exploitation') {
+              this.router.navigateByUrl(user.usrConfiguration.context?.url);
+            }
+            this.initUserEventContext();
+          }, 500);
+        })
+      })
   }
 
   private addEvents(): void {
@@ -1146,17 +1204,5 @@ export class MapComponent implements OnInit, OnDestroy {
       return this.workorderService.dateWorkorderSwitch;
     }
     return null;
-  }
-
-  public getShouldOpenMobileMeasure(): boolean{
-    return this.drawingService.getIsMeasuring() && this.isMobile;
-  }
-
-  /**
-   * Stop the measure where the measure modal closed
-   * @param data event
-   */
-  public measureModalDismissed(data: any): void{
-    this.endMeasuring();
   }
 }
