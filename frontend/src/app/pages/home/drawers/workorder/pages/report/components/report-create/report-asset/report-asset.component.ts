@@ -425,8 +425,8 @@ export class ReportAssetComponent implements OnInit {
       }
     } else {
       // Only select the all the tasks of the first layer key find
-      const layerKey = this.workorder.tasks[0].assObjTable;
-      for (const task of this.workorder.tasks.filter((tsk) => !tsk.isSelectedTask && tsk.assObjTable === layerKey)) {
+      if (!this.layerSelected) this.layerSelected = this.workorder.tasks[0].assObjTable;
+      for (const task of this.workorder.tasks.filter((tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected)) {
         this.onSelectTask(task);
       }
     }
