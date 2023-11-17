@@ -473,8 +473,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       }
     }
 
-    console.log(abstractFeatures);
-
     const promises: Promise<void>[] = abstractFeatures.map(
       ({ lyrTableName }) => {
         return this.mapService.addEventLayer(lyrTableName);

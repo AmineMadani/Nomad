@@ -1,0 +1,27 @@
+.report-date {
+  display: flex;
+  flex-direction: column;
+  padding-left: 10px;
+
+  .validate-button {
+    margin-left: auto;
+  }
+
+  .wko-calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+
+    .realisation-date-inputs {
+      display: flex;
+      gap: 15px;
+    }
+  }
+
+  .error-message {
+    ion-note {
+      --color: var(--ion-color-danger);
+    }
+  }
+}

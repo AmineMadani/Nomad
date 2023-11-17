@@ -3,7 +3,6 @@
     label="Action" [value]="getValueLabel()" (click)="onOpenModal()" [readonly]="true" />
 </div>
 
-
 <ion-accordion-group [multiple]="true" [value]="workorder.wkoCreationComment ? 'General' : ''">
   <ion-accordion value="General" *ngIf="workorder.wkoPlanningStartDate">
     <ion-item slot="header" color="light">

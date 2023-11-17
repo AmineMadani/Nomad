@@ -36,20 +36,18 @@ import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
 import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
 import { ReportDrawer } from './drawers/workorder/pages/report/report.drawer';
-import { ReportStepperComponent } from './drawers/workorder/pages/report/components/report-stepper/report-stepper.component';
 import { ReportCreateComponent } from './drawers/workorder/pages/report/components/report-create/report-create.component';
-import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-context/report-context.component';
-import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-asset/report-asset.component';
-import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-form/report-form.component';
+import { ReportContextComponent } from './drawers/workorder/pages/report/components/report-create/report-context/report-context.component';
+import { ReportAssetComponent } from './drawers/workorder/pages/report/components/report-create/report-asset/report-asset.component';
+import { ReportFormComponent } from './drawers/workorder/pages/report/components/report-create/report-form/report-form.component';
+import { ReportDateComponent } from './drawers/workorder/pages/report/components/report-create/report-date/report-date.component';
 import { WorkorderListComponent } from './drawers/exploitation/segments/workorder-list/workorder-list.component';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
-import { ReportDateComponent } from './drawers/workorder/pages/report/components/report-date/report-date.component';
 import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
 import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
-import { ReportFooterActionsComponent } from './drawers/workorder/pages/report/components/report-footer-actions/report-footer-actions.component';
 
 @NgModule({
   imports: [
@@ -90,7 +88,6 @@ import { ReportFooterActionsComponent } from './drawers/workorder/pages/report/c
     AssetFavoriteComponent,
     WkoCreationComponent,
     WkoViewComponent,
-    ReportStepperComponent,
     ReportCreateComponent,
     ReportAssetComponent,
     ReportDateComponent,
@@ -102,7 +99,6 @@ import { ReportFooterActionsComponent } from './drawers/workorder/pages/report/c
     ItvListComponent,
     ItvCardComponent,
     ItvSearchComponent,
-    ReportFooterActionsComponent
   ],
   exports: [ReportCreateComponent]
 })

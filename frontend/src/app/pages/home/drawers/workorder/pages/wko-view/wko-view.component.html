@@ -2,8 +2,8 @@
   [template]="buttonsTemplate" [displayCloseButton]="true"></app-page-header>
 
 <ion-tab-bar class="action-bar" slot="top">
-  <ion-tab-button *ngIf="taskId || (!taskId && workOrder?.tasks?.length == 1)"
-    [disabled]="(loading || !userHasPermissionModifyReport) || ((taskId || workOrder?.tasks?.length === 1) && selectedTask?.report?.reportValues)"
+  <ion-tab-button *ngIf="(taskId || (workOrder?.tasks?.length === 1))"
+    [disabled]="loading || !userHasPermissionModifyReport || selectedTask?.report?.reportValues || selectedTask.wtsCode === 'TERMINE'"
     (click)="onGenerateReport()">
     <ion-icon name="reader-outline"></ion-icon>
     Saisir un compte-rendu
