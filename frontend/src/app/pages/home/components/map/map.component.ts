@@ -310,7 +310,7 @@ export class MapComponent implements OnInit, OnDestroy {
   public resumeReport() {
     this.router.navigate([
       '/home/workorder/' + this.praxedoService.externalReport + '/cr',
-    ]);
+    ], {queryParams: {state:'resume'}});
   }
 
   /**
@@ -633,7 +633,7 @@ export class MapComponent implements OnInit, OnDestroy {
               this.router.navigateByUrl(user.usrConfiguration.context?.url);
             }
             this.initUserEventContext();
-          }, 500);
+          }, 100);
         })
       })
   }
