@@ -462,13 +462,16 @@ export class ReportAssetComponent implements OnInit {
     this.currentSelectionMessage = await this.toastController.create({
       message: 'Sélectionner patrimoine sur la carte',
       position: 'top',
-      color: 'light'
+      color: 'light',
+      cssClass: this.utils.isMobilePlateform() ? 'toast-mobile':''
     });
     await this.currentSelectionMessage.present();
   }
 
   private async removeSelectionMessage() {
-    this.currentSelectionMessage.remove();
+    if(this.removeSelectionMessage){
+      this.currentSelectionMessage.remove();
+    }
   }
 
   private async addNewFeatures(features: any | any[]): Promise<void> {
@@ -534,6 +537,7 @@ export class ReportAssetComponent implements OnInit {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
     this.mapEventService.isFeatureFiredEvent = false;
+    this.removeSelectionMessage();
   }
 
 }

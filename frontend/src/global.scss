@@ -525,3 +525,8 @@ ion-icon.strike-inverted-through {
 .mobile-area-measure{
   text-align: center !important;
 }
+
+.toast-mobile {
+  --max-width: 75%;
+  margin-left: 24px;
+}
