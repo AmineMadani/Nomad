@@ -18,11 +18,6 @@ ion-segment {
   --background: none;
 
   ion-segment-button{
-    --color: var(--ion-color-primary-variant-50)!important;
-    --color-checked: var(--ion-color-primary-contrast) !important;
-    --background: var(--ion-color-primary-contrast) !important;
-    --background-checked: var(--ion-color-primary-variant-50)!important;
-    --border-radius: 15px !important;
     max-width: 150px;
     min-height: 44px;
     margin-top: 4px;
