@@ -85,15 +85,15 @@ export class ReportEditComponent implements OnInit {
     {
       type: TypeColumn.CHECKBOX,
     },
-    /*{
-      key: 'rqnCode',
-      label: 'Code',
-      type: TypeColumn.TEXT,
-    },*/
     {
       key: 'rqnLlabel',
       label: 'Libellé',
       type: TypeColumn.TEXT
+    },
+    {
+      key: 'listSelectValueText',
+      label: 'Liste des valeurs',
+      type: TypeColumn.TEXT,
     },
   ];
 
@@ -121,7 +121,9 @@ export class ReportEditComponent implements OnInit {
       this.mapReportQuestionByRqnCode[reportQuestion.rqnCode] = {
         ...reportQuestion,
         listSelectValue: reportQuestion.rqnSelectValues != null ? JSON.parse(reportQuestion.rqnSelectValues) : [],
-      }
+      };
+
+      (reportQuestion as any).listSelectValueText = reportQuestion.rqnSelectValues != null ? JSON.parse(reportQuestion.rqnSelectValues).join(', ') : null;
     });
 
     // ### Data ### //
