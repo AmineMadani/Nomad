@@ -163,6 +163,21 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_edit_reason",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/edit_reason.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }
