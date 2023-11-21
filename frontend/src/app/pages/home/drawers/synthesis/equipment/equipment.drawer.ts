@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd,  Params, Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -74,17 +74,29 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       filter((isMapLoaded) => isMapLoaded),
       takeUntil(this.ngUnsubscribe$)
     ).subscribe(async () => {
-      // Get the lyrTableName from the request param
-      const urlParams = new URLSearchParams(window.location.search);
-      const requestParamMap = new Map(urlParams.entries());
-      const lyrTableName: string = requestParamMap.get('lyrTableName');
-      // Get the equipmentId from the route params
-      const routeParamMap: Params = await firstValueFrom(this.route.params);
-      const equipmentId: string = routeParamMap['id'];
-
-      // Init equipment with the params when the map loaded
-      this.initEquipment(lyrTableName, equipmentId);
+        await this.prepareInitEquipement();
     });
+
+    this.router.events
+    .pipe(
+      filter((event) => event instanceof NavigationEnd),
+      takeUntil(this.ngUnsubscribe$))
+      .subscribe(async () =>{
+        await this.prepareInitEquipement();
+      }
+      )
+
+  }
+
+  private async prepareInitEquipement() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestParamMap = new Map(urlParams.entries());
+    const lyrTableName: string = requestParamMap.get('lyrTableName');
+    // Get the equipmentId from the route params
+    const routeParamMap: Params = await firstValueFrom(this.route.params);
+    const equipmentId: string = routeParamMap['id'];
+    // Init equipment with the params when the map loaded
+    this.initEquipment(lyrTableName, equipmentId);
   }
 
   ngOnDestroy(): void {

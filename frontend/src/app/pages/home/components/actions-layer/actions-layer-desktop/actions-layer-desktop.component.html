@@ -29,7 +29,8 @@
     </div>
     <div id="autocomplete-panel-generique" *ngIf="genericSearResult && genericSearResult.length > 0">
       <div class="autocomplete-content" *ngFor="let result of genericSearResult" (click)="onResultClick(result)">
-        {{result.id + " | " + result.asset_tbl.replace('asset.','')}}
+        <span>{{result.id}}</span>
+        <span class="asset-layer"> ({{result.asset_tbl.replace('asset.','')}})</span>
       </div>
     </div>
 

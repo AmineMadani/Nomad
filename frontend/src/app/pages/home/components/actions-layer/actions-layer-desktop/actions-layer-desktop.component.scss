@@ -1,59 +1,50 @@
 .actions-layer-desktop-content {
-    position: absolute;
-    display: inline-block;
-    margin-top: 24px;
-    justify-content: left;
-    align-items: center;
-    flex-flow: wrap;
+  position: absolute;
+  display: inline-block;
+  margin-top: 24px;
+  justify-content: left;
+  align-items: center;
+  flex-flow: wrap;
 
-    .actions-layer-desktop-content-button-search {
-        display: inline-block;
-        width: 225px;
-        --margin-left: -5px !important;
-        --border-radius: 0px 25px 25px 0px;
-        --box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 0px 0 rgba(0, 0, 0, 0.12);
-    }
+  .actions-layer-desktop-content-button-search {
+      display: inline-block;
+      width: 225px;
+      --margin-left: -5px !important;
+      --border-radius: 0px 25px 25px 0px;
+      --box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 0px 0 rgba(0, 0, 0, 0.12);
+  }
 
-    .searchbar-has-focus{
-        width: 350px;
-    }
+  .searchbar-has-focus{
+      width: 350px;
+  }
 }
 
 ion-item {
-    ion-icon {
-        color: var(--ion-color-primary);
-    }
+  ion-icon {
+      color: var(--ion-color-primary);
+  }
 }
 
 
 ion-searchbar {
-  --margin-left: -5px !important;
-  --padding-inline-start: 0px !important;
-  padding-top: 0px !important;
+--margin-left: -5px !important;
+--padding-inline-start: 0px !important;
+padding-top: 0px !important;
 }
 
 .item-search-mode {
-    --min-height: 43px !important;
+  --min-height: 43px !important;
+  border-radius: 17px 0px 0px 0px !important;
 }
 
 .searchbar-input {
-  --margin-left: -5px !important;
+--margin-left: -5px !important;
 }
 
 #searchbar-autocomplete {
-    display: flex;
-    align-items: flex-start;
-    #autocomplete-panel {
-        padding: 15px;
-        border-radius: 25px;
-        background-color: white;
-        position: absolute;
-        left: 10px;
-        top: 52px;
-        box-shadow: -1px 2px 1px rgba(0, 0, 0, .38);
-    }
-
-    #autocomplete-panel-generique {
+  display: flex;
+  align-items: flex-start;
+  #autocomplete-panel {
       padding: 15px;
       border-radius: 25px;
       background-color: white;
@@ -62,70 +53,83 @@ ion-searchbar {
       top: 52px;
       box-shadow: -1px 2px 1px rgba(0, 0, 0, .38);
   }
-    .autocomplete-content {
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        padding: 5px;
-        border-bottom: 2px solid #80808059;
-        cursor: pointer;
-    }
 
-    .autocomplete-content:hover {
-        background-color: var(--ion-color-secondary-variant-90);
-        border-radius: 5px 5px 0px 0px;
-    }
+  #autocomplete-panel-generique {
+    padding: 15px;
+    border-radius: 25px;
+    background-color: white;
+    position: absolute;
+    left: 10px;
+    top: 52px;
+    box-shadow: -1px 2px 1px rgba(0, 0, 0, .38);
+}
+  .autocomplete-content {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 16px;
+      letter-spacing: 0.5px;
+      padding: 5px;
+      border-bottom: 2px solid #80808059;
+      cursor: pointer;
+      .asset-layer{
+        color: var(--ion-color-medium);
+      }
+  }
+
+  .autocomplete-content:hover {
+      background-color: var(--ion-color-secondary-variant-90);
+      border-radius: 5px 5px 0px 0px;
+  }
 }
 
 .custom-input-container {
-  display: inline-block;
-  position: relative;
+display: inline-block;
+position: relative;
+background-color: var(--ion-color-primary);
+color: white;
+margin-left: 10px;
+height: 42px;
+padding-left: 16px;
+padding-top: 2px;
+width: 58px;
+border-radius: 25px 0px 0px 25px;
+box-shadow: -1px 2px 1px rgba(0, 0, 0, .38);
+//top: 8px;
+left: 7px;
+.open-option-button {
+  height: 39px;
+  width: 45px;
+  margin-left: -5px;
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 20px;
+  color: var(--ion-color-primary-contrast);
   background-color: var(--ion-color-primary);
-  color: white;
-  margin-left: 10px;
-  height: 42px;
-  padding-left: 16px;
-  padding-top: 2px;
-  width: 58px;
-  border-radius: 25px 0px 0px 25px;
-  box-shadow: -1px 2px 1px rgba(0, 0, 0, .38);
-  //top: 8px;
-  left: 7px;
-  .open-option-button {
-    height: 39px;
-    width: 45px;
-    margin-left: -5px;
-    border-bottom-left-radius: 20px;
-    border-top-left-radius: 20px;
-    color: var(--ion-color-primary-contrast);
-    background-color: var(--ion-color-primary);
-  }
+}
 }
 
 
 .selection-option  {
-  display: inline-block;
-  color:var(--ion-color-primary);
-  margin-left: 10px;
-  height: 100px;
-  width: 173px;
-  border-radius: 14px;
-  background-color: var(--ion-color-primary-contrast);
-  left: 10px;
-  position: relative;
-  .item-search-mode {
-    --min-height: 43px !important;
+display: inline-block;
+color:var(--ion-color-primary);
+margin-left: 10px;
+height: 100px;
+width: 173px;
+border-radius: 14px;
+background-color: var(--ion-color-primary-contrast);
+left: 10px;
+position: relative;
+.item-search-mode {
+  --min-height: 43px !important;
 }
 }
 
 .arrow-down {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid var(--ion-color-primary-contrast);
-  margin-left: 5px;
-  vertical-align: middle;
+display: inline-block;
+width: 0;
+height: 0;
+border-left: 5px solid transparent;
+border-right: 5px solid transparent;
+border-top: 5px solid var(--ion-color-primary-contrast);
+margin-left: 5px;
+vertical-align: middle;
 }
