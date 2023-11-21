@@ -15,7 +15,7 @@
     <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
   </ion-button>
 </ion-item>
-<div class="calendar-months" *ngIf="calendar.get(year)" [class.months-mobile]="isMobile">
+<div class="calendar-months" *ngIf="calendar.get(year)">
   <ion-item-group *ngFor="let month of calendar.get(year)?.months">
     <ion-item [id]="year+month.name" lines="none" class="ion-text-center">
       <ion-label>

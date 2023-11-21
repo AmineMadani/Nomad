@@ -153,8 +153,6 @@ html, body { height: 100%; width: 100%; margin: 0; }
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  height: calc(100% - 56px);
-  margin-top: 56px;
   width: var(--width-right-panel-interactive);
   right: 0;
   position: absolute !important;
@@ -164,6 +162,15 @@ html, body { height: 100%; width: 100%; margin: 0; }
   -o-animation: slideInRightPanel 0.5s ease 0.1s forwards;
   -ms-animation: slideInRightPanel 0.5s ease 0.1s forwards;
   animation: slideInRightPanel 0.5s ease 0.1s forwards;
+}
+
+.overlay-panel-mobile {
+  height: 100%;
+}
+
+.overlay-panel-desktop {
+  height: calc(100% - 56px);
+  margin-top: 56px;
 }
 
 ion-label.label {
