@@ -207,6 +207,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public onSearchbarFocusOut() {
     setTimeout(() => {
       this.adresses = [];
+      this.genericSearResult = [];
     }, 200);
     setTimeout(() => {
       this.isSearching = false;
