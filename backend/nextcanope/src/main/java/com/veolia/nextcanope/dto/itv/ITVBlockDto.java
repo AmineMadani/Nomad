@@ -6,6 +6,10 @@ import java.util.Map;
 public class ITVBlockDto {
     private Map<String, String> mapB;
     private List<Map<String, String>> listMapC;
+    private String error;
+
+    public ITVBlockDto() {
+    }
 
     public ITVBlockDto(Map<String, String> mapB, List<Map<String, String>> listMapC) {
         this.mapB = mapB;
@@ -26,5 +30,13 @@ public class ITVBlockDto {
 
     public void setListMapC(List<Map<String, String>> listMapC) {
         this.listMapC = listMapC;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

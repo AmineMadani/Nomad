@@ -120,6 +120,9 @@ private Long id;
     @OneToMany(mappedBy="layer")
     private List<AssetForSig> listOfAssetForSig;
 
+    @OneToMany(mappedBy="layer")
+    private List<ItvBlock> listOfItvBlock;
+
     /**
      * Constructor
      */
@@ -305,5 +308,13 @@ private Long id;
 
     public void setListOfAssetForSig(List<AssetForSig> listOfAssetForSig) {
         this.listOfAssetForSig = listOfAssetForSig;
+    }
+
+    public List<ItvBlock> getListOfItvBlock() {
+        return listOfItvBlock;
+    }
+
+    public void setListOfItvBlock(List<ItvBlock> listOfItvBlock) {
+        this.listOfItvBlock = listOfItvBlock;
     }
 }
