@@ -210,8 +210,8 @@ export class ReportCreateComponent implements OnInit {
           let comment = '';
           for (let reportValue of this.workorder.tasks[0].report
             ?.reportValues) {
-            if (reportValue.key == 'COMMENT') {
-              comment = reportValue.answer;
+            if (reportValue.key.includes('COMMENT')) {
+              comment = reportValue.answer; 
             }
           }
           IntentAction.closeIntent({

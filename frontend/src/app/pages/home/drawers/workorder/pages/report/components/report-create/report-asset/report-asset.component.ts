@@ -159,6 +159,11 @@ export class ReportAssetComponent implements OnInit {
   }
 
   public onNewAsset() {
+    for(let task of this.workorder.tasks){
+      task.isSelectedTask = false;
+    }
+    this.selectedTasks = [];
+    this.onSaveWorkOrderState.emit();
     this.drawerService.navigateTo(
       DrawerRouteEnum.NEW_ASSET,
       [],
