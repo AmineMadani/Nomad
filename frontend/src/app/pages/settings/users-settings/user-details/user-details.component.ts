@@ -74,6 +74,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   public territories: OrganizationalUnit[] = [];
   public contracts: ContractWithOrganizationalUnits[] = [];
   public initialUser: User = null;
+  public currentUser: User = null;
 
   // Table Toolbar
   public toolbar: TableToolbar = {
@@ -137,6 +138,9 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         elementLabelFunction: (profile: Profile) => {
           return profile.prfLlabel;
         },
+        elementDisableFunction: (profile: Profile) => {
+          return profile.prfValid;
+        },
       },
     },
     {
@@ -150,6 +154,20 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         elementLabelFunction: (org: OrganizationalUnit) => {
           return org.orgLlabel;
         },
+        elementFilterFunction: (row: PerimeterRow) => {
+          const currentUserCtr2 = this.currentUser.perimeters.filter( (p) => p.profileId >= row.profileId)
+                    .reduce((c: number[],p2: Perimeter ) => {
+                    return c.concat(p2.contractIds)
+                    },[]);
+          const t1 = this.contracts.filter((c)=> currentUserCtr2.some((current) => current == c.id));
+          const T2= this.contracts.filter((c)=> currentUserCtr2.some((current) => current == c.id))
+                                .flatMap((ctrWithOrg) => {return ctrWithOrg.organizationalUnits;})
+                                ;
+          const T3 = this.organizationalUnits
+          .filter((orgUnit) => T2.some((ctrfiltered: OrganizationalUnit) => ctrfiltered.orgParentId == orgUnit.id))
+          //console.log('T3',T3);
+                                return T3;
+        }
       },
     },
     {
@@ -212,6 +230,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private regionsSubscription: Subscription;
   private territoriesSubscription: Subscription;
   private contractsSubscription: Subscription;
+  private currentUserSubscription: Subscription;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -231,10 +250,11 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.profileSubscription.unsubscribe();
-    this.regionsSubscription.unsubscribe();
-    this.territoriesSubscription.unsubscribe();
-    this.contractsSubscription.unsubscribe();
+    this.profileSubscription?.unsubscribe();
+    this.regionsSubscription?.unsubscribe();
+    this.territoriesSubscription?.unsubscribe();
+    this.contractsSubscription?.unsubscribe();
+    this.currentUserSubscription?.unsubscribe();
   }
 
   private initForm() {
@@ -265,11 +285,19 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       this.userService.getAllProfiles(),
       this.contractService.getAllContractsWithOrganizationalUnits(),
       this.userService.getUserDetailById(this.userId),
+      this.userService.getCurrentUser(),
     ]).then((results) => {
       const organizationalUnits = results[0];
       const profiles = results[1];
       const contracts = results[2];
       const user = results[3];
+      this.currentUser= results[4];
+      const currentUserProfilId: number[] = this.currentUser.perimeters.map(
+        (p) => p.profileId
+      );
+
+      //console.log('currentUser ) ==> ', this.currentUser);
+      //console.log('profils ) ==> ', currentUserProfilId);
 
       // OrganizationalUnits
       this.organizationalUnits = organizationalUnits;
@@ -283,8 +311,16 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       );
 
       // Profiles
-      this.profiles = profiles;
+      const test = profiles.map((profile) => ({
+        ...profile,
+        prfValid: currentUserProfilId.some((cp) => profile.id == cp),
+      }));
+      //this.profiles =  profiles.filter((profile) => (currentUserProfilId.some((cp)=> profile.id >= cp)  ));
+      this.profiles = profiles.map((profile) => ({ ...profile,    prfValid: !currentUserProfilId.some((cp) => profile.id >= cp),
+      }));
 
+      //console.log('test ===== >', test);
+      //console.log('this.profiles  ==> ', this.profiles);
       // Contracts
       this.contracts = contracts;
 
@@ -485,7 +521,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                   )
                   .map((ctr) => ctr.id);
                 territoryContractIds.push(...row.get('contractIds').value);
-                console.log('', territoryContractIds);
+                //console.log('', territoryContractIds);
                 row
                   .get('contractIds')
                   .setValue(
@@ -516,7 +552,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             const territoriesContractIds = currentContractsIds.filter(
               (ctrId) => !removeContractsIds.includes(ctrId)
             );
-            console.log('territoriesContractIds', territoriesContractIds);
+           // console.log('territoriesContractIds', territoriesContractIds);
             row.get('contractIds').setValue(territoriesContractIds);
           }
         }
