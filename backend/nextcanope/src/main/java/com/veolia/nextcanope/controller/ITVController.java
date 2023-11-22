@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.controller;
 
+import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.service.ITVService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +29,7 @@ public class ITVController {
                     @Content(schema = @Schema(implementation = String.class))
             })
     })
-    public void importItv(@RequestParam("file") MultipartFile file) throws IOException {
-        itvService.readFile(file);
+    public void importItv(@RequestParam("file") MultipartFile file, AccountTokenDto account) throws IOException {
+        itvService.importItv(file, account.getId());
     }
 }

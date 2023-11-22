@@ -9,6 +9,9 @@ import java.io.Serializable;
 public class ItvBlockData implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public static final String PARENT_B = "B";
+    public static final String PARENT_C = "C";
+
     //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -16,9 +19,10 @@ public class ItvBlockData implements Serializable {
     private Long id;
 
     //--- ENTITY DATA FIELDS ---\\
-    private String itbParent;
-    private String itbCode;
-    private String idbValue;
+    private String ibdParent;
+    private Integer ibdLine;
+    private String ibdCode;
+    private String ibdValue;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -43,28 +47,36 @@ public class ItvBlockData implements Serializable {
         this.id = id;
     }
 
-    public String getItbParent() {
-        return itbParent;
+    public String getIbdParent() {
+        return ibdParent;
     }
 
-    public void setItbParent(String itbParent) {
-        this.itbParent = itbParent;
+    public void setIbdParent(String ibdParent) {
+        this.ibdParent = ibdParent;
     }
 
-    public String getItbCode() {
-        return itbCode;
+    public Integer getIbdLine() {
+        return ibdLine;
     }
 
-    public void setItbCode(String itbCode) {
-        this.itbCode = itbCode;
+    public void setIbdLine(Integer ibdLine) {
+        this.ibdLine = ibdLine;
     }
 
-    public String getIdbValue() {
-        return idbValue;
+    public String getIbdCode() {
+        return ibdCode;
     }
 
-    public void setIdbValue(String idbValue) {
-        this.idbValue = idbValue;
+    public void setIbdCode(String ibdCode) {
+        this.ibdCode = ibdCode;
+    }
+
+    public String getIbdValue() {
+        return ibdValue;
+    }
+
+    public void setIbdValue(String ibdValue) {
+        this.ibdValue = ibdValue;
     }
 
     public ItvBlock getItvBlock() {

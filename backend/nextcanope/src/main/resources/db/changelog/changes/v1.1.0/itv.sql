@@ -1763,6 +1763,7 @@ create table ITV_BLOCK_DATA (
 	id 				bigserial primary key,
 	itb_id			bigint not null references ITV_BLOCK(id),
 	ibd_parent		text not null,
+	ibd_line        bigint,
 	ibd_code		text not null,
 	ibd_value		text
 );
@@ -1770,6 +1771,7 @@ create table ITV_BLOCK_DATA (
 COMMENT ON TABLE ITV_BLOCK_DATA is 'This table contains the data of an ITV Block';
 COMMENT ON COLUMN ITV_BLOCK_DATA.itb_id is 'Id of the ITV_BLOCK';
 COMMENT ON COLUMN ITV_BLOCK_DATA.ibd_parent is 'Parent of field (B or C)';
+COMMENT ON COLUMN ITV_BLOCK_DATA.ibd_line is 'Line to which the code is attach (for C)';
 COMMENT ON COLUMN ITV_BLOCK_DATA.ibd_code is 'Code of the field';
 COMMENT ON COLUMN ITV_BLOCK_DATA.ibd_value is 'Value of the field';
 

@@ -15,6 +15,9 @@ import java.util.List;
 public class Itv implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public static final String STATUS_IMPORT = "I";
+    public static final String STATUS_ERROR = "E";
+
     //--- ENTITY PRIMARY KEY ---\\
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -47,10 +50,10 @@ public class Itv implements Serializable {
     @JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(mappedBy="itv")
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itv")
     private List<ItvBlock> listOfItvBlock;
 
-    @OneToMany(mappedBy="itv")
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itv")
     private List<ItvPicture> listOfItvPicture;
 
     /**

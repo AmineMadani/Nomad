@@ -24,7 +24,7 @@ export class ItvDataService {
    * @param file the file
    * @returns A response message if successfull, else return an error.
    */
-  public importItvFile(file: any): Promise<any> {
+  public importItvFile(file: File): Promise<any> {
     const fd = new FormData();
     fd.append('file', file, file.name);
 

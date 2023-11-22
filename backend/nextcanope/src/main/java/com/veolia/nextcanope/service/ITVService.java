@@ -1,20 +1,28 @@
 package com.veolia.nextcanope.service;
 
-import com.veolia.nextcanope.dto.itv.ITVBlockDto;
-import com.veolia.nextcanope.dto.itv.ItvVersionDto;
-import com.veolia.nextcanope.dto.itv.ItvVersionEnumDto;
-import com.veolia.nextcanope.dto.itv.ItvVersionFieldDto;
+import com.veolia.nextcanope.dto.itv.*;
 import com.veolia.nextcanope.exception.FunctionalException;
-import com.veolia.nextcanope.model.ItvVersion;
-import com.veolia.nextcanope.model.ItvVersionAlias;
+import com.veolia.nextcanope.exception.TechnicalException;
+import com.veolia.nextcanope.model.*;
+import com.veolia.nextcanope.repository.ItvRepository;
 import com.veolia.nextcanope.repository.ItvVersionAliasRepository;
 import com.veolia.nextcanope.repository.ItvVersionEnumRepository;
 import com.veolia.nextcanope.repository.ItvVersionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,28 +39,61 @@ public class ITVService {
     @Autowired
     ItvVersionAliasRepository itvVersionAliasRepository;
 
+    @Autowired
+    ItvRepository itvRepository;
+
+    @Autowired
+    UserService userService;
+
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat sdfHour = new SimpleDateFormat("HH:mm");
 
-    public void readFile(MultipartFile file) throws IOException {
+    public void importItv(MultipartFile file, Long userId) throws IOException {
         String name = file.getOriginalFilename();
         String extension = name.substring(name.lastIndexOf(".") + 1);
 
+        ReadResultDto readResultDto;
         if ("txt".equals(extension.toLowerCase())) {
-            readTxtFile(file);
+            readResultDto = readTxtFile(file);
         } else if ("xml".equals(extension.toLowerCase())) {
-            readXmlFile(file);
+            readResultDto = readXmlFile(file);
         } else {
             throw new FunctionalException("Le type de fichier n'est pas géré dans l'intégration.");
         }
-    }
 
-    public void readTxtFile(MultipartFile file) throws IOException {
-        String content = new String(file.getBytes());
+        List<ItvBlockDto> listItvBlockDto = readResultDto.getListItvBlockDto();
+        String decimalSeparator = readResultDto.getDecimalSeparator();
 
         // Get referential data
         List<ItvVersionAlias> listItvVersionAlias = itvVersionAliasRepository.findAll();
         List<ItvVersionDto> listItvVersion = getListItvVersion();
+
+        // For each block
+        for (ItvBlockDto itvBlockDto : listItvBlockDto) {
+            if (itvBlockDto.getError() == null) {
+                // Check the validity of the datas
+                try {
+                    checkValidityBlock(itvBlockDto, listItvVersionAlias, listItvVersion, decimalSeparator);
+                } catch (Exception e) {
+                    itvBlockDto.setError("ERREUR dans le bloc débutant en ligne " + itvBlockDto.getStartLine() + ". " + e.getMessage());
+                }
+            }
+
+            if (itvBlockDto.getError() == null) {
+                // Get the downstream and upstream assets
+                itvBlockDto.getMapB().get("AAD");
+                itvBlockDto.getMapB().get("AAF");
+
+                // Get the asset
+                itvBlockDto.getMapB().get("AAB");
+            }
+        }
+
+        saveItv(file.getOriginalFilename(), listItvBlockDto, userId);
+    }
+
+    public ReadResultDto readTxtFile(MultipartFile file) throws IOException {
+        String content = new String(file.getBytes(), StandardCharsets.UTF_8);
 
         // Convert file to list of line
         List<String> listLine = Arrays.asList(content.split("\r\n"));
@@ -71,7 +112,6 @@ public class ITVService {
         int nbA5 = 0;
         int nbA6 = 0;
 
-        List<ITVBlockDto> listItvBlockDto = new ArrayList<>();
         for (String l : listLine) {
             String line = l.trim();
 
@@ -126,7 +166,7 @@ public class ITVService {
             throw new FunctionalException("Format de fichier incorrect : l'un des codes d'entête est absent (#A1 à #A5). Le traitement est impossible.");
         }
 
-        // Check that a all header fields are present only once
+        // Check that all header fields are present only once
         if (
                 nbA1 > 1
                 || nbA2 > 1
@@ -148,6 +188,8 @@ public class ITVService {
         }
 
         // ### DATA ### //
+        List<ItvBlockDto> listItvBlockDto = new ArrayList<>();
+
         for (int i = 0; i < listLine.size() ; i++) {
             String line = listLine.get(i).trim();
 
@@ -159,7 +201,7 @@ public class ITVService {
                 Integer endIndex = getNextIndexOfValue(listLine, i + 1, false, false, true);
 
                 if (endIndex == null) {
-                    ITVBlockDto itvBlockDto = new ITVBlockDto();
+                    ItvBlockDto itvBlockDto = new ItvBlockDto();
                     itvBlockDto.setError("ERREUR dans le bloc débutant en ligne " + i + ". " + "Le block ne se fini pas.");
                     listItvBlockDto.add(itvBlockDto);
                     break;
@@ -169,22 +211,15 @@ public class ITVService {
                 List<String> listLineBlock = listLine.subList(i, endIndex + 1);
 
                 // Read the block
-                ITVBlockDto itvBlockDto;
+                ItvBlockDto itvBlockDto;
                 try {
                     itvBlockDto = readBlock(listLineBlock, fieldSeparator, textSurroundingChar);
                 } catch (Exception e) {
-                    itvBlockDto = new ITVBlockDto();
+                    itvBlockDto = new ItvBlockDto();
                     itvBlockDto.setError("ERREUR dans le bloc débutant en ligne " + i + ". " + e.getMessage());
                 }
 
-                if (itvBlockDto.getError() == null) {
-                    // Check the validity of the datas
-                    try {
-                        checkValidityBlock(itvBlockDto, listItvVersionAlias, listItvVersion, decimalSeparator);
-                    } catch (Exception e) {
-                        itvBlockDto.setError("ERREUR dans le bloc débutant en ligne " + i + ". " + e.getMessage());
-                    }
-                }
+                itvBlockDto.setStartLine(i);
 
                 listItvBlockDto.add(itvBlockDto);
 
@@ -194,7 +229,13 @@ public class ITVService {
                 throw new FunctionalException("Le fichier contient l'identifiant " + line.substring(0, 2) + " qui n'est pas prévu par les versions de la norme gérées par l'application.");
             }
         }
+
+        ReadResultDto readResultDto = new ReadResultDto();
+        readResultDto.setListItvBlockDto(listItvBlockDto);
+        readResultDto.setDecimalSeparator(decimalSeparator);
+        return readResultDto;
     }
+
 
     /**
      * A block looks like that :
@@ -213,7 +254,7 @@ public class ITVService {
      *      mapB = {"AAA": "aaaa", "BBB": "bbbb", "CCC": "cccc", "DDD": "dddd", "eeee": "eeee", "FFF": "ffff"}
      *      listMapC = [{"GGG": "gggg", "HHH": "hhhh", "III": "iiii"}, {"GGG": "gggg", "HHH": "hhhh", "III": "iiii"}]
      */
-    private ITVBlockDto readBlock(List<String> listLine, String fieldSeparator, String textSurroundingChar) {
+    private ItvBlockDto readBlock(List<String> listLine, String fieldSeparator, String textSurroundingChar) {
         Map<String, String> mapB = new HashMap<>();
         List<Map<String, String>> listMapC = new ArrayList<>();
 
@@ -286,7 +327,194 @@ public class ITVService {
             }
         }
 
-        return new ITVBlockDto(mapB, listMapC);
+        return new ItvBlockDto(mapB, listMapC);
+    }
+
+    private Integer getNextIndexOfValue(List<String> listLine, int startIndex, boolean searchBType, boolean searchCType, boolean searchZType) {
+        Integer foundIndex = null;
+        for (int i = startIndex; i < listLine.size() ; i++) {
+            String line = listLine.get(i).trim();
+
+            if (
+                    (searchBType && line.startsWith("#B"))
+                    || (searchCType && line.startsWith("#C"))
+                    || (searchZType && line.startsWith("#Z"))
+            ) {
+                foundIndex = i;
+                break;
+            }
+
+        }
+
+        return foundIndex;
+    }
+
+    /**
+     * A block looks like that :
+     * <ZB>                         <-- Start of block
+     *      <AAA>aaaa</AAA>         <-- AAA is the code the field, aaaa is the value of the field
+     *      <BBB>bbbb</BBB>         <-- BBB is the code the field, bbbb is the value of the field
+     *      <ZC>
+     *          <GGG>gggg</GGG>     <-- GGG is the code the field, gggg is the value of the field
+     *          <HHH>hhhh</HHH>     <-- HHH is the code the field, hhhh is the value of the field
+     *      </ZC>
+     *      <ZC>
+     *          <GGG>gggg</GGG>     <-- GGG is the code the field, gggg is the value of the field
+     *          <HHH>hhhh</HHH>     <-- HHH is the code the field, hhhh is the value of the field
+     *      </ZC>
+     * </ZB>                        <-- End of block
+     */
+    public ReadResultDto readXmlFile(MultipartFile file) {
+        List<ItvBlockDto> listItvBlockDto = new ArrayList<>();
+
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(file.getInputStream());
+            doc.getDocumentElement().normalize();
+
+            // ### HEADER ### //
+            String language = "";
+            String docVersion = "";
+            int nbA2 = 0;
+            int nbA6 = 0;
+
+            NodeList listBlockA = doc.getElementsByTagName("ZA");
+            for (int i = 0; i < listBlockA.getLength(); i++) {
+                Node nodeA = listBlockA.item(i);
+
+                if (nodeA.getNodeType() == Node.ELEMENT_NODE) {
+                    Element elementA = (Element) nodeA;
+
+                    NodeList listNodeFieldA = elementA.getChildNodes();
+                    for (int k = 0; k < listNodeFieldA.getLength(); k++) {
+                        Node nodeFieldB = listNodeFieldA.item(k);
+                        String code = nodeFieldB.getNodeName();
+                        String value = nodeFieldB.getTextContent();
+
+                        if (!"#text".equals(code)) {
+                            if ("A2".equals(code)) {
+                                language = value;
+                                nbA2++;
+                            } else if ("A6".equals(code)) {
+                                docVersion = value;
+                                nbA6++;
+                            } else {
+                                throw new FunctionalException("L'en-tête contient l'identifiant " + code + " qui n'est pas prévu par la norme.");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check that all the header fields have values
+            if ("".equals(language) || "".equals(docVersion)) {
+                throw new FunctionalException("Format de fichier incorrect : l'un des codes d'entête est absent (A2 ou A6). Le traitement est impossible.");
+            }
+
+            // Check that all header fields are present only once
+            if (nbA2 > 1 || nbA6 > 1) {
+                throw new FunctionalException("Un des codes d'entête est renseigné plusieurs fois.");
+            }
+
+            // ### DATA ### //
+            NodeList listBlockB = doc.getElementsByTagName("ZB");
+            for (int i = 0; i < listBlockB.getLength(); i++) {
+                Node nodeB = listBlockB.item(i);
+
+                if (nodeB.getNodeType() == Node.ELEMENT_NODE) {
+                    Element elementB = (Element) nodeB;
+
+                    ItvBlockDto itvBlockDto = new ItvBlockDto();
+
+                    NodeList listNodeFieldB = elementB.getChildNodes();
+                    Map<String, String> mapB = new HashMap<>();
+                    for (int k = 0; k < listNodeFieldB.getLength(); k++) {
+                        Node nodeFieldB = listNodeFieldB.item(k);
+                        String code = nodeFieldB.getNodeName();
+                        String value = nodeFieldB.getTextContent();
+
+                        if (!"#text".equals(code) && !"ZC".equals(code)) {
+                            mapB.put(code, value);
+                        }
+                    }
+
+                    itvBlockDto.setMapB(mapB);
+
+                    // C
+                    NodeList listBlockC = elementB.getElementsByTagName("ZC");
+
+                    List<Map<String, String>> listMapC = new ArrayList<>();
+                    for (int j = 0; j < listBlockC.getLength(); j++) {
+                        Node nodeC = listBlockC.item(j);
+                        if (nodeC.getNodeType() == Node.ELEMENT_NODE) {
+                            Element elementC = (Element) nodeC;
+                            elementC.getElementsByTagName("ZC").item(0);
+                            NodeList listNodeFieldC = elementC.getChildNodes();
+
+                            Map<String, String> mapC = new HashMap<>();
+                            for (int k = 0; k < listNodeFieldC.getLength(); k++) {
+                                Node nodeFieldC = listNodeFieldC.item(k);
+                                String code = nodeFieldC.getNodeName();
+                                String value = nodeFieldC.getTextContent();
+
+                                if (!"#text".equals(code)) mapC.put(code, value);
+                            }
+                            listMapC.add(mapC);
+                        }
+                    }
+
+                    itvBlockDto.setListMapC(listMapC);
+
+                    listItvBlockDto.add(itvBlockDto);
+                }
+            }
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new TechnicalException("Erreur lors de la lecture du fichier", e.getMessage());
+        }
+
+        ReadResultDto readResultDto = new ReadResultDto();
+        readResultDto.setListItvBlockDto(listItvBlockDto);
+        readResultDto.setDecimalSeparator(".");
+        return readResultDto;
+    }
+
+    public List<ItvVersionDto> getListItvVersion() {
+        List<ItvVersion> listItvVersion = itvVersionRepository.findAll();
+        List<ItvVersionEnumDto> listItvVersionEnum = itvVersionEnumRepository.getListItvVersionEnum();
+
+        Map<String, List<ItvVersionFieldDto>> mapListItvVersionFieldByVersion = new HashMap<>();
+        for (ItvVersion itvVersion : listItvVersion) {
+            List<ItvVersionFieldDto> listItvVersionField = mapListItvVersionFieldByVersion.get(itvVersion.getVersion());
+            if (listItvVersionField == null) {
+                listItvVersionField = new ArrayList<>();
+                mapListItvVersionFieldByVersion.put(itvVersion.getVersion(), listItvVersionField);
+            }
+
+            ItvVersionFieldDto itvVersionFieldDto = new ItvVersionFieldDto();
+            itvVersionFieldDto.setCode(itvVersion.getCode());
+            itvVersionFieldDto.setLabel(itvVersion.getLabel());
+            itvVersionFieldDto.setParent(itvVersion.getParent());
+            itvVersionFieldDto.setType(itvVersion.getType());
+            itvVersionFieldDto.setListItvVersionEnum(
+                    listItvVersionEnum.stream().filter(e -> e.getVersion().equals(itvVersion.getVersion())
+                            && e.getCode().equals(itvVersion.getCode())).collect(Collectors.toList())
+            );
+
+            listItvVersionField.add(itvVersionFieldDto);
+        }
+
+        List<ItvVersionDto> listItvVersionDto = new ArrayList<>();
+        for(String version : mapListItvVersionFieldByVersion.keySet()) {
+            ItvVersionDto itvVersionDto = new ItvVersionDto();
+            itvVersionDto.setVersion(version);
+            itvVersionDto.setListItvVersionField(mapListItvVersionFieldByVersion.get(version));
+            listItvVersionDto.add(itvVersionDto);
+        }
+
+        return listItvVersionDto;
     }
 
     /**
@@ -296,7 +524,7 @@ public class ITVService {
      * @param listItvVersion List of ITV fields definition by version
      */
     private void checkValidityBlock(
-            ITVBlockDto itvBlockDto, List<ItvVersionAlias> listItvVersionAlias, List<ItvVersionDto> listItvVersion,
+            ItvBlockDto itvBlockDto, List<ItvVersionAlias> listItvVersionAlias, List<ItvVersionDto> listItvVersion,
             String decimalSeparator
     ) {
         Map<String, String> mapB = itvBlockDto.getMapB();
@@ -388,65 +616,6 @@ public class ITVService {
         }
     }
 
-    private Integer getNextIndexOfValue(List<String> listLine, int startIndex, boolean searchBType, boolean searchCType, boolean searchZType) {
-        Integer foundIndex = null;
-        for (int i = startIndex; i < listLine.size() ; i++) {
-            String line = listLine.get(i).trim();
-
-            if (
-                    (searchBType && line.startsWith("#B"))
-                    || (searchCType && line.startsWith("#C"))
-                    || (searchZType && line.startsWith("#Z"))
-            ) {
-                foundIndex = i;
-                break;
-            }
-
-        }
-
-        return foundIndex;
-    }
-
-    public void readXmlFile(MultipartFile file) {
-
-    }
-
-    public List<ItvVersionDto> getListItvVersion() {
-        List<ItvVersion> listItvVersion = itvVersionRepository.findAll();
-        List<ItvVersionEnumDto> listItvVersionEnum = itvVersionEnumRepository.getListItvVersionEnum();
-
-        Map<String, List<ItvVersionFieldDto>> mapListItvVersionFieldByVersion = new HashMap<>();
-        for (ItvVersion itvVersion : listItvVersion) {
-            List<ItvVersionFieldDto> listItvVersionField = mapListItvVersionFieldByVersion.get(itvVersion.getVersion());
-            if (listItvVersionField == null) {
-                listItvVersionField = new ArrayList<>();
-                mapListItvVersionFieldByVersion.put(itvVersion.getVersion(), listItvVersionField);
-            }
-
-            ItvVersionFieldDto itvVersionFieldDto = new ItvVersionFieldDto();
-            itvVersionFieldDto.setCode(itvVersion.getCode());
-            itvVersionFieldDto.setLabel(itvVersion.getLabel());
-            itvVersionFieldDto.setParent(itvVersion.getParent());
-            itvVersionFieldDto.setType(itvVersion.getType());
-            itvVersionFieldDto.setListItvVersionEnum(
-                    listItvVersionEnum.stream().filter(e -> e.getVersion().equals(itvVersion.getVersion())
-                            && e.getCode().equals(itvVersion.getCode())).collect(Collectors.toList())
-            );
-
-            listItvVersionField.add(itvVersionFieldDto);
-        }
-
-        List<ItvVersionDto> listItvVersionDto = new ArrayList<>();
-        for(String version : mapListItvVersionFieldByVersion.keySet()) {
-            ItvVersionDto itvVersionDto = new ItvVersionDto();
-            itvVersionDto.setVersion(version);
-            itvVersionDto.setListItvVersionField(mapListItvVersionFieldByVersion.get(version));
-            listItvVersionDto.add(itvVersionDto);
-        }
-
-        return listItvVersionDto;
-    }
-
     public void checkValue(String type, String value, String fieldCode, String condition, String decimalSeparator, ItvVersionFieldDto itvVersionField) {
         if (value != null) {
             // Enum
@@ -506,5 +675,61 @@ public class ITVService {
                 }
             }
         }
+    }
+
+    private Itv saveItv(String filename, List<ItvBlockDto> listItvBlockDto, Long userId) {
+        // Save the ITV
+        Users user = userService.getUserById(userId);
+
+        Itv itv = new Itv();
+        itv.setItvFilename(filename);
+        itv.setItvStatus(Itv.STATUS_IMPORT);
+        itv.setCreatedBy(user);
+        itv.setModifiedBy(user);
+        itv.setListOfItvPicture(new ArrayList<>());
+        itv.setListOfItvBlock(new ArrayList<>());
+
+        for (ItvBlockDto itvBlockDto : listItvBlockDto) {
+            ItvBlock itvBlock = new ItvBlock();
+            //itvBlock.setItbObjRef();
+            //itvBlock.setLayer();
+            itvBlock.setItv(itv);
+            itvBlock.setListOfItvBlockData(new ArrayList<>());
+
+            for (String code : itvBlockDto.getMapB().keySet()) {
+                ItvBlockData itvBlockData = new ItvBlockData();
+                itvBlockData.setIbdParent(ItvBlockData.PARENT_B);
+                itvBlockData.setIbdLine(null); // Only 1 line for B
+                itvBlockData.setIbdCode(code);
+                itvBlockData.setIbdValue(itvBlockDto.getMapB().get(code));
+                itvBlockData.setItvBlock(itvBlock);
+                itvBlock.getListOfItvBlockData().add(itvBlockData);
+            }
+
+            int lineNb = 0;
+            for (Map<String, String> mapC : itvBlockDto.getListMapC()) {
+                lineNb++;
+
+                for (String code : mapC.keySet()) {
+                    ItvBlockData itvBlockData = new ItvBlockData();
+                    itvBlockData.setIbdParent(ItvBlockData.PARENT_C);
+                    itvBlockData.setIbdLine(lineNb);
+                    itvBlockData.setIbdCode(code);
+                    itvBlockData.setIbdValue(mapC.get(code));
+                    itvBlockData.setItvBlock(itvBlock);
+                    itvBlock.getListOfItvBlockData().add(itvBlockData);
+                }
+            }
+
+            itv.getListOfItvBlock().add(itvBlock);
+        }
+
+        try {
+            itv = itvRepository.save(itv);
+        } catch (Exception e) {
+            throw new TechnicalException("Erreur lors de la sauvegarde de l'ITV", e.getMessage());
+        }
+
+        return itv;
     }
 }

@@ -15,7 +15,7 @@ export class ItvService {
    * @param file the file
    * @returns the result
    */
-  public importItvFile(file: any): Promise<any> {
+  public importItvFile(file: File): Promise<any> {
     return this.itvDataService.importItvFile(file);
   }
 }

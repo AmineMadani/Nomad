@@ -35,7 +35,7 @@ public class ItvBlock implements Serializable {
     @JoinColumn(name="itb_obj_table", referencedColumnName="lyr_table_name")
     private Layer layer;
 
-    @OneToMany(mappedBy="itvBlock")
+    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itvBlock")
     private List<ItvBlockData> listOfItvBlockData;
 
     /**

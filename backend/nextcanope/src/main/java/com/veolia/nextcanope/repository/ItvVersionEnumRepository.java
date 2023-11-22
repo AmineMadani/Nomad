@@ -11,7 +11,7 @@ import java.util.List;
 public interface ItvVersionEnumRepository extends JpaRepository<ItvVersionEnum, ItvVersionEnumId> {
 
     @Query(
-            value = "SELECT * FROM ITV_VERSION_ENUM ",
+            value = "SELECT * FROM nomad.ITV_VERSION_ENUM ",
             nativeQuery = true
     )
     List<ItvVersionEnumDto> getListItvVersionEnum();
