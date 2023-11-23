@@ -325,6 +325,18 @@ private Long id;
     @OneToMany(mappedBy="createdBy")
     private List<ReportQuestion> listOfCreatedReportQuestion;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<Itv> listOfModifiedItv;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Itv> listOfCreatedItv;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<ItvPicture> listOfModifiedItvPicture;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<ItvPicture> listOfCreatedItvPicture;
+
     /**
      * Constructor
      */
@@ -1327,5 +1339,37 @@ private Long id;
 
     public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
         this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
+    }
+
+    public List<Itv> getListOfModifiedItv() {
+        return listOfModifiedItv;
+    }
+
+    public void setListOfModifiedItv(List<Itv> listOfModifiedItv) {
+        this.listOfModifiedItv = listOfModifiedItv;
+    }
+
+    public List<Itv> getListOfCreatedItv() {
+        return listOfCreatedItv;
+    }
+
+    public void setListOfCreatedItv(List<Itv> listOfCreatedItv) {
+        this.listOfCreatedItv = listOfCreatedItv;
+    }
+
+    public List<ItvPicture> getListOfModifiedItvPicture() {
+        return listOfModifiedItvPicture;
+    }
+
+    public void setListOfModifiedItvPicture(List<ItvPicture> listOfModifiedItvPicture) {
+        this.listOfModifiedItvPicture = listOfModifiedItvPicture;
+    }
+
+    public List<ItvPicture> getListOfCreatedItvPicture() {
+        return listOfCreatedItvPicture;
+    }
+
+    public void setListOfCreatedItvPicture(List<ItvPicture> listOfCreatedItvPicture) {
+        this.listOfCreatedItvPicture = listOfCreatedItvPicture;
     }
 }

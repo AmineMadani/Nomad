@@ -157,6 +157,7 @@ public class FormTemplateService {
 
             try {
                 formDefinitionRepository.save(formDefinition);
+                formTemplateCustomRepository.save((formTemplateCustom));
             } catch (Exception e) {
                 throw new TechnicalException("Erreur lors de la sauvegarde du form definition pour l'utilisateur avec l'id  " + userId + ".", e.getMessage());
             }

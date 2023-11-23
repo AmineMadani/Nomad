@@ -48,6 +48,7 @@ import { MulticontractModalComponent } from './drawers/workorder/pages/multicont
 import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
 import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
+import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv-import/itv-import.component';
 
 @NgModule({
   imports: [
@@ -99,6 +100,7 @@ import { ItvSearchComponent } from './drawers/exploitation/components/itv-search
     ItvListComponent,
     ItvCardComponent,
     ItvSearchComponent,
+    ItvImportComponent,
   ],
   exports: [ReportCreateComponent]
 })

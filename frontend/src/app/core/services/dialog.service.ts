@@ -78,7 +78,7 @@ export class DialogService {
       positionStrategy,
       hasBackdrop: config?.backdrop ?? true,
       backdropClass: 'overlay-backdrop',
-      panelClass: ['overlay-panel','rightPanelAnimationIn'],
+      panelClass: [this.utils.isMobilePlateform() ? 'overlay-panel-mobile':'overlay-panel-desktop','rightPanelAnimationIn','overlay-panel'],
     });
 
     // Create dialogRef to return

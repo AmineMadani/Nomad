@@ -306,10 +306,11 @@ export class UserService {
       context.zoom = mapLibre.getZoom();
       context.lng = mapLibre.getCenter().lng;
       context.lat = mapLibre.getCenter().lat;
-      if(!this.praxedoService.externalReport) {
-        context.url = this.router.url;
-      } else {
+
+      if(this.praxedoService.externalReport || this.router.url.includes('/cr')) {
         context.url = '/home';
+      } else {
+        context.url = this.router.url;
       }
       context.basemap = mapLibre.getLayer('basemap').source
 
@@ -320,7 +321,7 @@ export class UserService {
       context.layers = mapLayerLoaded;
     }
 
-    if(this.currentUser){
+    if(this.currentUser && !this.mapService.hasLoadingLayerStyle()){
       this.currentUser.usrConfiguration.context = context;
       this.updateCurrentUser();
     }
