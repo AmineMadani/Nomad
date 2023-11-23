@@ -48,10 +48,11 @@ public class ITVService {
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat sdfHour = new SimpleDateFormat("HH:mm");
 
-    public void importItv(MultipartFile file, Long userId) throws IOException {
+    public Long importItv(MultipartFile file, Long userId) throws IOException {
         String name = file.getOriginalFilename();
         String extension = name.substring(name.lastIndexOf(".") + 1);
 
+        // ### Read the file ### //
         ReadResultDto readResultDto;
         if ("txt".equals(extension.toLowerCase())) {
             readResultDto = readTxtFile(file);
@@ -64,6 +65,7 @@ public class ITVService {
         List<ItvBlockDto> listItvBlockDto = readResultDto.getListItvBlockDto();
         String decimalSeparator = readResultDto.getDecimalSeparator();
 
+        // ### Check the validity of the datas ### //
         // Get referential data
         List<ItvVersionAlias> listItvVersionAlias = itvVersionAliasRepository.findAll();
         List<ItvVersionDto> listItvVersion = getListItvVersion();
@@ -71,7 +73,6 @@ public class ITVService {
         // For each block
         for (ItvBlockDto itvBlockDto : listItvBlockDto) {
             if (itvBlockDto.getError() == null) {
-                // Check the validity of the datas
                 try {
                     checkValidityBlock(itvBlockDto, listItvVersionAlias, listItvVersion, decimalSeparator);
                 } catch (Exception e) {
@@ -89,7 +90,9 @@ public class ITVService {
             }
         }
 
-        saveItv(file.getOriginalFilename(), listItvBlockDto, userId);
+        // ### Save the ITV ### //
+        Itv itv = saveItv(file.getOriginalFilename(), listItvBlockDto, userId);
+        return itv.getId();
     }
 
     public ReadResultDto readTxtFile(MultipartFile file) throws IOException {
@@ -437,7 +440,7 @@ public class ITVService {
                         String value = nodeFieldB.getTextContent();
 
                         if (!"#text".equals(code) && !"ZC".equals(code)) {
-                            mapB.put(code, value);
+                            mapB.put(code, value != null && !"".equals(value) ? value.trim() : null);
                         }
                     }
 
@@ -460,7 +463,7 @@ public class ITVService {
                                 String code = nodeFieldC.getNodeName();
                                 String value = nodeFieldC.getTextContent();
 
-                                if (!"#text".equals(code)) mapC.put(code, value);
+                                if (!"#text".equals(code)) mapC.put(code, value != null && !"".equals(value) ? value.trim() : null);
                             }
                             listMapC.add(mapC);
                         }
@@ -577,6 +580,11 @@ public class ITVService {
                 // # Check the value of the field # //
                 String value = mapB.get(fieldCode);
                 checkValue("B", value, fieldCode, null, decimalSeparator, itvVersionField);
+
+                // # Convert number data (replace the decimalSeparator with a point) # //
+                if (value != null && "N".equals(itvVersionField.getType())) {
+                    mapB.put(fieldCode, value.replace(decimalSeparator, "."));
+                }
             }
         }
 
@@ -611,6 +619,11 @@ public class ITVService {
                     if ("A".equals(fieldCode)) condition = null;
 
                     checkValue("C", value, fieldCode, condition, decimalSeparator, itvVersionField);
+
+                    // # Convert number data (replace the decimalSeparator with a point) # //
+                    if (value != null && "N".equals(itvVersionField.getType())) {
+                        mapB.put(fieldCode, value.replace(decimalSeparator, "."));
+                    }
                 }
             }
         }
@@ -689,6 +702,8 @@ public class ITVService {
         itv.setListOfItvPicture(new ArrayList<>());
         itv.setListOfItvBlock(new ArrayList<>());
 
+        Set<String> listPictureName = new HashSet<>();
+
         for (ItvBlockDto itvBlockDto : listItvBlockDto) {
             ItvBlock itvBlock = new ItvBlock();
             //itvBlock.setItbObjRef();
@@ -711,6 +726,8 @@ public class ITVService {
                 lineNb++;
 
                 for (String code : mapC.keySet()) {
+                    String value = mapC.get(code);
+
                     ItvBlockData itvBlockData = new ItvBlockData();
                     itvBlockData.setIbdParent(ItvBlockData.PARENT_C);
                     itvBlockData.setIbdLine(lineNb);
@@ -718,10 +735,23 @@ public class ITVService {
                     itvBlockData.setIbdValue(mapC.get(code));
                     itvBlockData.setItvBlock(itvBlock);
                     itvBlock.getListOfItvBlockData().add(itvBlockData);
+
+                    if ("M".equals(code) && value != null) {
+                        listPictureName.addAll(Arrays.asList(value.split(";")));
+                    }
                 }
             }
 
             itv.getListOfItvBlock().add(itvBlock);
+        }
+
+        for (String pictureName : listPictureName) {
+            ItvPicture itvPicture = new ItvPicture();
+            itvPicture.setItpLabel(pictureName);
+            itvPicture.setItpReference(null);
+            itvPicture.setItv(itv);
+            itvPicture.setCreatedBy(user);
+            itv.getListOfItvPicture().add(itvPicture);
         }
 
         try {
