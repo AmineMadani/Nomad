@@ -662,4 +662,9 @@ export class MapService {
   public async removeLocalisationMarker() {
     this.localisationMarker.remove();
   }
+
+  public hasLoadingLayerStyle(): boolean{
+    return this.loadingLayer && Object.keys(this.loadingLayer).length > 0 
+      && this.loadingStyle && Object.keys(this.loadingStyle).length > 0
+  }
 }
