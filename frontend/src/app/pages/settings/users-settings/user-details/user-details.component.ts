@@ -155,18 +155,11 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           return org.orgLlabel;
         },
         elementFilterFunction: (row: PerimeterRow) => {
-          const currentUserCtr2 = this.currentUser.perimeters.filter( (p) => p.profileId >= row.profileId)
-                    .reduce((c: number[],p2: Perimeter ) => {
-                    return c.concat(p2.contractIds)
-                    },[]);
-          const t1 = this.contracts.filter((c)=> currentUserCtr2.some((current) => current == c.id));
-          const T2= this.contracts.filter((c)=> currentUserCtr2.some((current) => current == c.id))
-                                .flatMap((ctrWithOrg) => {return ctrWithOrg.organizationalUnits;})
-                                ;
-          const T3 = this.organizationalUnits
-          .filter((orgUnit) => T2.some((ctrfiltered: OrganizationalUnit) => ctrfiltered.orgParentId == orgUnit.id))
-          //console.log('T3',T3);
-                                return T3;
+          const currentUserCtrByprofil = this.getUserCtrByProfil(row);
+          const contractForSelectedProfil = this.contracts.filter((c) => currentUserCtrByprofil.includes(c.id));
+          const territoriesForSectedProfil = contractForSelectedProfil.flatMap((ctrWithOrg) => ctrWithOrg.organizationalUnits);
+          const organizationalUnitForSelectedProfil = this.organizationalUnits.filter((orgUnit) => territoriesForSectedProfil.some((ctrfiltered: OrganizationalUnit) => ctrfiltered.orgParentId === orgUnit.id));
+          return organizationalUnitForSelectedProfil;
         }
       },
     },
@@ -182,11 +175,21 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           return territory.orgLlabel + ' (' + territory.orgParentLlabel + ')';
         },
         elementFilterFunction: (row: PerimeterRow) => {
+          const currentUserCtrByprofil = this.getUserCtrByProfil(row);
+          const t=  this.getUserCtrByProfil(row);
+          const contractForSelectedProfil = this.contracts.filter((c) => currentUserCtrByprofil.includes(c.id));
+          let territoriesForSectedProfil = contractForSelectedProfil.flatMap((ctrWithOrg) => ctrWithOrg.organizationalUnits);
+          territoriesForSectedProfil = territoriesForSectedProfil.reduce((acc: OrganizationalUnit[], cur: OrganizationalUnit) => {
+            if (!acc.some((p)=> p.id === cur.id)) {
+                acc.push(cur);
+              }
+            return acc;
+            }, [])
           return row.regionIds && row.regionIds.length > 0
-            ? this.territories.filter((org) =>
+            ? territoriesForSectedProfil.filter((org) =>
                 row.regionIds.includes(org.orgParentId)
               )
-            : this.territories;
+            : territoriesForSectedProfil;
         },
       },
     },
@@ -205,15 +208,19 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
           return contract.ctrExpired ? 'Expired' : null;
         },
         elementFilterFunction: (row: PerimeterRow) => {
+          const currentUserCtrByprofil = this.getUserCtrByProfil(row);
+
           if (row.territoryIds && row.territoryIds.length > 0) {
             return this.contracts.filter((ctr) =>
               ctr.organizationalUnits.some((org) =>
+              currentUserCtrByprofil.includes(ctr.id) &&
                 row.territoryIds.includes(org.id)
               )
             );
           } else if (row.regionIds && row.regionIds.length > 0) {
             return this.contracts.filter((ctr) =>
               ctr.organizationalUnits.some((org) =>
+              currentUserCtrByprofil.includes(ctr.id) &&
                 row.regionIds.includes(org.orgParentId)
               )
             );
@@ -296,8 +303,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         (p) => p.profileId
       );
 
-      //console.log('currentUser ) ==> ', this.currentUser);
-      //console.log('profils ) ==> ', currentUserProfilId);
 
       // OrganizationalUnits
       this.organizationalUnits = organizationalUnits;
@@ -311,16 +316,10 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       );
 
       // Profiles
-      const test = profiles.map((profile) => ({
-        ...profile,
-        prfValid: currentUserProfilId.some((cp) => profile.id == cp),
-      }));
-      //this.profiles =  profiles.filter((profile) => (currentUserProfilId.some((cp)=> profile.id >= cp)  ));
       this.profiles = profiles.map((profile) => ({ ...profile,    prfValid: !currentUserProfilId.some((cp) => profile.id >= cp),
       }));
+      // filtering region according to current user
 
-      //console.log('test ===== >', test);
-      //console.log('this.profiles  ==> ', this.profiles);
       // Contracts
       this.contracts = contracts;
 
@@ -521,7 +520,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                   )
                   .map((ctr) => ctr.id);
                 territoryContractIds.push(...row.get('contractIds').value);
-                //console.log('', territoryContractIds);
                 row
                   .get('contractIds')
                   .setValue(
@@ -552,7 +550,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             const territoriesContractIds = currentContractsIds.filter(
               (ctrId) => !removeContractsIds.includes(ctrId)
             );
-           // console.log('territoriesContractIds', territoriesContractIds);
             row.get('contractIds').setValue(territoriesContractIds);
           }
         }
@@ -596,6 +593,14 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   ): void {
     row.get('profileId').setValue(perimeter.profileId, { emitEvent: false });
     row.get('contractIds').setValue(perimeter.contractIds);
+  }
+
+  private getUserCtrByProfil(row:PerimeterRow): number[] {
+   return this.currentUser.perimeters
+    .filter((p) => p.profileId <= row.profileId)
+    .reduce((c: number[], p2: Perimeter) => {
+        return c.concat(p2.contractIds);
+    }, []);
   }
 
   public getPerimetersControls(): TableRow<PerimeterRow>[] {
