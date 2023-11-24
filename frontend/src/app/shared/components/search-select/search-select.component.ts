@@ -160,6 +160,7 @@ export class SearchSelectComponent implements OnInit {
    */
   onOpenModal() {
     if (!this.control.disabled) {
+      this.querySearch= "";
       this.control.markAsTouched();
       this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
       this.modal.present();
