@@ -362,7 +362,7 @@ export class ReportCreateComponent implements OnInit {
       const listWtr = await this.workorderService.getAllWorkorderTaskReasons();
       const listWtrNoXy = listWtr.filter((wtr) => wtr.wtrNoXy === true);
 
-      this.hasXYInvalid = this.workorder.tasks.some((task) => {
+      this.hasXYInvalid = this.workorder.tasks && this.workorder.tasks.some((task) => {
         return (
           task.assObjRef == null &&
           (task.wtrId == null ||
