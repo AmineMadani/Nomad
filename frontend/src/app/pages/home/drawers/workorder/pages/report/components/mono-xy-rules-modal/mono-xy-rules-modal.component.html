@@ -32,8 +32,7 @@
       <ion-list-header>Choississez les élements à garder pour {{ domain === 'dw' ? 'Eau Potable' : 'Assainissement'
         }}</ion-list-header>
       <ion-item *ngFor="let gl of groupLayer" lines="none">
-        <ion-checkbox slot="start" (ionChange)="addLayer($event, gl)"></ion-checkbox>
-        <ion-label>{{ gl.lyrSlabel }}</ion-label>
+        <ion-checkbox slot="start" labelPlacement="end" (ionChange)="addLayer($event, gl)">{{ gl.lyrSlabel }}</ion-checkbox>
       </ion-item>
     </ion-list>
   </ng-template>
