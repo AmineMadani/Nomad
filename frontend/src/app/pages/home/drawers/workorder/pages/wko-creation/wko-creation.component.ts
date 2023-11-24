@@ -51,7 +51,7 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
-import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
+import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
@@ -1454,7 +1454,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (isMultiGeomType || isMultiWater || isMultiContract) {
       const modal = await this.modalCtrl.create({
-        component: MulticontractModalComponent,
+        component: MultiAssetsModalComponent,
         componentProps: {
           isMultiGeomType,
           isMultiWater,

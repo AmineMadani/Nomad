@@ -44,10 +44,11 @@ import { ReportDateComponent } from './drawers/workorder/pages/report/components
 import { WorkorderListComponent } from './drawers/exploitation/segments/workorder-list/workorder-list.component';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
-import { MulticontractModalComponent } from './drawers/workorder/pages/multicontract-modal/multicontract-modal.component';
+import { MultiAssetsModalComponent } from './drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
 import { ItvListComponent } from './drawers/exploitation/segments/itv-list/itv-list.component';
 import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv-card/itv-card.component';
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
+import { MonoXyRulesModalComponent } from './drawers/workorder/pages/report/components/mono-xy-rules-modal/mono-xy-rules-modal.component';
 import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv-import/itv-import.component';
 
 @NgModule({
@@ -96,10 +97,11 @@ import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv
     ReportFormComponent,
     NewAssetDrawer,
     WkoWaterTypeComponent,
-    MulticontractModalComponent,
+    MultiAssetsModalComponent,
     ItvListComponent,
     ItvCardComponent,
     ItvSearchComponent,
+    MonoXyRulesModalComponent,
     ItvImportComponent,
   ],
   exports: [ReportCreateComponent]

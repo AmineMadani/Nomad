@@ -1,9 +1,23 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { InfiniteScrollCustomEvent, IonModal } from '@ionic/angular';
 import { VLayerWtr } from 'src/app/core/models/layer.model';
-import { Task, WTR_CODE_POSE, Workorder } from 'src/app/core/models/workorder.model';
+import {
+  Task,
+  WTR_CODE_POSE,
+  Workorder,
+} from 'src/app/core/models/workorder.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { MapEventService, MultiSelection } from 'src/app/core/services/map/map-event.service';
+import {
+  MapEventService,
+  MultiSelection,
+} from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 
@@ -13,50 +27,83 @@ import { MapService } from 'src/app/core/services/map/map.service';
   styleUrls: ['./report-context.component.scss'],
 })
 export class ReportContextComponent implements OnInit {
-
   constructor(
     private layerService: LayerService,
     private mapService: MapService,
     private mapLayerService: MapLayerService,
     private mapEventService: MapEventService
-  ) { }
+  ) {}
 
   @Input() workorder: Workorder;
   @Input() selectedTasks: Task[];
-  @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
+  @Output() onSaveWorkOrderState: EventEmitter<Workorder> = new EventEmitter();
 
   @ViewChild('modalReportContext') modal: IonModal;
 
   public originalOptions: VLayerWtr[] = [];
   public displayOptions: VLayerWtr[] = [];
   public valueKey: number;
-  public querySearch: string = "";
+  public querySearch: string = '';
 
-  ngOnInit() {
-    this.layerService.getAllVLayerWtr().then((res: VLayerWtr[]) => {
-      //Keep all the original options for the user before any filter
-      this.originalOptions = res.sort((a, b) => a.wtrLlabel.localeCompare(b.wtrLlabel));
+  async ngOnInit() {
+    const res = await this.layerService.getAllVLayerWtr();
+    //Keep all the original options for the user before any filter
+    this.originalOptions = res.sort((a, b) =>
+      a.wtrLlabel.localeCompare(b.wtrLlabel)
+    );
+    if (
+      !this.originalOptions.find(
+        (option) =>
+          this.selectedTasks[0].assObjTable == option.lyrTableName &&
+          option.wtrId === this.selectedTasks[0].wtrId
+      )
+    ) {
+      this.selectedTasks[0].wtrId = null;
+    } else {
+      //In case if the attribute value exist, it take the priority
+      this.valueKey = this.selectedTasks[0].wtrId;
+      this.selectedTasks[0].wtrCode = this.originalOptions.find(
+        (val) => val.wtrId === this.selectedTasks[0].wtrId
+      ).wtrCode;
+      this.selectedTasks[0].astCode = this.originalOptions.find(
+        (val) => val.lyrTableName === this.selectedTasks[0].assObjTable
+      ).astCode;
+    }
 
-      if (!this.originalOptions.find(option => this.selectedTasks[0].assObjTable == option.lyrTableName && option.wtrId === this.selectedTasks[0].wtrId)) {
-        this.selectedTasks[0].wtrId = null;
-      } else {
-        //In case if the attribute value exist, it take the priority
-        this.valueKey = this.selectedTasks[0].wtrId;
-        this.selectedTasks[0].wtrCode = this.originalOptions.find(val => val.wtrId === this.selectedTasks[0].wtrId).wtrCode;
-        this.selectedTasks[0].astCode = this.originalOptions.find(val => val.lyrTableName === this.selectedTasks[0].assObjTable).astCode;
+    // The 'Pose' reason is only accessible if its the initial value
+    if (this.selectedTasks[0].wtrCode !== WTR_CODE_POSE) {
+      // Else filter it from the list
+      this.originalOptions = this.originalOptions.filter(
+        (wtr) => wtr.wtrCode !== WTR_CODE_POSE
+      );
+    }
+
+    const layerGrpActions = await this.layerService.getAllLayerGrpActions();
+    const wtrPossibles = [];
+
+    const lyrTableNames = [
+      ...new Set(this.workorder.tasks.map((tsk) => tsk.assObjTable)),
+    ];
+
+    if (lyrTableNames.length > 0 && layerGrpActions?.length > 0) {
+      for (const lyrGrpAct of layerGrpActions) {
+        if (
+          lyrTableNames.every((ltn) => lyrGrpAct.lyrTableNames.includes(ltn))
+        ) {
+          wtrPossibles.push(lyrGrpAct.wtrCode);
+        }
       }
-
-      // The 'Pose' reason is only accessible if its the initial value
-      if (this.selectedTasks[0].wtrCode !== WTR_CODE_POSE) {
-        // Else filter it from the list
-        this.originalOptions = this.originalOptions.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
+      if (wtrPossibles.length > 0) {
+        this.originalOptions = this.originalOptions.filter((opt) =>
+          wtrPossibles.includes(opt.wtrCode)
+        );
       }
+    }
 
-      //Check if the label is editable
-      this.getValueLabel();
-    });
+    //Check if the label is editable
+    this.getValueLabel();
 
-    this.displayAndZoomTo(this.selectedTasks[0]);
+    this.displayAndZoomTo(this.selectedTasks);
   }
 
   /**
@@ -73,7 +120,13 @@ export class ReportContextComponent implements OnInit {
    * @param e the ion infinity event
    */
   public onIonInfinite(e) {
-    this.displayOptions = [...this.displayOptions, ...this.getFilterOptions(this.querySearch).slice(this.displayOptions.length, this.displayOptions.length + 50)];
+    this.displayOptions = [
+      ...this.displayOptions,
+      ...this.getFilterOptions(this.querySearch).slice(
+        this.displayOptions.length,
+        this.displayOptions.length + 50
+      ),
+    ];
     (e as InfiniteScrollCustomEvent).target.complete();
   }
 
@@ -83,7 +136,11 @@ export class ReportContextComponent implements OnInit {
    * @returns the list of options
    */
   public getFilterOptions(querySearch: string): any[] {
-    let options = this.originalOptions?.filter(option => this.selectedTasks[0].assObjTable == option.lyrTableName && option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1);
+    let options = this.originalOptions?.filter(
+      (option) =>
+        this.selectedTasks[0].assObjTable == option.lyrTableName &&
+        option.wtrLlabel.toLowerCase().indexOf(querySearch) > -1
+    );
     return options;
   }
 
@@ -101,15 +158,21 @@ export class ReportContextComponent implements OnInit {
    * @param event the ion radio event
    */
   public onRadioChange(event) {
-    const obj = this.originalOptions.find(val => val.wtrId === event.detail.value);
+    const obj = this.originalOptions.find(
+      (val) => val.wtrId === event.detail.value
+    );
     this.valueKey = obj.wtrId;
-    for(let task of this.selectedTasks) {
+    for (let task of this.selectedTasks) {
       task.wtrId = obj.wtrId;
-      task.wtrCode = this.originalOptions.find(val => val.wtrId === task.wtrId).wtrCode;
-      task.astCode = this.originalOptions.find(val => val.lyrTableName === task.assObjTable).astCode;
+      task.wtrCode = this.originalOptions.find(
+        (val) => val.wtrId === task.wtrId
+      ).wtrCode;
+      task.astCode = this.originalOptions.find(
+        (val) => val.lyrTableName === task.assObjTable
+      ).astCode;
       task.report = null;
     }
-    this.onSaveWorkOrderState.emit();
+    this.onSaveWorkOrderState.emit(this.workorder);
   }
 
   /**
@@ -118,9 +181,11 @@ export class ReportContextComponent implements OnInit {
    */
   public getValueLabel(): string {
     if (this.selectedTasks[0].wtrId && this.originalOptions?.length > 0) {
-      return this.originalOptions.find(opt => opt.wtrId === this.selectedTasks[0].wtrId).wtrLlabel;
+      return this.originalOptions.find(
+        (opt) => opt.wtrId === this.selectedTasks[0].wtrId
+      ).wtrLlabel;
     }
-    return "";
+    return '';
   }
 
   public convertBitsToBytes(x): string {
@@ -144,32 +209,59 @@ export class ReportContextComponent implements OnInit {
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
    */
-  private displayAndZoomTo(task: Task) {
-
+  private displayAndZoomTo(task: Task[]) {
     let featuresSelection: MultiSelection[] = [];
 
-    this.mapService.onMapLoaded().subscribe(() => {
-      this.mapLayerService.moveToXY(task.longitude, task.latitude).then(() => {
-        this.mapService.addEventLayer('task').then(() => {
-          this.mapService.addEventLayer(task.assObjTable).then(() => {
+    this.mapService.onMapLoaded().subscribe(async () => {
+      // Calculating the average value of both latitude and longitude
+      const longitude =
+        task
+          .map((t) => t.longitude)
+          .reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0
+          ) / task.length;
+      const latitude =
+        task
+          .map((t) => t.latitude)
+          .reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0
+          ) / task.length;
 
-            featuresSelection.push({
-              id: task.id.toString(),
-              source: 'task'
-            });
-            featuresSelection.push({
-              id: task.assObjRef,
-              source: task.assObjTable
-            });
+      await this.mapLayerService.moveToXY(longitude, latitude);
+      await this.mapService.addEventLayer('task');
 
-            if (!task.assObjTable.includes('_xy')) {
-              this.mapEventService.highlighSelectedFeatures(this.mapService.getMap(), featuresSelection);
-            }
-            this.mapLayerService.fitBounds([[task.longitude, task.latitude]], 21);
+      featuresSelection = task.filter((t) => !t.assObjTable.includes('_xy')).map((t) => { return {
+        id: t.id.toString(),
+        source: t.assObjTable,
+      }});
+
+      // Displaying all layers selected
+      [...new Set(task.filter((t) => !t.assObjTable.includes('_xy')).map((t) => t.assObjTable))].forEach(
+        async (layer) => await this.mapService.addEventLayer(layer)
+      );
+
+      for (const t of task) {
+        featuresSelection.push({ id: t.id.toString(), source: 'task' });
+        if (!t.assObjTable.includes('_xy')) {
+          featuresSelection.push({
+            id: t.assObjRef,
+            source: t.assObjTable,
           });
-        });
-      });
-    })
-  }
+        }
+      }
 
+      this.mapEventService.highlighSelectedFeatures(
+        this.mapService.getMap(),
+        featuresSelection
+      );
+
+      this.mapLayerService.fitBounds(
+        task.map((t) => {
+          return [+t.longitude, +t.latitude];
+        })
+      );
+    });
+  }
 }

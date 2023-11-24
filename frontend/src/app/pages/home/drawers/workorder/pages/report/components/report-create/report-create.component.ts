@@ -98,7 +98,7 @@ export class ReportCreateComponent implements OnInit {
           this.step = ReportStepEnum.FORM;
         }
         if (this.workorder.isUpdateReport) {
-          this.onSaveWorkOrderState();
+          this.onSaveWorkOrderState(this.workorder);
         }
       });
     } else {
@@ -135,7 +135,7 @@ export class ReportCreateComponent implements OnInit {
           task.isSelectedTask = true;
         }
       }
-      this.onSaveWorkOrderState();
+      this.onSaveWorkOrderState(this.workorder);
     }
   }
 
@@ -271,8 +271,9 @@ export class ReportCreateComponent implements OnInit {
   /**
    * save work order state
    */
-  public onSaveWorkOrderState() {
-    this.exploitationService.saveCacheWorkorder(this.workorder);
+  public onSaveWorkOrderState(wko: Workorder) {
+    this.exploitationService.saveCacheWorkorder(wko);
+    this.workorder = Object.assign({}, wko);
 
     if (this.step === ReportStepEnum.ASSET) {
       this.checkHasXYInvalid();

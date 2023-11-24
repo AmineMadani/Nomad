@@ -144,11 +144,11 @@ public class LayerService {
                     List<String> lyrTableNames = entry.getValue().stream()
                             .map(item -> item.getLayer().getLyrTableName())
                             .collect(Collectors.toList());
-
                     String wtrCode = entry.getValue().get(0).getWorkorderTaskReason().getWtrCode();
+                    String grpLabel = entry.getValue().get(0).getGrpLabel();
                     long grpId = entry.getKey();
 
-                    return new LayerGrpActionDTO(grpId, wtrCode, lyrTableNames);
+                    return new LayerGrpActionDTO(grpId, wtrCode, lyrTableNames, grpLabel);
                 })
                 .collect(Collectors.toList());
 
