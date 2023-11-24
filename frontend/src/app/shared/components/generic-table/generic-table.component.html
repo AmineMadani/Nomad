@@ -112,7 +112,7 @@
             <app-search-select class="table-select" [key]="column.selectProperties.key" [label]="column.label"
               [elements]="column.selectProperties.elementFilterFunction ? column.selectProperties.elementFilterFunction(row.getRawValue()) : column.selectProperties.elements"
               [control]="row.get(column.key)" [elementLabelFunction]="column.selectProperties.elementLabelFunction" [elementStyleFunction]="column.selectProperties.elementStyleFunction"
-              [isMultiSelection]="column.selectProperties.isMultiSelection" [isUsedInTable]="true">
+              [isMultiSelection]="column.selectProperties.isMultiSelection" [isUsedInTable]="true" [elementDisableFunction]="column.selectProperties.elementDisableFunction">
             </app-search-select>
           </td>
 
