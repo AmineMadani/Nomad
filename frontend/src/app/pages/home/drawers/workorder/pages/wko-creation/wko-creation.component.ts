@@ -1182,6 +1182,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.mapService.addEventLayer(ast.lyrTableName);
       }
       if (!this.markerCreation.has(ast.id)) {
+        let recalculateCoords = this.mapLayerService.findNearestPoint(
+                ast.geom.coordinates,
+                [
+                  ast.x,
+                  ast.y,
+                ]
+              );
+        ast.x = recalculateCoords[0];
+        ast.y = recalculateCoords[1];
         if (ast.id.startsWith('TMP-')) {
           this.markerCreation.set(
             ast.id,
