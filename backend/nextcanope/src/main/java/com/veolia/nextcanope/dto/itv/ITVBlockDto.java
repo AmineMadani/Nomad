@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ItvBlockDto {
+	
     private Map<String, String> mapB;
     private List<Map<String, String>> listMapC;
     private Integer startLine;
