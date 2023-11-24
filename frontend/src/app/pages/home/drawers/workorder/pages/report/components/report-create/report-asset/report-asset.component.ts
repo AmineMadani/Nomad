@@ -484,8 +484,15 @@ export class ReportAssetComponent implements OnInit {
   private async displayAndZoomToPlannedWko(workorder: Workorder) {
     const geometries = [];
     this.route.queryParams.subscribe((params) => {
+
       let x = this.workorder.longitude;
       let y = this.workorder.latitude;
+
+      if(this.workorder.tasks && this.workorder.tasks.length == 1) {
+        x = this.workorder.tasks[0].longitude;
+        y = this.workorder.tasks[0].latitude;
+      }
+      
 
       if (params['state'] && params['state'] == 'resume') {
         x = this.mapService.getMap().getCenter().lng;
