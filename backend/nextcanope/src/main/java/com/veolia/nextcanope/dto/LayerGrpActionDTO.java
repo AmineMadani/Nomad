@@ -1,7 +1,5 @@
 package com.veolia.nextcanope.dto;
 
-import com.veolia.nextcanope.model.LayerGrpAction;
-
 import java.util.List;
 
 public class LayerGrpActionDTO {

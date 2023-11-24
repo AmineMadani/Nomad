@@ -81,11 +81,11 @@ export class MonoXyRulesModalComponent implements OnInit {
     this.hasSelectedGroup = true;
   }
 
-  public addLayer(e: CustomEvent, layer: Layer): void {
+  public addLayer(e: Event, layer: Layer): void {
     this.assets
       .filter((ast) => ast.lyrTableName === layer.lyrTableName)
       .forEach((ast) => {
-        if (e.detail.checked) {
+        if ((e as CustomEvent).detail.checked) {
           this.selectedAssets.add(ast);
         } else {
           if (this.selectedAssets.has(ast)) {
