@@ -1,11 +1,11 @@
 <div class="report-asset">
   <!-- action buttons -->
   <ion-tab-bar class="action-buttons">
-    <ion-tab-button *ngIf="workorder.tasks.length === 1 && !inAssetEditMode" (click)="startAssetEditMode()">
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && !inAssetEditMode" (click)="startAssetEditMode()">
       <ion-icon name="pencil-outline"></ion-icon>
       Modifier le patrimoine
     </ion-tab-button>
-    <ion-tab-button *ngIf="workorder.tasks.length === 1 && inAssetEditMode" [class]="draggableMarker ? 'selected' : ''"
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && inAssetEditMode" [class]="draggableMarker ? 'selected' : ''"
       (click)="cancelAssetEditMode()">
       <ion-icon name="close-outline" color="red"></ion-icon>
       Annuler la modification
@@ -26,7 +26,7 @@
 
   <ng-container *ngIf="!loading; else loadingTemplate">
     <div class="asset-list" *ngIf="workorder">
-      <ion-item *ngIf="workorder.tasks.length > 1">
+      <ion-item *ngIf="workorder.tasks && workorder.tasks.length > 1">
         <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
           [checked]="isAllElementSelected()">
           <span class="select-all-color">Tout sélectionner</span>
@@ -47,7 +47,7 @@
             </ion-note>
           </ion-label>
         </div>
-        <ng-container *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks.length > 1">
+        <ng-container *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks && workorder.tasks.length > 1 && !tsk.report?.dateCompletion">
           <ion-label slot="end">
             <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
               <ion-button fill="clear" (click)="onEditEquipment(tsk)">

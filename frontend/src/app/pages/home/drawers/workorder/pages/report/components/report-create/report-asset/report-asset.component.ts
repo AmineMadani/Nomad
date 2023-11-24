@@ -43,7 +43,8 @@ export class ReportAssetComponent implements OnInit {
     private toastController: ToastController,
     private drawingService: DrawingService,
     private workorderService: WorkorderService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private drawerService: DrawerService
   ) {}
 
   @ViewChild('drawingSelectionPopover', { static: true })
@@ -155,7 +156,15 @@ export class ReportAssetComponent implements OnInit {
       task.isSelectedTask = false;
     }
     this.selectedTasks = [];
-    this.onSaveWorkOrderState.emit();
+    this.onSaveWorkOrderState.emit(this.workorder);
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.NEW_ASSET,
+      [],
+      {
+        draft: this.workorder.id,
+        step: 'report'
+      }
+    );
   }
 
   /**
@@ -336,7 +345,7 @@ export class ReportAssetComponent implements OnInit {
    * @returns True if a task has a terminated report
    */
   public hasReportClosed() {
-    return this.workorder.tasks.some((tsk) => tsk.report?.dateCompletion);
+    return this.workorder.tasks && this.workorder.tasks.some((tsk) => tsk.report?.dateCompletion);
   }
 
   public onCloseCircuit() {
