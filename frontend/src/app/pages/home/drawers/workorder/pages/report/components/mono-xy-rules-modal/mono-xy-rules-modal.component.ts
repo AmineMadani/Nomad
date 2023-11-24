@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
 import { Layer } from 'src/app/core/models/layer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
   selector: 'app-mono-xy-rules-modal',

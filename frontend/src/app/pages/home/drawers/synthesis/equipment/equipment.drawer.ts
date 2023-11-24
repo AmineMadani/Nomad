@@ -115,9 +115,17 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
       let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
+      let recalculateCoords = this.mapLayerService.findNearestPoint(
+        this.equipment.geom.coordinates,
+        [
+          this.equipment.x,
+          this.equipment.y,
+        ]
+      );
+
       let workorder: Workorder = {
-        latitude: this.equipment.y,
-        longitude: this.equipment.x,
+        latitude: recalculateCoords[1],
+        longitude: recalculateCoords[0],
         wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
         ctyId: this.equipment.ctyId,
         id: this.utilsService.createCacheId(),
@@ -125,8 +133,8 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         tasks: [
           {
             id: this.utilsService.createCacheId(),
-            latitude: this.equipment.y,
-            longitude: this.equipment.x,
+            latitude: recalculateCoords[1],
+            longitude: recalculateCoords[0],
             assObjTable: this.equipment.lyrTableName,
             assObjRef: this.equipment.id,
             wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
