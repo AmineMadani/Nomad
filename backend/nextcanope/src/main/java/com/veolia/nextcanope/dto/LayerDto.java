@@ -168,7 +168,7 @@ public class LayerDto {
         return lyrGeomType;
     }
 
-    public void setLyrGeomType(String domCode) {
+    public void setLyrGeomType(String lyrGeomType) {
         this.lyrGeomType = lyrGeomType;
     }
 }

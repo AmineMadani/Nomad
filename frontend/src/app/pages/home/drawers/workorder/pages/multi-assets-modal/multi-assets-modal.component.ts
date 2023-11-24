@@ -21,11 +21,11 @@ interface Domain {
 }
 
 @Component({
-  selector: 'app-multicontract-modal',
-  templateUrl: './multicontract-modal.component.html',
-  styleUrls: ['./multicontract-modal.component.scss'],
+  selector: 'app-multi-assets-modal',
+  templateUrl: './multi-assets-modal.component.html',
+  styleUrls: ['./multi-assets-modal.component.scss'],
 })
-export class MulticontractModalComponent implements OnInit, OnDestroy {
+export class MultiAssetsModalComponent implements OnInit, OnDestroy {
   constructor(
     private modalCtrl: ModalController,
     private contractService: ContractService,
@@ -47,8 +47,9 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
   public isMultiGeomType: boolean;
   public isMultiWater: boolean;
   public isMultiContract: boolean;
+  public originalGeomType?: string;
 
-  public domains: Domain[];
+  public filteredDomains: Domain[];
   public geomTypes: GeomType[];
   public filteredContracts: Contract[];
   public assets: any[];
@@ -57,6 +58,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
 
   public form: FormGroup;
 
+  private domainsPossible: Domain[];
   private contractsPossible: Contract[];
   private selectedLayers: Layer[];
 
@@ -68,6 +70,14 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
     await this.buildForm();
 
     this.addListeners();
+
+    if (this.isMultiGeomType && this.originalGeomType) {
+      this.form.patchValue({
+        selectedGeomType: this.geomTypes.find((gt) => gt.type === this.originalGeomType)
+      })
+      this.form.get('selectedGeomType').markAsTouched();
+      this.form.get('selectedGeomType').disable();
+    }
   }
 
   ngOnDestroy(): void {
@@ -86,7 +96,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
         const layer = this.selectedLayers.find(
           (l) => l.lyrTableName === ast.lyrTableName
         );
-        return layer.lyrGeomType === this.form.get('selectedGeomType').value;
+        return layer.lyrGeomType === this.form.get('selectedGeomType').value.type;
       });
     }
 
@@ -114,7 +124,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
     return (
       this.assets.filter((ast) => {
         if (this.isMultiGeomType) {
-          const geomType = this.form.get('selectedGeomType').value;
+          const geomType = this.form.get('selectedGeomType').value.type;
           return (
             this.selectedLayers
               .filter((l) => l.lyrGeomType === geomType)
@@ -187,7 +197,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
   }
 
   private getDomain(): void {
-    this.domains = [
+    this.domainsPossible = [
       {
         code: 'dw',
         label: 'Eau Potable',
@@ -197,6 +207,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
         label: 'Assainissement',
       },
     ];
+    this.filteredDomains = [...this.domainsPossible];
   }
 
   private async getContracts(): Promise<void> {
@@ -219,28 +230,29 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
       this.form
         .get('selectedGeomType')
         .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
-        .subscribe((geomType: 'line' | 'point') => {
+        .subscribe((geomType: GeomType) => {
           if (this.isMultiWater) {
-            const waterType = new Set([
-              ...this.selectedLayers.filter((l) => l.lyrGeomType === geomType),
-            ]);
-            if (waterType.size === 1) {
+            const waterType = [...new Set([
+              ...this.selectedLayers.filter((l) => l.lyrGeomType === geomType.type),
+            ])];
+            this.filteredDomains = this.domainsPossible.filter((d) =>
+              waterType.map((wt) => wt.domCode).includes(d.code)
+            );
+            if (this.filteredDomains.length === 1) {
               this.form.patchValue({
-                selectedDomain: this.domains.find(
-                  (d) => d.code === [...waterType][0].domCode
-                ).code,
+                selectedDomain: this.filteredDomains[0].code
               });
             } else {
               this.form.patchValue({
                 selectedDomain: null,
-              });
+              }, { emitEvent: false });
             }
             this.form.get('selectedDomain').enable();
           }
           if (!this.isMultiWater && this.isMultiContract) {
             const assets = this.assets.filter((ast) =>
               this.selectedLayers
-                .filter((l) => l.lyrGeomType === geomType)
+                .filter((l) => l.lyrGeomType === geomType.type)
                 .map((l) => l.lyrTableName)
                 .includes(ast.lyrTableName)
             );
@@ -254,7 +266,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
             } else {
               this.form.patchValue({
                 selectedContract: null,
-              });
+              }, { emitEvent: false });
             }
             this.form.get('selectedContract').enable();
           }
@@ -280,7 +292,7 @@ export class MulticontractModalComponent implements OnInit, OnDestroy {
                     (ast) =>
                       this.selectedLayers.find(
                         (l) => l.lyrTableName === ast.lyrTableName
-                      ).lyrGeomType == this.form.get('selectedGeomType').value
+                      ).lyrGeomType == this.form.get('selectedGeomType').value.type
                   )
                   .map((ast) => ast.ctrId)
                   .includes(c.id);

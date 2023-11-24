@@ -1,7 +1,5 @@
 package com.veolia.nextcanope.dto.itv;
 
-import com.veolia.nextcanope.model.ItvVersionEnum;
-
 import java.util.List;
 
 public class ItvVersionFieldDto {

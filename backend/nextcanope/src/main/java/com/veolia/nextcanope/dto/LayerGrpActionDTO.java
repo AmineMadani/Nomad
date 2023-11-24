@@ -1,7 +1,5 @@
 package com.veolia.nextcanope.dto;
 
-import com.veolia.nextcanope.model.LayerGrpAction;
-
 import java.util.List;
 
 public class LayerGrpActionDTO {
@@ -11,10 +9,13 @@ public class LayerGrpActionDTO {
 
     private List<String> lyrTableNames;
 
-    public LayerGrpActionDTO(Long grpId, String wtrCode, List<String> lyrTableNames) {
+    private String grpLabel;
+
+    public LayerGrpActionDTO(Long grpId, String wtrCode, List<String> lyrTableNames, String grpLabel) {
         this.grpId = grpId;
         this.wtrCode = wtrCode;
         this.lyrTableNames = lyrTableNames;
+        this.grpLabel = grpLabel;
     }
 
     public Long getGrpId() {
@@ -39,5 +40,13 @@ public class LayerGrpActionDTO {
 
     public void setLyrTableNames(List<String> lyrTableNames) {
         this.lyrTableNames = lyrTableNames;
+    }
+
+    public String getGrpLabel() {
+        return grpLabel;
+    }
+
+    public void setGrpLabel(String grpLabel) {
+        this.grpLabel = grpLabel;
     }
 }

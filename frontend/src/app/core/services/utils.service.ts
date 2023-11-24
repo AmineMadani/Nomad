@@ -125,6 +125,20 @@ export class UtilsService {
     return transformedArray;
   }
 
+  public transformArrayForAssets(features: any[], allColumn: boolean = false): SearchEquipments[] {
+    return features.reduce((acc, curr) => {
+      const existingItem = acc.find((item: any) => item.lyrTableName === curr.assObjTable);
+
+      if (existingItem) {
+        existingItem.equipmentIds.push(curr.assObjRef);
+      } else {
+        acc.push({ lyrTableName: curr.assObjTable, equipmentIds: [curr.assObjRef], allColumn });
+      }
+
+      return acc;
+    }, []);
+  }
+
   public flattenEquipments(
     arr: { lyrTableName: string; equipmentIds: string[] }[]
   ): string[] {

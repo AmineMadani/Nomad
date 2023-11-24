@@ -33,6 +33,10 @@ private Long id;
     @JsonProperty("grp_id")
     private Long grpId;
 
+    @Column(name="grp_label", nullable=false)
+    @JsonProperty("grp_label")
+    private String grpLabel;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
@@ -65,6 +69,14 @@ private Long id;
 
 	public void setGrpId( Long grpId ) {
         this.grpId = grpId ;
+    }
+
+    public String getGrpLabel() {
+        return this.grpLabel;
+    }
+
+    public void setGrpLabel( String grpLabel ) {
+        this.grpLabel = grpLabel ;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

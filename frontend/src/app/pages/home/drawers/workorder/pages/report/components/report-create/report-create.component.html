@@ -72,7 +72,7 @@
     <ng-container [ngSwitch]="step">
       <ng-container *ngSwitchCase="ReportStepEnum.ASSET">
         <app-report-asset [workorder]="workorder" [selectedTasks]="selectedTasks"
-          (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+          (onSelectedTaskChange)="onSelectedTaskChange($event)" (onSaveWorkOrderState)="onSaveWorkOrderState($event)"
           (onClosedWko)="onClosedWko($event)" (goToDateStep)="goToDateStep()"
           #stepAsset>
         </app-report-asset>
@@ -80,11 +80,11 @@
 
       <ng-container *ngSwitchCase="ReportStepEnum.CONTEXT">
         <app-report-context [workorder]="workorder" [selectedTasks]="selectedTasks"
-          (onSaveWorkOrderState)="onSaveWorkOrderState()"></app-report-context>
+          (onSaveWorkOrderState)="onSaveWorkOrderState($event)"></app-report-context>
       </ng-container>
 
       <ng-container *ngSwitchCase="ReportStepEnum.FORM">
-        <app-report-form [selectedTasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState()"
+        <app-report-form [selectedTasks]="selectedTasks" (onSaveWorkOrderState)="onSaveWorkOrderState($event)"
           (onClosedWko)="onClosedWko($event)"  (goToDateStep)="goToDateStep()"
           [workorder]="workorder" [reportForm]="reportForm" [isTest]="isTest">
         </app-report-form>
@@ -94,6 +94,8 @@
         <app-report-date [workorder]="workorder" [selectedTasks]="selectedTasks"
           (onClosedWko)="onClosedWko($event)"></app-report-date>
       </ng-container>
+
+      <ng-container *ngSwitchDefault></ng-container>
     </ng-container>
   </div>
 </div>
