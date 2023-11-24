@@ -28,7 +28,7 @@
     <div class="asset-list" *ngIf="workorder">
       <ion-item *ngIf="workorder.tasks && workorder.tasks.length > 1">
         <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
-          [checked]="isAllElementSelected()">
+          [checked]="isAllElementSelected()" [disabled]="areAllTasksCompleted()">
           <span class="select-all-color">Tout sélectionner</span>
         </ion-checkbox>
       </ion-item>

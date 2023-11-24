@@ -30,6 +30,8 @@ export class ReportDateComponent implements OnInit {
   public dateForm: FormGroup;
   public isMobile: boolean = false;
 
+  public lockButtons: boolean;
+
   private currentDateValue: string;
 
   ngOnInit() {
@@ -89,9 +91,16 @@ export class ReportDateComponent implements OnInit {
     event.target.value = DateValidator.formatDate(event, this.currentDateValue);
   }
 
+  public disableForm(): void {
+    this.dateForm.get('realisationStartDate').disable();
+    this.dateForm.get('realisationEndDate').disable();
+    this.lockButtons = true;
+  }
+
   public onConfirmDate() {
+    this.disableForm();
     this.dateForm.markAsTouched();
-    if (this.dateForm.valid) {
+    if (!this.dateForm.invalid) {
       if (this.dateForm.controls["realisationStartDate"].value) {
         this.workorder.wkoCompletionStartDate = DateTime.fromFormat(this.dateForm.controls["realisationStartDate"].value, "dd/MM/yyyy").toJSDate();
       }

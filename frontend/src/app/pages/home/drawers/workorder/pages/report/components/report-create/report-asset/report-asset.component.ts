@@ -400,7 +400,7 @@ export class ReportAssetComponent implements OnInit {
     } else {
       // Only select the all the tasks of the first layer key find
       if (!this.layerSelected)
-        this.layerSelected = this.workorder.tasks[0].assObjTable;
+        this.layerSelected = this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0].assObjTable ?? this.workorder.tasks[0].assObjTable;
       for (const task of this.workorder.tasks.filter(
         (tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected
       )) {
@@ -418,6 +418,10 @@ export class ReportAssetComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  public areAllTasksCompleted(): boolean {
+    return this.workorder.tasks.every((t) => t.report?.dateCompletion);
   }
 
   private initFeatureSelectionListeners() {
@@ -660,11 +664,18 @@ export class ReportAssetComponent implements OnInit {
 
     this.workorder.longitude = this.workorder.tasks[0].longitude;
     this.workorder.latitude = this.workorder.tasks[0].latitude;
-    if (this.editTaskEquipment?.assObjTable.includes('_xy') && this.draggableMarker?.isDraggable()) {
+    if (
+      this.editTaskEquipment?.assObjTable.includes('_xy') &&
+      this.draggableMarker?.isDraggable()
+    ) {
       this.draggableMarker.remove();
     }
+
+    if (!this.editTaskEquipment) {
+      this.inAssetEditMode = false;
+    }
+
     this.stopMultiSelectionEditMode();
-    this.inAssetEditMode = false;
     this.workorder.tasks.forEach((t) => t.isSelectedTask = false);
     this.onSaveWorkOrderState.emit(this.workorder);
   }
