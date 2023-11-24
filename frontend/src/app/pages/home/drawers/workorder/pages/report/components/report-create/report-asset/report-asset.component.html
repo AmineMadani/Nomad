@@ -24,51 +24,55 @@
     </ion-tab-button>
   </ion-tab-bar>
 
-
-  <div class="asset-list" *ngIf="workorder">
-    <ion-item *ngIf="workorder.tasks.length > 1">
-      <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
-        [checked]="isAllElementSelected()">
-        <span class="select-all-color">Tout sélectionner</span>
-      </ion-checkbox>
-    </ion-item>
-    <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
-      (mouseleave)="onItemHoverLeave(tsk)">
-      <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
-        [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
-        [disabled]="(layerSelected && !layerSelected.includes('_xy') ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
-      <div style="display: inline-block;">
-        <ion-label>
-          <ion-label class="ion-no-margin">
-            {{getLyrLabel(tsk.assObjTable)}}
+  <ng-container *ngIf="!loading; else loadingTemplate">
+    <div class="asset-list" *ngIf="workorder">
+      <ion-item *ngIf="workorder.tasks.length > 1">
+        <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
+          [checked]="isAllElementSelected()">
+          <span class="select-all-color">Tout sélectionner</span>
+        </ion-checkbox>
+      </ion-item>
+      <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
+        (mouseleave)="onItemHoverLeave(tsk)">
+        <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
+          [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
+          [disabled]="(layerSelected && !layerSelected.includes('_xy') ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
+        <div style="display: inline-block;">
+          <ion-label>
+            <ion-label class="ion-no-margin">
+              {{getLyrLabel(tsk.assObjTable)}}
+            </ion-label>
+            <ion-note slot="helperText">
+              {{tsk.assObjRef}}
+            </ion-note>
           </ion-label>
-          <ion-note slot="helperText">
-            {{tsk.assObjRef}}
-          </ion-note>
-        </ion-label>
-      </div>
-      <ng-container *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks.length > 1">
-        <ion-label slot="end">
-          <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
-            <ion-button fill="clear" (click)="onEditEquipment(tsk)">
-              <ion-icon size="small" slot="icon-only" name="pencil-outline"></ion-icon>
+        </div>
+        <ng-container *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks.length > 1">
+          <ion-label slot="end">
+            <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
+              <ion-button fill="clear" (click)="onEditEquipment(tsk)">
+                <ion-icon size="small" slot="icon-only" name="pencil-outline"></ion-icon>
+              </ion-button>
+            </ng-container>
+            <ng-template #taskModificationButtons>
+              <ion-button fill="clear" (click)="onValidateChangeEquipment(tsk)">
+                <ion-icon size="small" color="success" slot="icon-only" name="checkmark-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="onRemoveChangeEquipment(tsk)">
+                <ion-icon size="small" color="danger" slot="icon-only" name="refresh-outline"></ion-icon>
+              </ion-button>
+            </ng-template>
+            <ion-button fill="clear" (click)="removeTask(tsk)">
+              <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
-          </ng-container>
-          <ng-template #taskModificationButtons>
-            <ion-button fill="clear" (click)="onValidateChangeEquipment(tsk)">
-              <ion-icon size="small" color="success" slot="icon-only" name="checkmark-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" (click)="onRemoveChangeEquipment(tsk)">
-              <ion-icon size="small" color="danger" slot="icon-only" name="refresh-outline"></ion-icon>
-            </ion-button>
-          </ng-template>
-          <ion-button fill="clear" (click)="removeTask(tsk)">
-            <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
-          </ion-button>
-        </ion-label>
-      </ng-container>
-    </ion-item>
-  </div>
+          </ion-label>
+        </ng-container>
+      </ion-item>
+    </div>
+  </ng-container>
+  <ng-template #loadingTemplate>
+    <app-skeleton-loading [rows]="3"></app-skeleton-loading>
+  </ng-template>
 </div>
 
 <ion-popover #drawingSelectionPopover>

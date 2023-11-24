@@ -65,6 +65,7 @@ export class ReportAssetComponent implements OnInit {
   public inAssetEditMode: boolean = false;
   public inMultiSelectionEditMode: boolean = false;
   public layerSelected: string;
+  public loading: boolean = false;
 
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -99,6 +100,9 @@ export class ReportAssetComponent implements OnInit {
   ngOnDestroy(): void {
     if (this.draggableMarker) {
       this.draggableMarker.remove();
+    }
+    if (this.currentSelectionMessage) {
+      this.removeSelectionMessage();
     }
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
@@ -414,10 +418,20 @@ export class ReportAssetComponent implements OnInit {
       .subscribe(async (feature) => {
         // Multiselection
         if (this.inMultiSelectionEditMode) {
+          this.loading = true;
           await this.addNewFeatures(feature);
+          this.loading = false;
         }
         // Asset selection
         else if (this.inAssetEditMode) {
+          // We do not want to be able to change the type of asset, or else we can change an AEP to ASS
+          // or a Line to Point thus breaking every rules made before
+          if (
+            !this.editTaskEquipment.assObjTable.includes('_xy') &&
+            this.editTaskEquipment.assObjTable !== feature.layerKey
+          ) {
+            return;
+          }
           this.editTaskEquipment.assObjRef = feature.featureId;
           this.editTaskEquipment.assObjTable = feature.layerKey;
           const asset = await this.layerService.getEquipmentByLayerAndId(
@@ -447,7 +461,9 @@ export class ReportAssetComponent implements OnInit {
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(async (features) => {
         if (this.inMultiSelectionEditMode) {
+          this.loading = true;
           await this.addNewFeatures(features);
+          this.loading = false;
         }
       });
   }
@@ -628,7 +644,7 @@ export class ReportAssetComponent implements OnInit {
 
     this.workorder.longitude = this.workorder.tasks[0].longitude;
     this.workorder.latitude = this.workorder.tasks[0].latitude;
-    if (!this.editTaskEquipment && this.draggableMarker?.isDraggable()) {
+    if (this.editTaskEquipment?.assObjTable.includes('_xy') && this.draggableMarker?.isDraggable()) {
       this.draggableMarker.remove();
     }
     this.stopMultiSelectionEditMode();
