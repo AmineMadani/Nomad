@@ -291,6 +291,7 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
    * Complete the workorder with report validation
    */
   private completeForm(): void {
+    this.isLoading = true;
     let report: Report = {
       dateCompletion: new Date(),
       reportValues: [],
@@ -313,5 +314,6 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
     }
 
     this.onSaveWorkOrderState.emit(this.workorder);
+    this.isLoading = false;
   }
 }

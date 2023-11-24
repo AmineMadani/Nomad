@@ -5,15 +5,15 @@
   </div>
 
   <div [class]="isMobile ? 'report-header-actions is-mobile' : 'report-header-actions'" lines="none">
-    <ion-button *ngIf="hasPreviousQuestion" slot="start" fill="clear" (click)="onPreviousFormQuestion()">
+    <ion-button *ngIf="hasPreviousQuestion" slot="start" fill="clear" (click)="onPreviousFormQuestion()" [disabled]="isLoading">
       Question précédente
     </ion-button>
 
-    <ion-button *ngIf="!canBeClosed" fill="clear" class="align-right" (click)="onNextFormQuestion()">
+    <ion-button *ngIf="!canBeClosed" fill="clear" class="align-right" (click)="onNextFormQuestion()" [disabled]="isLoading">
       Question suivante
     </ion-button>
 
-    <ion-button *ngIf="canBeClosed && !isTest" fill="clear" class="align-right" (click)="onFormSubmit()">
+    <ion-button *ngIf="canBeClosed && !isTest" fill="clear" class="align-right" (click)="onFormSubmit()" [disabled]="isLoading">
       Clôturer
     </ion-button>
   </div>

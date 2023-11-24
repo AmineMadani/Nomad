@@ -23,5 +23,5 @@
   </div>
 
   <ion-button class="validate-button" fill="clear" (click)="onConfirmDate()"
-    [class.font-mobile]="isMobile">Valider</ion-button>
+    [class.font-mobile]="isMobile" [disabled]="lockButtons">Valider</ion-button>
 </div>
