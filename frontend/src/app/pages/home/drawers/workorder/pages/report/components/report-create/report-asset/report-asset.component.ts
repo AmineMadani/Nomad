@@ -400,7 +400,7 @@ export class ReportAssetComponent implements OnInit {
     } else {
       // Only select the all the tasks of the first layer key find
       if (!this.layerSelected)
-        this.layerSelected = this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0].assObjTable;
+        this.layerSelected = this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0].assObjTable ?? this.workorder.tasks[0].assObjTable;
       for (const task of this.workorder.tasks.filter(
         (tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected
       )) {
