@@ -49,7 +49,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   private marker: Maplibregl.Marker;
 
   public adresses: any[] = [];
-  public adress: string = '';
+  public searchResult: string = '';
   public genericSearResult: any;
   public isSearching = false;
   public isSearchOption = false;
@@ -174,7 +174,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
     this.selectedsearchMode = data?.detail?.value;
   }
   public onAdressClick(adress: any) {
-    this.adress = adress.properties.label;
+    this.searchResult = adress.properties.label;
     this.mapLayerService.moveToXY(
       adress.geometry.coordinates[0],
       adress.geometry.coordinates[1],
@@ -197,11 +197,16 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
 
   public onResultClick(result: any) {
     if (result) {
-      const id= result.id;
-      const layer =  result.asset_tbl.replace('asset.','');
-      this.router.navigate(['home/equipment/'+ id], {queryParams: {lyrTableName  :layer  }} );
-      this.genericSearResult = [];
+      this.OpenAssetResult(result);
     }
+  }
+
+  private OpenAssetResult(result: any) {
+    const id = result.id;
+    const layer = result.asset_tbl.replace('asset.', '');
+    this.router.navigate(['home/equipment/' + id], { queryParams: { lyrTableName: layer } });
+    this.searchResult = id;
+    this.genericSearResult = [];
   }
 
   public onSearchbarFocusOut() {
@@ -233,8 +238,11 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
           this.adresses[0].geometry.coordinates[1],
         ])
         .addTo(this.mapService.getMap());
-      this.adress = this.adresses[0].properties.label;
+      this.searchResult = this.adresses[0].properties.label;
       this.adresses = [];
+    }
+    else if(this.genericSearResult && this.genericSearResult[0]){
+      this.OpenAssetResult(this.genericSearResult[0]);
     }
   }
 }
