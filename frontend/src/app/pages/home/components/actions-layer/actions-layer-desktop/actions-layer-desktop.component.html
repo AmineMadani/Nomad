@@ -17,7 +17,7 @@
       </ion-radio-group>
     </div>
     <ion-searchbar #searchbar show-clear-button="always" placeholder="Recherche" [debounce]="500"
-      (ionInput)="onSearchInput($event)" [value]="adress" (ionBlur)="onSearchbarFocusOut()"
+      (ionInput)="onSearchInput($event)" [value]="searchResult" (ionBlur)="onSearchbarFocusOut()"
       (keyup.enter)="onSearchKeyEnter()" class="actions-layer-desktop-content-button-search" (click)="onSeachEnter()"
     >
     </ion-searchbar>
