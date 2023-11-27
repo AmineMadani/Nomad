@@ -441,7 +441,8 @@ export class ReportAssetComponent implements OnInit {
           // or a Line to Point thus breaking every rules made before
           if (
             !this.editTaskEquipment.assObjTable.includes('_xy') &&
-            this.editTaskEquipment.assObjTable !== feature.layerKey
+            this.editTaskEquipment.assObjTable !== feature.layerKey &&
+            this.workorder.tasks.length > 1
           ) {
             return;
           }
@@ -496,7 +497,7 @@ export class ReportAssetComponent implements OnInit {
         x = this.workorder.tasks[0].longitude;
         y = this.workorder.tasks[0].latitude;
       }
-      
+
 
       if (params['state'] && params['state'] == 'resume') {
         x = this.mapService.getMap().getCenter().lng;
