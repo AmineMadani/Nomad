@@ -581,6 +581,7 @@ export class ReportAssetComponent implements OnInit {
       message: 'Sélectionner patrimoine sur la carte',
       position: 'top',
       color: 'light',
+      cssClass: this.utils.isMobilePlateform() ? 'toast-mobile':''
     });
     await this.currentSelectionMessage.present();
   }
