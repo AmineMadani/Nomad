@@ -64,6 +64,15 @@ export class WkoViewComponent implements OnInit {
   public userHasPermissionCreateProgram: boolean = false;
   public userHasPermissionCancelWorkorder: boolean = false;
 
+  /**
+     * Convertit un nombre représentant une durée en heures et minutes.
+     * @param duree La durée en minutes.
+     * @returns La durée convertie en format d'heures et minutes.
+     */
+  public formatDuration(duree: number): string {
+    return this.utilsService.formatDurationToTimeString(duree);
+  }
+
   public canEdit(): boolean {
     return (
       !this.loading &&
