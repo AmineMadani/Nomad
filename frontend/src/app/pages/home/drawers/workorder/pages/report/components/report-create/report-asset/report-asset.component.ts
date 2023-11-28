@@ -648,6 +648,11 @@ export class ReportAssetComponent implements OnInit {
 
     for (let f of features) {
       if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
+        const asset = await this.layerService.getEquipmentByLayerAndId(
+          f.lyrTableName,
+          f.id
+        );
+
         const task = {
           id: this.utils.createCacheId(),
           assObjTable: f.lyrTableName,
@@ -656,6 +661,7 @@ export class ReportAssetComponent implements OnInit {
           longitude: f.x,
           wtrId: this.workorder.tasks[0]?.wtrId ?? null,
           wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+          ctrId: asset.ctrId,
         };
 
         this.workorder.tasks.push(task);

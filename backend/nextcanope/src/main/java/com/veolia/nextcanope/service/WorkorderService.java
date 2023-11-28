@@ -332,8 +332,10 @@ public class WorkorderService {
 				task.setWorkorderTaskReason(wtr);
 			}
 			// Get Contract
-			Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
-			task.setContract(contract);
+			if(customWorkorderDto.getCtrId() != null || taskDto.getCtrId() != null) {
+				Contract contract = contractService.getContractById((customWorkorderDto.getCtrId() != null ? customWorkorderDto.getCtrId() : taskDto.getCtrId()));
+				task.setContract(contract);
+			}
 
 			newTasks.add(task);
 		}
@@ -402,8 +404,8 @@ public class WorkorderService {
 				task.setCreatedBy(user);
 
 				// Get Contract
-				if (customWorkorderDto.getCtrId() != null) {
-					Contract contract = contractService.getContractById(customWorkorderDto.getCtrId());
+				if(customWorkorderDto.getCtrId() != null || taskDto.getCtrId() != null) {
+					Contract contract = contractService.getContractById((customWorkorderDto.getCtrId() != null ? customWorkorderDto.getCtrId() : taskDto.getCtrId()));
 					task.setContract(contract);
 				}
 
