@@ -78,7 +78,7 @@
 
                   <!-- Filter -->
                   <ion-icon (click)="openFilter(column, $event)" slot="icon-only" name="filter"
-                    [class.is-filtered]="column.filter?.value !== null" *ngIf="column.filter?.type !== 'none'">
+                    [class.is-filtered]="column.filter?.value != null" *ngIf="column.filter?.type !== 'none'">
                   </ion-icon>
                 </div>
               </ng-container>

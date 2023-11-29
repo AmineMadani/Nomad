@@ -3,15 +3,9 @@
       class="settings-header"
       title="Personnalisation des formulaires de comptes-rendus">
   </app-settings-header>
-  <!--<ion-button mat-stroked-button (click)="generateQuestions()" fill="clear">
-    Generate questions
-  </ion-button>-->
-  <!--<ion-button mat-stroked-button (click)="checkFormsCondition()" fill="clear">
+  <ion-button mat-stroked-button (click)="checkFormsCondition()" fill="clear" style="display: none">
     Check forms condition
-  </ion-button>-->
-  <!--<ion-button mat-stroked-button (click)="generateSqlPlusFix()" fill="clear">
-    Generate SQL + Fix
-  </ion-button>-->
+  </ion-button>
 
   <form form [formGroup]="form" class="settings-main-content">
     <app-search-select class="settings-select-content"

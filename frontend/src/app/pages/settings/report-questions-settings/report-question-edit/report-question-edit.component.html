@@ -1,9 +1,17 @@
 <div class="report-question-edit-content">
-  <app-settings-header
-    [title]="'Question'"
-    [isModalHeader]="true"
-    (onModalClose)="close()"
-  ></app-settings-header>
+  <div class="header-component">
+    <div class="header-content">
+      <ion-label class="label">
+        <h2>Question</h2>
+      </ion-label>
+  
+      <ion-button (click)="close()" fill="clear" aria-label="Close">
+        <ion-icon name="close" slot="icon-only" aria-hidden="true" size="small"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="separation-line"></div>
+  </div>
 
   <form [formGroup]="form" class="report-question-edit-body" *ngIf="!isLoading">
     <div class="line">
@@ -61,9 +69,16 @@
         </div>
       </div>
     </div>
+
+    <app-generic-table class="table-content"
+      [toolbar]="toolbar"
+      [columns]="columns"
+      [rows]="listFormTemplateReport"
+      [listColumnSort]="listColumnSort">
+    </app-generic-table>
   </form>
 
-  <app-skeleton-loading *ngIf="isLoading" [rows]="4"></app-skeleton-loading>
+  <app-skeleton-loading *ngIf="isLoading" class="report-question-edit-body" [rows]="4"></app-skeleton-loading>
 
   <div class="report-question-edit-footer">
     <ion-button fill="clear" (click)="save()" [disabled]="isConsultation">
