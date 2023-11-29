@@ -258,6 +258,33 @@ export class MapLayerService {
   }
 
   /**
+   * Jump to a specific point
+   * @param x longitude
+   * @param y latitude
+   */
+  public jumpToXY(
+    x: number,
+    y: number,
+    zoomLevel: number = 16
+  ): Promise<string> {
+    if (this.mapService.getMap().getZoom() > zoomLevel) {
+      zoomLevel = this.mapService.getMap().getZoom();
+    }
+    return new Promise((resolve) => {
+      if (x && y) {
+        this.mapService
+          .getMap()
+          .jumpTo({ center: [x, y], zoom: zoomLevel })
+          .once('moveend', () => {
+            resolve('done');
+          });
+      } else {
+        resolve('done');
+      }
+    });
+  }
+
+  /**
    * Zoom the map view to an area before to zoom to a feature on a given layer by its ID
    * @param extent The area location
    * @param id The ID of the feature to zoom to
