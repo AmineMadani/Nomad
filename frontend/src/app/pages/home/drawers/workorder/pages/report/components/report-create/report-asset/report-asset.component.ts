@@ -399,8 +399,9 @@ export class ReportAssetComponent implements OnInit {
       }
     } else {
       // Only select the all the tasks of the first layer key find
-      if (!this.layerSelected)
+      if (!this.layerSelected || this.layerSelected === 'aep_xy') {
         this.layerSelected = this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0].assObjTable ?? this.workorder.tasks[0].assObjTable;
+      }
       for (const task of this.workorder.tasks.filter(
         (tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected
       )) {
@@ -441,7 +442,8 @@ export class ReportAssetComponent implements OnInit {
           // or a Line to Point thus breaking every rules made before
           if (
             !this.editTaskEquipment.assObjTable.includes('_xy') &&
-            this.editTaskEquipment.assObjTable !== feature.layerKey
+            this.editTaskEquipment.assObjTable !== feature.layerKey &&
+            this.workorder.tasks.length > 1
           ) {
             return;
           }
@@ -496,7 +498,7 @@ export class ReportAssetComponent implements OnInit {
         x = this.workorder.tasks[0].longitude;
         y = this.workorder.tasks[0].latitude;
       }
-      
+
 
       if (params['state'] && params['state'] == 'resume') {
         x = this.mapService.getMap().getCenter().lng;
@@ -647,6 +649,11 @@ export class ReportAssetComponent implements OnInit {
 
     for (let f of features) {
       if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
+        const asset = await this.layerService.getEquipmentByLayerAndId(
+          f.lyrTableName,
+          f.id
+        );
+
         const task = {
           id: this.utils.createCacheId(),
           assObjTable: f.lyrTableName,
@@ -655,6 +662,7 @@ export class ReportAssetComponent implements OnInit {
           longitude: f.x,
           wtrId: this.workorder.tasks[0]?.wtrId ?? null,
           wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+          ctrId: asset.ctrId,
         };
 
         this.workorder.tasks.push(task);
