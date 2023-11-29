@@ -82,21 +82,33 @@ export class ReportContextComponent implements OnInit {
     const wtrPossibles = [];
 
     const lyrTableNames = [
-      ...new Set(this.workorder.tasks.map((tsk) => tsk.assObjTable)),
+      ...new Set(this.selectedTasks.map((t) => t.assObjTable)),
     ];
 
     if (lyrTableNames.length > 0 && layerGrpActions?.length > 0) {
       for (const lyrGrpAct of layerGrpActions) {
         if (
+          new Set(lyrTableNames).size > 1 &&
           lyrTableNames.every((ltn) => lyrGrpAct.lyrTableNames.includes(ltn))
         ) {
-          wtrPossibles.push(lyrGrpAct.wtrCode);
+          if (!wtrPossibles.find((wtrCode) => wtrCode === lyrGrpAct.wtrCode)) {
+            wtrPossibles.push(lyrGrpAct.wtrCode);
+          }
         }
       }
-      if (wtrPossibles.length > 0) {
+      if (wtrPossibles.length > 0 && this.selectedTasks.length > 1) {
         this.originalOptions = this.originalOptions.filter((opt) =>
           wtrPossibles.includes(opt.wtrCode)
         );
+        if (wtrPossibles.length === 1) {
+          const wtrs = await this.layerService.getAllVLayerWtr();
+          this.workorder.tasks.forEach(
+            (t) =>
+              (t.wtrId =
+                wtrs.find((wtr) => wtr.wtrCode === wtrPossibles[0])?.wtrId ??
+                null)
+          );
+        }
       }
     }
 
@@ -232,15 +244,23 @@ export class ReportContextComponent implements OnInit {
       await this.mapLayerService.moveToXY(longitude, latitude);
       await this.mapService.addEventLayer('task');
 
-      featuresSelection = task.filter((t) => !t.assObjTable.includes('_xy')).map((t) => { return {
-        id: t.id.toString(),
-        source: t.assObjTable,
-      }});
+      featuresSelection = task
+        .filter((t) => !t.assObjTable.includes('_xy'))
+        .map((t) => {
+          return {
+            id: t.id.toString(),
+            source: t.assObjTable,
+          };
+        });
 
       // Displaying all layers selected
-      [...new Set(task.filter((t) => !t.assObjTable.includes('_xy')).map((t) => t.assObjTable))].forEach(
-        async (layer) => await this.mapService.addEventLayer(layer)
-      );
+      [
+        ...new Set(
+          task
+            .filter((t) => !t.assObjTable.includes('_xy'))
+            .map((t) => t.assObjTable)
+        ),
+      ].forEach(async (layer) => await this.mapService.addEventLayer(layer));
 
       for (const t of task) {
         featuresSelection.push({ id: t.id.toString(), source: 'task' });

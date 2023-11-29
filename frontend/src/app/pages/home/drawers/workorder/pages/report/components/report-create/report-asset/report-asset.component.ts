@@ -13,10 +13,7 @@ import { Layer } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import {
-  MapEventService,
-  MultiSelection,
-} from 'src/app/core/services/map/map-event.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -64,7 +61,6 @@ export class ReportAssetComponent implements OnInit {
   public currentSelectionMessage: any;
   public inAssetEditMode: boolean = false;
   public inMultiSelectionEditMode: boolean = false;
-  public layerSelected: string;
   public loading: boolean = false;
 
   private refLayers: Layer[];
@@ -83,7 +79,6 @@ export class ReportAssetComponent implements OnInit {
     });
 
     this.currentTasksSelected = this.selectedTasks;
-    this.layerSelected = this.selectedTasks[0]?.assObjTable;
 
     // We select by default the asset in a mono case.
     if (this.workorder.tasks.length === 1 && this.selectedTasks.length === 0) {
@@ -125,13 +120,9 @@ export class ReportAssetComponent implements OnInit {
       this.currentTasksSelected = this.currentTasksSelected.filter(
         (tsk) => tsk.id != task.id && !tsk.report?.dateCompletion
       );
-      if (this.currentTasksSelected && this.currentTasksSelected.length == 0) {
-        this.layerSelected = null;
-      }
     } else {
       this.currentTasksSelected.push(task);
       task.isSelectedTask = true;
-      this.layerSelected = task.assObjTable;
     }
     this.onSelectedTaskChange.emit(this.currentTasksSelected);
   }
@@ -388,7 +379,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   public onAllSelectedChange() {
-    if (this.isAllElementSelected()) {
+    if (this.isAllElementSelected) {
       // Unselect all task
       for (const task of this.workorder.tasks.filter(
         (tsk) => tsk.isSelectedTask && !tsk.report?.dateCompletion
@@ -396,32 +387,30 @@ export class ReportAssetComponent implements OnInit {
         this.onSelectTask(task);
       }
     } else {
-      // Only select the all the tasks of the first layer key find
-      if (!this.layerSelected || this.layerSelected === 'aep_xy')
-        this.layerSelected =
-          this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0]
-            .assObjTable ?? this.workorder.tasks[0].assObjTable;
-      for (const task of this.workorder.tasks.filter(
-        (tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected
-      )) {
-        this.onSelectTask(task);
-      }
+      this.workorder.tasks
+        .filter((tsk) => !tsk.isSelectedTask)
+        .forEach((tsk) => this.onSelectTask(tsk));
     }
   }
 
-  public isAllElementSelected() {
-    const tasks = this.workorder.tasks.filter(
-      (tsk) => tsk.assObjTable === this.layerSelected
-    );
-    if (tasks.length > 0) {
+  public get isAllElementSelected() {
+    const tasks = this.workorder.tasks;
+    if (tasks?.length > 0) {
       return tasks.every((tsk) => tsk.isSelectedTask);
     } else {
       return false;
     }
   }
 
-  public areAllTasksCompleted(): boolean {
+  public get areAllTasksCompleted(): boolean {
     return this.workorder.tasks.every((t) => t.report?.dateCompletion);
+  }
+
+  public get areSomeElementsChecked(): boolean {
+    return (
+      this.workorder.tasks.some((t) => t.isSelectedTask) &&
+      !this.isAllElementSelected
+    );
   }
 
   private initFeatureSelectionListeners() {
@@ -448,7 +437,6 @@ export class ReportAssetComponent implements OnInit {
           }
           this.editTaskEquipment.assObjRef = feature.featureId;
           this.editTaskEquipment.assObjTable = feature.layerKey;
-          this.layerSelected = feature.layerKey;
           const asset = await this.layerService.getEquipmentByLayerAndId(
             this.editTaskEquipment.assObjTable,
             (this.editTaskEquipment.assObjRef = feature.featureId)
@@ -600,7 +588,16 @@ export class ReportAssetComponent implements OnInit {
       this.removeSelectionMessage();
     }
 
-    if (!Array.isArray(features) && Number.isNaN(Number(features.id))) {
+    /**
+     * isNaN is to avoid having a tasks in the selection, as the id is a number whereas assets have a string
+     * The feature.id is because if the comment above is true, clusters of tasks does not have a number id
+     * but an undefined id, which is indeed NaN...
+     */
+    if (
+      !Array.isArray(features) &&
+      Number.isNaN(Number(features.id)) &&
+      features.id
+    ) {
       features = [
         {
           ...this.maplayerService.getFeatureById(
@@ -654,7 +651,6 @@ export class ReportAssetComponent implements OnInit {
     this.onSelectedTaskChange.emit([]);
 
     const tasks: Task[] = [];
-    this.layerSelected = features?.[0].lyrTableName;
     for (let f of features) {
       if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
         const asset = await this.layerService.getEquipmentByLayerAndId(
@@ -671,7 +667,6 @@ export class ReportAssetComponent implements OnInit {
           wtrId: this.workorder.tasks[0]?.wtrId ?? null,
           wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
           ctrId: asset.ctrId,
-          isSelectedTask: f.lyrTableName === this.layerSelected,
         };
 
         tasks.push(task);
@@ -680,7 +675,7 @@ export class ReportAssetComponent implements OnInit {
 
     this.workorder.tasks = [...this.workorder.tasks, ...tasks];
 
-    this.checkWtrIdPossible(features);
+    // this.checkWtrIdPossible(features);
 
     this.workorder.longitude = this.workorder.tasks[0].longitude;
     this.workorder.latitude = this.workorder.tasks[0].latitude;
