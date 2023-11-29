@@ -42,6 +42,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
 import { MapComponent } from './components/map/map.component';
 import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { ResizeContainerComponent } from './components/resize-container/resize-c
     MatStepperModule,
     MatTabsModule,
     ScrollingModule,
-    MatTooltipModule
+    MatTooltipModule,
+    NgxPaginationModule,
   ],
   exports:[
     MainToolbarComponent,

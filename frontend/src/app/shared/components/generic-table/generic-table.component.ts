@@ -39,6 +39,13 @@ export class GenericTableComponent implements OnInit {
 
   displayedRows: TableRow<any>[] = [];
 
+  pageSize = 25;
+  pageNumber = 1;
+  // The paginator needs an unique id, without it all generic table would share the same paginator
+  // so if there were a table on a page and one on modal of this page, changing the page on the modal
+  // would change the page on the page.
+  paginatorId = Date.now().toString() + Math.floor(Math.random() * 1000000).toString();
+
   ngOnInit() { }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -415,5 +422,11 @@ export class GenericTableComponent implements OnInit {
     this.filterData();
   }
 
+  // ###### //
+
+  // ### PAGINATION ### //
+  onPageChange(pageNumber: number) {
+    this.pageNumber = pageNumber;
+  }
   // ###### //
 }
