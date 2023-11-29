@@ -36,7 +36,7 @@ export class ReportContextComponent implements OnInit {
 
   @Input() workorder: Workorder;
   @Input() selectedTasks: Task[];
-  @Output() onSaveWorkOrderState: EventEmitter<Workorder> = new EventEmitter();
+  @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
 
   @ViewChild('modalReportContext') modal: IonModal;
 
@@ -172,7 +172,7 @@ export class ReportContextComponent implements OnInit {
       ).astCode;
       task.report = null;
     }
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.onSaveWorkOrderState.emit();
   }
 
   /**

@@ -22,7 +22,7 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
   @Input() reportForm: Form = null;
   @Input() isTest = false;
   @Input() workorder: Workorder;
-  @Output() onSaveWorkOrderState: EventEmitter<Workorder> = new EventEmitter();
+  @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
   @Output() onClosedWko: EventEmitter<boolean> = new EventEmitter();
   @Output() goToDateStep: EventEmitter<void> = new EventEmitter();
 
@@ -103,7 +103,7 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
       task.report = report;
     }
 
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.onSaveWorkOrderState.emit();
   }
 
   /**
@@ -313,7 +313,7 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
       task.isSelectedTask = false;
     }
 
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.onSaveWorkOrderState.emit();
     this.isLoading = false;
   }
 }
