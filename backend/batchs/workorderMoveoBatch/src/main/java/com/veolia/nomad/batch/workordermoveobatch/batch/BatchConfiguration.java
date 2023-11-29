@@ -2,9 +2,11 @@ package com.veolia.nomad.batch.workordermoveobatch.batch;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -40,6 +42,11 @@ public class BatchConfiguration {
     
     @Value("${com.veolia.nomad.moveo.api.secretkey}")
     String moveoApiSecretKey;
+
+    @PostConstruct
+    void started() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Paris"));
+    }
 
 	/**
      * Reader method to get all workorders to synchronized
