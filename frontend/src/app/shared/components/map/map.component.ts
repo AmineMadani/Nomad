@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, ElementRef, HostListener, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  Input,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { IonModal, LoadingController, ModalController } from '@ionic/angular';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -11,7 +21,6 @@ import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { debounceTime, first, switchMap, filter, take } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
-import { CustomZoomControl } from './zoom.control';
 import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
@@ -38,7 +47,6 @@ export class MapComponent implements OnInit, OnDestroy {
     private loadingCtrl: LoadingController,
     private router: Router,
     private elem: ElementRef,
-    private mapEvent: MapEventService,
     private activatedRoute: ActivatedRoute,
     private praxedoService: PraxedoService,
     private userService: UserService,
@@ -46,7 +54,7 @@ export class MapComponent implements OnInit, OnDestroy {
     private basemapOfflineService: BasemapOfflineService,
     private layerService: LayerService,
     private workorderService: WorkorderService,
-    private mapLayerService: MapLayerService,
+    private mapLayerService: MapLayerService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -80,6 +88,9 @@ export class MapComponent implements OnInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
 
+  @Input() public hideMap?: boolean;
+  @Output() public onHideMap: EventEmitter<void> = new EventEmitter();
+
   public map: Maplibregl.Map;
   public basemaps: Basemap[];
   public displayMap: boolean;
@@ -99,8 +110,6 @@ export class MapComponent implements OnInit, OnDestroy {
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
-
-  private preventTouchMoveClicked: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
   private clicklatitude: number;
@@ -191,9 +200,14 @@ export class MapComponent implements OnInit, OnDestroy {
         });
       }
       this.setMapLoaded();
-      this.addEvents();
     });
     this.scale = this.calculateScale();
+
+    fromEvent(this.mapService.getMap(), 'zoom')
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.scale = this.calculateScale();
+      });
   }
 
   /**
@@ -203,6 +217,10 @@ export class MapComponent implements OnInit, OnDestroy {
     this.map.resize();
     this.displayMap = true;
     this.mapService.setMapLoaded();
+  }
+
+  public onClickHideMap(): void {
+    this.onHideMap.emit();
   }
 
   /**
@@ -224,10 +242,10 @@ export class MapComponent implements OnInit, OnDestroy {
     let mapLayer: any;
     switch (layer.map_type) {
       case 'WMS':
-	    let var_style = ''
-		if (layer.map_style) {
-		  var_style = '&style=' + layer.map_style
-		}
+        let var_style = '';
+        if (layer.map_style) {
+          var_style = '&style=' + layer.map_style;
+        }
         mapLayer = {
           tiles: [
             `${layer.map_url}layer=${
@@ -308,9 +326,10 @@ export class MapComponent implements OnInit, OnDestroy {
    * Navigate to the current report
    */
   public resumeReport() {
-    this.router.navigate([
-      '/home/workorder/' + this.praxedoService.externalReport + '/cr',
-    ], {queryParams: {state:'resume'}});
+    this.router.navigate(
+      ['/home/workorder/' + this.praxedoService.externalReport + '/cr'],
+      { queryParams: { state: 'resume' } }
+    );
   }
 
   /**
@@ -367,7 +386,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.selectedFeature = {
         properties: {
           x: e.lngLat.lng,
-          y: e.lngLat.lat
+          y: e.lngLat.lat,
         },
       };
     }
@@ -411,12 +430,14 @@ export class MapComponent implements OnInit, OnDestroy {
         this.selectedFeature['source'],
         this.selectedFeature['id']
       );
-      let recalculateCoords : number[];
+      let recalculateCoords: number[];
       //Equipments have fixed coordinates
-      if (equipment.geom.type == "Point"){
-        recalculateCoords = [this.selectedFeature['properties']['x'], this.selectedFeature['properties']['y']];
-      }
-      else{
+      if (equipment.geom.type == 'Point') {
+        recalculateCoords = [
+          this.selectedFeature['properties']['x'],
+          this.selectedFeature['properties']['y'],
+        ];
+      } else {
         recalculateCoords = this.mapLayerService.findNearestPoint(
           equipment.geom.coordinates,
           [
@@ -562,7 +583,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.drawingService.endMesure(true);
   }
 
-  public getShouldOpenMobileMeasure(): boolean{
+  public getShouldOpenMobileMeasure(): boolean {
     return this.drawingService.getIsMeasuring() && this.isMobile;
   }
 
@@ -570,7 +591,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * Stop the measure where the measure modal closed
    * @param data event
    */
-  public measureModalDismissed(data: any): void{
+  public measureModalDismissed(data: any): void {
     this.endMeasuring();
   }
 
@@ -578,16 +599,14 @@ export class MapComponent implements OnInit, OnDestroy {
    * Init the user context save on home
    */
   private initUserEventContext() {
-      this.userService.onInitUserContextEvent()
-      .pipe(
-        debounceTime(2000),
-        takeUntil(this.ngUnsubscribe$)
-      )
+    this.userService
+      .onInitUserContextEvent()
+      .pipe(debounceTime(2000), takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.userService.onUserContextEvent();
-      })
+      });
 
-      this.router.events
+    this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         filter((val) => val.url.includes('/home')),
@@ -595,189 +614,61 @@ export class MapComponent implements OnInit, OnDestroy {
       )
       .subscribe(() => {
         this.userService.onUserContextEvent();
-      });        
+      });
   }
 
   private loadUserContext() {
-    this.mapService.onMapLoaded()
-      .pipe(
-        take(1)
-      )
+    this.mapService
+      .onMapLoaded()
+      .pipe(take(1))
       .subscribe(() => {
-        this.userService.getCurrentUser().then(user => {
+        this.userService.getCurrentUser().then((user) => {
           setTimeout(() => {
-            if(user.usrConfiguration.context?.layers) {
-              for(let layer of user.usrConfiguration.context?.layers) {
-                this.mapService.addEventLayer(layer[0],layer[1]);
+            if (user.usrConfiguration.context?.layers) {
+              for (let layer of user.usrConfiguration.context?.layers) {
+                this.mapService.addEventLayer(layer[0], layer[1]);
               }
             }
-            if(user.usrConfiguration.context?.zoom){
-              if(!this.praxedoService.externalReport){
+            if (user.usrConfiguration.context?.zoom) {
+              if (!this.praxedoService.externalReport) {
                 this.mapService.setZoom(user.usrConfiguration.context?.zoom);
               }
             }
-            if(user.usrConfiguration.context?.lat){
-              if(!this.praxedoService.externalReport){
-                this.mapService.getMap().jumpTo({center: [user.usrConfiguration.context?.lng,user.usrConfiguration.context?.lat]});
+            if (user.usrConfiguration.context?.lat) {
+              if (!this.praxedoService.externalReport) {
+                this.mapService
+                  .getMap()
+                  .jumpTo({
+                    center: [
+                      user.usrConfiguration.context?.lng,
+                      user.usrConfiguration.context?.lat,
+                    ],
+                  });
               }
             }
-            if(user.usrConfiguration.context?.basemap) {
-              if(this.basemaps.find(bm => bm.map_slabel.replace(/\s/g, '') == user.usrConfiguration.context?.basemap)) {
+            if (user.usrConfiguration.context?.basemap) {
+              if (
+                this.basemaps.find(
+                  (bm) =>
+                    bm.map_slabel.replace(/\s/g, '') ==
+                    user.usrConfiguration.context?.basemap
+                )
+              ) {
                 this.onBasemapChange(user.usrConfiguration.context?.basemap);
               }
             }
-            if(user.usrConfiguration.context?.url && this.router.url == '/home' 
-              && user.usrConfiguration.context?.url != '/home/asset' 
-              && user.usrConfiguration.context?.url != '/home/exploitation'
-              && !this.praxedoService.externalReport) {
+            if (
+              user.usrConfiguration.context?.url &&
+              this.router.url == '/home' &&
+              user.usrConfiguration.context?.url != '/home/asset' &&
+              user.usrConfiguration.context?.url != '/home/exploitation' &&
+              !this.praxedoService.externalReport
+            ) {
               this.router.navigateByUrl(user.usrConfiguration.context?.url);
             }
             this.initUserEventContext();
           }, 100);
-        })
-      })
-  }
-
-  private addEvents(): void {
-    fromEvent(this.map, 'mousemove')
-      .pipe(
-        takeUntil(this.ngUnsubscribe$),
-        filter(() => !this.isMobile)
-      )
-      .subscribe((e) => {
-        const canvasElement =
-          document.getElementsByClassName('maplibregl-canvas')[0];
-        if (this.drawingService.getIsMeasuring()) {
-          canvasElement.classList.add('cursor-mesure');
-          //for the area calculation box move
-          const resumeBox = document.getElementById('calculation-box');
-          if (resumeBox && this.drawingService.getShouldMooveResumeBox()) {
-            const x = e.originalEvent.offsetX;
-            const y = e.originalEvent.offsetY;
-            resumeBox.style.transform = `translate(${x}px, ${y}px)`;
-          }
-        } else if (this.drawingService.getDrawActive()) {
-          canvasElement.classList.add('cursor-pointer');
-        } else {
-          canvasElement.classList.remove('cursor-mesure');
-          canvasElement.classList.remove('cursor-pointer');
-        }
-      });
-
-    // Loading tiles event
-    fromEvent(this.map, 'moveend')
-      .pipe(takeUntil(this.ngUnsubscribe$), debounceTime(1500))
-      .subscribe(() => {
-        this.onMoveEnd();
-      });
-
-    // Hovering feature event
-    fromEvent(this.map, 'mousemove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.onFeatureHovered(nearestFeature);
-      });
-
-    // Click on feature event
-    fromEvent(this.map, 'click')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        if (nearestFeature?.properties?.['cluster']) {
-          this.onClusterSelected(nearestFeature, e);
-        } else {
-          this.onFeatureSelected(nearestFeature, e);
-        }
-      });
-
-    fromEvent(this.map, 'touchend')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        if (!this.preventTouchMoveClicked) {
-          const nearestFeature = this.queryNearestFeature(e);
-          this.onFeatureSelected(nearestFeature, e);
-        } else {
-          setTimeout(() => {
-            this.preventTouchMoveClicked = false;
-          }, 500);
-        }
-      });
-
-    fromEvent(this.map, 'touchmove')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        this.preventTouchMoveClicked = true;
-      });
-
-    // Right click, as context menu, event
-    fromEvent(this.map, 'contextmenu')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.queryNearestFeature(e);
-        this.openNomadContextMenu(e, nearestFeature);
-      });
-
-    // Ending zoom event
-    fromEvent(this.map, 'zoom')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        this.preventTouchMoveClicked = true;
-        this.scale = this.calculateScale();
-      });
-
-    // Drawing event
-    fromEvent(this.map, 'draw.create')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: any) => {
-        if (!this.drawingService.getIsMeasuring()) {
-          this.drawingService.setDrawActive(false);
-          this.drawingService.deleteDrawing();
-          const fireEvent = this.mapEvent.isFeatureFiredEvent;
-
-          const features = this.drawingService.getFeaturesFromDraw(
-            e,
-            this.map,
-            this.mapService.getCurrentLayersIds()
-          );
-
-          if (fireEvent) {
-            this.mapEvent.setMultiFeaturesSelected(features);
-          }
-
-          if (!fireEvent) {
-            if (features.length > 0) {
-              this.drawerService.navigateWithEquipments(
-                DrawerRouteEnum.SELECTION,
-                features
-              );
-            }
-          }
-        } else {
-          this.measure = this.drawingService.calculateMeasure();
-          this.drawingService.stopMooveMesureBox();
-          const canvasElement =
-            document.getElementsByClassName('maplibregl-canvas')[0];
-          if (canvasElement.classList.contains('cursor-mesure')) {
-            canvasElement.classList.remove('cursor-mesure');
-          }
-        }
-      });
-
-    // updating draw
-    fromEvent(this.map, 'draw.render')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: any) => {
-        if (this.drawingService.getIsMeasuring()) {
-          this.measure = this.drawingService.calculateMeasure();
-        }
-      });
-
-    // updating draw
-    fromEvent(this.map, 'draw.update')
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe((e: any) => {
-        this.measure = this.drawingService.calculateMeasure();
+        });
       });
   }
 
@@ -843,166 +734,6 @@ export class MapComponent implements OnInit, OnDestroy {
     for (let layer of styleLayers) {
       this.mapService.getMap().addLayer(layer, firstLayerId);
     }
-  }
-
-  /**
-   * Queries the nearest rendered feature from a mouse event on the map.
-   * @param e - Mouse event on the map
-   * @returns The nearest features (if there are) from the map.
-   */
-  private queryNearestFeature(
-    e: Maplibregl.MapMouseEvent
-  ): Maplibregl.MapGeoJSONFeature {
-    var mouseCoords = this.map.unproject(e.point);
-    const selectedFeatures = this.map.queryRenderedFeatures(
-      [
-        [e.point.x - 10, e.point.y - 10],
-        [e.point.x + 10, e.point.y + 10],
-      ],
-      {
-        layers: this.mapService.getCurrentLayersIds(),
-      }
-    );
-    return this.findNearestFeature(mouseCoords, selectedFeatures);
-  }
-
-  /**
-   * Finds the nearest feature to a given set of coordinates from a list of features.
-   * @param mouseCoords - Coordinates of a mouse event on the map.
-   * @param {Maplibregl.MapGeoJSONFeature[]} features - Array of the features in a selected area.
-   * @returns the closest feature from the mouse in the area.
-   */
-  private findNearestFeature(
-    mouseCoords: Maplibregl.LngLat,
-    features: Maplibregl.MapGeoJSONFeature[]
-  ): Maplibregl.MapGeoJSONFeature | null {
-    if (features.length === 0) {
-      return null;
-    }
-
-    let nearestPoint: any | null = null;
-    let shortestDistance = Infinity;
-
-    for (const feature of features) {
-      const distance = this.calculateDistance(mouseCoords, feature);
-
-      if (!Number.isNaN(distance)) {
-        if (distance < shortestDistance) {
-          shortestDistance = distance;
-          nearestPoint = feature;
-        }
-      } else {
-        nearestPoint = feature;
-      }
-    }
-
-    return nearestPoint;
-  }
-
-  /**
-   * Calculates the distance between two points on a map using their longitude and latitude.
-   * @param mousePoint - A Maplibregl.LngLat object representing the longitude and latitude.
-   * @param feature - A MapGeoJSONFeature from the map.
-   * @returns Returns the calculated distance the coordinates.
-   */
-  private calculateDistance(
-    mousePoint: Maplibregl.LngLat,
-    feature: Maplibregl.MapGeoJSONFeature
-  ): number {
-    const dx = feature.properties['x'] - mousePoint.lng;
-    const dy = feature.properties['y'] - mousePoint.lat;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  /**
-   * This function changes the cursor style and highlights a hovered feature on a map.
-   * @param feature - Closest feature hovered on the map
-   */
-  private onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
-    if (!feature || feature.id == null) {
-      this.map.getCanvas().style.cursor = '';
-      this.mapEvent.highlightHoveredFeatures(this.map, undefined, true);
-      return;
-    }
-
-    this.map.getCanvas().style.cursor = 'pointer';
-    this.mapEvent.highlightHoveredFeatures(
-      this.map,
-      [{ source: feature.source, id: feature.id.toString() }],
-      true
-    );
-  }
-
-  /**
-   * This function highlights a selected feature on a map.
-   * @param feature - Closest feature selected on the map
-   * @returns It navigates to a specific route in the application's drawer with some additional
-   * properties.
-   */
-  private onFeatureSelected(
-    feature: Maplibregl.MapGeoJSONFeature,
-    e: Maplibregl.MapMouseEvent
-  ): void {
-    if (!feature) {
-      return;
-    }
-
-    // In certain functions like multi-eq, putting isFeatureFiredEvent to false come faster than the rest of this function
-    // With firedEvent, the value stays to the original isFeatureFiredEvent, avoiding asynchronous weird things
-    const firedEvent = this.mapEvent.isFeatureFiredEvent;
-
-    this.mapEvent.highlighSelectedFeatures(
-      this.map,
-      [{ source: feature.source, id: feature.id.toString() }],
-      firedEvent,
-      e
-    );
-
-    if (!firedEvent) {
-      const properties = feature.properties;
-      if (properties['geometry']) delete properties['geometry'];
-      // We pass the layerKey to the drawer to be able to select the equipment on the layer
-      properties['lyrTableName'] = feature.source;
-      let route: DrawerRouteEnum;
-      let params = {};
-      let pathVariables = [];
-      switch (feature.source) {
-        case 'task':
-          route = DrawerRouteEnum.TASK_VIEW;
-          pathVariables = [properties['wkoId'], properties['id']];
-          break;
-        default:
-          route = DrawerRouteEnum.EQUIPMENT;
-          params = {
-            lyrTableName: properties['lyrTableName'],
-          };
-          pathVariables = [properties['id']];
-          break;
-      }
-      this.drawerService.navigateTo(route, pathVariables, params);
-    }
-  }
-
-  private onClusterSelected(
-    feature: Maplibregl.MapGeoJSONFeature,
-    e: Maplibregl.MapMouseEvent
-  ): void {
-    const features = this.map.queryRenderedFeatures(e.point, {
-      layers: [feature.layer.id],
-    });
-    const clusterId = features[0].properties['cluster_id'];
-    const source = this.map.getSource(
-      features[0].source
-    ) as Maplibregl.GeoJSONSource;
-    source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-      if (err) return;
-      this.map.easeTo({
-        center: this.utilsService.getAverageOfCoordinates(
-          features.map((f) => f.geometry['coordinates'])
-        ),
-        zoom,
-      });
-    });
   }
 
   /**

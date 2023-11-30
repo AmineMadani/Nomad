@@ -67,12 +67,16 @@ export class GenericTableComponent implements OnInit {
     }
   }
 
-  isAllRowsSelected(): boolean {
+  areAllRowsSelected(): boolean {
     let isSelected: boolean = true;
     if (this.displayedRows.length === 0 || this.selectedRows.length !== this.displayedRows.length) {
       isSelected = false;
     }
     return isSelected;
+  }
+
+  areSomeRowsSelected(): boolean {
+    return this.selectedRows.length > 0 && !this.areAllRowsSelected();
   }
 
   onRowSelect(row: TableRow<any>) {

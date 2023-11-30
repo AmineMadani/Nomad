@@ -1,0 +1,55 @@
+<div class="programs-content">
+  <ion-header [translucent]="true" class="no-print">
+    <app-main-toolbar [title]="'Programmes'" id="main-toolbar"></app-main-toolbar>
+  </ion-header>
+
+  <ion-content class="ion-padding">
+    <div class="programs-header">
+      <ion-item lines="none">
+        <ion-fab slot="start">
+          <ion-fab-button>
+            <ion-icon name="business-outline"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+        <h1>Liste des programmes</h1>
+        <ion-button *ngIf="mapHidden" slot="end" shape="round" class="show-map" size="default" (click)="showMap()">
+          <ion-icon slot="start" name="map-outline"></ion-icon>
+          Afficher la Carte</ion-button>
+        <ion-button slot="end" shape="round" size="default">Créer un programme</ion-button>
+      </ion-item>
+    </div>
+
+    <div class="programs-content">
+      <ng-container *ngIf="!mapHidden; else programsOnly">
+        <app-resize-container>
+          <ng-container mainContainer><app-map #programsMap [hideMap]="true"
+              (onHideMap)="onHideMap()"></app-map></ng-container>
+          <ng-container secondContainer [ngTemplateOutlet]="programs"></ng-container>
+        </app-resize-container>
+      </ng-container>
+      <ng-template #programsOnly>
+        <ng-container [ngTemplateOutlet]="programs"></ng-container>
+      </ng-template>
+    </div>
+  </ion-content>
+</div>
+
+<ng-template #programs>
+  <ion-card>
+    <ion-card-content>
+      <ion-item lines="none">
+        <ion-label slot="start">Nombre de programmes : 10</ion-label>
+        <ion-button slot="end" fill="clear" size="small" class="strike-through"><ion-icon slot="icon-only"
+            name="filter-outline"></ion-icon></ion-button>
+        <ion-button slot="end" fill="clear" size="small"><ion-icon slot="icon-only"
+            name="settings-outline"></ion-icon></ion-button>
+        <ion-button slot="end" fill="clear" size="small"><ion-icon slot="icon-only"
+            name="crop-outline"></ion-icon></ion-button>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="program-table">
+    <app-generic-table [toolbar]="toolbar" [columns]="columns" [rows]="data"></app-generic-table>
+  </div>
+</ng-template>
