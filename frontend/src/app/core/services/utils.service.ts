@@ -376,7 +376,6 @@ export class UtilsService {
       if (!value){
         return 0;
       }
-      console.log('value :>> ', value);
       const arraySplit = value.split(':');
       let hours, minutes  : number = 0; 
       if (isNumber(arraySplit[0])){
