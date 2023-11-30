@@ -1242,15 +1242,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 geom = equipt.geom.coordinates;
               }
             }
-            let recalculateCoords = this.mapLayerService.findNearestPoint(
-              geom,
-              [
-                ast.x,
-                ast.y,
-              ]
-            );
-            ast.x = recalculateCoords[0];
-            ast.y = recalculateCoords[1];
             this.markerCreation.set(
               ast.id,
               this.mapLayerService.addMarker(
