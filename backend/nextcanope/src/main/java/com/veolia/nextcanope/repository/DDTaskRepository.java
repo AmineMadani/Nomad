@@ -23,10 +23,16 @@ public class DDTaskRepository {
                         ) {
         StringBuilder clauseWhere = new StringBuilder();
 
-        clauseWhere.append(" where contract_code = ANY(string_to_array('");
-        clauseWhere.append(contractsList);
-        clauseWhere.append("', ','))");
+        clauseWhere.append("  where   task_date_modification >= to_date('");
+        clauseWhere.append(modificationDateRef);
+        clauseWhere.append("','YYYY-MM-DDTHH:MI:SS')");
 
+        if ((statusList != null) && (!statusList.equals(""))) {
+            clauseWhere.append(" and contract_code = ANY(string_to_array('");
+            clauseWhere.append(contractsList);
+            clauseWhere.append("', ','))");
+        }
+        
         if ((statusList != null) && (!statusList.equals(""))) {
             clauseWhere.append(" and   task_status_code = ANY(string_to_array('");
             clauseWhere.append(statusList);
@@ -35,9 +41,7 @@ public class DDTaskRepository {
 
         // String formatModificationDateRef = sdf.format(modificationDateRef);
 
-        clauseWhere.append("  and   task_date_modification >= to_date('");
-        clauseWhere.append(modificationDateRef);
-        clauseWhere.append("','YYYY-MM-DDTHH:MI:SS')");
+
 
         return this.jdbcTemplate.queryForObject(" WITH tasks AS ( "+
                             " select  distinct ON (task_id) "+
