@@ -47,7 +47,10 @@ export class HomePage implements OnInit, OnDestroy {
     this.mapService
       .onMapLoaded()
       .pipe(takeUntil(this.drawerUnsubscribe$))
-      .subscribe(() => this.addHomeMapEvents());
+      .subscribe(() => {
+        this.addHomeMapEvents();
+        this.interactiveMap.setMeasure(undefined);
+      });
   }
 
   animationBuilder = (baseEl: any, opts?: any) => {
@@ -86,7 +89,6 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.initDrawer();
-    this.interactiveMap.measure = undefined;
   }
 
   ngOnDestroy(): void {
@@ -109,8 +111,6 @@ export class HomePage implements OnInit, OnDestroy {
   public openModal() {
     this.modal.present();
   }
-
-  public measure: string;
 
   public async openActionSheet(type: string) {
     const modal = await this.modalCtrl.create({
@@ -283,7 +283,9 @@ export class HomePage implements OnInit, OnDestroy {
             }
           }
         } else {
-          this.interactiveMap.measure = this.drawingService.calculateMeasure();
+          this.interactiveMap.setMeasure(
+            this.drawingService.calculateMeasure()
+          );
           this.drawingService.stopMooveMesureBox();
           const canvasElement =
             document.getElementsByClassName('maplibregl-canvas')[0];
@@ -298,7 +300,9 @@ export class HomePage implements OnInit, OnDestroy {
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: any) => {
         if (this.drawingService.getIsMeasuring()) {
-          this.interactiveMap.measure = this.drawingService.calculateMeasure();
+          this.interactiveMap.setMeasure(
+            this.drawingService.calculateMeasure()
+          );
         }
       });
 
@@ -306,7 +310,7 @@ export class HomePage implements OnInit, OnDestroy {
     fromEvent(this.mapService.getMap(), 'draw.update')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: any) => {
-        this.interactiveMap.measure = this.drawingService.calculateMeasure();
+        this.interactiveMap.setMeasure(this.drawingService.calculateMeasure());
       });
   }
 

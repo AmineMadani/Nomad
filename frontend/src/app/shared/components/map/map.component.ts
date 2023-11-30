@@ -595,6 +595,10 @@ export class MapComponent implements OnInit, OnDestroy {
     this.endMeasuring();
   }
 
+  public setMeasure(measure: string): void {
+    this.measure = measure;
+  }
+
   /**
    * Init the user context save on home
    */
