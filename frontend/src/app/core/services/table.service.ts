@@ -14,7 +14,9 @@ export class TableService {
       for (const key of Object.keys(object)) {
         controls[key] = new TableCell(object[key]);
       }
-      return new TableRow(controls);
+      const row = new TableRow<T>(controls);
+      row.disable();
+      return row;
     });
   }
 }

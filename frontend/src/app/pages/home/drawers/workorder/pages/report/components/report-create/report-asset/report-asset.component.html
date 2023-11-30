@@ -1,12 +1,13 @@
 <div class="report-asset">
   <!-- action buttons -->
   <ion-tab-bar class="action-buttons">
-    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && !inAssetEditMode" (click)="startAssetEditMode()">
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && !inAssetEditMode"
+      (click)="startAssetEditMode()">
       <ion-icon name="pencil-outline"></ion-icon>
       Modifier le patrimoine
     </ion-tab-button>
-    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && inAssetEditMode" [class]="draggableMarker ? 'selected' : ''"
-      (click)="cancelAssetEditMode()">
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && inAssetEditMode"
+      [class]="draggableMarker ? 'selected' : ''" (click)="cancelAssetEditMode()">
       <ion-icon name="close-outline" color="red"></ion-icon>
       Annuler la modification
     </ion-tab-button>
@@ -28,7 +29,7 @@
     <div class="asset-list" *ngIf="workorder">
       <ion-item *ngIf="workorder.tasks && workorder.tasks.length > 1">
         <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
-          [checked]="isAllElementSelected()" [disabled]="areAllTasksCompleted()">
+          [checked]="isAllElementSelected" [indeterminate]="areSomeElementsChecked" [disabled]="areAllTasksCompleted">
           <span class="select-all-color">Tout sélectionner</span>
         </ion-checkbox>
       </ion-item>
@@ -36,7 +37,7 @@
         (mouseleave)="onItemHoverLeave(tsk)">
         <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
           [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
-          [disabled]="(layerSelected && !layerSelected.includes('_xy') ? (tsk.assObjTable !== layerSelected) : false) || tsk.report?.dateCompletion"></ion-checkbox>
+          [disabled]="tsk.report?.dateCompletion"></ion-checkbox>
         <div style="display: inline-block;">
           <ion-label>
             <ion-label class="ion-no-margin">
@@ -47,7 +48,8 @@
             </ion-note>
           </ion-label>
         </div>
-        <ng-container *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks && workorder.tasks.length > 1 && !tsk.report?.dateCompletion">
+        <ng-container
+          *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks && workorder.tasks.length > 1 && !tsk.report?.dateCompletion">
           <ion-label slot="end">
             <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
               <ion-button fill="clear" (click)="onEditEquipment(tsk)">

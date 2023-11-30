@@ -1,56 +1,75 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Problème(s) rencontré(s) sur l'intervention</ion-title>
+    <ion-title>Problème(s) rencontré(s) sur la multi-sélection</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content class="ion-padding">
   <ng-container *ngIf="!loading; else loadingContainer">
-    <form [formGroup]="form">
-      <ion-item>
-        <ion-icon slot="start" name="warning-outline"></ion-icon>
-        <ion-label class="ion-text-wrap">
-          Impossible de déclencher une intervention multi-équipements :
-        </ion-label>
-      </ion-item>
+    <ng-container *ngIf="!hasSelectedGroup; else groupDomainSelection">
+      <form [formGroup]="form">
+        <ng-container *ngIf="isMultiWater">
+          <ion-item lines="none">
+            <ion-label>Ne conserver que le domaine :</ion-label>
+          </ion-item>
 
-      <ng-container *ngIf="isMultiGeomType">
-        <ion-item lines="none">
-          <ion-label>Ne conserver que le type d'équipements :</ion-label>
-        </ion-item>
+          <ion-select labelPlacement="floating" fill="outline" cancelText="Annuler" label="Domaine à conserver"
+            [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedDomain">
+            <ion-select-option *ngFor="let domain of filteredDomains" [value]="domain.code">{{ domain.label
+              }}</ion-select-option>
+          </ion-select>
+        </ng-container>
 
-        <ion-select labelPlacement="floating" fill="outline" cancelText="Annuler" label="Type d'équipements à conserver"
-          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedGeomType">
-          <ion-select-option *ngFor="let geomType of geomTypes" [value]="geomType">{{ geomType.label
-            }}</ion-select-option>
-        </ion-select>
-        <ion-note *ngIf="originalGeomType">Vous ne pouvez conserver que ce type d'équipement</ion-note>
-      </ng-container>
+        <ng-container *ngIf="isMultiContract">
+          <ion-item lines="none">
+            <ion-label>Ne conserver que les équipements associées à ce contrat :</ion-label>
+          </ion-item>
 
-      <ng-container *ngIf="isMultiWater">
-        <ion-item lines="none">
-          <ion-label>Ne conserver que le domaine :</ion-label>
-        </ion-item>
+          <ion-select labelPlacement="floating" fill="outline" label="Contrat à conserver" cancelText="Annuler"
+            [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedContract">
+            <ion-select-option *ngFor="let contract of filteredContracts" [value]="contract">
+              {{ contract.ctrLlabel }} - {{ getNumberOfAssetsPerContract(contract) }} équipements
+            </ion-select-option>
+          </ion-select>
+        </ng-container>
+      </form>
 
-        <ion-select labelPlacement="floating" fill="outline" cancelText="Annuler" label="Domaine à conserver"
-          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedDomain">
-          <ion-select-option *ngFor="let domain of filteredDomains" [value]="domain.code">{{ domain.label }}</ion-select-option>
-        </ion-select>
-      </ng-container>
-
-      <ng-container *ngIf="isMultiContract">
-        <ion-item lines="none">
-          <ion-label>Ne conserver que les interventions associées à ce contrat :</ion-label>
-        </ion-item>
-
-        <ion-select labelPlacement="floating" fill="outline" label="Contrat à conserver" cancelText="Annuler"
-          [interface]="isMobile ? 'action-sheet' : 'popover'" formControlName="selectedContract">
-          <ion-select-option *ngFor="let contract of filteredContracts" [value]="contract">
-            {{ contract.ctrLlabel }} - {{ getNumberOfAssetsPerContract(contract) }} équipements
-          </ion-select-option>
-        </ion-select>
-      </ng-container>
-    </form>
+      <ion-list *ngIf="selectedLayers.length > 1">
+        <ion-list-header>
+          <ion-label>Vous ne pouvez conserver qu'un seul type d'équipement pour votre compte-rendu. Choisissez la
+            couche
+            à
+            conserver :</ion-label>
+        </ion-list-header>
+        <ng-container *ngFor="let lyr of selectedLayers">
+          <ion-item *ngIf="canLyrBeSelected(lyr)" button lines="none" (click)="keepLayer(lyr)">
+            <ion-radio slot="start" aria-label="radio-layer"></ion-radio>
+            <ion-label>{{ lyr.lyrSlabel }}</ion-label>
+          </ion-item>
+        </ng-container>
+        <ng-container *ngIf="groupAction?.length > 0">
+          <ng-container *ngFor="let grpAct of groupAction">
+            <ion-item *ngIf="canGrpBeSelected(grpAct)" button lines="none" (click)="keepGroup(grpAct)">
+              <ion-radio slot="start" aria-label="radio-group"></ion-radio>
+              <ion-label>{{ grpAct.grpLabel }}</ion-label>
+            </ion-item>
+          </ng-container>
+        </ng-container>
+      </ion-list>
+    </ng-container>
   </ng-container>
+
+  <ng-template #groupDomainSelection>
+    <ion-list>
+      <ion-list-header>Choississez les élements à garder pour {{ domain === 'dw' ? 'Eau Potable' : 'Assainissement'
+        }}</ion-list-header>
+      <ng-container *ngFor="let gl of groupLayer">
+        <ion-item *ngIf="canLyrBeSelected(gl)" lines="none" button>
+          <ion-checkbox slot="start" labelPlacement="end" (ionChange)="addLayer($event, gl)">{{ gl.lyrSlabel
+            }}</ion-checkbox>
+        </ion-item>
+      </ng-container>
+    </ion-list>
+  </ng-template>
 
   <ng-template #loadingContainer>
     <app-skeleton-loading [rows]="3"></app-skeleton-loading>
@@ -59,7 +78,9 @@
 
 <ion-footer class="ion-padding">
   <ion-toolbar>
-    <ion-button slot="start" (click)="editEquipmentList()">Retour à la sélection</ion-button>
-    <ion-button slot="end" [disabled]="loading || form.invalid" (click)="confirmContract()">Confirmer</ion-button>
+    <ion-button slot="start" (click)="return()">{{ hasSelectedGroup ? 'Retour en arrière' : 'Retour à la sélection'}}
+    </ion-button>
+    <ion-button *ngIf="hasSelectedGroup" slot="end" (click)="confirm()"
+      [disabled]="selectedAssets.size === 0">Confirmer</ion-button>
   </ion-toolbar>
 </ion-footer>

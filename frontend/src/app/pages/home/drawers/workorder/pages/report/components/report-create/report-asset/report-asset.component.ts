@@ -13,10 +13,7 @@ import { Layer } from 'src/app/core/models/layer.model';
 import { Task, Workorder } from 'src/app/core/models/workorder.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import {
-  MapEventService,
-  MultiSelection,
-} from 'src/app/core/services/map/map-event.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -25,7 +22,6 @@ import { IonPopover, ModalController, ToastController } from '@ionic/angular';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MultiAssetsModalComponent } from '../../../../multi-assets-modal/multi-assets-modal.component';
-import { MonoXyRulesModalComponent } from '../../mono-xy-rules-modal/mono-xy-rules-modal.component';
 
 @Component({
   selector: 'app-report-asset',
@@ -55,7 +51,7 @@ export class ReportAssetComponent implements OnInit {
   @Input() workorder: Workorder;
   @Input() selectedTasks: Task[];
   @Output() onSelectedTaskChange: EventEmitter<Task[]> = new EventEmitter();
-  @Output() onSaveWorkOrderState: EventEmitter<Workorder> = new EventEmitter();
+  @Output() onSaveWorkOrderState: EventEmitter<void> = new EventEmitter();
   @Output() onClosedWko: EventEmitter<boolean> = new EventEmitter();
   @Output() goToDateStep: EventEmitter<void> = new EventEmitter();
 
@@ -65,7 +61,6 @@ export class ReportAssetComponent implements OnInit {
   public currentSelectionMessage: any;
   public inAssetEditMode: boolean = false;
   public inMultiSelectionEditMode: boolean = false;
-  public layerSelected: string;
   public loading: boolean = false;
 
   private refLayers: Layer[];
@@ -84,7 +79,6 @@ export class ReportAssetComponent implements OnInit {
     });
 
     this.currentTasksSelected = this.selectedTasks;
-    this.layerSelected = this.selectedTasks[0]?.assObjTable;
 
     // We select by default the asset in a mono case.
     if (this.workorder.tasks.length === 1 && this.selectedTasks.length === 0) {
@@ -126,13 +120,9 @@ export class ReportAssetComponent implements OnInit {
       this.currentTasksSelected = this.currentTasksSelected.filter(
         (tsk) => tsk.id != task.id && !tsk.report?.dateCompletion
       );
-      if (this.currentTasksSelected && this.currentTasksSelected.length == 0) {
-        this.layerSelected = null;
-      }
     } else {
       this.currentTasksSelected.push(task);
       task.isSelectedTask = true;
-      this.layerSelected = task.assObjTable;
     }
     this.onSelectedTaskChange.emit(this.currentTasksSelected);
   }
@@ -156,15 +146,11 @@ export class ReportAssetComponent implements OnInit {
       task.isSelectedTask = false;
     }
     this.selectedTasks = [];
-    this.onSaveWorkOrderState.emit(this.workorder);
-    this.drawerService.navigateTo(
-      DrawerRouteEnum.NEW_ASSET,
-      [],
-      {
-        draft: this.workorder.id,
-        step: 'report'
-      }
-    );
+    this.onSaveWorkOrderState.emit();
+    this.drawerService.navigateTo(DrawerRouteEnum.NEW_ASSET, [], {
+      draft: this.workorder.id,
+      step: 'report',
+    });
   }
 
   /**
@@ -273,7 +259,7 @@ export class ReportAssetComponent implements OnInit {
         );
         this.workorder.tasks.splice(taskOnTheSameEquipmentIndex, 1);
       }
-      this.onSaveWorkOrderState.emit(this.workorder);
+      this.onSaveWorkOrderState.emit();
 
       this.stopAssetEditMode();
     }
@@ -345,7 +331,10 @@ export class ReportAssetComponent implements OnInit {
    * @returns True if a task has a terminated report
    */
   public hasReportClosed() {
-    return this.workorder.tasks && this.workorder.tasks.some((tsk) => tsk.report?.dateCompletion);
+    return (
+      this.workorder.tasks &&
+      this.workorder.tasks.some((tsk) => tsk.report?.dateCompletion)
+    );
   }
 
   public onCloseCircuit() {
@@ -390,7 +379,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   public onAllSelectedChange() {
-    if (this.isAllElementSelected()) {
+    if (this.isAllElementSelected) {
       // Unselect all task
       for (const task of this.workorder.tasks.filter(
         (tsk) => tsk.isSelectedTask && !tsk.report?.dateCompletion
@@ -398,30 +387,30 @@ export class ReportAssetComponent implements OnInit {
         this.onSelectTask(task);
       }
     } else {
-      // Only select the all the tasks of the first layer key find
-      if (!this.layerSelected)
-        this.layerSelected = this.workorder.tasks.filter((t) => !t.report?.dateCompletion)?.[0].assObjTable ?? this.workorder.tasks[0].assObjTable;
-      for (const task of this.workorder.tasks.filter(
-        (tsk) => !tsk.isSelectedTask && tsk.assObjTable === this.layerSelected
-      )) {
-        this.onSelectTask(task);
-      }
+      this.workorder.tasks
+        .filter((tsk) => !tsk.isSelectedTask)
+        .forEach((tsk) => this.onSelectTask(tsk));
     }
   }
 
-  public isAllElementSelected() {
-    const tasks = this.workorder.tasks.filter(
-      (tsk) => tsk.assObjTable === this.layerSelected
-    );
-    if (tasks.length > 0) {
+  public get isAllElementSelected() {
+    const tasks = this.workorder.tasks;
+    if (tasks?.length > 0) {
       return tasks.every((tsk) => tsk.isSelectedTask);
     } else {
       return false;
     }
   }
 
-  public areAllTasksCompleted(): boolean {
+  public get areAllTasksCompleted(): boolean {
     return this.workorder.tasks.every((t) => t.report?.dateCompletion);
+  }
+
+  public get areSomeElementsChecked(): boolean {
+    return (
+      this.workorder.tasks.some((t) => t.isSelectedTask) &&
+      !this.isAllElementSelected
+    );
   }
 
   private initFeatureSelectionListeners() {
@@ -467,7 +456,7 @@ export class ReportAssetComponent implements OnInit {
             'green'
           );
         }
-        this.onSaveWorkOrderState.emit(this.workorder);
+        this.onSaveWorkOrderState.emit();
       });
 
     this.mapEventService
@@ -489,15 +478,13 @@ export class ReportAssetComponent implements OnInit {
   private async displayAndZoomToPlannedWko(workorder: Workorder) {
     const geometries = [];
     this.route.queryParams.subscribe((params) => {
-
       let x = this.workorder.longitude;
       let y = this.workorder.latitude;
 
-      if(this.workorder.tasks && this.workorder.tasks.length == 1) {
+      if (this.workorder.tasks && this.workorder.tasks.length == 1) {
         x = this.workorder.tasks[0].longitude;
         y = this.workorder.tasks[0].latitude;
       }
-
 
       if (params['state'] && params['state'] == 'resume') {
         x = this.mapService.getMap().getCenter().lng;
@@ -557,7 +544,7 @@ export class ReportAssetComponent implements OnInit {
     }
 
     this.inAssetEditMode = false;
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.onSaveWorkOrderState.emit();
   }
 
   private stopMultiSelectionEditMode() {
@@ -570,7 +557,7 @@ export class ReportAssetComponent implements OnInit {
     this.drawingService.deleteDrawing();
     this.drawingService.setDrawActive(false);
     this.displayAndZoomToPlannedWko(this.workorder);
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.onSaveWorkOrderState.emit();
   }
 
   private async showSelectionMessage() {
@@ -582,7 +569,7 @@ export class ReportAssetComponent implements OnInit {
       message: 'Sélectionner patrimoine sur la carte',
       position: 'top',
       color: 'light',
-      cssClass: this.utils.isMobilePlateform() ? 'toast-mobile':''
+      cssClass: this.utils.isMobilePlateform() ? 'toast-mobile' : '',
     });
     await this.currentSelectionMessage.present();
   }
@@ -594,12 +581,23 @@ export class ReportAssetComponent implements OnInit {
   }
 
   private async addNewFeatures(features: any | any[]): Promise<void> {
+    this.onValidateChangeEquipment();
+
     // The pin of each report/task is taken by the selection, so we need to remove them
     if (this.currentSelectionMessage) {
       this.removeSelectionMessage();
     }
 
-    if (!Array.isArray(features) && Number.isNaN(Number(features.id))) {
+    /**
+     * isNaN is to avoid having a tasks in the selection, as the id is a number whereas assets have a string
+     * The feature.id is because if the comment above is true, clusters of tasks does not have a number id
+     * but an undefined id, which is indeed NaN...
+     */
+    if (
+      !Array.isArray(features) &&
+      Number.isNaN(Number(features.id)) &&
+      features.id
+    ) {
       features = [
         {
           ...this.maplayerService.getFeatureById(
@@ -635,19 +633,31 @@ export class ReportAssetComponent implements OnInit {
     // When editing the asset of a workorder
     // If the workorder has tasks on XY then remove them from the list
     this.workorder.tasks
-      .filter((t) => t.assObjTable.includes('xy'))
+      .filter(
+        (t) =>
+          t.assObjTable.includes('xy') ||
+          !features.map((f) => f.lyrTableName).includes(t.assObjTable)
+      )
       .forEach((t) => this.mapService.removePoint('task', t.id.toString()));
 
     this.workorder.tasks = this.workorder.tasks.filter(
-      (t) => !t.assObjTable.includes('_xy')
+      (t) =>
+        !t.assObjTable.includes('_xy') &&
+        features.map((f) => f.lyrTableName).includes(t.assObjTable)
     );
 
     this.selectedTasks = [];
     this.currentTasksSelected = [];
     this.onSelectedTaskChange.emit([]);
 
+    const tasks: Task[] = [];
     for (let f of features) {
       if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
+        const asset = await this.layerService.getEquipmentByLayerAndId(
+          f.lyrTableName,
+          f.id
+        );
+
         const task = {
           id: this.utils.createCacheId(),
           assObjTable: f.lyrTableName,
@@ -656,30 +666,23 @@ export class ReportAssetComponent implements OnInit {
           longitude: f.x,
           wtrId: this.workorder.tasks[0]?.wtrId ?? null,
           wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+          ctrId: asset.ctrId,
         };
 
-        this.workorder.tasks.push(task);
+        tasks.push(task);
       }
     }
 
-    this.checkWtrIdPossible(features);
+    this.workorder.tasks = [...this.workorder.tasks, ...tasks];
+
+    // this.checkWtrIdPossible(features);
 
     this.workorder.longitude = this.workorder.tasks[0].longitude;
     this.workorder.latitude = this.workorder.tasks[0].latitude;
-    if (
-      this.editTaskEquipment?.assObjTable.includes('_xy') &&
-      this.draggableMarker?.isDraggable()
-    ) {
-      this.draggableMarker.remove();
-    }
-
-    if (!this.editTaskEquipment) {
-      this.inAssetEditMode = false;
-    }
 
     this.stopMultiSelectionEditMode();
-    this.workorder.tasks.forEach((t) => t.isSelectedTask = false);
-    this.onSaveWorkOrderState.emit(this.workorder);
+    this.workorder.tasks.forEach((t) => (t.isSelectedTask = false));
+    this.onSaveWorkOrderState.emit();
   }
 
   private async transformTasksToAsset(features: any[]): Promise<any[]> {
@@ -705,50 +708,27 @@ export class ReportAssetComponent implements OnInit {
 
     assets = await this.transformTasksToAsset(assets);
 
-    if (
-      this.workorder.tasks?.length === 1 &&
-      this.workorder.tasks[0].assObjTable.includes('xy')
-    ) {
-      const domain =
+    let selectedLayers = layers.filter((l) =>
+      assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
+    );
+
+    // Domain is needed only with XY as the user already choose between AEP/ASS
+    let domain: string,
+      isMultiWater: boolean = null;
+    if (this.workorder.tasks?.[0].assObjTable.includes('_xy')) {
+      domain =
         this.workorder.tasks[0].assObjTable.split('_')[0] === 'aep'
           ? 'dw'
           : 'ww';
-      const selectedLayers = layers.filter(
-        (l) =>
-          assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName) &&
-          l.domCode === domain
+
+      selectedLayers = selectedLayers.filter((l) => l.domCode === domain);
+
+      assets = assets.filter((ast) =>
+        selectedLayers.map((l) => l.lyrTableName).includes(ast.lyrTableName)
       );
-
-      if (selectedLayers.length === 0) {
-        await this.utils.showErrorMessage(
-          `Il n'y a pas d'équipements compatible avec le domaine ${
-            domain === 'dw' ? 'Eau Potable' : 'Assainissement'
-          } dans la sélection.`
-        );
-        assets = [];
-      } else if (selectedLayers.length > 1) {
-        const modal = await this.modalCtrl.create({
-          component: MonoXyRulesModalComponent,
-          componentProps: {
-            assets,
-            selectedLayers,
-            domain:
-              this.workorder.tasks[0].assObjTable.split('_')[0] === 'aep'
-                ? 'dw'
-                : 'ww',
-          },
-          backdropDismiss: false,
-        });
-
-        modal.present();
-
-        const { data } = await modal.onWillDismiss();
-
-        assets = data;
-      }
+      // If not XY, need to check if it's assets from multi water
     } else {
-      // Checking if we have a mix of dw/ww assets
-      const isMultiWater =
+      isMultiWater =
         [
           // Removing duplicates
           ...new Set(
@@ -766,51 +746,37 @@ export class ReportAssetComponent implements OnInit {
               .map((l) => l.domCode)
           ),
         ].length === 2;
+    }
 
-      // Checking if the assets are on more than one contract
-      const isMultiContract =
-        [...new Set(assets.map((ast) => ast.ctrId))].length > 1;
+    // Checking if the assets are on more than one contract
+    const isMultiContract =
+      [...new Set(assets.map((ast) => ast.ctrId))].length > 1;
 
-      // Checking if there is a difference between assets GEOMs
-      const isMultiGeomType =
-        [
-          ...new Set(
-            layers
-              .filter((l: Layer) =>
-                assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
-              )
-              .map((l) => l.lyrGeomType)
-          ),
-        ].length > 1;
+    if (selectedLayers.length === 0) {
+      await this.utils.showErrorMessage(
+        `Il n'y a pas d'équipements compatible avec le domaine ${
+          domain === 'dw' ? 'Eau Potable' : 'Assainissement'
+        } dans la sélection.`
+      );
+      assets = [];
+    } else if (selectedLayers.length > 1 || isMultiContract) {
+      const modal = await this.modalCtrl.create({
+        component: MultiAssetsModalComponent,
+        componentProps: {
+          assets,
+          selectedLayers,
+          isMultiWater,
+          isMultiContract,
+          domain,
+        },
+        backdropDismiss: false,
+      });
 
-      assets = this.utils
-        .removeDuplicatesFromArr([...assets], 'id')
-        .filter((feature) => feature.lyrTableName !== 'task');
+      modal.present();
 
-      if (isMultiGeomType || isMultiWater || isMultiContract) {
-        const originalGeomType = layers.find(
-          (l) => l.lyrTableName === this.workorder.tasks[0].assObjTable
-        ).lyrGeomType;
+      const { data } = await modal.onWillDismiss();
 
-        const modal = await this.modalCtrl.create({
-          component: MultiAssetsModalComponent,
-          componentProps: {
-            isMultiGeomType,
-            isMultiWater,
-            isMultiContract,
-            assets,
-            originalGeomType,
-          },
-          backdropDismiss: false,
-        });
-        modal.present();
-
-        const { data } = await modal.onWillDismiss();
-
-        if (data) {
-          assets = data;
-        }
-      }
+      assets = data;
     }
 
     return assets;
@@ -821,7 +787,11 @@ export class ReportAssetComponent implements OnInit {
     const wtrPossibles = [];
     const layerGrpActions = await this.layerService.getAllLayerGrpActions();
 
-    if (lyrTableNames.length > 0 && layerGrpActions && layerGrpActions.length > 0) {
+    if (
+      lyrTableNames.length > 0 &&
+      layerGrpActions &&
+      layerGrpActions.length > 0
+    ) {
       for (const lyrGrpAct of layerGrpActions) {
         if (
           lyrTableNames.every((ltn) => lyrGrpAct.lyrTableNames.includes(ltn))
