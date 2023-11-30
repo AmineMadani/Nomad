@@ -156,8 +156,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     for:
       - Effect: Allow
@@ -176,8 +176,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
     rec:
       - Effect: Allow
         Principal:
@@ -195,8 +195,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     rec2:
       - Effect: Allow
@@ -215,8 +215,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     rec3:
       - Effect: Allow
@@ -235,8 +235,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     dev:
       - Effect: Allow
@@ -255,8 +255,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     prd:
       - Effect: Allow
@@ -275,8 +275,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
     pilote:
       - Effect: Allow
@@ -295,8 +295,8 @@ custom:
         Action: execute-api:Invoke
         Resource:
           - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/POST/wo-dt-real'
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/wo'
-          - 'arn:aws:execute-api:eu-west-3:709087168436:*/*/GET/cri'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/list'
+          - 'arn:aws:execute-api:eu-west-3:883029375205:*/*/GET/tasks/report'
 
   pkgPyFuncs: # plugin configuration
     buildDir: build
@@ -344,6 +344,117 @@ functions:
         - http:
             path: wo-dt-real
             method: POST
+            integration: lambda
+            private: false
+            cors: true
+            authorizer:
+              type: aws_iam
+            request:
+              template:
+                text/xhtml: '{ "stage" : "$context.stage" }'
+                application/json: '${file(templates/request.tpl)}'
+            response:
+              headers:
+                Access-Control-Allow-Origin: "'*'"
+              template:
+                application/json:
+                  "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                  \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                  statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                  statusCode\"))\r\n#end"
+              statusCodes:
+                200:
+                  pattern: ''
+                  template:
+                    application/json:
+                      "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                      \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                      statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                      statusCode\"))\r\n#end"
+
+
+  - nomad-tasks-list:
+      name: nomad-tasks-list-${self:provider.stage}
+      handler: main.tasks_list_lambda_handler
+      memorySize: 128
+      timeout: 29
+      role: LambdaDefaultRole
+      vpc:
+        securityGroupIds:
+          - ${self:custom.nomad_aws_security_group.${self:provider.stage}}
+        subnetIds:
+          - ${self:custom.nomad_aws_subnet_a.${self:provider.stage}}
+          - ${self:custom.nomad_aws_subnet_b.${self:provider.stage}}
+      package:
+        include:
+          - src
+      tags:
+        Name: nomad-tasks-list-${self:provider.stage}
+      environment:
+        NOMAD_BACKEND_URL: 'https://${self:custom.nomad_backend_url.${self:provider.stage}}'
+        NOMAD_BACKEND_TIMEOUT: ${self:custom.nomad_backend_timeout.${self:provider.stage}}
+        NOMAD_BACKEND_CREDENTIALS: ${self:custom.nomad_backend_credentials.${self:provider.stage}}
+        LOG_LEVEL: ${self:custom.log_level.${self:provider.stage}}
+      events:
+        - http:
+            path: tasks/list
+            method: GET
+            integration: lambda
+            private: false
+            cors: true
+            authorizer:
+              type: aws_iam
+            request:
+              template:
+                text/xhtml: '{ "stage" : "$context.stage" }'
+                application/json: '${file(templates/request.tpl)}'
+            response:
+              headers:
+                Access-Control-Allow-Origin: "'*'"
+              template:
+                application/json:
+                  "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                  \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                  statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                  statusCode\"))\r\n#end"
+              statusCodes:
+                200:
+                  pattern: ''
+                  template:
+                    application/json:
+                      "#set($body=$input.json(\"$\"))\r\n#set($inputRoot\
+                      \ = $input.path(\"$\"))\r\n$input.json(\"$\")\r\n#if($inputRoot.toString().contains(\"\
+                      statusCode\"))\r\n#set($context.responseOverride.status = $util.parseJson($body).get(\"\
+                      statusCode\"))\r\n#end"
+
+
+
+  - nomad-tasks-report:
+      name: nomad-tasks-report-${self:provider.stage}
+      handler: main.tasks_report_lambda_handler
+      memorySize: 128
+      timeout: 29
+      role: LambdaDefaultRole
+      vpc:
+        securityGroupIds:
+          - ${self:custom.nomad_aws_security_group.${self:provider.stage}}
+        subnetIds:
+          - ${self:custom.nomad_aws_subnet_a.${self:provider.stage}}
+          - ${self:custom.nomad_aws_subnet_b.${self:provider.stage}}
+      package:
+        include:
+          - src
+      tags:
+        Name: nomad-tasks-report-${self:provider.stage}
+      environment:
+        NOMAD_BACKEND_URL: 'https://${self:custom.nomad_backend_url.${self:provider.stage}}'
+        NOMAD_BACKEND_TIMEOUT: ${self:custom.nomad_backend_timeout.${self:provider.stage}}
+        NOMAD_BACKEND_CREDENTIALS: ${self:custom.nomad_backend_credentials.${self:provider.stage}}
+        LOG_LEVEL: ${self:custom.log_level.${self:provider.stage}}
+      events:
+        - http:
+            path: tasks/report
+            method: GET
             integration: lambda
             private: false
             cors: true
