@@ -4,14 +4,13 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { Box, MapService } from 'src/app/core/services/map/map.service';
+import { Box, LocateStatus, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
 import { debounceTime, first, switchMap, filter, take } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
-import { CustomZoomControl } from './zoom.control';
 import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode';
@@ -105,6 +104,30 @@ export class MapComponent implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private clicklatitude: number;
   private clicklongitute: number;
+
+    public colorLocateIcon : string ;
+    public sourceLocateIcon : string;
+
+    /**
+    * control of locatation without tracking
+    */
+    private  geoLocateControl =  new Maplibregl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: false,//
+    });  
+  
+    /**
+     * control of locatation with tracking
+     */
+    private  geoLocateControlTracking =  new Maplibregl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,//
+    });  
+
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -514,10 +537,66 @@ export class MapComponent implements OnInit, OnDestroy {
    * Use the geolocate feature of Maplibre, with their input hidden
    */
   public geolocate(): void {
+    this.updateLocateButtonStatus();
     const el = this.elem.nativeElement.querySelectorAll(
       '.maplibregl-ctrl-geolocate'
     )[0];
     el.click();
+  }
+
+  //Manage Icon of locate button
+  public manageLocateIcon() : string{
+    //Default Value
+    this.colorLocateIcon = 'Primary';
+    this.sourceLocateIcon = '';
+    let iconName : string = '';
+    switch(this.mapService.getLocateStatus()){
+      case LocateStatus.LOCALIZATE:{
+        iconName = 'locate-outline';
+        break;
+      }
+      case LocateStatus.TRACKING:{
+        this.sourceLocateIcon = 'assets/icon/locate-tracking.svg';
+        break;
+      } 
+      case LocateStatus.NONE: 
+      default:
+      {
+        this.colorLocateIcon = 'medium';
+        iconName = 'locate-outline';
+        break;
+      }
+    }
+    return iconName;
+  }
+  
+  /**
+  * Update the status of locate button
+  */
+  public updateLocateButtonStatus() : void{
+    switch(this.mapService.getLocateStatus()){
+      case LocateStatus.NONE: 
+      {
+        this.setLocateStatus(LocateStatus.LOCALIZATE);
+        this.addGeoLocateControl();
+        break;
+      }
+      case LocateStatus.LOCALIZATE:{
+        this.setLocateStatus(LocateStatus.TRACKING);
+        this.addGeoLocateTrackingControl();
+        break;
+      }
+      case LocateStatus.TRACKING:{
+        this.setLocateStatus(LocateStatus.NONE);
+        break;
+      }
+      default:
+      break;
+    }
+  }
+
+  public setLocateStatus(status : LocateStatus){
+    this.mapService.setLocateStatus(status);
   }
 
   /**
@@ -702,6 +781,11 @@ export class MapComponent implements OnInit, OnDestroy {
             this.preventTouchMoveClicked = false;
           }, 500);
         }
+        //If on tracking mode and the user move on the map, 
+        //update the status and the icon
+        if (this.mapService.getLocateStatus() == LocateStatus.TRACKING){
+          this.setLocateStatus(LocateStatus.LOCALIZATE);
+        }
       });
 
     fromEvent(this.map, 'touchmove')
@@ -781,21 +865,38 @@ export class MapComponent implements OnInit, OnDestroy {
       });
   }
 
+
+  /**
+   * Add locate control with tracking
+   */
+  private addGeoLocateTrackingControl() : void{
+    this.removeLocateControls();
+    this.map.addControl(this.geoLocateControlTracking);
+  }
+
+  /**
+   * Add locate control without tracking
+   */
+  private addGeoLocateControl() : void{
+    this.removeLocateControls();
+    this.map.addControl(this.geoLocateControl);
+  }
+
+  /**
+   * Remove LocateControls
+   * There are 2 locates controls , with and without tracking
+   */
+  private removeLocateControls(){
+    if (this.map.hasControl(this.geoLocateControl)){
+      this.map.removeControl(this.geoLocateControl);
+    }
+    if (this.map.hasControl(this.geoLocateControlTracking)){
+      this.map.removeControl(this.geoLocateControlTracking);
+    }
+  }
+
   private addControls(): void {
-    this.map.addControl(
-      new Maplibregl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true,
-        },
-        trackUserLocation: true,
-      })
-    );
-    this.map.addControl(
-      new Maplibregl.ScaleControl({
-        unit: 'metric',
-      }),
-      'bottom-right'
-    );
+    this.addGeoLocateControl();
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
