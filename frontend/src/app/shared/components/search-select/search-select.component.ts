@@ -47,20 +47,20 @@ export class SearchSelectComponent implements OnInit {
    */
   get displayValue(): string {
     let label: string = '';
-    if (this.elements && this.control.value) {
+    if (this.elements && this.control.value != null) {
       if (this.isMultiSelection) {
         const nbElementSelected: number = this.control.value.length;
         if (!this.showMultiSelectionAsNumber || nbElementSelected < 2) {
           label = this.control.value.map((value: any) => {
             const element = this.elements.find((el) => el[this.key] === value);
-            return element ? this.elementLabelFunction(element) : null;
+            return element != null ? this.elementLabelFunction(element) : null;
           }).join(', ');
         } else {
           label = this.label + ' (x' + this.control.value.length + ')';
         }
       } else {
         const element = this.elements.find((el) => el[this.key]?.toString() === this.control.value?.toString());
-        if (element) label = this.elementLabelFunction(element);
+        if (element != null) label = this.elementLabelFunction(element);
       }
     }
     return label;

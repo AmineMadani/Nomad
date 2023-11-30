@@ -1,12 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
-import { ActivatedRoute, NavigationEnd,  Params, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
 import { SynthesisButton } from '../synthesis.drawer';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { Layer, ReferenceDisplayType, UserReference } from 'src/app/core/models/layer.model';
+import {
+  Layer,
+  ReferenceDisplayType,
+  UserReference,
+} from 'src/app/core/models/layer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
@@ -32,7 +36,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     private mapLayerService: MapLayerService,
     private route: ActivatedRoute,
     private mapService: MapService
-  ) { }
+  ) {}
 
   public buttons: SynthesisButton[] = [
     {
@@ -45,8 +49,12 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       key: 'report',
       label: 'Saisir un compte rendu',
       icon: 'newspaper-outline',
-      disabledFunction: () => !(this.userHasPermissionCreateAssetWorkorder && !this.utilsService.isMobilePlateform()),
-    }
+      disabledFunction: () =>
+        !(
+          this.userHasPermissionCreateAssetWorkorder &&
+          !this.utilsService.isMobilePlateform()
+        ),
+    },
   ];
 
   // Permissions
@@ -64,28 +72,34 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.isMobile = this.utils.isMobilePlateform();
     this.userHasPermissionViewAssetDetailled =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.VIEW_ASSET_DETAILLED);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.VIEW_ASSET_DETAILLED
+      );
     this.userHasPermissionCreateAssetWorkorder =
-      await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_ASSET_WORKORDER);
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.CREATE_ASSET_WORKORDER
+      );
 
     // We need to wait for the map to be loaded
     // Else we can't use the zoom and specific map functionnalities
-    this.mapService.onMapLoaded().pipe(
-      filter((isMapLoaded) => isMapLoaded),
-      takeUntil(this.ngUnsubscribe$)
-    ).subscribe(async () => {
+    this.mapService
+      .onMapLoaded()
+      .pipe(
+        filter((isMapLoaded) => isMapLoaded),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(async () => {
         await this.prepareInitEquipement();
-    });
+      });
 
     this.router.events
-    .pipe(
-      filter((event) => event instanceof NavigationEnd),
-      takeUntil(this.ngUnsubscribe$))
-      .subscribe(async () =>{
-        await this.prepareInitEquipement();
-      }
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntil(this.ngUnsubscribe$)
       )
-
+      .subscribe(async () => {
+        await this.prepareInitEquipement();
+      });
   }
 
   private async prepareInitEquipement() {
@@ -112,38 +126,41 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         queryParams: { [this.equipment.lyrTableName]: this.equipment.id },
       });
     } else if (ev.key === 'report') {
-
       let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
-      let recalculateCoords = this.mapLayerService.findNearestPoint(
-        this.equipment.geom.coordinates,
-        [
-          this.equipment.x,
-          this.equipment.y,
-        ]
-      );
+      if (this.equipment.geom && this.equipment.geom.type !== 'Point') {
+        const recalculateCoords = this.mapLayerService.findNearestPoint(
+          this.equipment.geom.coordinates,
+          [this.equipment.x, this.equipment.y]
+        );
+
+        this.equipment.x = recalculateCoords[0];
+        this.equipment.y = recalculateCoords[1];
+      }
 
       let workorder: Workorder = {
-        latitude: recalculateCoords[1],
-        longitude: recalculateCoords[0],
-        wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
+        latitude: this.equipment.y,
+        longitude: this.equipment.x,
+        wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
         ctyId: this.equipment.ctyId,
         id: this.utilsService.createCacheId(),
         isDraft: true,
         tasks: [
           {
             id: this.utilsService.createCacheId(),
-            latitude: recalculateCoords[1],
-            longitude: recalculateCoords[0],
+            latitude: this.equipment.y,
+            longitude: this.equipment.x,
             assObjTable: this.equipment.lyrTableName,
             assObjRef: this.equipment.id,
-            wtsId: lStatus.find(status => status.wtsCode == 'CREE')?.id,
-            ctrId: this.equipment.ctrId
-          }
-        ]
+            wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+            ctrId: this.equipment.ctrId,
+          },
+        ],
       };
       this.workorderService.saveCacheWorkorder(workorder);
-      this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
+      this.router.navigate([
+        '/home/workorder/' + workorder.id.toString() + '/cr',
+      ]);
     }
   }
 
@@ -155,10 +172,15 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     );
   }
 
-  private async initEquipment(lyrTableName: string, equipmentId: string): Promise<void> {
+  private async initEquipment(
+    lyrTableName: string,
+    equipmentId: string
+  ): Promise<void> {
     // Start by getting the equipment wit layer and id
-    const equipment =
-      await this.layerService.getEquipmentByLayerAndId(lyrTableName, equipmentId);
+    const equipment = await this.layerService.getEquipmentByLayerAndId(
+      lyrTableName,
+      equipmentId
+    );
 
     await this.zoomToEquipment(lyrTableName, equipment);
 
@@ -169,17 +191,21 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     };
 
     // Get the user references with the lyrTableName of the equipment
-    this.userReferences = await this.layerService.getUserReferences(this.equipment.lyrTableName);
+    this.userReferences = await this.layerService.getUserReferences(
+      this.equipment.lyrTableName
+    );
 
     // Get asset label by current layer info
     const layers = await this.layerService.getAllLayers();
-    const currentLayer = layers.find((l) => l.lyrTableName === `${this.equipment.lyrTableName}`);
+    const currentLayer = layers.find(
+      (l) => l.lyrTableName === `${this.equipment.lyrTableName}`
+    );
     this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
   }
 
   private async zoomToEquipment(lyrTableName: string, equipment: any) {
     const layer: Layer = await this.layerService.getLayerByKey(lyrTableName);
-    const minZoom = (JSON.parse(layer.listStyle[0].sydDefinition)[0].minzoom) + 1;
+    const minZoom = JSON.parse(layer.listStyle[0].sydDefinition)[0].minzoom + 1;
     await this.mapLayerService.moveToXY(equipment.x, equipment.y, minZoom);
     await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
       lyrTableName,

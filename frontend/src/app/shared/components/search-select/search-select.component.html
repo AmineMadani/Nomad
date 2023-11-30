@@ -53,11 +53,11 @@
         <ion-icon
           *ngIf="
             isMultiSelection
-              ? control.value && control.value.length > 0
-              : control.value
+              ? control.value != null && control.value.length > 0
+              : control.value != null
           "
           (click)="
-            isMultiSelection ? control.setValue([]) : control.setValue(null)
+            control.disabled ? null : (isMultiSelection ? control.setValue([]) : control.setValue(null))
           "
           name="close-outline"
           size="small"
