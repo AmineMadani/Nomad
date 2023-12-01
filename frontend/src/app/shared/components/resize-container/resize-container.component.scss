@@ -1,0 +1,45 @@
+:host {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+}
+
+.resize-content {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+
+    .first-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+
+        .resizing-container {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+
+            .resize {
+                border-left: 1px solid var(--ion-color-medium);
+                border-right: 1px solid var(--ion-color-medium);
+                flex: 0;
+                display: flex;
+                margin: 8px;
+                padding: 2px;
+
+                ion-icon {
+                    zoom: 1.5;
+                    margin: auto;
+                    color: var(--ion-color-medium);
+                }
+            }
+        }
+    }
+
+    .second-container {
+        flex: 1;
+        overflow: auto;
+    }
+}

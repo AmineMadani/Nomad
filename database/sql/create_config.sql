@@ -733,7 +733,7 @@ comment on column workorder.wko_completion_start_date is 'Completion start date 
 comment on column workorder.wko_completion_end_date is 'Completion end date of the workorder';
 comment on column workorder.wko_realization_user is 'Realization user of the workorder';
 comment on column workorder.wko_realization_cell is 'Realization cell of the workorder';
-comment on column workorder.wko_realization_comment is 'Realization comment of the workorder';
+  comment on column workorder.wko_realization_comment is 'Realization comment of the workorder';
 comment on column workorder.cty_id is 'City';
 comment on column workorder.cty_llabel is 'Long label of the city';
 comment on column workorder.wts_id is 'Workorder status ';

@@ -5,6 +5,7 @@ import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
 import { SearchEquipments } from '../models/layer.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { isNumber } from '@turf/turf';
 
 @Injectable({
   providedIn: 'root',
@@ -122,6 +123,20 @@ export class UtilsService {
     });
 
     return transformedArray;
+  }
+
+  public transformArrayForAssets(features: any[], allColumn: boolean = false): SearchEquipments[] {
+    return features.reduce((acc, curr) => {
+      const existingItem = acc.find((item: any) => item.lyrTableName === curr.assObjTable);
+
+      if (existingItem) {
+        existingItem.equipmentIds.push(curr.assObjRef);
+      } else {
+        acc.push({ lyrTableName: curr.assObjTable, equipmentIds: [curr.assObjRef], allColumn });
+      }
+
+      return acc;
+    }, []);
   }
 
   public flattenEquipments(
@@ -300,6 +315,77 @@ export class UtilsService {
     );
     return dateLuxon.toJSDate();
   }
+
+    /**
+   * 
+   * @param num Convert Number of minutes to time HH:MM
+   * @returns 
+   */
+    public convertNumberToTimeString(num : number) : string{
+      const hours = Math.floor(num / 60);  
+      const minutes = num % 60;
+      let hoursString = hours.toString();
+      if (hours < 10){
+        hoursString = '0' + hoursString;
+      }
+      let minutesString = minutes.toString();
+      if (minutes < 10){
+        minutesString = '0' + minutesString;
+      }
+      return hoursString + ':' + minutesString;
+    }
+
+    /**
+     * Convertit un nombre représentant une durée en heures et minutes.
+     * @param duree La durée en minutes.
+     * @returns La durée convertie en format d'heures et minutes.
+     */
+    public formatDurationToTimeString(duree: number): string {
+      const heures = Math.floor(duree / 60);
+      const minutes = duree % 60;
+    
+      let heureString = '';
+      if (heures === 1) {
+        heureString = '1 heure';
+      } else if (heures > 1) {
+        heureString = heures + ' heures';
+      }
+    
+      let minuteString = '';
+      if (minutes === 1) {
+        minuteString = '1 minute';
+      } else if (minutes > 1) {
+        minuteString = minutes + ' minutes';
+      }
+    
+      if (heures === 0) {
+        return minuteString;
+      } else if (minutes === 0) {
+        return heureString;
+      } else {
+        return heureString + ' ' + minuteString;
+      }
+    }
+  
+    /**
+     * Convert the time HH:MM to number of minutes
+     * @param value 
+     * @returns 
+     */
+    public convertStringToNumber(value : string) : number{
+      if (!value){
+        return 0;
+      }
+      const arraySplit = value.split(':');
+      let hours, minutes  : number = 0; 
+      if (isNumber(arraySplit[0])){
+        hours = Number(arraySplit[0]) * 60;
+      }
+      if (isNumber(arraySplit[1])){
+        minutes = Number(arraySplit[1]);
+      }
+      return hours + minutes;
+    }
 
   public createCacheId(): number {
     return (

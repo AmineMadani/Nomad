@@ -1,0 +1,97 @@
+<div class="report-asset">
+  <!-- action buttons -->
+  <ion-tab-bar class="action-buttons">
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && !inAssetEditMode"
+      (click)="startAssetEditMode()">
+      <ion-icon name="pencil-outline"></ion-icon>
+      Modifier le patrimoine
+    </ion-tab-button>
+    <ion-tab-button *ngIf="workorder.tasks && workorder.tasks.length === 1 && inAssetEditMode"
+      [class]="draggableMarker ? 'selected' : ''" (click)="cancelAssetEditMode()">
+      <ion-icon name="close-outline" color="red"></ion-icon>
+      Annuler la modification
+    </ion-tab-button>
+    <ion-tab-button (click)="onMultiSelection()">
+      <ion-icon src="assets/icon/polygonal.svg"></ion-icon>
+      Multi-sélection
+    </ion-tab-button>
+    <ion-tab-button (click)="onNewAsset()">
+      <ion-icon name="refresh-outline"></ion-icon>
+      Créer un patrimoine
+    </ion-tab-button>
+    <ion-tab-button *ngIf="hasReportClosed()" class="close-report-button" (click)="onCloseCircuit()">
+      <ion-icon name="checkmark-outline"></ion-icon>
+      Clôturer le circuit en cours
+    </ion-tab-button>
+  </ion-tab-bar>
+
+  <ng-container *ngIf="!loading; else loadingTemplate">
+    <div class="asset-list" *ngIf="workorder">
+      <ion-item *ngIf="workorder.tasks && workorder.tasks.length > 1">
+        <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
+          [checked]="isAllElementSelected" [indeterminate]="areSomeElementsChecked" [disabled]="areAllTasksCompleted">
+          <span class="select-all-color">Tout sélectionner</span>
+        </ion-checkbox>
+      </ion-item>
+      <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
+        (mouseleave)="onItemHoverLeave(tsk)">
+        <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
+          [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
+          [disabled]="tsk.report?.dateCompletion"></ion-checkbox>
+        <div style="display: inline-block;">
+          <ion-label>
+            <ion-label class="ion-no-margin">
+              {{getLyrLabel(tsk.assObjTable)}}
+            </ion-label>
+            <ion-note slot="helperText">
+              {{tsk.assObjRef}}
+            </ion-note>
+          </ion-label>
+        </div>
+        <ng-container
+          *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks && workorder.tasks.length > 1 && !tsk.report?.dateCompletion">
+          <ion-label slot="end">
+            <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
+              <ion-button fill="clear" (click)="onEditEquipment(tsk)">
+                <ion-icon size="small" slot="icon-only" name="pencil-outline"></ion-icon>
+              </ion-button>
+            </ng-container>
+            <ng-template #taskModificationButtons>
+              <ion-button fill="clear" (click)="onValidateChangeEquipment(tsk)">
+                <ion-icon size="small" color="success" slot="icon-only" name="checkmark-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" (click)="onRemoveChangeEquipment(tsk)">
+                <ion-icon size="small" color="danger" slot="icon-only" name="refresh-outline"></ion-icon>
+              </ion-button>
+            </ng-template>
+            <ion-button fill="clear" (click)="removeTask(tsk)">
+              <ion-icon size="small" slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-label>
+        </ng-container>
+      </ion-item>
+    </div>
+  </ng-container>
+  <ng-template #loadingTemplate>
+    <app-skeleton-loading [rows]="3"></app-skeleton-loading>
+  </ng-template>
+</div>
+
+<ion-popover #drawingSelectionPopover>
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('unit')">
+        <ion-icon slot="start" name="pin-outline"></ion-icon>
+        <ion-label>Unitaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('rect')">
+        <ion-icon slot="start" name="crop-outline"></ion-icon>
+        <ion-label>Rectangulaire</ion-label>
+      </ion-item>
+      <ion-item lines="none" button (click)="startMultiSelectionEditMode('polygon')">
+        <ion-icon slot="start" name="logo-web-component"></ion-icon>
+        <ion-label>Polygonale</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>

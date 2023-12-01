@@ -1,0 +1,2 @@
+update nomad.layer  set lyr_display = false  where lyr_table_name in ('aep_secteur', 'aep_etage_de_pression', 'aep_compteur_de_branche', 'ass_canalisation_abandonnee', 'ass_surface_hydraulique', 'ass_xy', 'aep_xy');
+commit;

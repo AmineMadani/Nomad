@@ -122,13 +122,15 @@ export class MapEventService {
         this.highlighSelectedFeatures(mapLibre, undefined);
       }
 
-      features.forEach((f: MultiSelection) => {
-        this.multiSelection.push(f);
-        mapLibre.setFeatureState(
-          { source: f.source, id: f.id },
-          { selected: true }
-        );
-      });
+      if (!this.isFeatureFiredEvent) {
+        features.forEach((f: MultiSelection) => {
+          this.multiSelection.push(f);
+          mapLibre.setFeatureState(
+            { source: f.source, id: f.id },
+            { selected: true }
+            );
+          });
+        }
 
       if (fireEvent) {
         if(features && features.length == 1) {

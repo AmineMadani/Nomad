@@ -74,7 +74,7 @@ def get_wo_lambda_handler(event, context):
             })}
 
 
-def update_wo_post_request(data, endpoint_part):
+def nomad_post_request(data, endpoint_part):
     headers = {
         'Content-Type': 'application/json',
         'User-Agent': 'Python Lambda',
@@ -100,8 +100,8 @@ def update_wo_post_request(data, endpoint_part):
             }
 
         else:
-            logger.error('Nomad - update_wo_post_request - SEND - ' + json.dumps(data))
-            logger.error('Nomad - update_wo_post_request - RECEIVE - ' + str(
+            logger.error('Nomad - nomad_post_request - SEND - ' + json.dumps(data))
+            logger.error('Nomad - nomad_post_request - RECEIVE - ' + str(
                 response.status_code) + ' - ' + 'The error message is :' + str(response.content))
 
             return {
@@ -111,15 +111,23 @@ def update_wo_post_request(data, endpoint_part):
             }
 
     except requests.exceptions.ReadTimeout:
+<<<<<<< HEAD
         logger.error('Nomad - 500.1 - Timeout - update_wo_post_request.')
         return {
             "statusCode": 500,
             "success": False,
             "body": 'Nomad - Timeout - intervention'
+=======
+        logger.error('Nomad - 500.1 - Timeout - nomad_post_request !')
+        return {
+            "statusCode": 500,
+            "success": False,
+            "body": 'Nomad - Timeout - intervention')
+>>>>>>> 576fd744b8e9474e5a7f9ad637114cee6a2c498d
         }
 
     except Exception as e:
-        logger.error('Nomad - 500.2 - Exception {} - intervention : {}'.format(e, data['refExterneDI']))
+        logger.error('Nomad - 500.2 - Exception {} - intervention ')
         return {
             "statusCode": 500,
             "success": False,
@@ -129,6 +137,59 @@ def update_wo_post_request(data, endpoint_part):
             })
         }
 
+
+def nomad_get_request(param, endpoint_part):
+    headers = {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Python Lambda',
+        'Authorization': 'Basic {}'.format(os.environ.get("NOMAD_BACKEND_CREDENTIALS", "")),
+        'Accept': 'application/json'}
+
+    api_endpoint = "{}{}".format(os.environ.get("NOMAD_BACKEND_URL", ""), endpoint_part)
+    api_url = '{}?{}'.format(api_endpoint, param)
+	
+    try:
+        logger.debug('SEND request to NomadBackend {}'.format(data))
+		
+        response = requests.get(api_url, headers=headers, timeout=28)
+
+        if response.status_code == 200:
+            return {
+                "statusCode": 200,
+                "success": True,
+                "body": response.json()
+            }
+        else:
+            logger.error('Nomad - nomad_get_request - ' + str(response.status_code) + ' - ' + str(api_url))
+            logger.error('Nomad - nomad_get_request - ' + str(response.status_code) + ' - ' +
+                         'The error message is :' + str(response.content))
+            return {
+                "statusCode": response.status_code,
+                "success": False,
+                "body": json.dumps({
+                "code": response.status_code,
+                "message": "An error is occured. Contact your administrator.",
+				})
+            }
+
+    except requests.exceptions.ReadTimeout:
+        logger.error('Nomad - 500.1 - Timeout - nomad_post_request : {}'.format(data['refExterneDI']))
+        return {
+            "statusCode": 500,
+            "success": False,
+            "body": 'Nomad - Timeout - intervention : {}'.format(str(data['refExterneDI']))
+        }
+
+    except Exception as e:
+        logger.error('Nomad - 500.2 - ' + json.dumps(event["query"]))
+        logger.error('Nomad - 500.2 - ' + 'the error message is :' + str(e))
+        return {
+            "statusCode": 500,
+            "success": False,
+            "body": json.dumps({
+                "code": "500.2",
+                "message": "An error is occured. Contact your administrator.",
+            })}
 
 def update_dt_wo_lambda_handler(event, context):
 
@@ -164,11 +225,11 @@ def update_dt_wo_lambda_handler(event, context):
             'body': 'agent is required'
         }
 
-    resp = update_wo_post_request(data=event["body"],
+    resp = nomad_post_request(data=event["body"],
                                   endpoint_part='/api/nomad/v1/basic/external/exploitation/workorders/updateCompletion')
     if resp['statusCode'] != 200 and  resp['statusCode'] != 404:
         return {
-            "statusCode": 500,
+            "statusCode": resp['statusCode'],
             "success": False,
             "body": json.dumps({
                 "code": "500.1",
@@ -178,3 +239,71 @@ def update_dt_wo_lambda_handler(event, context):
 
     return resp
 
+
+def tasks_list_lambda_handler(event, context):
+
+    if is_property_missing('modificationDateRef', event["query"]) or event["query"]['modificationDateRef'].strip() == '':
+        logger.debug('modificationDateRef is required')
+        return {
+            'statusCode': 400,
+            "success": False,
+            'body': 'modificationDateRef is required'
+        }
+	
+    param = 'modificationDateRef='+event["query"]['modificationDateRef']
+	
+    if is_property_missing('contractsList', event["query"]):
+        logger.debug('contractsList not found ... but no problem :) ')
+    else:
+        param = param+'&contractsList='+event["query"]['contractsList']
+
+    param = 'modificationDateRef='+event["query"]['modificationDateRef']
+	
+    if is_property_missing('statusList', event["query"]):
+        logger.debug('statusList not found ... but no problem :) ')
+    else:
+        param = param+'&statusList='+event["query"]['statusList']
+
+    resp = nomad_get_request(param=param,
+                             endpoint_part='api/nomad/v1/basic/external/exploitation/task/list')
+
+    if resp['statusCode'] != 200 :
+        return {
+            "statusCode": resp['statusCode'],
+            "success": False,
+            "body": json.dumps({
+                "code": resp['statusCode'],
+                "message": "An error is occured. Contact your administrator.",
+            })
+        }
+
+    return resp
+
+
+def tasks_report_lambda_handler(event, context):
+
+        if is_property_missing('taskId', event["query"]) or event["query"][
+            'taskId'].strip() == '':
+            logger.debug('taskId is required')
+            return {
+                'statusCode': 400,
+                "success": False,
+                'body': 'taskId is required'
+            }
+
+        param = 'taskId=' + event["query"]['taskId']
+
+        resp = nomad_get_request(param=param,
+                                 endpoint_part='api/nomad/v1/basic/external/exploitation/task/report')
+
+        if resp['statusCode'] != 200:
+            return {
+                "statusCode": resp['statusCode'],
+                "success": False,
+                "body": json.dumps({
+                    "code": resp['statusCode'],
+                    "message": "An error is occured. Contact your administrator.",
+                })
+            }
+
+        return resp

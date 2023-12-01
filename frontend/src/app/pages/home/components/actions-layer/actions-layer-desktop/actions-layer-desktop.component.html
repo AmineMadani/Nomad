@@ -1,44 +1,71 @@
-<div class="actions-layer-desktop-content"  id="actions-layer-desktop-content">
+<div class="actions-layer-desktop-content" id="actions-layer-desktop-content">
   <div id="searchbar-autocomplete">
-    <ion-searchbar show-clear-button="always" placeholder="Recherche" [debounce]="500" (ionInput)="onSearchInput($event)" [value]="adress"
-      (ionBlur)="onSearchbarFocusOut()" (keyup.enter)="onSearchKeyEnter()" class="actions-layer-desktop-content-button-search">
+    <div class="custom-input-container" *ngIf="modeVisible">
+      <button class="open-option-button" (click)="optionChanged($event)" >
+        {{searchModeLibelle}}
+        <span class="arrow-down"></span>
+      </button>
+    </div>
+    <div class="selection-option" *ngIf="!modeVisible">
+      <ion-radio-group class="selection-group"  [value]="selectedsearchMode" (ionChange)="modeChange($event)">
+        <ion-item class="item-search-mode">
+          <ion-radio justify="space-between" value="Adresse"  >Adresse</ion-radio><br />
+        </ion-item>
+        <ion-item class="item-search-mode">
+          <ion-radio justify="space-between" value="Patrimoine">Patrimoine</ion-radio><br />
+        </ion-item>
+      </ion-radio-group>
+    </div>
+    <ion-searchbar #searchbar show-clear-button="always" placeholder="Recherche" [debounce]="500"
+      (ionInput)="onSearchInput($event)" [value]="searchResult" (ionBlur)="onSearchbarFocusOut()"
+      (keyup.enter)="onSearchKeyEnter()" class="actions-layer-desktop-content-button-search" (click)="onSeachEnter()"
+    >
     </ion-searchbar>
+
     <div id="autocomplete-panel" *ngIf="adresses && adresses.length > 0">
       <div class="autocomplete-content" *ngFor="let adress of adresses" (click)="onAdressClick(adress)">
         {{adress.properties.label}}
       </div>
     </div>
-  </div>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
-    [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
-  <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"
-    [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
-  <ion-button (click)="displayToolbox($event)" class="actions-layer-content-button-action">Outils</ion-button>
+    <div id="autocomplete-panel-generique" *ngIf="genericSearResult && genericSearResult.length > 0">
+      <div class="autocomplete-content" *ngFor="let result of genericSearResult" (click)="onResultClick(result)">
+        <span>{{result.id}}</span>
+        <span class="asset-layer"> ({{result.asset_tbl.replace('asset.','')}})</span>
+      </div>
+    </div>
+
+    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
+      [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"
+      [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
+    <ion-button (click)="displayToolbox($event)" class="actions-layer-content-button-action">Outils</ion-button>
+
 </div>
 
-<ion-popover #toolbox showBackdrop="false" [isOpen]="isToolboxOpen" (didDismiss)="isToolboxOpen = false">
-  <ng-template>
-    <ion-content class="ion-no-padding">
-      <ion-item lines="none" button (click)="onClickDrawingPolygone()">
-        <ion-icon slot="start" src="assets/icon/polygonal.svg" color="primary"></ion-icon>
-        <ion-label>Polygone</ion-label>
+
+  <ion-popover #toolbox showBackdrop="false" [isOpen]="isToolboxOpen" (didDismiss)="isToolboxOpen = false">
+    <ng-template>
+      <ion-content class="ion-no-padding">
+        <ion-item lines="none" button (click)="onClickDrawingPolygone()">
+          <ion-icon slot="start" src="assets/icon/polygonal.svg" color="primary"></ion-icon>
+          <ion-label>Polygone</ion-label>
+        </ion-item>
+        <ion-item lines="none" button (click)="onClickDrawingRectangle()">
+          <ion-icon slot="start" src="assets/icon/rectangle.svg" color="primary"></ion-icon>
+          <ion-label>Rectangle</ion-label>
+        </ion-item>
+        <ion-item lines="none" button (click)="onClickDisplayPrintTool()" id="print-button">
+          <ion-icon slot="start" name="print-outline"></ion-icon>
+          <ion-label>Impression</ion-label>
+        </ion-item>
+      </ion-content>
+      <ion-item lines="none" button (click)="onClickDisplaySurfaceMesureTool()">
+        <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
+        <ion-label>Mesure surfacique</ion-label>
       </ion-item>
-      <ion-item lines="none" button (click)="onClickDrawingRectangle()">
-        <ion-icon slot="start" src="assets/icon/rectangle.svg" color="primary"></ion-icon>
-        <ion-label>Rectangle</ion-label>
+      <ion-item lines="none" button (click)="onClickDisplayLinearMesureTool()">
+        <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
+        <ion-label>Mesure linéaire</ion-label>
       </ion-item>
-      <ion-item lines="none" button (click)="onClickDisplayPrintTool()" id="print-button">
-        <ion-icon slot="start" name="print-outline"></ion-icon>
-        <ion-label>Impression</ion-label>
-      </ion-item>
-    </ion-content>
-    <ion-item lines="none" button (click)="onClickDisplaySurfaceMesureTool()">
-      <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
-     <ion-label>Mesure surfacique</ion-label>
-    </ion-item>
-    <ion-item lines="none" button (click)="onClickDisplayLinearMesureTool()">
-      <ion-icon slot="start" src="assets/icon/rule.svg" color="primary"></ion-icon>
-     <ion-label>Mesure linéaire</ion-label>
-    </ion-item>
-  </ng-template>
-</ion-popover>
+    </ng-template>
+  </ion-popover>

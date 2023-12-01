@@ -51,7 +51,7 @@ export class AssetSettingsPage implements OnInit {
   }
 
   getListAssetFilter() {
-    this.templateService.getFormsTemplate().then((listFormTemplate) => {
+    this.templateService.getFormsTemplate(true).then((listFormTemplate) => {
       this.assetFilter = listFormTemplate.find(form => form.formCode === 'ASSET_FILTER');
       this.listFilterAsset = JSON.parse(this.assetFilter.definition);
       this.dataSource.data = this.listFilterAsset;

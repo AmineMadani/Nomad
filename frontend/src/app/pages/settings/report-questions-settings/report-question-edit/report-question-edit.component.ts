@@ -9,13 +9,29 @@ import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { ValueLabelComponent } from './value-label/value-label.component';
 import { TemplateService } from 'src/app/core/services/template.service';
-import { Form, FormDefinition, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
+import { Form, FormDefinition, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
 import { FormTemplate, FormTemplateUpdate } from 'src/app/core/models/template.model';
+import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
+import { TableService } from 'src/app/core/services/table.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { WtrReport } from '../../report-settings/report-settings.component';
+import { ReportEditComponent } from '../../report-settings/report-edit/report-edit.component';
 
 export interface FormWithLinkedToDefinition {
   formTemplate: FormTemplate;
   form: Form;
   listDefinitionLinkedToQuestion: FormDefinition[];
+}
+
+export interface FormTemplateReport extends WtrReport {
+  isInReport: string;
+  parameterabilityInReport: string;
+  indexInReport: number;
+  previousQuestionLabel: string;
+  nextQuestionLabel: string;
+  conditionQuestionLabel: string;
+  conditionQuestionValue: string;
 }
 
 @Component({
@@ -31,6 +47,8 @@ export class ReportQuestionEditComponent implements OnInit {
     private reportQuestionService: ReportQuestionService,
     private userService: UserService,
     private templateService: TemplateService,
+    private tableService: TableService,
+    private layerService: LayerService,
   ) { }
 
   // Variables which must be passed at param in the modal of this component
@@ -50,6 +68,133 @@ export class ReportQuestionEditComponent implements OnInit {
   getRqnTypeLabel = (type: ValueLabel) => {
     return type.label;
   }
+
+  private listParameterabilityInReport: ValueLabel[] = [
+    { value: 'required', label: 'Défaut obligatoire'},
+    { value: 'not_required', label: 'Défaut non obligatoire'},
+    { value: 'optional', label: 'Paramétrable'},
+  ];
+
+  private listNoYes: ValueLabel[] = [
+    { value: true, label: 'Oui'},
+    { value: false, label: 'Non'},
+  ];
+
+  public listFormTemplateReport: TableRow<FormTemplateReport>[] = [];
+
+  public toolbar: TableToolbar = {
+    title: 'Liste des formulaires',
+    buttons: [],
+  };
+
+  // Table Columns
+  public columns: Column[] = [
+    {
+      type: TypeColumn.ACTION,
+      label: '',
+      onClick: (formTemplateReport: TableRow<FormTemplateReport>) => {
+        this.openReportFormDetails(formTemplateReport.getRawValue());
+      }
+    },
+    {
+      key: 'astCode',
+      label: 'Code type',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'select',
+        isSelectAllRow: true,
+      }
+    },
+    {
+      key: 'astSlabel',
+      label: 'Libellé type',
+      type: TypeColumn.TEXT,
+      width: '150px',
+    },
+    {
+      key: 'wtrCode',
+      label: 'Code motif',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'select',
+        isSelectAllRow: true,
+      }
+    },
+    {
+      key: 'wtrLlabel',
+      label: 'Libellé motif',
+      type: TypeColumn.TEXT,
+      width: '150px',
+    },
+    {
+      key: 'isInReport',
+      label: 'Question présente ?',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'select',
+        listSelectValue: this.listNoYes.map((v) => {
+          return {
+            value: v.label,
+            label: v.label,
+          }
+        }),
+      }
+    },
+    {
+      key: 'parameterabilityInReport',
+      label: 'Niveau de paramétrabilité',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'select',
+        listSelectValue: this.listParameterabilityInReport.map((v) => {
+          return {
+            value: v.label,
+            label: v.label,
+          }
+        }),
+      },
+    },
+    {
+      key: 'indexInReport',
+      label: 'Rang de la question dans le formulaire',
+      type: TypeColumn.TEXT,
+      filter: {
+        type: 'number',
+      },
+    },
+    {
+      key: 'previousQuestionLabel',
+      label: 'Question précédente dans le formulaire',
+      type: TypeColumn.TEXT,
+      width: '300px',
+    },
+    {
+      key: 'nextQuestionLabel',
+      label: 'Question suivante dans le formulaire',
+      type: TypeColumn.TEXT,
+      width: '300px',
+    },
+    {
+      key: 'conditionQuestionLabel',
+      label: 'Conditionné par la question',
+      type: TypeColumn.TEXT,
+      width: '300px',
+    },
+    {
+      key: 'conditionQuestionValue',
+      label: 'Conditionné par la valeur',
+      type: TypeColumn.TEXT,
+    },
+  ];
+
+  listColumnSort: ColumnSort[] = [
+    {
+      key: 'astCode', direction: 'asc'
+    },
+    {
+      key: 'wtrCode', direction: 'asc'
+    }
+  ];
 
   async ngOnInit() {
     this.isLoading = true;
@@ -102,8 +247,7 @@ export class ReportQuestionEditComponent implements OnInit {
     });
 
     // ### Permissions ### //
-    this.isConsultation =
-      !await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
+    this.isConsultation = !await this.userService.currentUserHasPermission(PermissionCodeEnum.CREATE_NEW_FORM_FIELDS);
 
     // Disable form if user hasn't right to customize
     if (this.isConsultation) {
@@ -111,6 +255,12 @@ export class ReportQuestionEditComponent implements OnInit {
     }
 
     // ### Data ### //
+    await this.getReportFormData();
+
+    this.isLoading = false;
+  }
+
+  private async getReportFormData() {
     const listFormTemplate = await this.templateService.getFormsTemplate(true);
     const listFormTemplateReport = listFormTemplate.filter((formTemplate) => formTemplate.formCode.startsWith('REPORT_'));
 
@@ -128,7 +278,7 @@ export class ReportQuestionEditComponent implements OnInit {
       this.listReportDefinition = [];
       listFormTemplateReport.forEach((formTemplate) => {
         const form: Form = JSON.parse(formTemplate.definition);
-        const listDefinitionForQuestion = form.definitions.filter((definition) => definition.rqnCode === this.reportQuestion.rqnCode);
+        const listDefinitionForQuestion = form.definitions.filter((definition) => definition.rqnCode === this.reportQuestion.rqnCode && definition.isOptional !== true);
         const listDefinitionWithConditionOnQuestion = form.definitions.filter((definition) => listDefinitionForQuestion.some((d) => d.key === definition.displayCondition?.key));
         const reportDefinition: FormWithLinkedToDefinition = {
           formTemplate: formTemplate,
@@ -140,9 +290,85 @@ export class ReportQuestionEditComponent implements OnInit {
           this.listReportDefinition.push(reportDefinition);
         }
       });
-    }
 
-    this.isLoading = false;
+      // Get the list of report form by asset type / wtr
+      let vLayerWtrList = await this.layerService.getAllVLayerWtr();
+
+      // Remove duplicates (because one asset type / wtr can have multiple layers)
+      vLayerWtrList = vLayerWtrList.reduce((unique, o) => {
+        if (!unique.some((obj) => obj.astCode === o.astCode && obj.wtrCode === o.wtrCode)) {
+          unique.push(o);
+        }
+        return unique;
+      }, []);
+
+      this.listFormTemplateReport = this.tableService.createReadOnlyRowsFromObjects(
+        vLayerWtrList.map((vLayerWtr) => {
+          // For each wtr, get the form, if it exists
+          const formTemplateReport = listFormTemplateReport.find((formTemplateReport) => formTemplateReport.formCode === 'REPORT_' + vLayerWtr.astCode + '_' + vLayerWtr.wtrCode)
+          
+          let definition: FormDefinition = null;
+          let parameterabilityInReportValue: string = null;
+          let indexInReport: number = null;
+          let previousQuestionLabel: string = null;
+          let nextQuestionLabel: string = null;
+          let conditionQuestionLabel: string = null;
+          let conditionQuestionValue: string = null;
+
+          if (formTemplateReport != null) {
+            const form: Form = JSON.parse(formTemplateReport.definition);
+            definition = form.definitions.find((definition) => definition.rqnCode === this.reportQuestion.rqnCode);
+            if (definition) {
+              if (definition.isOptional !== true) {
+                parameterabilityInReportValue = definition.canBeDeleted === true ? 'not_required' : 'required';
+
+                const index = form.definitions.indexOf(definition);
+                indexInReport = index; // no need to add 1, because the first question is a section, so the real first question starts at index 1
+              
+                if (index > 1) {
+                  const previousQuestion = form.definitions[index - 1];
+                  previousQuestionLabel = previousQuestion.label;
+                }
+
+                if (index < form.definitions.length - 1) {
+                  const nextQuestion = form.definitions[index + 1];
+                  if (nextQuestion.isOptional !== true)
+                    nextQuestionLabel = nextQuestion.label;
+                }
+
+                if (definition.displayCondition != null) {
+                  const conditionQuestion = form.definitions.find((d) => d.key === definition.displayCondition.key);
+                  if (conditionQuestion) {
+                    conditionQuestionLabel = conditionQuestion.label;
+                    conditionQuestionValue = definition.displayCondition.value.join(', ');
+                  }
+                }
+              } else {
+                parameterabilityInReportValue = 'optional';
+              }
+            }
+          }
+
+          const isInReportValue = definition != null;
+          
+          return {
+            ...vLayerWtr,
+            fteId: formTemplateReport?.fteId,
+            formCode: formTemplateReport?.formCode,
+            fdnId: formTemplateReport?.fteId,
+            definition: formTemplateReport?.definition,
+            hasForm: null,
+            isInReport: this.listNoYes.find((v) => v.value === isInReportValue)?.label,
+            parameterabilityInReport: this.listParameterabilityInReport.find((v) => v.value === parameterabilityInReportValue)?.label,
+            indexInReport: indexInReport,
+            previousQuestionLabel: previousQuestionLabel,
+            nextQuestionLabel: nextQuestionLabel,
+            conditionQuestionLabel: conditionQuestionLabel,
+            conditionQuestionValue: conditionQuestionValue,
+          }
+        })
+      );
+    }
   }
 
   /*
@@ -258,6 +484,27 @@ export class ReportQuestionEditComponent implements OnInit {
     const valueAtIndexPlusOne = listValues[valueIndex + 1];
     listValues[valueIndex] = valueAtIndexPlusOne;
     listValues[valueIndex + 1] = valueAtIndex;
+  }
+
+  private async openReportFormDetails(formTemplateReport: FormTemplateReport): Promise<void> {
+    const modal = await this.modalController.create({
+      component: ReportEditComponent,
+      componentProps: {
+        wtrReport: formTemplateReport,
+      },
+      backdropDismiss: false,
+      cssClass: 'big-modal',
+    });
+
+    modal.onDidDismiss().then(async (result) => {
+      const reloadNeeded: boolean = result['data'];
+      // If some data changed
+      if (reloadNeeded) {
+        await this.getReportFormData();
+      }
+    });
+
+    await modal.present();
   }
 
   async save() {

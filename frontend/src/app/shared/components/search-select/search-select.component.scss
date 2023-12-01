@@ -67,6 +67,9 @@
       margin-bottom: 5px;
     }
 
+    ion-checkbox.Expired,ion-radio.Expired{
+      color: var(--ion-color-danger) ;
+    }
     ion-radio-group {
       display: flex;
       flex-direction: column;

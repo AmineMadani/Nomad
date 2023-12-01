@@ -63,10 +63,18 @@ private Long id;
     @Column(name="lyr_llabel", length=2147483647)
     @JsonProperty("lyr_llabel")
     private String lyrLlabel;
+    
+    @Column(name="lyr_interactive", length=25)
+    @JsonProperty("lyr_interactive")
+    private String lyrInteractive;
 
     @Column(name="lyr_valid")
     @JsonProperty("lyr_valid")
     private Boolean lyrValid;
+
+    @Column(name="lyr_geom_type", length=2147483647)
+    @JsonProperty("lyr_geom_type")
+    private String lyrGeomType;
 
     @Column(name="lyr_display")
     @JsonProperty("lyr_display")
@@ -115,6 +123,9 @@ private Long id;
 
     @OneToMany(mappedBy="layer")
     private List<AssetForSig> listOfAssetForSig;
+
+    @OneToMany(mappedBy="layer")
+    private List<ItvBlock> listOfItvBlock;
 
     /**
      * Constructor
@@ -196,6 +207,14 @@ private Long id;
         this.lyrValid = lyrValid ;
     }
 
+    public String getLyrGeomType() {
+        return this.lyrGeomType;
+    }
+
+    public void setLyrGeomType( String lyrGeomType ) {
+        this.lyrGeomType = lyrGeomType ;
+    }
+
     public Boolean getLyrDisplay() {
         return this.lyrDisplay;
     }
@@ -224,8 +243,16 @@ private Long id;
     public Domains getDomains() {
         return this.domains;
     }
+    
+    public String getLyrInteractive() {
+		return lyrInteractive;
+	}
 
-    public void setDomains(Domains domains) {
+	public void setLyrInteractive(String lyrInteractive) {
+		this.lyrInteractive = lyrInteractive;
+	}
+
+	public void setDomains(Domains domains) {
         this.domains = domains;
     }
 
@@ -293,5 +320,13 @@ private Long id;
 
     public void setListOfAssetForSig(List<AssetForSig> listOfAssetForSig) {
         this.listOfAssetForSig = listOfAssetForSig;
+    }
+
+    public List<ItvBlock> getListOfItvBlock() {
+        return listOfItvBlock;
+    }
+
+    public void setListOfItvBlock(List<ItvBlock> listOfItvBlock) {
+        this.listOfItvBlock = listOfItvBlock;
     }
 }

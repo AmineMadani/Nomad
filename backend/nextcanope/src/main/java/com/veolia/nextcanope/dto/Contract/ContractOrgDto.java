@@ -11,6 +11,9 @@ public class ContractOrgDto {
     private String ctrSlabel;
     private String ctrLlabel;
     private Boolean ctrValid;
+    private Boolean ctrExpired;
+
+
     private List<OrganizationalUnitDto> organizationalUnits;
 
     public ContractOrgDto(ContractOrgProjectionDto projection) {
@@ -19,6 +22,7 @@ public class ContractOrgDto {
         this.ctrSlabel = projection.getCtrSlabel();
         this.ctrLlabel = projection.getCtrLlabel();
         this.ctrValid = projection.getCtrValid();
+        this.ctrExpired = projection.getCtrExpired();
         this.organizationalUnits = new ArrayList<>(); // Initialize as empty list. It will be filled later.
     }
 
@@ -61,6 +65,14 @@ public class ContractOrgDto {
 
     public void setCtrValid(Boolean ctrValid) {
         this.ctrValid = ctrValid;
+    }
+
+    public Boolean getCtrExpired() {
+        return ctrExpired;
+    }
+
+    public void setCtrExpired(Boolean ctrExpired) {
+        this.ctrExpired = ctrExpired;
     }
 
     public List<OrganizationalUnitDto> getOrganizationalUnits() {

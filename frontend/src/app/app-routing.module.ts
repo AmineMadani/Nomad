@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { PermissionCodeEnum } from './core/models/user.model';
 
 
 const routes: Routes = [
@@ -13,6 +14,14 @@ const routes: Routes = [
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'programs',
+    loadChildren: () => import('./pages/programs/programs.module').then( m => m.ProgramsModule),
+    canActivate: [AuthGuard],
+    data: {
+      authorizedPermissions: [PermissionCodeEnum.VIEW_ASSET_DETAILLED],
+    },
   },
   {
     path: 'settings',

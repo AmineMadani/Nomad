@@ -167,6 +167,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       const listRqnCode = [];
       const listRqnCodeCondition = [];
       for (const definition of form.definitions) {
+        if (definition.isOptional === true) continue;
+
         if (!listRqnCode.includes(definition.rqnCode)) {
           listRqnCode.push(definition.rqnCode);
         }
@@ -252,19 +254,6 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       const accepted: boolean = result['data'];
       // If the user says yes
       if (accepted) {
-        // Check if the selected report questions are used in a form as a condition
-        const listRqnCode = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.rqnCode);
-        const isUsedAsCondition = this.listFormTemplateReport.some((formTemplate) => {
-          const form: Form = JSON.parse(formTemplate.definition);
-          return form.definitions.some((definition) => {
-            if (definition.displayCondition != null) {
-              const conditionDefinition = form.definitions.find((d) => d.key === definition.displayCondition.key);
-              return listRqnCode.includes(conditionDefinition.rqnCode);
-            }
-            return false;
-          });
-        });
-
         // Delete the report questions
         const listIdToDelete = listReportQuestionToDelete.map((reportQuestion) => reportQuestion.id);
         this.reportQuestionService.deleteListReportQuestion(listIdToDelete).then(() => {
@@ -297,6 +286,7 @@ export class ReportQuestionsSettingsComponent implements OnInit {
               // Renumber all definitions
               for(const [index, definition] of listNewDefinition.filter((d) => d.type === 'property').entries()) {
                 if (definition.component === RqnTypeEnum.COMMENT) continue;
+                if (definition.isOptional === true) continue;
 
                 const oldKey = definition.key;
                 definition.key = PREFIX_KEY_DEFINITION + (index+1);

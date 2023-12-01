@@ -10,4 +10,5 @@ public interface ContractDto {
     Boolean getCtrValid();
     Date getCtrStartDate();
     Date getCtrEndDate();
+    Boolean getCtrExpired();
 }

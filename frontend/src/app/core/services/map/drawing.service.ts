@@ -5,6 +5,7 @@ import { UtilsService } from '../utils.service';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import * as Maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
+import { MapEventService } from './map-event.service';
 
 export enum DrawingModeEnum {
   SELECTION = 'SELECTION',
@@ -15,7 +16,7 @@ export enum DrawingModeEnum {
   providedIn: 'root',
 })
 export class DrawingService {
-  constructor(private utils: UtilsService) {}
+  constructor(private utils: UtilsService, private mapEvent: MapEventService) {}
 
   private draw: MapboxDraw;
 
@@ -41,6 +42,9 @@ export class DrawingService {
     this.isMeasuring = isMeasuring;
     if (isMeasuring) {
       this.shouldMooveResumeBox = true;
+      this.mapEvent.isFeatureFiredEvent = true;
+    } else {
+      this.mapEvent.isFeatureFiredEvent = false;
     }
   }
 

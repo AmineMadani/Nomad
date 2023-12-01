@@ -20,13 +20,13 @@ export class WkoWaterTypeComponent implements OnInit {
     private router: Router,
     private utilsService: UtilsService
   ) {
-    activatedRoute.queryParams.subscribe(params => { 
+    activatedRoute.queryParams.subscribe(params => {
       if(params['target'] == 'report' ){
         this.type = 'report';
       } else {
         this.type = 'wko';
       }
-    }); 
+    });
   }
 
   public type: String = "wko";
@@ -34,8 +34,8 @@ export class WkoWaterTypeComponent implements OnInit {
   ngOnInit() {
   }
 
-  public onWaterTypeChosen(waterType: 'dw' | 'ww'): void {
-    const parameters = { ...this.activatedRoute.snapshot.queryParams,  waterType };
+  public onWaterTypeChosen(waterType: 'aep_xy' | 'ass_xy'): void {
+    const parameters = { ...this.activatedRoute.snapshot.queryParams, lyrTableName: waterType };
 
     if(this.type == 'wko') {
       this.drawerService.navigateTo(
@@ -56,7 +56,7 @@ export class WkoWaterTypeComponent implements OnInit {
             id: this.utilsService.createCacheId(),
             latitude: parameters['y'],
             longitude: parameters['x'],
-            assObjTable: waterType == 'dw' ? 'aep_xy':'ass_xy',
+            assObjTable: waterType,
             assObjRef: null,
             wtsId: Number(parameters['wtsId']),
             ctrId: Number(parameters['ctrId'])
@@ -66,6 +66,6 @@ export class WkoWaterTypeComponent implements OnInit {
       this.workorderService.saveCacheWorkorder(workorder);
       this.router.navigate(["/home/workorder/"+workorder.id.toString()+"/cr"]);
     }
-    
+
   }
 }

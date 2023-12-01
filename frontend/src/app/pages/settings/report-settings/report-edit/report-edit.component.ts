@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
-import { firstValueFrom } from 'rxjs';
 import { WtrReport } from '../report-settings.component';
 import { Form, FormDefinition, PREFIX_KEY_DEFINITION, fillDefinitionComponentFromRqnType } from 'src/app/shared/form-editor/models/form.model';
 import { ValueLabel } from 'src/app/core/models/util.model';
@@ -15,6 +14,9 @@ import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { ReportQuestionService } from 'src/app/core/services/reportQuestion.service';
 import { RqnTypeEnum, ReportQuestionDto, LIST_RQN_TYPE } from 'src/app/core/models/reportQuestion.model';
+import { Column, ColumnSort, TableRow, TypeColumn } from 'src/app/core/models/table/column.model';
+import { TableToolbar } from 'src/app/core/models/table/toolbar.model';
+import { TableService } from 'src/app/core/services/table.service';
 
 @Component({
   selector: 'app-report-edit',
@@ -31,6 +33,7 @@ export class ReportEditComponent implements OnInit {
     private toastController: ToastController,
     private userService: UserService,
     private reportQuestionService: ReportQuestionService,
+    private tableService: TableService,
   ) { }
 
   // Variables which must be passed at param in the modal of this component
@@ -56,11 +59,56 @@ export class ReportEditComponent implements OnInit {
   }
   mapReportQuestionByRqnCode = {};
 
+  // ## Optional question ## //
+  listAvailableOptionalQuestion: ReportQuestionDto[];
+
+  public listOptionalQuestionRows: TableRow<ReportQuestionDto>[] = [];
+  public listSelectedOptionalQuestionRows: TableRow<ReportQuestionDto>[] = [];
+  public toolbar: TableToolbar = {
+    title: 'Liste des questions paramétrables',
+    buttons: [
+      {
+        name: 'trash',
+        tooltip: 'Supprimer',
+        onClick: () => {
+          this.deleteOptionalQuestions();
+        },
+        disableFunction: () => {
+          return this.listSelectedOptionalQuestionRows.length === 0 || this.isConsultation;
+        }
+      },
+    ],
+  };
+
+  // Table Columns
+  public columns: Column[] = [
+    {
+      type: TypeColumn.CHECKBOX,
+    },
+    {
+      key: 'rqnLlabel',
+      label: 'Libellé',
+      type: TypeColumn.TEXT
+    },
+    {
+      key: 'listSelectValueText',
+      label: 'Liste des valeurs',
+      type: TypeColumn.TEXT,
+    },
+  ];
+
+  listColumnSort: ColumnSort[] = [
+    {
+      key: 'rqnLlabel', direction: 'asc'
+    }
+  ];
+
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
     // ### Form ### //
     this.form = new FormGroup({
       lines: new FormArray([]),
+      optionalReportQuestionId: new FormControl(),
     });
 
     // ### Permissions ### //
@@ -73,7 +121,9 @@ export class ReportEditComponent implements OnInit {
       this.mapReportQuestionByRqnCode[reportQuestion.rqnCode] = {
         ...reportQuestion,
         listSelectValue: reportQuestion.rqnSelectValues != null ? JSON.parse(reportQuestion.rqnSelectValues) : [],
-      }
+      };
+
+      (reportQuestion as any).listSelectValueText = reportQuestion.rqnSelectValues != null ? JSON.parse(reportQuestion.rqnSelectValues).join(', ') : null;
     });
 
     // ### Data ### //
@@ -98,8 +148,7 @@ export class ReportEditComponent implements OnInit {
     // while doing this init of th form
     this.isInit = true;
 
-    //const parentDefinition = definitions.find((definition) => definition.type === 'section');
-    const listDefinition = definitions.filter((definition) => definition.type === 'property');
+    const listDefinition = definitions.filter((definition) => definition.type === 'property' && definition.isOptional !== true);
     for (const [index, definition] of listDefinition.entries()) {
       this.addLine();
       const lineForm = this.lines.at(index);
@@ -107,10 +156,20 @@ export class ReportEditComponent implements OnInit {
       lineForm.patchValue({
         rqnCode: definition.rqnCode,
         isRequired: definition.rules.some((rule) => rule.key === 'required'),
+        canBeDeleted: definition.canBeDeleted != null ? definition.canBeDeleted : false,
         questionCondition: definition.displayCondition?.key != null ? definition.displayCondition.key.substring(PREFIX_KEY_DEFINITION.length) : null,
         listQuestionConditionValues: definition.displayCondition?.value ?? [],
       });
     }
+
+    // ### Optional questions ### //
+    const listOptionalQuestionCode = definitions.filter((definition) => definition.type === 'property' && definition.isOptional === true).map((definition) => definition.rqnCode);
+    const listOptionalQuestion = this.listReportQuestion.filter((reportQuestion) => listOptionalQuestionCode.includes(reportQuestion.rqnCode));
+    this.listOptionalQuestionRows = this.tableService.createReadOnlyRowsFromObjects(listOptionalQuestion);
+
+    // Calculate the list of available question that can be added as optional
+    this.calculateListAvailableOptionalQuestion();
+
 
     // Disable form if user doesn't have the right
     if (this.isConsultation) {
@@ -132,6 +191,7 @@ export class ReportEditComponent implements OnInit {
       label: new FormControl<string>(null),
       component: new FormControl<string>({value: null, disabled: true}),
       isRequired: new FormControl<boolean>(false, Validators.required),
+      canBeDeleted: new FormControl<boolean>(false, Validators.required),
       listValue: new FormControl<string[]>([]),
       questionCondition: new FormControl<string>(null),
       listAvailableQuestionValues: new FormControl<ValueLabel[]>([]),
@@ -190,6 +250,11 @@ export class ReportEditComponent implements OnInit {
         lineForm.get('component').setValue(null);
         lineForm.get('isRequired').setValue(false);
         lineForm.get('listValue').setValue([]);
+      }
+
+      if (!this.isInit) {
+        // Calculate the list of available question that can be added as optional
+        this.calculateListAvailableOptionalQuestion();
       }
     });
 
@@ -269,6 +334,9 @@ export class ReportEditComponent implements OnInit {
 
     // Delete the line
     this.lines.removeAt(lineIndex);
+
+    // Calculate the list of available question that can be added as optional
+    this.calculateListAvailableOptionalQuestion();
   }
 
   // ### ORDER ### //
@@ -381,6 +449,49 @@ export class ReportEditComponent implements OnInit {
   removeCondition(lineIndex: number): void {
     const lineForm = this.lines.at(lineIndex);
     lineForm.get('questionCondition').setValue(null);
+  }
+
+  // ### Optional questions ### //
+  calculateListAvailableOptionalQuestion() {
+    const listUsedQuestionCode = this.lines.getRawValue().map((line) => line['rqnCode']);
+    const listAlreadyOptionalQuestionCode = this.listOptionalQuestionRows.map((optionalQuestionRow) => optionalQuestionRow.getRawValue().rqnCode);
+
+    this.listAvailableOptionalQuestion = this.listReportQuestion.filter((reportQuestion) => {
+      return !listUsedQuestionCode.includes(reportQuestion.rqnCode) 
+        && !listAlreadyOptionalQuestionCode.includes(reportQuestion.rqnCode);
+    });
+  }
+
+  addOptionalQuestion() {
+    // Get the id to id
+    const id = this.form.get('optionalReportQuestionId').value;
+
+    const reportQuestion = this.listAvailableOptionalQuestion.find((reportQuestion) => reportQuestion.id === id);
+
+    // Add the question to the table
+    const listReportQuestionRow = this.tableService.createReadOnlyRowsFromObjects([reportQuestion]);
+    this.listOptionalQuestionRows = this.listOptionalQuestionRows.concat(listReportQuestionRow);
+
+    // Remove it from the list of available question to be added
+    this.listAvailableOptionalQuestion = this.listAvailableOptionalQuestion.filter((reportQuestion) => reportQuestion.id !== id);
+  
+    // Unselect the question from the list of available question
+    this.form.get('optionalReportQuestionId').setValue(null);
+  }
+
+  deleteOptionalQuestions() {
+    // Get the ids to delete
+    const listIdToDelete = this.listSelectedOptionalQuestionRows.map((optionalQuestion) => optionalQuestion.getRawValue().id);
+          
+    // Delete the questions from the table
+    this.listOptionalQuestionRows = this.listOptionalQuestionRows.filter((optionalQuestion) => {
+      return !listIdToDelete.includes(optionalQuestion.getRawValue().id);
+    });
+
+    // Add them to the list of available question to be added
+    this.listAvailableOptionalQuestion = this.listAvailableOptionalQuestion.concat(
+      this.listReportQuestion.filter((reportQuestion) => listIdToDelete.includes(reportQuestion.id))
+    ).sort((a, b) => this.getReportQuestionLabel(a).localeCompare(this.getReportQuestionLabel(b)));
   }
 
   /**
@@ -502,6 +613,7 @@ export class ReportEditComponent implements OnInit {
         rules: [],
         section: startDefinition.key,
         rqnCode: lineForm.get('rqnCode').value,
+        canBeDeleted: lineForm.get('canBeDeleted').value
       }
 
       const component = lineForm.get('component').value;
@@ -527,6 +639,24 @@ export class ReportEditComponent implements OnInit {
       }
 
       reportForm.definitions.push(definition);
+    }
+
+    // Optional questions
+    for (const optionalQuestionRow of this.listOptionalQuestionRows) {
+      const definition: FormDefinition = {
+        key: 'optional',
+        type: 'property',
+        label: '',
+        component: '',
+        editable: true,
+        attributes: {},
+        rules: [],
+        section: startDefinition.key,
+        rqnCode: optionalQuestionRow.getRawValue().rqnCode,
+        isOptional: true,
+      }
+      reportForm.definitions.push(definition);
+      
     }
 
     return reportForm;

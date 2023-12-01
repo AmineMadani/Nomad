@@ -1,0 +1,113 @@
+apply plugin: 'com.android.application'
+
+android{
+  namespace "com.veolia.nomad"
+  compileSdkVersion rootProject.ext.compileSdkVersion
+  defaultConfig {
+    // applicationId "com.veolia.nomad"
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+    versionCode 103
+    versionName "1.0.3"
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    flavorDimensions "default"
+    aaptOptions {
+      // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+      // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+      ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+  }
+
+  signingConfigs {
+    release {
+      storeFile file("../../nomad-mobile.keystore")
+      storePassword 'Xh2zNF04Bb1ibi7H6QJeDhNSJid6f4vY'
+      keyAlias 'nomad-mobile'
+      keyPassword 'Xh2zNF04Bb1ibi7H6QJeDhNSJid6f4vY'
+    }
+    debug {
+      storeFile file("../../nomad-mobile-hors-prod.keystore")
+      storePassword '6qa6dJL0wzCS3SjVF80LiBn4l6Da2lfDUVuB'
+      keyAlias 'nomad-mobile-hp'
+      keyPassword '6qa6dJL0wzCS3SjVF80LiBn4l6Da2lfDUVuB'
+    }
+  }
+
+  buildTypes {
+    release {
+      signingConfig signingConfigs.release
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+    debug{
+      signingConfig signingConfigs.debug
+      applicationIdSuffix ".debug"
+      versionNameSuffix "-debug"
+    }
+  }
+
+  productFlavors{
+    "dev"{
+      applicationId "com.veolia.nomad.dev"
+      manifestPlaceholders = [displayName:"Nomad Dev", backendhostName:"nomad-dev.hp.m-ve.com"]
+      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.dev"'
+    }
+    "rec"{
+      applicationId "com.veolia.nomad.rec"
+      manifestPlaceholders = [displayName:"Nomad Rec", backendhostName:"nomad-rec.hp.m-ve.com"]
+      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.rec"'
+    }
+    "int" {
+      applicationId "com.veolia.nomad.int"
+      manifestPlaceholders = [displayName:"Nomad Int", backendhostName:"nomad-int.hp.m-ve.com"]
+      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.int"'
+    }
+    "for" {
+      applicationId "com.veolia.nomad.for"
+      manifestPlaceholders = [displayName:"Nomad For", backendhostName:"nomad-for.hp.m-ve.com"]
+      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad.for"'
+    }
+    "prd"{
+      applicationId "com.veolia.nomad"
+      manifestPlaceholders = [displayName:"Nomad", backendhostName:"nomad.eau.veolia.fr"]
+      buildConfigField 'String', 'VERSION_CHECK_URL', '"https://mobilite-api.m-ve.com/com.veolia.nomad"'
+    }
+  }
+}
+
+repositories {
+  flatDir{
+    dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+  }
+}
+
+dependencies {
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
+  implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+  implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+  implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+  implementation project(':capacitor-android')
+  implementation 'com.google.android.material:material:1.4.0'
+  testImplementation "junit:junit:$junitVersion"
+  androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+  androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+  implementation project(':capacitor-cordova-android-plugins')
+}
+
+
+apply from: 'capacitor.build.gradle'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+try {
+  def servicesJSON = file('google-services.json')
+  if (servicesJSON.text) {
+    apply plugin: 'com.google.gms.google-services'
+  }
+} catch(Exception e) {
+  logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

@@ -32,9 +32,15 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { CacheKey, CacheService } from 'src/app/core/services/cache.service';
 import {
   Task,
-  WTR_CODE_POSE,
+  TravoUrlPayload,
   WkoStatus,
-  Workorder, WorkorderTaskStatus,
+  Workorder,
+  CreateWorkorderUrlPayload,
+  isUrlFromTravo,
+  isUrlFromTravoValid,
+  UpdateWorkorderUrlPayload,
+  WTR_CODE_POSE,
+  WorkorderTaskStatus,
 } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -49,8 +55,10 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
-import { MulticontractModalComponent } from '../multicontract-modal/multicontract-modal.component';
+import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
+import { isNumber } from '@turf/turf';
+import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -94,7 +102,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public assets: any[];
 
   public creationWkoForm: FormGroup;
-  public params: any;
+  public currentUrlParams:
+    | TravoUrlPayload
+    | CreateWorkorderUrlPayload
+    | UpdateWorkorderUrlPayload;
 
   public currentContract: Contract;
   public currentStatus: string;
@@ -102,6 +113,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public contracts: Contract[];
   public cities: City[];
   public wtrs: VLayerWtr[];
+  public allWtrs: VLayerWtr[];
   public assetsDetails: any[] = [];
   public layers: Layer[];
 
@@ -149,15 +161,24 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.title = 'Générer une intervention';
     this.creationButonLabel = this.defaultCreationLabel;
 
+    // Check permissions
     this.userHasPermissionSendWorkorder =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.SEND_WORKORDER
       );
-    const paramMap = new Map<string, string>(
+
+    // Url parameters recuperation
+    const paramsMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
     );
+    // Build the current url param obj
+    for (let [key, value] of paramsMap) {
+      if (!this.currentUrlParams) {
+        this.currentUrlParams = {};
+      }
 
-    const params = this.utils.transformMap(paramMap, true);
+      this.currentUrlParams[key] = value;
+    }
 
     this.mapService
       .onMapLoaded()
@@ -165,11 +186,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
         switchMap(async () => {
-          if (paramMap.size > 0) {
-            if (paramMap.has('lyrTableName')) {
+          if (this.currentUrlParams) {
+            // Handle travo case if necessary
+            await this.checkAndSetParamsToHandleTravoUrl();
+
+            // XY case
+            if (this.currentUrlParams.lyrTableName) {
               this.isXY = true;
               return [];
-            } else {
+            }
+            // Other cases
+            else {
+              const params = this.utils.transformMap(paramsMap, true);
               return this.layerService.getEquipmentsByLayersAndIds(params);
             }
           } else {
@@ -214,27 +242,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const wkoId = this.activatedRoute.snapshot.params['id'];
 
-        // Edit Mode
-        if (!this.isCreation) {
-          if (wkoId > 0) {
-            this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
-            this.createWithoutSendToPlanning =
-              'Sans envoyer pour planification';
-            this.creationButonLabel = 'Modifer';
-          }
-          await this.initializeFormWithWko();
-        }
         // Creation Mode
-        else {
+        if (this.isCreation) {
           this.workorder = {
             id: this.utils.createCacheId(),
             isDraft: true,
             wkoAttachment: false,
             tasks: [],
           };
-          if (this.isXY) {
-            this.params = { ...this.activatedRoute.snapshot.queryParams };
-          } else {
+          if (!this.isXY) {
             this.workorder.tasks = this.assets.map((ast) => {
               return {
                 id: this.utils.createCacheId(),
@@ -248,6 +264,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             });
           }
         }
+        // Edit Mode
+        else {
+          if (wkoId > 0) {
+            this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
+            this.createWithoutSendToPlanning =
+              'Sans envoyer pour planification';
+            this.creationButonLabel = 'Modifer';
+          }
+
+          await this.initializeFormWithWko();
+        }
+
         await this.initializeEquipments();
 
         await this.saveWorkOrderInCache();
@@ -356,6 +384,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         '',
         Validators.compose([Validators.required, DateValidator.isDateValid])
       ),
+      wkoPlanningDuration: new FormControl(''),
       wkoEmergency: new FormControl(false, { updateOn: 'blur' }),
       wkoAppointment: new FormControl(false, { updateOn: 'blur' }),
       wkoCreationComment: new FormControl('', { updateOn: 'blur' }),
@@ -367,6 +396,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         validators: TimeValidator.isHourValid,
         updateOn: 'blur',
       }),
+      wkoAffair: new FormControl(
+        {
+          value: '',
+          disabled: true,
+        },
+        {
+          updateOn: 'blur',
+        }
+      ),
     });
     this.creationWkoForm.addValidators(
       DateValidator.compareDateValidator(
@@ -378,6 +416,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       TimeValidator.compareTimeValidatorWithTrigger(
         'wkoPlanningStartHour',
         'wkoPlanningEndHour',
+        'wkoAppointment'
+      )
+    );
+    this.creationWkoForm.addValidators(
+      TimeValidator.compareTimeDurationValidatorWithTrigger(
+        'wkoPlanningStartDate',
+        'wkoPlanningEndDate',
+        'wkoPlanningStartHour',
+        'wkoPlanningEndHour',
+        'wkoPlanningDuration',
         'wkoAppointment'
       )
     );
@@ -450,6 +498,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Set Default Duration on click
+   */
+  public setDefaultDuration(event: any) {
+    if (!this.creationWkoForm.get('wkoPlanningDuration').value) {
+      this.creationWkoForm.get('wkoPlanningDuration').setValue('01:00');
+    }
+  }
+
+  /**
    * manage keyup event on date input
    * post treatment for date format
    * @param event
@@ -504,19 +561,19 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-/**
- * Retourne vrai si les tasks sont différents
- * @param actualTasks 
- * @param newTasks 
- * @returns 
- */
-  public checkTasksChanged(newTasks : Task[]) : boolean{
+  /**
+   * Retourne vrai si les tasks sont différents
+   * @param actualTasks
+   * @param newTasks
+   * @returns
+   */
+  public checkTasksChanged(newTasks: Task[]): boolean {
     let hasChanged = false;
-    newTasks.forEach(task => {
-      if (task.id < 0){
+    newTasks.forEach((task) => {
+      if (task.id < 0) {
         hasChanged = true;
       }
-    })
+    });
     return hasChanged;
   }
 
@@ -530,13 +587,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isCreation && this.workorder != null && this.workorderInit) {
       if (
         this.workorder['wkoAppointment']?.toString() !=
-          this.workorderInit['wkoAppointment']?.toString() ||
+          this.creationWkoForm.controls['wkoAppointment']?.toString() ||
         this.workorder['ctrId']?.toString() !=
-          this.workorderInit['ctrId']?.toString() ||
+          this.creationWkoForm.controls['ctrId']?.toString() ||
         this.workorder['ctyId']?.toString() !=
-          this.workorderInit['ctyId']?.toString() ||
+          this.creationWkoForm.controls['ctyId']?.toString() ||
         this.workorder['wkoAgentNb']?.toString() !=
-          this.workorderInit['wkoAgentNb']?.toString() ||
+          this.creationWkoForm.controls['wkoAgentNb']?.toString() ||
         this.checkTasksChanged(this.workorder.tasks)
       ) {
         this.alerteMessage =
@@ -547,16 +604,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           'dd/MM/yyyy'
         ) !=
           DateTime.fromISO(
-            this.workorderInit.wkoPlanningStartDate as any
+            this.creationWkoForm.controls['wkoPlanningStartDate'] as any
           ).toFormat('dd/MM/yyyy') ||
         DateTime.fromISO(this.workorder.wkoPlanningEndDate as any).toFormat(
           'dd/MM/yyyy'
         ) !=
           DateTime.fromISO(
-            this.workorderInit.wkoPlanningEndDate as any
+            this.creationWkoForm.controls['wkoPlanningEndDate'] as any
           ).toFormat('dd/MM/yyyy') ||
         this.workorder.tasks[0]?.wtrId?.toString() !=
-          this.workorderInit.tasks[0]?.wtrId?.toString()
+          this.creationWkoForm.controls['tasks'][0]?.wtrId?.toString()
       ) {
         this.alerteMessage =
           'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
@@ -613,6 +670,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.workorder.latitude = assets?.[0]?.latitude;
     this.workorder.longitude = assets?.[0]?.longitude;
+    this.workorder.wkoPlanningDuration = this.utils.convertStringToNumber(
+      form.wkoPlanningDuration
+    );
 
     if (this.workorder.tasks?.length == 0) {
       this.workorder.tasks = assets;
@@ -635,6 +695,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
+    if (this.workorderInit) {
+      this.workorder.wtsId = this.workorderInit['wtsId'];
+    }
 
     // Creation - Case of a 'Pose' reason on a XY asset
     if (this.isCreation && this.isXY && wtrId === -1) {
@@ -644,8 +707,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       task.assObjRef = null;
 
       // Change the reason to be the 'Pose' reason of the layer selected
-      const listWtr = await this.layerService.getAllVLayerWtr();
-      const wtr = listWtr.find(
+      const wtr = this.allWtrs.find(
         (wtr) =>
           wtr.wtrCode === WTR_CODE_POSE && wtr.lyrTableName === task.assObjTable
       );
@@ -674,6 +736,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.drawerService.navigateTo(DrawerRouteEnum.WORKORDER_VIEW, [res.id]);
       }
+
+      // Redirect to travo if necessary.
+      await this.redirectToTravoAfterSave(res);
+
       if (!res.syncOperation) {
         this.workorderService.deleteCacheWorkorder(this.workorder);
       }
@@ -684,9 +750,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    * En mode édition, affiche un message si l'intervention doit être déplanifié
    */
   public async onValidate(): Promise<void> {
-    if (!this.isCreation && this.wkoExtToSyncValue &&
-        this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
-        this.haveModifieldFieldUnscheduled()
+    if (
+      !this.isCreation &&
+      this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
+      this.haveModifieldFieldUnscheduled()
     ) {
       const alert = await this.alertController.create({
         header: 'Attention !',
@@ -704,6 +771,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             text: 'Oui',
             role: 'confirm',
             handler: () => {
+              this.wkoExtToSyncValue = true;
               this.onSubmit();
             },
           },
@@ -711,8 +779,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       await alert.present();
-    } 
-    else {
+    } else {
       this.onSubmit();
     }
   }
@@ -720,9 +787,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public onCreationModeChange(event: any): void {
     if (event.target.value === 'CREE') {
       this.wkoExtToSyncValue = false;
-        this.creationButonLabel = this.createWithoutSendToPlanning;
+      this.creationButonLabel = this.createWithoutSendToPlanning;
     } else if (event.target.value === 'CREEAVECENVOIE') {
-        this.creationButonLabel = this.defaultCreationLabel;
+      this.creationButonLabel = this.defaultCreationLabel;
       this.wkoExtToSyncValue = true;
     }
     this.onValidate();
@@ -791,7 +858,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!control) {
         return;
       }
-
       if (this.workorder[key] != null) {
         if (key == 'wkoPlanningStartDate') {
           control.setValue(
@@ -816,6 +882,16 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             ? (this.workorder[key] = false)
             : true;
           control.setValue(this.workorder[key], { emitEvent: false });
+        } else if (
+          key == 'wkoPlanningDuration' &&
+          isNumber(this.workorder[key]) &&
+          Number(this.workorder[key]) > 0
+        ) {
+          this.creationWkoForm
+            .get('wkoPlanningDuration')
+            .setValue(
+              this.utils.convertNumberToTimeString(this.workorder[key])
+            );
         } else {
           control.setValue(this.workorder[key], { emitEvent: false });
         }
@@ -889,29 +965,36 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } else {
       // WKO XY
-      const layers = await this.layerService.getAllLayers();
-      const layer = layers.filter(
-        (l: Layer) =>
-          l.domCode === this.params.waterType && l.lyrTableName.includes('xy')
-      )[0];
-
       this.assets = [
         {
           id: this.utils.createCacheId().toString(),
-          lyrTableName: layer.lyrTableName,
-          x: this.params.x,
-          y: this.params.y,
+          lyrTableName: this.currentUrlParams.lyrTableName,
+          x: this.currentUrlParams.x,
+          y: this.currentUrlParams.y,
           assetForSig: undefined,
           taskId: undefined,
           isXY: true,
         },
       ];
 
+      // Get the current layer with lyrTableName
+      const layers = await this.layerService.getAllLayers();
+      const layer = layers.find(
+        (l: Layer) => l.lyrTableName === this.currentUrlParams.lyrTableName
+      );
+
       this.equipmentName = `XY - ${layer.domLLabel}`;
 
-      // Ctr and Cty are from the URL
-      contractsIds = this.params.ctrId.split(',').map((c: string) => +c);
-      cityIds = this.params.ctyId.split(',').map((c: string) => +c);
+      // Ctr and Cty are from the XY
+      contractsIds =
+        await this.contractService.getContractIdsByLatitudeLongitude(
+          this.currentUrlParams.y,
+          this.currentUrlParams.x
+        );
+      cityIds = await this.cityService.getCityIdsByLatitudeLongitude(
+        this.currentUrlParams.y,
+        this.currentUrlParams.x
+      );
     }
     await this.initEquipmentsLayers();
     // Get referentials data
@@ -924,8 +1007,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   ): Promise<void> {
     this.cityService
       .getAdressByXY(
-        this.params?.x ?? this.assets[0].x,
-        this.params?.y ?? this.assets[0].y
+        this.currentUrlParams?.x ?? this.assets[0].x,
+        this.currentUrlParams?.y ?? this.assets[0].y
       )
       .then((addresse) =>
         this.creationWkoForm.patchValue(
@@ -936,107 +1019,159 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         )
       );
 
-    Promise.all([
+    const results = await Promise.all([
       this.layerService.getAllVLayerWtr(),
       this.contractService.getAllContracts(),
       this.cityService.getAllCities(),
       this.layerService.getAllLayers(),
-    ]).then(async (results) => {
-      const freasons: VLayerWtr[] = results[0];
-      const contracts: Contract[] = results[1];
-      const cities: City[] = results[2];
-      const layers: Layer[] = results[3];
+      this.layerService.getAllLayerGrpActions(),
+    ]);
 
-      const reasons = freasons.filter((vlw: VLayerWtr) =>
-        this.assets.map((ast) => ast.lyrTableName).includes(vlw.lyrTableName)
-      );
+    const freasons: VLayerWtr[] = results[0];
+    const contracts: Contract[] = results[1];
+    const cities: City[] = results[2];
+    const layers: Layer[] = results[3];
+    const layerGrpActions: LayerGrpAction[] = results[4];
 
-      this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+    const lyrTableNames = this.assets.map((ast) => ast.lyrTableName);
 
-      if (
-        !this.wtrs.some(
-          (v) => v.wtrId === this.creationWkoForm.get('wtrId').value
-        )
-      ) {
-        this.creationWkoForm.patchValue(
-          { wtrId: undefined },
-          { emitEvent: false }
-        );
-      }
+    let reasons = freasons.filter((vlw: VLayerWtr) =>
+      lyrTableNames.includes(vlw.lyrTableName)
+    );
 
-      this.contracts = contracts.filter((c) => contractsIds.includes(c.id));
-      this.cities = cities.filter((c) => cityIds.includes(c.id));
+    const isMultiEquipmentAndLayers = [...new Set(lyrTableNames)];
 
-      // Creation
-      if (this.isCreation) {
-        if (!this.isXY) {
-          // The 'Pose' reason is only accessible to the XY asset so we filter it
-          this.wtrs = this.wtrs.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
-        } else {
-          // The 'pose' reason does not exist for XY so we add it
-          if (!this.wtrs.some((wtr) => wtr.wtrCode === WTR_CODE_POSE)) {
-            this.wtrs.push({
-              astCode: null,
-              astSlabel: null,
-              astLlabel: null,
-              lyrTableName: null,
-              wtrSlabel: 'Poser',
-              wtrLlabel: 'Poser',
-              wtrCode: WTR_CODE_POSE,
-              wtrId: -1,
-              astId: null,
-              aswValid: null,
-              aswUcreId: null,
-              aswUmodId: null,
-              aswDcre: null,
-              aswDmod: null,
-            });
-          }
-
-          this.layers = layers.filter(
-            (layer) =>
-              layer.domCode === this.params.waterType &&
-              !layer.lyrTableName.includes('_xy')
-          );
+    const wtrPossibles = [];
+    if (isMultiEquipmentAndLayers.length > 1 && layerGrpActions.length > 0) {
+      for (const lyrGrpAct of layerGrpActions) {
+        if (
+          lyrTableNames.every((ltn) => lyrGrpAct.lyrTableNames.includes(ltn))
+        ) {
+          wtrPossibles.push(lyrGrpAct.wtrCode);
         }
       }
+      if (wtrPossibles.length > 0) {
+        reasons = reasons.filter((wtr) => wtrPossibles.includes(wtr.wtrCode));
+      }
+    }
 
-      // We don't want to erase possible draft entries
-      if (
-        this.creationWkoForm.controls['ctyId'].value?.length === 0 ||
-        !cityIds.includes(this.creationWkoForm.controls['ctyId'].value)
-      ) {
-        this.creationWkoForm.controls['ctyId'].setValue(
-          cityIds.length === 1
-            ? cityIds[0]
-            : this.utils.findMostFrequentValue(cityIds)
+    this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+
+    const selectedWtrId = this.creationWkoForm.get('wtrId').value;
+    if (this.wtrs.length === 1 && this.wtrs[0].wtrId !== selectedWtrId) {
+      this.creationWkoForm.patchValue(
+        { wtrId: this.wtrs[0].wtrId },
+        { emitEvent: false }
+      );
+    } else if (!this.wtrs.some((v) => v.wtrId === selectedWtrId)) {
+      this.creationWkoForm.patchValue(
+        { wtrId: undefined },
+        { emitEvent: false }
+      );
+    }
+
+    this.allWtrs = this.utils.removeDuplicatesFromArr(freasons, 'wtrId');
+    this.wtrs = this.utils.removeDuplicatesFromArr(reasons, 'wtrId');
+
+    if (
+      !this.wtrs.some(
+        (v) => v.wtrId === this.creationWkoForm.get('wtrId').value
+      )
+    ) {
+      this.creationWkoForm.patchValue(
+        { wtrId: undefined },
+        { emitEvent: false }
+      );
+    }
+
+    this.contracts = contracts.filter((c) =>
+      this.isCreation
+        ? contractsIds.includes(c.id) && !c.ctrExpired
+        : contractsIds.includes(c.id)
+    );
+    this.cities = cities.filter((c) => cityIds.includes(c.id));
+
+    // Creation
+    if (this.isCreation) {
+      if (!this.isXY) {
+        // The 'Pose' reason is only accessible to the XY asset so we filter it
+        this.wtrs = this.wtrs.filter((wtr) => wtr.wtrCode !== WTR_CODE_POSE);
+      } else {
+        // The 'pose' reason does not exist for XY so we add it
+        if (!this.wtrs.some((wtr) => wtr.wtrCode === WTR_CODE_POSE)) {
+          this.wtrs.push({
+            astCode: null,
+            astSlabel: null,
+            astLlabel: null,
+            lyrTableName: null,
+            wtrSlabel: 'Poser',
+            wtrLlabel: 'Poser',
+            wtrCode: WTR_CODE_POSE,
+            wtrId: -1,
+            astId: null,
+            aswValid: null,
+            aswUcreId: null,
+            aswUmodId: null,
+            aswDcre: null,
+            aswDmod: null,
+          });
+        }
+
+        // Get layers for the right domains without the xy ones
+        // The domCode recuperation is not smart as all
+        const domCode = this.currentUrlParams.lyrTableName.includes('aep')
+          ? 'dw'
+          : 'ww';
+        this.layers = layers.filter(
+          (layer) =>
+            layer.domCode === domCode && !layer.lyrTableName.includes('_xy')
         );
       }
+    }
 
-      if (
-        this.creationWkoForm.controls['ctrId'].value?.length === 0 ||
-        !contractsIds.includes(this.creationWkoForm.controls['ctrId'].value)
-      ) {
-        this.creationWkoForm.controls['ctrId'].setValue(
-          contractsIds.length === 1
-            ? contractsIds[0]
-            : this.utils.findMostFrequentValue(contractsIds)
-        );
-      }
+    // We don't want to erase possible draft entries
+    if (
+      this.creationWkoForm.controls['ctyId'].value?.length === 0 ||
+      !cityIds.includes(this.creationWkoForm.controls['ctyId'].value)
+    ) {
+      this.creationWkoForm.controls['ctyId'].setValue(
+        cityIds.length === 1
+          ? cityIds[0]
+          : this.utils.findMostFrequentValue(cityIds)
+      );
+    }
 
-      await this.generateMarker();
+    if (
+      this.creationWkoForm.controls['ctrId'].value?.length === 0 ||
+      !contractsIds.includes(this.creationWkoForm.controls['ctrId'].value)
+    ) {
+      this.creationWkoForm.controls['ctrId'].setValue(
+        contractsIds.length === 1
+          ? contractsIds[0]
+          : this.utils.findMostFrequentValue(contractsIds)
+      );
+    }
 
-      this.isLoading = false;
+    await this.generateMarker();
 
-      // We listen to the changes only after the form is set
-      this.listenToFormChanges();
-    });
+    this.isLoading = false;
+
+    // We listen to the changes only after the form is set
+    this.listenToFormChanges();
+
+    // We precomplete form info if it's a travo url
+    await this.initializeFormWithTravoInfo();
   }
 
   public getContractLabel(contract: any): string {
     return contract.ctrLlabel;
   }
-
+  public getContractStyle(contract: any): string {
+    return contract.ctrExpired ? 'Expired' : null;
+  }
+  public getContractDisable(contract: any): Boolean {
+    return contract.ctrExpired;
+  }
   public getCityLabel(city: any): string {
     return city.ctyLlabel;
   }
@@ -1069,6 +1204,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         await this.mapService.addEventLayer(ast.lyrTableName);
       }
       if (!this.markerCreation.has(ast.id)) {
+        // We don't need to recalculate the coords for a point because it has only one x and y.
+        if (ast.geom && ast.geom.type !== 'Point') {
+          const recalculateCoords = this.mapLayerService.findNearestPoint(
+            ast.geom.coordinates,
+            [ast.x, ast.y]
+          );
+          ast.x = recalculateCoords[0];
+          ast.y = recalculateCoords[1];
+        }
         if (ast.id.startsWith('TMP-')) {
           this.markerCreation.set(
             ast.id,
@@ -1079,9 +1223,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             this.markerCreation.set(
               ast.id,
               this.mapLayerService.addMarker(
-                this.params.x,
-                this.params.y,
-                [this.params.x, this.params.y],
+                this.currentUrlParams.x,
+                this.currentUrlParams.y,
+                [this.currentUrlParams.x, this.currentUrlParams.y],
                 true
               )
             );
@@ -1225,6 +1369,12 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder.wkoPlanningEndDate as any,
       'dd/MM/yyyy'
     ).toISO() as any;
+    const duration = this.utils.convertStringToNumber(
+      this.creationWkoForm.value['wkoPlanningDuration']
+    );
+    if (duration > 0) {
+      this.workorder.wkoPlanningDuration = duration;
+    }
     await this.workorderService.saveCacheWorkorder(this.workorder);
   }
 
@@ -1235,7 +1385,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
-      if (Number(wkoId) > 0 && this.workorder.wtsId === WkoStatus.ENVOYEPLANIF) {
+      if (Number(wkoId) > 0) {
         this.workorderInit = { ...this.workorder };
       }
       const xyTasksAndNewAssets = this.workorder.tasks
@@ -1295,31 +1445,57 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private async checkEquipments(): Promise<void> {
     const layers = await this.layerService.getAllLayers();
     // Checking if we have a mix of dw/ww assets
-    const isMultiWater = [
-      // Removing duplicates
-      ...new Set(
-        // Finding the differents dom codes for the current layers
-        layers
-          .filter((l: Layer) => {
-            if (this.assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)) {
-            return true;
-          } else {
-            return false;
-          }})
-          .map((l) => l.domCode)
-      ),
-    ].length === 2;
+    const isMultiWater =
+      [
+        // Removing duplicates
+        ...new Set(
+          // Finding the differents dom codes for the current layers
+          layers
+            .filter((l: Layer) => {
+              if (
+                this.assets
+                  .map((ast) => ast.lyrTableName)
+                  .includes(l.lyrTableName)
+              ) {
+                return true;
+              } else {
+                return false;
+              }
+            })
+            .map((l) => l.domCode)
+        ),
+      ].length === 2;
 
     // Checking if the assets are on more than one contract
-    const isMultiContract = [...new Set(this.assets.map((ast) => ast.ctrId))].length > 1;
+    const isMultiContract =
+      [...new Set(this.assets.map((ast) => ast.ctrId))].length > 1;
 
-    if (isMultiWater || isMultiContract) {
+    // Checking if there is a difference between assets GEOMs
+    const isMultiGeomType =
+      [
+        ...new Set(
+          layers
+            .filter((l: Layer) =>
+              this.assets
+                .map((ast) => ast.lyrTableName)
+                .includes(l.lyrTableName)
+            )
+            .map((l) => l.lyrGeomType)
+        ),
+      ].length > 1;
+
+    if (isMultiGeomType || isMultiWater || isMultiContract) {
+      const selectedLayers = layers.filter((l) =>
+        this.assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
+      );
+
       const modal = await this.modalCtrl.create({
-        component: MulticontractModalComponent,
+        component: MultiAssetsModalComponent,
         componentProps: {
-          isMultiWater,
-          isMultiContract,
           assets: this.assets,
+          selectedLayers,
+          isMultiContract,
+          isMultiWater,
         },
         backdropDismiss: false,
       });
@@ -1327,46 +1503,189 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const { data } = await modal.onWillDismiss();
 
-      this.assets = data;
+      if (data) {
+        this.assets = data;
 
-      // Removing the tasks that do not comply anymore with the current assets
-      if (this.workorder?.tasks.length > 1) {
-        this.workorder.tasks = this.workorder.tasks.filter((t) =>
-          this.assets.map((ast) => ast.id).includes(t.assObjRef)
-        );
+        // Removing the tasks that do not comply anymore with the current assets
+        if (this.workorder?.tasks.length > 1) {
+          this.workorder.tasks = this.workorder.tasks.filter((t) =>
+            this.assets.map((ast) => ast.id).includes(t.assObjRef)
+          );
+        }
       }
     }
-
   }
 
   /**
    * If all required control are set
    * generate label
    */
-  public async generateLabel(){
-    if (this.autoGenerateLabel && this.isCreation &&
-      this.creationWkoForm.controls['ctrId'].status == "VALID" && 
-      this.creationWkoForm.controls['ctyId'].status == "VALID" &&
-      this.creationWkoForm.controls['wtrId'].status == "VALID" &&
-      this.creationWkoForm.controls['wkoPlanningStartDate'].status == "VALID"){
+  public async generateLabel() {
+    if (
+      this.autoGenerateLabel &&
+      this.isCreation &&
+      this.creationWkoForm.controls['ctrId'].status == 'VALID' &&
+      this.creationWkoForm.controls['ctyId'].status == 'VALID' &&
+      this.creationWkoForm.controls['wtrId'].status == 'VALID' &&
+      this.creationWkoForm.controls['wkoPlanningStartDate'].status == 'VALID'
+    ) {
       let contratId = this.creationWkoForm.controls['ctrId'].value;
       let cityId = this.creationWkoForm.controls['ctyId'].value;
       let actionId = this.creationWkoForm.controls['wtrId'].value;
       let user = await this.userService.getCurrentUser();
       let separator = '_';
 
-      let contratLabel = this.contracts.find(ctr => ctr.id.toString() == contratId).ctrSlabel;
-      let cityLabel = this.cities.find(ctr => ctr.id.toString() == cityId).ctySlabel;
-      let  actionLabel = this.wtrs.find(wtr => wtr.wtrId.toString() == actionId).wtrSlabel;
+      let contratLabel = this.contracts.find(
+        (ctr) => ctr.id.toString() == contratId
+      ).ctrSlabel;
+      let cityLabel = this.cities.find(
+        (ctr) => ctr.id.toString() == cityId
+      ).ctySlabel;
+      let actionLabel = this.wtrs.find(
+        (wtr) => wtr.wtrId.toString() == actionId
+      ).wtrSlabel;
 
-      let label = user.firstName.slice(0,1) + user.lastName.slice(0,1) + 
-              separator + this.creationWkoForm.controls['wkoPlanningStartDate'].value + 
-              separator + actionLabel + 
-              separator + contratLabel + 
-              separator + cityLabel;
+      let label =
+        user.firstName.slice(0, 1) +
+        user.lastName.slice(0, 1) +
+        separator +
+        this.creationWkoForm.controls['wkoPlanningStartDate'].value +
+        separator +
+        actionLabel +
+        separator +
+        contratLabel +
+        separator +
+        cityLabel;
       this.creationWkoForm.controls['wkoName'].setValue(label.toUpperCase());
-      this.autoGenerateLabel = true;  
+      this.autoGenerateLabel = true;
+    }
   }
 
+  // ### Travo management methods ### ///
+  // http://localhost:8100/home/workorder?x=2.7040775629933194&y=48.41150005974143&wkoAffair=coucou&astCode=23&wtrCode=20&wkoName=salut&wkoCreationComment=cmagnifique&callbackUrl=encore&ctrCode=E4221&wkoPlanningStartDate=06%2F07%2F2001&wkoPlanningEndDate=06%2F08%2F2001
+
+  private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
+    // Set params if we are on travo url
+    // It permits to set the lyrTableName properly
+    if (isUrlFromTravo(this.currentUrlParams)) {
+      // Check if all necessary parameters are provided
+      if (isUrlFromTravoValid(this.currentUrlParams)) {
+        // We start by set the wkoAffair field required
+        this.creationWkoForm
+          .get('wkoAffair')
+          .setValidators([Validators.required]);
+
+        const travoParams = this.currentUrlParams as TravoUrlPayload;
+
+        // Get layers to show on the map from the astCode
+        const layers = await this.layerService.getAllLayers();
+        const astLayers = layers.filter(
+          (layer) => layer.astCode === travoParams.astCode
+        );
+        for (let layer of astLayers) {
+          await this.mapService.addEventLayer(layer.lyrTableName);
+        }
+
+        // All travo workorder is by default an xy
+        // We get the current domCode from the first layer because an astCode can't be on 2 different domains.
+        if (astLayers[0].domCode === 'dw') {
+          this.currentUrlParams.lyrTableName = 'aep_xy';
+        } else {
+          this.currentUrlParams.lyrTableName = 'ass_xy';
+        }
+      } else {
+        this.utils.showErrorMessage(
+          "Certains paramètres obligatoires n'ont pas été renseigné par Travo.",
+          5000
+        );
+        this.drawerService.navigateTo(DrawerRouteEnum.HOME);
+        throw new Error(
+          "Certains paramètres obligatoires n'ont pas été renseigné par Travo."
+        );
+      }
+    }
+  }
+
+  private async initializeFormWithTravoInfo(): Promise<void> {
+    if (this.workorder.tempTravoWtrId) {
+      this.creationWkoForm.get('wtrId').setValue(this.workorder.tempTravoWtrId);
+      this.creationWkoForm.updateValueAndValidity();
+      this.workorder.tempTravoWtrId = undefined;
+    }
+
+    if (isUrlFromTravo(this.currentUrlParams)) {
+      const travoInfo: TravoUrlPayload = this.currentUrlParams;
+
+      if (travoInfo.wkoName) {
+        this.creationWkoForm.get('wkoName').setValue(travoInfo.wkoName);
+      }
+
+      if (travoInfo.wkoPlanningStartDate) {
+        this.creationWkoForm
+          .get('wkoPlanningStartDate')
+          .setValue(travoInfo.wkoPlanningStartDate);
+      }
+
+      if (travoInfo.wkoPlanningEndDate) {
+        this.creationWkoForm
+          .get('wkoPlanningEndDate')
+          .setValue(travoInfo.wkoPlanningEndDate);
+      }
+
+      if (travoInfo.wkoCreationComment) {
+        this.creationWkoForm
+          .get('wkoCreationComment')
+          .setValue(travoInfo.wkoCreationComment);
+      }
+
+      if (travoInfo.ctrCode) {
+        this.creationWkoForm
+          .get('ctrId')
+          .setValue(
+            this.contracts.find((ctr) => ctr.ctrCode === travoInfo.ctrCode)?.id
+          );
+      }
+
+      if (travoInfo.wkoAffair) {
+        this.creationWkoForm.get('wkoAffair').setValue(travoInfo.wkoAffair);
+      }
+
+      // Workorder task reason
+      const wtrIdInExistingList = this.wtrs.find(
+        (wtr) => wtr.wtrCode === travoInfo.wtrCode
+      )?.wtrId;
+      if (wtrIdInExistingList) {
+        this.creationWkoForm.get('wtrId').setValue(wtrIdInExistingList);
+      } else {
+        // We enter in the case where the xy asset doesn't include the wtrCode of the asset provide in the url
+        // So we stock a temp travo wtr id, and we will use it then to complete the automatically the type when a new equipment selected.
+        const wtrIdInAllList = this.allWtrs.find(
+          (wtr) =>
+            wtr.wtrCode === travoInfo.wtrCode &&
+            wtr.astCode === travoInfo.astCode
+        )?.wtrId;
+        this.workorder.tempTravoWtrId = wtrIdInAllList;
+      }
+
+      // Callback url, stock directly in workorder to retrieve it during the save
+      // Even if the user changed of page during the creation process
+      this.workorder.travoCallbackUrl = travoInfo.callbackUrl;
+    }
+  }
+
+  private async redirectToTravoAfterSave(res: Workorder) {
+    const cachedWorkorder = await this.workorderService.getWorkorderById(
+      this.workorder.id
+    );
+    if (cachedWorkorder.travoCallbackUrl) {
+      this.utils.showSuccessMessage('Redirection vers Travo en cours...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      if (!res.syncOperation) {
+        this.workorderService.deleteCacheWorkorder(this.workorder);
+      }
+
+      window.location.href = cachedWorkorder.travoCallbackUrl;
+    }
   }
 }

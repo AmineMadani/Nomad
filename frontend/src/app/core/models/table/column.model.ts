@@ -23,10 +23,14 @@ export interface SelectProperties {
   elements: any[];
   // Function which permit to print the element with the properties we want. Take one param which corresponds to an element of the original list.
   elementLabelFunction: Function;
+  // Function which permit to define a specific style with the properties we want. Take one param which corresponds to an element of the original list.
+  elementStyleFunction?: Function;
   // Use mono or multiselection
   isMultiSelection?: boolean;
   // Function which permit to filter the list of elements in the select. Take one param which corresponds to the tableRow concerned.
   elementFilterFunction?: Function;
+  // Function which permit to Disable the element  with the properties we want. Take one param which corresponds to an element of the original list.
+  elementDisableFunction?: Function;
 }
 
 export interface SortOptions {

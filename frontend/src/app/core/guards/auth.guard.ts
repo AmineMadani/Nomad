@@ -18,7 +18,7 @@ export const AuthGuard = async (route: ActivatedRouteSnapshot) => {
   const initService = inject(InitService);
 
   // If the user doesn't have a valid token and Keycloak is active
-  if (!keycloakService.hasValidToken()) {
+  if (!keycloakService.hasValidRefreshToken()) {
     // If the user isn't trying to access the login page, redirect them to the login page
     if (route.routeConfig?.path !== 'login') {
       keycloakService.initialState = window.location.pathname + window.location.search;

@@ -6,7 +6,6 @@ export interface Layer {
   domCode: string;
   astId: number;
   astCode: string;
-  astGeomType: string;
   lyrTableName: string;
   lyrGeomColumnName: string;
   lyrUuidColumnName: string;
@@ -17,6 +16,8 @@ export interface Layer {
   lyrValid: boolean;
   lyrDisplay: boolean;
   listStyle: LayerStyleDetail[];
+  lyrGeomType: string;
+  lyrInteractive: string;
 }
 
 export function getLayerLabel(layer: Layer) {

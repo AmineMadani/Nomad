@@ -22,6 +22,16 @@ export interface Box {
   y2: number;
 }
 
+/**
+ * Status of the locate button
+ */
+export enum LocateStatus {
+  NONE = 'NONE',
+  LOCALIZATE = 'LOCALIZATE',
+  TRACKING = 'TRACKING',
+
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -35,6 +45,19 @@ export class MapService {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {}
+
+  /**
+   * Statut du bouton Localiser sur la carte
+   */
+  private locateStatus : LocateStatus = LocateStatus.NONE ;
+
+  public getLocateStatus() : LocateStatus{
+    return this.locateStatus;
+  }
+
+  public setLocateStatus(locateStatus : LocateStatus){
+    this.locateStatus = locateStatus;
+  }
 
   public measureMessage: any[];
 
@@ -461,6 +484,14 @@ export class MapService {
     }
   }
 
+  public clearAllLayers(): void {
+    if (this.layers?.size > 0) {
+      this.layers.forEach((l, k) => {
+        this.removeEventLayer(k);
+      })
+    }
+  }
+
   /**
    * Method to hide a specific style of a layer
    * @param layerKey The layer key
@@ -661,5 +692,10 @@ export class MapService {
    */
   public async removeLocalisationMarker() {
     this.localisationMarker.remove();
+  }
+
+  public hasLoadingLayerStyle(): boolean{
+    return this.loadingLayer && Object.keys(this.loadingLayer).length > 0 
+      && this.loadingStyle && Object.keys(this.loadingStyle).length > 0
   }
 }

@@ -5,6 +5,8 @@ import * as Maplibregl from 'maplibre-gl';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { CityService } from 'src/app/core/services/city.service';
+import { LayerService } from 'src/app/core/services/layer.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-actions-layer-mobile',
@@ -17,18 +19,23 @@ export class ActionsLayerMobileComponent implements OnInit {
     private menuCtlr: MenuController,
     private mapLayerService: MapLayerService,
     private cityService: CityService,
-    private mapService: MapService
+    private mapService: MapService,
+    private layerService: LayerService,
+    private router: Router
   ) {}
 
   @ViewChild('searchModal') searchModal: IonModal;
 
   @Input() currentRoute: DrawerRouteEnum;
 
-  private marker: Maplibregl.Marker;
-
   public drawerRouteEnum = DrawerRouteEnum;
   public adresses: any[] = [];
   public adress: string = "";
+  public selectedsearchMode: string = "Adresse";
+  public genericSearResult: any;
+
+  private marker: Maplibregl.Marker;
+  private patrimonyMinimunLengh: number = 8;
 
   ngOnInit() {}
 
@@ -42,15 +49,31 @@ export class ActionsLayerMobileComponent implements OnInit {
 
   public onSearchInput(event) {
     const query = event.target.value.toLowerCase();
-    if(query && query.length > 3) {
-      this.cityService.getAdressesByQuery(query).then(res => {
-        this.adresses = res.features;
-      })
-    } else {
-      this.adresses = [];
-      this.adress = query;
+    switch (this.selectedsearchMode) {
+      case 'Patrimoine':
+        if ( query && query.length > this.patrimonyMinimunLengh){
+          this.layerService.getAssetByPartialId(query).subscribe((res) => {
+            if (res) {
+              this.genericSearResult = res;
+            }
+          else {
+            this.genericSearResult = undefined;
+          }
+        });
+      }
+        break;
+      default:
+        if(query && query.length > 3) {
+          this.cityService.getAdressesByQuery(query).then(res => {
+            console.log(res);
+            this.adresses = res.features;
+          })
+        } else {
+          this.adresses = [];
+        }
+        break;
     }
-    if(this.marker) {
+    if (this.marker) {
       this.marker.remove();
     }
   }
@@ -71,17 +94,19 @@ export class ActionsLayerMobileComponent implements OnInit {
 
   public onSearchKeyEnter() {
     if(this.adresses && this.adresses.length > 0) {
-      this.mapLayerService.moveToXY(this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1],19);
-      if(this.marker) {
-        this.marker.remove();
-      }
-      this.marker = new Maplibregl.Marker({
-        color: "#ea4335",
-        draggable: false
-        }).setLngLat([this.adresses[0].geometry.coordinates[0],this.adresses[0].geometry.coordinates[1]])
-        .addTo(this.mapService.getMap());
-      this.adress = this.adresses[0].properties.label;
-      this.adresses = [];
+      this.onAdressClick(this.adresses[0]);
+    }
+  }
+  public modeChange(data: any): void {
+    this.selectedsearchMode = data?.detail?.value;
+  }
+
+  public onResultClick(result: any) {
+    if (result) {
+      const id= result.id;
+      const layer =  result.asset_tbl.replace('asset.','');
+      this.router.navigate(['home/equipment/'+ id], {queryParams: {lyrTableName  :layer  }} );
+      this.genericSearResult = [];
     }
   }
 }

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelTask,
   CancelWorkOrder,
+  ReportValue,
   Task,
   WkoStatus,
   Workorder,
@@ -21,7 +22,6 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { AttachmentService } from 'src/app/core/services/attachment.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
 import { ValueLabel } from 'src/app/core/models/util.model';
@@ -44,7 +44,6 @@ export class WkoViewComponent implements OnInit {
     private drawerService: DrawerService,
     private userService: UserService,
     private utilsService: UtilsService,
-    private attachmentService: AttachmentService,
     private layerService: LayerService
   ) {}
 
@@ -61,8 +60,18 @@ export class WkoViewComponent implements OnInit {
   public listInformationAssetForSig: ValueLabel[] = null;
 
   public userHasPermissionModifyReport: boolean = false;
+  public userHasPermissionModifyReportCompletedStatus : boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
   public userHasPermissionCancelWorkorder: boolean = false;
+
+  /**
+     * Convertit un nombre représentant une durée en heures et minutes.
+     * @param duree La durée en minutes.
+     * @returns La durée convertie en format d'heures et minutes.
+     */
+  public formatDuration(duree: number): string {
+    return this.utilsService.formatDurationToTimeString(duree);
+  }
 
   public canEdit(): boolean {
     return (
@@ -72,6 +81,10 @@ export class WkoViewComponent implements OnInit {
         this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF ||
         this.workOrder.wtsId === WkoStatus.ERREUR)
     );
+  }
+
+  public canEditReport(): boolean {
+    return !this.loading && this.userHasPermissionModifyReportCompletedStatus;
   }
 
   public canCancel(): boolean {
@@ -105,11 +118,15 @@ export class WkoViewComponent implements OnInit {
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.MODIFY_REPORT_MY_AREA
       );
+    this.userHasPermissionModifyReportCompletedStatus =
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.MODIFY_REPORT_COMPLETED_STATUS
+      );
     this.userHasPermissionCreateProgram =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CREATE_PROGRAM_MY_AREA
       );
-    this.userHasPermissionCancelWorkorder = 
+    this.userHasPermissionCancelWorkorder =
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.CANCEL_WORKORDER
       );
@@ -190,6 +207,7 @@ export class WkoViewComponent implements OnInit {
             : null;
           this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
           this.loading = false;
+
         });
       });
   }
@@ -264,12 +282,9 @@ export class WkoViewComponent implements OnInit {
     const { role, data } = await alertReason.onDidDismiss();
 
     if (role === 'confirm') {
-      const cancelWko: CancelWorkOrder = {
-        id: this.workOrder.id,
-        cancelComment: data.values.cancelComment,
-      };
+      this.workOrder.wkoCancelComment = data.values.cancelComment;
       this.workorderService
-        .cancelWorkorder(cancelWko)
+        .cancelWorkorder(this.workOrder)
         .then(async (res) => {
           this.displayCancelToast('Modification enregistré avec succès.');
           this.workOrder = res;
@@ -367,6 +382,9 @@ export class WkoViewComponent implements OnInit {
     this.router.navigate(['/home/workorder/' + this.workOrder.id + '/cr']);
   }
 
+  public onUpdateReport(): void {
+    this.router.navigate(['/home/workorder/' + this.workOrder.id + '/task/'+ this.selectedTask.id +'/cr']);
+  }
   public onDisplayWorkorder(): void {
     this.router.navigate(['/home/workorder/' + this.workOrder.id]);
   }
@@ -406,6 +424,28 @@ export class WkoViewComponent implements OnInit {
         }
       );
     }
+  }
+
+  public getReportValuesSorted(): ReportValue[] {
+    const compareReportKeyFn = (a: ReportValue, b: ReportValue): number => {
+      const nA = parseInt(a.key.split('-')[1], 10);
+      const nB = parseInt(b.key.split('-')[1], 10);
+      return nA - nB;
+    }
+
+    const reportValues: ReportValue[] = this.selectedTask.report.reportValues.filter((rv) => !rv.key.includes('COMMENT')).sort(compareReportKeyFn);
+
+    const commentQuestion = this.selectedTask.report.reportValues.find((rv) => rv.key.includes('COMMENT'));
+
+    if (commentQuestion) {
+      reportValues.push(commentQuestion);
+    }
+
+    return reportValues;
+  }
+
+  public trackByReportFn(index: number, reportValue: ReportValue): string {
+    return reportValue.key;
   }
 
   private getStatus(wtsId: number): void {

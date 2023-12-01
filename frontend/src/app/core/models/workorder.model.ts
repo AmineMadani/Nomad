@@ -10,6 +10,7 @@ export interface Workorder {
     wkoCreationComment?: string;
     wkoPlanningStartDate?: Date;
     wkoPlanningEndDate?: Date;
+    wkoPlanningDuration?: number;
     wtsId?: number;
     wkoCompletionStartDate?: Date;
     wkoCompletionEndDate?: Date;
@@ -25,6 +26,15 @@ export interface Workorder {
     wkoDmod?: Date;
     syncOperation?: SyncOperations; // A value wich indicates the method necessary to perform synchronization with the server
     isDraft?: boolean;
+    wkoAffair?: number;
+    // Specific frontend variables for travo
+    tempTravoWtrId?: number;
+    travoCallbackUrl?: string;
+    isUpdateReport?: boolean;
+    // end specific frontend variables for travo
+    wkoRealizationUser?: string;
+    wkoExtError?: string;
+
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
@@ -41,6 +51,7 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     wkoCompletionEndDate: featureWorkorder.properties['wkoCompletionEndDate'],
     wkoPlanningStartDate: featureWorkorder.properties['wkoPlanningStartDate'],
     wkoPlanningEndDate: featureWorkorder.properties['wkoPlanningEndDate'],
+    wkoPlanningDuration: featureWorkorder.properties['wkoPlanningDuration'],
     wtsId: featureWorkorder.properties['wkoWtsId'],
     wkoCreationComment: featureWorkorder.properties['wkoCreationComment'],
     wkoCancelComment: featureWorkorder.properties['wkoCancelComment'],
@@ -49,6 +60,8 @@ export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
     ctrId: '',
     wkoAttachment: featureWorkorder.properties['wkoAttachment'],
     wkoExtToSync: featureWorkorder.properties['wkoExtSoSync'],
+    wkoRealizationUser: featureWorkorder.properties['wkoRealizationUser'],
+    wkoExtError: featureWorkorder.properties['wkoExtError'],
   };
 }
 
@@ -167,11 +180,51 @@ export enum WorkorderType {
 }
 
 export interface TaskPaginated {
-  wkoEmergeny?: boolean;
+  wkoEmergency?: boolean;
   wkoAppointment?: boolean;
   wkoPlanningStartDate?: string;
   wkoPlanningEndDate?: string;
   wtrIds?: number[];
   wtsIds?: number[];
   assObjTables?: string[];
+}
+
+export interface CreateWorkorderUrlPayload {
+  lyrTableName?: string;
+  x?: number;
+  y?: number;
+}
+
+export interface UpdateWorkorderUrlPayload {
+  [key: string]: any;
+}
+
+export interface TravoUrlPayload {
+  wkoAffair?: string;
+  wkoName?: string;
+  x?: number;
+  y?: number;
+  astCode?: string;
+  wtrCode?: string;
+  wkoChantier?: string; // Need to be create in a specific US
+  ctrCode?: string; // Filtrer la liste dispo sur le XY
+  wkoPlanningStartDate?: string;
+  wkoPlanningEndDate?: string;
+  wkoCreationComment?: string;
+  callbackUrl?: string;
+
+  // Not asked but set after with astCode and wtrCode in the app
+  lyrTableName?: string;
+}
+export function isUrlFromTravo(obj: any): obj is TravoUrlPayload {
+  return obj && 'wkoAffair' in obj;
+}
+
+export function isUrlFromTravoValid(obj: TravoUrlPayload): boolean {
+  return 'wkoAffair' in obj &&
+    'x' in obj &&
+    'y' in obj &&
+    'astCode' in obj &&
+    'wtrCode' in obj &&
+    'callbackUrl' in obj;
 }

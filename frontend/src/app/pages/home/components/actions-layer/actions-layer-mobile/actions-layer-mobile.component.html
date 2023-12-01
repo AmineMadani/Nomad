@@ -1,10 +1,10 @@
-<ion-item *ngIf="currentRoute === drawerRouteEnum.HOME" lines="none" color="none">
-  <ion-fab (click)="openMenu()">
+<ion-item lines="none" color="none">
+  <ion-fab (click)="openMenu()" *ngIf="currentRoute === drawerRouteEnum.HOME">
     <ion-fab-button size="small" class="ion-no-margin ion-no-padding ion-fab">
       <ion-icon name="menu-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ion-fab class="ion-fab-search">
+  <ion-fab class="ion-fab-search" [style.margin-left]="currentRoute === drawerRouteEnum.HOME ? '15px' : '0px'">
     <ion-fab-button (click)="openSearchModal()" [color]="(adress && adress.length > 0) ? 'secondary':'light'" size="small" class="ion-no-margin ion-no-padding ion-fab">
       <ion-icon name="search-outline"></ion-icon>
     </ion-fab-button>
@@ -14,12 +14,32 @@
 <ion-modal #searchModal [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75]">
   <ng-template>
     <ion-content>
-      <ion-searchbar (keyup.enter)="onSearchKeyEnter();searchModal.dismiss()" [value]="adress" [debounce]="500" (ionInput)="onSearchInput($event)" show-clear-button="always" placeholder="Recherche" (click)="searchModal.setCurrentBreakpoint(0.5)"></ion-searchbar>
+      <ion-segment [value]="selectedsearchMode" [scrollable]="true"  (ionChange)="modeChange($event)">
+        <ion-segment-button value="Adresse">
+          <ion-label>Adresse</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="Patrimoine">
+          <ion-label>Patrimoine</ion-label>
+        </ion-segment-button>
+        </ion-segment>
+
+      <ion-searchbar (keyup.enter)="onSearchKeyEnter();searchModal.dismiss()"
+        [value]="adress" [debounce]="500" (ionInput)="onSearchInput($event)"
+        show-clear-button="always" placeholder="Recherche"
+        (click)="searchModal.setCurrentBreakpoint(0.5)">
+    </ion-searchbar>
       <ion-list>
         <ion-item *ngFor="let adress of adresses" (click)="onAdressClick(adress);searchModal.dismiss()">
           <ion-label>
             <h2>{{adress.properties.postcode}} {{adress.properties.city}}</h2>
             <p>{{adress.properties.name}}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <ion-list>
+        <ion-item *ngFor="let result of genericSearResult" (click)="onResultClick(result);searchModal.dismiss()">
+          <ion-label>
+            {{result.id + " | " + result.asset_tbl.replace('asset.','')}}
           </ion-label>
         </ion-item>
       </ion-list>

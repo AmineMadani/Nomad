@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Layer, getLayerLabel, LayerReferences, ReferenceDisplayType, UserReference  } from 'src/app/core/models/layer.model';
 import { SettingsTypeEnum } from 'src/app/core/models/settings.model';
-import { User, getUserEmail } from 'src/app/core/models/user.model';
+import { PermissionCodeEnum, User, getUserEmail } from 'src/app/core/models/user.model';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
 
@@ -42,7 +42,17 @@ export class LayerReferencesSettingsPage implements OnInit {
     // Get the list of layers
     this.layerService.getAllLayers().then((layers: Layer[]) => this.layers = layers);
     // Get all layer references of the user
-    this.layerService.getUserLayerReferences().then((layerReferences) => this.layerReferences = layerReferences);
+    this.layerService.getUserLayerReferences().then(async (layerReferences) => {
+      const hasRight = await this.userService.currentUserHasPermission(PermissionCodeEnum.VIEW_TECHNICAL_LAYER_REFERENCES)
+      if (!hasRight) {
+        this.layerReferences = layerReferences.map((lyr) => {
+          lyr.references = lyr.references.filter((ref) => !this.isTechnicalReference(ref));
+          return lyr;
+        });
+      } else {
+        this.layerReferences = layerReferences;
+      }
+    });
 
     // Listen form value changes on lyrTableName
     this.form.get('lyrTableName').valueChanges.subscribe((lyrTableName: string) => {
@@ -72,7 +82,11 @@ export class LayerReferencesSettingsPage implements OnInit {
     listUserIdControl.updateValueAndValidity();
   }
 
-  isToggleDisabled(ref: UserReference) {
+  isTechnicalReference(ref: UserReference) {
+    return ref.referenceKey === 'id' || ref.referenceKey === 'x' || ref.referenceKey === 'y' || !ref.isVisible;
+  }
+
+  isRequiredReference(ref: UserReference) {
     return ref.referenceKey === 'id' || ref.referenceKey === 'x' || ref.referenceKey === 'y';
   }
 

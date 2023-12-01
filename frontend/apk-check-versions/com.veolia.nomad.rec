@@ -1,0 +1,8 @@
+{
+packageName: "com.veolia.nomad.rec",
+applicationName: "Nomad Recette",
+targetVersionCode: 104,
+warningToUpdate: "true",
+extentionTimebyDays: 7,
+deploimentDate: "2023-11-09"
+}

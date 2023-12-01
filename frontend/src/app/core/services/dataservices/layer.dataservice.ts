@@ -5,6 +5,7 @@ import { ConfigurationService } from '../configuration.service';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
 import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
 import { ApiSuccessResponse } from '../../models/api-response.model';
+import { LayerGrpAction } from '../../models/layer-gp-action.model';
 
 @Injectable({
   providedIn: 'root',
@@ -144,6 +145,20 @@ export class LayerDataService {
   public getAllVLayerWtr(): Promise<VLayerWtr[]> {
     return firstValueFrom(
       this.http.get<VLayerWtr[]>(`${this.configurationService.apiUrl}layers/v-layer-wtr`)
+    );
+  }
+
+  public getAssetByPartialId(partialId: string): Observable<string[]>{
+    return this.http.get<string[]>(`${this.configurationService.apiUrl}layers/search/${partialId}`);
+  }
+
+  /**
+  * Get all VLayerWtr.
+  * @returns A promise that resolves to the list of VLayerWtr.
+  */
+  public getAllLayerGrpActions(): Promise<LayerGrpAction[]> {
+    return firstValueFrom(
+      this.http.get<LayerGrpAction[]>(`${this.configurationService.apiUrl}layers/groups`)
     );
   }
 }

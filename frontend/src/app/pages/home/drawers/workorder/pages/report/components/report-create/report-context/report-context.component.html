@@ -1,0 +1,52 @@
+<div class="report-context">
+  <ion-input aria-label="def-input" labelPlacement="floating" fill="outline"
+    label="Action" [value]="getValueLabel()" (click)="onOpenModal()" [readonly]="true" />
+</div>
+
+<ion-accordion-group [multiple]="true" [value]="workorder.wkoCreationComment ? 'General' : ''">
+  <ion-accordion value="General" *ngIf="workorder.wkoPlanningStartDate">
+    <ion-item slot="header" color="light">
+      <ion-label> Généralités </ion-label>
+    </ion-item>
+    <div slot="content">
+      <ion-item lines="none">
+        <ion-label class="label">
+          <h3>Commentaire</h3>
+          <p>{{ workorder.wkoCreationComment }}</p>
+        </ion-label>
+      </ion-item>
+    </div>
+  </ion-accordion>
+  <!-- Attachments -->
+  <app-attachment-accordion [isReadOnly]="true" [workorder]="workorder"></app-attachment-accordion>
+</ion-accordion-group>
+
+<ion-modal class="report-context-modal"  #modalReportContext>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Action :</ion-title>
+        <ion-buttons class="report-context-modal-close" slot="end">
+          <ion-icon (click)="modal.dismiss()" name="close" />
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-searchbar mode="ios" animated="true" placeholder="Recherche"
+      (ionInput)="onHandleInput($event)"></ion-searchbar>
+    <ion-content>
+      <ion-list>
+        <ion-radio-group aria-label="def-radio" [value]="valueKey" (ionChange)="onRadioChange($event)">
+          <ng-container *ngFor="let item of displayOptions; let index">
+            <ion-radio aria-label="Option Label" class="report-context-modal-radio"
+              [value]="item.wtrId" labelPlacement="end" (click)="modal.dismiss()">{{
+              item.wtrLlabel }}</ion-radio>
+            <br />
+          </ng-container>
+        </ion-radio-group>
+      </ion-list>
+      <ion-infinite-scroll (ionInfinite)="onIonInfinite($event)">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </ion-content>
+  </ng-template>
+</ion-modal>

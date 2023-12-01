@@ -33,6 +33,8 @@ export class FormHistoryComponent implements OnInit {
       this.workorderService.getAllWorkorderTaskStatus(),
       this.workorderService.getAllWorkorderTaskReasons(),
     ]).then((results) => {
+      this.statusRef = results[1];
+      this.reasonRef = results[2];
       this.workorders = (results[0] as any).map((wk) => {
         /* In the code, `wk` is a variable used in the `map` function to iterate over each element in
         the `workorders` array. It represents an individual `Workorder` object in the array. */
@@ -42,8 +44,7 @@ export class FormHistoryComponent implements OnInit {
         )?.wtrLlabel;
         return wk;
       });
-      this.statusRef = results[1];
-      this.reasonRef = results[2];
+      this.isLoading = false;
     });
   }
 

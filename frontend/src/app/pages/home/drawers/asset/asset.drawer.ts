@@ -220,6 +220,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
   public async onSegmentChange(event: any) {
     this.selectedSegment = event.detail.value;
     await this.userService.setLastSelectedDrawer(event.detail.value);
+    this.userService.saveUserContext();
   }
 
   /**

@@ -7,7 +7,8 @@
     <ion-grid class="ion-no-margin ion-no-padding">
       <ion-row class="home-main-content">
 
-        <ion-col class="home-main-content-map" [class.home-main-content-map-mobile]="isMobile">
+        <ion-col class="home-main-content-map" [class.home-main-content-map-mobile]="isMobile"
+          [style.display]="isMobile && (drawerType === drawerTypeEnum.DRAWER || drawerType === drawerTypeEnum.DRAWER_FULL) ? 'none' : ''">
           <ion-fab vertical="bottom" class="home-main-content-fab-loader" *ngIf="isDataLoading()">
             <ion-fab-button class="home-main-content-fab-loader-selector" id="open-custom-dialog" (click)="openModal()">
               <ion-spinner name="dots"></ion-spinner>
@@ -22,7 +23,6 @@
         <ng-container [ngSwitch]="drawerType">
           <!-- Drawer -->
           <ng-container *ngSwitchCase="drawerTypeEnum.DRAWER">
-            <!-- <ng-container *ngIf="drawerTypeEnum.DRAWER"> -->
             <ion-col class="home-main-content-interactive no-print"
               [class]="!isMobile ? 'home-main-content-interactive-desktop' : 'home-main-content-interactive-mobile'"
               [ngClass]="!drawerHasBeenOpened ? '' : (currentRoute !== drawerRouteEnum.HOME ? 'home-main-content-interactive-animation-in' : 'home-main-content-interactive-animation-out')">
@@ -47,7 +47,7 @@
           <!-- Bottom sheet -->
           <ng-container *ngSwitchCase="drawerTypeEnum.BOTTOM_SHEET">
             <ion-modal id="modal-bottom-sheet" #modal [isOpen]="currentRoute !== drawerRouteEnum.HOME"
-              backdropDismiss="false" show-backdrop="false" can-dismiss="false" [initialBreakpoint]="0.25"
+              backdropDismiss="false" show-backdrop="false" can-dismiss="false" [initialBreakpoint]="0.5"
               [breakpoints]="[0, 0.25, 0.5, 1]" backdropBreakpoint="0.5">
               <ng-template>
                 <div class="router-container">

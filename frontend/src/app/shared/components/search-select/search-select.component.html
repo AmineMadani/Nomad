@@ -33,7 +33,7 @@
         class="table-select"
         [class]="getTableSelectStyle()"
         matTooltip="Le champ est requis."
-        [matTooltipDisabled]="!(control.hasError('required'))"
+        [matTooltipDisabled]="!control.hasError('required')"
       >
         <div class="input-table-select" (click)="onOpenModal()">
           <ion-input
@@ -51,8 +51,14 @@
         </div>
 
         <ion-icon
-          *ngIf="isMultiSelection ? control.value && control.value.length > 0 : control.value"
-          (click)="isMultiSelection ? control.setValue([]) : control.setValue(null)"
+          *ngIf="
+            isMultiSelection
+              ? control.value != null && control.value.length > 0
+              : control.value != null
+          "
+          (click)="
+            control.disabled ? null : (isMultiSelection ? control.setValue([]) : control.setValue(null))
+          "
           name="close-outline"
           size="small"
           slot="end"
@@ -88,7 +94,7 @@
                 aria-label="checkbox"
                 [checked]="isAllElementSelected()"
               >
-               <span class="select-all-color">Tout sélectionner</span>
+                <span class="select-all-color">Tout sélectionner</span>
               </ion-checkbox>
 
               <ion-checkbox
@@ -98,6 +104,7 @@
                 justify="start"
                 aria-label="checkbox"
                 [checked]="isElementSelected(element)"
+                [ngClass]="elementStyleFunction ? elementStyleFunction(element) : null"
               >
                 {{ elementLabelFunction(element) }}
               </ion-checkbox>
@@ -114,6 +121,8 @@
                   labelPlacement="end"
                   justify="start"
                   aria-label="radio"
+                  [ngClass]="elementStyleFunction ? elementStyleFunction(element) : null"
+                  [disabled]="elementDisableFunction ? elementDisableFunction(element) : null"
                 >
                   {{ elementLabelFunction(element) }}
                 </ion-radio>

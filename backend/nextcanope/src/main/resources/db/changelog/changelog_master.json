@@ -57,6 +57,216 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_move_geom_type_to_layer",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/move_geom_type_to_layer.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_view_technical_references_right",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_view_technical_references_right.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_column_wko_affair_workorker",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_column_wko_affair_workorker.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_permission_modify_report_completed_status",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_permission_modify_report_completed_status.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_workorder_planning_duration",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_workorder_planning_duration.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_function_patrimony_search",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_function_patrimony_search.sql",
+                            "splitStatements": "false"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_update_visible_layer_configuration",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/update_visible_layer_configuration.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_edit_reason",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/edit_reason.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_lyr_grp_action_label",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_lyr_grp_action_label.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.1.0_add_lyr_grp_action_label",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.1.0/add_lyr_grp_action_label.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "tag_v1.1.0",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "tagDatabase": {
+                            "tag": "V-1.1.0"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.2.0_add_interactive_column_to_layer",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.2.0/add_interactive_column_to_layer.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.2.0_update_layer_interactive",
+                "author": "NOMAD",
+                "context": "VEOLIA",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/VEOLIA/v1.2.0/update_layer_interactive.sql"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
+                "id": "v1.2.0_add_programs_right",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.2.0/add_programs_right.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

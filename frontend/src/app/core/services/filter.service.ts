@@ -43,7 +43,7 @@ export class FilterService {
 
   public transformFilterForm(): TaskPaginated {
     return {
-      wkoEmergeny: this.filterForm?.wkoEmergency ? true : null,
+      wkoEmergency: this.filterForm?.wkoEmergency ? true : null,
       wkoAppointment: this.filterForm?.wkoAppointment ? true : null,
       wkoPlanningStartDate: this.filterForm?.wkoPlanningStartDate
         ? DateTime.fromFormat(

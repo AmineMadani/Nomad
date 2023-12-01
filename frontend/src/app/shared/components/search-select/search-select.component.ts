@@ -26,6 +26,10 @@ export class SearchSelectComponent implements OnInit {
   @Input() elements: any[] = [];
   // Function which permit to print the element with the properties we wanted. Take one param which corresponds to an element of the original list.
   @Input() elementLabelFunction: Function;
+  // Function which permit to define a specific style of the element  with the properties we want. Take one param which corresponds to an element of the original list.
+  @Input() elementStyleFunction: Function;
+  // Function which permit to Disable the element  with the properties we want. Take one param which corresponds to an element of the original list.
+  @Input() elementDisableFunction: Function;
   // Permit to show the multiselection as a number with the title (eg: Title (x2))
   @Input() showMultiSelectionAsNumber: boolean = true;
 
@@ -43,20 +47,20 @@ export class SearchSelectComponent implements OnInit {
    */
   get displayValue(): string {
     let label: string = '';
-    if (this.elements && this.control.value) {
+    if (this.elements && this.control.value != null) {
       if (this.isMultiSelection) {
         const nbElementSelected: number = this.control.value.length;
         if (!this.showMultiSelectionAsNumber || nbElementSelected < 2) {
           label = this.control.value.map((value: any) => {
             const element = this.elements.find((el) => el[this.key] === value);
-            return element ? this.elementLabelFunction(element) : null;
+            return element != null ? this.elementLabelFunction(element) : null;
           }).join(', ');
         } else {
           label = this.label + ' (x' + this.control.value.length + ')';
         }
       } else {
         const element = this.elements.find((el) => el[this.key]?.toString() === this.control.value?.toString());
-        if (element) label = this.elementLabelFunction(element);
+        if (element != null) label = this.elementLabelFunction(element);
       }
     }
     return label;
@@ -156,6 +160,7 @@ export class SearchSelectComponent implements OnInit {
    */
   onOpenModal() {
     if (!this.control.disabled) {
+      this.querySearch= "";
       this.control.markAsTouched();
       this.displayedElements = this.getFilterOptions(this.querySearch).slice(0, 50);
       this.modal.present();

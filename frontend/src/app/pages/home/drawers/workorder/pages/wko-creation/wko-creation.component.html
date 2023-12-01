@@ -12,13 +12,13 @@
 
         <div class="select-search">
           <app-search-select [key]="'id'" [label]="'Liste des contrats *'" [elements]="contracts"
-            [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel">
+            [control]="creationWkoForm.controls['ctrId']" [elementLabelFunction]="getContractLabel" [elementStyleFunction]="getContractStyle" [elementDisableFunction]="getContractDisable">
           </app-search-select>
           <ion-note *ngIf="currentContract">Fin le {{ currentContract.ctrEndDate | date:'dd/MM/yyyy'
             }}</ion-note>
         </div>
 
-        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities" 
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes '" [elements]="cities"
           [control]="creationWkoForm.controls['ctyId']" [elementLabelFunction]="getCityLabel">
         </app-search-select>
 
@@ -26,9 +26,9 @@
           [control]="creationWkoForm.controls['wtrId']" [elementLabelFunction]="getWtrLabel">
         </app-search-select>
 
-        <app-search-select *ngIf="displayLayerSelect"
-          class="select-search" [key]="'lyrTableName'" [label]="'Patrimoine *'" [elements]="layers"
-          [control]="creationWkoForm.controls['lyrTableName']" [elementLabelFunction]="getLayerLabel">
+        <app-search-select *ngIf="displayLayerSelect" class="select-search" [key]="'lyrTableName'"
+          [label]="'Patrimoine *'" [elements]="layers" [control]="creationWkoForm.controls['lyrTableName']"
+          [elementLabelFunction]="getLayerLabel">
         </app-search-select>
 
         <div class="wko-assets">
@@ -46,16 +46,19 @@
             <ion-input labelPlacement="floating" fill="outline" label="Equipements" type="text" [value]="nbAssets"
               (click)="openEquipmentModal()" [disabled]="assets?.[0] === null"></ion-input>
           </ng-container>
-          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()"
-            [disabled]="assets[0].isXY === true">
+          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()" [disabled]="false">
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
 
-        <ion-input labelPlacement="floating" fill="outline" label="Libelle *" placeholder="Libelle" type="text"
-          formControlName="wkoName"></ion-input>
+        <ion-input labelPlacement="floating" fill="outline" label="Numéro de dossier travO *"
+          *ngIf="creationWkoForm.get('wkoAffair').value" placeholder="Numéro de dossier travO" type="text"
+          formControlName="wkoAffair"></ion-input>
         <ng-container
-          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoName'] }"></ng-container>
+          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAffair'] }"></ng-container>
+
+          <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
+          type="number" formControlName="wkoAgentNb" min="1"></ion-input>
 
         <ng-container *ngIf="addressLoading; else addressForm">
           <app-skeleton-loading [rows]="1"></app-skeleton-loading>
@@ -66,9 +69,6 @@
           <ng-container
             *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoAddress'] }"></ng-container>
         </ng-template>
-
-        <ion-input labelPlacement="floating" fill="outline" label="Nombre d'agents *" placeholder="Nombre d'agents"
-          type="number" formControlName="wkoAgentNb" min="1"></ion-input>
 
         <div class="wko-calendar">
           <ion-input type="text" aria-label="date" labelPlacement="floating" fill="outline" label="Date début *"
@@ -84,7 +84,12 @@
         <div *ngIf="creationWkoForm.hasError('dateCompareInvalid')" class="error-message">
           <ion-note>La date de fin ne peut être inférieure à la date de début</ion-note>
         </div>
-
+          <ion-input type="time" aria-label="time" labelPlacement="floating" fill="outline" label="Durée de l'intervention"
+          placeholder="HH:MM" formControlName="wkoPlanningDuration" (click)="setDefaultDuration($event)"
+         ></ion-input>
+        <div *ngIf="creationWkoForm.hasError('durationInvalid') && workorder?.wkoAppointment" class="error-message">
+          <ion-note>La durée de l'intervention est supérieur à la durée du planning</ion-note>
+        </div>
         <div class="radio-group">
           <ion-checkbox labelPlacement="start" (ionChange)="setCheckboxValue('wkoEmergency', $event)" [checked]="false"
             formControlName="wkoEmergency">Urgent</ion-checkbox>
@@ -103,13 +108,15 @@
           <ion-note>L'heure de fin du Rendez-vous est inférieure à l'heure de début du Rendez-vous</ion-note>
         </div>
 
+        <ion-input labelPlacement="floating" fill="outline" label="Libelle *" placeholder="Libelle" type="text"
+          formControlName="wkoName"></ion-input>
+        <ng-container
+          *ngTemplateOutlet="errorTemplate; context: { control: creationWkoForm.controls['wkoName'] }"></ng-container>
+
         <ion-input aria-label="comment" labelPlacement="floating" fill="outline" label="Commentaire"
           placeholder="Commentaire" formControlName="wkoCreationComment"></ion-input>
 
-        <ion-accordion-group [multiple]="false" value="attachment">
-          <app-attachment-accordion [workorder]="workorder"></app-attachment-accordion>
-        </ion-accordion-group>
-
+        <app-attachment-accordion [workorder]="workorder"></app-attachment-accordion>
       </ion-list>
     </form>
   </ng-container>
@@ -125,8 +132,7 @@
         label=" ">{{defaultCreationLabel}}</ion-select-option>
       <ion-select-option value="CREE" aria-label="" fill="clear" label="" with="500px">
         <span>{{createWithoutSendToPlanning}}</span></ion-select-option>
-      </ion-select>
-      
+    </ion-select>
   </ion-item>
 </div>
 

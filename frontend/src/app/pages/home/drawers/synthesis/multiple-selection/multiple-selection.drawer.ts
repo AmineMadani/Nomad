@@ -5,7 +5,7 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { Subject, takeUntil, filter, switchMap, EMPTY, debounceTime } from 'rxjs';
+import { Subject, takeUntil, filter, debounceTime } from 'rxjs';
 import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonPopover } from '@ionic/angular';
@@ -38,71 +38,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private drawingService: DrawingService,
     private assetForSigService: AssetForSigService,
   ) {
-    // Params does not trigger a refresh on the component, when using polygon tool, the component need to be refreshed manually
-    this.router.events
-      .pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        switchMap(() => {
-          const urlParams = new URLSearchParams(window.location.search);
-          this.paramFeatures = this.utilsService.transformMap(
-            new Map(urlParams.entries())
-          );
-          return this.layerService.getEquipmentsByLayersAndIds(
-            this.paramFeatures
-          );
-        }),
-        takeUntil(this.ngUnsubscribe$)
-      )
-      .subscribe((features: any[]) => {
-        this.featuresSelected = [];
-        this.filteredFeatures = [];
-        this.sources = [];
-        this.layersConf = [];
-        this.featuresHighlighted = [];
-        this.mapLayerService.fitBounds(
-          features.map((f) => {
-            return [+f.x, +f.y];
-          })
-        );
-
-        const equipments = features.map((f) => {
-          return {
-            ...f,
-            lyrTableName: this.paramFeatures.find((map) =>
-              map.equipmentIds.includes(f.id)
-            ).lyrTableName,
-          };
-        });
-
-        this.onInitSelection(equipments);
-      });
-
-    this.mapEventService
-      .onFeatureHovered()
-      .pipe(debounceTime(300), takeUntil(this.ngUnsubscribe$))
-      .subscribe((f: string) => {
-        if (f) {
-          this.featureIdSelected = f;
-          const name = 'feature-container-' + this.featureIdSelected;
-          document.getElementById(name)?.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          this.featureIdSelected = undefined;
-        }
-      });
-
-    this.mapEventService
-      .onFeatureSelected()
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(async (feature) => {
-        await this.addNewFeatures(feature);
-      });
-
-    this.mapEventService
-      .onMultiFeaturesSelected()
-      .pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(async (features) => {
-        await this.addNewFeatures(features);
-      });
   }
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
@@ -125,8 +60,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   private layersConf: Layer[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
-  private paramFeatures: any;
   private step: string;
+
 
   async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
@@ -168,6 +103,101 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       await this.userService.currentUserHasPermission(
         PermissionCodeEnum.REQUEST_UPDATE_ASSET
       );
+
+    // Launch the first equipment recuperation
+    await this.getEquipmentsData();
+
+    // We listen any changes on the route params
+    // Because when the equipments changed the param is set
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(() => {
+        this.getEquipmentsData();
+      });
+
+    this.mapEventService
+      .onFeatureHovered()
+      .pipe(
+        debounceTime(300),
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe((f: string) => {
+        if (f) {
+          this.featureIdSelected = f;
+          const name = 'feature-container-' + this.featureIdSelected;
+          document.getElementById(name)?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          this.featureIdSelected = undefined;
+        }
+      });
+
+    this.mapEventService
+      .onFeatureSelected()
+      .pipe(
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(async (feature) => {
+        await this.addNewFeatures(feature);
+      });
+
+    this.mapEventService
+      .onMultiFeaturesSelected()
+      .pipe(
+        takeUntil(this.ngUnsubscribe$)
+      )
+      .subscribe(async (features) => {
+        await this.addNewFeatures(features);
+      });
+  }
+
+  private async getEquipmentsData() {
+    // Reset user selection values
+    this.featuresSelected = [];
+    this.filteredFeatures = [];
+    this.sources = [];
+    this.layersConf = [];
+    this.featuresHighlighted = [];
+
+    // Get searched equipments from params
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchedEquipments: SearchEquipments[] = this.utilsService.transformMap(
+      new Map(urlParams.entries())
+    );
+
+    // Get equipments data
+    const features = await this.layerService.getEquipmentsByLayersAndIds(
+      searchedEquipments
+    );
+
+    // When we come from an xy we don't have features
+    if (features && features.length > 0) {
+      // Zoom to fit the screen with all equipments
+      // Only when the map loaded to remove some problems when we refresh the screen
+      this.mapService.onMapLoaded().pipe(
+        filter((isMapLoaded) => isMapLoaded),
+        takeUntil(this.ngUnsubscribe$)
+      ).subscribe(() => {
+        this.mapLayerService.fitBounds(
+          features.map((f) => {
+            return [+f.x, +f.y];
+          })
+        );
+      });
+
+
+      // Add the lyrTableName for each equipments
+      const equipments = features.map((f) => {
+        return {
+          ...f,
+          lyrTableName: searchedEquipments.find((map) => map.equipmentIds.includes(f.id)).lyrTableName,
+        };
+      });
+
+      await this.addLayerToMap(equipments);
+    }
   }
 
   ngOnDestroy(): void {
@@ -177,122 +207,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public trackByFn(index: number, feature: any): number {
     return feature.id;
-  }
-
-  public async onInitSelection(paramsMap: any): Promise<void> {
-    this.isLoading = true;
-    await this.addLayerToMap(paramsMap);
-  }
-
-  public async addLayerToMap(abstractFeatures: any[]): Promise<void> {
-    if (abstractFeatures == null) abstractFeatures = [];
-
-    // Add tempory new asset
-    if (this.wkoDraft != null) {
-      // When there is a workorder
-      const wko: Workorder = await this.workorderService.getWorkorderById(
-        this.wkoDraft
-      );
-      const listTaskOnNewAsset = wko.tasks.filter((task) =>
-        task.assObjRef?.startsWith('TMP-')
-      );
-      for (const task of listTaskOnNewAsset) {
-        abstractFeatures.push({
-          id: task.assObjRef,
-          lyrTableName: task.assObjTable,
-          x: task.longitude,
-          y: task.latitude,
-          isTemp: true,
-        });
-      }
-    } else {
-      // When there is no workorder, but there is a reference in the url param
-      const urlParams = new URLSearchParams(window.location.search);
-      let listAssObjRef = [];
-      for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
-        const listValue = value.split(',');
-        for (const v of listValue) {
-          if (!listAssObjRef.includes(v))
-            listAssObjRef.push(v);
-        }
-      }
-      for (const assObjRef of listAssObjRef) {
-        const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
-        if (assetForSig != null) {
-          abstractFeatures.push({
-            id: assObjRef,
-            lyrTableName: assetForSig.assObjTable,
-            x: assetForSig.coords[0][0],
-            y: assetForSig.coords[0][1],
-            isTemp: true,
-          });
-        }
-      }
-    }
-
-    const promises: Promise<void>[] = abstractFeatures.map(
-      ({ lyrTableName }) => {
-        return this.mapService.addEventLayer(lyrTableName);
-      }
-    );
-
-    await Promise.all(promises);
-
-    this.sources = [
-      ...new Set(abstractFeatures.map(({ lyrTableName }) => lyrTableName)),
-    ].map((lyrName: string) => {
-      const conf = this.mapService.getLayer(lyrName).configurations;
-      this.layersConf.push(conf);
-      return { key: lyrName, label: conf.lyrSlabel };
-    });
-
-    const mapSearch: Map<string, string[]> = new Map();
-    for (const feature of abstractFeatures) {
-      if (feature.isTemp) {
-        this.featuresSelected.push(feature);
-      } else {
-        if (mapSearch.get(feature.lyrTableName)) {
-          mapSearch.get(feature.lyrTableName).push(feature.id);
-        } else {
-          mapSearch.set(feature.lyrTableName, [feature.id]);
-        }
-      }
-    }
-
-    const searchEquipments: SearchEquipments[] = [];
-    for (const [key, value] of mapSearch) {
-      searchEquipments.push({
-        lyrTableName: key,
-        equipmentIds: value,
-      });
-    }
-
-    const searchEquipmentsRes =
-      await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
-    this.featuresSelected = this.utilsService.removeDuplicatesFromArr(
-      [...this.featuresSelected, ...searchEquipmentsRes],
-      'id'
-    );
-    this.filteredFeatures = this.featuresSelected;
-
-    this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
-      this.featuresSelected
-        .filter((f) => f.isTemp !== true)
-        .map((f: any) => {
-          return { id: f.id, source: f.lyrTableName };
-        })
-    );
-
-    if (this.featuresSelected.length > 0) {
-      this.mapLayerService.fitBounds(
-        this.featuresSelected.map((f) => {
-          return [+f.x, +f.y];
-        })
-      );
-    }
-
-    this.isLoading = false;
   }
 
   public onTabButtonClicked(e: SynthesisButton): void {
@@ -509,6 +423,119 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.hightlightFeatures();
       }
     }
+  }
+
+  private async addLayerToMap(abstractFeatures: any[]): Promise<void> {
+    this.isLoading = true;
+
+    if (abstractFeatures == null) abstractFeatures = [];
+
+    // Add tempory new asset
+    if (this.wkoDraft != null) {
+      // When there is a workorder
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
+      const listTaskOnNewAsset = wko.tasks.filter((task) =>
+        task.assObjRef?.startsWith('TMP-')
+      );
+      for (const task of listTaskOnNewAsset) {
+        abstractFeatures.push({
+          id: task.assObjRef,
+          lyrTableName: task.assObjTable,
+          x: task.longitude,
+          y: task.latitude,
+          isTemp: true,
+        });
+      }
+    } else {
+      // When there is no workorder, but there is a reference in the url param
+      const urlParams = new URLSearchParams(window.location.search);
+      let listAssObjRef = [];
+      for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+        const listValue = value.split(',');
+        for (const v of listValue) {
+          if (!listAssObjRef.includes(v))
+            listAssObjRef.push(v);
+        }
+      }
+      for (const assObjRef of listAssObjRef) {
+        const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+        if (assetForSig != null) {
+          abstractFeatures.push({
+            id: assObjRef,
+            lyrTableName: assetForSig.assObjTable,
+            x: assetForSig.coords[0][0],
+            y: assetForSig.coords[0][1],
+            isTemp: true,
+          });
+        }
+      }
+    }
+
+    const promises: Promise<void>[] = abstractFeatures.map(
+      ({ lyrTableName }) => {
+        return this.mapService.addEventLayer(lyrTableName);
+      }
+    );
+
+    await Promise.all(promises);
+
+    this.sources = [
+      ...new Set(abstractFeatures.map(({ lyrTableName }) => lyrTableName)),
+    ].map((lyrName: string) => {
+      const conf = this.mapService.getLayer(lyrName).configurations;
+      this.layersConf.push(conf);
+      return { key: lyrName, label: conf.lyrSlabel };
+    });
+
+    const mapSearch: Map<string, string[]> = new Map();
+    for (const feature of abstractFeatures) {
+      if (feature.isTemp) {
+        this.featuresSelected.push(feature);
+      } else {
+        if (mapSearch.get(feature.lyrTableName)) {
+          mapSearch.get(feature.lyrTableName).push(feature.id);
+        } else {
+          mapSearch.set(feature.lyrTableName, [feature.id]);
+        }
+      }
+    }
+
+    const searchEquipments: SearchEquipments[] = [];
+    for (const [key, value] of mapSearch) {
+      searchEquipments.push({
+        lyrTableName: key,
+        equipmentIds: value,
+      });
+    }
+
+    const searchEquipmentsRes =
+      await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
+    this.featuresSelected = this.utilsService.removeDuplicatesFromArr(
+      [...this.featuresSelected, ...searchEquipmentsRes],
+      'id'
+    );
+    this.filteredFeatures = this.featuresSelected;
+
+    this.mapEventService.highlighSelectedFeatures(
+      this.mapService.getMap(),
+      this.featuresSelected
+        .filter((f) => f.isTemp !== true)
+        .map((f: any) => {
+          return { id: f.id, source: f.lyrTableName };
+        })
+    );
+
+    if (this.featuresSelected.length > 0) {
+      this.mapLayerService.fitBounds(
+        this.featuresSelected.map((f) => {
+          return [+f.x, +f.y];
+        })
+      );
+    }
+
+    this.isLoading = false;
   }
 
   private hightlightFeatures(features?: any[]): void {

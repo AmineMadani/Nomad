@@ -1,9 +1,11 @@
 package com.veolia.nextcanope.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.veolia.nextcanope.dto.LayerGrpActionDTO;
+import com.veolia.nextcanope.model.LayerGrpAction;
+import com.veolia.nextcanope.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +19,6 @@ import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.Layer;
 import com.veolia.nextcanope.model.LayerStyle;
 import com.veolia.nextcanope.model.StyleDefinition;
-import com.veolia.nextcanope.repository.LayerRepository;
-import com.veolia.nextcanope.repository.LayerRepositoryImpl;
-import com.veolia.nextcanope.repository.LayerStyleRepository;
-import com.veolia.nextcanope.repository.StyleDefinitionRepository;
 
 /**
  * PatrimonyService is a service class for managing patrimony-related data.
@@ -40,6 +38,9 @@ public class LayerService {
     
     @Autowired
     private StyleDefinitionRepository styleDefinitionRepository;
+
+    @Autowired
+    private LayerGrpActionRepository layerGrpActionRepository;
 
     /**
      * Retrieves the index associated with a specific key.
@@ -97,16 +98,18 @@ public class LayerService {
     }
     
     public String getAssetByLayerAndIds(List<GetEquipmentsPayload> equipmentsPayload, Long userId) {
-    	String assets = "";
-        for(GetEquipmentsPayload payload : equipmentsPayload) {
-            String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
-            res = res.substring(1, res.length() - 1);
-            if(res.length() > 0) {
-            	assets += (assets.length() > 0 ? ",":"")+res;
+    	StringBuilder assets = new StringBuilder();
+        for (GetEquipmentsPayload payload : equipmentsPayload) {
+            if (!payload.getLyrTableName().contains("_xy")) {
+                String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
+                res = res.substring(1, res.length() - 1);
+                if (!res.isEmpty()) {
+                    assets.append(!assets.isEmpty() ? "," : "").append(res);
+                }
             }
         }
-        assets = "["+assets+"]";
-        return assets;
+        assets = new StringBuilder("[" + assets + "]");
+        return assets.toString();
     }
 
     public Layer getLayerByLyrTableName(String lyrTableName) {
@@ -117,5 +120,38 @@ public class LayerService {
 
     public List<VLayerWtrDto> getAllVLayerWtr() {
         return this.layerRepository.getAllVLayerWtr();
+    }
+
+    /**
+     * Search in all visible assets  with a matching id and for contract of the user
+     * @param partialAssetId   A piece of the asset id
+     * @param userId The user id
+     * @return Json of all matching with partialAssetID assets
+     */
+    public  String getAssetFromPartialId(String partialAssetId, Long userId)
+    {
+        return this.layerRepositoryImpl.searchAssetById(partialAssetId,userId);
+    }
+
+    public List<LayerGrpActionDTO> getAllLayerGroups() {
+        List<LayerGrpAction> lyrGrpActions = this.layerGrpActionRepository.findAll();
+
+        List<LayerGrpActionDTO> groupedDTOs = lyrGrpActions.stream()
+                .collect(Collectors.groupingBy(LayerGrpAction::getGrpId))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    List<String> lyrTableNames = entry.getValue().stream()
+                            .map(item -> item.getLayer().getLyrTableName())
+                            .collect(Collectors.toList());
+                    String wtrCode = entry.getValue().get(0).getWorkorderTaskReason().getWtrCode();
+                    String grpLabel = entry.getValue().get(0).getGrpLabel();
+                    long grpId = entry.getKey();
+
+                    return new LayerGrpActionDTO(grpId, wtrCode, lyrTableNames, grpLabel);
+                })
+                .collect(Collectors.toList());
+
+        return groupedDTOs;
     }
 }

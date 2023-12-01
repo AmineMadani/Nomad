@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormDefinition, FormInput } from '../../models/form.model';
 import { ActivatedRoute } from '@angular/router';
+import { Workorder } from 'src/app/core/models/workorder.model';
 
 @Component({
   selector: 'app-form-comment',
@@ -13,6 +14,7 @@ export class FormCommentComponent implements OnInit {
   @Input() definition: FormDefinition;
   @Input() control: any;
   @Input() edit: boolean;
+  @Input() workorder: Workorder;
 
   public attributes: FormInput;
 

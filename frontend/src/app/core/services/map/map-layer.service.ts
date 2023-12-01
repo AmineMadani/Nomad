@@ -258,6 +258,33 @@ export class MapLayerService {
   }
 
   /**
+   * Jump to a specific point
+   * @param x longitude
+   * @param y latitude
+   */
+  public jumpToXY(
+    x: number,
+    y: number,
+    zoomLevel: number = 16
+  ): Promise<string> {
+    if (this.mapService.getMap().getZoom() > zoomLevel) {
+      zoomLevel = this.mapService.getMap().getZoom();
+    }
+    return new Promise((resolve) => {
+      if (x && y) {
+        this.mapService
+          .getMap()
+          .jumpTo({ center: [x, y], zoom: zoomLevel })
+          .once('moveend', () => {
+            resolve('done');
+          });
+      } else {
+        resolve('done');
+      }
+    });
+  }
+
+  /**
    * Zoom the map view to an area before to zoom to a feature on a given layer by its ID
    * @param extent The area location
    * @param id The ID of the feature to zoom to
@@ -278,8 +305,11 @@ export class MapLayerService {
     let bounds: any;
     if (r.geometry.type === 'Point') {
       bounds = new Maplibregl.LngLatBounds(coordinates, coordinates).toArray();
-    } else if(r.geometry.type === 'Polygon') {
-      bounds = new Maplibregl.LngLatBounds(coordinates[0][0], coordinates[0][0]).toArray();
+    } else if (r.geometry.type === 'Polygon') {
+      bounds = new Maplibregl.LngLatBounds(
+        coordinates[0][0],
+        coordinates[0][0]
+      ).toArray();
     } else {
       bounds = coordinates.reduce((bounds: any, coord: any) => {
         return bounds.extend(coord);
@@ -312,19 +342,19 @@ export class MapLayerService {
   public addMarker(
     x: number,
     y: number,
-    geometry: Array<number[]>,
+    geometry: Array<number[]> | number[],
     isXY?: boolean,
     color?: string
   ): Maplibregl.Marker {
     let marker: Maplibregl.Marker = new Maplibregl.Marker({
       draggable: geometry[0] instanceof Array ? true : isXY,
-      color: color ? color : ''
+      color: color ? color : '',
     })
       .setLngLat([x, y])
       .addTo(this.mapService.getMap());
     if (geometry[0] instanceof Array) {
-      this.limitDragMarker(geometry, marker);
-      marker.on('drag', () => this.limitDragMarker(geometry, marker));
+      this.limitDragMarker(geometry as any, marker);
+      marker.on('drag', () => this.limitDragMarker(geometry as any, marker));
     } else {
       marker.setLngLat([geometry[0] as any, geometry[1] as any]);
     }
@@ -414,5 +444,74 @@ export class MapLayerService {
       }
     }
     return nearestPoint;
+  }
+
+  /**
+   * Queries the nearest rendered feature from a mouse event on the map.
+   * @param e - Mouse event on the map
+   * @returns The nearest features (if there are) from the map.
+   */
+  public queryNearestFeature(
+    e: Maplibregl.MapMouseEvent
+  ): Maplibregl.MapGeoJSONFeature {
+    var mouseCoords = this.mapService.getMap().unproject(e.point);
+    const selectedFeatures = this.mapService.getMap().queryRenderedFeatures(
+      [
+        [e.point.x - 10, e.point.y - 10],
+        [e.point.x + 10, e.point.y + 10],
+      ],
+      {
+        layers: this.mapService.getCurrentLayersIds(),
+      }
+    );
+    return this.findNearestFeature(mouseCoords, selectedFeatures);
+  }
+
+  /**
+   * Finds the nearest feature to a given set of coordinates from a list of features.
+   * @param mouseCoords - Coordinates of a mouse event on the map.
+   * @param {Maplibregl.MapGeoJSONFeature[]} features - Array of the features in a selected area.
+   * @returns the closest feature from the mouse in the area.
+   */
+  public findNearestFeature(
+    mouseCoords: Maplibregl.LngLat,
+    features: Maplibregl.MapGeoJSONFeature[]
+  ): Maplibregl.MapGeoJSONFeature | null {
+    if (features.length === 0) {
+      return null;
+    }
+
+    let nearestPoint: any | null = null;
+    let shortestDistance = Infinity;
+
+    for (const feature of features) {
+      const distance = this.calculateDistanceFeatureMouse(mouseCoords, feature);
+
+      if (!Number.isNaN(distance)) {
+        if (distance < shortestDistance) {
+          shortestDistance = distance;
+          nearestPoint = feature;
+        }
+      } else {
+        nearestPoint = feature;
+      }
+    }
+
+    return nearestPoint;
+  }
+
+  /**
+   * Calculates the distance between two points on a map using their longitude and latitude.
+   * @param mousePoint - A Maplibregl.LngLat object representing the longitude and latitude.
+   * @param feature - A MapGeoJSONFeature from the map.
+   * @returns Returns the calculated distance the coordinates.
+   */
+  public calculateDistanceFeatureMouse(
+    mousePoint: Maplibregl.LngLat,
+    feature: Maplibregl.MapGeoJSONFeature
+  ): number {
+    const dx = feature.properties['x'] - mousePoint.lng;
+    const dy = feature.properties['y'] - mousePoint.lat;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 }

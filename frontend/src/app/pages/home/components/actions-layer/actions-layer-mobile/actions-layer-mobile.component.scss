@@ -13,3 +13,14 @@ ion-searchbar.home-search {
 .ion-fab-search {
   margin-left: 15px;
 }
+
+ion-segment {
+  --background: none;
+
+  ion-segment-button{
+    max-width: 150px;
+    min-height: 44px;
+    margin-top: 4px;
+  }
+}
+

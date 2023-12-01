@@ -1,0 +1,37 @@
+.programs-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .programs-header {
+        flex: 0;
+
+        ion-item {
+            --min-height: 72px;
+        }
+
+        ion-fab {
+            pointer-events: none;
+
+            ion-fab-button {
+                --box-shadow: none;
+            }
+        }
+
+        h1 {
+            padding-left: 72px;
+        }
+
+        ion-button.show-map {
+            --background: var(--ion-color-secondary);
+        }
+    }
+
+    .programs-content {
+        width: 100%;
+        height: calc(100% - 72px - 16px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+}
