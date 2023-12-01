@@ -569,35 +569,6 @@ export class MapComponent implements OnInit, OnDestroy {
     }
     return iconName;
   }
-  
-  /**
-  * Update the status of locate button
-  */
-  public updateLocateButtonStatus() : void{
-    switch(this.mapService.getLocateStatus()){
-      case LocateStatus.NONE: 
-      {
-        this.setLocateStatus(LocateStatus.LOCALIZATE);
-        this.addGeoLocateControl();
-        break;
-      }
-      case LocateStatus.LOCALIZATE:{
-        this.setLocateStatus(LocateStatus.TRACKING);
-        this.addGeoLocateTrackingControl();
-        break;
-      }
-      case LocateStatus.TRACKING:{
-        this.setLocateStatus(LocateStatus.NONE);
-        break;
-      }
-      default:
-      break;
-    }
-  }
-
-  public setLocateStatus(status : LocateStatus){
-    this.mapService.setLocateStatus(status);
-  }
 
   /**
    * Asks the user how they want to share their location then
@@ -865,6 +836,34 @@ export class MapComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+  * Update the status of locate button
+  */
+  private updateLocateButtonStatus() : void{
+    switch(this.mapService.getLocateStatus()){
+      case LocateStatus.NONE: 
+      {
+        this.setLocateStatus(LocateStatus.LOCALIZATE);
+        this.addGeoLocateControl();
+        break;
+      }
+      case LocateStatus.LOCALIZATE:{
+        this.setLocateStatus(LocateStatus.TRACKING);
+        this.addGeoLocateTrackingControl();
+        break;
+      }
+      case LocateStatus.TRACKING:{
+        this.setLocateStatus(LocateStatus.NONE);
+        break;
+      }
+      default:
+      break;
+    }
+  }
+  
+  private setLocateStatus(status : LocateStatus){
+    this.mapService.setLocateStatus(status);
+  }
 
   /**
    * Add locate control with tracking
