@@ -111,20 +111,11 @@ def nomad_post_request(data, endpoint_part):
             }
 
     except requests.exceptions.ReadTimeout:
-<<<<<<< HEAD
-        logger.error('Nomad - 500.1 - Timeout - update_wo_post_request.')
-        return {
-            "statusCode": 500,
-            "success": False,
-            "body": 'Nomad - Timeout - intervention'
-=======
         logger.error('Nomad - 500.1 - Timeout - nomad_post_request !')
         return {
             "statusCode": 500,
             "success": False,
-            "body": 'Nomad - Timeout - intervention')
->>>>>>> 576fd744b8e9474e5a7f9ad637114cee6a2c498d
-        }
+            "body": 'Nomad - Timeout - intervention'}
 
     except Exception as e:
         logger.error('Nomad - 500.2 - Exception {} - intervention ')
@@ -282,28 +273,28 @@ def tasks_list_lambda_handler(event, context):
 
 def tasks_report_lambda_handler(event, context):
 
-        if is_property_missing('taskId', event["query"]) or event["query"][
-            'taskId'].strip() == '':
-            logger.debug('taskId is required')
-            return {
-                'statusCode': 400,
-                "success": False,
-                'body': 'taskId is required'
-            }
+    if is_property_missing('taskId', event["query"]) or event["query"][
+        'taskId'].strip() == '':
+        logger.debug('taskId is required')
+        return {
+            'statusCode': 400,
+            "success": False,
+            'body': 'taskId is required'
+        }
 
-        param = 'taskId=' + event["query"]['taskId']
+    param = 'taskId=' + event["query"]['taskId']
 
-        resp = nomad_get_request(param=param,
-                                 endpoint_part='api/nomad/v1/basic/external/exploitation/task/report')
+    resp = nomad_get_request(param=param,
+                             endpoint_part='api/nomad/v1/basic/external/exploitation/task/report')
 
-        if resp['statusCode'] != 200:
-            return {
-                "statusCode": resp['statusCode'],
-                "success": False,
-                "body": json.dumps({
-                    "code": resp['statusCode'],
-                    "message": "An error is occured. Contact your administrator.",
-                })
-            }
+    if resp['statusCode'] != 200:
+        return {
+            "statusCode": resp['statusCode'],
+            "success": False,
+            "body": json.dumps({
+                "code": resp['statusCode'],
+                "message": "An error is occured. Contact your administrator.",
+            })
+        }
 
-        return resp
+    return resp
