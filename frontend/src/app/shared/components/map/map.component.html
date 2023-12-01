@@ -10,6 +10,17 @@
     <input *ngIf="!isMobile" #scaleInput type="text" id="scale" class="custom-scale" [(ngModel)]="scale"
       (change)="onScaleChange(scaleInput.value)" />
 
+    <ion-fab *ngIf="hideMap" class="hide-map-fab no-print">
+      <ion-fab-button class="ion-no-margin ion-no-padding" (click)="onClickHideMap()" color="secondary">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-fab class="layers-fab-resume" *ngIf="isMobile && hasResumeReport()">
+      <ion-fab-button size="small" color="secondary" (click)="resumeReport()">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
     <ion-fab class="layers-fab no-print" [class.mobile-layer]="isMobile">
       <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
         <ion-icon name="layers-outline"></ion-icon>
@@ -43,7 +54,7 @@
 
     <ion-fab>
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="geolocate()">
-        <ion-icon name="locate-outline"></ion-icon>
+        <ion-icon name={{manageLocateIcon()}} color={{colorLocateIcon}} src="{{sourceLocateIcon}}"></ion-icon>
       </ion-fab-button>
     </ion-fab>
 

@@ -1,3 +1,10 @@
+:host {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    position: relative;
+}
+
 .map-container {
     width: 100%;
     height: 100%;
@@ -14,6 +21,13 @@
         ion-fab-button {
             --border-radius: 12px;
         }
+    }
+
+    ion-fab.hide-map-fab {
+        position: absolute;
+        z-index: 0;
+        top: 16px;
+        right: 16px;
     }
 
     .mobile-layer {

@@ -63,6 +63,10 @@ private Long id;
     @Column(name="lyr_llabel", length=2147483647)
     @JsonProperty("lyr_llabel")
     private String lyrLlabel;
+    
+    @Column(name="lyr_interactive", length=25)
+    @JsonProperty("lyr_interactive")
+    private String lyrInteractive;
 
     @Column(name="lyr_valid")
     @JsonProperty("lyr_valid")
@@ -239,8 +243,16 @@ private Long id;
     public Domains getDomains() {
         return this.domains;
     }
+    
+    public String getLyrInteractive() {
+		return lyrInteractive;
+	}
 
-    public void setDomains(Domains domains) {
+	public void setLyrInteractive(String lyrInteractive) {
+		this.lyrInteractive = lyrInteractive;
+	}
+
+	public void setDomains(Domains domains) {
         this.domains = domains;
     }
 

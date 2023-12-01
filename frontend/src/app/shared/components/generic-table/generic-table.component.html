@@ -50,7 +50,7 @@
             <ng-container [ngSwitch]="column.type">
               <!-- CHECKBOX -->
               <ng-container *ngSwitchCase="TypeColumn.CHECKBOX">
-                <ion-checkbox [checked]="isAllRowsSelected()" (ionChange)="onSelectAll()" aria-label="selection"></ion-checkbox>
+                <ion-checkbox [checked]="areAllRowsSelected()" [indeterminate]="areSomeRowsSelected()" (ionChange)="onSelectAll()" aria-label="selection"></ion-checkbox>
               </ng-container>
 
               <!-- ACTION -->
@@ -78,7 +78,7 @@
 
                   <!-- Filter -->
                   <ion-icon (click)="openFilter(column, $event)" slot="icon-only" name="filter"
-                    [class.is-filtered]="column.filter?.value != null" *ngIf="column.filter?.type !== 'none'">
+                    [class.is-filtered]="column.filter?.value !== null" *ngIf="column.filter?.type !== 'none'">
                   </ion-icon>
                 </div>
               </ng-container>

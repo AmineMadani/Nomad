@@ -1,0 +1,1 @@
+ALTER TABLE nomad.layer ADD COLUMN lyr_interactive VARCHAR(25) NOT null default 'NONE';
