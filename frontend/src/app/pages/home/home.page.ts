@@ -258,16 +258,20 @@ export class HomePage implements OnInit, OnDestroy {
     // Drawing event
     fromEvent(this.mapService.getMap(), 'draw.create')
       .pipe(takeUntil(this.drawerUnsubscribe$))
-      .subscribe((e: any) => {
+      .subscribe(async (e: any) => {
         if (!this.drawingService.getIsMeasuring()) {
           this.drawingService.setDrawActive(false);
           this.drawingService.deleteDrawing();
           const fireEvent = this.mapEventService.isFeatureFiredEvent;
 
-          const features = this.drawingService.getFeaturesFromDraw(
+          const layers = await this.layerService.getAllLayers();
+          let layersID = this.mapService.getCurrentLayersIds();          
+          layersID = layersID.filter(layerId => layers.find(layer => layerId.includes(layer.lyrTableName.toUpperCase()))?.lyrInteractive != 'NONE');
+
+          let features = this.drawingService.getFeaturesFromDraw(
             e,
             this.mapService.getMap(),
-            this.mapService.getCurrentLayersIds()
+            layersID
           );
 
           if (fireEvent) {
@@ -318,7 +322,7 @@ export class HomePage implements OnInit, OnDestroy {
    * This function changes the cursor style and highlights a hovered feature on a map.
    * @param feature - Closest feature hovered on the map
    */
-  private onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): void {
+  private async onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): Promise<void> {
     if (!feature || feature.id == null) {
       this.mapService.getMap().getCanvas().style.cursor = '';
       this.mapEventService.highlightHoveredFeatures(
@@ -326,6 +330,14 @@ export class HomePage implements OnInit, OnDestroy {
         undefined,
         true
       );
+      return;
+    }
+
+    const layers = await this.layerService.getAllLayers();
+    const layer = layers.find(layer => layer.lyrTableName == feature.source)
+    if(layer.lyrInteractive == 'NONE'){
+      this.mapService.getMap().getCanvas().style.cursor = '';
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), undefined, true);
       return;
     }
 
@@ -343,11 +355,19 @@ export class HomePage implements OnInit, OnDestroy {
    * @returns It navigates to a specific route in the application's drawer with some additional
    * properties.
    */
-  private onFeatureSelected(
+  private async onFeatureSelected(
     feature: Maplibregl.MapGeoJSONFeature,
     e: Maplibregl.MapMouseEvent
-  ): void {
+  ): Promise<void> {
     if (!feature) {
+      return;
+    }
+
+    const layers = await this.layerService.getAllLayers();
+    const layer = layers.find(layer => layer.lyrTableName == feature.source)
+    if(layer.lyrInteractive == 'NONE'){
+      this.mapService.getMap().getCanvas().style.cursor = '';
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), undefined, true);
       return;
     }
 
