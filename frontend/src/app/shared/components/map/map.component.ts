@@ -716,16 +716,13 @@ export class MapComponent implements OnInit, OnDestroy {
   public updateLocateButtonStatus() : void{
     switch(this.mapService.getLocateStatus()){
       case LocateStatus.NONE: 
+      case LocateStatus.LOCALIZATE:
       {
         this.setLocateStatus(LocateStatus.TRACKING);
         break;
       }
       case LocateStatus.TRACKING:{
         this.setLocateStatus(LocateStatus.NONE);
-        break;
-      }
-      case LocateStatus.LOCALIZATE:{
-        this.setLocateStatus(LocateStatus.TRACKING);
         break;
       }
       default:
