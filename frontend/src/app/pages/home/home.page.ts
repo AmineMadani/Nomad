@@ -15,7 +15,7 @@ import {
   DrawerRouteEnum,
   DrawerTypeEnum,
 } from 'src/app/core/models/drawer.model';
-import { MapService } from 'src/app/core/services/map/map.service';
+import { LocateStatus, MapService } from 'src/app/core/services/map/map.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
@@ -201,6 +201,17 @@ export class HomePage implements OnInit, OnDestroy {
         this.interactiveMap.onMoveEnd();
       });
 
+    //Move the map
+    fromEvent(this.mapService.getMap(), 'dragend')
+    .pipe(takeUntil(this.drawerUnsubscribe$))
+    .subscribe((e: Maplibregl.MapMouseEvent) => {
+      //If on tracking mode and the user move on the map, 
+      //update the status and the icon
+      if (this.mapService.getLocateStatus() == LocateStatus.TRACKING){
+        this.interactiveMap.setLocateStatus(LocateStatus.LOCALIZATE);
+      }
+    });
+
     // Hovering feature event
     fromEvent(this.mapService.getMap(), 'mousemove')
       .pipe(takeUntil(this.drawerUnsubscribe$))
@@ -231,6 +242,11 @@ export class HomePage implements OnInit, OnDestroy {
           setTimeout(() => {
             this.preventTouchMoveClicked = false;
           }, 500);
+        } 
+        //If on tracking mode and the user move on the map, 
+        //update the status and the icon
+        if (this.mapService.getLocateStatus() == LocateStatus.TRACKING){
+          this.interactiveMap.setLocateStatus(LocateStatus.LOCALIZATE);
         }
       });
 

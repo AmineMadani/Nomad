@@ -650,6 +650,10 @@ export class MapComponent implements OnInit, OnDestroy {
     this.measure = measure;
   }
 
+  public setLocateStatus(status : LocateStatus){
+    this.mapService.setLocateStatus(status);
+  }
+
   /**
    * Init the user context save on home
    */
@@ -750,10 +754,6 @@ export class MapComponent implements OnInit, OnDestroy {
       default:
       break;
     }
-  }
-  
-  private setLocateStatus(status : LocateStatus){
-    this.mapService.setLocateStatus(status);
   }
 
   /**
