@@ -484,6 +484,14 @@ export class MapService {
     }
   }
 
+  public clearAllLayers(): void {
+    if (this.layers?.size > 0) {
+      this.layers.forEach((l, k) => {
+        this.removeEventLayer(k);
+      })
+    }
+  }
+
   /**
    * Method to hide a specific style of a layer
    * @param layerKey The layer key

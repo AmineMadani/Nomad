@@ -40,6 +40,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
+import { MapComponent } from './components/map/map.component';
+import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +55,8 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     FilterTableComponent,
     SkeletonLoadingComponent,
     AttachmentImageViewerComponent,
+    MapComponent,
+    ResizeContainerComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -99,6 +103,8 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     SearchSelectComponent,
     GenericTableComponent,
     SkeletonLoadingComponent,
+    MapComponent,
+    ResizeContainerComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

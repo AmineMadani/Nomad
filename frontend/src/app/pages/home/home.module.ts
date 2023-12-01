@@ -8,7 +8,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';
-import { MapComponent } from './components/map/map.component';
+import { MapComponent } from '../../shared/components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -69,7 +69,6 @@ import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv
     ActionsLayerComponent,
     ActionsLayerDesktopComponent,
     ActionsLayerMobileComponent,
-    MapComponent,
     AssetDrawer,
     ExploitationDrawer,
     ExpCardComponent,
