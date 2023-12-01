@@ -164,15 +164,15 @@ def nomad_get_request(param, endpoint_part):
             }
 
     except requests.exceptions.ReadTimeout:
-        logger.error('Nomad - 500.1 - Timeout - nomad_post_request : {}'.format(data['refExterneDI']))
+        logger.error('Nomad - 500.1 - Timeout - nomad_post_request : {}'.format(api_url))
         return {
             "statusCode": 500,
             "success": False,
-            "body": 'Nomad - Timeout - intervention : {}'.format(str(data['refExterneDI']))
+            "body": 'Nomad - Timeout - intervention'
         }
 
     except Exception as e:
-        logger.error('Nomad - 500.2 - ' + json.dumps(event["query"]))
+        logger.error('Nomad - 500.2 - ' + api_url)
         logger.error('Nomad - 500.2 - ' + 'the error message is :' + str(e))
         return {
             "statusCode": 500,
