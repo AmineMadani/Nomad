@@ -49,14 +49,14 @@ export class MapService {
   /**
    * Statut du bouton Localiser sur la carte
    */
-  private _locateStatus : LocateStatus = LocateStatus.NONE ;
+  private locateStatus : LocateStatus = LocateStatus.NONE ;
 
   public getLocateStatus() : LocateStatus{
-    return this._locateStatus;
+    return this.locateStatus;
   }
 
   public setLocateStatus(locateStatus : LocateStatus){
-    this._locateStatus = locateStatus;
+    this.locateStatus = locateStatus;
   }
 
   public measureMessage: any[];
