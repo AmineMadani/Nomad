@@ -136,7 +136,7 @@ def nomad_get_request(param, endpoint_part):
         'Authorization': 'Basic {}'.format(os.environ.get("NOMAD_BACKEND_CREDENTIALS", "")),
         'Accept': 'application/json'}
 
-    api_endpoint = "{}{}".format(os.environ.get("NOMAD_BACKEND_URL", ""), endpoint_part)
+    api_endpoint = "{}/{}".format(os.environ.get("NOMAD_BACKEND_URL", ""), endpoint_part)
     api_url = '{}?{}'.format(api_endpoint, param)
 	
     try:
