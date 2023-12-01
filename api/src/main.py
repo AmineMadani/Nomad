@@ -140,7 +140,7 @@ def nomad_get_request(param, endpoint_part):
     api_url = '{}?{}'.format(api_endpoint, param)
 	
     try:
-        logger.debug('SEND request to NomadBackend {}'.format(data))
+        logger.debug('SEND request to NomadBackend {}'.format(param))
 		
         response = requests.get(api_url, headers=headers, timeout=28)
 
