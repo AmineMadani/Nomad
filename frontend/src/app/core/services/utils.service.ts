@@ -334,6 +334,38 @@ export class UtilsService {
       }
       return hoursString + ':' + minutesString;
     }
+
+    /**
+     * Convertit un nombre représentant une durée en heures et minutes.
+     * @param duree La durée en minutes.
+     * @returns La durée convertie en format d'heures et minutes.
+     */
+    public formatDurationToTimeString(duree: number): string {
+      const heures = Math.floor(duree / 60);
+      const minutes = duree % 60;
+    
+      let heureString = '';
+      if (heures === 1) {
+        heureString = '1 heure';
+      } else if (heures > 1) {
+        heureString = heures + ' heures';
+      }
+    
+      let minuteString = '';
+      if (minutes === 1) {
+        minuteString = '1 minute';
+      } else if (minutes > 1) {
+        minuteString = minutes + ' minutes';
+      }
+    
+      if (heures === 0) {
+        return minuteString;
+      } else if (minutes === 0) {
+        return heureString;
+      } else {
+        return heureString + ' ' + minuteString;
+      }
+    }
   
     /**
      * Convert the time HH:MM to number of minutes
