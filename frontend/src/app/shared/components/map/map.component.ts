@@ -738,17 +738,18 @@ export class MapComponent implements OnInit, OnDestroy {
     switch(this.mapService.getLocateStatus()){
       case LocateStatus.NONE: 
       {
-        this.setLocateStatus(LocateStatus.LOCALIZATE);
-        this.addGeoLocateControl();
-        break;
-      }
-      case LocateStatus.LOCALIZATE:{
         this.setLocateStatus(LocateStatus.TRACKING);
         this.addGeoLocateTrackingControl();
         break;
       }
       case LocateStatus.TRACKING:{
+        this.setLocateStatus(LocateStatus.LOCALIZATE);
+        this.addGeoLocateControl();
+        break;
+      }
+      case LocateStatus.LOCALIZATE:{
         this.setLocateStatus(LocateStatus.NONE);
+        this.removeLocateControls();
         break;
       }
       default:
@@ -786,7 +787,7 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private addControls(): void {
-    this.addGeoLocateControl();
+    this.addGeoLocateTrackingControl();
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
