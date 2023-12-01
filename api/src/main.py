@@ -17,13 +17,6 @@ AWS_ACCESS_KEY = None
 logger = logging.getLogger()
 logger.setLevel(LOG_LEVEL)
 
-# dynamodb = boto3.resource('dynamodb')
-# table_incoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_INCOMING", ""))
-# table_outcoming = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_OUTCOMING", ""))
-# table_praxedo = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_PRAXEDO", "moveo-bouchon-praxedo-rec"))
-# table_waterp = dynamodb.Table(os.environ.get("NOMAD_DYNAMODB_TABLE_WATERP", "moveo-planif-rec"))
-
-
 # -------------------------------------UTILS----------------------------------
 
 
@@ -118,11 +111,11 @@ def update_wo_post_request(data, endpoint_part):
             }
 
     except requests.exceptions.ReadTimeout:
-        logger.error('Nomad - 500.1 - Timeout - update_wo_post_request : {}'.format(data['refExterneDI']))
+        logger.error('Nomad - 500.1 - Timeout - update_wo_post_request.')
         return {
             "statusCode": 500,
             "success": False,
-            "body": 'Nomad - Timeout - intervention : {}'.format(str(data['refExterneDI']))
+            "body": 'Nomad - Timeout - intervention'
         }
 
     except Exception as e:
@@ -132,7 +125,7 @@ def update_wo_post_request(data, endpoint_part):
             "success": False,
             "body": json.dumps({
                 "code": "500.2",
-                "message": "An error is occured. Contact your administrator.",
+                "message": "An error is occured. Contact your administrator."
             })
         }
 
@@ -179,7 +172,7 @@ def update_dt_wo_lambda_handler(event, context):
             "success": False,
             "body": json.dumps({
                 "code": "500.1",
-                "message": "An error is occured. Contact your administrator.",
+                "message": "An error is occured. Contact your administrator."
             })
         }
 
