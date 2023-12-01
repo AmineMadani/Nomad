@@ -115,29 +115,8 @@ export class MapComponent implements OnInit, OnDestroy {
   private clicklatitude: number;
   private clicklongitute: number;
 
-    public colorLocateIcon : string ;
-    public sourceLocateIcon : string;
-
-    /**
-    * control of locatation without tracking
-    */
-    private  geoLocateControl =  new Maplibregl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: false,//
-    });  
-  
-    /**
-     * control of locatation with tracking
-     */
-    private  geoLocateControlTracking =  new Maplibregl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,//
-    });  
-
+  public colorLocateIcon : string ;
+  public sourceLocateIcon : string;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -751,19 +730,6 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       default:
       break;
-    }
-  }
-
-  /**
-   * Remove LocateControls
-   * There are 2 locates controls , with and without tracking
-   */
-  private removeLocateControls(){
-    if (this.map.hasControl(this.geoLocateControl)){
-      this.map.removeControl(this.geoLocateControl);
-    }
-    if (this.map.hasControl(this.geoLocateControlTracking)){
-      this.map.removeControl(this.geoLocateControlTracking);
     }
   }
 
