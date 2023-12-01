@@ -734,43 +734,24 @@ export class MapComponent implements OnInit, OnDestroy {
   /**
   * Update the status of locate button
   */
-  private updateLocateButtonStatus() : void{
+  public updateLocateButtonStatus() : void{
     switch(this.mapService.getLocateStatus()){
       case LocateStatus.NONE: 
       {
         this.setLocateStatus(LocateStatus.TRACKING);
-        this.addGeoLocateTrackingControl();
         break;
       }
       case LocateStatus.TRACKING:{
-        this.setLocateStatus(LocateStatus.LOCALIZATE);
-        this.addGeoLocateControl();
+        this.setLocateStatus(LocateStatus.NONE);
         break;
       }
       case LocateStatus.LOCALIZATE:{
-        this.setLocateStatus(LocateStatus.NONE);
-        this.removeLocateControls();
+        this.setLocateStatus(LocateStatus.TRACKING);
         break;
       }
       default:
       break;
     }
-  }
-
-  /**
-   * Add locate control with tracking
-   */
-  private addGeoLocateTrackingControl() : void{
-    this.removeLocateControls();
-    this.map.addControl(this.geoLocateControlTracking);
-  }
-
-  /**
-   * Add locate control without tracking
-   */
-  private addGeoLocateControl() : void{
-    this.removeLocateControls();
-    this.map.addControl(this.geoLocateControl);
   }
 
   /**
@@ -787,7 +768,20 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private addControls(): void {
-    this.addGeoLocateTrackingControl();
+    this.map.addControl(
+      new Maplibregl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+      })
+    );
+    this.map.addControl(
+      new Maplibregl.ScaleControl({
+        unit: 'metric',
+      }),
+      'bottom-right'
+    );
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
