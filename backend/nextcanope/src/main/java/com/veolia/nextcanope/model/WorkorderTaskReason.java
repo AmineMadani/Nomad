@@ -99,7 +99,7 @@ private Long id;
     @OneToMany(mappedBy="workorderTaskReason")
     private List<Task> listOfTask;
 
-    @OneToMany(mappedBy="workorderTaskReason")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="workorderTaskReason", orphanRemoval = true)
     private List<AstWtr> listOfAstWtr;
 
     /**
