@@ -160,6 +160,14 @@
               <p>{{ appointmentHours }}</p>
             </ion-label>
           </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoPlanningDuration">
+            <ion-label class="label">
+              <h3>Durée de l'intervention</h3>
+              <p>
+                {{ formatDuration(workOrder.wkoPlanningDuration) }}
+              </p>
+            </ion-label>
+          </ion-item>
           <ion-item lines="none">
             <ion-label class="label">
               <h3>Nombre d'agents</h3>

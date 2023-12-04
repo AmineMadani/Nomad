@@ -22,6 +22,16 @@ export interface Box {
   y2: number;
 }
 
+/**
+ * Status of the locate button
+ */
+export enum LocateStatus {
+  NONE = 'NONE',
+  LOCALIZATE = 'LOCALIZATE',
+  TRACKING = 'TRACKING',
+
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -35,6 +45,19 @@ export class MapService {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {}
+
+  /**
+   * Statut du bouton Localiser sur la carte
+   */
+  private locateStatus : LocateStatus = LocateStatus.NONE ;
+
+  public getLocateStatus() : LocateStatus{
+    return this.locateStatus;
+  }
+
+  public setLocateStatus(locateStatus : LocateStatus){
+    this.locateStatus = locateStatus;
+  }
 
   public measureMessage: any[];
 

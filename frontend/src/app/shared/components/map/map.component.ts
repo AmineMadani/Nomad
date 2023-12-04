@@ -14,7 +14,7 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { Box, MapService } from 'src/app/core/services/map/map.service';
+import { Box, LocateStatus, MapService } from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
@@ -114,6 +114,9 @@ export class MapComponent implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private clicklatitude: number;
   private clicklongitute: number;
+
+  public colorLocateIcon : string ;
+  public sourceLocateIcon : string;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -535,10 +538,37 @@ export class MapComponent implements OnInit, OnDestroy {
    * Use the geolocate feature of Maplibre, with their input hidden
    */
   public geolocate(): void {
+    this.updateLocateButtonStatus();
     const el = this.elem.nativeElement.querySelectorAll(
       '.maplibregl-ctrl-geolocate'
     )[0];
     el.click();
+  }
+
+  //Manage Icon of locate button
+  public manageLocateIcon() : string{
+    //Default Value
+    this.colorLocateIcon = 'Primary';
+    this.sourceLocateIcon = '';
+    let iconName : string = '';
+    switch(this.mapService.getLocateStatus()){
+      case LocateStatus.LOCALIZATE:{
+        iconName = 'locate-outline';
+        break;
+      }
+      case LocateStatus.TRACKING:{
+        this.sourceLocateIcon = 'assets/icon/locate-tracking.svg';
+        break;
+      } 
+      case LocateStatus.NONE: 
+      default:
+      {
+        this.colorLocateIcon = 'medium';
+        iconName = 'locate-outline';
+        break;
+      }
+    }
+    return iconName;
   }
 
   /**
@@ -597,6 +627,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
   public setMeasure(measure: string): void {
     this.measure = measure;
+  }
+
+  public setLocateStatus(status : LocateStatus){
+    this.mapService.setLocateStatus(status);
   }
 
   /**
@@ -674,6 +708,26 @@ export class MapComponent implements OnInit, OnDestroy {
           }, 100);
         });
       });
+  }
+
+  /**
+  * Update the status of locate button
+  */
+  public updateLocateButtonStatus() : void{
+    switch(this.mapService.getLocateStatus()){
+      case LocateStatus.NONE: 
+      case LocateStatus.LOCALIZATE:
+      {
+        this.setLocateStatus(LocateStatus.TRACKING);
+        break;
+      }
+      case LocateStatus.TRACKING:{
+        this.setLocateStatus(LocateStatus.NONE);
+        break;
+      }
+      default:
+      break;
+    }
   }
 
   private addControls(): void {
