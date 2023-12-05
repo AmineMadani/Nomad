@@ -88,10 +88,18 @@ export class DrawingService {
   ): any {
     const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
+    const drawnPolygon = e.features[0].geometry;
+
     let features = map.queryRenderedFeatures(
       [map.project([maxX, maxY]), map.project([minX, minY])],
       { layers: currentLayersIds }
-    );
+    ).filter((feature: any) => {
+      // Check if the feature is contained within the drawn polygon
+      return turf.booleanPointInPolygon(
+        turf.point(feature.geometry.coordinates),
+        drawnPolygon
+      );
+    });
 
     return this.utils.removeDuplicatesFromArr(features, 'id');
   }
