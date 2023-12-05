@@ -122,7 +122,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       type: TypeColumn.TEXT,
       filter: {
         type: 'number',
-      }
+      },
+      width: '160px',
     },
     {
       key: 'numberTimeUsedInReportCondition',
@@ -130,7 +131,8 @@ export class ReportQuestionsSettingsComponent implements OnInit {
       type: TypeColumn.TEXT,
       filter: {
         type: 'number',
-      }
+      },
+      width: '160px',
     },
   ];
 

@@ -28,6 +28,8 @@ import { PermissionsSettingsPage } from './permissions-settings/permissions-sett
 import { ReportQuestionsSettingsComponent } from './report-questions-settings/report-questions-settings.component';
 import { ReportQuestionEditComponent } from './report-questions-settings/report-question-edit/report-question-edit.component';
 import { DeleteReportQuestionConfirmationComponent } from './report-questions-settings/delete-report-question-confirmation/delete-report-question-confirmation.component';
+import { WorkorderTaskReasonsSettingsComponent } from './workorder-task-reasons-settings/workorder-task-reasons-settings.component';
+import { WorkorderTaskReasonEditComponent } from './workorder-task-reasons-settings/workorder-task-reason-edit/workorder-task-reason-edit.component';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -61,6 +63,8 @@ import { DeleteReportQuestionConfirmationComponent } from './report-questions-se
     ReportQuestionsSettingsComponent,
     ReportQuestionEditComponent,
     DeleteReportQuestionConfirmationComponent,
+    WorkorderTaskReasonsSettingsComponent,
+    WorkorderTaskReasonEditComponent,
   ]
 })
 export class SettingsPageModule {}

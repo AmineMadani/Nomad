@@ -51,6 +51,7 @@ export class WkoViewComponent implements OnInit {
 
   public assetLabel: string;
   public status: string;
+  public statusCode: string;
   public reason: string;
   public selectedTask: Task;
   public taskId: string;
@@ -63,44 +64,6 @@ export class WkoViewComponent implements OnInit {
   public userHasPermissionModifyReportCompletedStatus : boolean = false;
   public userHasPermissionCreateProgram: boolean = false;
   public userHasPermissionCancelWorkorder: boolean = false;
-
-  public canEdit(): boolean {
-    return (
-      !this.loading &&
-      this.workOrder &&
-      (this.workOrder.wtsId === WkoStatus.CREE ||
-        this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF ||
-        this.workOrder.wtsId === WkoStatus.ERREUR)
-    );
-  }
-
-  public canEditReport(): boolean {
-    return !this.loading && this.userHasPermissionModifyReportCompletedStatus;
-  }
-
-  public canCancel(): boolean {
-    if (this.loading || !this.workOrder) return false;
-
-    let wtsId = this.workOrder.wtsId;
-    if (this.taskId != null) {
-      const task = this.workOrder.tasks.find(
-        (task) => task.id === Number(this.taskId)
-      );
-      wtsId = task?.wtsId;
-    }
-
-    return this.userHasPermissionCancelWorkorder && wtsId !== WkoStatus.ANNULE;
-  }
-
-  public isCancelled(): boolean {
-    let wtsId = this.workOrder.wtsId;
-    if (this.taskId != null) {
-      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
-      wtsId = task?.wtsId;
-    }
-
-    return wtsId === WkoStatus.ANNULE;
-  }
 
   private ngUnsubscribe$: Subject<void> = new Subject();
 
@@ -176,11 +139,12 @@ export class WkoViewComponent implements OnInit {
           const workorderTaskReasons = results[1];
           const layers = results[2];
 
-          this.status = workorderTaskStatus.find(
+          const status = workorderTaskStatus.find(
             (refStatus) => refStatus.id == wtsid
-          )?.wtsLlabel;
-          if (this.status) {
-            this.status = this.status?.charAt(0).toUpperCase() + this.status.slice(1);
+          );
+          if (status) {
+            this.status = status.wtsSlabel.charAt(0).toUpperCase() + status.wtsSlabel.slice(1);
+            this.statusCode = status.wtsCode;
           }
 
           this.reason = workorderTaskReasons.find(
@@ -201,6 +165,61 @@ export class WkoViewComponent implements OnInit {
 
         });
       });
+  }
+
+  ngOnDestroy(){
+    if(!this.workorderService.activeWorkorderSwitch) {
+      for(let task of this.workOrder.tasks) {
+        this.mapService.removePoint('task',task.id.toString());
+      }
+    }
+  }
+
+  /**
+     * Convertit un nombre représentant une durée en heures et minutes.
+     * @param duree La durée en minutes.
+     * @returns La durée convertie en format d'heures et minutes.
+     */
+  public formatDuration(duree: number): string {
+    return this.utilsService.formatDurationToTimeString(duree);
+  }
+
+  public canEdit(): boolean {
+    return (
+      !this.loading &&
+      this.workOrder &&
+      (this.workOrder.wtsId === WkoStatus.CREE ||
+        this.workOrder.wtsId === WkoStatus.ENVOYEPLANIF ||
+        this.workOrder.wtsId === WkoStatus.ERREUR)
+    );
+  }
+
+  public canEditReport(): boolean {
+    return !this.loading && this.userHasPermissionModifyReportCompletedStatus;
+  }
+
+  public canCancel(): boolean {
+    if (this.loading || !this.workOrder) return false;
+
+    let wtsId = this.workOrder.wtsId;
+    if (this.taskId != null) {
+      const task = this.workOrder.tasks.find(
+        (task) => task.id === Number(this.taskId)
+      );
+      wtsId = task?.wtsId;
+    }
+
+    return this.userHasPermissionCancelWorkorder && wtsId !== WkoStatus.ANNULE;
+  }
+
+  public isCancelled(): boolean {
+    let wtsId = this.workOrder.wtsId;
+    if (this.taskId != null) {
+      const task = this.workOrder.tasks.find((task) => task.id === Number(this.taskId));
+      wtsId = task?.wtsId;
+    }
+
+    return wtsId === WkoStatus.ANNULE;
   }
 
   /**
@@ -443,11 +462,11 @@ export class WkoViewComponent implements OnInit {
     this.workorderService
       .getAllWorkorderTaskStatus()
       .then((statusList) => {
-        this.status = statusList.find(
+        const status = statusList.find(
           (refStatus) => refStatus.id.toString() === wtsId.toString()
-        ).wtsLlabel;
-        this.status =
-          this.status.charAt(0).toUpperCase() + this.status.slice(1);
+        );
+        this.statusCode = status.wtsCode;
+        this.status = status.wtsSlabel.charAt(0).toUpperCase() + status.wtsSlabel.slice(1);
       });
   }
 
@@ -538,14 +557,6 @@ export class WkoViewComponent implements OnInit {
       // Zoom on the location of the tasks
       let geometries = listTask.map((task) => [task.longitude, task.latitude]);
       this.mapLayerService.fitBounds(geometries, 20);
-    }
-  }
-
-  ngOnDestroy(){
-    if(!this.workorderService.activeWorkorderSwitch) {
-      for(let task of this.workOrder.tasks) {
-        this.mapService.removePoint('task',task.id.toString());
-      }
     }
   }
 }

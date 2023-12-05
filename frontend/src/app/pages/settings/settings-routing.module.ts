@@ -9,6 +9,7 @@ import { LayerStylesSettingsPage } from './layer-styles-settings/layer-styles-se
 import { ReportSettingsPage } from './report-settings/report-settings.component';
 import { PermissionsSettingsPage } from './permissions-settings/permissions-settings.component';
 import { ReportQuestionsSettingsComponent } from './report-questions-settings/report-questions-settings.component';
+import { WorkorderTaskReasonsSettingsComponent } from './workorder-task-reasons-settings/workorder-task-reasons-settings.component';
 
 const routes: Routes = [
   {
@@ -47,6 +48,10 @@ const routes: Routes = [
       {
         path: 'report-questions',
         component: ReportQuestionsSettingsComponent,
+      },
+      {
+        path: 'workorder-task-reasons',
+        component: WorkorderTaskReasonsSettingsComponent,
       },
     ],
   }

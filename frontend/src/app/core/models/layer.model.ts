@@ -17,6 +17,7 @@ export interface Layer {
   lyrDisplay: boolean;
   listStyle: LayerStyleDetail[];
   lyrGeomType: string;
+  lyrInteractive: string;
 }
 
 export function getLayerLabel(layer: Layer) {

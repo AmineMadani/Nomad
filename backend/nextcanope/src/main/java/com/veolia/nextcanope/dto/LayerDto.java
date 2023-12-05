@@ -19,6 +19,7 @@ public class LayerDto {
     private Boolean lyrDisplay;
     private Boolean lyrValid;
     private String lyrGeomType;
+    private String lyrInteractive;
 
     public LayerDto(Layer layer) {
         this.id = layer.getId();
@@ -42,6 +43,7 @@ public class LayerDto {
         this.lyrDisplay = layer.getLyrDisplay();
         this.lyrValid = layer.getLyrValid();
         this.lyrGeomType = layer.getLyrGeomType();
+        this.lyrInteractive = layer.getLyrInteractive();
     }
 
     public Long getId() {
@@ -171,4 +173,13 @@ public class LayerDto {
     public void setLyrGeomType(String lyrGeomType) {
         this.lyrGeomType = lyrGeomType;
     }
+
+	public String getLyrInteractive() {
+		return lyrInteractive;
+	}
+
+	public void setLyrInteractive(String lyrInteractive) {
+		this.lyrInteractive = lyrInteractive;
+	}
+    
 }

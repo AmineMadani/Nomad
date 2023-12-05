@@ -40,6 +40,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
+import { MapComponent } from './components/map/map.component';
+import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
+import { StreetViewModalComponent } from './components/street-view-modal/street-view-modal.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { MapScalePipe } from './pipes/map-scale.pipe';
 
 @NgModule({
   declarations: [
@@ -53,6 +58,9 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     FilterTableComponent,
     SkeletonLoadingComponent,
     AttachmentImageViewerComponent,
+    MapComponent,
+    StreetViewModalComponent,
+    ResizeContainerComponent,
     // FORM EDITOR
     FormEditorComponent,
     // SECTIONS
@@ -78,6 +86,8 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     FormCommentComponent,
     // DIRECTIVES
     ClearDataDirective,
+    // PIPES
+    MapScalePipe,
   ],
   imports: [
     CommonModule,
@@ -87,7 +97,8 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     MatStepperModule,
     MatTabsModule,
     ScrollingModule,
-    MatTooltipModule
+    MatTooltipModule,
+    NgxPaginationModule,
   ],
   exports:[
     MainToolbarComponent,
@@ -99,6 +110,10 @@ import { AttachmentImageViewerComponent } from './components/attachment-accordio
     SearchSelectComponent,
     GenericTableComponent,
     SkeletonLoadingComponent,
+    MapComponent,
+    ResizeContainerComponent,
+    StreetViewModalComponent,
+    MapScalePipe,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

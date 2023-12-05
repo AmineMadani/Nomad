@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { IonModal, MenuController } from '@ionic/angular';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import * as Maplibregl from 'maplibre-gl';
@@ -7,13 +7,15 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { Router } from '@angular/router';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-actions-layer-mobile',
   templateUrl: './actions-layer-mobile.component.html',
   styleUrls: ['./actions-layer-mobile.component.scss'],
 })
-export class ActionsLayerMobileComponent implements OnInit {
+export class ActionsLayerMobileComponent implements OnInit, OnDestroy {
 
   constructor(
     private menuCtlr: MenuController,
@@ -21,8 +23,14 @@ export class ActionsLayerMobileComponent implements OnInit {
     private cityService: CityService,
     private mapService: MapService,
     private layerService: LayerService,
+    private mapEvent: MapEventService,
     private router: Router
-  ) {}
+  ) {
+    this.mapEvent
+    .onAddressSelected()
+    .pipe(takeUntil(this.ngUnsubscribe$))
+    .subscribe((address) => this.onAdressClick(address));
+  }
 
   @ViewChild('searchModal') searchModal: IonModal;
 
@@ -37,7 +45,14 @@ export class ActionsLayerMobileComponent implements OnInit {
   private marker: Maplibregl.Marker;
   private patrimonyMinimunLengh: number = 8;
 
+  private ngUnsubscribe$: Subject<void> = new Subject();
+
   ngOnInit() {}
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe$.next();
+    this.ngUnsubscribe$.complete();
+  }
 
   public openMenu(): void {
     this.menuCtlr.open();
@@ -65,7 +80,6 @@ export class ActionsLayerMobileComponent implements OnInit {
       default:
         if(query && query.length > 3) {
           this.cityService.getAdressesByQuery(query).then(res => {
-            console.log(res);
             this.adresses = res.features;
           })
         } else {
@@ -76,6 +90,13 @@ export class ActionsLayerMobileComponent implements OnInit {
     if (this.marker) {
       this.marker.remove();
     }
+  }
+
+  public onClear(): void {
+    if (this.marker) {
+      this.marker.remove();
+    }
+    this.adress = '';
   }
 
   public onAdressClick(adress: any) {
@@ -97,6 +118,7 @@ export class ActionsLayerMobileComponent implements OnInit {
       this.onAdressClick(this.adresses[0]);
     }
   }
+
   public modeChange(data: any): void {
     this.selectedsearchMode = data?.detail?.value;
   }

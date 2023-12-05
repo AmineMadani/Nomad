@@ -1,0 +1,78 @@
+<div class="wtr-edit-content">
+  <div class="header-component">
+    <div class="header-content">
+      <ion-label class="label">
+        <h2 *ngIf="id == null">Création d'un nouveau motif</h2>
+        <h2 *ngIf="id != null">Modification d'un motif</h2>
+      </ion-label>
+  
+      <ion-button (click)="close()" fill="clear" aria-label="Close">
+        <ion-icon name="close" slot="icon-only" aria-hidden="true" size="small"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="separation-line"></div>
+  </div>
+
+  <form [formGroup]="form" class="wtr-edit-body" *ngIf="!isLoading">
+    <div class="line">
+      <ion-input aria-label="code" labelPlacement="floating" fill="outline" style="width: 25%;"
+        label="Code *" formControlName="wtrCode" errorText="Le code est obligatoire." />
+
+      <ion-input aria-label="label" labelPlacement="floating" fill="outline" 
+        label="Libellé *" formControlName="wtrLlabel" errorText="Le libellé est obligatoire." />
+    </div>
+
+    <div class="line">
+      <ion-checkbox aria-label="required" formControlName="wtrNoXy" labelPlacement="end" justify="start">
+        Doit sélectionner un équipement existant (si intervention sur X/Y) 
+      </ion-checkbox>
+    </div>
+
+    <!-- Asset type -->
+    <fieldset class="fieldset-class">
+      <legend align="left">Types associés à ce motif</legend>
+
+      <div class="asset-type-div">
+        <div class="table-div">
+          <app-generic-table style="flex: 1; min-height: 0;"
+            [toolbar]="toolbarAvailableAssetType"
+            [columns]="columnsAvailableAssetType"
+            [rows]="listAvailableAssetType"
+            [selectedRows]="listSelectedAvailableAssetType"
+            [listColumnSort]="listAvailableAssetTypeColumnSort">
+          </app-generic-table>
+        </div>
+
+        <div class="button-div">
+          <ion-button fill="clear" class="small-button" (click)="addListAssetType()" 
+              [disabled]="isConsultation || listSelectedAvailableAssetType.length === 0">
+            Ajouter ->
+          </ion-button>
+          <ion-button fill="clear" class="small-button" (click)="removeListAssetType()" 
+              [disabled]="isConsultation || listSelectedAssociatedAssetType.length === 0">
+            &lt;- Supprimer
+          </ion-button>
+        </div>
+
+        <div class="table-div">
+          <app-generic-table style="flex: 1; min-height: 0;"
+            [toolbar]="toolbarAssociatedAssetType"
+            [columns]="columnsAssociatedAssetType"
+            [rows]="listAssociatedAssetType"
+            [selectedRows]="listSelectedAssociatedAssetType"
+            [listColumnSort]="listAssociatedAssetTypeColumnSort">
+          </app-generic-table>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+  <app-skeleton-loading *ngIf="isLoading" class="wtr-edit-body" [rows]="4"></app-skeleton-loading>
+
+  <div class="wtr-edit-footer">
+    <ion-button fill="clear" (click)="save()" [disabled]="isConsultation">
+      <ion-icon slot="icon-only" name="save"></ion-icon>
+    </ion-button>
+  </div>
+</div>

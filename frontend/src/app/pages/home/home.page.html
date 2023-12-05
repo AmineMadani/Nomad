@@ -62,7 +62,7 @@
       </ion-row>
     </ion-grid>
 
-    <ng-container *ngIf="isMobile && currentRoute == drawerRouteEnum.HOME">
+    <ng-container *ngIf="isMobile && currentRoute === drawerRouteEnum.HOME">
       <ion-tab-bar class="no-print">
         <ion-tab-button (click)="openActionSheet('DISPLAY')">
           <ion-icon name="options-outline"></ion-icon>

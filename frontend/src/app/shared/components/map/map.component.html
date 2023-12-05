@@ -10,6 +10,17 @@
     <input *ngIf="!isMobile" #scaleInput type="text" id="scale" class="custom-scale" [(ngModel)]="scale"
       (change)="onScaleChange(scaleInput.value)" />
 
+    <ion-fab *ngIf="hideMap" class="hide-map-fab no-print">
+      <ion-fab-button class="ion-no-margin ion-no-padding" (click)="onClickHideMap()" color="secondary">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-fab class="layers-fab-resume" *ngIf="isMobile && hasResumeReport()">
+      <ion-fab-button size="small" color="secondary" (click)="resumeReport()">
+        <ion-icon name="play-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
     <ion-fab class="layers-fab no-print" [class.mobile-layer]="isMobile">
       <ion-fab-button class="ion-no-margin ion-no-padding" [size]="isMobile ? 'small' : undefined">
         <ion-icon name="layers-outline"></ion-icon>
@@ -43,7 +54,7 @@
 
     <ion-fab>
       <ion-fab-button size="small" class="ion-no-margin ion-no-padding" (click)="geolocate()">
-        <ion-icon name="locate-outline"></ion-icon>
+        <ion-icon name={{manageLocateIcon()}} color={{colorLocateIcon}} src="{{sourceLocateIcon}}"></ion-icon>
       </ion-fab-button>
     </ion-fab>
 
@@ -76,6 +87,9 @@
     <ion-item button (click)="onGenerateReport()" [disabled]="!userHasPermissionModifyReport">
       <ion-label id="map-nomad-context-menu-create-report">Saisir un compte-rendu XY</ion-label>
     </ion-item>
+    <ion-item button (click)="onStreetView()">
+      <ion-label>Ouvrir Street View</ion-label>
+    </ion-item>
     <ion-item button (click)="onShareLocalisation()">
       <ion-label>Partager ma localisation </ion-label>
     </ion-item>
@@ -90,6 +104,25 @@
       <div class="mobile-area-measure">
         <span [innerHTML]="measure"></span>
       </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal #ionModalStreetView [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1]" [initialBreakpoint]="0.1"
+  [showBackdrop]="false" (didDismiss)="streetViewMarker.remove(); ionModalStreetView.isOpen = false">
+  <ng-template>
+    <ion-content class="ion-padding">
+      <ion-tab-bar class="street-view-tab no-print">
+        <ion-tab-button class="accept-position"
+          (click)="onStreetView(streetViewMarker.getLngLat().lng, streetViewMarker.getLngLat().lat)">
+          <ion-icon name="navigate-circle-outline"></ion-icon>
+          Accepter la position
+        </ion-tab-button>
+        <ion-tab-button class="close" (click)="ionModalStreetView.dismiss()">
+          <ion-icon name="close-outline"></ion-icon>
+          Annuler
+        </ion-tab-button>
+      </ion-tab-bar>
     </ion-content>
   </ng-template>
 </ion-modal>

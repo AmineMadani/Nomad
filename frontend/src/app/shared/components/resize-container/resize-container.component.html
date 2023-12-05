@@ -1,0 +1,15 @@
+<div #resizeContent class="resize-content" (mousemove)="onResizeMove($event)" (mouseup)="onResizeStop()"
+  (mouseleave)="onResizeStop()" [style]="'cursor: ' + (isResizing ? 'grabbing' : '') + ';' ">
+  <div class="first-container" [style]="'width: ' + width + 'px;'">
+    <div class="resizing-container">
+      <ng-content select="[mainContainer]"></ng-content>
+      <div class="resize">
+        <ion-icon [style]="'cursor: ' + (isResizing ? '' : 'grab') + ';' " (mousedown)="onResizeClick()" name="pause-outline">
+        </ion-icon>
+      </div>
+    </div>
+  </div>
+  <div class="second-container">
+    <ng-content select="[secondContainer]"></ng-content>
+  </div>
+</div>

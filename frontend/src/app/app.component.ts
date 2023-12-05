@@ -26,16 +26,25 @@ export class AppComponent implements OnInit, OnDestroy {
       title: 'Accueil',
       url: '/home',
       icon: 'home',
+      displayed: true,
+    },
+    {
+      title: 'Programmes',
+      url: '/programs',
+      icon: 'business',
+      displayed: false, // Hidden while mocked
     },
     {
       title: 'Paramètres',
       url: '/settings',
       icon: 'settings',
+      displayed: true,
     },
     {
       title: 'Données hors connexion',
       url: '/offline-download',
       icon: 'cloud-offline',
+      displayed: true
     },
   ];
   constructor(
@@ -64,7 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isMobile = this.utils.isMobilePlateform();
     // Don't show the settings page if mobile plateform
     if (this.isMobile) {
-      this.appPages = this.appPages.filter((page) => page.url !== '/settings');
+      this.appPages = this.appPages.filter((page) => !['/settings', '/programs'].includes(page.url));
     } else {
       this.appPages = this.appPages.filter((page) => page.url !== '/offline-download');
     }

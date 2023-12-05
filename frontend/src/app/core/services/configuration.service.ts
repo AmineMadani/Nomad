@@ -1,20 +1,19 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { environment } from "src/environments/environment";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 export interface Keycloak {
-  active: boolean,
-  issuer: string,
-  redirectUri: string,
-  redirectUriIos: string,
-  redirectUriAndroid: string,
-  clientId: string,
-  revocationEndpoint: string
+  active: boolean;
+  issuer: string;
+  redirectUri: string;
+  redirectUriIos: string;
+  redirectUriAndroid: string;
+  clientId: string;
+  revocationEndpoint: string;
 }
 
 @Injectable()
 export class ConfigurationService {
-
   apiUrl: string;
   externalApiUrl: string;
   host: string;
@@ -24,11 +23,9 @@ export class ConfigurationService {
   offlineTimeoutTile: number;
   offlineTimeoutWorkorder: number;
   apiAdressesUrl: string;
-  
+  googleApiKey: string;
 
-  constructor(
-    private httpClient: HttpClient
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   /**
    * Ensure that the configurations are initialized before using them
@@ -37,22 +34,32 @@ export class ConfigurationService {
   ensureInit(): Promise<any> {
     return new Promise((resolve, reject) => {
       // Config
-      this.httpClient.get("./assets/config/config"+environment.env+".json", {observe: 'response'}).subscribe({
-        next: (response: any) => { 
-          this.apiUrl = response.body.apiUrl;
-          this.externalApiUrl = response.body.externalApiUrl;
-          this.keycloak= response.body.keycloak;
-          this.host = response.body.host;
-          this.offlineTimeoutReferential = response.body.offlineTimeoutReferential;
-          this.offlineTimeoutEquipment = response.body.offlineTimeoutEquipment;
-          this.offlineTimeoutTile = response.body.offlineTimeoutTile;
-          this.offlineTimeoutWorkorder = response.body.offlineTimeoutWorkorder;
-          this.apiAdressesUrl = response.body.apiAdressesUrl;
+      this.httpClient
+        .get('./assets/config/config' + environment.env + '.json', {
+          observe: 'response',
+        })
+        .subscribe({
+          next: (response: any) => {
+            this.apiUrl = response.body.apiUrl;
+            this.externalApiUrl = response.body.externalApiUrl;
+            this.keycloak = response.body.keycloak;
+            this.host = response.body.host;
+            this.offlineTimeoutReferential =
+              response.body.offlineTimeoutReferential;
+            this.offlineTimeoutEquipment =
+              response.body.offlineTimeoutEquipment;
+            this.offlineTimeoutTile = response.body.offlineTimeoutTile;
+            this.offlineTimeoutWorkorder =
+              response.body.offlineTimeoutWorkorder;
+            this.apiAdressesUrl = response.body.apiAdressesUrl;
+            this.googleApiKey = response.body.googleApiKey;
 
-          resolve(this);
-        },
-        error: (err) => {reject(err)}
-      });
+            resolve(this);
+          },
+          error: (err) => {
+            reject(err);
+          },
+        });
     });
   }
 }

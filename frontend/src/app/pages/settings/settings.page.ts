@@ -42,6 +42,10 @@ export class SettingsPage implements OnInit {
           url: 'report-questions',
           title: 'Dictionnaire de questions',
         },
+        {
+          url: 'workorder-task-reasons',
+          title: 'Liste des motifs',
+        },
       ],
     },
     {
