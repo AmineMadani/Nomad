@@ -14,13 +14,13 @@
     Ajouter à un programme
   </ion-tab-button>
   -->
-  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId !==4"
-  [disabled]="!canEdit()" (click)="updateWorkorder()">
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length === 1)) && selectedTask?.wtsId !==4"
+    [disabled]="!canEdit()" (click)="updateWorkorder()">
     <ion-icon name="pencil-outline"></ion-icon>
     Modifier
   </ion-tab-button>
-  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length == 1)) && selectedTask?.wtsId ===4"
-  [disabled]="!canEditReport()" (click)="onUpdateReport()">
+  <ion-tab-button *ngIf="(taskId || (!taskId && workOrder?.tasks?.length === 1)) && selectedTask?.wtsId ===4"
+    [disabled]="!canEditReport()" (click)="onUpdateReport()">
     <ion-icon name="pencil-outline"></ion-icon>
     Modifier
   </ion-tab-button>
@@ -40,7 +40,7 @@
     </ion-item>
     <ion-item lines="none" class="ion-text-center">
       <ion-label>
-        <ion-chip *ngIf="workOrder.wtsId" [ngClass]="'status-PLANIFIE'" [outline]="false">
+        <ion-chip *ngIf="workOrder.wtsId" class="status" [ngClass]="'status-' + statusCode" [outline]="false">
           <ion-label>{{ status }}</ion-label>
         </ion-chip>
         <ion-chip *ngIf="workOrder.wkoEmergency" class="status" [outline]="true">
@@ -62,7 +62,7 @@
       [value]="((taskId || workOrder.tasks.length === 1) && selectedTask?.report?.reportValues) ? ['General','report','attachment'] : ['General','intervention','attachment']">
       <ion-accordion value="General">
         <ion-item slot="header" color="light">
-          <ion-label> Généralités </ion-label>
+          <ion-label>Généralités</ion-label>
         </ion-item>
         <div slot="content">
           <ion-item lines="none">
@@ -105,7 +105,7 @@
             <ion-label class="label">
               <div class="item-rejet-synchro">
                 <h3>Motif de rejet</h3>
-                <ion-icon slot="start" size="medium"  name="alert-circle"></ion-icon>
+                <ion-icon slot="start" size="medium" name="alert-circle"></ion-icon>
               </div>
               <p>{{workOrder.wkoExtError}}</p>
             </ion-label>
