@@ -15,5 +15,6 @@
   "offlineTimeoutEquipment":2000,
   "offlineTimeoutTile":15000,
   "offlineTimeoutWorkorder":3000,
-  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}"
+  "apiAdressesUrl": "https://api-adresse.data.gouv.fr/{query}",
+  "googleApiKey": ""
 }

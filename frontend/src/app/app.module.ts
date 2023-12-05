@@ -20,7 +20,7 @@ import { BasemapOfflineService } from './core/services/basemapOffline.service';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,

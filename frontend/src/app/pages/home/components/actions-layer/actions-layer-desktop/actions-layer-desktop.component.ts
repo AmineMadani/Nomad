@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { IonPopover, IonRadioGroup, IonSearchbar } from '@ionic/angular';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { CityService } from 'src/app/core/services/city.service';
@@ -19,6 +19,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { Router } from '@angular/router';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -32,8 +33,14 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
     private mapLayerService: MapLayerService,
     private mapService: MapService,
     private layerService: LayerService,
+    private mapEvent: MapEventService,
     private router: Router
-  ) {}
+  ) {
+    this.mapEvent
+      .onAddressSelected()
+      .pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe((address) => this.onAdressClick(address));
+  }
 
   @ViewChild('toolbox', { static: true }) toolboxPopover: IonPopover;
   @ViewChild('searchbar', { static: true }) searchbar: IonSearchbar;

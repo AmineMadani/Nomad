@@ -42,6 +42,7 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
 import { MapComponent } from './components/map/map.component';
 import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
+import { StreetViewModalComponent } from './components/street-view-modal/street-view-modal.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 
 @NgModule({
@@ -57,6 +58,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
     SkeletonLoadingComponent,
     AttachmentImageViewerComponent,
     MapComponent,
+    StreetViewModalComponent,
     ResizeContainerComponent,
     // FORM EDITOR
     FormEditorComponent,
@@ -82,7 +84,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
     FormEquipmentsComponent,
     FormCommentComponent,
     // DIRECTIVES
-    ClearDataDirective,
+    ClearDataDirective
   ],
   imports: [
     CommonModule,
@@ -106,7 +108,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     GenericTableComponent,
     SkeletonLoadingComponent,
     MapComponent,
-    ResizeContainerComponent
+    ResizeContainerComponent,
+    StreetViewModalComponent
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

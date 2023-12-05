@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
@@ -9,6 +8,7 @@ import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { UserService } from 'src/app/core/services/user.service';
+import { MapEventService } from 'src/app/core/services/map/map-event.service';
 
 @Component({
   selector: 'app-mobile-home-actions',
@@ -22,9 +22,9 @@ export class MobileHomeActionsComponent implements OnInit {
     private mapService: MapService,
     private contractService: ContractService,
     private cityService: CityService,
-    private router: Router,
     private userService: UserService,
-    private drawingService: DrawingService
+    private drawingService: DrawingService,
+    private mapEvent: MapEventService,
   ) {}
 
   public type: 'DISPLAY' | 'ACTIONS' | 'TOOLS';
@@ -52,8 +52,14 @@ export class MobileHomeActionsComponent implements OnInit {
   public async onGenerateWorkOrder() {
     const centerMapPosition = this.mapService.getMap().getCenter();
     Promise.all([
-      this.contractService.getContractIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
-      this.cityService.getCityIdsByLatitudeLongitude(centerMapPosition.lat, centerMapPosition.lng),
+      this.contractService.getContractIdsByLatitudeLongitude(
+        centerMapPosition.lat,
+        centerMapPosition.lng
+      ),
+      this.cityService.getCityIdsByLatitudeLongitude(
+        centerMapPosition.lat,
+        centerMapPosition.lng
+      ),
     ]).then((results) => {
       const contractIds = results[0];
       const cityIds = results[1];
@@ -122,4 +128,8 @@ export class MobileHomeActionsComponent implements OnInit {
     await this.mapService.removeLocalisationMarker();
   }
 
+  public async onClickStreetMap(): Promise<void> {
+    this.modalCtlr.dismiss();
+    this.mapEvent.setStreetViewSelected();
+  }
 }

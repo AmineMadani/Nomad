@@ -28,6 +28,9 @@
       "dom",
       "dom.iterable"
     ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "useDefineForClassFields": false,
     "resolveJsonModule": true
   },

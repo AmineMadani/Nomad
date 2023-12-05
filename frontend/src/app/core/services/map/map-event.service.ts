@@ -22,6 +22,9 @@ export class MapEventService {
   private onMultiFeaturesSelected$: Subject<any[] | undefined> = new Subject();
   private onMultiFeaturesHovered$: Subject<any[] | undefined> = new Subject();
 
+  private onAddressSelected$: Subject<any> = new Subject();
+  private onStreetViewSelected$: Subject<void> = new Subject();
+
   constructor() { }
 
   public onFeatureHovered(): Observable<string | undefined> {
@@ -54,6 +57,22 @@ export class MapEventService {
 
   public setMultiFeaturesHovered(features: any[]): void {
     this.onMultiFeaturesSelected$.next(features);
+  }
+
+  public setAddressSelected(address: any): void {
+    this.onAddressSelected$.next(address);
+  }
+
+  public onAddressSelected(): Observable<any> {
+    return this.onAddressSelected$.asObservable();
+  }
+
+  public setStreetViewSelected(): void {
+    this.onStreetViewSelected$.next();
+  }
+
+  public onStreetViewSelected(): Observable<void> {
+    return this.onStreetViewSelected$.asObservable();
   }
 
   /**

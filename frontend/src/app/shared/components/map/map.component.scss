@@ -144,3 +144,15 @@
     top: 730px;
     left: 20%;
 }
+
+.street-view-tab {
+    border-top: none;
+
+    .accept-position {
+        --color: var(--ion-color-success);
+    }
+
+    .close {
+        --color: var(--ion-color-danger);
+    }
+}
