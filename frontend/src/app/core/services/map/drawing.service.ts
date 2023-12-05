@@ -23,7 +23,7 @@ export class DrawingService {
   private drawActive: boolean = false;
   private isMeasuring: boolean = false;
   private shouldMooveResumeBox: boolean = false;
-   public isMobile: boolean;
+  public isMobile: boolean;
 
   public getDraw(): MapboxDraw {
     return this.draw;
@@ -55,6 +55,7 @@ export class DrawingService {
   public getShouldMooveResumeBox(): boolean {
     return this.shouldMooveResumeBox;
   }
+  
   public setDrawActive(active: boolean) {
     if (active && this.isMeasuring) this.isMeasuring = false;
     this.drawActive = active;
@@ -95,9 +96,17 @@ export class DrawingService {
     return this.utils.removeDuplicatesFromArr(features, 'id');
   }
 
-
   private getEscapeMessage(): string {
-    return this.isMobile? '': "'Echap' pour terminer";
+    let msg = '';
+    if (this.shouldMooveResumeBox) {
+      if (!this.isMobile) {
+        msg += '[Double-Clic] pour terminer le tracé<br/>';
+      }
+      msg += this.isMobile ? '' : '[Echap] pour terminer';
+    } else {
+      msg += this.isMobile ? '' : '[Echap] pour terminer';
+    }
+    return `<br/><i>${msg}</i>`;
   }
 
   /**
@@ -116,21 +125,21 @@ export class DrawingService {
     if (coordinates.length > 2) {
       const indexToRemove = coordinates.length - 1;
       coordinates.splice(indexToRemove, 1);
-    }
-    else if (coordinates.length < 2 ) {
+    } else if (coordinates.length < 2) {
       return `<i>Cliquez pour commencer</i>`;
     }
 
     const perimeter = this.convertPerimeter(
       turf.length(turf.lineString(coordinates), { units: 'meters' })
     );
-    let measure = undefined
+    let measure = undefined;
     if (convertedArea === '0.00 m²') {
-      measure  =  `<b>Longueur : </b>${perimeter}<br/><i>${this.getEscapeMessage()}</i>`;
+      measure = `<b>Longueur : </b>${perimeter}`;
+    } else {
+      measure = `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}`;
     }
-    else {
-      measure = `<b>Perimètre : </b>${perimeter}<br/><b>Aire : </b>${convertedArea}<br/><i>${this.getEscapeMessage()}</i>`;
-    }
+
+    measure += this.getEscapeMessage();
     return measure;
   }
 

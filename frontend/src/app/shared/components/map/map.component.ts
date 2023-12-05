@@ -378,8 +378,7 @@ export class MapComponent implements OnInit, OnDestroy {
     e: Maplibregl.MapMouseEvent,
     feature: Maplibregl.MapGeoJSONFeature
   ): Promise<void> {
-    this.drawingService.deleteDrawing();
-    //this.drawingService.endMesure(true);
+    this.drawingService.endMesure(true);
     this.measure = undefined;
 
     const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
@@ -632,10 +631,6 @@ export class MapComponent implements OnInit, OnDestroy {
     return this.drawingService.getIsMeasuring();
   }
 
-  public endMeasuring(): void {
-    this.drawingService.endMesure(true);
-  }
-
   public getShouldOpenMobileMeasure(): boolean {
     return this.drawingService.getIsMeasuring() && this.isMobile;
   }
@@ -645,7 +640,7 @@ export class MapComponent implements OnInit, OnDestroy {
    * @param data event
    */
   public measureModalDismissed(data: any): void {
-    this.endMeasuring();
+    this.drawingService.endMesure(true);
   }
 
   public setMeasure(measure: string): void {
