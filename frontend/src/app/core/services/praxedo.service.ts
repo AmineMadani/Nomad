@@ -60,7 +60,16 @@ export class PraxedoService {
               layers = layerKeys.filter(layerKey => layerKey.includes('ass_'));
             }
           } else {
-            layers = lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName);
+            layers = [...new Set(lLayerWtr.filter(layerWtr => layerWtr.astCode == typeCode)?.map(layer => layer.lyrTableName) || [])];
+            
+            // If AEP : display canalisations too
+            if (layers.some((layer) => layer.includes('aep_'))) {
+              if (!layers.includes('aep_canalisation')) layers.push('aep_canalisation');
+              if (!layers.includes('aep_canalisation_abandonnee')) layers.push('aep_canalisation_abandonnee');
+            // If ASS : display collecteurs too
+            } else if (layers.some((layer) => layer.includes('ass_'))) {
+              if (!layers.includes('ass_collecteur')) layers.push('ass_collecteur');
+            }
           }
         }
         if(res.extras.MOTIF) {
