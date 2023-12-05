@@ -66,6 +66,13 @@
       display: flex;
       flex-direction: row;
       align-items: center;
+      justify-content: space-between;
+
+      .column-header-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
 
       &.sortable {
         cursor: pointer;
@@ -75,6 +82,7 @@
         display: flex;
         flex-direction: row;
         margin-left: 4px;
+        min-width: 19px;
         width: 19px;
         height: 19px;
 
@@ -118,5 +126,12 @@
 
   tr:last-child td {
     border-bottom-width: 0;
+  }
+
+  .table-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 }

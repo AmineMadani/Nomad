@@ -1,0 +1,79 @@
+.wtr-edit-content {
+  height: 100%;
+  width: 100%;
+
+  .header-component {
+    display: flex;
+    flex-direction: column;
+  
+    .header-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding-left: 30px;
+      padding-top: 10px;
+    }
+  
+    .separation-line {
+      border: 1px solid var(--ion-color-neutral-variant-80);
+      margin-top: 10px;
+    }
+  }
+
+  .wtr-edit-body {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 66px - 54px); // 100% - header - footer
+    padding: 16px 30px;
+    overflow: auto;
+
+    .line {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 16px;
+
+      > ion-input, app-search-select, ion-checkbox {
+        margin-right: 24px;
+      }
+    }
+
+    .fieldset-class {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      border: 1px dashed blue;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .asset-type-div {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+
+      .table-div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 50%;
+      }
+
+      .button-div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+      }
+    }
+  }
+
+  .wtr-edit-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: 5px 0px;
+  }
+}

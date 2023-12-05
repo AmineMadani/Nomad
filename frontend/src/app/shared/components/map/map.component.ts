@@ -14,7 +14,11 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { Box, LocateStatus, MapService } from 'src/app/core/services/map/map.service';
+import {
+  Box,
+  LocateStatus,
+  MapService,
+} from 'src/app/core/services/map/map.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
@@ -33,6 +37,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
+import { StreetViewModalComponent } from '../street-view-modal/street-view-modal.component';
 
 @Component({
   selector: 'app-map',
@@ -54,7 +59,9 @@ export class MapComponent implements OnInit, OnDestroy {
     private basemapOfflineService: BasemapOfflineService,
     private layerService: LayerService,
     private workorderService: WorkorderService,
-    private mapLayerService: MapLayerService
+    private mapLayerService: MapLayerService,
+    private modalCtrl: ModalController,
+    private mapEvent: MapEventService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -62,9 +69,20 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe((route: DrawerRouteEnum) => {
         this.currentRoute = route;
       });
+
+    if (this.isMobile) {
+      this.mapEvent
+        .onStreetViewSelected()
+        .pipe(takeUntil(this.ngUnsubscribe$))
+        .subscribe(() => {
+          this.onMobileStreetView();
+        });
+    }
   }
 
   @ViewChild('ionModalMeasure', { static: false }) ionModalMeasure: IonModal;
+  @ViewChild('ionModalStreetView', { static: false })
+  ionModalStreetView: IonModal;
   /**
    * Method to hide the nomad context menu if the user click outside of the context menu
    */
@@ -108,15 +126,16 @@ export class MapComponent implements OnInit, OnDestroy {
   public userHasPermissionRequestUpdateAsset: boolean = false;
   public measure: string;
 
+  public colorLocateIcon: string;
+  public sourceLocateIcon: string;
+
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
 
   private ngUnsubscribe$: Subject<void> = new Subject();
   private clicklatitude: number;
   private clicklongitute: number;
-
-  public colorLocateIcon : string ;
-  public sourceLocateIcon : string;
+  public streetViewMarker: Maplibregl.Marker;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -162,6 +181,11 @@ export class MapComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
     this.mapService.destroyLayers();
+
+    if (this.streetViewMarker) {
+      this.streetViewMarker.remove();
+      this.ionModalStreetView.isOpen = false;
+    }
   }
 
   // --------------------------- //
@@ -204,12 +228,12 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       this.setMapLoaded();
     });
-    this.scale = this.calculateScale();
+    this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
 
     fromEvent(this.mapService.getMap(), 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
-        this.scale = this.calculateScale();
+        this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
       });
   }
 
@@ -546,23 +570,22 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   //Manage Icon of locate button
-  public manageLocateIcon() : string{
+  public manageLocateIcon(): string {
     //Default Value
     this.colorLocateIcon = 'Primary';
     this.sourceLocateIcon = '';
-    let iconName : string = '';
-    switch(this.mapService.getLocateStatus()){
-      case LocateStatus.LOCALIZATE:{
+    let iconName: string = '';
+    switch (this.mapService.getLocateStatus()) {
+      case LocateStatus.LOCALIZATE: {
         iconName = 'locate-outline';
         break;
       }
-      case LocateStatus.TRACKING:{
+      case LocateStatus.TRACKING: {
         this.sourceLocateIcon = 'assets/icon/locate-tracking.svg';
         break;
-      } 
-      case LocateStatus.NONE: 
-      default:
-      {
+      }
+      case LocateStatus.NONE:
+      default: {
         this.colorLocateIcon = 'medium';
         iconName = 'locate-outline';
         break;
@@ -602,7 +625,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const matchResult = newValue.match(pattern);
     matchResult?.[1]
       ? this.calculateZoomByScale(matchResult[1])
-      : (this.scale = this.calculateScale());
+      : (this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat));
   }
 
   public getMeasuringCondition(): boolean {
@@ -629,7 +652,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.measure = measure;
   }
 
-  public setLocateStatus(status : LocateStatus){
+  public setLocateStatus(status: LocateStatus) {
     this.mapService.setLocateStatus(status);
   }
 
@@ -674,14 +697,12 @@ export class MapComponent implements OnInit, OnDestroy {
             }
             if (user.usrConfiguration.context?.lat) {
               if (!this.praxedoService.externalReport) {
-                this.mapService
-                  .getMap()
-                  .jumpTo({
-                    center: [
-                      user.usrConfiguration.context?.lng,
-                      user.usrConfiguration.context?.lat,
-                    ],
-                  });
+                this.mapService.getMap().jumpTo({
+                  center: [
+                    user.usrConfiguration.context?.lng,
+                    user.usrConfiguration.context?.lat,
+                  ],
+                });
               }
             }
             if (user.usrConfiguration.context?.basemap) {
@@ -713,22 +734,21 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   /**
-  * Update the status of locate button
-  */
-  public updateLocateButtonStatus() : void{
-    switch(this.mapService.getLocateStatus()){
-      case LocateStatus.NONE: 
-      case LocateStatus.LOCALIZATE:
-      {
+   * Update the status of locate button
+   */
+  public updateLocateButtonStatus(): void {
+    switch (this.mapService.getLocateStatus()) {
+      case LocateStatus.NONE:
+      case LocateStatus.LOCALIZATE: {
         this.setLocateStatus(LocateStatus.TRACKING);
         break;
       }
-      case LocateStatus.TRACKING:{
+      case LocateStatus.TRACKING: {
         this.setLocateStatus(LocateStatus.NONE);
         break;
       }
       default:
-      break;
+        break;
     }
   }
 
@@ -797,29 +817,6 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * calculation of the resolution at level zero for 1 tile of 512
-   * circumference of the earth (6,378,137 m)
-   * resolution at zero zoom on the equator
-   * 40075.016686 * 1000 / 512 ≈ 6378137 * 2 * ft / 512 = 78271.516964020480767923472190235
-   *
-   * resolution depending on zoom level
-   * resolution = 156543.03 meters/pixel * cos(latitude) / (2^zoomlevel)
-   * scale = 1: (screen_dpi * 1/0.0254 in/m * resolution)
-   * we take a standard resolution of 90 dpi
-   * from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-   */
-  private calculateScale(): string {
-    const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
-    const resolutionAtLatitudeAndZoom: number =
-      (resolutionAtZeroZoom *
-        Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /
-      2 ** this.map.getZoom();
-    return (
-      '1: ' + Math.ceil((90 / 0.0254) * resolutionAtLatitudeAndZoom).toString()
-    );
-  }
-
-  /**
    * Calculate and set the zoomlevel corresponding to a scale
    * inverse of calculateScale
    * @param scale right part of the scale with the format 1: xxxx with xxxx as number
@@ -865,6 +862,49 @@ export class MapComponent implements OnInit, OnDestroy {
         });
       }
     }
+  }
+
+  /**
+   * Opens the modal with Google Street View, passing in longitude and
+   * latitude coordinates as component props.
+   * @param {number} lng - The longitude coordinate of the location for the street view.
+   * @param {number} lat - The latitude coordinate of the location for the street view.
+   */
+  public async onStreetView(
+    lng: number = this.clicklongitute,
+    lat: number = this.clicklatitude
+  ): Promise<void> {
+    if (this.isMobile) {
+      this.ionModalStreetView.isOpen = false;
+      this.streetViewMarker.remove();
+      this.streetViewMarker = undefined;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: StreetViewModalComponent,
+      componentProps: {
+        lng,
+        lat,
+      },
+      backdropDismiss: false,
+      cssClass: this.isMobile ? '' : 'large-modal',
+    });
+
+    modal.present();
+  }
+
+  /**
+   * Sets a draggable marker on the map at the center position and opens the validation/cancel
+   * bottom sheet for the marker
+   */
+  public async onMobileStreetView(): Promise<void> {
+    const centerMapPosition = this.map.getCenter();
+    this.streetViewMarker = new Maplibregl.Marker({
+      draggable: true,
+    })
+      .setLngLat([centerMapPosition.lng, centerMapPosition.lat])
+      .addTo(this.map);
+    this.ionModalStreetView.isOpen = true;
   }
 
   /**

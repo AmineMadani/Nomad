@@ -5,7 +5,8 @@
     </ion-fab-button>
   </ion-fab>
   <ion-fab class="ion-fab-search" [style.margin-left]="currentRoute === drawerRouteEnum.HOME ? '15px' : '0px'">
-    <ion-fab-button (click)="openSearchModal()" [color]="(adress && adress.length > 0) ? 'secondary':'light'" size="small" class="ion-no-margin ion-no-padding ion-fab">
+    <ion-fab-button (click)="openSearchModal()" [color]="(adress && adress.length > 0) ? 'secondary':'light'"
+      size="small" class="ion-no-margin ion-no-padding ion-fab">
       <ion-icon name="search-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
@@ -14,20 +15,19 @@
 <ion-modal #searchModal [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75]">
   <ng-template>
     <ion-content>
-      <ion-segment [value]="selectedsearchMode" [scrollable]="true"  (ionChange)="modeChange($event)">
+      <ion-segment [value]="selectedsearchMode" [scrollable]="true" (ionChange)="modeChange($event)">
         <ion-segment-button value="Adresse">
           <ion-label>Adresse</ion-label>
         </ion-segment-button>
         <ion-segment-button value="Patrimoine">
           <ion-label>Patrimoine</ion-label>
         </ion-segment-button>
-        </ion-segment>
+      </ion-segment>
 
-      <ion-searchbar (keyup.enter)="onSearchKeyEnter();searchModal.dismiss()"
-        [value]="adress" [debounce]="500" (ionInput)="onSearchInput($event)"
-        show-clear-button="always" placeholder="Recherche"
-        (click)="searchModal.setCurrentBreakpoint(0.5)">
-    </ion-searchbar>
+      <ion-searchbar (keyup.enter)="onSearchKeyEnter();searchModal.dismiss()" [value]="adress" [debounce]="500"
+        (ionInput)="onSearchInput($event)" show-clear-button="always" placeholder="Recherche"
+        (click)="searchModal.setCurrentBreakpoint(0.5)" (ionClear)="onClear()">
+      </ion-searchbar>
       <ion-list>
         <ion-item *ngFor="let adress of adresses" (click)="onAdressClick(adress);searchModal.dismiss()">
           <ion-label>

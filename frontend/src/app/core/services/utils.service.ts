@@ -11,10 +11,7 @@ import { isNumber } from '@turf/turf';
   providedIn: 'root',
 })
 export class UtilsService {
-  constructor(
-    private platform: Platform,
-    private toastCtrl: ToastController,
-  ) { }
+  constructor(private platform: Platform, private toastCtrl: ToastController) {}
 
   /**
    * Check if the current platform is Android.
@@ -118,21 +115,30 @@ export class UtilsService {
       return {
         lyrTableName: key,
         equipmentIds: equipmentIds,
-        allColumn: allColumn
+        allColumn: allColumn,
       };
     });
 
     return transformedArray;
   }
 
-  public transformArrayForAssets(features: any[], allColumn: boolean = false): SearchEquipments[] {
+  public transformArrayForAssets(
+    features: any[],
+    allColumn: boolean = false
+  ): SearchEquipments[] {
     return features.reduce((acc, curr) => {
-      const existingItem = acc.find((item: any) => item.lyrTableName === curr.assObjTable);
+      const existingItem = acc.find(
+        (item: any) => item.lyrTableName === curr.assObjTable
+      );
 
       if (existingItem) {
         existingItem.equipmentIds.push(curr.assObjRef);
       } else {
-        acc.push({ lyrTableName: curr.assObjTable, equipmentIds: [curr.assObjRef], allColumn });
+        acc.push({
+          lyrTableName: curr.assObjTable,
+          equipmentIds: [curr.assObjRef],
+          allColumn,
+        });
       }
 
       return acc;
@@ -316,76 +322,77 @@ export class UtilsService {
     return dateLuxon.toJSDate();
   }
 
-    /**
-   * 
+  /**
+   *
    * @param num Convert Number of minutes to time HH:MM
-   * @returns 
+   * @returns
    */
-    public convertNumberToTimeString(num : number) : string{
-      const hours = Math.floor(num / 60);  
-      const minutes = num % 60;
-      let hoursString = hours.toString();
-      if (hours < 10){
-        hoursString = '0' + hoursString;
-      }
-      let minutesString = minutes.toString();
-      if (minutes < 10){
-        minutesString = '0' + minutesString;
-      }
-      return hoursString + ':' + minutesString;
+  public convertNumberToTimeString(num: number): string {
+    const hours = Math.floor(num / 60);
+    const minutes = num % 60;
+    let hoursString = hours.toString();
+    if (hours < 10) {
+      hoursString = '0' + hoursString;
+    }
+    let minutesString = minutes.toString();
+    if (minutes < 10) {
+      minutesString = '0' + minutesString;
+    }
+    return hoursString + ':' + minutesString;
+  }
+
+  /**
+   * Convertit un nombre représentant une durée en heures et minutes.
+   * @param duree La durée en minutes.
+   * @returns La durée convertie en format d'heures et minutes.
+   */
+  public formatDurationToTimeString(duree: number): string {
+    const heures = Math.floor(duree / 60);
+    const minutes = duree % 60;
+
+    let heureString = '';
+    if (heures === 1) {
+      heureString = '1 heure';
+    } else if (heures > 1) {
+      heureString = heures + ' heures';
     }
 
-    /**
-     * Convertit un nombre représentant une durée en heures et minutes.
-     * @param duree La durée en minutes.
-     * @returns La durée convertie en format d'heures et minutes.
-     */
-    public formatDurationToTimeString(duree: number): string {
-      const heures = Math.floor(duree / 60);
-      const minutes = duree % 60;
-    
-      let heureString = '';
-      if (heures === 1) {
-        heureString = '1 heure';
-      } else if (heures > 1) {
-        heureString = heures + ' heures';
-      }
-    
-      let minuteString = '';
-      if (minutes === 1) {
-        minuteString = '1 minute';
-      } else if (minutes > 1) {
-        minuteString = minutes + ' minutes';
-      }
-    
-      if (heures === 0) {
-        return minuteString;
-      } else if (minutes === 0) {
-        return heureString;
-      } else {
-        return heureString + ' ' + minuteString;
-      }
+    let minuteString = '';
+    if (minutes === 1) {
+      minuteString = '1 minute';
+    } else if (minutes > 1) {
+      minuteString = minutes + ' minutes';
     }
-  
-    /**
-     * Convert the time HH:MM to number of minutes
-     * @param value 
-     * @returns 
-     */
-    public convertStringToNumber(value : string) : number{
-      if (!value){
-        return 0;
-      }
-      const arraySplit = value.split(':');
-      let hours, minutes  : number = 0; 
-      if (isNumber(arraySplit[0])){
-        hours = Number(arraySplit[0]) * 60;
-      }
-      if (isNumber(arraySplit[1])){
-        minutes = Number(arraySplit[1]);
-      }
-      return hours + minutes;
+
+    if (heures === 0) {
+      return minuteString;
+    } else if (minutes === 0) {
+      return heureString;
+    } else {
+      return heureString + ' ' + minuteString;
     }
+  }
+
+  /**
+   * Convert the time HH:MM to number of minutes
+   * @param value
+   * @returns
+   */
+  public convertStringToNumber(value: string): number {
+    if (!value) {
+      return 0;
+    }
+    const arraySplit = value.split(':');
+    let hours,
+      minutes: number = 0;
+    if (isNumber(arraySplit[0])) {
+      hours = Number(arraySplit[0]) * 60;
+    }
+    if (isNumber(arraySplit[1])) {
+      minutes = Number(arraySplit[1]);
+    }
+    return hours + minutes;
+  }
 
   public createCacheId(): number {
     return (
@@ -396,10 +403,8 @@ export class UtilsService {
   }
 
   public createUniqueId(): number {
-    return (
-      Number(
-        Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
-      )
+    return Number(
+      Date.now().toString() + Math.floor(Math.random() * 1000000).toString()
     );
   }
 
@@ -415,15 +420,17 @@ export class UtilsService {
     return Math.round(num * factor) / factor;
   }
 
-  public getAverageOfCoordinates(coordinates: [number, number][]): [number, number] {
+  public getAverageOfCoordinates(
+    coordinates: [number, number][]
+  ): [number, number] {
     let totalX = 0;
     let totalY = 0;
 
     // Calculate total x and y coordinates
-    coordinates.forEach(c => {
-        const [x, y] = c;
-        totalX += x;
-        totalY += y;
+    coordinates.forEach((c) => {
+      const [x, y] = c;
+      totalX += x;
+      totalY += y;
     });
 
     // Calculate average x and y coordinates
@@ -440,16 +447,45 @@ export class UtilsService {
    */
   public isOfflineError(error): boolean {
     console.log(error);
-    return error.name === 'TimeoutError' || (error instanceof HttpErrorResponse && (error.status === 0 || !navigator.onLine));
+    return (
+      error.name === 'TimeoutError' ||
+      (error instanceof HttpErrorResponse &&
+        (error.status === 0 || !navigator.onLine))
+    );
   }
 
-  public fetchPromiseWithTimeout(args: { fetchPromise: Promise<any>, timeout: number }): Promise<any> {
+  public fetchPromiseWithTimeout(args: {
+    fetchPromise: Promise<any>;
+    timeout: number;
+  }): Promise<any> {
     function handleTimeout(ms) {
-          return new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), ms)
-        );
-      }
+      return new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout')), ms)
+      );
+    }
 
     return Promise.race([args.fetchPromise, handleTimeout(args.timeout)]);
+  }
+
+  /**
+   * The function calculates the scale of a map based on the zoom level and latitude.
+   * @param {number} zoom - The `zoom` parameter represents the zoom level of a map. It is a number that
+   * determines the level of detail displayed on the map. Higher zoom levels show more detail, while
+   * lower zoom levels show less detail.
+   * @param {number} [lat=0] - The `lat` parameter represents the latitude in degrees. It has a default
+   * value of 0, which is the equator
+   * @returns a string that represents a scale. The scale is calculated based on the zoom level and
+   * latitude provided as arguments to the function. The returned string is in the format "1: [scale
+   * value]".
+   * We take a standard resolution of 90 dpi
+   * from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+   */
+  public calculateMapScale(zoom: number, lat: number = 0): string {
+    const resolutionAtZeroZoom: number = 156543.03;
+    const resolutionAtLatitudeAndZoom: number =
+      (resolutionAtZeroZoom * Math.cos(lat * (Math.PI / 180))) / 2 ** zoom;
+    return (
+      '1: ' + Math.ceil((90 / 0.0254) * resolutionAtLatitudeAndZoom).toString()
+    );
   }
 }

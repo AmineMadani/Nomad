@@ -42,6 +42,9 @@ import { FormCommentComponent } from './form-editor/properties/form-comment/form
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
 import { MapComponent } from './components/map/map.component';
 import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
+import { StreetViewModalComponent } from './components/street-view-modal/street-view-modal.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { MapScalePipe } from './pipes/map-scale.pipe';
 
 @NgModule({
   declarations: [
@@ -56,6 +59,7 @@ import { ResizeContainerComponent } from './components/resize-container/resize-c
     SkeletonLoadingComponent,
     AttachmentImageViewerComponent,
     MapComponent,
+    StreetViewModalComponent,
     ResizeContainerComponent,
     // FORM EDITOR
     FormEditorComponent,
@@ -82,6 +86,8 @@ import { ResizeContainerComponent } from './components/resize-container/resize-c
     FormCommentComponent,
     // DIRECTIVES
     ClearDataDirective,
+    // PIPES
+    MapScalePipe,
   ],
   imports: [
     CommonModule,
@@ -91,7 +97,8 @@ import { ResizeContainerComponent } from './components/resize-container/resize-c
     MatStepperModule,
     MatTabsModule,
     ScrollingModule,
-    MatTooltipModule
+    MatTooltipModule,
+    NgxPaginationModule,
   ],
   exports:[
     MainToolbarComponent,
@@ -104,7 +111,9 @@ import { ResizeContainerComponent } from './components/resize-container/resize-c
     GenericTableComponent,
     SkeletonLoadingComponent,
     MapComponent,
-    ResizeContainerComponent
+    ResizeContainerComponent,
+    StreetViewModalComponent,
+    MapScalePipe,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

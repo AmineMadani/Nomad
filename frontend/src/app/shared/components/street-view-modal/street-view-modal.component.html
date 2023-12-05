@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar *ngIf="!isMobile" class="street-view-toolbar">
+    <ion-title>Google Street-View</ion-title>
+    <ion-button slot="end" fill="outline" (click)="onValidate()">
+      <ion-icon slot="start" name="navigate-circle-outline"></ion-icon>
+      Se rendre à la position
+    </ion-button>
+    <ion-button slot="end" (click)="onDismiss()">
+      <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+      Fermer
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-item *ngIf="isMobile" lines="none" color="none">
+    <ion-button slot="start" fill="outline">
+      <ion-icon slot="start" name="navigate-circle-outline"></ion-icon>
+      Se rendre à la position
+    </ion-button>
+    <ion-button slot="end" (click)="onDismiss()">
+      <ion-icon slot="start" name="close-circle-outline"></ion-icon>
+      Fermer
+    </ion-button>
+  </ion-item>
+  <div class="street-view">
+    <div id="map-view" class="map-view"></div>
+    <div id="pano" class="panorama"></div>
+  </div>
+</ion-content>
