@@ -49,13 +49,13 @@ export class MapService {
   /**
    * Statut du bouton Localiser sur la carte
    */
-  private locateStatus : LocateStatus = LocateStatus.NONE ;
+  private locateStatus: LocateStatus = LocateStatus.NONE;
 
-  public getLocateStatus() : LocateStatus{
+  public getLocateStatus(): LocateStatus {
     return this.locateStatus;
   }
 
-  public setLocateStatus(locateStatus : LocateStatus){
+  public setLocateStatus(locateStatus: LocateStatus) {
     this.locateStatus = locateStatus;
   }
 
@@ -488,7 +488,7 @@ export class MapService {
     if (this.layers?.size > 0) {
       this.layers.forEach((l, k) => {
         this.removeEventLayer(k);
-      })
+      });
     }
   }
 
@@ -596,7 +596,7 @@ export class MapService {
   public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
     this.addEventLayer(layerKey, null).then(() => {
       for (let task of properties.tasks) {
-        const taskProperties: any = {...task};
+        const taskProperties: any = { ...task };
         taskProperties.id = task.id.toString();
         taskProperties.x = task.longitude;
         taskProperties.y = task.latitude;
@@ -694,8 +694,12 @@ export class MapService {
     this.localisationMarker.remove();
   }
 
-  public hasLoadingLayerStyle(): boolean{
-    return this.loadingLayer && Object.keys(this.loadingLayer).length > 0 
-      && this.loadingStyle && Object.keys(this.loadingStyle).length > 0
+  public hasLoadingLayerStyle(): boolean {
+    return (
+      this.loadingLayer &&
+      Object.keys(this.loadingLayer).length > 0 &&
+      this.loadingStyle &&
+      Object.keys(this.loadingStyle).length > 0
+    );
   }
 }

@@ -44,6 +44,7 @@ import { MapComponent } from './components/map/map.component';
 import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
 import { StreetViewModalComponent } from './components/street-view-modal/street-view-modal.component';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { MapScalePipe } from './pipes/map-scale.pipe';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,9 @@ import { NgxPaginationModule } from 'ngx-pagination';
     FormEquipmentsComponent,
     FormCommentComponent,
     // DIRECTIVES
-    ClearDataDirective
+    ClearDataDirective,
+    // PIPES
+    MapScalePipe,
   ],
   imports: [
     CommonModule,
@@ -109,7 +112,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
     SkeletonLoadingComponent,
     MapComponent,
     ResizeContainerComponent,
-    StreetViewModalComponent
+    StreetViewModalComponent,
+    MapScalePipe,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

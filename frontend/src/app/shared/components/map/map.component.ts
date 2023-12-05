@@ -228,12 +228,12 @@ export class MapComponent implements OnInit, OnDestroy {
       }
       this.setMapLoaded();
     });
-    this.scale = this.calculateScale();
+    this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
 
     fromEvent(this.mapService.getMap(), 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
-        this.scale = this.calculateScale();
+        this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
       });
   }
 
@@ -625,7 +625,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const matchResult = newValue.match(pattern);
     matchResult?.[1]
       ? this.calculateZoomByScale(matchResult[1])
-      : (this.scale = this.calculateScale());
+      : (this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat));
   }
 
   public getMeasuringCondition(): boolean {
@@ -812,29 +812,6 @@ export class MapComponent implements OnInit, OnDestroy {
     for (let layer of styleLayers) {
       this.mapService.getMap().addLayer(layer, firstLayerId);
     }
-  }
-
-  /**
-   * calculation of the resolution at level zero for 1 tile of 512
-   * circumference of the earth (6,378,137 m)
-   * resolution at zero zoom on the equator
-   * 40075.016686 * 1000 / 512 ≈ 6378137 * 2 * ft / 512 = 78271.516964020480767923472190235
-   *
-   * resolution depending on zoom level
-   * resolution = 156543.03 meters/pixel * cos(latitude) / (2^zoomlevel)
-   * scale = 1: (screen_dpi * 1/0.0254 in/m * resolution)
-   * we take a standard resolution of 90 dpi
-   * from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
-   */
-  private calculateScale(): string {
-    const resolutionAtZeroZoom: number = 78271.516964020480767923472190235;
-    const resolutionAtLatitudeAndZoom: number =
-      (resolutionAtZeroZoom *
-        Math.cos(this.map.getCenter().lat * (Math.PI / 180))) /
-      2 ** this.map.getZoom();
-    return (
-      '1: ' + Math.ceil((90 / 0.0254) * resolutionAtLatitudeAndZoom).toString()
-    );
   }
 
   /**
