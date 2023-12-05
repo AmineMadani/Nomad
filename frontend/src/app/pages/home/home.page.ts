@@ -46,7 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.drawerService.initDrawerListener();
     this.mapService
       .onMapLoaded()
-      .pipe(takeUntil(this.drawerUnsubscribe$))
+      .pipe(takeUntil(this.drawerUnsubscribe$), debounceTime(100))
       .subscribe(() => {
         this.addHomeMapEvents();
         this.interactiveMap.setMeasure(undefined);

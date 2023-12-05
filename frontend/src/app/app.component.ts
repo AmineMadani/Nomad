@@ -10,6 +10,8 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { WorkorderService } from './core/services/workorder.service';
 import { DateTime } from 'luxon';
 import packageInfo from '../../package.json';
+import { PermissionCodeEnum } from './core/models/user.model';
+import { UserService } from './core/services/user.service';
 
 register();
 
@@ -26,25 +28,25 @@ export class AppComponent implements OnInit, OnDestroy {
       title: 'Accueil',
       url: '/home',
       icon: 'home',
-      displayed: true,
+      displayed: () => true,
     },
     {
       title: 'Programmes',
       url: '/programs',
       icon: 'business',
-      displayed: false, // Hidden while mocked
+      displayed: () => !this.isMobile && this.userHasPermissionSendWorkorder,
     },
     {
       title: 'Paramètres',
       url: '/settings',
       icon: 'settings',
-      displayed: true,
+      displayed: () => !this.isMobile,
     },
     {
       title: 'Données hors connexion',
       url: '/offline-download',
       icon: 'cloud-offline',
-      displayed: true
+      displayed: () => this.isMobile,
     },
   ];
   constructor(
@@ -53,7 +55,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private platform: Platform,
     private utils: UtilsService,
-    private workorderService: WorkorderService
+    private workorderService: WorkorderService,
+    private userService: UserService
   ) {
     this.keycloakService.configure();
     defineCustomElements(window);
@@ -66,16 +69,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public version: string = packageInfo.version;
 
+  private userHasPermissionSendWorkorder: boolean;
   private sub: Subscription = new Subscription();
 
-  ngOnInit(): void {
-
+  async ngOnInit(): Promise<void> {
+    this.userHasPermissionSendWorkorder =
+      await this.userService.currentUserHasPermission(
+        PermissionCodeEnum.VIEW_PROGRAMS
+      );
     this.isMobile = this.utils.isMobilePlateform();
     // Don't show the settings page if mobile plateform
     if (this.isMobile) {
-      this.appPages = this.appPages.filter((page) => !['/settings', '/programs'].includes(page.url));
+      this.appPages = this.appPages.filter(
+        (page) => !['/settings', '/programs'].includes(page.url)
+      );
     } else {
-      this.appPages = this.appPages.filter((page) => page.url !== '/offline-download');
+      this.appPages = this.appPages.filter(
+        (page) => page.url !== '/offline-download'
+      );
     }
 
     this.keycloakService.initialisation();
@@ -92,7 +103,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Synchronize workorders all 15 minutes to send and refresh cached values to the server
     this.workorderService.startPeriodicSyncWorkorders();
-    this.workorderService.dateWorkorderSwitch = DateTime.now().minus({ months: 3 }).toJSDate();
+    this.workorderService.dateWorkorderSwitch = DateTime.now()
+      .minus({ months: 3 })
+      .toJSDate();
   }
 
   ngOnDestroy(): void {

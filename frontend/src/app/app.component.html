@@ -14,7 +14,7 @@
       <ion-list id="inbox-list" class="main-content-side-list-menu">
         <ng-container *ngFor="let p of appPages; let i = index">
           <ion-menu-toggle auto-hide="false">
-            <ion-item *ngIf="p.displayed" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active">
+            <ion-item *ngIf="p.displayed()" routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="main-content-side-list-menu-link-active">
               <ion-icon [ios]="p.icon" [md]="p.icon" class="main-content-side-list-menu-icon"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
