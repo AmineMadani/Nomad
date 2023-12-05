@@ -7,6 +7,7 @@ import { Workorder } from '../models/workorder.model';
 import { Geolocation } from '@capacitor/geolocation';
 import { UtilsService } from './utils.service';
 import { TemplateService } from './template.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class PraxedoService {
     private workorderService: WorkorderService,
     private layerService: LayerService,
     private utilsService: UtilsService,
-    private templateService: TemplateService
+    private templateService: TemplateService,
+    private userService: UserService,
   ) {}
 
   public externalReport: string | undefined;
@@ -31,6 +33,7 @@ export class PraxedoService {
       let layers = [];
       if(res.extras.REFEXTINT) {
         this.externalReport = res.extras.REFEXTINT;
+        this.userService.praxedoExternalReport = this.externalReport;
       } else {
 
         let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
@@ -87,9 +90,22 @@ export class PraxedoService {
         }
 
         if (!longitude || !latitude) {
-          const location = await Geolocation.getCurrentPosition();
-          latitude = location.coords.latitude;
-          longitude = location.coords.longitude;
+          let location;
+          try {
+            location = await Geolocation.getCurrentPosition();
+            latitude = location.coords.latitude;
+            longitude = location.coords.longitude;
+          } catch {
+            const { lat, lng } = (await this.userService.getCurrentUser()).usrConfiguration.context;
+            if (lat && lng) {
+              latitude = lat;
+              longitude = lng;
+            } else {
+              // LngLat from Fontainebleau
+              latitude = 48.40842469422537;
+              longitude = 2.6978802690003287;
+            }
+          }
         }
 
 
@@ -116,6 +132,7 @@ export class PraxedoService {
 
         this.workorderService.saveCacheWorkorder(workorder);
         this.externalReport = workorder.id.toString();
+        this.userService.praxedoExternalReport = this.externalReport;
       }
       if(this.externalReport){
         if(layers.length > 0) {

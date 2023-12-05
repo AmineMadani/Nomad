@@ -32,8 +32,9 @@ export class UserService {
     private configurationService: ConfigurationService,
     private cacheService: CacheService,
     private mapService: MapService,
-    private praxedoService: PraxedoService
   ) {}
+
+  public praxedoExternalReport: string;
 
   private currentUser: User;
   private permissions: Permission[];
@@ -307,12 +308,12 @@ export class UserService {
       context.lng = mapLibre.getCenter().lng;
       context.lat = mapLibre.getCenter().lat;
 
-      if(this.praxedoService.externalReport || this.router.url.includes('/cr')) {
+      if(this.praxedoExternalReport || this.router.url.includes('/cr')) {
         context.url = '/home';
       } else {
         context.url = this.router.url;
       }
-      context.basemap = mapLibre.getLayer('basemap').source
+      context.basemap = mapLibre.getLayer('basemap')?.source
 
       const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
         .filter((value) => !value['source'].startsWith('mapbox') && value['visibility'] != "none")
