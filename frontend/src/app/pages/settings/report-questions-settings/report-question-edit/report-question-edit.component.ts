@@ -463,7 +463,7 @@ export class ReportQuestionEditComponent implements OnInit {
       }
     }
 
-    listValue = listValue.splice(lineIndex, 1);
+    listValue.splice(lineIndex, 1)
     this.form.get('rqnSelectValues').setValue(listValue);
   }
 
