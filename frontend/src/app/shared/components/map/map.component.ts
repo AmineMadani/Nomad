@@ -701,15 +701,17 @@ export class MapComponent implements OnInit, OnDestroy {
               }
             }
             if (user.usrConfiguration.context?.basemap) {
-              if (
-                this.basemaps?.find(
-                  (bm) =>
-                    bm.map_slabel.replace(/\s/g, '') ==
-                    user.usrConfiguration.context?.basemap
-                )
-              ) {
-                this.onBasemapChange(user.usrConfiguration.context?.basemap);
-              }
+              setTimeout(() => {
+                if (
+                  this.basemaps.find(
+                    (bm) =>
+                      bm.map_slabel.replace(/\s/g, '') ==
+                      user.usrConfiguration.context?.basemap
+                  )
+                ) {
+                  this.onBasemapChange(user.usrConfiguration.context?.basemap);
+                }
+              }, 500);
             }
             if (
               user.usrConfiguration.context?.url &&

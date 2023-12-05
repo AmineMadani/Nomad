@@ -6,7 +6,7 @@ export class MaplibreLayer {
   constructor(layerConfiguration: Layer, map: Maplibregl.Map) {
     this.configurations = layerConfiguration;
     this.source = this.buildSource();
-    if (layerConfiguration.listStyle) {
+    if (layerConfiguration?.listStyle) {
       this.style = this.buildStyle(map, layerConfiguration.listStyle);    
     }
     this.subscriptions = new Subscription();
