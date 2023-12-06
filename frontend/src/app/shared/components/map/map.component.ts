@@ -22,8 +22,8 @@ import {
 import { Subject } from 'rxjs/internal/Subject';
 import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 import { takeUntil } from 'rxjs/internal/operators/takeUntil';
-import { debounceTime, first, switchMap, filter, take } from 'rxjs';
-import { ActivatedRoute, NavigationEnd, Params, Router } from '@angular/router';
+import { first, switchMap } from 'rxjs';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Basemap } from 'src/app/core/models/basemap.model';
 import * as Maplibregl from 'maplibre-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -141,7 +141,6 @@ export class MapComponent implements OnInit, OnDestroy {
     this.isMobile = this.utilsService.isMobilePlateform();
     this.drawingService.isMobile = this.isMobile;
     this.measure = undefined;
-    this.loadUserContext();
 
     // Init permissions
     this.userHasPermissionCreateXYWorkorder =
@@ -196,39 +195,10 @@ export class MapComponent implements OnInit, OnDestroy {
    * This function generates a map with a navigation control and adds a default basemap layer.
    */
   public generateMap(): void {
-    this.mapService.getBasemaps().then((basemaps: Basemap[]) => {
-      this.basemaps = basemaps.filter((bl) => bl.map_display);
-      if (this.basemapOfflineService.db) {
-        this.basemaps.push({
-          map_type: 'OFFLINE',
-          map_default: false,
-          map_display: true,
-          map_slabel: 'Plan Offline',
-        });
-      }
-      const defaultBackLayer: Basemap | undefined = this.basemaps.find(
-        (bl) => bl.map_default
-      );
-      if (defaultBackLayer) {
-        this.zoom = this.map.getZoom();
-        this.createLayers(
-          defaultBackLayer.map_slabel.replace(/\s/g, ''),
-          defaultBackLayer
-        );
-        setTimeout(() => {
-          this.map.addLayer({
-            id: 'basemap',
-            type: 'raster',
-            source: defaultBackLayer.map_slabel.replace(/\s/g, ''),
-            paint: {},
-          });
-          // Because of the Drawing control, controls need to be added after the basemaps
-          this.addControls();
-        });
-      }
-      this.setMapLoaded();
-    });
     this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
+    if(!this.basemaps) {
+      this.loadBaseMap();
+    }
 
     fromEvent(this.mapService.getMap(), 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
@@ -657,83 +627,6 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Init the user context save on home
-   */
-  private initUserEventContext() {
-    this.userService
-      .onInitUserContextEvent()
-      .pipe(debounceTime(2000), takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        this.userService.onUserContextEvent();
-      });
-
-    this.router.events
-      .pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        filter((val) => val.url.includes('/home')),
-        takeUntil(this.ngUnsubscribe$)
-      )
-      .subscribe(() => {
-        this.userService.onUserContextEvent();
-      });
-  }
-
-  private loadUserContext() {
-    this.mapService
-      .onMapLoaded()
-      .pipe(take(1))
-      .subscribe(() => {
-        this.userService.getCurrentUser().then((user) => {
-          setTimeout(() => {
-            if (user.usrConfiguration.context?.layers) {
-              for (let layer of user.usrConfiguration.context?.layers) {
-                this.mapService.addEventLayer(layer[0], layer[1]);
-              }
-            }
-            if (user.usrConfiguration.context?.zoom) {
-              if (!this.praxedoService.externalReport) {
-                this.mapService.setZoom(user.usrConfiguration.context?.zoom);
-              }
-            }
-            if (user.usrConfiguration.context?.lat) {
-              if (!this.praxedoService.externalReport) {
-                this.mapService.getMap().jumpTo({
-                  center: [
-                    user.usrConfiguration.context?.lng,
-                    user.usrConfiguration.context?.lat,
-                  ],
-                });
-              }
-            }
-            if (user.usrConfiguration.context?.basemap) {
-              setTimeout(() => {
-                if (
-                  this.basemaps.find(
-                    (bm) =>
-                      bm.map_slabel.replace(/\s/g, '') ==
-                      user.usrConfiguration.context?.basemap
-                  )
-                ) {
-                  this.onBasemapChange(user.usrConfiguration.context?.basemap);
-                }
-              }, 500);
-            }
-            if (
-              user.usrConfiguration.context?.url &&
-              this.router.url == '/home' &&
-              user.usrConfiguration.context?.url != '/home/asset' &&
-              user.usrConfiguration.context?.url != '/home/exploitation' &&
-              !this.praxedoService.externalReport
-            ) {
-              this.router.navigateByUrl(user.usrConfiguration.context?.url);
-            }
-            this.initUserEventContext();
-          }, 100);
-        });
-      });
-  }
-
-  /**
    * Update the status of locate button
    */
   public updateLocateButtonStatus(): void {
@@ -1045,5 +938,42 @@ export class MapComponent implements OnInit, OnDestroy {
       return this.workorderService.dateWorkorderSwitch;
     }
     return null;
+  }
+
+  public async loadBaseMap() {
+    await this.mapService.getBasemaps().then((basemaps: Basemap[]) => {
+      this.basemaps = basemaps.filter((bl) => bl.map_display);
+      if (this.basemapOfflineService.db) {
+        this.basemaps.push({
+          map_type: 'OFFLINE',
+          map_default: false,
+          map_display: true,
+          map_slabel: 'Plan Offline',
+        });
+      }
+      const defaultBackLayer: Basemap | undefined = this.basemaps.find(
+        (bl) => bl.map_default
+      );
+      if (defaultBackLayer) {
+        this.zoom = this.map.getZoom();
+        this.createLayers(
+          defaultBackLayer.map_slabel.replace(/\s/g, ''),
+          defaultBackLayer
+        );
+        setTimeout(() => {
+          if(!this.map.getLayer('basemap')) {
+            this.map.addLayer({
+              id: 'basemap',
+              type: 'raster',
+              source: defaultBackLayer.map_slabel.replace(/\s/g, ''),
+              paint: {},
+            });
+            // Because of the Drawing control, controls need to be added after the basemaps
+            this.addControls();
+          }
+        });
+      }
+      this.setMapLoaded();
+    });
   }
 }

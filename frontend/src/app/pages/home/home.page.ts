@@ -19,11 +19,12 @@ import { LocateStatus, MapService } from 'src/app/core/services/map/map.service'
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { UserService } from 'src/app/core/services/user.service';
 import * as Maplibregl from 'maplibre-gl';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { PraxedoService } from 'src/app/core/services/praxedo.service';
 
 @Component({
   selector: 'app-home',
@@ -41,7 +42,8 @@ export class HomePage implements OnInit, OnDestroy {
     public route: Router,
     public userService: UserService,
     private mapLayerService: MapLayerService,
-    private mapEventService: MapEventService
+    private mapEventService: MapEventService,
+    private praxedoService: PraxedoService
   ) {
     this.drawerService.initDrawerListener();
     this.mapService
@@ -50,6 +52,7 @@ export class HomePage implements OnInit, OnDestroy {
       .subscribe(() => {
         this.addHomeMapEvents();
         this.interactiveMap.setMeasure(undefined);
+        this.loadUserContext();
       });
   }
 
@@ -444,4 +447,77 @@ export class HomePage implements OnInit, OnDestroy {
       });
     });
   }
+
+  private loadUserContext() {
+    this.userService.getCurrentUser().then((user) => {
+      setTimeout(async () => {
+        if (user.usrConfiguration.context?.layers) {
+          for (let layer of user.usrConfiguration.context?.layers) {
+            this.mapService.addEventLayer(layer[0], layer[1]);
+          }
+        }
+        if (user.usrConfiguration.context?.zoom) {
+          if (!this.praxedoService.externalReport) {
+            this.mapService.setZoom(user.usrConfiguration.context?.zoom);
+          }
+        }
+        if (user.usrConfiguration.context?.lat) {
+          if (!this.praxedoService.externalReport) {
+            this.mapService.getMap().jumpTo({
+              center: [
+                user.usrConfiguration.context?.lng,
+                user.usrConfiguration.context?.lat,
+              ],
+            });
+          }
+        }
+        if (user.usrConfiguration.context?.basemap) {
+          if(!this.interactiveMap.basemaps) {
+            await this.interactiveMap.loadBaseMap();
+          }
+          if (this.interactiveMap.basemaps.find(
+              (bm) =>
+                bm.map_slabel.replace(/\s/g, '') ==
+                user.usrConfiguration.context?.basemap
+            )
+          ) {
+            this.interactiveMap.onBasemapChange(user.usrConfiguration.context?.basemap);
+          }
+        }
+        if (
+          user.usrConfiguration.context?.url &&
+          this.route.url == '/home' &&
+          user.usrConfiguration.context?.url != '/home/asset' &&
+          user.usrConfiguration.context?.url != '/home/exploitation' &&
+          !this.praxedoService.externalReport
+        ) {
+          this.route.navigateByUrl(user.usrConfiguration.context?.url);
+        }
+        this.initUserEventContext();
+      }, 500);
+    });
+  }
+
+  /**
+   * Init the user context save on home
+   */
+  private initUserEventContext() {
+    this.userService
+      .onInitUserContextEvent()
+      .pipe(debounceTime(2000), takeUntil(this.drawerUnsubscribe$))
+      .subscribe(() => {
+        this.userService.onUserContextEvent();
+      });
+
+    this.route.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        filter((val) => val.url.includes('/home')),
+        takeUntil(this.drawerUnsubscribe$)
+      )
+      .subscribe(() => {
+        this.userService.onUserContextEvent();
+      });
+  }
+
 }
