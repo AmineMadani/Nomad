@@ -64,7 +64,7 @@ export class AssetFilterService {
         this.mapService.getMap(mapKey).style._layers
       ).map((key) => key);
       const mapSourceLoaded: string[] = Object.keys(
-        this.mapService.getMap().style.sourceCaches
+        this.mapService.getMap(mapKey).style.sourceCaches
       ).map((key) => key.toUpperCase());
       if (mapLayerLoaded && mapLayerLoaded.length > 0) {
         let descendants: FilterAsset[] = [];
