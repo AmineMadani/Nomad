@@ -95,8 +95,8 @@ export class DrawingService {
       { layers: currentLayersIds }
     ).filter((feature: any) => {
       // Check if the feature is contained within the drawn polygon
-      return turf.booleanPointInPolygon(
-        turf.point(feature.geometry.coordinates),
+      return !turf.booleanDisjoint(
+        feature.geometry,
         drawnPolygon
       );
     });

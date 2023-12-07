@@ -41,6 +41,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
+  @ViewChild('popoverButtons', { static: true }) popoverButtons: IonPopover;
 
   public buttons: SynthesisButton[] = [];
 
@@ -57,6 +58,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public featuresHighlighted: any[] = [];
   public userHasPermissionCreateAssetWorkorder: boolean = false;
   public userHasPermissionRequestUpdateAsset: boolean = false;
+  public numberOfButtonDisplayed: number = 4;
 
   private layersConf: Layer[] = [];
   private ngUnsubscribe$: Subject<void> = new Subject();
@@ -67,7 +69,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.step = this.activatedRoute.snapshot.queryParams?.['step'];
     this.buttons = [
-      { key: 'add', label: 'Ajouter un élement', icon: 'add' },
+      { key: 'add', label: 'Ajouter un élement', icon: 'add-outline' },
       {
         key: 'create',
         label: this.wkoDraft
@@ -75,7 +77,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             ? 'Reprendre le CR'
             : "Reprendre l'intervention"
           : 'Générer une intervention',
-        icon: 'person-circle',
+        icon: 'person-circle-outline',
         disabledFunction: () =>
           !this.userHasPermissionCreateAssetWorkorder ||
           this.filteredFeatures.length === 0,
@@ -83,14 +85,15 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       {
         key: 'new-asset',
         label: 'Créer un patrimoine',
-        icon: 'refresh',
+        icon: 'refresh-outline',
         disabledFunction: () => !this.userHasPermissionRequestUpdateAsset,
       },
       {
         key: 'showSelectedFeatures',
         label: 'Afficher toutes les sélections',
-        icon: 'locate',
+        icon: 'locate-outline',
       },
+      //{ key: 'generate-itv', label: 'Exporter ITV vierge', icon: 'download-outline' },
     ];
     this.isMobile = this.utilsService.isMobilePlateform();
 
@@ -606,5 +609,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       features,
       qParam
     );
+  }
+
+  public openPopoverButtons(e: Event): void {
+    this.popoverButtons.event = e;
+    this.popoverButtons.present();
   }
 }

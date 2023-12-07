@@ -1,3 +1,33 @@
+<ng-template #buttonsTemplate>
+  <div class="multiple-selection-drawer-action-button-row">
+    <ion-tab-button *ngFor="let button of buttons | slice:0:numberOfButtonDisplayed" class="multiple-selection-drawer-action-button" (click)="onTabButtonClicked(button)" [disabled]="isLoading || (button.disabledFunction ? button.disabledFunction() : false)">
+      <ion-icon [name]="button.icon"></ion-icon>
+      <span>{{ button.label }}</span>
+    </ion-tab-button>
+
+    <ion-tab-button *ngIf="buttons.length > numberOfButtonDisplayed" (click)="openPopoverButtons($event)" [disabled]="isLoading" class="multiple-selection-drawer-action-button">
+      <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+      <span>Autre</span>
+    </ion-tab-button>
+  </div>
+</ng-template>
+
+<!-- 
+  keepContentsMounted=true because without it the popover would be outside of the screen 
+  Because the width is set to "fit-content" and without the popover content not mounted, ionic does not know the width and assume its small (like 20px)
+  So when it is displayed, it is 20px from the right border of the screen and everything after those 20 px is after the right side of the screen
+-->
+<ion-popover #popoverButtons [dismissOnSelect]="true" side="bottom" alignment="start" size="auto" class="popover-buttons" [keepContentsMounted]="true">
+  <ng-template>
+    <ion-content class="ion-no-padding">
+      <ion-item *ngFor="let button of buttons | slice:numberOfButtonDisplayed" lines="none" button (click)="onTabButtonClicked(button)" [disabled]="isLoading || (button.disabledFunction ? button.disabledFunction() : false)">
+        <ion-icon slot="start" [name]="button.icon"></ion-icon>
+        <ion-label style="font-size: 14px">{{ button.label }}</ion-label>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+
 <ng-template #selectionTemplate>
   <ion-select aria-label="Sources" [interface]="isMobile ? 'action-sheet' : 'popover'" label-placement="floating" fill="outline" cancelText="Annuler" placeholder="Sélectionner les sources"
   [multiple]="true" (ionChange)="handleChange($event)" [(ngModel)]="selectedSource" [disabled]="sources.length === 0">
@@ -73,7 +103,8 @@
 <ng-template #footerTemplate>
 </ng-template>
 
-<app-synthesis [drawerTitle]="'Selection Multiple'" [hasFile]="false" [tabButtons]="buttons" [tabDisabled]="isLoading"
+<app-synthesis [drawerTitle]="'Selection Multiple'" [hasFile]="false"
+  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [tabDisabled]="isLoading"
   [contentTemplate]="selectionTemplate" [footerTemplate]="footerTemplate" (onTabButton)="onTabButtonClicked($event)">
 </app-synthesis>
 
