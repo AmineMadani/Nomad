@@ -314,6 +314,22 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.2.0_update_layer_data",
+                "author": "NOMAD",
+                "context": "VEOLIA",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/VEOLIA/v1.2.0/update_layer_data.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }
