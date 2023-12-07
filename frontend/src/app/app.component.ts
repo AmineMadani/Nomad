@@ -34,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
       title: 'Programmes',
       url: '/programs',
       icon: 'business',
-      displayed: () => !this.isMobile && this.userHasPermissionSendWorkorder,
+      displayed: () => !this.isMobile,
     },
     {
       title: 'Paramètres',
@@ -55,8 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private location: Location,
     private platform: Platform,
     private utils: UtilsService,
-    private workorderService: WorkorderService,
-    private userService: UserService
+    private workorderService: WorkorderService
   ) {
     this.keycloakService.configure();
     defineCustomElements(window);
@@ -69,14 +68,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public version: string = packageInfo.version;
 
-  private userHasPermissionSendWorkorder: boolean;
   private sub: Subscription = new Subscription();
 
   async ngOnInit(): Promise<void> {
-    this.userHasPermissionSendWorkorder =
-      await this.userService.currentUserHasPermission(
-        PermissionCodeEnum.VIEW_PROGRAMS
-      );
+
     this.isMobile = this.utils.isMobilePlateform();
     // Don't show the settings page if mobile plateform
     if (this.isMobile) {
