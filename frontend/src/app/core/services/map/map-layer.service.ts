@@ -21,11 +21,12 @@ export class MapLayerService {
    * @returns The feature with the given ID, or null if there is no such feature
    */
   public getFeatureById(
+    mapKey: string,
     layerKey: string,
     featureId: string
   ): Maplibregl.MapGeoJSONFeature | null {
     const r: Maplibregl.MapGeoJSONFeature[] = this.mapService
-      .getMap()
+      .getMap(mapKey)
       .querySourceFeatures(layerKey, {
         sourceLayer: '',
         filter: ['==', 'id', featureId],
@@ -75,16 +76,17 @@ export class MapLayerService {
    * If the layer key is not found or the map is not initialized, an empty array is returned.
    */
   public getFeaturesInView(
+    mapKey: string,
     layerKey: string
   ): Promise<Maplibregl.MapGeoJSONFeature[]> {
     return new Promise((resolve, reject) => {
+      const map = this.mapService.getMap(mapKey);
       let f: Maplibregl.MapGeoJSONFeature[] = [];
       if (
-        this.mapService.getMap() &&
-        this.mapService.getMap().getLayer(layerKey.toUpperCase())
+        map &&
+        map.getLayer(layerKey.toUpperCase())
       ) {
-        f = this.mapService
-          .getMap()
+        f = map
           .queryRenderedFeatures(null, { layers: [layerKey.toUpperCase()] });
 
         const promises: Promise<any>[] = [];
@@ -98,7 +100,7 @@ export class MapLayerService {
               (clusterResolve, clusterReject) => {
                 // Get the children of the cluster. The any is important because the Maplibre Source type is done badly
                 (
-                  this.mapService.getMap().getSource(layerKey) as any
+                  map.getSource(layerKey) as any
                 ).getClusterLeaves(
                   clusterId,
                   pointCount,
@@ -144,11 +146,12 @@ export class MapLayerService {
    * @returns the closest feature from the coords in the area.
    */
   public async findNearestFeatureFromCoords(
+    mapKey: string,
     longitude: number,
     latitude: number,
     layerKey: string
   ): Promise<Maplibregl.MapGeoJSONFeature | null> {
-    let features = await this.getFeaturesInView(layerKey);
+    let features = await this.getFeaturesInView(mapKey, layerKey);
 
     if (features.length === 0) {
       return null;
@@ -236,18 +239,19 @@ export class MapLayerService {
    * @param y latitude
    */
   public moveToXY(
+    mapKey: string,
     x: number,
     y: number,
     zoomLevel: number = 16
   ): Promise<string> {
-    if (this.mapService.getMap().getZoom() > zoomLevel) {
-      zoomLevel = this.mapService.getMap().getZoom();
+    const map = this.mapService.getMap(mapKey);
+    if (map.getZoom() > zoomLevel) {
+      zoomLevel = map.getZoom();
     }
     return new Promise((resolve) => {
       if (x && y) {
-        this.mapService
-          .getMap()
-          .easeTo({ center: [x, y], zoom: zoomLevel })
+        map.
+          easeTo({ center: [x, y], zoom: zoomLevel })
           .once('moveend', () => {
             resolve('done');
           });
@@ -263,17 +267,18 @@ export class MapLayerService {
    * @param y latitude
    */
   public jumpToXY(
+    mapKey: string,
     x: number,
     y: number,
     zoomLevel: number = 16
   ): Promise<string> {
-    if (this.mapService.getMap().getZoom() > zoomLevel) {
-      zoomLevel = this.mapService.getMap().getZoom();
+    const map = this.mapService.getMap(mapKey)
+    if (map.getZoom() > zoomLevel) {
+      zoomLevel = map.getZoom();
     }
     return new Promise((resolve) => {
       if (x && y) {
-        this.mapService
-          .getMap()
+        map
           .jumpTo({ center: [x, y], zoom: zoomLevel })
           .once('moveend', () => {
             resolve('done');
@@ -291,12 +296,13 @@ export class MapLayerService {
    * @param layerKey The key of the layer
    */
   public async zoomOnXyToFeatureByIdAndLayerKey(
+    mapKey: string,
     layerKey: string,
     id: string,
     minZoom: number = 17
   ): Promise<void> {
-    await this.mapService.addEventLayer(layerKey);
-    const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(layerKey, id);
+    await this.mapService.addEventLayer(mapKey, layerKey);
+    const r: Maplibregl.MapGeoJSONFeature = this.getFeatureById(mapKey, layerKey, id);
     if (!r || r?.id === undefined) {
       return;
     }
@@ -316,16 +322,16 @@ export class MapLayerService {
       }, new Maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
     }
 
-    let currentZoom = this.mapService.getMap().getZoom();
+    let currentZoom = this.mapService.getMap(mapKey).getZoom();
     if (currentZoom < minZoom) {
       currentZoom = minZoom;
-    }
+    }+
 
-    this.mapService.getMap().fitBounds(bounds, {
+    this.mapService.getMap(mapKey).fitBounds(bounds, {
       padding: 20,
       maxZoom: currentZoom,
     });
-    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), [
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(mapKey), [
       {
         source: layerKey,
         id: r.id.toString(),
@@ -340,6 +346,7 @@ export class MapLayerService {
    * @returns the marker
    */
   public addMarker(
+    mapKey: string,
     x: number,
     y: number,
     geometry: Array<number[]> | number[],
@@ -351,7 +358,7 @@ export class MapLayerService {
       color: color ? color : '',
     })
       .setLngLat([x, y])
-      .addTo(this.mapService.getMap());
+      .addTo(this.mapService.getMap(mapKey));
     if (geometry[0] instanceof Array) {
       this.limitDragMarker(geometry as any, marker);
       marker.on('drag', () => this.limitDragMarker(geometry as any, marker));
@@ -361,21 +368,21 @@ export class MapLayerService {
     return marker;
   }
 
-  public fitBounds(e: any, maxZoomLevel: number = 17): void {
+  public fitBounds(mapKey: string, e: any, maxZoomLevel: number = 17): void {
     const bounds = e.reduce((bounds: any, coord: any) => {
       return bounds.extend(coord);
     }, new Maplibregl.LngLatBounds(e[0], e[0]));
 
-    this.mapService.getMap().fitBounds(bounds, {
+    this.mapService.getMap(mapKey).fitBounds(bounds, {
       padding: 20,
       maxZoom: maxZoomLevel,
     });
   }
 
-  public hideFeature(layerKey: string, featureId: string): void {
+  public hideFeature(mapKey:string, layerKey: string, featureId: string): void {
     const layer = this.mapService.getLayer(layerKey);
     for (const style of layer.style) {
-      this.mapService.getMap().setFilter(style.id, ['!=', 'id', featureId]);
+      this.mapService.getMap(mapKey).setFilter(style.id, ['!=', 'id', featureId]);
     }
   }
 
@@ -452,10 +459,11 @@ export class MapLayerService {
    * @returns The nearest features (if there are) from the map.
    */
   public queryNearestFeature(
+    mapKey: string,
     e: Maplibregl.MapMouseEvent
   ): Maplibregl.MapGeoJSONFeature {
-    var mouseCoords = this.mapService.getMap().unproject(e.point);
-    const selectedFeatures = this.mapService.getMap().queryRenderedFeatures(
+    var mouseCoords = this.mapService.getMap(mapKey).unproject(e.point);
+    const selectedFeatures = this.mapService.getMap(mapKey).queryRenderedFeatures(
       [
         [e.point.x - 10, e.point.y - 10],
         [e.point.x + 10, e.point.y + 10],

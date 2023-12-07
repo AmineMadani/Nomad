@@ -490,12 +490,12 @@ export class WorkorderService {
   }
 
   private syncWorkorderDisplay(oldWko: Workorder, wko: Workorder) {
-    if(this.mapService.getMap()) {
+    if(this.mapService.getMap('home')) {
       if(this.mapService.getLayer('task')) {
         for(let oldTask of oldWko.tasks) {
-          this.mapService.removePoint('task',oldTask.id.toString());
+          this.mapService.removePoint('home', 'task',oldTask.id.toString());
         }
-        this.mapService.addGeojsonToLayer(wko, 'task');
+        this.mapService.addGeojsonToLayer('home', wko, 'task');
       }
     }
   }

@@ -50,7 +50,7 @@ export class MobileHomeActionsComponent implements OnInit {
   }
 
   public async onGenerateWorkOrder() {
-    const centerMapPosition = this.mapService.getMap().getCenter();
+    const centerMapPosition = this.mapService.getMap('home').getCenter();
     Promise.all([
       this.contractService.getContractIdsByLatitudeLongitude(
         centerMapPosition.lat,
@@ -118,8 +118,8 @@ export class MobileHomeActionsComponent implements OnInit {
    * Call mapservice to share the click position
    */
   public async onShareLocalisation() {
-    const centerMapPosition = this.mapService.getMap().getCenter();
-    this.mapService.sharePosition(centerMapPosition.lat, centerMapPosition.lng);
+    const centerMapPosition = this.mapService.getMap('home').getCenter();
+    this.mapService.sharePosition('home', centerMapPosition.lat, centerMapPosition.lng);
   }
   /**
    * call mapservice to remone the pin of initial localisation

@@ -5,7 +5,7 @@ import {
   debounceTime,
   filter,
   fromEvent,
-  take,
+  last,
   takeUntil,
 } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -47,7 +47,7 @@ export class HomePage implements OnInit, OnDestroy {
   ) {
     this.drawerService.initDrawerListener();
     this.mapService
-      .onMapLoaded()
+      .onMapLoaded('home')
       .pipe(takeUntil(this.drawerUnsubscribe$), debounceTime(100))
       .subscribe(() => {
         this.addHomeMapEvents();
@@ -96,7 +96,8 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyDrawer();
-    this.mapService.setMapUnloaded();
+    this.mapService.ngOnDestroy();
+    //this.mapService.setMapUnloaded('home');
   }
 
   public onBottomSheetDismiss(e: Event) {
@@ -172,7 +173,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   private addHomeMapEvents(): void {
-    fromEvent(this.mapService.getMap(), 'mousemove')
+    fromEvent(this.mapService.getMap('home'), 'mousemove')
       .pipe(
         takeUntil(this.drawerUnsubscribe$),
         filter(() => !this.isMobile)
@@ -198,14 +199,14 @@ export class HomePage implements OnInit, OnDestroy {
       });
 
     // Loading tiles event
-    fromEvent(this.mapService.getMap(), 'moveend')
+    fromEvent(this.mapService.getMap('home'), 'moveend')
       .pipe(takeUntil(this.drawerUnsubscribe$), debounceTime(1500))
       .subscribe(() => {
         this.interactiveMap.onMoveEnd();
       });
 
     //Move the map
-    fromEvent(this.mapService.getMap(), 'dragend')
+    fromEvent(this.mapService.getMap('home'), 'dragend')
     .pipe(takeUntil(this.drawerUnsubscribe$))
     .subscribe((e: Maplibregl.MapMouseEvent) => {
       //If on tracking mode and the user move on the map, 
@@ -216,18 +217,18 @@ export class HomePage implements OnInit, OnDestroy {
     });
 
     // Hovering feature event
-    fromEvent(this.mapService.getMap(), 'mousemove')
+    fromEvent(this.mapService.getMap('home'), 'mousemove')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.mapLayerService.queryNearestFeature(e);
+        const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
         this.onFeatureHovered(nearestFeature);
       });
 
     // Click on feature event
-    fromEvent(this.mapService.getMap(), 'click')
+    fromEvent(this.mapService.getMap('home'), 'click')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.mapLayerService.queryNearestFeature(e);
+        const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
         if (nearestFeature?.properties?.['cluster']) {
           this.onClusterSelected(nearestFeature, e);
         } else {
@@ -235,11 +236,11 @@ export class HomePage implements OnInit, OnDestroy {
         }
       });
 
-    fromEvent(this.mapService.getMap(), 'touchend')
+    fromEvent(this.mapService.getMap('home'), 'touchend')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
         if (!this.preventTouchMoveClicked) {
-          const nearestFeature = this.mapLayerService.queryNearestFeature(e);
+          const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
           this.onFeatureSelected(nearestFeature, e);
         } else {
           setTimeout(() => {
@@ -253,29 +254,29 @@ export class HomePage implements OnInit, OnDestroy {
         }
       });
 
-    fromEvent(this.mapService.getMap(), 'touchmove')
+    fromEvent(this.mapService.getMap('home'), 'touchmove')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe(() => {
         this.preventTouchMoveClicked = true;
       });
 
     // Right click, as context menu, event
-    fromEvent(this.mapService.getMap(), 'contextmenu')
+    fromEvent(this.mapService.getMap('home'), 'contextmenu')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.mapLayerService.queryNearestFeature(e);
+        const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
         this.interactiveMap.openNomadContextMenu(e, nearestFeature);
       });
 
     // Ending zoom event
-    fromEvent(this.mapService.getMap(), 'zoom')
+    fromEvent(this.mapService.getMap('home'), 'zoom')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe(() => {
         this.preventTouchMoveClicked = true;
       });
 
     // Drawing event
-    fromEvent(this.mapService.getMap(), 'draw.create')
+    fromEvent(this.mapService.getMap('home'), 'draw.create')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe(async (e: any) => {
         if (!this.drawingService.getIsMeasuring()) {
@@ -289,7 +290,7 @@ export class HomePage implements OnInit, OnDestroy {
 
           let features = this.drawingService.getFeaturesFromDraw(
             e,
-            this.mapService.getMap(),
+            this.mapService.getMap('home'),
             layersID
           );
 
@@ -319,7 +320,7 @@ export class HomePage implements OnInit, OnDestroy {
       });
 
     // updating draw
-    fromEvent(this.mapService.getMap(), 'draw.render')
+    fromEvent(this.mapService.getMap('home'), 'draw.render')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: any) => {
         if (this.drawingService.getIsMeasuring()) {
@@ -330,7 +331,7 @@ export class HomePage implements OnInit, OnDestroy {
       });
 
     // updating draw
-    fromEvent(this.mapService.getMap(), 'draw.update')
+    fromEvent(this.mapService.getMap('home'), 'draw.update')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: any) => {
         this.interactiveMap.setMeasure(this.drawingService.calculateMeasure());
@@ -343,9 +344,9 @@ export class HomePage implements OnInit, OnDestroy {
    */
   private async onFeatureHovered(feature: Maplibregl.MapGeoJSONFeature): Promise<void> {
     if (!feature || feature.id == null) {
-      this.mapService.getMap().getCanvas().style.cursor = '';
+      this.mapService.getMap('home').getCanvas().style.cursor = '';
       this.mapEventService.highlightHoveredFeatures(
-        this.mapService.getMap(),
+        this.mapService.getMap('home'),
         undefined,
         true
       );
@@ -355,14 +356,14 @@ export class HomePage implements OnInit, OnDestroy {
     const layers = await this.layerService.getAllLayers();
     const layer = layers.find(layer => layer.lyrTableName == feature.source)
     if(layer.lyrInteractive == 'NONE'){
-      this.mapService.getMap().getCanvas().style.cursor = '';
-      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), undefined, true);
+      this.mapService.getMap('home').getCanvas().style.cursor = '';
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap('home'), undefined, true);
       return;
     }
 
-    this.mapService.getMap().getCanvas().style.cursor = 'pointer';
+    this.mapService.getMap('home').getCanvas().style.cursor = 'pointer';
     this.mapEventService.highlightHoveredFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       [{ source: feature.source, id: feature.id.toString() }],
       true
     );
@@ -385,8 +386,8 @@ export class HomePage implements OnInit, OnDestroy {
     const layers = await this.layerService.getAllLayers();
     const layer = layers.find(layer => layer.lyrTableName == feature.source)
     if(layer.lyrInteractive == 'NONE'){
-      this.mapService.getMap().getCanvas().style.cursor = '';
-      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), undefined, true);
+      this.mapService.getMap('home').getCanvas().style.cursor = '';
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap('home'), undefined, true);
       return;
     }
 
@@ -395,7 +396,7 @@ export class HomePage implements OnInit, OnDestroy {
     const firedEvent = this.mapEventService.isFeatureFiredEvent;
 
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       [{ source: feature.source, id: feature.id.toString() }],
       firedEvent,
       e
@@ -430,16 +431,16 @@ export class HomePage implements OnInit, OnDestroy {
     feature: Maplibregl.MapGeoJSONFeature,
     e: Maplibregl.MapMouseEvent
   ): void {
-    const features = this.mapService.getMap().queryRenderedFeatures(e.point, {
+    const features = this.mapService.getMap('home').queryRenderedFeatures(e.point, {
       layers: [feature.layer.id],
     });
     const clusterId = features[0].properties['cluster_id'];
     const source = this.mapService
-      .getMap()
+      .getMap('home')
       .getSource(features[0].source) as Maplibregl.GeoJSONSource;
     source.getClusterExpansionZoom(clusterId, (err, zoom) => {
       if (err) return;
-      this.mapService.getMap().easeTo({
+      this.mapService.getMap('home').easeTo({
         center: this.utilsService.getAverageOfCoordinates(
           features.map((f) => f.geometry['coordinates'])
         ),
@@ -453,17 +454,17 @@ export class HomePage implements OnInit, OnDestroy {
       setTimeout(async () => {
         if (user.usrConfiguration.context?.layers) {
           for (let layer of user.usrConfiguration.context?.layers) {
-            this.mapService.addEventLayer(layer[0], layer[1]);
+            this.mapService.addEventLayer('home', layer[0], layer[1]);
           }
         }
         if (user.usrConfiguration.context?.zoom) {
           if (!this.praxedoService.externalReport) {
-            this.mapService.setZoom(user.usrConfiguration.context?.zoom);
+            this.mapService.setZoom('home', user.usrConfiguration.context?.zoom);
           }
         }
         if (user.usrConfiguration.context?.lat) {
           if (!this.praxedoService.externalReport) {
-            this.mapService.getMap().jumpTo({
+            this.mapService.getMap('home').jumpTo({
               center: [
                 user.usrConfiguration.context?.lng,
                 user.usrConfiguration.context?.lat,
@@ -506,7 +507,7 @@ export class HomePage implements OnInit, OnDestroy {
       .onInitUserContextEvent()
       .pipe(debounceTime(2000), takeUntil(this.drawerUnsubscribe$))
       .subscribe(() => {
-        this.userService.onUserContextEvent();
+        this.userService.onUserContextEvent('home');
       });
 
     this.route.events
@@ -516,7 +517,7 @@ export class HomePage implements OnInit, OnDestroy {
         takeUntil(this.drawerUnsubscribe$)
       )
       .subscribe(() => {
-        this.userService.onUserContextEvent();
+        this.userService.onUserContextEvent('home');
       });
   }
 

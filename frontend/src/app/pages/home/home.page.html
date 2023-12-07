@@ -15,6 +15,7 @@
             </ion-fab-button>
           </ion-fab>
           <app-map #interactiveMap
+          [mapKey]="'home'"
             [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? 'app-map-mobile' : '')"></app-map>
           <app-actions-layer class="no-print" [currentRoute]="currentRoute"
             [ngClass]="!drawerHasBeenOpened ? '' : ((currentRoute !== drawerRouteEnum.HOME || !isMobile) ? '' : 'home-main-action-layer-mobile-animation')"></app-actions-layer>

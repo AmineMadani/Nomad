@@ -107,6 +107,7 @@ export class MapComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
 
   @Input() public hideMap?: boolean;
+  @Input() public mapKey: string;
   @Output() public onHideMap: EventEmitter<void> = new EventEmitter();
 
   public map: Maplibregl.Map;
@@ -165,7 +166,7 @@ export class MapComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((p: Params) => {
           const { lat, lng, zoom } = p;
-          this.map = this.mapService.createMap(lat, lng, zoom);
+          this.map = this.mapService.createMap(this.mapKey, lat, lng, zoom);
           return fromEvent(this.map, 'load');
         }),
         first()
@@ -179,7 +180,7 @@ export class MapComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
-    this.mapService.destroyLayers();
+    this.mapService.destroyLayers(this.mapKey);
 
     if (this.streetViewMarker) {
       this.streetViewMarker.remove();
@@ -200,7 +201,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.loadBaseMap();
     }
 
-    fromEvent(this.mapService.getMap(), 'zoom')
+    fromEvent(this.map, 'zoom')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.scale = this.utilsService.calculateMapScale(this.map.getZoom(), this.map.getCenter().lat);
@@ -213,7 +214,7 @@ export class MapComponent implements OnInit, OnDestroy {
   public setMapLoaded(): void {
     this.map.resize();
     this.displayMap = true;
-    this.mapService.setMapLoaded();
+    this.mapService.setMapLoaded(this.mapKey);
   }
 
   public onClickHideMap(): void {
@@ -570,6 +571,7 @@ export class MapComponent implements OnInit, OnDestroy {
   public async onShareLocalisation(): Promise<void> {
     document.getElementById('map-nomad-context-menu').className = 'hide';
     await this.mapService.sharePosition(
+      this.mapKey,
       this.clicklatitude,
       this.clicklongitute
     );
@@ -688,8 +690,8 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private async addOfflineLayer() {
-    this.mapService.getMap().removeLayer('basemap');
-    this.mapService.getMap().addSource('offlineBaseMap', {
+    this.mapService.getMap('home').removeLayer('basemap');
+    this.mapService.getMap('home').addSource('offlineBaseMap', {
       type: 'vector',
       tiles: [
         'offline://{z}/{x}/{y}.vector.pbf',
@@ -700,7 +702,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const firstLayerId = this.map.getStyle().layers[0]?.id;
     let styleLayers = await this.basemapOfflineService.getOfflineStyleLayer();
     for (let layer of styleLayers) {
-      this.mapService.getMap().addLayer(layer, firstLayerId);
+      this.mapService.getMap('home').addLayer(layer, firstLayerId);
     }
   }
 
@@ -922,7 +924,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.workorderService.getLocalWorkorders().then((workorders) => {
       for (let workorder of workorders) {
         if (workorder.id < 0 && !workorder.isDraft) {
-          this.mapService.addGeojsonToLayer(workorder, 'task');
+          this.mapService.addGeojsonToLayer(this.mapKey, workorder, 'task');
         }
       }
     });

@@ -16,6 +16,6 @@ import { ProgramsPage } from './programs.page';
     IonicModule,
     SharedModule,
     HttpClientModule,
-  ]
+  ],
 })
 export class ProgramsModule { }

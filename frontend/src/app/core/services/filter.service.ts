@@ -70,12 +70,12 @@ export class FilterService {
    * @param layerkey layer exploitation data
    * @returns list of data
    */
-  public getData(layerkey: string): any | undefined {
+  public getData(mapKey:string, layerkey: string): any | undefined {
     const features = this.filterDataService.getFilterData().get(layerkey);
     if (features && features.length > 0) {
       return features;
     } else {
-      return this.mapLayerService.getFeaturesInView(layerkey);
+      return this.mapLayerService.getFeaturesInView(mapKey, layerkey);
     }
   }
 
@@ -84,8 +84,8 @@ export class FilterService {
   //  * @param layerKey layer exploitation data
   //  * @param filters list of property filter
   //  */
-  public applyFilterOnMap(layerKey: string) {
-    this.mapService.applyFilterOnMap(layerKey);
+  public applyFilterOnMap(mapKey:string, layerKey: string) {
+    this.mapService.applyFilterOnMap(mapKey, layerKey);
   }
 
   /**
@@ -95,7 +95,7 @@ export class FilterService {
    * @param value value to filter
    * @param toogle toogle
    */
-  public setToggleFilter(tablekey: string[], key: string, value: string, toogle: boolean): void {
+  public setToggleFilter(mapKey:string, tablekey: string[], key: string, value: string, toogle: boolean): void {
     for (let layerkey of tablekey) {
       if (toogle) {
         if (this.filterDataService.getSearchFilterListData().has(layerkey)) {
@@ -123,7 +123,7 @@ export class FilterService {
       }
       if (this.mapService.getLayer(layerkey)) {
         //Applied the filter on the map
-        this.applyFilterOnMap(layerkey);
+        this.applyFilterOnMap(mapKey, layerkey);
       }
     }
   }
@@ -134,7 +134,7 @@ export class FilterService {
    * @param key property key
    * @param listValue  list of values to filter
    */
-  public setSearchFilter(layerkey: string, key: string, listValue: string[]) {
+  public setSearchFilter(mapKey: string, layerkey: string, key: string, listValue: string[]) {
     if (this.filterDataService.getSearchFilterListData().get(layerkey)) {
       if (listValue && listValue.length > 0) {
         this.filterDataService.getSearchFilterListData().get(layerkey)?.set(key, listValue);
@@ -148,7 +148,7 @@ export class FilterService {
     }
 
     // //Applied the filter on the map
-    this.applyFilterOnMap(layerkey);
+    this.applyFilterOnMap(mapKey, layerkey);
   }
 
   /**

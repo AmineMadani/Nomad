@@ -101,7 +101,7 @@ export class ActionsLayerMobileComponent implements OnInit, OnDestroy {
 
   public onAdressClick(adress: any) {
     this.adress = adress.properties.label;
-    this.mapLayerService.moveToXY(adress.geometry.coordinates[0],adress.geometry.coordinates[1],19);
+    this.mapLayerService.moveToXY('home', adress.geometry.coordinates[0],adress.geometry.coordinates[1],19);
     if(this.marker) {
       this.marker.remove();
     }
@@ -109,7 +109,7 @@ export class ActionsLayerMobileComponent implements OnInit, OnDestroy {
       color: "#ea4335",
       draggable: false
       }).setLngLat([adress.geometry.coordinates[0],adress.geometry.coordinates[1]])
-      .addTo(this.mapService.getMap());
+      .addTo(this.mapService.getMap('home'));
     this.adresses = [];
   }
 

@@ -66,11 +66,11 @@ export class SynthesisDrawer implements OnInit, AfterViewInit, OnDestroy {
 
   public onDrawerClose(): void {
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       undefined
     );
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       undefined,
     );
     this.drawerService.closeDrawer();

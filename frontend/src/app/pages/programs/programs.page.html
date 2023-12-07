@@ -22,7 +22,7 @@
     <div class="programs-content">
       <ng-container *ngIf="!mapHidden; else programsOnly">
         <app-resize-container>
-          <ng-container mainContainer><app-map #programsMap [hideMap]="true"
+          <ng-container mainContainer><app-map #programsMap [mapKey]="'program'" [hideMap]="true"
               (onHideMap)="onHideMap()"></app-map></ng-container>
           <ng-container secondContainer [ngTemplateOutlet]="programs"></ng-container>
         </app-resize-container>

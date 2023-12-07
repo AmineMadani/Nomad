@@ -52,16 +52,16 @@ export class AssetFilterService {
    * Set the asset filter
    * @param assetFilter the asset filter
    */
-  public setAssetFilter(assetFilter: FilterAsset[]) {
+  public setAssetFilter(mapKey: string, assetFilter: FilterAsset[]) {
     this.assetFilter = assetFilter;
     this.dataSource = new MatTreeNestedDataSource<FilterAsset>();
     this.treeControl = new NestedTreeControl<FilterAsset>(
       (node: FilterAsset) => node.child
     );
     this.dataSource.data = this.assetFilter;
-    this.mapService.onMapLoaded().subscribe(() => {
+    this.mapService.onMapLoaded('home').subscribe(() => {
       const mapLayerLoaded: string[] = Object.keys(
-        this.mapService.getMap().style._layers
+        this.mapService.getMap(mapKey).style._layers
       ).map((key) => key);
       const mapSourceLoaded: string[] = Object.keys(
         this.mapService.getMap().style.sourceCaches
@@ -181,11 +181,11 @@ export class AssetFilterService {
   private displayNode(node: FilterAsset) {
     if (node.layerKey) {
       if (node.selected) {
-        this.mapService.addEventLayer(node.layerKey, node.styleKey).then(() => {
+        this.mapService.addEventLayer('home',node.layerKey, node.styleKey).then(() => {
           this.userService.saveUserContext();
         });
       } else {
-        this.mapService.removeEventLayer(node.layerKey, node.styleKey);
+        this.mapService.removeEventLayer('home', node.layerKey, node.styleKey);
         this.userService.saveUserContext();
       }
     }

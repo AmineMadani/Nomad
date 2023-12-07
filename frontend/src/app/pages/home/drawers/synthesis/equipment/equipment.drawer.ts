@@ -83,7 +83,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
     // We need to wait for the map to be loaded
     // Else we can't use the zoom and specific map functionnalities
     this.mapService
-      .onMapLoaded()
+      .onMapLoaded('home')
       .pipe(
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$)
@@ -206,8 +206,9 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   private async zoomToEquipment(lyrTableName: string, equipment: any) {
     const layer: Layer = await this.layerService.getLayerByKey(lyrTableName);
     const minZoom = JSON.parse(layer.listStyle[0].sydDefinition)[0].minzoom + 1;
-    await this.mapLayerService.moveToXY(equipment.x, equipment.y, minZoom);
+    await this.mapLayerService.moveToXY('home', equipment.x, equipment.y, minZoom);
     await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
+      'home',
       lyrTableName,
       equipment.id
     );

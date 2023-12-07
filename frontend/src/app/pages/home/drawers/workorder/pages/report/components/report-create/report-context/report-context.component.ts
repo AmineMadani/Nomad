@@ -224,7 +224,7 @@ export class ReportContextComponent implements OnInit {
   private displayAndZoomTo(task: Task[]) {
     let featuresSelection: MultiSelection[] = [];
 
-    this.mapService.onMapLoaded().subscribe(async () => {
+    this.mapService.onMapLoaded('home').subscribe(async () => {
       // Calculating the average value of both latitude and longitude
       const longitude =
         task
@@ -241,8 +241,8 @@ export class ReportContextComponent implements OnInit {
             0
           ) / task.length;
 
-      await this.mapLayerService.moveToXY(longitude, latitude);
-      await this.mapService.addEventLayer('task');
+      await this.mapLayerService.moveToXY('home', longitude, latitude);
+      await this.mapService.addEventLayer('home', 'task');
 
       featuresSelection = task
         .filter((t) => !t.assObjTable.includes('_xy'))
@@ -260,7 +260,7 @@ export class ReportContextComponent implements OnInit {
             .filter((t) => !t.assObjTable.includes('_xy'))
             .map((t) => t.assObjTable)
         ),
-      ].forEach(async (layer) => await this.mapService.addEventLayer(layer));
+      ].forEach(async (layer) => await this.mapService.addEventLayer('home', layer));
 
       for (const t of task) {
         featuresSelection.push({ id: t.id.toString(), source: 'task' });
@@ -273,11 +273,12 @@ export class ReportContextComponent implements OnInit {
       }
 
       this.mapEventService.highlighSelectedFeatures(
-        this.mapService.getMap(),
+        this.mapService.getMap('home'),
         featuresSelection
       );
 
       this.mapLayerService.fitBounds(
+        'home',
         task.map((t) => {
           return [+t.longitude, +t.latitude];
         })

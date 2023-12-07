@@ -49,6 +49,7 @@ import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
 import { MultiAssetsModalComponent } from './drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
 import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv-import/itv-import.component';
+import { MapService } from 'src/app/core/services/map/map.service';
 
 @NgModule({
   imports: [
@@ -101,6 +102,6 @@ import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv
     MultiAssetsModalComponent,
     ItvImportComponent,
   ],
-  exports: [ReportCreateComponent],
+  exports: [ReportCreateComponent]
 })
 export class HomePageModule {}

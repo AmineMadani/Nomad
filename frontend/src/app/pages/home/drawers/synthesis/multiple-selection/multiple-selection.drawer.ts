@@ -179,11 +179,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     if (features && features.length > 0) {
       // Zoom to fit the screen with all equipments
       // Only when the map loaded to remove some problems when we refresh the screen
-      this.mapService.onMapLoaded().pipe(
+      this.mapService.onMapLoaded('home').pipe(
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$)
       ).subscribe(() => {
         this.mapLayerService.fitBounds(
+          'home',
           features.map((f) => {
             return [+f.x, +f.y];
           })
@@ -348,7 +349,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
 
     this.mapEventService.removeFeatureFromSelected(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       feature.id
     );
   }
@@ -395,6 +396,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       this.featuresHighlighted.push(feature);
       this.hightlightFeatures(this.featuresHighlighted);
       this.mapLayerService.fitBounds(
+        'home',
         this.featuresHighlighted.map((f) => {
           return [+f.x, +f.y];
         })
@@ -406,6 +408,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.featuresHighlighted = [];
     this.hightlightFeatures();
     this.mapLayerService.fitBounds(
+      'home',
       this.featuresSelected.map((f) => {
         return [+f.x, +f.y];
       })
@@ -478,7 +481,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     const promises: Promise<void>[] = abstractFeatures.map(
       ({ lyrTableName }) => {
-        return this.mapService.addEventLayer(lyrTableName);
+        return this.mapService.addEventLayer('home', lyrTableName);
       }
     );
 
@@ -522,7 +525,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.filteredFeatures = this.featuresSelected;
 
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       this.featuresSelected
         .filter((f) => f.isTemp !== true)
         .map((f: any) => {
@@ -532,6 +535,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     if (this.featuresSelected.length > 0) {
       this.mapLayerService.fitBounds(
+        'home',
         this.featuresSelected.map((f) => {
           return [+f.x, +f.y];
         })
@@ -543,7 +547,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   private hightlightFeatures(features?: any[]): void {
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       (features ?? this.featuresSelected).map((f: any) => {
         return { id: f.id, source: f.lyrTableName };
       })
@@ -555,6 +559,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       features = [
         {
           ...this.mapLayerService.getFeatureById(
+            'home',
             features.layerKey,
             features.featureId
           )['properties'],
@@ -564,7 +569,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     } else {
       features = features.map((f) => {
         return {
-          ...this.mapLayerService.getFeatureById(f.source, f.id)['properties'],
+          ...this.mapLayerService.getFeatureById('home', f.source, f.id)['properties'],
           lyrTableName: f.source,
         };
       });
