@@ -63,6 +63,9 @@ export class AssetFilterService {
       const mapLayerLoaded: string[] = Object.keys(
         this.mapService.getMap().style._layers
       ).map((key) => key);
+      const mapSourceLoaded: string[] = Object.keys(
+        this.mapService.getMap().style.sourceCaches
+      ).map((key) => key.toUpperCase());
       if (mapLayerLoaded && mapLayerLoaded.length > 0) {
         let descendants: FilterAsset[] = [];
         for (let assetFilter of this.assetFilter) {
@@ -76,7 +79,7 @@ export class AssetFilterService {
               this.selectAssetFilter(descendant, true);
             }
           } else {
-            if (mapLayerLoaded.includes(descendant.layerKey?.toUpperCase())) {
+            if (mapSourceLoaded.includes(descendant.layerKey?.toUpperCase())) {
               this.selectAssetFilter(descendant, true);
             }
           }

@@ -57,6 +57,13 @@ public class LayerRepositoryImpl {
      */
     public String getLayerTile(String key, Long tileNumber, Date optionnalStartDate, Long userId) {
     	String formatOptionnalStartDate = (optionnalStartDate != null ? "'"+sdf.format(optionnalStartDate)+"'":null);
+    	if(key.contains("overlay.")) {
+    		String overlay = key.replace("overlay.", "");
+    		return this.jdbcTemplate.queryForObject(
+                    "select nomad.f_get_geojson_from_tile_overlay(?,?)",
+                    String.class, overlay, tileNumber.intValue()
+            );
+    	}
         return this.jdbcTemplate.queryForObject(
                 "select nomad.f_get_geojson_from_tile(?,?,?,?)",
                 String.class, key, tileNumber.intValue(), formatOptionnalStartDate, userId.intValue()
