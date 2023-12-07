@@ -156,3 +156,10 @@
         --color: var(--ion-color-danger);
     }
 }
+
+.context-menu-holder {
+  position: absolute;
+  z-index: 1;
+}
+
+

@@ -59,9 +59,6 @@ export class MapComponent implements OnInit, OnDestroy {
     private basemapOfflineService: BasemapOfflineService,
     private layerService: LayerService,
     private workorderService: WorkorderService,
-    private mapLayerService: MapLayerService,
-    private modalCtrl: ModalController,
-    private mapEvent: MapEventService
   ) {
     this.drawerService
       .onCurrentRouteChanged()
@@ -69,29 +66,12 @@ export class MapComponent implements OnInit, OnDestroy {
       .subscribe((route: DrawerRouteEnum) => {
         this.currentRoute = route;
       });
-
-    if (this.isMobile) {
-      this.mapEvent
-        .onStreetViewSelected()
-        .pipe(takeUntil(this.ngUnsubscribe$))
-        .subscribe(() => {
-          this.onMobileStreetView();
-        });
-    }
   }
 
   @ViewChild('ionModalMeasure', { static: false }) ionModalMeasure: IonModal;
   @ViewChild('ionModalStreetView', { static: false })
   ionModalStreetView: IonModal;
-  /**
-   * Method to hide the nomad context menu if the user click outside of the context menu
-   */
-  @HostListener('document:click')
-  clickout() {
-    if (!this.isInsideContextMenu) {
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-    }
-  }
+
 
   /**
    * Method to hide the nomad context menu if the user click outside of the context menu
@@ -129,6 +109,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   public colorLocateIcon: string;
   public sourceLocateIcon: string;
+  public mapFeatures: Maplibregl.MapGeoJSONFeature[] = [];
 
   private selectedFeature: Maplibregl.MapGeoJSONFeature & any;
   private isInsideContextMenu: boolean = false;
@@ -137,6 +118,9 @@ export class MapComponent implements OnInit, OnDestroy {
   private clicklatitude: number;
   private clicklongitute: number;
   public streetViewMarker: Maplibregl.Marker;
+  public clickEvent: Maplibregl.MapMouseEvent;
+  public contextMenuX: number;
+  public contextMenuY: number;
 
   async ngOnInit() {
     this.isMobile = this.utilsService.isMobilePlateform();
@@ -341,191 +325,23 @@ export class MapComponent implements OnInit, OnDestroy {
   // ---- MAP ACTIONS ---- //
   // --------------------- //
 
-  /**
-   * Opens a context menu on the map and updates its content based on the selected feature.
-   * @param e - MapMouseEvent from Maplibre
-   */
+// /**
+//    * Opens a context menu on the map and updates its content based on the selected feature.
+//    * @param e - MapMouseEvent from Maplibre
+//    */
   public async openNomadContextMenu(
     e: Maplibregl.MapMouseEvent,
-    feature: Maplibregl.MapGeoJSONFeature
+    features: Maplibregl.MapGeoJSONFeature[]
   ): Promise<void> {
-    this.drawingService.endMesure(true);
+    this.drawingService.deleteDrawing();
     this.measure = undefined;
-
-    const menu: HTMLElement = document.getElementById('map-nomad-context-menu');
-    const contextMenuCreateWorkOrder: HTMLElement = document.getElementById(
-      'map-nomad-context-menu-create-workorder'
-    );
-    const contextMenuCreateReport: HTMLElement = document.getElementById(
-      'map-nomad-context-menu-create-report'
-    );
-
-    menu.className = 'show';
-    menu.style.top = e.originalEvent.clientY - 56 + 'px';
-    menu.style.left = e.originalEvent.clientX + 'px';
+    this.clickEvent = e;
+    this.mapFeatures = features;
     this.clicklatitude = e.lngLat.lat;
     this.clicklongitute = e.lngLat.lng;
 
-    if (feature && feature.source !== 'task') {
-      contextMenuCreateWorkOrder.innerHTML = `Générer une intervention sur ${feature.id}`;
-      contextMenuCreateReport.innerHTML = `Saisir un compte-rendu sur ${feature.id}`;
-      this.selectedFeature = {
-        ...feature,
-        properties: {
-          ...feature.properties,
-          x: e.lngLat.lng,
-          y: e.lngLat.lat,
-        },
-      };
-    } else {
-      contextMenuCreateWorkOrder.innerHTML = 'Générer une intervention XY';
-      contextMenuCreateReport.innerHTML = 'Saisir un compte-rendu XY';
-      this.selectedFeature = {
-        properties: {
-          x: e.lngLat.lng,
-          y: e.lngLat.lat,
-        },
-      };
-    }
-  }
-
-  /**
-   * Navigates to a work order page with selected feature properties as query parameters.
-   */
-  public onGenerateWorkOrder(): void {
-    if (this.selectedFeature['id']) {
-      this.router.navigate(['/home/workorder'], {
-        queryParams: {
-          [this.selectedFeature['source']]: this.selectedFeature['id'],
-        },
-      });
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-    } else {
-      if (!this.selectedFeature['properties']['lyrTableName']) {
-        this.selectedFeature['properties']['lyrTableName'] =
-          this.selectedFeature['source'];
-      }
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-      this.drawerService.navigateTo(
-        DrawerRouteEnum.WORKORDER_WATER_TYPE,
-        undefined,
-        this.selectedFeature['properties']
-      );
-    }
-  }
-
-  /**
-   * Navigates to a report page with selected feature properties as query parameters.
-   */
-  public async onGenerateReport(): Promise<void> {
-    let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
-    let ctrId = this.selectedFeature['properties']['ctrId']
-      ? this.selectedFeature['properties']['ctrId'].toString().split(',')[0]
-      : null;
-    if (this.selectedFeature['id']) {
-      let equipment = await this.layerService.getEquipmentByLayerAndId(
-        this.selectedFeature['source'],
-        this.selectedFeature['id']
-      );
-      let recalculateCoords: number[];
-      //Equipments have fixed coordinates
-      if (equipment.geom.type == 'Point') {
-        recalculateCoords = [
-          this.selectedFeature['properties']['x'],
-          this.selectedFeature['properties']['y'],
-        ];
-      } else {
-        recalculateCoords = this.mapLayerService.findNearestPoint(
-          equipment.geom.coordinates,
-          [
-            this.selectedFeature['properties']['x'],
-            this.selectedFeature['properties']['y'],
-          ]
-        );
-      }
-      let workorder: Workorder = {
-        latitude: recalculateCoords[1],
-        longitude: recalculateCoords[0],
-        wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
-        ctyId: this.selectedFeature['properties']['ctyId'],
-        id: this.utilsService.createCacheId(),
-        isDraft: true,
-        tasks: [
-          {
-            id: this.utilsService.createCacheId(),
-            latitude: recalculateCoords[1],
-            longitude: recalculateCoords[0],
-            assObjTable: this.selectedFeature['source']
-              ? this.selectedFeature['source']
-              : 'aep_xy',
-            assObjRef: this.selectedFeature['id']
-              ? this.selectedFeature['id']
-              : null,
-            wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
-            ctrId: ctrId,
-          },
-        ],
-      };
-      this.workorderService.saveCacheWorkorder(workorder);
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-      this.router.navigate([
-        '/home/workorder/' + workorder.id.toString() + '/cr',
-      ]);
-    } else {
-      document.getElementById('map-nomad-context-menu').className = 'hide';
-      this.selectedFeature['properties']['ctrId'] = ctrId;
-      this.selectedFeature['properties']['target'] = 'report';
-      this.selectedFeature['properties']['wtsId'] = lStatus.find(
-        (status) => status.wtsCode == 'CREE'
-      )?.id;
-      this.drawerService.navigateTo(
-        DrawerRouteEnum.WORKORDER_WATER_TYPE,
-        undefined,
-        this.selectedFeature['properties']
-      );
-    }
-  }
-
-  /**
-   * Change the param isInsideContextMenu if hte user is on/out of the context menu
-   * @param hover True if context menu hover
-   */
-  public onHoverContextMenu(hover: boolean) {
-    this.isInsideContextMenu = hover;
-  }
-
-  /**
-   * Use the polygon drawing tool of MapboxDraw, with their input hidden
-   */
-  public onPolygonalSelection(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    this.drawingService.setDrawMode('draw_polygon');
-  }
-
-  /**
-   * Use the polygon drawing tool of MapboxDraw, with their input hidden
-   */
-  public onRectangleSelection(): void {
-    (
-      document.getElementsByClassName(
-        'mapbox-gl-draw_ctrl-draw-btn'
-      )[0] as HTMLButtonElement
-    ).click();
-    this.drawingService.setDrawMode('draw_rectangle');
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-  }
-
-  /**
-   * Remove the pin representing the initial localisation
-   */
-  public async onRemoveMarker() {
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    await this.mapService.removeLocalisationMarker();
+    this.contextMenuX = e.point.x;
+    this.contextMenuY = e.point.y;
   }
 
   /**
@@ -564,18 +380,6 @@ export class MapComponent implements OnInit, OnDestroy {
     return iconName;
   }
 
-  /**
-   * Asks the user how they want to share their location then
-   * copies the appropriate information to the clipboard.
-   */
-  public async onShareLocalisation(): Promise<void> {
-    document.getElementById('map-nomad-context-menu').className = 'hide';
-    await this.mapService.sharePosition(
-      this.mapKey,
-      this.clicklatitude,
-      this.clicklongitute
-    );
-  }
 
   /**
    * Sets the zoom level of the map to the value e.
@@ -754,48 +558,6 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Opens the modal with Google Street View, passing in longitude and
-   * latitude coordinates as component props.
-   * @param {number} lng - The longitude coordinate of the location for the street view.
-   * @param {number} lat - The latitude coordinate of the location for the street view.
-   */
-  public async onStreetView(
-    lng: number = this.clicklongitute,
-    lat: number = this.clicklatitude
-  ): Promise<void> {
-    if (this.isMobile) {
-      this.ionModalStreetView.isOpen = false;
-      this.streetViewMarker.remove();
-      this.streetViewMarker = undefined;
-    }
-
-    const modal = await this.modalCtrl.create({
-      component: StreetViewModalComponent,
-      componentProps: {
-        lng,
-        lat,
-      },
-      backdropDismiss: false,
-      cssClass: this.isMobile ? '' : 'large-modal',
-    });
-
-    modal.present();
-  }
-
-  /**
-   * Sets a draggable marker on the map at the center position and opens the validation/cancel
-   * bottom sheet for the marker
-   */
-  public async onMobileStreetView(): Promise<void> {
-    const centerMapPosition = this.map.getCenter();
-    this.streetViewMarker = new Maplibregl.Marker({
-      draggable: true,
-    })
-      .setLngLat([centerMapPosition.lng, centerMapPosition.lat])
-      .addTo(this.map);
-    this.ionModalStreetView.isOpen = true;
-  }
 
   /**
    * Method to add custom filter on layer tile loading

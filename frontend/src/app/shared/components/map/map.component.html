@@ -72,28 +72,9 @@
   </div>
 </div>
 
-<div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide"
-  id="map-nomad-context-menu">
-  <ion-list style="border-radius: 0px 10px 10px;">
-    <ion-item button (click)="onPolygonalSelection()">
-      <ion-label>Sélection polygonale</ion-label>
-    </ion-item>
-    <ion-item button (click)="onRectangleSelection()">
-      <ion-label>Sélection rectangulaire</ion-label>
-    </ion-item>
-    <ion-item button (click)="onGenerateWorkOrder()" [disabled]="!userHasPermissionCreateXYWorkorder">
-      <ion-label id="map-nomad-context-menu-create-workorder">Générer une intervention XY</ion-label>
-    </ion-item>
-    <ion-item button (click)="onGenerateReport()" [disabled]="!userHasPermissionModifyReport">
-      <ion-label id="map-nomad-context-menu-create-report">Saisir un compte-rendu XY</ion-label>
-    </ion-item>
-    <ion-item button (click)="onStreetView()">
-      <ion-label>Ouvrir Street View</ion-label>
-    </ion-item>
-    <ion-item button (click)="onShareLocalisation()">
-      <ion-label>Partager ma localisation </ion-label>
-    </ion-item>
-  </ion-list>
+<div class="context-menu-holder" [style.left.px]="contextMenuX" [style.top.px]="contextMenuY">
+  <app-map-context-menu  [mapFeatures]="mapFeatures" [clickEvent]="clickEvent">
+  </app-map-context-menu>
 </div>
 
 <ion-modal #ionModalMeasure [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1,0.25]"
@@ -108,7 +89,7 @@
   </ng-template>
 </ion-modal>
 
-<ion-modal #ionModalStreetView [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1]" [initialBreakpoint]="0.1"
+<!-- <ion-modal #ionModalStreetView [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1]" [initialBreakpoint]="0.1"
   [showBackdrop]="false" (didDismiss)="streetViewMarker.remove(); ionModalStreetView.isOpen = false">
   <ng-template>
     <ion-content class="ion-padding">
@@ -125,4 +106,4 @@
       </ion-tab-bar>
     </ion-content>
   </ng-template>
-</ion-modal>
+</ion-modal> -->

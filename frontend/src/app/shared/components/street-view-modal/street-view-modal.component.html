@@ -13,7 +13,7 @@
 </ion-header>
 <ion-content>
   <ion-item *ngIf="isMobile" lines="none" color="none">
-    <ion-button slot="start" fill="outline">
+    <ion-button slot="start" fill="outline" (click)="onValidate()">
       <ion-icon slot="start" name="navigate-circle-outline"></ion-icon>
       Se rendre à la position
     </ion-button>

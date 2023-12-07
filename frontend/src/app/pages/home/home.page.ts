@@ -209,7 +209,7 @@ export class HomePage implements OnInit, OnDestroy {
     fromEvent(this.mapService.getMap('home'), 'dragend')
     .pipe(takeUntil(this.drawerUnsubscribe$))
     .subscribe((e: Maplibregl.MapMouseEvent) => {
-      //If on tracking mode and the user move on the map, 
+      //If on tracking mode and the user move on the map,
       //update the status and the icon
       if (this.mapService.getLocateStatus() == LocateStatus.TRACKING){
         this.interactiveMap.setLocateStatus(LocateStatus.LOCALIZATE);
@@ -246,8 +246,8 @@ export class HomePage implements OnInit, OnDestroy {
           setTimeout(() => {
             this.preventTouchMoveClicked = false;
           }, 500);
-        } 
-        //If on tracking mode and the user move on the map, 
+        }
+        //If on tracking mode and the user move on the map,
         //update the status and the icon
         if (this.mapService.getLocateStatus() == LocateStatus.TRACKING){
           this.interactiveMap.setLocateStatus(LocateStatus.LOCALIZATE);
@@ -264,8 +264,8 @@ export class HomePage implements OnInit, OnDestroy {
     fromEvent(this.mapService.getMap('home'), 'contextmenu')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
-        const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
-        this.interactiveMap.openNomadContextMenu(e, nearestFeature);
+        const nearestFeatureList = this.mapLayerService.queryNearestFeatureList('home',e,5);
+        this.interactiveMap.openNomadContextMenu(e, nearestFeatureList);
       });
 
     // Ending zoom event
@@ -285,7 +285,7 @@ export class HomePage implements OnInit, OnDestroy {
           const fireEvent = this.mapEventService.isFeatureFiredEvent;
 
           const layers = await this.layerService.getAllLayers();
-          let layersID = this.mapService.getCurrentLayersIds();          
+          let layersID = this.mapService.getCurrentLayersIds();
           layersID = layersID.filter(layerId => layers.find(layer => layerId.includes(layer.lyrTableName.toUpperCase()))?.lyrInteractive != 'NONE');
 
           let features = this.drawingService.getFeaturesFromDraw(

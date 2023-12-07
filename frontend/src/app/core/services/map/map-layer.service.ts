@@ -463,15 +463,7 @@ export class MapLayerService {
     e: Maplibregl.MapMouseEvent
   ): Maplibregl.MapGeoJSONFeature {
     var mouseCoords = this.mapService.getMap(mapKey).unproject(e.point);
-    const selectedFeatures = this.mapService.getMap(mapKey).queryRenderedFeatures(
-      [
-        [e.point.x - 10, e.point.y - 10],
-        [e.point.x + 10, e.point.y + 10],
-      ],
-      {
-        layers: this.mapService.getCurrentLayersIds(),
-      }
-    );
+    const selectedFeatures = this.queryNearestFeatureList(mapKey,e);
     return this.findNearestFeature(mouseCoords, selectedFeatures);
   }
 
@@ -521,5 +513,29 @@ export class MapLayerService {
     const dx = feature.properties['x'] - mousePoint.lng;
     const dy = feature.properties['y'] - mousePoint.lat;
     return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  /**
+   * Queries a list of nearest rendered feature from a mouse event on the map.
+   * @param e - Mouse event on the map
+   * @returns A list nearest features (if there are) from the map.
+   */
+  public queryNearestFeatureList(
+    mapKey: string,
+    e: Maplibregl.MapMouseEvent,
+    tolerance? : number
+  ): Maplibregl.MapGeoJSONFeature[] {
+    tolerance = tolerance || 10;
+    var mouseCoords = this.mapService.getMap(mapKey).unproject(e.point);
+    const selectedFeatures = this.mapService.getMap(mapKey).queryRenderedFeatures(
+      [
+        [e.point.x - tolerance, e.point.y - tolerance],
+        [e.point.x +tolerance, e.point.y + tolerance],
+      ],
+      {
+        layers: this.mapService.getCurrentLayersIds(),
+      }
+    );
+    return selectedFeatures;
   }
 }

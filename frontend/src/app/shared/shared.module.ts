@@ -40,6 +40,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
 import { FormCommentComponent } from './form-editor/properties/form-comment/form-comment.component';
 import { AttachmentImageViewerComponent } from './components/attachment-accordion/attachment-image-viewer/attachment-image-viewer.component';
+import { MapContextMenuComponent } from './components/map-context-menu/map-context-menu.component';
 import { MapComponent } from './components/map/map.component';
 import { ResizeContainerComponent } from './components/resize-container/resize-container.component';
 import { StreetViewModalComponent } from './components/street-view-modal/street-view-modal.component';
@@ -88,6 +89,8 @@ import { MapScalePipe } from './pipes/map-scale.pipe';
     ClearDataDirective,
     // PIPES
     MapScalePipe,
+    //
+    MapContextMenuComponent,
   ],
   imports: [
     CommonModule,
@@ -114,6 +117,7 @@ import { MapScalePipe } from './pipes/map-scale.pipe';
     ResizeContainerComponent,
     StreetViewModalComponent,
     MapScalePipe,
+    MapContextMenuComponent,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

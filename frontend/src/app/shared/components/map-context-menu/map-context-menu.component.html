@@ -1,0 +1,165 @@
+<div [ngStyle]="{ 'display': isContextMenuOpened ? 'block' : 'none' }" (blur)="onBlur()">
+  <div (mouseenter)="onHoverContextMenu(true)" (mouseleave)="onHoverContextMenu(false)" class="hide"
+    id="map-nomad-context-menu">
+    <ion-list style="border-radius: 0px 10px 10px;">
+      <ion-item button (click)="onPolygonalSelection()">
+        <ion-label>Sélection polygonale</ion-label>
+      </ion-item>
+      <ion-item button (click)="onRectangleSelection()">
+        <ion-label>Sélection rectangulaire</ion-label>
+      </ion-item>
+      <ion-item button id="selectAssetTrigger" [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length > 1 ? 'block' : 'none' }">
+        <ion-label id="map-nomad-context-menu-select-asset">Selectionner un équipement</ion-label>
+        <ion-icon aria-hidden="true" name="caret-down" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button id="selectTaskTrigger" [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.tasks.length > 1 ? 'block' : 'none' }">
+        <ion-label id="map-nomad-context-menu-select-task">Interventions</ion-label>
+        <ion-icon aria-hidden="true" name="caret-down" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button id="wkoAssetTrigger" [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length > 1 ? 'block' : 'none' }">
+        <ion-label id="map-nomad-context-menu-create-workorder">
+          Générer une intervention sur
+        </ion-label>
+        <ion-icon aria-hidden="true" name="caret-down" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button id="criAssetTrigger" [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length > 1 ? 'block' : 'none' }">
+        <ion-label id="map-nomad-context-menu-create-workorder">
+          Saisir un compte-rendu sur
+        </ion-label>
+        <ion-icon aria-hidden="true" name="caret-down" slot="end"></ion-icon>
+      </ion-item>
+      <ion-item button [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length === 0 ? 'block' : 'none' }">
+        <ion-label (click)="onGenerateWorkOrder(null)" id="map-nomad-context-menu-select-asset">Générer une intervention
+          sur XY</ion-label>
+      </ion-item>
+      <ion-item button [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length === 0 ? 'block' : 'none' }">
+        <ion-label (click)="onGenerateReport(null)" id="map-nomad-context-menu-select-asset">Saisir un compte-rendu sur
+          XY</ion-label>
+      </ion-item>
+      <ion-item button [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.tasks.length === 1? 'block' : 'none' }">
+        <ion-label (click)="onOpenTask(this.tasks[0])" id="map-nomad-context-menu-select-asset">
+          Intervention {{this.tasks[0]?.properties.wkoId}}-{{this.tasks[0]?.dd}} {{this.tasks[0]?.reason}}
+        </ion-label>
+      </ion-item>
+      <ion-item button [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': this.assets.length === 1 ? 'block' : 'none' }">
+        <ion-label  (click)="onGenerateWorkOrder(assets[0])" id="map-nomad-context-menu-create-workorder">
+          <span>Générer une intervention sur </span>
+          <span>{{assets[0] && assets[0].id ? assets[0].id : ""}}</span>
+        </ion-label>
+      </ion-item>
+      <ion-item button id="criAssetTrigger" [disabled]="!userHasPermissionCreateXYWorkorder"
+        [ngStyle]="{ 'display': assets.length === 1 ? 'block' : 'none' }">
+        <ion-label (click)="onGenerateReport(assets[0])" id="map-nomad-context-menu-create-workorder">
+          <span>Saisir un compte rendue sur </span>
+          <span>{{assets[0] && assets[0].id ? assets[0].id : ""}}</span>
+        </ion-label>
+      </ion-item>
+      <ion-item button (click)="onStreetView()">
+        <ion-label>Ouvrir Street View</ion-label>
+      </ion-item>
+      <ion-item button (click)="onShareLocalisation()">
+        <ion-label>Partager ma localisation </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <ion-popover #assetSelectionPopover trigger="selectAssetTrigger" triggerAction="click"
+    [isOpen]="isAssetSelectionOpened" showBackdrop="false" (didDismiss)="isAssetSelectionOpened = false">
+    <ng-template>
+      <ion-list style="border-radius: 0px 10px 10px;">
+        <ng-container *ngFor="let item of assets">
+          <ion-item button (click)="selectAsset(item)">
+            <ion-label>
+              <span>{{item.id}} </span>
+              <span class="asset-layer">{{item.assetName}} </span>
+            </ion-label>
+
+          </ion-item>
+        </ng-container>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-popover #wkoSelectionPopover class="wko-asset-selection-popover" #wkoSelection trigger="wkoAssetTrigger"
+    triggerAction="click" [isOpen]="isWkoSelectionOpened" showBackdrop="false"
+    (didDismiss)="isWkoSelectionOpened = false">
+    <ng-template>
+      <ion-list style="border-radius: 0px 10px 10px;">
+        <ion-item button (click)="onGenerateWorkOrder(null)">
+          <ion-label>XY</ion-label>
+        </ion-item>
+        <ng-container *ngFor="let item of assets">
+          <ion-item button (click)="onGenerateWorkOrder(item)">
+            <ion-label>
+              <span>{{item.id}} </span>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-popover #criSelectionPopover class="task-selection-popover" #wkoSelection trigger="criAssetTrigger"
+    triggerAction="click" [isOpen]="isReportSelectionOpened" showBackdrop="false"
+    (didDismiss)="isReportSelectionOpened = false">
+    <ng-template>
+      <ion-list style="border-radius: 0px 10px 10px;">
+        <ion-item button (click)="onGenerateReport(null)">
+          <ion-label>XY</ion-label>
+        </ion-item>
+        <ng-container *ngFor="let item of assets">
+          <ion-item button (click)="onGenerateReport(item)">
+            <ion-label>
+              <span>{{item.id}} </span>
+              <span class="asset-layer">{{item.assetName}} </span>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-popover #taskSelectionPopover class="wko-cri-selection-popover" #wkoSelection trigger="selectTaskTrigger"
+    triggerAction="click" [isOpen]="isTaskSelectionOpened" showBackdrop="false"
+    (didDismiss)="isTaskSelectionOpened = false">
+    <ng-template>
+      <ion-list style="border-radius: 0px 10px 10px;">
+        <ng-container *ngFor="let item of tasks">
+          <ion-item button (click)="onOpenTask(item)">
+            <ion-label>
+              <span>{{item.id}} </span>
+              <span>{{item.reason}} </span>
+            </ion-label>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+
+  <ion-modal #ionModalStreetView [backdropBreakpoint]="0.1" [breakpoints]="[0,0.1]" [initialBreakpoint]="0.1"
+  [showBackdrop]="false" (didDismiss)="streetViewMarker?.remove(); ionModalStreetView.isOpen = false">
+  <ng-template>
+    <ion-content class="ion-padding">
+      <ion-tab-bar class="street-view-tab no-print">
+        <ion-tab-button class="accept-position"
+          (click)="onStreetView(streetViewMarker.getLngLat().lng, streetViewMarker.getLngLat().lat)">
+          <ion-icon name="navigate-circle-outline"></ion-icon>
+          Accepter la position
+        </ion-tab-button>
+        <ion-tab-button class="close" (click)="ionModalStreetView.dismiss()">
+          <ion-icon name="close-outline"></ion-icon>
+          Annuler
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+</div>
