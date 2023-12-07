@@ -181,7 +181,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.mapService
-      .onMapLoaded()
+      .onMapLoaded('home')
       .pipe(
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
@@ -324,7 +324,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.markerDestroyed = true;
-    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), undefined);
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap('home'), undefined);
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
     }
@@ -727,7 +727,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isCreation = false;
       this.removeMarkers();
       this.workorder.isDraft = false;
-      this.mapService.addGeojsonToLayer(res, 'task');
+      this.mapService.addGeojsonToLayer('home', res, 'task');
       if (res.tasks.length == 1) {
         this.drawerService.navigateTo(DrawerRouteEnum.TASK_VIEW, [
           res.id,
@@ -1201,7 +1201,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     let index: number = 0;
     for (const ast of this.assets) {
       if (!this.mapService.hasEventLayer(ast.lyrTableName)) {
-        await this.mapService.addEventLayer(ast.lyrTableName);
+        await this.mapService.addEventLayer('home', ast.lyrTableName);
       }
       if (!this.markerCreation.has(ast.id)) {
         // We don't need to recalculate the coords for a point because it has only one x and y.
@@ -1216,13 +1216,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         if (ast.id.startsWith('TMP-')) {
           this.markerCreation.set(
             ast.id,
-            this.mapLayerService.addMarker(ast.x, ast.y, [ast.x, ast.y], true)
+            this.mapLayerService.addMarker('home', ast.x, ast.y, [ast.x, ast.y], true)
           );
         } else {
           if (this.isXY) {
             this.markerCreation.set(
               ast.id,
               this.mapLayerService.addMarker(
+                'home',
                 this.currentUrlParams.x,
                 this.currentUrlParams.y,
                 [this.currentUrlParams.x, this.currentUrlParams.y],
@@ -1245,6 +1246,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             this.markerCreation.set(
               ast.id,
               this.mapLayerService.addMarker(
+                'home',
                 ast.x,
                 ast.y,
                 geom ?? [ast.x, ast.y],
@@ -1287,7 +1289,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.mapEvent.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       this.assets
         .filter((f) => !f.lyrTableName.includes('_xy'))
         .map((f) => {
@@ -1325,17 +1327,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     );
 
     for (const asset of currentAssets) {
-      await this.mapService.addEventLayer(asset.lyrTableName);
+      await this.mapService.addEventLayer('home', asset.lyrTableName);
     }
 
     this.mapEvent.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       currentAssets.map((ast: any) => {
         return { id: ast.id, source: ast.lyrTableName };
       })
     );
 
     this.mapLayerService.fitBounds(
+      'home',
       this.assets.map((ast) => {
         return [+ast.x, +ast.y];
       })
@@ -1583,7 +1586,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           (layer) => layer.astCode === travoParams.astCode
         );
         for (let layer of astLayers) {
-          await this.mapService.addEventLayer(layer.lyrTableName);
+          await this.mapService.addEventLayer('home', layer.lyrTableName);
         }
 
         // All travo workorder is by default an xy

@@ -154,7 +154,6 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
       default:
         if(query && query.length > 3) {
           this.cityService.getAdressesByQuery(query).then(res => {
-            console.log(res);
             this.adresses = res.features;
           })
         } else {
@@ -183,6 +182,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public onAdressClick(adress: any) {
     this.searchResult = adress.properties.label;
     this.mapLayerService.moveToXY(
+      'home',
       adress.geometry.coordinates[0],
       adress.geometry.coordinates[1],
       19
@@ -198,7 +198,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
         adress.geometry.coordinates[0],
         adress.geometry.coordinates[1],
       ])
-      .addTo(this.mapService.getMap());
+      .addTo(this.mapService.getMap('home'));
     this.adresses = [];
   }
 
@@ -229,6 +229,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public onSearchKeyEnter() {
     if (this.adresses && this.adresses.length > 0) {
       this.mapLayerService.moveToXY(
+        'home',
         this.adresses[0].geometry.coordinates[0],
         this.adresses[0].geometry.coordinates[1],
         19
@@ -244,7 +245,7 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
           this.adresses[0].geometry.coordinates[0],
           this.adresses[0].geometry.coordinates[1],
         ])
-        .addTo(this.mapService.getMap());
+        .addTo(this.mapService.getMap('home'));
       this.searchResult = this.adresses[0].properties.label;
       this.adresses = [];
     }

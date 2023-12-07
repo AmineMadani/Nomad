@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject, firstValueFrom } from 'rxjs';
 import { MaplibreLayer } from '../../models/maplibre-layer.model';
 import * as Maplibregl from 'maplibre-gl';
@@ -35,7 +35,7 @@ export enum LocateStatus {
 @Injectable({
   providedIn: 'root',
 })
-export class MapService {
+export class MapService implements OnDestroy {
   constructor(
     private layerService: LayerService,
     private basemapsDataservice: BaseMapsDataService,
@@ -45,6 +45,12 @@ export class MapService {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController
   ) {}
+
+  ngOnDestroy(): void {
+    this.maps.forEach((map, key) => {
+      this.setMapUnloaded(key);
+    })
+  }
 
   /**
    * Statut du bouton Localiser sur la carte
@@ -61,13 +67,13 @@ export class MapService {
 
   public measureMessage: any[];
 
-  private map: Maplibregl.Map;
+  private maps: Map<string, Maplibregl.Map> = new Map();
   private layers: Map<string, MaplibreLayer> = new Map();
   private layersConfiguration: Layer[];
 
   public loadedGeoJson: Map<string, string[]> = new Map();
 
-  private onMapLoaded$: ReplaySubject<boolean> = new ReplaySubject(1);
+  private onMapsLoaded: Map<string, ReplaySubject<boolean>> = new Map();
 
   private loadingLayer: Map<string, Promise<void>> = new Map<
     string,
@@ -88,10 +94,10 @@ export class MapService {
    * @param zoom zoom level
    * @returns
    */
-  public createMap(lat?: number, lng?: number, zoom?: number): Maplibregl.Map {
+  public createMap(mapKey: string, lat?: number, lng?: number, zoom?: number): Maplibregl.Map {
     this.mapLibreSpec.sprite =
       this.configurationService.host + 'assets/sprites/@2x';
-    this.map = new Maplibregl.Map({
+    const map = new Maplibregl.Map({
       container: 'map',
       style: this.mapLibreSpec,
       center: [lng ?? 2.699596882916402, lat ?? 48.407854932986936],
@@ -103,40 +109,50 @@ export class MapService {
         draggable: false,
       })
         .setLngLat([lng, lat])
-        .addTo(this.map);
+        .addTo(map);
     }
-    this.map.dragRotate.disable();
-    return this.map;
+    map.dragRotate.disable();
+    this.maps.set(mapKey, map);
+    return map;
   }
 
   /**
    * Returns the map object.
    * @returns The map object.
    */
-  public getMap(): Maplibregl.Map {
-    return this.map;
+  public getMap(key: string): Maplibregl.Map {
+    return this.maps.get(key);
   }
 
   /**
    * This function sets the "onMapLoaded$" observable to emit a value.
    */
-  public setMapLoaded(): void {
-    this.onMapLoaded$.next(true);
+  public setMapLoaded(mapKey: string): void {
+    if (!this.onMapsLoaded.has(mapKey)) {
+      this.onMapsLoaded.set(mapKey, new ReplaySubject(1));
+    }
+    this.onMapsLoaded.get(mapKey).next(true);
   }
 
   /**
    * This function sets the "onMapLoaded$" observable to emit a value.
    */
-  public setMapUnloaded(): void {
-    this.onMapLoaded$.next(false);
+  public setMapUnloaded(mapKey: string): void {
+    this.onMapsLoaded.get(mapKey).next(false);
+    this.onMapsLoaded.delete(mapKey);
+    this.maps.delete(mapKey);
+    this.clearAllLayers(mapKey);
   }
 
   /**
    * Observable that emits when the map is loaded.
    * @returns An Observable of type `void` is being returned.
    */
-  public onMapLoaded(): Observable<boolean> {
-    return this.onMapLoaded$.asObservable();
+  public onMapLoaded(mapKey: string): Observable<boolean> {
+    if (!this.onMapsLoaded.has(mapKey)) {
+      this.onMapsLoaded.set(mapKey, new ReplaySubject(1));
+    }
+    return this.onMapsLoaded.get(mapKey).asObservable();
   }
 
   public getBasemaps(): Promise<Basemap[]> {
@@ -146,9 +162,9 @@ export class MapService {
   /**
    * The function destroys a subscription and resets layers if they exist.
    */
-  public destroyLayers(): void {
+  public destroyLayers(mapKey: string): void {
     if (this.layers.size > 0) {
-      this.resetLayers();
+      this.resetLayers(mapKey);
     }
   }
 
@@ -178,9 +194,9 @@ export class MapService {
   /**
    * Removes all layers from the map.
    */
-  public resetLayers(): void {
+  public resetLayers(mapKey: string): void {
     [...this.layers.keys()].forEach((layerKey: string) => {
-      this.removeEventLayer(layerKey);
+      this.removeEventLayer(mapKey, layerKey);
     });
     this.layers.clear();
     this.mapEventService.setSelectedFeature(undefined);
@@ -200,9 +216,15 @@ export class MapService {
    * @param {string} layerKey - string - The key of the layer to bind events
    */
   public async addEventLayer(
+    mapKey: string,
     layerKey: string,
     styleKey?: string
   ): Promise<void> {
+    let map: Maplibregl.Map;
+    if (this.maps.has(mapKey)) {
+      map = this.maps.get(mapKey);
+    }
+
     if (!layerKey || layerKey.includes('_xy')) {
       return;
     }
@@ -235,7 +257,7 @@ export class MapService {
 
     //If layer is loaded
     if (this.loadedLayer.indexOf(layerKey) >= 0) {
-      this.displayLayer(layerKey);
+      this.displayLayer(map, layerKey);
       return new Promise<void>((resolve) => resolve());
     } else {
       //If layer is on loading (has event)
@@ -247,30 +269,34 @@ export class MapService {
         this.layersConfiguration.find(
           (element) => element.lyrTableName == layerKey
         ),
-        this.map
+        map
       );
       this.layers.set(layerKey, layer);
-      if (!this.map.isZooming()) {
-        this.map.zoomTo(this.map.getZoom() + 0.0001);
+      if (!map.isZooming()) {
+        map.zoomTo(map.getZoom() + 0.0001);
       }
-      this.map.addSource(layerKey, layer.source);
+      if (!map.getSource(layerKey)) {
+        map.addSource(layerKey, layer.source);
+      }
 
       for (let style of layer.style) {
         setTimeout(() => {
-          this.map.addLayer(style);
+          if (!map.getLayer(style.id)) {
+            map.addLayer(style);
+          }
         });
       }
 
       const layerPromise = new Promise<void>((resolve) => {
-        this.map.once('idle', async (e) => {
+        map.once('idle', async (e) => {
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           for (let i = 0; i < 6; i++) {
-            if (this.map.querySourceFeatures(layerKey).length > 0) {
+            if (map.querySourceFeatures(layerKey).length > 0) {
               break;
             }
             await sleep(500);
           }
-          this.displayLayer(layerKey);
+          this.displayLayer(map, layerKey);
           this.loadedLayer.push(layerKey);
           this.loadingLayer.delete(layerKey);
           //Case if user click on remove layer before loaded
@@ -280,7 +306,7 @@ export class MapService {
           if (removeIndex >= 0) {
             this.removeEventLayer(layerKey, styleKey);
           }
-          this.reorderMapStyleDisplay();
+          this.reorderMapStyleDisplay(map);
           resolve();
         });
       });
@@ -292,15 +318,15 @@ export class MapService {
   /**
    * Method to reorder the layer style position (zindex)
    */
-  private reorderMapStyleDisplay() {
+  private reorderMapStyleDisplay(map: Maplibregl.Map) {
     let layerSorted = this.layersConfiguration
       .filter((layer) => this.loadedLayer.includes(layer.lyrTableName))
       .sort((a, b) => a.lyrNumOrder - b.lyrNumOrder);
     for (let lyr of layerSorted) {
       for (let style of lyr.listStyle) {
-        for (let mapLayer in this.getMap().style._layers) {
+        for (let mapLayer in map.style._layers) {
           if (mapLayer.includes(style.lseCode)) {
-            this.getMap().moveLayer(mapLayer);
+            map.moveLayer(mapLayer);
           }
         }
       }
@@ -312,15 +338,18 @@ export class MapService {
    * @param layerKey The layer key
    * @param styleLayer The style id
    */
-  private displayLayer(layerKey: string) {
+  private displayLayer(map: Maplibregl.Map, layerKey: string) {
+    if (!this.loadingStyle.has(layerKey)) {
+      return;
+    }
     for (let styleLayer of this.loadingStyle.get(layerKey)) {
-      for (let style of this.map.getStyle().layers) {
+      for (let style of map.getStyle().layers) {
         if (!styleLayer) {
           if (
             style.layout?.visibility === 'none' &&
             (style as any).source == layerKey
           ) {
-            this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+            map.setLayoutProperty(style.id, 'visibility', 'visible');
           }
         } else {
           if ((style as any).source == layerKey) {
@@ -329,11 +358,11 @@ export class MapService {
                 style.layout?.visibility === 'none' ||
                 !style.layout?.visibility
               ) {
-                this.map.setLayoutProperty(style.id, 'visibility', 'visible');
+                map.setLayoutProperty(style.id, 'visibility', 'visible');
               }
             } else {
               if (!style.layout?.visibility) {
-                this.map.setLayoutProperty(style.id, 'visibility', 'none');
+                map.setLayoutProperty(style.id, 'visibility', 'none');
               }
             }
           }
@@ -348,7 +377,7 @@ export class MapService {
    * @param layerKey layer
    * @returns
    */
-  public applyFilterOnMap(layerKey: string, filters?: any): void {
+  public applyFilterOnMap(mapKey: string, layerKey: string, filters?: any): void {
     if (!filters)
       filters = this.filterDataService.getSearchFilterListData().get(layerKey);
     const layer = this.getLayer(layerKey);
@@ -372,7 +401,7 @@ export class MapService {
     for (const style of layer.style) {
       let mapFilterStyle = new Map([...mapFilter]);
 
-      let styleFilter = this.map.getFilter(style.id) as any[];
+      let styleFilter = this.getMap(mapKey).getFilter(style.id) as any[];
       if (styleFilter) {
         if (styleFilter?.length > 2 && styleFilter[0] !== 'all') {
           if (
@@ -398,11 +427,11 @@ export class MapService {
       }
 
       const newStyleFilter = ['all', ...mapFilterStyle.values()];
-      this.map.setFilter(style.id, newStyleFilter as any);
+      this.getMap(mapKey).setFilter(style.id, newStyleFilter as any);
     }
 
     for (const style of layer.style) {
-      this.map.getFilter(style.id);
+      this.getMap(mapKey).getFilter(style.id);
     }
   }
 
@@ -411,14 +440,14 @@ export class MapService {
    * @param layerKey layer
    * @returns
    */
-  public applyCreatedFilterOnMap(layerKey: string, filter: any): void {
+  public applyCreatedFilterOnMap(mapKey: string, layerKey: string, filter: any): void {
     const layer = this.getLayer(layerKey);
     if (!layer || !filter) {
       return;
     }
 
     for (const style of layer.style) {
-      this.map.setFilter(style.id, filter as any);
+      this.getMap(mapKey).setFilter(style.id, filter as any);
     }
   }
 
@@ -433,7 +462,11 @@ export class MapService {
    * If the layer exists, remove it from the map and delete it from the layers collection.
    * @param {string} layerKey - string - The key of the layer to remove.
    */
-  public removeEventLayer(layerKey: string, styleLayer?: string): void {
+  public removeEventLayer(mapKey: string, layerKey: string, styleLayer?: string): void {
+    let map: Maplibregl.Map;
+    if (this.maps.has(mapKey)) {
+      map = this.maps.get(mapKey);
+    }
     if (!this.loadingLayer.has(layerKey)) {
       const removeIndex = this.removeLoadingLayer.indexOf(
         layerKey + styleLayer ? styleLayer : ''
@@ -444,14 +477,16 @@ export class MapService {
 
       if (this.hasEventLayer(layerKey)) {
         if (styleLayer) {
-          this.hideLayer(layerKey, styleLayer);
+          this.hideLayer(mapKey, layerKey, styleLayer);
         } else {
           this.removeLoadedLayer(layerKey);
           const mLayer = this.layers.get(layerKey)!;
 
           // Removing registered events
           mLayer.style.forEach((style) => {
-            this.map.removeLayer(style.id);
+            if (map.getLayer(style.id)) {
+              map.removeLayer(style.id);
+            }
           });
 
           // Removing data from Maps
@@ -459,12 +494,12 @@ export class MapService {
           this.layers.delete(layerKey);
 
           // Deletion of layers & source, putting an empty array to avoid cloning data later
-          (this.map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData(
-            {
+          if (map.getSource(layerKey)) {
+            (map.getSource(layerKey) as Maplibregl.GeoJSONSource).updateData({
               removeAll: true,
-            }
-          );
-          this.map.removeSource(layerKey);
+            });
+            map.removeSource(layerKey);
+          }
         }
       }
     } else {
@@ -484,11 +519,27 @@ export class MapService {
     }
   }
 
-  public clearAllLayers(): void {
+  public clearAllLayers(mapKey: string): void {
+    if (this.loadedLayer?.length > 0) {
+      this.loadedLayer = [];
+    }
+    if (this.loadingStyle?.size > 0){
+      this.loadingStyle.clear();
+    }
+    if (this.removeLoadingLayer.length > 0){
+      this.removeLoadingLayer = [];
+    }
     if (this.layers?.size > 0) {
       this.layers.forEach((l, k) => {
-        this.removeEventLayer(k);
+        this.removeEventLayer(mapKey, k);
       });
+      this.layers.clear();
+    }
+    if (this.loadingLayer?.size > 0) {
+      this.loadingLayer.forEach((l, k) => {
+        this.removeEventLayer(mapKey, k);
+      });
+      this.loadingLayer.clear();
     }
   }
 
@@ -497,18 +548,18 @@ export class MapService {
    * @param layerKey The layer key
    * @param styleLayer The style id
    */
-  private hideLayer(layerKey: string, styleLayer: string) {
-    for (let style of this.map.getStyle().layers) {
+  private hideLayer(mapKey: string, layerKey: string, styleLayer: string) {
+    for (let style of this.getMap(mapKey).getStyle().layers) {
       if (
         style.id.includes(styleLayer) &&
         (style as any).source == layerKey &&
         (!style.layout?.visibility || style.layout?.visibility === 'visible')
       ) {
-        this.map.setLayoutProperty(style.id, 'visibility', 'none');
+        this.getMap(mapKey).setLayoutProperty(style.id, 'visibility', 'none');
       }
     }
     let removeLayer = true;
-    for (let style of this.map.getStyle().layers) {
+    for (let style of this.getMap(mapKey).getStyle().layers) {
       if (
         (style as any).source == layerKey &&
         style.layout?.visibility === 'visible'
@@ -517,7 +568,7 @@ export class MapService {
       }
     }
     if (removeLayer) {
-      this.removeEventLayer(layerKey);
+      this.removeEventLayer(mapKey, layerKey);
     }
   }
 
@@ -525,8 +576,8 @@ export class MapService {
    * add a point data for a specific layerkey
    * @param layerKey the layer key
    */
-  public addNewPoint(layerKey: string, pointData: any) {
-    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+  public addNewPoint(mapKey: string, layerKey: string, pointData: any) {
+    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
     const addData: Maplibregl.GeoJSONSourceDiff = {
       add: [pointData],
     };
@@ -537,8 +588,8 @@ export class MapService {
    * Remove a point data for a specific layerkey
    * @param layerKey the layer key
    */
-  public removePoint(layerKey: string, id: string) {
-    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+  public removePoint(mapKey: string, layerKey: string, id: string) {
+    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
     const addData: Maplibregl.GeoJSONSourceDiff = {
       remove: [id],
     };
@@ -549,8 +600,8 @@ export class MapService {
    * update geometry of a feature
    * @param layerKey the layer key
    */
-  public updateFeatureGeometry(layerKey: string, feature: any) {
-    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+  public updateFeatureGeometry(mapKey: string, layerKey: string, feature: any) {
+    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
     const featureDiff: Maplibregl.GeoJSONFeatureDiff = {
       id: feature.id,
       newGeometry: feature.geometry,
@@ -565,7 +616,7 @@ export class MapService {
    * update a feature
    * @param layerKey the layer key
    */
-  public updateFeature(layerKey: string, feature: any) {
+  public updateFeature(mapKey: string, layerKey: string, feature: any) {
     const listProperties = new Array<{
       key: string;
       value: any;
@@ -577,7 +628,7 @@ export class MapService {
       });
     }
 
-    const source = this.map.getSource(layerKey) as Maplibregl.GeoJSONSource;
+    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
     const featureDiff: Maplibregl.GeoJSONFeatureDiff = {
       id: feature.id,
       newGeometry: feature.geometry,
@@ -593,8 +644,8 @@ export class MapService {
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
-  public addGeojsonToLayer(properties: Workorder, layerKey: string): void {
-    this.addEventLayer(layerKey, null).then(() => {
+  public addGeojsonToLayer(mapKey: string, properties: Workorder, layerKey: string): void {
+    this.addEventLayer(mapKey,layerKey, null).then(() => {
       for (let task of properties.tasks) {
         const taskProperties: any = { ...task };
         taskProperties.id = task.id.toString();
@@ -612,17 +663,17 @@ export class MapService {
           properties: taskProperties,
           type: 'Feature',
         };
-        this.addNewPoint(layerKey, newPoint);
+        this.addNewPoint(mapKey, layerKey, newPoint);
       }
     });
   }
 
-  public setZoom(zoom: number): void {
-    this.getMap().setZoom(zoom);
+  public setZoom(mapKey: string, zoom: number): void {
+    this.getMap(mapKey).setZoom(zoom);
   }
 
-  public setCenter(location: LngLatLike) {
-    this.getMap().setCenter(location);
+  public setCenter(mapKey: string, location: LngLatLike) {
+    this.getMap(mapKey).setCenter(location);
   }
 
   private mapLibreSpec: Maplibregl.StyleSpecification = {
@@ -655,7 +706,7 @@ export class MapService {
    * @param latitude latitude
    * @param longitude longitude
    */
-  public async sharePosition(latitude: number, longitude: number) {
+  public async sharePosition(mapKey: string, latitude: number, longitude: number) {
     const alert = await this.alertCtrl.create({
       header: 'Sous quelle forme voulez-vous partager votre position ?',
       buttons: [
@@ -676,7 +727,7 @@ export class MapService {
         ? `latitude: ${latitude}, longitude: ${longitude}`
         : `${
             this.configurationService.host
-          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.map.getZoom()}`;
+          }${DrawerRouteEnum.HOME.toLocaleLowerCase()}?lat=${latitude}&lng=${longitude}&zoom=${this.getMap(mapKey).getZoom()}`;
 
     await Clipboard.write({ string: clipboardText });
 

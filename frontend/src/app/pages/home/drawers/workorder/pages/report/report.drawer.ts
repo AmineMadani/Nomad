@@ -43,8 +43,8 @@ export class ReportDrawer implements OnInit {
         if(this.praxedoService.externalReport) {
           this.router.queryParams.subscribe((params) => {
             if (!params['state'] || params['state'] != 'resume') {
-              this.mapService.onMapLoaded().subscribe(() => {
-                this.mapLayerService.jumpToXY(this.workorder.longitude,this.workorder.latitude,15);
+              this.mapService.onMapLoaded('home').subscribe(() => {
+                this.mapLayerService.jumpToXY('home', this.workorder.longitude,this.workorder.latitude,15);
               });
             }
           })
@@ -54,7 +54,7 @@ export class ReportDrawer implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(), undefined);
-    this.mapEvent.highlightHoveredFeatures(this.mapService.getMap(), undefined);
+    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap('home'), undefined);
+    this.mapEvent.highlightHoveredFeatures(this.mapService.getMap('home'), undefined);
   }
 }

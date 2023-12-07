@@ -72,10 +72,9 @@ export class ProgramsPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.mapService
-      .onMapLoaded()
+      .onMapLoaded('program')
       .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(async () => {
-        this.mapService.clearAllLayers();
         // Mocked data, will be an API
         this.data =
           this.tableService.createReadOnlyRowsFromObjects(PROGRAM_TEST_DATA);
@@ -83,6 +82,7 @@ export class ProgramsPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.mapService.ngOnDestroy();
     this.ngUnsubscribe$.next();
     this.ngUnsubscribe$.complete();
   }

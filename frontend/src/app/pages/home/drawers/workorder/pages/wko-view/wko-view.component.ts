@@ -86,7 +86,7 @@ export class WkoViewComponent implements OnInit {
       );
 
     this.mapService
-      .onMapLoaded()
+      .onMapLoaded('home')
       .pipe(
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$)
@@ -95,7 +95,7 @@ export class WkoViewComponent implements OnInit {
         const { id, taskid } = this.activatedRoute.snapshot.params;
         this.taskId = taskid;
         this.workOrder = await this.workorderService.getWorkorderById(id);
-        this.mapService.addGeojsonToLayer(this.workOrder,'task');
+        this.mapService.addGeojsonToLayer('home', this.workOrder,'task');
 
         this.checkTask(this.taskId);
 
@@ -170,7 +170,7 @@ export class WkoViewComponent implements OnInit {
   ngOnDestroy(){
     if(!this.workorderService.activeWorkorderSwitch) {
       for(let task of this.workOrder.tasks) {
-        this.mapService.removePoint('task',task.id.toString());
+        this.mapService.removePoint('home', 'task',task.id.toString());
       }
     }
   }
@@ -309,12 +309,13 @@ export class WkoViewComponent implements OnInit {
           await this.workorderService.deleteCacheWorkorder(this.workOrder);
           for (let task of res.tasks) {
             const feature = this.mapLayerService.getFeatureById(
+              'home',
               'task',
               task.id.toString()
             );
             if (feature) {
               feature.properties['wtsCode'] = 'ANNULE';
-              this.mapService.updateFeature('task', feature);
+              this.mapService.updateFeature('home', 'task', feature);
             }
           }
         });
@@ -377,12 +378,13 @@ export class WkoViewComponent implements OnInit {
         this.getStatus(task.wtsId);
         await this.workorderService.deleteCacheWorkorder(this.workOrder);
         const feature = this.mapLayerService.getFeatureById(
+          'home',
           'task',
           this.taskId
         );
         if (feature) {
           feature.properties['wtsCode'] = 'ANNULE';
-          this.mapService.updateFeature('task', feature);
+          this.mapService.updateFeature('home', 'task', feature);
         }
       });
     }
@@ -525,8 +527,8 @@ export class WkoViewComponent implements OnInit {
 
       Promise.all(
         listLayerKey
-          .map((layerKey) => this.mapService.addEventLayer(layerKey))
-          .concat(this.mapService.addEventLayer('task'))
+          .map((layerKey) => this.mapService.addEventLayer('home', layerKey))
+          .concat(this.mapService.addEventLayer('home', 'task'))
       ).then(() => {
         // Once loaded
         // Highlight the tasks and the layers related to them
@@ -549,14 +551,14 @@ export class WkoViewComponent implements OnInit {
         );
 
         this.mapEventService.highlighSelectedFeatures(
-          this.mapService.getMap(),
+          this.mapService.getMap('home'),
           featuresSelection
         );
       });
 
       // Zoom on the location of the tasks
       let geometries = listTask.map((task) => [task.longitude, task.latitude]);
-      this.mapLayerService.fitBounds(geometries, 20);
+      this.mapLayerService.fitBounds('home', geometries, 20);
     }
   }
 }

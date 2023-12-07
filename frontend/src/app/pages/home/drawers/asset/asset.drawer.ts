@@ -67,7 +67,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
         forms.find((form) => form.formCode === 'ASSET_FILTER').definition
       );
       this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
-      this.assetFilterService.setAssetFilter(this.assetFilterTree);
+      this.assetFilterService.setAssetFilter('home', this.assetFilterTree);
       this.assetFilterSegment = this.assetFilterService.getFilterSegment(
         this.assetFilterService.getAssetFilter()
       );
@@ -91,7 +91,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
                   )
               )
               ?.map((layer) => layer.layerKey);
-            this.filterService.setToggleFilter(layers, customFilter.key, customFilter.value, customFilter.checked);
+            this.filterService.setToggleFilter('home', layers, customFilter.key, customFilter.value, customFilter.checked);
           }
         }
       }
@@ -206,6 +206,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
       .map((filter) => filter.layerKey);
     layers = layers.filter((item, index) => layers.indexOf(item) === index);
     this.filterService.setToggleFilter(
+      'home',
       layers,
       customFilter.key,
       customFilter.value,

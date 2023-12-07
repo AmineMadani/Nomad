@@ -313,7 +313,7 @@ export class NewAssetDrawer implements OnInit {
 
   private addDrawingLayer(nPoints?: number): void {
     this.mapEventService.isFeatureFiredEvent = true;
-    const map = this.mapService.getMap();
+    const map = this.mapService.getMap('home');
 
     if (map.getSource('geojson') != null) return;
 
@@ -469,7 +469,7 @@ export class NewAssetDrawer implements OnInit {
   }
 
   private removeDrawingLayer(): void {
-    const map = this.mapService.getMap();
+    const map = this.mapService.getMap('home');
     if (map.getLayer('measure-points') != null) map.removeLayer('measure-points');
     if (map.getLayer('measure-lines') != null) map.removeLayer('measure-lines');
     if (map.getSource('geojson') != null) map.removeSource('geojson');

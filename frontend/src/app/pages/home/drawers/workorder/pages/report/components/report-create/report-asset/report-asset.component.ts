@@ -68,7 +68,7 @@ export class ReportAssetComponent implements OnInit {
   private oldEquipment: any;
 
   ngOnInit() {
-    this.mapService.onMapLoaded().subscribe(() => {
+    this.mapService.onMapLoaded('home').subscribe(() => {
       this.displayAndZoomToPlannedWko(this.workorder);
 
       this.initFeatureSelectionListeners();
@@ -171,6 +171,7 @@ export class ReportAssetComponent implements OnInit {
         .getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef)
         .then(async (result) => {
           this.draggableMarker = this.maplayerService.addMarker(
+            'home',
             tsk.longitude,
             tsk.latitude,
             result.geom.coordinates,
@@ -182,6 +183,7 @@ export class ReportAssetComponent implements OnInit {
     // Sinon on place sur les coordonnées de la tâche
     else {
       this.draggableMarker = this.maplayerService.addMarker(
+        'home',
         tsk.longitude,
         tsk.latitude,
         [tsk.longitude as any, tsk.latitude as any],
@@ -209,6 +211,7 @@ export class ReportAssetComponent implements OnInit {
       const tsk = t ? t : this.editTaskEquipment;
 
       let feature: any = this.maplayerService.getFeatureById(
+        'home',
         'task',
         tsk.id + ''
       );
@@ -232,7 +235,7 @@ export class ReportAssetComponent implements OnInit {
         };
       }
 
-      this.mapService.updateFeatureGeometry('task', feature);
+      this.mapService.updateFeatureGeometry('home', 'task', feature);
       if (this.workorder.id > 0) {
         this.maplayerService.updateLocalGeometryFeatureById(
           'task',
@@ -254,6 +257,7 @@ export class ReportAssetComponent implements OnInit {
       );
       if (taskOnTheSameEquipmentIndex > -1) {
         this.mapService.removePoint(
+          'home',
           'task',
           this.workorder.tasks[taskOnTheSameEquipmentIndex].id.toString()
         );
@@ -275,7 +279,7 @@ export class ReportAssetComponent implements OnInit {
     if (this.selectedTasks.find((t) => t.id === tsk.id)) {
       this.selectedTasks = this.selectedTasks.filter((t) => t.id !== tsk.id);
     }
-    this.mapService.removePoint('task', tsk.id.toString());
+    this.mapService.removePoint('home', 'task', tsk.id.toString());
   }
 
   /**
@@ -288,7 +292,7 @@ export class ReportAssetComponent implements OnInit {
 
       if (!tsk.assObjTable.includes('_xy')) {
         this.mapService
-          .getMap()
+          .getMap('home')
           .setFeatureState(
             { source: tsk.assObjTable, id: tsk.assObjRef },
             { selected: false }
@@ -311,7 +315,7 @@ export class ReportAssetComponent implements OnInit {
    */
   public onItemHoverEnter(task: Task) {
     if (!task.assObjTable.includes('_xy')) {
-      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), [
+      this.mapEventService.highlightHoveredFeatures(this.mapService.getMap('home'), [
         { id: task.id.toString(), source: 'task' },
         { id: task.assObjRef, source: task.assObjTable },
       ]);
@@ -323,7 +327,7 @@ export class ReportAssetComponent implements OnInit {
    * @param task
    */
   public onItemHoverLeave(task: Task) {
-    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap(), []);
+    this.mapEventService.highlightHoveredFeatures(this.mapService.getMap('home'), []);
   }
 
   /**
@@ -449,6 +453,7 @@ export class ReportAssetComponent implements OnInit {
             this.draggableMarker = null;
           }
           this.draggableMarker = this.maplayerService.addMarker(
+            'home',
             feature.x ? feature.x : this.editTaskEquipment.longitude,
             feature.y ? feature.y : this.editTaskEquipment.latitude,
             asset.geom.coordinates,
@@ -487,30 +492,31 @@ export class ReportAssetComponent implements OnInit {
       }
 
       if (params['state'] && params['state'] == 'resume') {
-        x = this.mapService.getMap().getCenter().lng;
-        y = this.mapService.getMap().getCenter().lat;
+        x = this.mapService.getMap('home').getCenter().lng;
+        y = this.mapService.getMap('home').getCenter().lat;
       }
 
-      this.maplayerService.moveToXY(x, y).then(() => {
+      this.maplayerService.moveToXY('home', x, y).then(() => {
         //Case display layers in params
         if (params['layers']) {
           const layers: string[] = params['layers'].split(',');
           for (let layer of layers) {
-            this.mapService.addEventLayer(layer);
+            this.mapService.addEventLayer('home', layer);
           }
         }
 
-        this.mapService.addEventLayer('task').then(() => {
+        this.mapService.addEventLayer('home', 'task').then(() => {
           for (let task of workorder.tasks) {
-            this.mapService.addEventLayer(task.assObjTable).then(async () => {
+            this.mapService.addEventLayer('home', task.assObjTable).then(async () => {
               if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
                 task.assObjTable = 'aep_xy';
                 this.onEditEquipment(task);
               }
 
-              this.mapService.addGeojsonToLayer(this.workorder, 'task');
+              this.mapService.addGeojsonToLayer('home', this.workorder, 'task');
               setTimeout(() => {
                 let feature: any = this.maplayerService.getFeatureById(
+                  'home',
                   'task',
                   task.id + ''
                 );
@@ -519,16 +525,16 @@ export class ReportAssetComponent implements OnInit {
                     task.longitude,
                     task.latitude,
                   ];
-                  this.mapService.updateFeatureGeometry('task', feature);
+                  this.mapService.updateFeatureGeometry('home', 'task', feature);
                   geometries.push(feature.geometry.coordinates);
 
                   if (!params['state'] || params['state'] != 'resume') {
-                    this.maplayerService.fitBounds(geometries, 21);
+                    this.maplayerService.fitBounds('home', geometries, 21);
                   }
                 }
               }, 500);
               this.mapEventService.highlighSelectedFeatures(
-                this.mapService.getMap(),
+                this.mapService.getMap('home'),
                 undefined
               );
             });
@@ -601,6 +607,7 @@ export class ReportAssetComponent implements OnInit {
       features = [
         {
           ...this.maplayerService.getFeatureById(
+            'home',
             features.layerKey,
             features.featureId
           )['properties'],
@@ -612,7 +619,7 @@ export class ReportAssetComponent implements OnInit {
         .filter((f) => Number.isNaN(Number(f.id)))
         .map((f) => {
           return {
-            ...this.maplayerService.getFeatureById(f.source, f.id)[
+            ...this.maplayerService.getFeatureById('home', f.source, f.id)[
               'properties'
             ],
             lyrTableName: f.source,
@@ -638,7 +645,7 @@ export class ReportAssetComponent implements OnInit {
           t.assObjTable.includes('xy') ||
           !features.map((f) => f.lyrTableName).includes(t.assObjTable)
       )
-      .forEach((t) => this.mapService.removePoint('task', t.id.toString()));
+      .forEach((t) => this.mapService.removePoint('home', 'task', t.id.toString()));
 
     this.workorder.tasks = this.workorder.tasks.filter(
       (t) =>

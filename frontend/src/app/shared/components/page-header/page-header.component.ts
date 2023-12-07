@@ -44,7 +44,7 @@ export class PageHeaderComponent implements OnInit {
 
   public onCloseClick(): void {
     this.mapEventService.highlighSelectedFeatures(
-      this.mapService.getMap(),
+      this.mapService.getMap('home'),
       undefined
     );
     this.router.navigate(['home']);

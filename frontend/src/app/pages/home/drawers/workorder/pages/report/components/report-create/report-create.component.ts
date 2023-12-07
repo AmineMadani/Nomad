@@ -107,6 +107,14 @@ export class ReportCreateComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.workorder.isDraft) {
+      for (let task of this.workorder.tasks) {
+        this.mapService.removePoint('home', 'task', task.id.toString());
+      }
+    }
+  }
+
   /**
    * Drawback navigation
    */
@@ -316,7 +324,7 @@ export class ReportCreateComponent implements OnInit {
       }
       this.exploitationService.deleteCacheWorkorder(this.workorder);
       for (let task of this.workorder.tasks) {
-        this.mapService.removePoint('task', task.id.toString());
+        this.mapService.removePoint('home', 'task', task.id.toString());
       }
       if (this.praxedoService.externalReport) {
         IntentAction.closeIntent({ value: { RETOUR: 'ko' } });
@@ -368,14 +376,6 @@ export class ReportCreateComponent implements OnInit {
             listWtrNoXy.some((wtr) => wtr.id === task.wtrId))
         );
       });
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.workorder.isDraft) {
-      for (let task of this.workorder.tasks) {
-        this.mapService.removePoint('task', task.id.toString());
-      }
     }
   }
 }

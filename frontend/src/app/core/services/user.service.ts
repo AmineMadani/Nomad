@@ -293,7 +293,7 @@ export class UserService {
    * Get the user context
    * @returns return the context
    */
-  public onUserContextEvent() {
+  public onUserContextEvent(mapKey: string) {
     let context: Context = null;
     if(this.currentUser.usrConfiguration?.context) {
       context = this.currentUser.usrConfiguration.context;
@@ -301,9 +301,9 @@ export class UserService {
       context = {};
     }
 
-    if(this.mapService.getMap()) {
+    if(this.mapService.getMap(mapKey)) {
 
-      const mapLibre = this.mapService.getMap();
+      const mapLibre = this.mapService.getMap(mapKey);
       context.zoom = mapLibre.getZoom();
       context.lng = mapLibre.getCenter().lng;
       context.lat = mapLibre.getCenter().lat;
@@ -315,7 +315,7 @@ export class UserService {
       }
       context.basemap = mapLibre.getLayer('basemap')?.source
 
-      const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap().style._layers)
+      const mapLayerLoaded: string[][] = Object.values(this.mapService.getMap(mapKey).style._layers)
         .filter((value) => !value['source'].startsWith('mapbox') && value['visibility'] != "none")
         .map((value) => [value['source'], value['id']]);
       mapLayerLoaded.shift();
