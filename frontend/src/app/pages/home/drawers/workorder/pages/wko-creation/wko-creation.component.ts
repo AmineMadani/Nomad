@@ -1205,7 +1205,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       if (!this.markerCreation.has(ast.id)) {
         // We don't need to recalculate the coords for a point because it has only one x and y.
-        if (ast.geom && ast.geom.type !== 'Point') {
+        if (ast.geom &&  ast.geom.type !== 'Point') {
           const recalculateCoords = this.mapLayerService.findNearestPoint(
             ast.geom.coordinates,
             [ast.x, ast.y]

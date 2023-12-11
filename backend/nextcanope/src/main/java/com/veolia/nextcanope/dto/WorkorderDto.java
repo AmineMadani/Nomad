@@ -62,6 +62,17 @@ public class WorkorderDto {
 
     private String wkoExtError;
 
+    public Boolean getWkoExtClosure() {
+        return wkoExtClosure;
+    }
+
+    public void setWkoExtClosure(Boolean wkoExtClosure) {
+        this.wkoExtClosure = wkoExtClosure;
+    }
+
+    private Boolean wkoExtClosure;
+
+
     public String getWkoExtError() {
         return wkoExtError;
     }
@@ -308,5 +319,6 @@ public class WorkorderDto {
         this.wkoAffair= workorder.getWkoAffair();
         this.wkoExtError = workorder.getWkoExtError();
         this.wkoRealizationUser = workorder.getWkoRealizationUser();
+        this.wkoExtClosure = workorder.getWkoExtClosure();
     }
 }

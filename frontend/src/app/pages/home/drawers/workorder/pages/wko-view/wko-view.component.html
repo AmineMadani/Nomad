@@ -121,11 +121,17 @@
         <div slot="content">
           <ion-item lines="none">
             <ion-label class="label">
-              <h3>Date de réalisation</h3>
+              <h3>Date de saisie</h3>
               <p>{{ selectedTask.report?.dateCompletion ? (selectedTask.report.dateCompletion | date: 'dd/MM/yyyy') :
                 'Non défini'}}</p>
             </ion-label>
           </ion-item>
+          <ion-item lines="none" *ngIf="workOrder.wkoCompletionEndDate">
+            <ion-label class="label">
+                <h3>Date de réalisation</h3>
+                <p>{{ workOrder.wkoCompletionEndDate | date: 'dd/MM/yyyy' }}</p>
+          </ion-label>
+            </ion-item>
           <ng-container *ngFor="let report of getReportValuesSorted(); trackBy: trackByReportFn">
             <ion-item lines="none" *ngIf="report.answer">
               <ion-label class="label">
@@ -180,12 +186,7 @@
               <p>{{ workOrder.wkoCreationComment }}</p>
             </ion-label>
           </ion-item>
-          <ion-item lines="none" *ngIf="workOrder.wkoCompletionEndDate">
-            <ion-label class="label">
-              <h3>Date de réalisation</h3>
-              <p>{{ workOrder.wkoCompletionEndDate | date: 'dd/MM/yyyy' }}</p>
-            </ion-label>
-          </ion-item>
+
           <ion-item lines="none" *ngIf="workOrder.wkoRealizationUser">
             <ion-label class="label">
               <h3>Agent</h3>
