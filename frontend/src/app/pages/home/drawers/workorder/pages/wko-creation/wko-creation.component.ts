@@ -208,8 +208,22 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(async (assets: any) => {
         this.assets = assets;
 
-        if (this.assets.length > 1) await this.checkEquipments();
-
+        if (this.assets.length > 1) {
+          const { filtred, filtredAssets } =
+            await this.layerService.checkEquipments(this.assets);
+          if (filtred) {
+            if (!filtredAssets || filtredAssets?.length === 0) {
+              this.drawerService.setLocationBack();
+            }
+            this.assets = filtredAssets;
+            // Removing the tasks that do not comply anymore with the current assets
+            if (this.workorder?.tasks.length > 1) {
+              this.workorder.tasks = this.workorder.tasks.filter((t) =>
+                this.assets.map((ast) => ast.id).includes(t.assObjRef)
+              );
+            }
+          }
+        }
         // Extract the temporary new asset from the url (when coming from multiple selection without a workorder)
         // Add them to the list of asset
         const urlParams = new URLSearchParams(window.location.search);
@@ -324,7 +338,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.markerDestroyed = true;
-    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap('home'), undefined);
+    this.mapEvent.highlighSelectedFeatures(
+      this.mapService.getMap('home'),
+      undefined
+    );
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
     }
@@ -1205,7 +1222,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       if (!this.markerCreation.has(ast.id)) {
         // We don't need to recalculate the coords for a point because it has only one x and y.
-        if (ast.geom &&  ast.geom.type !== 'Point') {
+        if (ast.geom && ast.geom.type !== 'Point') {
           const recalculateCoords = this.mapLayerService.findNearestPoint(
             ast.geom.coordinates,
             [ast.x, ast.y]
@@ -1216,7 +1233,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         if (ast.id.startsWith('TMP-')) {
           this.markerCreation.set(
             ast.id,
-            this.mapLayerService.addMarker('home', ast.x, ast.y, [ast.x, ast.y], true)
+            this.mapLayerService.addMarker(
+              'home',
+              ast.x,
+              ast.y,
+              [ast.x, ast.y],
+              true
+            )
           );
         } else {
           if (this.isXY) {
@@ -1443,80 +1466,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           : null;
       })
       .filter((item) => item !== null);
-  }
-
-  private async checkEquipments(): Promise<void> {
-    const layers = await this.layerService.getAllLayers();
-    // Checking if we have a mix of dw/ww assets
-    const isMultiWater =
-      [
-        // Removing duplicates
-        ...new Set(
-          // Finding the differents dom codes for the current layers
-          layers
-            .filter((l: Layer) => {
-              if (
-                this.assets
-                  .map((ast) => ast.lyrTableName)
-                  .includes(l.lyrTableName)
-              ) {
-                return true;
-              } else {
-                return false;
-              }
-            })
-            .map((l) => l.domCode)
-        ),
-      ].length === 2;
-
-    // Checking if the assets are on more than one contract
-    const isMultiContract =
-      [...new Set(this.assets.map((ast) => ast.ctrId))].length > 1;
-
-    // Checking if there is a difference between assets GEOMs
-    const isMultiGeomType =
-      [
-        ...new Set(
-          layers
-            .filter((l: Layer) =>
-              this.assets
-                .map((ast) => ast.lyrTableName)
-                .includes(l.lyrTableName)
-            )
-            .map((l) => l.lyrGeomType)
-        ),
-      ].length > 1;
-
-    if (isMultiGeomType || isMultiWater || isMultiContract) {
-      const selectedLayers = layers.filter((l) =>
-        this.assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
-      );
-
-      const modal = await this.modalCtrl.create({
-        component: MultiAssetsModalComponent,
-        componentProps: {
-          assets: this.assets,
-          selectedLayers,
-          isMultiContract,
-          isMultiWater,
-        },
-        backdropDismiss: false,
-      });
-      modal.present();
-
-      const { data } = await modal.onWillDismiss();
-
-      if (data) {
-        this.assets = data;
-
-        // Removing the tasks that do not comply anymore with the current assets
-        if (this.workorder?.tasks.length > 1) {
-          this.workorder.tasks = this.workorder.tasks.filter((t) =>
-            this.assets.map((ast) => ast.id).includes(t.assObjRef)
-          );
-        }
-      }
-    }
   }
 
   /**

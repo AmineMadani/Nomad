@@ -26,6 +26,8 @@ import { ApiSuccessResponse } from '../models/api-response.model';
 import { ConfigurationService } from './configuration.service';
 import { UtilsService } from './utils.service';
 import { LayerGrpAction } from '../models/layer-gp-action.model';
+import { MultiAssetsModalComponent } from 'src/app/pages/home/drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
+import { ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +37,8 @@ export class LayerService {
     private layerDataService: LayerDataService,
     private cacheService: CacheService,
     private configurationService: ConfigurationService,
-    private utilsService: UtilsService
+    private utilsService: UtilsService,
+    private modalCtrl: ModalController
   ) {}
 
   private layerIndexes: GeoJSONObject;
@@ -46,6 +49,80 @@ export class LayerService {
 
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
+  /**
+   * Checks equipment based on various criteria such as layer types, contracts, and geometry types.
+   * If a mix of criteria is detected, a modal is presented to the user for further actions.
+   *
+   * @param assets - Array of equipment objects to be checked.
+   * @returns {Promise<{ filtred: boolean; filtredAssets?: any[] }>} - Filtered array of equipment based on user actions in the modal.
+   */
+  public async checkEquipments(
+    assets: any[]
+  ): Promise<{ filtred: boolean; filtredAssets?: any[] }> {
+    let filtredAssets: any[] | undefined;
+    let filtred = false;
+    const layers = await this.getAllLayers();
+    // Checking if we have a mix of dw/ww assets
+    const isMultiWater =
+      [
+        // Removing duplicates
+        ...new Set(
+          // Finding the differents dom codes for the current layers
+          layers
+            .filter((l: Layer) => {
+              if (
+                assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
+              ) {
+                return true;
+              } else {
+                return false;
+              }
+            })
+            .map((l) => l.domCode)
+        ),
+      ].length === 2;
+
+    // Checking if the assets are on more than one contract
+    const isMultiContract =
+      [...new Set(assets.map((ast) => ast.ctrId))].length > 1;
+
+    // Checking if there is a difference between assets GEOMs
+    const isMultiGeomType =
+      [
+        ...new Set(
+          layers
+            .filter((l: Layer) =>
+              assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
+            )
+            .map((l) => l.lyrGeomType)
+        ),
+      ].length > 1;
+
+    if (isMultiGeomType || isMultiWater || isMultiContract) {
+      filtred = true;
+      const selectedLayers = layers.filter((l) =>
+        assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
+      );
+
+      const modal = await this.modalCtrl.create({
+        component: MultiAssetsModalComponent,
+        componentProps: {
+          assets: assets,
+          selectedLayers,
+          isMultiContract,
+          isMultiWater,
+        },
+        backdropDismiss: false,
+      });
+      modal.present();
+      const { data } = await modal.onWillDismiss();
+      // If data is received from the modal, update filtredAssets
+      if (data) {
+        filtredAssets = data;
+      }
+    }
+    return { filtred, filtredAssets };
+  }
   /**
    * Get the list of user references for a given layer key.
    * @param layerKey The layer key to get the references for.
