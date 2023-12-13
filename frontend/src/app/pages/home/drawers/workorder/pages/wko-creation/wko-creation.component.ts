@@ -59,6 +59,8 @@ import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-mo
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
+import { PreferenceService } from 'src/app/core/services/preference.service';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-wko-creation',
@@ -83,7 +85,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private contractService: ContractService,
     private modalCtrl: ModalController,
     private alertController: AlertController,
-    private assetForSigService: AssetForSigService
+    private assetForSigService: AssetForSigService,
+    private preferenceService: PreferenceService
   ) {
     this.router.events
       .pipe(
@@ -142,6 +145,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public isCreation: boolean = true;
   public isXY: boolean = false;
+  public displayLayerSelect = false;
+  public autoGenerateLabel = true;
 
   private markerCreation: Map<string, any> = new Map();
   private markerSubscription: Map<string, Subscription> = new Map();
@@ -150,10 +155,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
   private wkoExtToSyncValue: boolean = true;
   private currentDateValue: string;
-
-  public displayLayerSelect = false;
-
-  public autoGenerateLabel = true;
+  private assetChanged: boolean;
 
   async ngOnInit(): Promise<void> {
     this.createForm();
@@ -272,12 +274,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               'Sans envoyer pour planification';
             this.creationButonLabel = 'Modifer';
           }
-
           await this.initializeFormWithWko();
         }
-
         await this.initializeEquipments();
-
         await this.saveWorkOrderInCache();
       });
 
@@ -324,7 +323,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.markerDestroyed = true;
-    this.mapEvent.highlighSelectedFeatures(this.mapService.getMap('home'), undefined);
+    this.mapEvent.highlighSelectedFeatures(
+      this.mapService.getMap('home'),
+      undefined
+    );
     if (this.equipmentModal.isCmpOpen) {
       this.equipmentModal.dismiss();
     }
@@ -582,38 +584,50 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    * Afficher un message d'alerte prévenant la déplanification de l'intervention
    * @returns message d'alerte
    */
-  public haveModifieldFieldUnscheduled(): boolean {
+  public async haveModifieldFieldUnscheduled(): Promise<boolean> {
     let hasChanged: boolean = false;
+    //test
+    const wkoPlanningStartDateSource = new Date(
+      this.workorder.wkoPlanningStartDate
+    ).toLocaleDateString();
+    const wkoPlanningStartDateModifie =
+      this.creationWkoForm.controls['wkoPlanningStartDate'].value;
+    const wkoPlanningEndDateModifie =
+      this.creationWkoForm.controls['wkoPlanningEndDate'].value;
+    const wkoPlanningEndDateSource = new Date(
+      this.workorder.wkoPlanningEndDate
+    ).toLocaleDateString();
+    this.workorderInit = await this.preferenceService.getPreference(
+      'workorderInit'
+    );
+    const nbAssetinit = this.workorderInit.tasks.length;
+    const nbAssetFin = this.workorder.tasks.length;
+
+    const temp1 = this.workorderInit;
+    const temp2 = this.creationWkoForm.controls;
+
+    //fin test
     if (!this.isCreation && this.workorder != null && this.workorderInit) {
       if (
-        this.workorder['wkoAppointment']?.toString() !=
-          this.creationWkoForm.controls['wkoAppointment']?.toString() ||
-        this.workorder['ctrId']?.toString() !=
-          this.creationWkoForm.controls['ctrId']?.toString() ||
-        this.workorder['ctyId']?.toString() !=
-          this.creationWkoForm.controls['ctyId']?.toString() ||
-        this.workorder['wkoAgentNb']?.toString() !=
-          this.creationWkoForm.controls['wkoAgentNb']?.toString() ||
+        this.workorderInit['wkoAppointment']?.toString() !=
+          this.creationWkoForm.controls['wkoAppointment']?.value.toString() ||
+        this.workorderInit['ctrId']?.toString() !=
+          this.creationWkoForm.controls['ctrId']?.value.toString() ||
+        this.workorderInit['ctyId']?.toString() !=
+          this.creationWkoForm.controls['ctyId']?.value.toString() ||
+        this.workorderInit['wkoAgentNb']?.toString() !=
+          this.creationWkoForm.controls['wkoAgentNb']?.value.toString() ||
         this.checkTasksChanged(this.workorder.tasks)
       ) {
         this.alerteMessage =
           'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
         hasChanged = true;
       } else if (
-        DateTime.fromISO(this.workorder.wkoPlanningStartDate as any).toFormat(
-          'dd/MM/yyyy'
-        ) !=
-          DateTime.fromISO(
-            this.creationWkoForm.controls['wkoPlanningStartDate'] as any
-          ).toFormat('dd/MM/yyyy') ||
-        DateTime.fromISO(this.workorder.wkoPlanningEndDate as any).toFormat(
-          'dd/MM/yyyy'
-        ) !=
-          DateTime.fromISO(
-            this.creationWkoForm.controls['wkoPlanningEndDate'] as any
-          ).toFormat('dd/MM/yyyy') ||
-        this.workorder.tasks[0]?.wtrId?.toString() !=
-          this.creationWkoForm.controls['tasks'][0]?.wtrId?.toString()
+        wkoPlanningStartDateSource !== wkoPlanningStartDateModifie ||
+        wkoPlanningEndDateSource !== wkoPlanningEndDateModifie ||
+        nbAssetinit !== nbAssetFin ||
+        this.workorderInit.tasks[0]?.wtrId?.toString() !=
+          this.creationWkoForm.controls['wtrId']?.value
       ) {
         this.alerteMessage =
           'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
@@ -717,6 +731,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     let funct: any;
     if (this.workorder?.id > 0) {
       funct = this.workorderService.updateWorkOrder(this.workorder);
+      // vide le cache
     } else {
       form.wkoExtToSync = this.wkoExtToSyncValue;
       funct = this.workorderService.createWorkOrder(this.workorder);
@@ -753,7 +768,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     if (
       !this.isCreation &&
       this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
-      this.haveModifieldFieldUnscheduled()
+      (await this.haveModifieldFieldUnscheduled())
     ) {
       const alert = await this.alertController.create({
         header: 'Attention !',
@@ -784,7 +799,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  public onCreationModeChange(event: any): void {
+  public async onCreationModeChange(event: any): Promise<void> {
     if (event.target.value === 'CREE') {
       this.wkoExtToSyncValue = false;
       this.creationButonLabel = this.createWithoutSendToPlanning;
@@ -792,7 +807,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.creationButonLabel = this.defaultCreationLabel;
       this.wkoExtToSyncValue = true;
     }
-    this.onValidate();
+    await this.onValidate();
   }
 
   public async openEquipmentModal(): Promise<void> {
@@ -1151,14 +1166,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           : this.utils.findMostFrequentValue(contractsIds)
       );
     }
-
     await this.generateMarker();
 
     this.isLoading = false;
-
     // We listen to the changes only after the form is set
     this.listenToFormChanges();
-
     // We precomplete form info if it's a travo url
     await this.initializeFormWithTravoInfo();
   }
@@ -1216,7 +1228,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         if (ast.id.startsWith('TMP-')) {
           this.markerCreation.set(
             ast.id,
-            this.mapLayerService.addMarker('home', ast.x, ast.y, [ast.x, ast.y], true)
+            this.mapLayerService.addMarker(
+              'home',
+              ast.x,
+              ast.y,
+              [ast.x, ast.y],
+              true
+            )
           );
         } else {
           if (this.isXY) {
@@ -1354,6 +1372,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async saveWorkOrderInCache(): Promise<void> {
+    console.log('object :>> saveWorkOrderInCache');
     Object.keys(this.creationWkoForm.value).forEach((key) => {
       if (key === 'wtrId') {
         this.workorder.tasks.map((task: Task) => {
@@ -1388,9 +1407,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
-      if (Number(wkoId) > 0) {
-        this.workorderInit = { ...this.workorder };
-      }
+
+      this.initWorkorderInit(wkoId);
+
       const xyTasksAndNewAssets = this.workorder.tasks
         .filter((t) => t.assObjRef == null || t.assObjRef.includes('TMP'))
         .map((t) => {
@@ -1416,6 +1435,28 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.drawerService.navigateTo(DrawerRouteEnum.HOME);
       return [];
+    }
+  }
+
+  /**
+   * Get or set the non modified current workorder Id
+   * @param wkoId Current workorder Id
+   */
+  private async initWorkorderInit(wkoId: number) {
+    if (Number(wkoId) > 0) {
+      // get dernier si même id je fait rien si Id diferrent ou item a null j'écrase
+      //save in localstorage current edited worked
+      this.workorderInit = await this.preferenceService.getPreference(
+        'workorderInit'
+      );
+      if (this.workorderInit?.id !== wkoId) {
+        this.workorderInit =
+          await this.workorderService.getWorkorderByIdFromServer(Number(wkoId));
+        this.preferenceService.setPreference(
+          'workorderInit',
+          this.workorderInit
+        );
+      }
     }
   }
 
