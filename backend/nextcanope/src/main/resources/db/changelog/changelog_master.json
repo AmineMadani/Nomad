@@ -345,6 +345,19 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "tag_v1.2.0",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "tagDatabase": {
+                            "tag": "V-1.2.0"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }
