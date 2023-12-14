@@ -272,7 +272,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
             this.createWithoutSendToPlanning =
               'Sans envoyer pour planification';
-            this.creationButonLabel = 'Modifer';
+            this.creationButonLabel = 'Modifier';
           }
           await this.initializeFormWithWko();
         }
@@ -455,14 +455,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    //Generation de label
-    this.creationWkoForm
-      .get('wtrId')
-      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        this.generateLabel();
-        this.setWkoHasChangedValueZone('2');
-      });
+    // //Generation de label
+    // this.creationWkoForm
+    //   .get('wtrId')
+    //   .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+    //   .subscribe(() => {
+    //     this.generateLabel();
+    //     this.setWkoHasChangedValueZone('1',this.creationWkoForm
+    //     .get('wtrId'));
+    //   });
     this.creationWkoForm
       .get('ctrId')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
@@ -490,18 +491,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.autoGenerateLabel = false;
       });
-      this.creationWkoForm
+    this.creationWkoForm
       .get('wkoAppointment')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.setWkoHasChangedValueZone('1');
       });
-      this.creationWkoForm
+    this.creationWkoForm
       .get('wkoPlanningEndDate')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.generateLabel();
-        this.setWkoHasChangedValueZone('2');
+        this.setWkoHasChangedValueZone('2') ;
       });
   }
 
@@ -597,83 +598,22 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return hasChanged;
   }
 
-
-/**
-   * En édition, si les champs RDV, Contrat, Commune, Equipement, Nombre d'agent, Date , Motif sont modifiés
-   * Afficher un message d'alerte prévenant la déplanification de l'intervention
-   * @returns message d'alerte
-   */
-public  haveModifieldFieldUnscheduled(): boolean {
-  let hasChanged: boolean = false;
-
-  if (this.workorder.wkoChangedValueZone1 === true)
-  {
-    this.alerteMessage =
-    'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-    hasChanged = true;
-  }
-  else if (this.workorder.wkoChangedValueZone2 === true) {
-    this.alerteMessage =
-    'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-  hasChanged = true;
-  }
-  return hasChanged;
-}
-
   /**
    * En édition, si les champs RDV, Contrat, Commune, Equipement, Nombre d'agent, Date , Motif sont modifiés
    * Afficher un message d'alerte prévenant la déplanification de l'intervention
    * @returns message d'alerte
    */
-  public async haveModifieldFieldUnscheduledInit(): Promise<boolean> {
+  public haveModifieldFieldUnscheduled(): boolean {
     let hasChanged: boolean = false;
-    //test
-    const wkoPlanningStartDateSource = new Date(
-      this.workorder.wkoPlanningStartDate
-    ).toLocaleDateString();
-    const wkoPlanningStartDateModifie =
-      this.creationWkoForm.controls['wkoPlanningStartDate'].value;
-    const wkoPlanningEndDateModifie =
-      this.creationWkoForm.controls['wkoPlanningEndDate'].value;
-    const wkoPlanningEndDateSource = new Date(
-      this.workorder.wkoPlanningEndDate
-    ).toLocaleDateString();
-    this.workorderInit = await this.preferenceService.getPreference(
-      'workorderInit'
-    );
-    const nbAssetinit = this.workorderInit.tasks.length;
-    const nbAssetFin = this.workorder.tasks.length;
 
-    const temp1 = this.workorderInit;
-    const temp2 = this.creationWkoForm.controls;
-
-    //fin test
-    if (!this.isCreation && this.workorder != null && this.workorderInit) {
-      if (
-        this.workorderInit['wkoAppointment']?.toString() !=
-          this.creationWkoForm.controls['wkoAppointment']?.value.toString() ||
-        this.workorderInit['ctrId']?.toString() !=
-          this.creationWkoForm.controls['ctrId']?.value.toString() ||
-        this.workorderInit['ctyId']?.toString() !=
-          this.creationWkoForm.controls['ctyId']?.value.toString() ||
-        this.workorderInit['wkoAgentNb']?.toString() !=
-          this.creationWkoForm.controls['wkoAgentNb']?.value.toString() ||
-        this.checkTasksChanged(this.workorder.tasks)
-      ) {
-        this.alerteMessage =
-          'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-        hasChanged = true;
-      } else if (
-        wkoPlanningStartDateSource !== wkoPlanningStartDateModifie ||
-        wkoPlanningEndDateSource !== wkoPlanningEndDateModifie ||
-        nbAssetinit !== nbAssetFin ||
-        this.workorderInit.tasks[0]?.wtrId?.toString() !=
-          this.creationWkoForm.controls['wtrId']?.value
-      ) {
-        this.alerteMessage =
-          'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-        hasChanged = true;
-      }
+    if (this.workorder.wkoChangedValueZone1 === true) {
+      this.alerteMessage =
+        'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+      hasChanged = true;
+    } else if (this.workorder.wkoChangedValueZone2 === true) {
+      this.alerteMessage =
+        'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+      hasChanged = true;
     }
     return hasChanged;
   }
@@ -957,6 +897,15 @@ public  haveModifieldFieldUnscheduled(): boolean {
 
     //set WTR
     this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
+
+    //Generation de label
+    this.creationWkoForm
+      .get('wtrId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+        this.setWkoHasChangedValueZone('1', this.creationWkoForm.get('wtrId'));
+      });
 
     this.workorderService
       .getAllWorkorderTaskStatus()
@@ -1485,7 +1434,7 @@ public  haveModifieldFieldUnscheduled(): boolean {
    * @param wkoId Current workorder Id
    */
   private async initWorkorderInit(wkoId: number) {
-    return
+    return;
     if (Number(wkoId) > 0) {
       // get dernier si même id je fait rien si Id diferrent ou item a null j'écrase
       //save in localstorage current edited worked
@@ -1776,19 +1725,18 @@ public  haveModifieldFieldUnscheduled(): boolean {
     }
   }
 
-  private setWkoHasChangedValueZone(zone: string):void {
-    if (this.workorder) {
+  private setWkoHasChangedValueZone(zone: string, formControl?: any): void {
+    if (this.workorder && ( formControl === undefined || formControl?.touched)) {
       switch (zone) {
         case '1':
           this.workorder.wkoChangedValueZone1 = true;
           break;
-          case '2':
-            this.workorder.wkoChangedValueZone2 = true;
+        case '2':
+          this.workorder.wkoChangedValueZone2 = true;
           break;
         default:
           break;
       }
     }
   }
-
 }
