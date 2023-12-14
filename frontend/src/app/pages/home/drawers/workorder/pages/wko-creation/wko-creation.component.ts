@@ -55,12 +55,9 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
-import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
-import { PreferenceService } from 'src/app/core/services/preference.service';
-import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-wko-creation',
@@ -83,10 +80,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private userService: UserService,
     private cityService: CityService,
     private contractService: ContractService,
-    private modalCtrl: ModalController,
     private alertController: AlertController,
     private assetForSigService: AssetForSigService,
-    private preferenceService: PreferenceService
   ) {
     this.router.events
       .pipe(
