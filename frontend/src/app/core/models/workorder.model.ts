@@ -34,7 +34,10 @@ export interface Workorder {
     // end specific frontend variables for travo
     wkoRealizationUser?: string;
     wkoExtError?: string;
-
+    //to indicate that some values have changed
+    wkoChangedValueZone1?: boolean;
+    //to indicate that some values have changed (others)
+    wkoChangedValueZone2?: boolean;
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {

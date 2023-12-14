@@ -305,7 +305,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }));
 
       wko.tasks.push(...tasksToAdd);
-
+      wko.wkoChangedValueZone1 = true;
       await this.workorderService.saveCacheWorkorder(wko);
     }
   }
@@ -345,6 +345,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.wkoDraft
       );
       wko.tasks = wko.tasks.filter((t) => t.assObjRef !== feature.id);
+      wko.wkoChangedValueZone1 = true;
       await this.workorderService.saveCacheWorkorder(wko);
     }
 
@@ -604,6 +605,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
               });
             }
           }
+          wko.wkoChangedValueZone1 = true;
           await this.workorderService.saveCacheWorkorder(wko);
         });
     }
