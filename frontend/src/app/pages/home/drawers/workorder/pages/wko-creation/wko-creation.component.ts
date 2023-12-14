@@ -35,12 +35,12 @@ import {
   TravoUrlPayload,
   WkoStatus,
   Workorder,
-  CreateWorkorderUrlPayload,
   isUrlFromTravo,
   isUrlFromTravoValid,
-  UpdateWorkorderUrlPayload,
   WTR_CODE_POSE,
   WorkorderTaskStatus,
+  CreateWorkorderUrlPayload,
+  UpdateWorkorderUrlPayload,
 } from 'src/app/core/models/workorder.model';
 import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -54,11 +54,12 @@ import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
-import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
+import { Layer, SearchEquipments, VLayerWtr } from 'src/app/core/models/layer.model';
 import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
+import { LocationStrategy } from '@angular/common';
 
 @Component({
   selector: 'app-wko-creation',
@@ -83,7 +84,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private contractService: ContractService,
     private modalCtrl: ModalController,
     private alertController: AlertController,
-    private assetForSigService: AssetForSigService
+    private assetForSigService: AssetForSigService,
+    private location: LocationStrategy,
   ) {
     this.router.events
       .pipe(
@@ -106,6 +108,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     | TravoUrlPayload
     | CreateWorkorderUrlPayload
     | UpdateWorkorderUrlPayload;
+  public currentAssets: SearchEquipments[];
 
   public currentContract: Contract;
   public currentStatus: string;
@@ -167,6 +170,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         PermissionCodeEnum.SEND_WORKORDER
       );
 
+    // Get equipments send from the state
+    const state = this.location.getState();
+    this.currentAssets = state['equipments'];
+
     // Url parameters recuperation
     const paramsMap = new Map<string, string>(
       new URLSearchParams(window.location.search).entries()
@@ -186,21 +193,30 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         filter((isMapLoaded) => isMapLoaded),
         takeUntil(this.ngUnsubscribe$),
         switchMap(async () => {
-          if (this.currentUrlParams) {
-            // Handle travo case if necessary
-            await this.checkAndSetParamsToHandleTravoUrl();
+          // Handle travo case if necessary
+          await this.checkAndSetParamsToHandleTravoUrl();
 
-            // XY case
-            if (this.currentUrlParams.lyrTableName) {
-              this.isXY = true;
-              return [];
-            }
-            // Other cases
-            else {
-              const params = this.utils.transformMap(paramsMap, true);
-              return this.layerService.getEquipmentsByLayersAndIds(params);
-            }
-          } else {
+          // XY Creation case
+          if (
+            this.currentUrlParams &&
+            this.currentUrlParams.lyrTableName.includes('xy') &&
+            this.currentUrlParams.x &&
+            this.currentUrlParams.y
+          ) {
+            this.isXY = true;
+            return [];
+          }
+          // Creation cases
+          else if (this.currentAssets) {
+            return this.layerService.getEquipmentsByLayersAndIds(this.currentAssets.map((ast) => {
+              return {
+                ...ast,
+                allColumn: true,
+              }
+            }));
+          }
+          //
+          else {
             return this.handleEditMode();
           }
         })
@@ -845,7 +861,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workorderService.saveCacheWorkorder(this.workorder);
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,
-      this.assets,
+      this.utils.transformFeaturesIntoSearchEquipments(this.assets),
       { draft: this.workorder.id }
     );
   }
@@ -1215,101 +1231,9 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    * Case 2 : Marker on the map and draggable on all the map. Update the params if the position change (city&contract)
    */
   private async generateMarker(): Promise<void> {
-    let index: number = 0;
-    for (const ast of this.assets) {
-      if (!this.mapService.hasEventLayer(ast.lyrTableName)) {
-        await this.mapService.addEventLayer('home', ast.lyrTableName);
-      }
-      if (!this.markerCreation.has(ast.id)) {
-        // We don't need to recalculate the coords for a point because it has only one x and y.
-        if (ast.geom && ast.geom.type !== 'Point') {
-          const recalculateCoords = this.mapLayerService.findNearestPoint(
-            ast.geom.coordinates,
-            [ast.x, ast.y]
-          );
-          ast.x = recalculateCoords[0];
-          ast.y = recalculateCoords[1];
-        }
-        if (ast.id.startsWith('TMP-')) {
-          this.markerCreation.set(
-            ast.id,
-            this.mapLayerService.addMarker(
-              'home',
-              ast.x,
-              ast.y,
-              [ast.x, ast.y],
-              true
-            )
-          );
-        } else {
-          if (this.isXY) {
-            this.markerCreation.set(
-              ast.id,
-              this.mapLayerService.addMarker(
-                'home',
-                this.currentUrlParams.x,
-                this.currentUrlParams.y,
-                [this.currentUrlParams.x, this.currentUrlParams.y],
-                true
-              )
-            );
-          } else {
-            let geom = undefined;
-            if (!ast.lyrTableName.includes('_xy')) {
-              if (ast.geom?.coordinates) {
-                geom = ast.geom.coordinates;
-              } else {
-                const equipt = await this.layerService.getEquipmentByLayerAndId(
-                  ast.lyrTableName,
-                  ast.id
-                );
-                geom = equipt.geom.coordinates;
-              }
-            }
-            this.markerCreation.set(
-              ast.id,
-              this.mapLayerService.addMarker(
-                'home',
-                ast.x,
-                ast.y,
-                geom ?? [ast.x, ast.y],
-                geom ? false : true,
-                index === 0 ? 'red' : ''
-              )
-            );
-          }
-        }
-      }
-      this.markerSubscription.set(
-        ast.id,
-        fromEvent(this.markerCreation.get(ast.id), 'dragend').subscribe(() => {
-          ast.x = this.markerCreation.get(ast.id).getLngLat().lng;
-          ast.y = this.markerCreation.get(ast.id).getLngLat().lat;
-        })
-      );
-      if (index === 0) {
-        this.markerSubscription.set(
-          `${ast.id}-address`,
-          fromEvent(this.markerCreation.get(ast.id), 'dragend').subscribe(
-            async () => {
-              this.addressLoading = true;
-              const address = await this.cityService.getAdressByXY(
-                this.markerCreation.get(ast.id).getLngLat().lng,
-                this.markerCreation.get(ast.id).getLngLat().lat
-              );
-              this.creationWkoForm.patchValue(
-                {
-                  wkoAddress: address.features[0]?.properties['label'],
-                },
-                { emitEvent: false }
-              );
-              this.addressLoading = false;
-            }
-          )
-        );
-      }
-      index++;
-    }
+    // Get all markers data
+    const markersDataPromises: any[] = this.assets.map((ast, index) => this.getMarkersData(ast, index));
+    await Promise.all(markersDataPromises);
 
     this.mapEvent.highlighSelectedFeatures(
       this.mapService.getMap('home'),
@@ -1321,6 +1245,94 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     );
     if (this.markerDestroyed) {
       this.removeMarkers();
+    }
+  }
+
+  private async getMarkersData(ast: any, index: number) {
+    if (!this.mapService.hasEventLayer(ast.lyrTableName)) {
+      await this.mapService.addEventLayer('home', ast.lyrTableName);
+    }
+    if (!this.markerCreation.has(ast.id)) {
+      // We don't need to recalculate the coords for a point because it has only one x and y.
+      if (ast.geom && ast.geom.type !== 'Point') {
+        const recalculateCoords = this.mapLayerService.findNearestPoint(
+          ast.geom.coordinates,
+          [ast.x, ast.y]
+        );
+        ast.x = recalculateCoords[0];
+        ast.y = recalculateCoords[1];
+      }
+      if (ast.id.startsWith('TMP-')) {
+        this.markerCreation.set(
+          ast.id,
+          this.mapLayerService.addMarker('home', ast.x, ast.y, [ast.x, ast.y], true)
+        );
+      } else {
+        if (this.isXY) {
+          this.markerCreation.set(
+            ast.id,
+            this.mapLayerService.addMarker(
+              'home',
+              this.currentUrlParams.x,
+              this.currentUrlParams.y,
+              [this.currentUrlParams.x, this.currentUrlParams.y],
+              true
+            )
+          );
+        } else {
+          let geom = undefined;
+          if (!ast.lyrTableName.includes('_xy')) {
+            if (ast.geom?.coordinates) {
+              geom = ast.geom.coordinates;
+            } else {
+              const equipt = await this.layerService.getEquipmentByLayerAndId(
+                ast.lyrTableName,
+                ast.id
+              );
+              geom = equipt.geom.coordinates;
+            }
+          }
+          this.markerCreation.set(
+            ast.id,
+            this.mapLayerService.addMarker(
+              'home',
+              ast.x,
+              ast.y,
+              geom ?? [ast.x, ast.y],
+              geom ? false : true,
+              index === 0 ? 'red' : ''
+            )
+          );
+        }
+      }
+    }
+    this.markerSubscription.set(
+      ast.id,
+      fromEvent(this.markerCreation.get(ast.id), 'dragend').subscribe(() => {
+        ast.x = this.markerCreation.get(ast.id).getLngLat().lng;
+        ast.y = this.markerCreation.get(ast.id).getLngLat().lat;
+      })
+    );
+    if (index === 0) {
+      this.markerSubscription.set(
+        `${ast.id}-address`,
+        fromEvent(this.markerCreation.get(ast.id), 'dragend').subscribe(
+          async () => {
+            this.addressLoading = true;
+            const address = await this.cityService.getAdressByXY(
+              this.markerCreation.get(ast.id).getLngLat().lng,
+              this.markerCreation.get(ast.id).getLngLat().lat
+            );
+            this.creationWkoForm.patchValue(
+              {
+                wkoAddress: address.features[0]?.properties['label'],
+              },
+              { emitEvent: false }
+            );
+            this.addressLoading = false;
+          }
+        )
+      );
     }
   }
 
@@ -1519,7 +1531,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private async checkAndSetParamsToHandleTravoUrl(): Promise<void> {
     // Set params if we are on travo url
     // It permits to set the lyrTableName properly
-    if (isUrlFromTravo(this.currentUrlParams)) {
+    if (this.currentUrlParams && isUrlFromTravo(this.currentUrlParams)) {
       // Check if all necessary parameters are provided
       if (isUrlFromTravoValid(this.currentUrlParams)) {
         // We start by set the wkoAffair field required

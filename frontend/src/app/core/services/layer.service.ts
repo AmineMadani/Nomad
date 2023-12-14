@@ -298,7 +298,7 @@ export class LayerService {
     return response[0];
   }
 
-  public getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
+  public getEquipmentsByLayersAndIds(idsLayers: SearchEquipments[]): Promise<any> {
     return this.cacheService.fetchEquipmentsByLayerIds(idsLayers);
   }
 
@@ -444,5 +444,13 @@ export class LayerService {
     }
 
     return this.layerGrpActions;
+  }
+
+  public getAssetIdsByLayerAndListCtrId(layerKey: any, listCtrId: number[]): Promise<string[]> {
+    return this.layerDataService.getAssetIdsByLayerAndCtrIds(layerKey, listCtrId);
+  }
+
+  public getAssetIdsByLayerAndListCtyId(layerKey: any, listCtyId: number[]): Promise<string[]> {
+    return this.layerDataService.getAssetIdsByLayerAndCtyIds(layerKey, listCtyId);
   }
 }

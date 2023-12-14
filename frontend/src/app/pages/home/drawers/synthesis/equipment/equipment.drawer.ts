@@ -9,6 +9,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import {
   Layer,
   ReferenceDisplayType,
+  SearchEquipments,
   UserReference,
 } from 'src/app/core/models/layer.model';
 import { UserService } from 'src/app/core/services/user.service';
@@ -120,11 +121,17 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   public async onTabButtonClicked(ev: SynthesisButton) {
     if (ev.key === 'create') {
+      const searchAssets: SearchEquipments[] = [
+        {
+          lyrTableName: this.equipment.lyrTableName,
+          equipmentIds: [this.equipment.id]
+        }
+      ];
       // Mono-equipment
-      const { id, ...eq } = this.equipment;
-      this.router.navigate(['/home/workorder'], {
-        queryParams: { [this.equipment.lyrTableName]: this.equipment.id },
-      });
+      this.drawer.navigateWithEquipments(
+        DrawerRouteEnum.WORKORDER_CREATION,
+        searchAssets,
+      );
     } else if (ev.key === 'report') {
       let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 

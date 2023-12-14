@@ -15,6 +15,7 @@ export enum DrawerRouteEnum {
   DEMANDE = 'DEMANDE',
   SELECTION = 'SELECTION',
   NEW_ASSET = 'NEW_ASSET',
+  GEOGRAPHICAL_SELECTION = 'GEOGRAPHICAL_SELECTION'
 }
 
 export enum DrawerTypeEnum {
@@ -88,5 +89,9 @@ export const drawerRoutes = [
   {
     path: '/home/asset/new',
     name: DrawerRouteEnum.NEW_ASSET,
+  },
+  {
+    path: '/home/geographical-selection',
+    name: DrawerRouteEnum.GEOGRAPHICAL_SELECTION,
   },
 ];

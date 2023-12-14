@@ -20,3 +20,7 @@ export interface ContractWithOrganizationalUnits {
   ctrExpired:boolean;
   organizationalUnits: OrganizationalUnit[];
 }
+
+export function getContractLabel(contract: Contract): string {
+  return contract.ctrLlabel;
+}

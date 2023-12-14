@@ -4,6 +4,7 @@ import { FormTemplate, FormTemplateUpdate } from '../models/template.model';
 import { ApiSuccessResponse } from '../models/api-response.model';
 import { UtilsService } from './utils.service';
 import { CacheService, ReferentialCacheKey } from './cache.service';
+import { FilterAsset } from '../models/filter/filter.model';
 
 @Injectable({
   providedIn: 'root'
@@ -82,5 +83,24 @@ export class TemplateService {
     this.utilsService.showSuccessMessage(response.message);
 
     return response;
+  }
+
+  /**
+   * Remove asset not visible
+   * @param listAssetFilter
+   * @returns List of filter asset
+   */
+  public removeAssetNotVisible(listAssetFilter: FilterAsset[]): FilterAsset[] {
+    // For each child, remove the asset not visible
+    listAssetFilter.forEach((assetFilter) => {
+      if (assetFilter.child != null) {
+        assetFilter.child = this.removeAssetNotVisible(assetFilter.child);
+      }
+    });
+
+    // Remove the asset not visible for the current list
+    return listAssetFilter.filter(
+      (assetFilter) => assetFilter.visible !== false
+    );
   }
 }

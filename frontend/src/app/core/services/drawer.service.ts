@@ -8,6 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from './workorder.service';
 import { DrawingService } from './map/drawing.service';
 import { AssetForSigService } from './assetForSig.service';
+import { SearchEquipments } from '../models/layer.model';
 
 @Injectable({
   providedIn: 'root',
@@ -151,11 +152,10 @@ export class DrawerService {
     this.router.navigate([url], { queryParams: queryParams });
   }
 
-  navigateWithEquipments(route: DrawerRouteEnum, equipments: any[], queryParams?: any): void {
+  navigateWithEquipments(route: DrawerRouteEnum, equipments: SearchEquipments[], queryParams?: any): void {
+    console.log('navigate with equipments', equipments);
     const url = this.getUrlFromDrawerName(route);
-    const eqParams = this.utilsService.generateFeatureParams(equipments);
-
-    this.router.navigate([url], { queryParams: { ...eqParams, ...queryParams } });
+    this.router.navigate([url], { queryParams: queryParams, state: { equipments: equipments } });
   }
 
   navigateWithWko(route: DrawerRouteEnum, pathVariables: any[] = [], tasks: any[], queryParams?: any): void {

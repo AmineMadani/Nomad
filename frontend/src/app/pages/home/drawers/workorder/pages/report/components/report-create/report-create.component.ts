@@ -220,7 +220,7 @@ export class ReportCreateComponent implements OnInit {
           for (let reportValue of this.workorder.tasks[0].report
             ?.reportValues) {
             if (reportValue.key.includes('COMMENT')) {
-              comment = reportValue.answer; 
+              comment = reportValue.answer;
             }
           }
           IntentAction.closeIntent({
@@ -346,7 +346,7 @@ export class ReportCreateComponent implements OnInit {
 
     this.drawerService.navigateWithEquipments(
       DrawerRouteEnum.SELECTION,
-      equipments,
+      this.utils.transformFeaturesIntoSearchEquipments(equipments),
       {
         draft: this.workorder.id,
         step: 'report',

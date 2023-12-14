@@ -16,7 +16,7 @@
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
-@import '~@ionic/angular/css/display.css';
+@import "~@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
@@ -26,7 +26,7 @@
 @import "~@ionic/angular/css/flex-utils.css";
 @import "~swiper/swiper-bundle.min.css";
 
-@import '~maplibre-gl/dist/maplibre-gl.css';
+@import "~maplibre-gl/dist/maplibre-gl.css";
 
 html,
 body {
@@ -37,47 +37,47 @@ body {
 
 /* font design */
 @font-face {
-  font-family: 'FS Sinclair Italic';
-  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot');
-  src: url('assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix') format('embedded-opentype'),
-    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff2') format('woff2'),
-    url('assets/fonts/FSSinclair/FSSinclair-Italic.woff') format('woff'),
-    url('assets/fonts/FSSinclair/FSSinclair-Italic.ttf') format('truetype');
+  font-family: "FS Sinclair Italic";
+  src: url("assets/fonts/FSSinclair/FSSinclair-Italic.eot");
+  src: url("assets/fonts/FSSinclair/FSSinclair-Italic.eot?#iefix")
+      format("embedded-opentype"),
+    url("assets/fonts/FSSinclair/FSSinclair-Italic.woff2") format("woff2"),
+    url("assets/fonts/FSSinclair/FSSinclair-Italic.woff") format("woff"),
+    url("assets/fonts/FSSinclair/FSSinclair-Italic.ttf") format("truetype");
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'TheSans';
+  font-family: "TheSans";
   font-style: normal;
   font-weight: normal;
-  src: url('assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf');
+  src: url("assets/fonts/TheSans/thesans-ot6semibold-webfont.ttf");
 }
 
 @font-face {
-  font-family: 'TheSans';
+  font-family: "TheSans";
   font-style: normal;
   font-weight: bold;
-  src: url('assets/fonts/TheSans/TheSans-Bold.ttf');
+  src: url("assets/fonts/TheSans/TheSans-Bold.ttf");
 }
 
 @font-face {
-  font-family: 'TheSans';
+  font-family: "TheSans";
   font-style: italic;
   font-weight: normal;
-  src: url('assets/fonts/TheSans/TheSans-Italic.ttf');
+  src: url("assets/fonts/TheSans/TheSans-Italic.ttf");
 }
 
 @font-face {
-  font-family: 'TheSans';
+  font-family: "TheSans";
   font-style: italic;
   font-weight: bold;
-  src: url('assets/fonts/TheSans/TheSans-BoldItalic.ttf');
+  src: url("assets/fonts/TheSans/TheSans-BoldItalic.ttf");
 }
 
 // Hides elements during printing
 @media print {
-
   .no-print,
   // Specific Maplibre classes that should be hidden during print
   .maplibregl-ctrl,
@@ -108,27 +108,22 @@ body {
   border-radius: 28px 28px 0px 0px !important;
 }
 
-/* width */
+// ### Start: Scrollbar styles ### //
+
+// Global styles
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
 }
-
-/* Track */
 ::-webkit-scrollbar-track {
   background: var(--ion-color-neutral-variant-80);
 }
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: var(--ion-color-neutral-variant-30);
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ion-color-neutral-variant-50);
 }
-
 .scrolling-wrapper {
   display: flex;
   flex-wrap: nowrap;
@@ -140,6 +135,39 @@ body {
     display: none;
   }
 }
+
+.synthesis-drawer {
+  // Specific for ion-content customization
+  ion-content {
+    --offset-bottom: auto !important;
+    --overflow: auto;
+    overflow: auto;
+    flex: 1;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--ion-color-neutral-variant-80);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--ion-color-neutral-variant-30);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--ion-color-neutral-variant-50);
+    }
+
+    .inner-scroll {
+      scrollbar-width: thin;
+    }
+  }
+}
+
+// ### End: Scrollbar styles ### //
 
 .actions-layer-content-button-action {
   text-transform: none;
@@ -221,7 +249,7 @@ ion-chip.status {
   border-radius: 8px;
   margin-bottom: 9px;
 
-  &[ng-reflect-outline=true] {
+  &[ng-reflect-outline="true"] {
     border-color: var(--ion-color-primary);
     --color: var(--ion-color-primary);
 
@@ -230,7 +258,7 @@ ion-chip.status {
     }
   }
 
-  &[ng-reflect-outline=false] {
+  &[ng-reflect-outline="false"] {
     background-color: var(--ion-color-primary);
     --color: var(--ion-color-primary-contrast);
 
@@ -300,8 +328,10 @@ mat-tab-group.form-tabs {
   .mat-mdc-tab-header {
     background-color: var(--ion-color-primary-contrast);
 
-    .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label,
-    .mat-mdc-tab-link:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
+    .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active
+      .mdc-tab__text-label,
+    .mat-mdc-tab-link:not(.mat-mdc-tab-disabled).mdc-tab--active
+      .mdc-tab__text-label {
       color: var(--ion-color-primary);
     }
 
@@ -360,10 +390,11 @@ mat-tab-group.mobile-tabs {
 
   background: var(--ion-color-primary-contrast);
 
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3),
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
 
-  input[type=range] {
+  input[type="range"] {
     width: 164px;
     height: 4px;
     margin: auto;
@@ -377,7 +408,8 @@ mat-tab-group.mobile-tabs {
   height: 100%;
   margin: 0px 20px 0px 20px;
   padding: 20px 30px 20px 30px; // top - right - bottom - left
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3),
+    0px 2px 6px 2px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
 
   &.modal {
@@ -438,7 +470,7 @@ ion-segment-button {
 }
 
 .cursor-mesure {
-  cursor: url('/assets/icon/rule.svg'), auto;
+  cursor: url("/assets/icon/rule.svg"), auto;
 }
 
 .alert-message.sc-ion-alert-md {
@@ -494,7 +526,7 @@ ion-icon.strike-through {
   &:before {
     display: block;
     position: absolute;
-    content: '';
+    content: "";
     top: 8px;
     width: 22px;
     transform: rotate(45deg);
@@ -521,7 +553,7 @@ ion-icon.strike-inverted-through {
   &:before {
     display: block;
     position: absolute;
-    content: '';
+    content: "";
     top: 8px;
     width: 22px;
     transform: rotate(-45deg);

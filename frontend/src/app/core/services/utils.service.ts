@@ -11,7 +11,7 @@ import { isNumber } from '@turf/turf';
   providedIn: 'root',
 })
 export class UtilsService {
-  constructor(private platform: Platform, private toastCtrl: ToastController) {}
+  constructor(private platform: Platform, private toastCtrl: ToastController) { }
 
   /**
    * Check if the current platform is Android.
@@ -184,8 +184,8 @@ export class UtilsService {
     }, []);
   }
 
-  public generateFeatureParams(features: any[]): any {
-    const featureParams: any = {};
+  public transformFeaturesIntoSearchEquipments(features: any[]): SearchEquipments[] {
+    const featureParams: SearchEquipments[] = [];
 
     features.forEach((feature) => {
       let source = feature.lyrTableName || feature.source;
@@ -194,16 +194,15 @@ export class UtilsService {
         source = 'tmp';
       }
 
-      if (!featureParams[source]) {
-        featureParams[source] = new Set();
+      const existingFeature = featureParams.find((ftr) => ftr.lyrTableName === source);
+      if (existingFeature) {
+        existingFeature.equipmentIds.push(feature.id);
+      } else {
+        featureParams.push({
+          lyrTableName: source,
+          equipmentIds: [feature.id]
+        });
       }
-
-      featureParams[source].add(feature.id);
-    });
-
-    // Convert the Sets to comma-separated strings
-    Object.keys(featureParams).forEach((source) => {
-      featureParams[source] = Array.from(featureParams[source]).join(',');
     });
 
     return featureParams;
