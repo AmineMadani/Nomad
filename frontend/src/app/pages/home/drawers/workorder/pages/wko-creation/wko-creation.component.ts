@@ -155,7 +155,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
   private wkoExtToSyncValue: boolean = true;
   private currentDateValue: string;
-  private assetChanged: boolean;
 
   async ngOnInit(): Promise<void> {
     this.createForm();
@@ -455,16 +454,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    // //Generation de label
-    // this.creationWkoForm
-    //   .get('wtrId')
-    //   .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
-    //   .subscribe(() => {
-    //     this.generateLabel();
-    //     this.setWkoHasChangedValueZone('1',this.creationWkoForm
-    //     .get('wtrId'));
-    //   });
-    this.creationWkoForm
+      this.creationWkoForm
       .get('ctrId')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
@@ -691,11 +681,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
-    // if (this.workorderInit) {
-    //   this.workorder.wtsId = this.workorderInit['wtsId'];
-    // }
-
-    // Creation - Case of a 'Pose' reason on a XY asset
+       // Creation - Case of a 'Pose' reason on a XY asset
     if (this.isCreation && this.isXY && wtrId === -1) {
       // Change the task to be on the asset selected
       const task = this.workorder.tasks[0];
@@ -904,7 +890,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.generateLabel();
-        this.setWkoHasChangedValueZone('1', this.creationWkoForm.get('wtrId'));
+        this.setWkoHasChangedValueZone('2', this.creationWkoForm.get('wtrId'));
       });
 
     this.workorderService
@@ -1399,8 +1385,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         Number(wkoId)
       );
 
-      this.initWorkorderInit(wkoId);
-
       const xyTasksAndNewAssets = this.workorder.tasks
         .filter((t) => t.assObjRef == null || t.assObjRef.includes('TMP'))
         .map((t) => {
@@ -1429,28 +1413,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * Get or set the non modified current workorder Id
-   * @param wkoId Current workorder Id
-   */
-  private async initWorkorderInit(wkoId: number) {
-    return;
-    if (Number(wkoId) > 0) {
-      // get dernier si même id je fait rien si Id diferrent ou item a null j'écrase
-      //save in localstorage current edited worked
-      this.workorderInit = await this.preferenceService.getPreference(
-        'workorderInit'
-      );
-      if (this.workorderInit?.id !== wkoId) {
-        this.workorderInit =
-          await this.workorderService.getWorkorderByIdFromServer(Number(wkoId));
-        this.preferenceService.setPreference(
-          'workorderInit',
-          this.workorderInit
-        );
-      }
-    }
-  }
 
   private transformTasks(inputItems: any[]): any[] {
     const transformedItems: { [assObjTable: string]: string[] } = {};
@@ -1725,6 +1687,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  /**
+   * update a flag that allow to differenciate groups of properties that have changed
+   * @param zone identify the group of properties
+   * @param formControl optional to check if the control is 'touched'
+   */
   private setWkoHasChangedValueZone(zone: string, formControl?: any): void {
     if (this.workorder && ( formControl === undefined || formControl?.touched)) {
       switch (zone) {
