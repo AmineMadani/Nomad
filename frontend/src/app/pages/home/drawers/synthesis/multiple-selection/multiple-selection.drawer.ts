@@ -36,9 +36,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private userService: UserService,
     private workorderService: WorkorderService,
     private drawingService: DrawingService,
-    private assetForSigService: AssetForSigService,
-  ) {
-  }
+    private assetForSigService: AssetForSigService
+  ) {}
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
   @ViewChild('popoverButtons', { static: true }) popoverButtons: IonPopover;
@@ -64,7 +63,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private step: string;
 
-
   async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
     this.step = this.activatedRoute.snapshot.queryParams?.['step'];
@@ -78,6 +76,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             : "Reprendre l'intervention"
           : 'Générer une intervention',
         icon: 'person-circle-outline',
+        disabledFunction: () =>
+          !this.userHasPermissionCreateAssetWorkorder ||
+          this.filteredFeatures.length === 0,
+      },
+      {
+        key: 'report',
+        label: 'Saisir un compte rendu',
+        icon: 'newspaper-outline',
         disabledFunction: () =>
           !this.userHasPermissionCreateAssetWorkorder ||
           this.filteredFeatures.length === 0,
@@ -123,10 +129,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     this.mapEventService
       .onFeatureHovered()
-      .pipe(
-        debounceTime(300),
-        takeUntil(this.ngUnsubscribe$)
-      )
+      .pipe(debounceTime(300), takeUntil(this.ngUnsubscribe$))
       .subscribe((f: string) => {
         if (f) {
           this.featureIdSelected = f;
@@ -139,18 +142,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     this.mapEventService
       .onFeatureSelected()
-      .pipe(
-        takeUntil(this.ngUnsubscribe$)
-      )
+      .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(async (feature) => {
         await this.addNewFeatures(feature);
       });
 
     this.mapEventService
       .onMultiFeaturesSelected()
-      .pipe(
-        takeUntil(this.ngUnsubscribe$)
-      )
+      .pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(async (features) => {
         await this.addNewFeatures(features);
       });
@@ -166,9 +165,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     // Get searched equipments from params
     const urlParams = new URLSearchParams(window.location.search);
-    const searchedEquipments: SearchEquipments[] = this.utilsService.transformMap(
-      new Map(urlParams.entries())
-    );
+    const searchedEquipments: SearchEquipments[] =
+      this.utilsService.transformMap(new Map(urlParams.entries()));
 
     // Get equipments data
     const features = await this.layerService.getEquipmentsByLayersAndIds(
@@ -179,24 +177,28 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     if (features && features.length > 0) {
       // Zoom to fit the screen with all equipments
       // Only when the map loaded to remove some problems when we refresh the screen
-      this.mapService.onMapLoaded('home').pipe(
-        filter((isMapLoaded) => isMapLoaded),
-        takeUntil(this.ngUnsubscribe$)
-      ).subscribe(() => {
-        this.mapLayerService.fitBounds(
-          'home',
-          features.map((f) => {
-            return [+f.x, +f.y];
-          })
-        );
-      });
-
+      this.mapService
+        .onMapLoaded('home')
+        .pipe(
+          filter((isMapLoaded) => isMapLoaded),
+          takeUntil(this.ngUnsubscribe$)
+        )
+        .subscribe(() => {
+          this.mapLayerService.fitBounds(
+            'home',
+            features.map((f) => {
+              return [+f.x, +f.y];
+            })
+          );
+        });
 
       // Add the lyrTableName for each equipments
       const equipments = features.map((f) => {
         return {
           ...f,
-          lyrTableName: searchedEquipments.find((map) => map.equipmentIds.includes(f.id)).lyrTableName,
+          lyrTableName: searchedEquipments.find((map) =>
+            map.equipmentIds.includes(f.id)
+          ).lyrTableName,
         };
       });
 
@@ -213,7 +215,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     return feature.id;
   }
 
-  public onTabButtonClicked(e: SynthesisButton): void {
+  public async onTabButtonClicked(e: SynthesisButton): Promise<void> {
     switch (e.key) {
       case 'add':
         this.popover.present();
@@ -237,13 +239,64 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }
 
         break;
+      case 'report':
+        const { filtred, filtredAssets } =
+          await this.layerService.checkEquipments(this.filteredFeatures);
+        if (filtred) {
+          if (!filtredAssets || filtredAssets?.length === 0) {
+            return;
+          }
+          this.filteredFeatures = filtredAssets;
+        }
+        let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
+        let workorder: Workorder = {
+          id: this.utilsService.createCacheId(),
+          isDraft: true,
+          wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+          tasks: [],
+        };
+        for (const ast of this.filteredFeatures) {
+          const equipt = await this.layerService.getEquipmentByLayerAndId(
+            ast.lyrTableName,
+            ast.id
+          );
+
+          if (equipt.geom && equipt.geom.type !== 'Point') {
+            const recalculateCoords = this.mapLayerService.findNearestPoint(
+              equipt.geom.coordinates,
+              [equipt.x, equipt.y]
+            );
+            equipt.x = recalculateCoords[0];
+            equipt.y = recalculateCoords[1];
+          }
+
+          if (equipt != null) {
+            workorder.tasks.push({
+              id: this.utilsService.createCacheId(),
+              latitude: equipt.y,
+              longitude: equipt.x,
+              assObjTable: equipt.lyrTableName,
+              assObjRef: equipt.id,
+              wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
+              ctrId: equipt.ctrId,
+            });
+          }
+        }
+        this.workorderService.saveCacheWorkorder(workorder);
+        this.router.navigate([
+          '/home/workorder/' + workorder.id.toString() + '/cr',
+        ]);
+        break;
       case 'new-asset':
         if (this.wkoDraft) {
           this.drawerService.navigateTo(DrawerRouteEnum.NEW_ASSET, [], {
             draft: this.wkoDraft,
           });
         } else {
-          this.drawerService.navigateWithEquipments(DrawerRouteEnum.NEW_ASSET, this.filteredFeatures);
+          this.drawerService.navigateWithEquipments(
+            DrawerRouteEnum.NEW_ASSET,
+            this.filteredFeatures
+          );
         }
         break;
       case 'showSelectedFeatures':
@@ -459,15 +512,19 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       // When there is no workorder, but there is a reference in the url param
       const urlParams = new URLSearchParams(window.location.search);
       let listAssObjRef = [];
-      for (let [key, value] of Array.from(urlParams.entries()).filter(([key]) => key === 'tmp')) {
+      for (let [key, value] of Array.from(urlParams.entries()).filter(
+        ([key]) => key === 'tmp'
+      )) {
         const listValue = value.split(',');
         for (const v of listValue) {
-          if (!listAssObjRef.includes(v))
-            listAssObjRef.push(v);
+          if (!listAssObjRef.includes(v)) listAssObjRef.push(v);
         }
       }
       for (const assObjRef of listAssObjRef) {
-        const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assObjRef);
+        const assetForSig =
+          await this.assetForSigService.getCacheAssetForSigByAssObjRef(
+            assObjRef
+          );
         if (assetForSig != null) {
           abstractFeatures.push({
             id: assObjRef,
@@ -570,7 +627,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     } else {
       features = features.map((f) => {
         return {
-          ...this.mapLayerService.getFeatureById('home', f.source, f.id)['properties'],
+          ...this.mapLayerService.getFeatureById('home', f.source, f.id)[
+            'properties'
+          ],
           lyrTableName: f.source,
         };
       });

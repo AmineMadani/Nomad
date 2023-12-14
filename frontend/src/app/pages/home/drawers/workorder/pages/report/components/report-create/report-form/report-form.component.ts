@@ -277,7 +277,7 @@ export class ReportFormComponent implements OnInit, AfterViewChecked {
     this.formEditor.form.updateValueAndValidity();
     this.formEditor.form.markAllAsTouched();
 
-    if (!this.utils.isMobilePlateform() && this.workorder.tasks.length == 1) {
+    if (!this.utils.isMobilePlateform() && this.workorder.tasks.length == 1 && !this.workorder.wkoExtClosure) {
       this.completeForm();
       this.goToDateStep.emit();
     }

@@ -581,6 +581,7 @@ public class WorkorderService {
 		if (wkoRealizationUser != null)
 			workorder.setWkoRealizationUser(wkoRealizationUser);
 		workorder.setModifiedBy(user);
+		workorder.setWkoExtClosure(true);
 
 		try {
 			workorder = workOrderRepository.save(workorder);

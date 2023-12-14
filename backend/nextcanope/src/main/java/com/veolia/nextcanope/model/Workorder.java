@@ -183,6 +183,9 @@ private Long id;
     @JsonProperty("wko_affair")
     private Integer wkoAffair;
 
+    @Column(name="wko_ext_closure")
+    @JsonProperty("wko_ext_closure")
+    private Boolean wkoExtClosure;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
@@ -562,4 +565,11 @@ private Long id;
         this.city = city;
     }
 
+    public Boolean getWkoExtClosure() {
+        return wkoExtClosure;
+    }
+
+    public void setWkoExtClosure(Boolean wkoExtClosure) {
+        this.wkoExtClosure = wkoExtClosure;
+    }
 }
