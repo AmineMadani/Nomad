@@ -384,7 +384,7 @@
                         "sqlFile": {
                             "dbms": "postgresql",
                             "encoding": "UTF-8",
-                            "path": "/db/changelog/changes/VEOLIA/v1.3.0/itv.sql"
+                            "path": "/db/changelog/changes/v1.3.0/itv.sql"
                         }
                     }
                 ]
