@@ -4,10 +4,7 @@ import com.veolia.nextcanope.dto.itv.*;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
 import com.veolia.nextcanope.model.*;
-import com.veolia.nextcanope.repository.ItvRepository;
-import com.veolia.nextcanope.repository.ItvVersionAliasRepository;
-import com.veolia.nextcanope.repository.ItvVersionEnumRepository;
-import com.veolia.nextcanope.repository.ItvVersionRepository;
+import com.veolia.nextcanope.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,11 +18,19 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ITVService {
@@ -44,6 +49,9 @@ public class ITVService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    LayerRepositoryImpl layerRepository;
 
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat sdfHour = new SimpleDateFormat("HH:mm");
@@ -761,5 +769,252 @@ public class ITVService {
         }
 
         return itv;
+    }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy_HHmmss");
+
+    public ExportItvDto exportEmptyItvFile(List<AssetDto> listAsset, String fileType) throws ParserConfigurationException, TransformerException {
+        // ### ITV Version ### //
+        List<ItvVersionAlias> listItvVersionAlias = itvVersionAliasRepository.findAll();
+        List<ItvVersionDto> listItvVersion = getListItvVersion();
+
+        String version = "EN13508-2:2003+A1:2011";
+        ItvVersionAlias itvVersionAlias = listItvVersionAlias.stream().filter(a -> a.getLabel().equals(version)).findFirst().orElse(null);
+        if (itvVersionAlias == null) {
+            throw new FunctionalException("Alias non trouvé");
+        }
+
+        ItvVersionDto itvVersionDto = listItvVersion.stream().filter(v -> v.getVersion().equals(itvVersionAlias.getVersion())).findFirst().orElse(null);
+        if (itvVersionDto == null) {
+            throw new FunctionalException("Version non trouvée");
+        }
+
+        // ### Assets data ### //
+        // Regroup the asset by layer
+        Map<String, List<String>> mapListIdByLayer = new HashMap<>();
+        for(AssetDto assetDto : listAsset) {
+            List<String> listId = mapListIdByLayer.get(assetDto.getLyrTableName());
+            if (listId == null) {
+                listId = new ArrayList<>();
+                mapListIdByLayer.put(assetDto.getLyrTableName(), listId);
+            }
+            listId.add(assetDto.getId());
+        }
+
+        // Get the asset data for each layer
+        Map<String, List<Map<String, Object>>> mapListAssetByLayer = new HashMap<>();
+        for (String layer : mapListIdByLayer.keySet()) {
+            List<Map<String, Object>> listResult = layerRepository.getAllAssetDataByListId(layer, mapListIdByLayer.get(layer));
+            mapListAssetByLayer.put(layer, listResult);
+        }
+
+        // ### B ### //
+        List<String> listBField = Arrays.asList("AAA","AAD","AAF","AAJ","AAN","ACA","ACB","ACD","ACK", "ABA");
+
+        // ## For each Asset (Collecteur or Branche) ## //
+        List<AssetDto> listAssetSection = listAsset.stream().filter(a -> a.getLyrTableName().equals("ass_collecteur") || a.getLyrTableName().equals("ass_branche")).collect(Collectors.toList());
+
+        List<Map<String, Object>> listBData = new ArrayList<>();
+        for (AssetDto assetDto : listAssetSection) {
+            // Ge the asset data
+            List<Map<String, Object>> listResult = mapListAssetByLayer.get(assetDto.getLyrTableName());
+            Map<String, Object> mapAssetData = listResult.stream().filter(r -> assetDto.getId().equals(r.get("id"))).findFirst().orElse(null);
+            if (mapAssetData == null) {
+                throw new FunctionalException("Equipement " + assetDto.getId() + " pour le type " + assetDto.getLyrTableName() + " non trouvé");
+            }
+
+            // For each field to get
+            Map<String, Object> mapData = new HashMap<>();
+            for (String code : listBField) {
+                // Get the field
+                ItvVersionFieldDto itvVersionFieldDto = itvVersionDto.getListItvVersionField().stream().filter(f -> f.getParent().equals("B") && f.getCode().equals(code)).findFirst().orElse(null);
+                if (itvVersionFieldDto == null) {
+                    throw new FunctionalException("Code " + code + " non trouvé");
+                }
+
+                // Get the corresponding asset field code
+                String fieldCode = itvVersionFieldDto.getLabel();
+
+                // Exception, when its not the same field name depending of the layer
+                if ("AAD".equals(code) && "ass_branche".equals(assetDto.getLyrTableName())) {
+                    fieldCode = "id_arc";
+                }
+                // Exception, when there is no field for a layer
+                if ("AAF".equals(code) && "ass_branche".equals(assetDto.getLyrTableName())) {
+                    mapData.put(code, null);
+                    continue;
+                }
+                // Version
+                if ("ABA".equals(code)) {
+                    mapData.put(code, version);
+                    continue;
+                }
+
+                // # Data # //
+                Object valueObject = mapAssetData.get(fieldCode);
+
+                if (valueObject != null) {
+                    // Get the type of field
+                    // If its an enum
+                    if ("E".equals(itvVersionFieldDto.getType())) {
+                        // Get the associated code
+                        Object finalValueObject = valueObject;
+                        ItvVersionEnumDto itvVersionEnumDto = itvVersionFieldDto.getListItvVersionEnum().stream().filter(e -> e.getLabel().equals(finalValueObject.toString())).findFirst().orElse(null);
+
+                        // If its not found, set the value to Z (Autre)
+                        if (itvVersionEnumDto == null) {
+                            itvVersionEnumDto = itvVersionFieldDto.getListItvVersionEnum().stream().filter(e -> e.getLabel().equals("Autre")).findFirst().orElse(null);
+                        }
+
+                        if (itvVersionEnumDto == null) {
+                            throw new FunctionalException("Code non trouvé pour la valeur " + valueObject.toString() + " pour le champ " + code + " pour l'équipement " + assetDto.getId());
+                        }
+
+                        valueObject = itvVersionEnumDto.getVal();
+                    }
+                }
+
+                mapData.put(code, valueObject);
+            }
+
+            listBData.add(mapData);
+        }
+
+        // ### C ### //
+        List<String> listCField = Arrays.asList("I","J","A","B","C","D","E","F","G","H","K","L","M","N");
+
+        // ### TXT ### //
+        if ("txt".equals(fileType)) {
+            String itv = "";
+
+            // ## HEADER ## //
+            String fieldSeparator = ",";
+            String decimalSeparator = ".";
+            String textSurroundingChar = "\"";
+
+            String header =
+                    "#A1=ISO-8859-1\r\n" +
+                    "#A2=fr\r\n" +
+                    "#A3=" + fieldSeparator + "\r\n" +
+                    "#A4=" + decimalSeparator + "\r\n" +
+                    "#A5=" + textSurroundingChar + "\r\n" +
+                    "#A6=GIMS GIMAP-4.19.9-CANOPE-4.19_2.21\r\n";
+
+            itv += header;
+
+            // ## Block ## //
+            int nbBFieldByLine = 10;
+
+            for (Map<String, Object> mapData : listBData) {
+                // ## B ## //
+                List<String> listCode = new ArrayList<>(mapData.keySet());
+                listCode.sort(String::compareTo);
+                int i = 1;
+                for (int startIndex = 0; startIndex < listCode.size(); startIndex = startIndex + nbBFieldByLine) {
+                    int endIndex = Math.min(startIndex + nbBFieldByLine, listCode.size());
+                    List<String> listCodeSub = listCode.subList(startIndex, endIndex);
+
+                    // # Header # //
+                    itv += "#B" + String.format("%02d", i) + "=" + String.join(fieldSeparator, listCodeSub) + "\r\n";
+
+                    // # Data # //
+                    List<String> listValue = new ArrayList<>();
+                    for (String code : listCodeSub) {
+                        String value = "";
+
+                        // Get the corresponding asset field code depending of the layer
+                        Object valueObject = mapData.get(code);
+                        if (valueObject != null) {
+                            if (valueObject instanceof String) {
+                                value = textSurroundingChar + (String) valueObject + textSurroundingChar;
+                            } else if (valueObject instanceof Double || valueObject instanceof BigDecimal) {
+                                value = valueObject.toString().replace(".", decimalSeparator);
+                            } else {
+                                value = valueObject.toString();
+                            }
+                        }
+
+                        listValue.add(value);
+                    }
+                    itv += String.join(fieldSeparator, listValue) + "\r\n";
+
+                    i++;
+                }
+
+                // ## C ## //
+                String c = "#C=" + String.join(fieldSeparator, listCField) + "\r\n";
+
+                // End Block
+                String z = "#Z\r\n";
+
+                itv += c + z;
+            }
+
+            // Delete the last \r\n
+            itv = itv.substring(0, itv.length() - 2);
+
+            ExportItvDto exportItvDto = new ExportItvDto();
+            exportItvDto.setData(itv.getBytes(StandardCharsets.UTF_8));
+            exportItvDto.setFilename("itv_" + sdf.format(new Date()) + ".txt");
+            return exportItvDto;
+        } else {
+            // ### XML ### //
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element rootElement = doc.createElement("DATA");
+            doc.appendChild(rootElement);
+
+            // ## Header ## //
+            Element zaElement = doc.createElement("ZA");
+            rootElement.appendChild(zaElement);
+
+            // A2
+            Element a2Element = doc.createElement("A2");
+            a2Element.setTextContent("fr");
+            zaElement.appendChild(a2Element);
+
+            // A6
+            Element a6Element = doc.createElement("A6");
+            a6Element.setTextContent("GIMS GIMAP-4.19.9-CANOPE-4.19_2.21");
+            zaElement.appendChild(a6Element);
+
+            // ## Block ## //
+            for (Map<String, Object> mapData : listBData) {
+                Element zbElement = doc.createElement("ZB");
+                rootElement.appendChild(zbElement);
+
+                // # B # //
+                List<String> listCode = new ArrayList<>(mapData.keySet());
+                listCode.sort(String::compareTo);
+                for (String code : listCode) {
+                    Element bElement = doc.createElement(code);
+                    bElement.setTextContent(mapData.get(code) != null ? mapData.get(code).toString() : null);
+                    zbElement.appendChild(bElement);
+                }
+
+                // # C # //
+                Element zcElement = doc.createElement("ZC");
+                zbElement.appendChild(zcElement);
+
+                for (String cField : listCField) {
+                    Element cElement = doc.createElement(cField);
+                    zcElement.appendChild(cElement);
+                }
+            }
+
+            StringWriter sw = new StringWriter();
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+            transformer.transform(new DOMSource(doc), new StreamResult(sw));
+
+            ExportItvDto exportItvDto = new ExportItvDto();
+            exportItvDto.setData(sw.toString().getBytes());
+            exportItvDto.setFilename("itv_" + sdf.format(new Date()) + ".xml");
+            return exportItvDto;
+        }
     }
 }

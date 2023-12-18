@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ItvDataService } from './dataservices/itv.dataservice';
 import { ItvPictureDto } from '../models/itv.model';
+import saveAs from 'file-saver';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +28,16 @@ export class ItvService {
    */
   public getListItvPictureByItvId(itvId: number): Promise<ItvPictureDto[]> {
     return this.itvDataService.getListItvPictureByItvId(itvId);
+  }
+
+  /**
+   * Export an empty ITV file, filed with the selected assets
+   * @param listAsset List of asset (lyrTableName + asset id) of the selected assets
+   * @param fileType Type of file (TXT or XML)
+   * @returns The ITV file
+   */
+  public async exportEmptyItvFile(listAsset: any[], fileType: string): Promise<void> {
+    const itv = await this.itvDataService.exportEmptyItvFile(listAsset, fileType);
+    saveAs(itv.content, itv.fileName);
   }
 }

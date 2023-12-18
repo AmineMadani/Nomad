@@ -374,6 +374,21 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.3.0_itv",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/VEOLIA/v1.3.0/itv.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }
