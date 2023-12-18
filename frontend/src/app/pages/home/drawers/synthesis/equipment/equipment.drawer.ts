@@ -166,12 +166,21 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   }
 
   public onNavigateToDetails(): void {
+    // Create a copy of equipment without null values
+    const equipmentNoNull = { ...this.equipment };
+
+    Object.keys(equipmentNoNull).forEach(key => {
+      if (equipmentNoNull[key] === null) {
+        equipmentNoNull[key] = '';
+      }
+    });
     this.drawer.navigateTo(
       DrawerRouteEnum.EQUIPMENT_DETAILS,
       [this.equipment.id],
-      this.equipment
+      equipmentNoNull
     );
   }
+  
 
   private async initEquipment(
     lyrTableName: string,

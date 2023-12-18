@@ -160,7 +160,8 @@ export class WkoViewComponent implements OnInit {
               ? ` - ${this.selectedTask?.assObjRef}`
               : '')
             : null;
-          this.wkoIdLabel = `Intervention n°${this.workOrder.id}` + (this.taskId ? ` - Tâche n°${this.taskId}` : '');
+          const taskIndex =  this.workOrder.tasks.indexOf(this.selectedTask) + 1;  
+          this.wkoIdLabel = `${this.workOrder.id}` + (this.taskId && taskIndex>0 ? `-${taskIndex}` : '');
           this.loading = false;
 
         });
