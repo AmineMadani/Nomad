@@ -8,7 +8,7 @@ import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, debounceTime } from 'rxjs';
 import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { IonPopover } from '@ionic/angular';
+import { AlertController, IonPopover, ToastController } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -17,6 +17,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
+import { ItvService } from 'src/app/core/services/itv.service';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -36,7 +37,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     private userService: UserService,
     private workorderService: WorkorderService,
     private drawingService: DrawingService,
-    private assetForSigService: AssetForSigService
+    private assetForSigService: AssetForSigService,
+    private itvService: ItvService,
+    private alertController: AlertController,
+    private toastController: ToastController,
   ) {}
 
   @ViewChild('popover', { static: true }) popover: IonPopover;
@@ -99,7 +103,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         label: 'Afficher toutes les sélections',
         icon: 'locate-outline',
       },
-      //{ key: 'generate-itv', label: 'Exporter ITV vierge', icon: 'download-outline' },
+      {
+        key: 'export-empty-itv-file',
+        label: 'Exporter ITV vierge',
+        icon: 'download-outline'
+      },
     ];
     this.isMobile = this.utilsService.isMobilePlateform();
 
@@ -301,6 +309,79 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         break;
       case 'showSelectedFeatures':
         this.restoreViewOnFeatureSelected();
+        break;
+      case 'export-empty-itv-file':
+        // Get waste water features
+        const listAssFeature = this.filteredFeatures.filter((feasure) => {
+          return feasure.lyrTableName != null && feasure.lyrTableName.startsWith('ass_');
+        });
+
+        // Check that at least one Collecteur or Branchement is selected
+        if (!listAssFeature.some((feature) => feature.lyrTableName === 'ass_collecteur' || feature.lyrTableName === 'ass_branche')) {
+          this.utilsService.showErrorMessage('Aucun collecteur ou branchement n\'est présent dans votre sélection, veuillez en rajouter pour pouvoir effectuer un export ITV vierge', 5000);
+          return;
+        }
+
+        // Check that at least one Regard or Ouvrage is selected
+        // Else ask for  confirmation
+        if (!listAssFeature.some((feature) => feature.lyrTableName === 'ass_regard' || feature.lyrTableName === 'ass_ouvrage')) {
+          const alert = await this.alertController
+            .create({
+              header: 'Confirmation',
+              message: 'Aucun regard ou ouvrage n\'est présent dans votre sélection, souhaitez-vous poursuivre l\'export ?',
+              buttons: [
+                {
+                  text: 'Non',
+                  role: 'cancel',
+                },
+                {
+                  text: 'Oui',
+                  role: 'ok'
+                },
+              ],
+            });
+          alert.present();
+          const ev = await alert.onDidDismiss();
+          if (ev.role !== 'ok') return;
+        }
+
+        // Choose between TXT and XML
+        const alert = await this.alertController
+          .create({
+            header: 'Choix',
+            message: 'Veuillez sélectionner le format du fichier à exporter',
+            buttons: [
+              {
+                text: '.txt',
+                role: 'txt',
+              },
+              {
+                text: '.xml',
+                role: 'xml'
+              },
+            ],
+          });
+        alert.present();
+        const ev = await alert.onDidDismiss();
+
+        const listAsset = listAssFeature.map((feature) => {
+          return {
+            id: feature.id, 
+            lyrTableName: feature.lyrTableName
+          }
+        });
+        if (ev.role === 'txt') {
+          await this.itvService.exportEmptyItvFile(listAsset, 'txt');
+        } else if (ev.role === 'xml') {
+          await this.itvService.exportEmptyItvFile(listAsset, 'xml');
+        }
+        const toast = await this.toastController.create({
+          message: "Téléchargement réussi",
+          duration: 5000,
+          color: 'success'
+        });
+        await toast.present();
+
         break;
       default:
         break;

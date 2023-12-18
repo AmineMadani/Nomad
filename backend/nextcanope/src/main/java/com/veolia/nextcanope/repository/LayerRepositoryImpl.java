@@ -3,6 +3,8 @@ package com.veolia.nextcanope.repository;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -81,6 +83,20 @@ public class LayerRepositoryImpl {
 		return  this.jdbcTemplate.queryForObject(
 				"SELECT * FROM nomad.f_get_search_asset_from_id(?,?)",
 				String.class,partialAssetId, userId.intValue()
+		);
+	}
+
+	/**
+	 * Get all the data from the asset schema for given id
+	 * @param layer The layer
+	 * @param ids The list of id
+	 * @return All the data in the layer table in the asset schema
+	 */
+	public List<Map<String, Object>> getAllAssetDataByListId(String layer, List<String> ids) {
+		String idsFormat = ids.stream().map(id -> "'" + id + "'").collect(Collectors.joining(","));
+
+		return this.jdbcTemplate.queryForList(
+				"SELECT * from asset." + layer + " WHERE ID in (" + idsFormat + ")"
 		);
 	}
 }

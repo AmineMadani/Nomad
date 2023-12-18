@@ -228,12 +228,14 @@ export class HomePage implements OnInit, OnDestroy {
     fromEvent(this.mapService.getMap('home'), 'click')
       .pipe(takeUntil(this.drawerUnsubscribe$))
       .subscribe((e: Maplibregl.MapMouseEvent) => {
+        if (!this.drawingService.getDrawActive() && !this.drawingService.getIsMeasuring()){
         const nearestFeature = this.mapLayerService.queryNearestFeature('home', e);
         if (nearestFeature?.properties?.['cluster']) {
           this.onClusterSelected(nearestFeature, e);
         } else {
           this.onFeatureSelected(nearestFeature, e);
         }
+      }
       });
 
     fromEvent(this.mapService.getMap('home'), 'touchend')
