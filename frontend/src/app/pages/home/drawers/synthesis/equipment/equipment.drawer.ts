@@ -18,6 +18,7 @@ import { filter, firstValueFrom, takeUntil } from 'rxjs';
 import { Workorder } from 'src/app/core/models/workorder.model';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
+import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
 
 @Component({
   selector: 'app-equipment',
@@ -222,4 +223,18 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
       equipment.id
     );
   }
+
+  /**
+   * Convert to format date if it's date
+   * @param value 
+   * @returns 
+   */
+  public getEquipmentValue(value : string){
+    let result = value;
+    if (DateValidator.isDate(value)) {
+      result = DateValidator.convertFormatDateFr(value);
+    }
+    return   result;
+  }
+
 }
