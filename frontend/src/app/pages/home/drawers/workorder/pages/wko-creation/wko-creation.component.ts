@@ -1358,7 +1358,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async saveWorkOrderInCache(): Promise<void> {
-    console.log('object :>> saveWorkOrderInCache');
     Object.keys(this.creationWkoForm.value).forEach((key) => {
       if (key === 'wtrId') {
         this.workorder.tasks.map((task: Task) => {
