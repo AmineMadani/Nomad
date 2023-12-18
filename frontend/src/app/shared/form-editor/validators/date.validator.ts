@@ -16,6 +16,15 @@ export class DateValidator {
     return DateValidator.isDateValueValid(c.value) ? null : { isDateInvalid : true}
   }
 
+    /**
+   * Check if string value is Date and valid date
+   * @param value 
+   * @returns 
+   */
+    static isDate(value : string) : boolean {
+      return Date.parse(value) > 0 && !isNaN(Date.parse(value)) && DateValidator.isDateValueValid(value);
+    }
+  
   /**
    * Check if date exists (consider leap year)
    * eg 31/09/2023 ko
@@ -29,7 +38,8 @@ export class DateValidator {
       return date.isValid;
     }
     else {
-      if (val.length > 10) {
+      //min 1/1/24 max 01/01/2024
+      if (val.length < 5 || val.length > 10) {
         return false;
       }
       return true;
@@ -91,6 +101,17 @@ export class DateValidator {
       return newValue;
     }
   }
+
+  /**
+   * Convert Date to format dd/MM/yyyy
+   * @param dateString 
+   * @returns 
+   */
+    public static convertFormatDateFr(dateString: string): string {
+      const date = new Date(dateString);
+      const formattedDate = new Intl.DateTimeFormat('fr-FR').format(date);
+      return formattedDate;
+    }
 
   /**
    * Check if end date is posterior to the start date
