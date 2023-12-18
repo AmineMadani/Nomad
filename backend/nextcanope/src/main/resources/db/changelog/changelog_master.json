@@ -348,6 +348,22 @@
         },
         {
             "changeSet": {
+                "id": "v1.2.0_update_function_patrimony_search",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.2.0/update_function_patrimony_search.sql",
+                            "splitStatements": "false"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "changeSet": {
                 "id": "tag_v1.2.0",
                 "author": "NOMAD",
                 "changes": [

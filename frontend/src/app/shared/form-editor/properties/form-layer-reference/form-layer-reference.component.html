@@ -1,6 +1,6 @@
 <ng-container *ngIf="userReferences">
   <ng-container *ngFor="let reference of userReferences">
-    <ng-container *ngIf="equipment && equipment[reference.referenceKey]">
+    <ng-container *ngIf="equipment?.hasOwnProperty(reference.referenceKey)">
         <ion-item lines="none" class="ion-no-margin">
           <ion-label class="label">
             <h3>{{ reference.alias }}</h3>
