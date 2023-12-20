@@ -35,7 +35,10 @@ export interface Workorder {
     wkoRealizationUser?: string;
     wkoExtError?: string;
     wkoExtClosure?: boolean;
-
+    //to indicate that some values have changed
+    wkoChangedValueZone1?: boolean;
+    //to indicate that some values have changed (others)
+    wkoChangedValueZone2?: boolean;
 }
 
 export function buildWorkorderFromGeojson(featureWorkorder: any): Workorder {
