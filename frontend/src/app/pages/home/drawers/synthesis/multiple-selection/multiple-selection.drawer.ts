@@ -490,12 +490,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   public getLyrLabel(layerKey: string): string {
-    return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
+    return this.layersConf.find((l: Layer) => l.lyrTableName === layerKey)
       ?.lyrSlabel;
   }
 
   public getDomLabel(layerKey: string): string {
-    return this.layersConf.find((l: Layer) => l.lyrTableName.includes(layerKey))
+    return this.layersConf.find((l: Layer) => l.lyrTableName === layerKey)
       ?.domLLabel;
   }
 
