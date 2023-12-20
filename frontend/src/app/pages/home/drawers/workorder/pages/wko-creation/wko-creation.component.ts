@@ -55,7 +55,6 @@ import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
 import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
-import { MultiAssetsModalComponent } from '../multi-assets-modal/multi-assets-modal.component';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
@@ -81,9 +80,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     private userService: UserService,
     private cityService: CityService,
     private contractService: ContractService,
-    private modalCtrl: ModalController,
     private alertController: AlertController,
-    private assetForSigService: AssetForSigService
+    private assetForSigService: AssetForSigService,
   ) {
     this.router.events
       .pipe(
@@ -142,6 +140,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public isCreation: boolean = true;
   public isXY: boolean = false;
+  public displayLayerSelect = false;
+  public autoGenerateLabel = true;
 
   private markerCreation: Map<string, any> = new Map();
   private markerSubscription: Map<string, Subscription> = new Map();
@@ -150,10 +150,6 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject<void>();
   private wkoExtToSyncValue: boolean = true;
   private currentDateValue: string;
-
-  public displayLayerSelect = false;
-
-  public autoGenerateLabel = true;
 
   async ngOnInit(): Promise<void> {
     this.createForm();
@@ -284,14 +280,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             this.title = `Modification de l'intervention ${this.workorder.wkoName}`;
             this.createWithoutSendToPlanning =
               'Sans envoyer pour planification';
-            this.creationButonLabel = 'Modifer';
+            this.creationButonLabel = 'Modifier';
           }
-
           await this.initializeFormWithWko();
         }
-
         await this.initializeEquipments();
-
         await this.saveWorkOrderInCache();
       });
 
@@ -308,6 +301,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .get('wkoAgentNb')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe((agentNb: number) => {
+        this.setWkoHasChangedValueZone('1');
         if (agentNb < 1) {
           this.creationWkoForm.patchValue(
             {
@@ -469,23 +463,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    //Generation de label
-    this.creationWkoForm
-      .get('wtrId')
-      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
-      .subscribe(() => {
-        this.generateLabel();
-      });
-    this.creationWkoForm
+      this.creationWkoForm
       .get('ctrId')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
+        this.setWkoHasChangedValueZone('1');
         this.generateLabel();
       });
     this.creationWkoForm
       .get('ctyId')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
+        this.setWkoHasChangedValueZone('1');
         this.generateLabel();
       });
     this.creationWkoForm
@@ -493,12 +482,26 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.generateLabel();
+        this.setWkoHasChangedValueZone('2');
       });
     this.creationWkoForm
       .get('wkoName')
       .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
       .subscribe(() => {
         this.autoGenerateLabel = false;
+      });
+    this.creationWkoForm
+      .get('wkoAppointment')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.setWkoHasChangedValueZone('1');
+      });
+    this.creationWkoForm
+      .get('wkoPlanningEndDate')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+        this.setWkoHasChangedValueZone('2') ;
       });
   }
 
@@ -601,41 +604,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   public haveModifieldFieldUnscheduled(): boolean {
     let hasChanged: boolean = false;
-    if (!this.isCreation && this.workorder != null && this.workorderInit) {
-      if (
-        this.workorder['wkoAppointment']?.toString() !=
-          this.creationWkoForm.controls['wkoAppointment']?.toString() ||
-        this.workorder['ctrId']?.toString() !=
-          this.creationWkoForm.controls['ctrId']?.toString() ||
-        this.workorder['ctyId']?.toString() !=
-          this.creationWkoForm.controls['ctyId']?.toString() ||
-        this.workorder['wkoAgentNb']?.toString() !=
-          this.creationWkoForm.controls['wkoAgentNb']?.toString() ||
-        this.checkTasksChanged(this.workorder.tasks)
-      ) {
-        this.alerteMessage =
-          'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-        hasChanged = true;
-      } else if (
-        DateTime.fromISO(this.workorder.wkoPlanningStartDate as any).toFormat(
-          'dd/MM/yyyy'
-        ) !=
-          DateTime.fromISO(
-            this.creationWkoForm.controls['wkoPlanningStartDate'] as any
-          ).toFormat('dd/MM/yyyy') ||
-        DateTime.fromISO(this.workorder.wkoPlanningEndDate as any).toFormat(
-          'dd/MM/yyyy'
-        ) !=
-          DateTime.fromISO(
-            this.creationWkoForm.controls['wkoPlanningEndDate'] as any
-          ).toFormat('dd/MM/yyyy') ||
-        this.workorder.tasks[0]?.wtrId?.toString() !=
-          this.creationWkoForm.controls['tasks'][0]?.wtrId?.toString()
-      ) {
-        this.alerteMessage =
-          'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
-        hasChanged = true;
-      }
+
+    if (this.workorder.wkoChangedValueZone1 === true) {
+      this.alerteMessage =
+        'Les éléments modifiés entrainent une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+      hasChanged = true;
+    } else if (this.workorder.wkoChangedValueZone2 === true) {
+      this.alerteMessage =
+        'Les éléments modifiés pourraient entrainer une déplanification dans le planificateur. Souhaitez-vous continuer ?';
+      hasChanged = true;
     }
     return hasChanged;
   }
@@ -668,6 +645,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     this.workorder = {
       id: this.workorder.id,
       tasks: this.workorder.tasks,
+      wtsId: this.workorder.wtsId,
       ...form,
     };
 
@@ -712,11 +690,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.workorder.wkoExtToSync = this.wkoExtToSyncValue;
-    if (this.workorderInit) {
-      this.workorder.wtsId = this.workorderInit['wtsId'];
-    }
-
-    // Creation - Case of a 'Pose' reason on a XY asset
+       // Creation - Case of a 'Pose' reason on a XY asset
     if (this.isCreation && this.isXY && wtrId === -1) {
       // Change the task to be on the asset selected
       const task = this.workorder.tasks[0];
@@ -734,6 +708,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     let funct: any;
     if (this.workorder?.id > 0) {
       funct = this.workorderService.updateWorkOrder(this.workorder);
+      // vide le cache
     } else {
       form.wkoExtToSync = this.wkoExtToSyncValue;
       funct = this.workorderService.createWorkOrder(this.workorder);
@@ -770,7 +745,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     if (
       !this.isCreation &&
       this.workorder.wtsId === WkoStatus.ENVOYEPLANIF &&
-      this.haveModifieldFieldUnscheduled()
+      (await this.haveModifieldFieldUnscheduled())
     ) {
       const alert = await this.alertController.create({
         header: 'Attention !',
@@ -801,7 +776,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  public onCreationModeChange(event: any): void {
+  public async onCreationModeChange(event: any): Promise<void> {
     if (event.target.value === 'CREE') {
       this.wkoExtToSyncValue = false;
       this.creationButonLabel = this.createWithoutSendToPlanning;
@@ -809,7 +784,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.creationButonLabel = this.defaultCreationLabel;
       this.wkoExtToSyncValue = true;
     }
-    this.onValidate();
+    await this.onValidate();
   }
 
   public async openEquipmentModal(): Promise<void> {
@@ -917,6 +892,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
     //set WTR
     this.creationWkoForm.get('wtrId').setValue(this.workorder.tasks[0]?.wtrId);
+
+    //Generation de label
+    this.creationWkoForm
+      .get('wtrId')
+      .valueChanges.pipe(takeUntil(this.ngUnsubscribe$))
+      .subscribe(() => {
+        this.generateLabel();
+        this.setWkoHasChangedValueZone('2', this.creationWkoForm.get('wtrId'));
+      });
 
     this.workorderService
       .getAllWorkorderTaskStatus()
@@ -1168,14 +1152,11 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           : this.utils.findMostFrequentValue(contractsIds)
       );
     }
-
     await this.generateMarker();
 
     this.isLoading = false;
-
     // We listen to the changes only after the form is set
     this.listenToFormChanges();
-
     // We precomplete form info if it's a travo url
     await this.initializeFormWithTravoInfo();
   }
@@ -1411,9 +1392,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.workorder = await this.workorderService.getWorkorderById(
         Number(wkoId)
       );
-      if (Number(wkoId) > 0) {
-        this.workorderInit = { ...this.workorder };
-      }
+
       const xyTasksAndNewAssets = this.workorder.tasks
         .filter((t) => t.assObjRef == null || t.assObjRef.includes('TMP'))
         .map((t) => {
@@ -1441,6 +1420,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       return [];
     }
   }
+
 
   private transformTasks(inputItems: any[]): any[] {
     const transformedItems: { [assObjTable: string]: string[] } = {};
@@ -1638,6 +1618,26 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       window.location.href = cachedWorkorder.travoCallbackUrl;
+    }
+  }
+
+  /**
+   * update a flag that allow to differenciate groups of properties that have changed
+   * @param zone identify the group of properties
+   * @param formControl optional to check if the control is 'touched'
+   */
+  private setWkoHasChangedValueZone(zone: string, formControl?: any): void {
+    if (this.workorder && ( formControl === undefined || formControl?.touched)) {
+      switch (zone) {
+        case '1':
+          this.workorder.wkoChangedValueZone1 = true;
+          break;
+        case '2':
+          this.workorder.wkoChangedValueZone2 = true;
+          break;
+        default:
+          break;
+      }
     }
   }
 }
