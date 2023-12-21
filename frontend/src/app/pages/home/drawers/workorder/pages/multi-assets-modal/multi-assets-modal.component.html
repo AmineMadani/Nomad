@@ -60,8 +60,8 @@
 
   <ng-template #groupDomainSelection>
     <ion-list>
-      <ion-list-header>Choississez les élements à garder pour {{ domain === 'dw' ? 'Eau Potable' : 'Assainissement'
-        }}</ion-list-header>
+      <ion-list-header>Choississez les élements à garder pour {{ selectedGrpAct && selectedGrpAct.grpLabel ? selectedGrpAct.grpLabel : '' }}
+      </ion-list-header>
       <ng-container *ngFor="let gl of groupLayer">
         <ion-item *ngIf="canLyrBeSelected(gl)" lines="none" button>
           <ion-checkbox slot="start" labelPlacement="end" (ionChange)="addLayer($event, gl)">{{ gl.lyrSlabel

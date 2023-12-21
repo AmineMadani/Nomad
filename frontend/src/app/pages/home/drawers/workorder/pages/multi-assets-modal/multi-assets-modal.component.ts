@@ -41,6 +41,7 @@ export class MultiAssetsModalComponent implements OnInit {
 
   public groupLayer: Layer[];
   public groupAction: LayerGrpAction[];
+  public selectedGrpAct: LayerGrpAction;
   public selectedAssets: Set<any> = new Set();
   public hasSelectedGroup: boolean;
 
@@ -92,7 +93,7 @@ export class MultiAssetsModalComponent implements OnInit {
     this.groupLayer = this.selectedLayers.filter((l) =>
       grp.lyrTableNames.includes(l.lyrTableName)
     );
-
+    this.selectedGrpAct = grp;
     this.hasSelectedGroup = true;
   }
 
