@@ -61,6 +61,13 @@ export class LayerService {
   ): Promise<{ filtred: boolean; filtredAssets?: any[] }> {
     let filtredAssets: any[] | undefined;
     let filtred = false;
+
+    const layerGrpActions = await this.getAllLayerGrpActions();
+    // Check if all assets are included in at least one layerGrpAction
+    const isMultilayerGrpActions = !assets.every(asset =>
+      layerGrpActions.some(grpAction => grpAction.lyrTableNames.includes(asset.lyrTableName))
+    );
+
     const layers = await this.getAllLayers();
     // Checking if we have a mix of dw/ww assets
     const isMultiWater =
@@ -98,7 +105,7 @@ export class LayerService {
         ),
       ].length > 1;
 
-    if (isMultiGeomType || isMultiWater || isMultiContract) {
+    if (isMultilayerGrpActions || isMultiGeomType || isMultiWater || isMultiContract) {
       filtred = true;
       const selectedLayers = layers.filter((l) =>
         assets.map((ast) => ast.lyrTableName).includes(l.lyrTableName)
