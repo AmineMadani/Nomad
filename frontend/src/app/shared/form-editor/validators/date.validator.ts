@@ -32,17 +32,17 @@ export class DateValidator {
    * @returns 
    */
   static isDateValueValid(val: any): boolean {
-    if (val.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-      const date = DateTime.fromFormat(val, 'dd/MM/yyyy')
-      // if input formatted dd/MM/yyyy, check if date exists
-      return date.isValid;
+    //min 1/1/24 max 01/01/2024
+    if (val.length < 5 || val.length > 10){
+      return false
     }
-    else {
-      //min 1/1/24 max 01/01/2024
-      if (val.length < 5 || val.length > 10) {
-        return false;
+    else{
+      if (val.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        const date = DateTime.fromFormat(val, 'dd/MM/yyyy')
+        // if input formatted dd/MM/yyyy, check if date exists
+        return date.isValid;
       }
-      return true;
+      return false;
     }
   }
 
@@ -80,19 +80,19 @@ export class DateValidator {
     }
     else {
       if (newValue.length == 1) {
-        var num = Number(newValue);
+        const num = Number(newValue);
         if (num > 3) newValue = "0" + newValue;
       }
       if (newValue.length == 2) {
-        var num = Number(newValue);
+        const num = Number(newValue);
         if (num > 31) newValue = "31";
       }
       if (newValue.length == 4) {
-        var num = Number(newValue.slice(-1));
+        const num = Number(newValue.slice(-1));
         if (num > 1) newValue = newValue.slice(0, 3) + "0" + newValue.slice(-1);
       }
       if (newValue.length == 5) {
-        var num = Number(newValue.slice(-2));
+        const num = Number(newValue.slice(-2));
         if (num > 12) newValue = newValue.slice(0, 3) + "12";
       }
       if (newValue.length == 2 || (newValue.length == 5 && newValue.split("/").length - 1 < 2)) {

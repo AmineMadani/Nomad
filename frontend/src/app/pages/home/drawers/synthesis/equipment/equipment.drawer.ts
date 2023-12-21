@@ -230,11 +230,11 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
    * @returns 
    */
   public getEquipmentValue(value : string){
-    let result = value;
-    if (DateValidator.isDate(value)) {
-      result = DateValidator.convertFormatDateFr(value);
+    let result = value?.toString();
+    if (result && DateValidator.isDate(result)) {
+      result = DateValidator.convertFormatDateFr(result);
     }
-    return   result;
+    return result;
   }
 
 }
