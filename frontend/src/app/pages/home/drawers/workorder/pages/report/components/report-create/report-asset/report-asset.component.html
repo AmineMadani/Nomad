@@ -26,14 +26,14 @@
   </ion-tab-bar>
 
   <ng-container *ngIf="!loading; else loadingTemplate">
-    <div class="asset-list" *ngIf="workorder">
-      <ion-item *ngIf="workorder.tasks && workorder.tasks.length > 1">
+    <ion-content class="asset-list" *ngIf="workorder" (scroll)="onScroll($event)">
+      <ion-item *ngIf="workorder.tasks.length > 1">
         <ion-checkbox (ionChange)="onAllSelectedChange()" labelPlacement="end" justify="start" aria-label="checkbox"
           [checked]="isAllElementSelected" [indeterminate]="areSomeElementsChecked" [disabled]="areAllTasksCompleted">
           <span class="select-all-color">Tout sélectionner</span>
         </ion-checkbox>
       </ion-item>
-      <ion-item *ngFor="let tsk of workorder.tasks" (mouseenter)="onItemHoverEnter(tsk)"
+      <ion-item *ngFor="let tsk of getDisplayedTasks()" (mouseenter)="onItemHoverEnter(tsk)"
         (mouseleave)="onItemHoverLeave(tsk)">
         <ion-checkbox aria-label="check" slot="start" mode="md" [indeterminate]="tsk.report?.dateCompletion"
           [checked]="tsk.isSelectedTask" (ionChange)="onSelectTask(tsk)"
@@ -70,7 +70,7 @@
           </ion-label>
         </ng-container>
       </ion-item>
-    </div>
+    </ion-content>
   </ng-container>
   <ng-template #loadingTemplate>
     <app-skeleton-loading [rows]="3"></app-skeleton-loading>

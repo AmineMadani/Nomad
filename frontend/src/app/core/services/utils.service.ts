@@ -184,7 +184,7 @@ export class UtilsService {
     }, []);
   }
 
-  public transformFeaturesIntoSearchEquipments(features: any[]): SearchEquipments[] {
+  public transformFeaturesIntoSearchEquipments(features: any[], allColumn: boolean = false): SearchEquipments[] {
     const featureParams: SearchEquipments[] = [];
 
     features.forEach((feature) => {
@@ -200,7 +200,8 @@ export class UtilsService {
       } else {
         featureParams.push({
           lyrTableName: source,
-          equipmentIds: [feature.id]
+          equipmentIds: [feature.id],
+          allColumn: allColumn,
         });
       }
     });

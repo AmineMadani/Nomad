@@ -34,4 +34,6 @@
       <app-asset-detail [filterTree]="assetFilterTree" />
     </div>
   </form>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="3"></app-skeleton-loading>
 </div>

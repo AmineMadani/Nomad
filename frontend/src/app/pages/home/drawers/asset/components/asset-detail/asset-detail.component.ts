@@ -11,7 +11,7 @@ export class AssetDetailComponent implements OnInit {
 
   constructor(
     public assetFilterService: AssetFilterService
-  ) { 
+  ) {
   }
 
   @Input() filterTree: FilterAsset[];
@@ -22,12 +22,12 @@ export class AssetDetailComponent implements OnInit {
   hasChild = (_: number, node: FilterAsset): boolean =>
     !!node.child && node.child.length > 0;
 
-  onCheckboxChange(e: Event, node: FilterAsset): void {
-    this.assetFilterService.selectAssetFilter(node, (e as CustomEvent).detail.checked)
-  }
-
-  setChange(node: FilterAsset) : void {
+  setChange(node: FilterAsset, e: Event): void {
     node.selected = !node.selected;
-    this.assetFilterService.selectAssetFilter(node, node.selected)
+    this.assetFilterService.selectAssetFilter(node, node.selected);
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
   }
 }

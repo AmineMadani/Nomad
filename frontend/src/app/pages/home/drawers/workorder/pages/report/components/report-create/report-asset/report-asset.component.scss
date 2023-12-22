@@ -24,7 +24,7 @@
 
   .asset-list {
     margin-top: 10px;
-    height: 60vh;
+    height: calc(100vh - 300px);
     overflow-y: auto;
   }
 }

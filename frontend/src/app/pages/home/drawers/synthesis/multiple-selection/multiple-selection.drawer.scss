@@ -41,9 +41,43 @@ ion-icon.locate-icon {
   }
 }
 
+.multiple-selection-drawer-action-button-row {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+
+  &.mobile {
+    width: 320px;
+  }
+
+  .multiple-selection-drawer-action-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 90px;
+
+    color: var(--ion-color-neutral-variant-30);
+
+    span {
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    &:hover {
+      background-color: var(--ion-color-light-tint);
+      cursor: pointer;
+    }
+  }
+}
+
 .popover-buttons {
   --width: fit-content;
 }
+
 ion-content {
   height: 600px;
 }

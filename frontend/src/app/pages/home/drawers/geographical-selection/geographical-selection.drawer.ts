@@ -64,10 +64,65 @@ export class GeographicalSelectionDrawer implements OnInit {
 
   public assetFilterTree: FilterAsset[];
 
-  public isLoading: boolean = false;
+  public isLoading: boolean = true;
   public formValueChanges$ = new Subject<void>();
 
   async ngOnInit() {
+    this.isLoading = true;
+
+    this.initForm();
+
+    await this.initData();
+
+    this.isLoading = false;
+  }
+
+  private async initData() {
+    const results = await Promise.all([
+      this.templateService.getFormsTemplate(),
+      this.contractService.getAllContracts(),
+      this.cityService.getAllCities(),
+      this.layerService.getUserLayerReferences()
+    ]);
+    const forms = results[0];
+    const contracts = results[1];
+    const cities = results[2];
+    const layerReferences = results[3];
+
+    // Asset tree
+    const assetFilterTree = JSON.parse(
+      forms.find((form) => form.formCode === 'ASSET_FILTER').definition
+    );
+    this.assetFilterTree = this.templateService.removeAssetNotVisible(assetFilterTree);
+    this.assetFilterService.setAssetFilter('home', this.assetFilterTree);
+    const assetFilterSegment = this.assetFilterService.getFilterSegment(
+      this.assetFilterService.getAssetFilter()
+    );
+
+    for (const filterSegment of assetFilterSegment) {
+      if (filterSegment.customFilter) {
+        let segmentLayers: string[] = this.assetFilterService.getSegmentLayers(filterSegment);
+        for (const customFilter of filterSegment.customFilter) {
+          const layers = layerReferences
+            .filter(
+              (layerReference) => segmentLayers.includes(layerReference.layerKey) &&
+                layerReference.references.some(
+                  (x) => x.referenceKey == customFilter.key
+                )
+            )
+            ?.map((layer) => layer.layerKey);
+          this.filterService.setToggleFilter('home', layers, customFilter.key, customFilter.value, customFilter.checked);
+        }
+      }
+    }
+
+    // Contracts
+    this.contracts = contracts;
+    // Cities
+    this.cities = cities;
+  }
+
+  private initForm() {
     this.geographicalSelectionForm = new FormGroup({
       geographicalTypeId: new FormControl(null, [Validators.required]),
       listCtyId: new FormControl(null),
@@ -76,7 +131,7 @@ export class GeographicalSelectionDrawer implements OnInit {
 
     this.geographicalSelectionForm.get('geographicalTypeId').valueChanges
       .pipe(
-        takeUntil(this.formValueChanges$),
+        takeUntil(this.formValueChanges$)
       )
       .subscribe((geographicalTypeId: GeographicalTypeEnum) => {
         const listCtyIdControl = this.geographicalSelectionForm.get('listCtyId');
@@ -93,97 +148,60 @@ export class GeographicalSelectionDrawer implements OnInit {
         listCtyIdControl.updateValueAndValidity();
         listCtrIdControl.updateValueAndValidity();
       });
-
-    this.isLoading = true;
-
-    const results = await Promise.all([
-      this.templateService.getFormsTemplate(),
-      this.contractService.getAllContracts(),
-      this.cityService.getAllCities(),
-      this.layerService.getUserLayerReferences()
-    ]);
-    const forms = results[0];
-    const contracts = results[1];
-    const cities = results[2];
-    const layerReferences = results[3];
-
-    console.log(forms);
-
-    // Asset tree
-    const assetFilterTree = JSON.parse(
-      forms.find((form) => form.formCode === 'ASSET_FILTER').definition
-    );
-    this.assetFilterTree = this.templateService.removeAssetNotVisible(assetFilterTree);
-    this.assetFilterService.setAssetFilter(this.assetFilterTree);
-    const assetFilterSegment = this.assetFilterService.getFilterSegment(
-      this.assetFilterService.getAssetFilter()
-    );
-
-    for (const filterSegment of assetFilterSegment) {
-      if (filterSegment.customFilter) {
-        let segmentLayers: string[] = this.assetFilterService.getSegmentLayers(filterSegment);
-        for (const customFilter of filterSegment.customFilter) {
-          const layers = layerReferences
-            .filter(
-              (layerReference) =>
-                segmentLayers.includes(layerReference.layerKey) &&
-                layerReference.references.some(
-                  (x) => x.referenceKey == customFilter.key
-                )
-            )
-            ?.map((layer) => layer.layerKey);
-          this.filterService.setToggleFilter(layers, customFilter.key, customFilter.value, customFilter.checked);
-        }
-      }
-    }
-
-    // Contracts
-    this.contracts = contracts;
-    // Cities
-    this.cities = cities;
-
-    this.isLoading = false;
   }
 
   public async onSubmit() {
     // Check if all required values filled
     if (this.geographicalSelectionForm.valid) {
+      this.isLoading = true;
+
       const layers = this.mapService.getCurrentLayers();
 
-      const searchAssets: SearchEquipments[] = [];
-
-      for (const [key] of layers) {
-        if (key !== 'task') {
-          // Get assets from city or contract
-          let assetIds: string[] = [];
-          switch (this.geographicalSelectionForm.get('geographicalTypeId').value) {
-            case GeographicalTypeEnum.CONTRACT:
-              assetIds = await this.layerService.getAssetIdsByLayerAndListCtrId(
+      // Build the promises to launch all calls in the same time
+      let promises: any = [];
+      console.log(layers);
+      const layerKeys = Array.from(layers.keys()).filter((key) => key !== 'task');
+      console.log(layerKeys);
+      for (const key of layerKeys) {
+        // Get assets from city or contract
+        switch (this.geographicalSelectionForm.get('geographicalTypeId').value) {
+          case GeographicalTypeEnum.CONTRACT:
+            promises.push(
+              this.layerService.getAssetIdsByLayerAndListCtrId(
                 key,
                 this.geographicalSelectionForm.get('listCtrId').value
-              );
-              break;
-            case GeographicalTypeEnum.CITY:
-              assetIds = await this.layerService.getAssetIdsByLayerAndListCtyId(
+              )
+            );
+            break;
+          case GeographicalTypeEnum.CITY:
+            promises.push(
+              this.layerService.getAssetIdsByLayerAndListCtyId(
                 key,
                 this.geographicalSelectionForm.get('listCtyId').value
-              );
-              break;
-          }
-
-          if (assetIds.length > 0) {
-            searchAssets.push({
-              lyrTableName: key,
-              equipmentIds: assetIds,
-            });
-          }
+              )
+            );
+            break;
         }
       }
+      const results = await Promise.all(promises);
 
+      // Map results of the api calls in the searchEquipments format
+      const searchAssets: SearchEquipments[] = results
+        .map((assetIds, index) => {
+          return {
+            lyrTableName: layerKeys[index],
+            equipmentIds: assetIds,
+          }
+        })
+        .filter((searchAsset) => searchAsset.equipmentIds.length > 0);
+
+      // Go to the multi selection
       this.drawerService.navigateWithEquipments(
         DrawerRouteEnum.SELECTION,
         searchAssets
       );
+
+      this.isLoading = false;
     } else {
       this.geographicalSelectionForm.markAllAsTouched();
     }

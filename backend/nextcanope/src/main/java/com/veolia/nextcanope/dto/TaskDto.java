@@ -164,17 +164,17 @@ public class TaskDto {
         this.tskCancelComment = task.getTskCancelComment();
         this.report = new ReportDto();
         this.report.setDateCompletion(task.getTskReportDate());
-        
-        if(!task.getListOfReport().isEmpty()) {
-        	List<ReportValueDto> reportValues = new ArrayList<>();
-        	for(Report report: task.getListOfReport()) {
-        		ReportValueDto reportValue = new ReportValueDto();
-        		reportValue.setKey(report.getRptKey());
-        		reportValue.setAnswer(report.getRptValue());
-        		reportValue.setQuestion(report.getRptLabel());
-        		reportValues.add(reportValue);
-        	}
-        	this.report.setReportValues(reportValues);
+
+        List<ReportValueDto> reportValues = new ArrayList<>();
+        for(Report report: task.getListOfReport()) {
+            ReportValueDto reportValue = new ReportValueDto();
+            reportValue.setKey(report.getRptKey());
+            reportValue.setAnswer(report.getRptValue());
+            reportValue.setQuestion(report.getRptLabel());
+            reportValues.add(reportValue);
+        }
+        if (!reportValues.isEmpty()) {
+            this.report.setReportValues(reportValues);
         }
     }
 }

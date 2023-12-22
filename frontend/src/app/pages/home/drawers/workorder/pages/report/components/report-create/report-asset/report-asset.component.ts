@@ -66,14 +66,16 @@ export class ReportAssetComponent implements OnInit {
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
   private oldEquipment: any;
+  private nbItemsPerPage: number = 20;
+  private nbDisplayedTask: number = 20;
 
   ngOnInit() {
     this.mapService.onMapLoaded('home').subscribe(() => {
       if (this.workorder && this.workorder.tasks?.length > 1) {
         this.currentTasksSelected = [];
-        this.workorder.tasks
-          .filter((tsk) => !tsk.isSelectedTask)
-          .forEach((tsk) => this.onSelectTask(tsk));
+        for (const task of this.workorder.tasks.filter((tsk) => !tsk.isSelectedTask)) {
+          this.onSelectTask(task);
+        }
       }
       this.displayAndZoomToPlannedWko(this.workorder);
 
@@ -429,6 +431,20 @@ export class ReportAssetComponent implements OnInit {
     );
   }
 
+  public getDisplayedTasks(): Task[] {
+    return this.workorder.tasks.slice(0, this.nbDisplayedTask);
+  }
+
+  public onScroll(event: any): void {
+    const element = event.target;
+    const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+
+    if (atBottom) {
+      // User has scrolled to the bottom of the element
+      this.nbDisplayedTask += this.nbItemsPerPage;
+    }
+  }
+
   private initFeatureSelectionListeners() {
     this.mapEventService
       .onFeatureSelected()
@@ -491,79 +507,82 @@ export class ReportAssetComponent implements OnInit {
   /**
    * Method to display and zoom to the workorder equipment
    * @param workorder the workorder
+  * It seems to be slow as fck here
    */
   private async displayAndZoomToPlannedWko(workorder: Workorder) {
     const geometries = [];
-    this.route.queryParams.subscribe((params) => {
-      let x = this.workorder.longitude;
-      let y = this.workorder.latitude;
+    this.route.queryParams.subscribe(async (params) => {
+      await this.moveToWorkorder(params);
 
-      if (this.workorder.tasks && this.workorder.tasks.length == 1) {
-        x = this.workorder.tasks[0].longitude;
-        y = this.workorder.tasks[0].latitude;
+      //Case display layers in params
+      if (params['layers']) {
+        const layers: string[] = params['layers'].split(',');
+        for (const layer of layers) {
+          await this.mapService.addEventLayer('home', layer);
+        }
       }
 
-      if (params['state'] && params['state'] == 'resume') {
-        x = this.mapService.getMap('home').getCenter().lng;
-        y = this.mapService.getMap('home').getCenter().lat;
-      }
+      await this.mapService.addGeojsonToLayer(
+        'home',
+        this.workorder,
+        'task'
+      );
 
-      this.maplayerService.moveToXY('home', x, y).then(() => {
-        //Case display layers in params
-        if (params['layers']) {
-          const layers: string[] = params['layers'].split(',');
-          for (let layer of layers) {
-            this.mapService.addEventLayer('home', layer);
-          }
+      for (const task of workorder.tasks) {
+        if (!this.mapService.hasEventLayer(task.assObjTable)) {
+          await this.mapService.addEventLayer('home', task.assObjTable);
         }
 
-        this.mapService.addEventLayer('home', 'task').then(() => {
-          for (let task of workorder.tasks) {
-            this.mapService
-              .addEventLayer('home', task.assObjTable)
-              .then(async () => {
-                if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
-                  task.assObjTable = 'aep_xy';
-                  this.onEditEquipment(task);
-                }
+        if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
+          task.assObjTable = 'aep_xy';
+          this.onEditEquipment(task);
+        }
 
-                this.mapService.addGeojsonToLayer(
-                  'home',
-                  this.workorder,
-                  'task'
-                );
-                setTimeout(() => {
-                  let feature: any = this.maplayerService.getFeatureById(
-                    'home',
-                    'task',
-                    task.id + ''
-                  );
-                  if (feature) {
-                    feature.geometry.coordinates = [
-                      task.longitude,
-                      task.latitude,
-                    ];
-                    this.mapService.updateFeatureGeometry(
-                      'home',
-                      'task',
-                      feature
-                    );
-                    geometries.push(feature.geometry.coordinates);
+        const feature: any = this.maplayerService.getFeatureById(
+          'home',
+          'task',
+          task.id.toString()
+        );
+        if (feature) {
+          feature.geometry.coordinates = [
+            task.longitude,
+            task.latitude,
+          ];
+          this.mapService.updateFeatureGeometry(
+            'home',
+            'task',
+            feature
+          );
+          geometries.push(feature.geometry.coordinates);
+        }
+      }
 
-                    if (!params['state'] || params['state'] != 'resume') {
-                      this.maplayerService.fitBounds('home', geometries, 21);
-                    }
-                  }
-                }, 500);
-                this.mapEventService.highlighSelectedFeatures(
-                  this.mapService.getMap('home'),
-                  undefined
-                );
-              });
-          }
-        });
-      });
+      this.mapEventService.highlighSelectedFeatures(
+        this.mapService.getMap('home'),
+        undefined
+      );
+
+      if ((!params['state'] || params['state'] != 'resume') && geometries.length > 0) {
+        this.maplayerService.fitBounds('home', geometries, 21);
+      }
     });
+  }
+
+  private async moveToWorkorder(params) {
+    let x = this.workorder.longitude;
+    let y = this.workorder.latitude;
+
+    if (this.workorder.tasks && this.workorder.tasks.length == 1) {
+      x = this.workorder.tasks[0].longitude;
+      y = this.workorder.tasks[0].latitude;
+    }
+
+    if (params['state'] && params['state'] == 'resume') {
+      x = this.mapService.getMap('home').getCenter().lng;
+      y = this.mapService.getMap('home').getCenter().lat;
+    }
+
+    await this.maplayerService.moveToXY('home', x, y);
   }
 
   private stopAssetEditMode() {

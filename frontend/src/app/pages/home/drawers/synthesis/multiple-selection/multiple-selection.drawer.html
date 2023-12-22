@@ -12,8 +12,8 @@
   </div>
 </ng-template>
 
-<!-- 
-  keepContentsMounted=true because without it the popover would be outside of the screen 
+<!--
+  keepContentsMounted=true because without it the popover would be outside of the screen
   Because the width is set to "fit-content" and without the popover content not mounted, ionic does not know the width and assume its small (like 20px)
   So when it is displayed, it is 20px from the right border of the screen and everything after those 20 px is after the right side of the screen
 -->
@@ -33,8 +33,8 @@
   [multiple]="true" (ionChange)="handleChange($event)" [(ngModel)]="selectedSource" [disabled]="sources.length === 0">
   <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
   </ion-select>
-  <ion-content *ngIf="displayedFeatures.length > 0 && !isLoading" (scroll)="onScroll($event)">
-    <ion-item-group *ngFor="let feature of displayedFeatures; trackBy: trackByFn" id="feature-container-{{feature.id}}"
+  <ion-content *ngIf="filteredFeatures.length > 0 && !isLoading" (scroll)="onScroll($event)">
+    <ion-item-group *ngFor="let feature of getDisplayedFeatures(); trackBy: trackByFn" id="feature-container-{{feature.id}}"
       class="equipment-item" [class.highlight]="featureIdSelected === feature.id || featuresHighlighted.includes(feature)"
       (click)="openFeature(feature)" (mouseenter)="highlightSelectedFeature(feature)"
       (mouseleave)="highlightSelectedFeature(undefined)">

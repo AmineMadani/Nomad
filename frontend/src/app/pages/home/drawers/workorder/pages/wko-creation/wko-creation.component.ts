@@ -215,7 +215,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             }));
           }
-          //
+          // Edit
           else {
             return this.handleEditMode();
           }
@@ -240,31 +240,29 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }
-        // Extract the temporary new asset from the url (when coming from multiple selection without a workorder)
+        // Extract the temporary new asset from the state (when coming from multiple selection without a workorder)
         // Add them to the list of asset
-        const urlParams = new URLSearchParams(window.location.search);
-        let listAssObjRef = [];
-        for (let [key, value] of Array.from(urlParams.entries()).filter(
-          ([key]) => key === 'tmp'
-        )) {
-          const listValue = value.split(',');
-          for (const v of listValue) {
-            if (!listAssObjRef.includes(v)) listAssObjRef.push(v);
+        if (this.currentAssets) {
+          let listAssObjRef = [];
+          for (const asset of this.currentAssets.filter((asset) => asset.lyrTableName === 'tmp')) {
+            for (const assId of asset.equipmentIds) {
+              if (!listAssObjRef.includes(assId)) listAssObjRef.push(assId);
+            }
           }
-        }
-        for (const assObjRef of listAssObjRef) {
-          const assetForSig =
-            await this.assetForSigService.getCacheAssetForSigByAssObjRef(
-              assObjRef
-            );
-          if (assetForSig != null) {
-            this.assets.push({
-              id: assObjRef,
-              lyrTableName: assetForSig.assObjTable,
-              x: assetForSig.coords[0][0],
-              y: assetForSig.coords[0][1],
-              assetForSig: assetForSig,
-            });
+          for (const assObjRef of listAssObjRef) {
+            const assetForSig =
+              await this.assetForSigService.getCacheAssetForSigByAssObjRef(
+                assObjRef
+              );
+            if (assetForSig != null) {
+              this.assets.push({
+                id: assObjRef,
+                lyrTableName: assetForSig.assObjTable,
+                x: assetForSig.coords[0][0],
+                y: assetForSig.coords[0][1],
+                assetForSig: assetForSig,
+              });
+            }
           }
         }
 

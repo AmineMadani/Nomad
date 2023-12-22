@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { SynthesisButton } from '../synthesis.drawer';
-import { ActivatedRoute, NavigationEnd, Router, RouterState } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
-import { Subject, takeUntil, filter, debounceTime, Observable } from 'rxjs';
+import { Subject, takeUntil, filter, debounceTime } from 'rxjs';
 import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
-import { InfiniteScrollCustomEvent, IonContent, IonPopover, ScrollDetail } from '@ionic/angular';
+import { IonContent, IonPopover } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -50,7 +50,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public featuresSelected: any[] = [];
   public filteredFeatures: any[] = [];
-  public displayedFeatures: any[] = [];
   public sources: { key: string; label: string }[] = [];
   public selectedSource: any;
   public isLoading: boolean = false;
@@ -68,6 +67,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   private ngUnsubscribe$: Subject<void> = new Subject();
   private step: string;
   private nbItemsPerPage: number = 20;
+  private nbDisplayedTask: number = 20;
 
   async ngOnInit() {
     this.wkoDraft = this.activatedRoute.snapshot.queryParams?.['draft'];
@@ -132,10 +132,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         if (f) {
           this.featureIdSelected = f;
           const name = 'feature-container-' + this.featureIdSelected;
-          if (!this.displayedFeatures.some((ftr) => ftr.id === this.featureIdSelected)) {
-            const featureToAdd = this.filteredFeatures.find((ftr) => ftr.id === f);
-            if (featureToAdd) {
-              this.displayedFeatures.push(featureToAdd);
+          if (!this.getDisplayedFeatures().some((ftr) => ftr.id === this.featureIdSelected)) {
+            const featureToAddIndex = this.filteredFeatures.findIndex((ftr) => ftr.id === f);
+            if (featureToAddIndex > -1) {
+              // Move the features to a position in the displayed features
+              const element = this.filteredFeatures[featureToAddIndex];
+              this.filteredFeatures.splice(featureToAddIndex, 1);
+              this.filteredFeatures.splice(Math.round(this.nbDisplayedTask / 2), 0, element);
             }
           }
 
@@ -162,13 +165,17 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       });
   }
 
-  onScroll(event: any): void {
+  public getDisplayedFeatures(): any[] {
+    return this.filteredFeatures.slice(0, this.nbDisplayedTask);
+  }
+
+  public onScroll(event: any): void {
     const element = event.target;
     const atBottom = element.scrollHeight - element.scrollTop === element.clientHeight;
 
     if (atBottom) {
       // User has scrolled to the bottom of the element
-      this.displayedFeatures.push(...this.filteredFeatures.slice(this.displayedFeatures.length, this.displayedFeatures.length + this.nbItemsPerPage));
+      this.nbDisplayedTask += this.nbItemsPerPage;
     }
   }
 
@@ -176,7 +183,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     // Reset user selection values
     this.featuresSelected = [];
     this.filteredFeatures = [];
-    this.displayedFeatures = [];
     this.sources = [];
     this.layersConf = [];
     this.featuresHighlighted = [];
@@ -268,33 +274,30 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
           tasks: [],
         };
-        for (const ast of this.filteredFeatures) {
-          const equipt = await this.layerService.getEquipmentByLayerAndId(
-            ast.lyrTableName,
-            ast.id
-          );
+        workorder.tasks = [
+          ...workorder.tasks,
+          ...this.filteredFeatures.map((feature) => {
+            if (feature.geom && feature.geom.type !== 'Point') {
+              const recalculateCoords = this.mapLayerService.findNearestPoint(
+                feature.geom.coordinates,
+                [feature.x, feature.y]
+              );
 
-          if (equipt.geom && equipt.geom.type !== 'Point') {
-            const recalculateCoords = this.mapLayerService.findNearestPoint(
-              equipt.geom.coordinates,
-              [equipt.x, equipt.y]
-            );
-            equipt.x = recalculateCoords[0];
-            equipt.y = recalculateCoords[1];
-          }
+              feature.x = recalculateCoords[0];
+              feature.y = recalculateCoords[1];
+            }
 
-          if (equipt != null) {
-            workorder.tasks.push({
+            return {
               id: this.utilsService.createCacheId(),
-              latitude: equipt.y,
-              longitude: equipt.x,
-              assObjTable: equipt.lyrTableName,
-              assObjRef: equipt.id,
+              latitude: feature.y,
+              longitude: feature.x,
+              assObjTable: feature.lyrTableName,
+              assObjRef: feature.id,
               wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
-              ctrId: equipt.ctrId,
-            });
-          }
-        }
+              ctrId: feature.ctrId,
+            }
+          })
+        ];
         this.workorderService.saveCacheWorkorder(workorder);
         this.router.navigate([
           '/home/workorder/' + workorder.id.toString() + '/cr',
@@ -342,11 +345,9 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       this.filteredFeatures = this.featuresSelected.filter((f) =>
         event.detail.value.includes(f.lyrTableName)
       );
-      this.displayedFeatures = this.filteredFeatures.slice(0, this.nbItemsPerPage);
     } else {
       this.selectedSource = undefined;
       this.filteredFeatures = this.featuresSelected;
-      this.displayedFeatures = this.filteredFeatures.slice(0, this.nbItemsPerPage);
     }
 
     if (this.wkoDraft) {
@@ -578,6 +579,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       searchEquipments.push({
         lyrTableName: key,
         equipmentIds: value,
+        allColumn: true,
       });
     }
 
@@ -588,7 +590,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       'id'
     );
     this.filteredFeatures = this.featuresSelected;
-    this.displayedFeatures = this.filteredFeatures.slice(0, this.nbItemsPerPage);
 
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap('home'),
@@ -636,7 +637,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       features = features.map((f) => {
         return {
           ...this.mapLayerService.getFeatureById('home', f.source, f.id)[
-            'properties'
+          'properties'
           ],
           lyrTableName: f.source,
         };
@@ -679,7 +680,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     const listNewEquipments = this.utilsService.transformFeaturesIntoSearchEquipments([
       ...this.filteredFeatures,
       ...features
-    ]);
+    ], true);
 
     this.mapEventService.isFeatureFiredEvent = false;
 
