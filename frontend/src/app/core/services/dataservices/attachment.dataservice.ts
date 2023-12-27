@@ -30,6 +30,16 @@ export class AttachmentDataService {
   }
 
   /**
+   * Method to get all the attachments for an ITV
+   * @returns list of Attachment
+   */
+  public getListAttachmentByItvId(itvId: number): Promise<Attachment[]> {
+    return firstValueFrom(
+      this.http.get<Attachment[]>(`${this.configurationService.externalApiUrl}attachment/itv/${itvId}`)
+    );
+  }
+
+  /**
    * Method to add an attachment for a workorder
    * @returns Attachment
    */
@@ -39,6 +49,19 @@ export class AttachmentDataService {
 
     return firstValueFrom(
       this.http.post<Attachment>(`${this.configurationService.externalApiUrl}attachment/workorder/${workorderId}`, fd)
+    );
+  }
+
+  /**
+   * Method to add an attachment for an ITV
+   * @returns Attachment
+   */
+  public addAttachmentForItv(itvId: number, file: File): Promise<Attachment> {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+
+    return firstValueFrom(
+      this.http.post<Attachment>(`${this.configurationService.externalApiUrl}attachment/itv/${itvId}`, fd)
     );
   }
 }

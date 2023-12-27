@@ -1,10 +1,14 @@
 package com.veolia.nextcanope.controller;
 
+import com.veolia.nextcanope.dto.TaskSearchDto;
 import com.veolia.nextcanope.dto.account.AccountTokenDto;
 import com.veolia.nextcanope.dto.itv.ExportItvDto;
 import com.veolia.nextcanope.dto.itv.ExportItvParamDto;
 import com.veolia.nextcanope.dto.itv.ItvPictureDto;
+import com.veolia.nextcanope.dto.itv.ItvPictureUploadDto;
 import com.veolia.nextcanope.repository.ItvPictureRepository;
+import com.veolia.nextcanope.repository.ItvRepository;
+import com.veolia.nextcanope.repository.WorkorderRepository;
 import com.veolia.nextcanope.service.ITVService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,8 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -37,6 +39,12 @@ public class ITVController {
 
     @Autowired
     ItvPictureRepository itvPictureRepository;
+
+    @Autowired
+    ItvRepository itvRepository;
+
+    @Autowired
+    WorkorderRepository workorderRepository;
 
     @PostMapping(path = "import")
     @Operation(summary = "Import an ITV file")
@@ -53,6 +61,19 @@ public class ITVController {
     @Operation(summary = "Get the list of picture linked to an ITV")
     public List<ItvPictureDto> getListItvPictureByItvId(@PathVariable Long itvId) {
         return itvPictureRepository.getListItvPictureByItvId(itvId);
+    }
+
+    @PostMapping(path = "/{itvId}/picture")
+    @Operation(summary = "Update the list of picture linked to an ITV for the reference of the attachment")
+    public List<ItvPictureDto> updateListItvPicture(@PathVariable Long itvId, @RequestBody List<ItvPictureUploadDto> listItvPictureDto, AccountTokenDto account) {
+        itvService.updateListItvPicture(listItvPictureDto, account.getId());
+        return itvPictureRepository.getListItvPictureByItvId(itvId);
+    }
+
+    @GetMapping(path = "/{itvId}/workorder")
+    @Operation(summary = "Get the list of workorder linked to an ITV")
+    public List<TaskSearchDto> getListTaskByItvId(@PathVariable Long itvId) {
+        return workorderRepository.getListTaskByItvId(itvId);
     }
 
     @PostMapping(path = "/export")

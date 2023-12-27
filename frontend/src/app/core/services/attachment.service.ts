@@ -87,4 +87,21 @@ export class AttachmentService {
 
     return attachments;
   }
+
+  // ### ITV ### //
+  /**
+   * Method to get all the attachments for an ITV
+   * @returns list of Attachment
+   */
+  public async getListAttachmentByItvId(itvId: number): Promise<Attachment[]> {
+    return await this.attachmentDataService.getListAttachmentByItvId(itvId);
+  }
+
+  /**
+   * Method to add an attachment for an ITV
+   * @returns Attachment
+   */
+  public async addAttachmentForItv(itvId: number, file: File): Promise<Attachment> {
+    return await this.attachmentDataService.addAttachmentForItv(itvId, file);
+  }
 }

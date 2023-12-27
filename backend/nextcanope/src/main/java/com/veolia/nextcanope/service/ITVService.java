@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ITVService {
@@ -52,6 +51,52 @@ public class ITVService {
 
     @Autowired
     LayerRepositoryImpl layerRepository;
+
+    @Autowired
+    ItvPictureRepository itvPictureRepository;
+
+    @Autowired
+    LayerService layerService;
+
+    private List<ItvVersionDto> getListItvVersion() {
+        List<ItvVersion> listItvVersion = itvVersionRepository.findAll();
+        List<ItvVersionEnumDto> listItvVersionEnum = itvVersionEnumRepository.getListItvVersionEnum();
+
+        Map<String, List<ItvVersionFieldDto>> mapListItvVersionFieldByVersion = new HashMap<>();
+        for (ItvVersion itvVersion : listItvVersion) {
+            List<ItvVersionFieldDto> listItvVersionField = mapListItvVersionFieldByVersion.get(itvVersion.getVersion());
+            if (listItvVersionField == null) {
+                listItvVersionField = new ArrayList<>();
+                mapListItvVersionFieldByVersion.put(itvVersion.getVersion(), listItvVersionField);
+            }
+
+            ItvVersionFieldDto itvVersionFieldDto = new ItvVersionFieldDto();
+            itvVersionFieldDto.setCode(itvVersion.getCode());
+            itvVersionFieldDto.setLabel(itvVersion.getLabel());
+            itvVersionFieldDto.setParent(itvVersion.getParent());
+            itvVersionFieldDto.setType(itvVersion.getType());
+            itvVersionFieldDto.setListItvVersionEnum(
+                    listItvVersionEnum.stream().filter(e -> e.getVersion().equals(itvVersion.getVersion())
+                            && e.getCode().equals(itvVersion.getCode())).collect(Collectors.toList())
+            );
+
+            listItvVersionField.add(itvVersionFieldDto);
+        }
+
+        List<ItvVersionDto> listItvVersionDto = new ArrayList<>();
+        for(String version : mapListItvVersionFieldByVersion.keySet()) {
+            ItvVersionDto itvVersionDto = new ItvVersionDto();
+            itvVersionDto.setVersion(version);
+            itvVersionDto.setListItvVersionField(mapListItvVersionFieldByVersion.get(version));
+            listItvVersionDto.add(itvVersionDto);
+        }
+
+        return listItvVersionDto;
+    }
+
+    /*
+     * IMPORT
+     */
 
     SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat sdfHour = new SimpleDateFormat("HH:mm");
@@ -89,12 +134,15 @@ public class ITVService {
             }
 
             if (itvBlockDto.getError() == null) {
-                // Get the downstream and upstream assets
-                itvBlockDto.getMapB().get("AAD");
-                itvBlockDto.getMapB().get("AAF");
-
                 // Get the asset
-                itvBlockDto.getMapB().get("AAB");
+                itvBlockDto.setItbObjRef(itvBlockDto.getMapB().get("AAA"));
+
+                // Get the layer
+                // If no upstream assets, then its Branche else its Collecteur
+                if (itvBlockDto.getMapB().get("AAF") == null)
+                    itvBlockDto.setLyrTableName("ass_branche");
+                else
+                    itvBlockDto.setLyrTableName("ass_collecteur");
             }
         }
 
@@ -103,7 +151,7 @@ public class ITVService {
         return itv.getId();
     }
 
-    public ReadResultDto readTxtFile(MultipartFile file) throws IOException {
+    private ReadResultDto readTxtFile(MultipartFile file) throws IOException {
         String content = new String(file.getBytes(), StandardCharsets.UTF_8);
 
         // Convert file to list of line
@@ -375,7 +423,7 @@ public class ITVService {
      *      </ZC>
      * </ZB>                        <-- End of block
      */
-    public ReadResultDto readXmlFile(MultipartFile file) {
+    private ReadResultDto readXmlFile(MultipartFile file) {
         List<ItvBlockDto> listItvBlockDto = new ArrayList<>();
 
         try {
@@ -492,42 +540,6 @@ public class ITVService {
         return readResultDto;
     }
 
-    public List<ItvVersionDto> getListItvVersion() {
-        List<ItvVersion> listItvVersion = itvVersionRepository.findAll();
-        List<ItvVersionEnumDto> listItvVersionEnum = itvVersionEnumRepository.getListItvVersionEnum();
-
-        Map<String, List<ItvVersionFieldDto>> mapListItvVersionFieldByVersion = new HashMap<>();
-        for (ItvVersion itvVersion : listItvVersion) {
-            List<ItvVersionFieldDto> listItvVersionField = mapListItvVersionFieldByVersion.get(itvVersion.getVersion());
-            if (listItvVersionField == null) {
-                listItvVersionField = new ArrayList<>();
-                mapListItvVersionFieldByVersion.put(itvVersion.getVersion(), listItvVersionField);
-            }
-
-            ItvVersionFieldDto itvVersionFieldDto = new ItvVersionFieldDto();
-            itvVersionFieldDto.setCode(itvVersion.getCode());
-            itvVersionFieldDto.setLabel(itvVersion.getLabel());
-            itvVersionFieldDto.setParent(itvVersion.getParent());
-            itvVersionFieldDto.setType(itvVersion.getType());
-            itvVersionFieldDto.setListItvVersionEnum(
-                    listItvVersionEnum.stream().filter(e -> e.getVersion().equals(itvVersion.getVersion())
-                            && e.getCode().equals(itvVersion.getCode())).collect(Collectors.toList())
-            );
-
-            listItvVersionField.add(itvVersionFieldDto);
-        }
-
-        List<ItvVersionDto> listItvVersionDto = new ArrayList<>();
-        for(String version : mapListItvVersionFieldByVersion.keySet()) {
-            ItvVersionDto itvVersionDto = new ItvVersionDto();
-            itvVersionDto.setVersion(version);
-            itvVersionDto.setListItvVersionField(mapListItvVersionFieldByVersion.get(version));
-            listItvVersionDto.add(itvVersionDto);
-        }
-
-        return listItvVersionDto;
-    }
-
     /**
      * Check the validity of the block
      * @param itvBlockDto A dto containing the map of value for B, and a list of values for C
@@ -637,7 +649,7 @@ public class ITVService {
         }
     }
 
-    public void checkValue(String type, String value, String fieldCode, String condition, String decimalSeparator, ItvVersionFieldDto itvVersionField) {
+    private void checkValue(String type, String value, String fieldCode, String condition, String decimalSeparator, ItvVersionFieldDto itvVersionField) {
         if (value != null) {
             // Enum
             if ("E".equals(itvVersionField.getType())) {
@@ -714,8 +726,9 @@ public class ITVService {
 
         for (ItvBlockDto itvBlockDto : listItvBlockDto) {
             ItvBlock itvBlock = new ItvBlock();
-            //itvBlock.setItbObjRef();
-            //itvBlock.setLayer();
+            itvBlock.setItbObjRef(itvBlockDto.getItbObjRef());
+            Layer layer = layerService.getLayerByLyrTableName(itvBlockDto.getLyrTableName());
+            itvBlock.setLayer(layer);
             itvBlock.setItv(itv);
             itvBlock.setListOfItvBlockData(new ArrayList<>());
 
@@ -730,6 +743,9 @@ public class ITVService {
             }
 
             int lineNb = 0;
+            boolean hasStructuralDefect = false;
+            boolean hasFunctionalDefect = false;
+            boolean hasObservation = false;
             for (Map<String, String> mapC : itvBlockDto.getListMapC()) {
                 lineNb++;
 
@@ -744,11 +760,31 @@ public class ITVService {
                     itvBlockData.setItvBlock(itvBlock);
                     itvBlock.getListOfItvBlockData().add(itvBlockData);
 
+                    // Pictures
                     if ("M".equals(code) && value != null) {
-                        listPictureName.addAll(Arrays.asList(value.split(";")));
+                        if (value.contains("/")) {
+                            listPictureName.addAll(Arrays.asList(value.split("/")));
+                        } else {
+                            listPictureName.addAll(Arrays.asList(value.split(";")));
+                        }
+                    }
+
+                    // Défault
+                    if ("A".equals(code)) {
+                        if (value != null && value.startsWith("BA")) {
+                            hasStructuralDefect = true;
+                        } else if (value != null && value.startsWith("BB")) {
+                            hasFunctionalDefect = true;
+                        } else {
+                            hasObservation = true;
+                        }
                     }
                 }
             }
+
+            itvBlock.setItbStructuralDefect(hasStructuralDefect);
+            itvBlock.setItbFunctionalDefect(hasFunctionalDefect);
+            itvBlock.setItbObservation(hasObservation);
 
             itv.getListOfItvBlock().add(itvBlock);
         }
@@ -770,6 +806,32 @@ public class ITVService {
 
         return itv;
     }
+
+    public void updateListItvPicture(List<ItvPictureUploadDto> listItvPictureDto, Long userId) {
+        Users user = userService.getUserById(userId);
+
+        List<ItvPicture> listItvPicture = itvPictureRepository.findAllById(
+                listItvPictureDto.stream().map(ItvPictureUploadDto::getId).collect(Collectors.toList())
+        );
+
+        for (ItvPicture itvPicture : listItvPicture) {
+            ItvPictureUploadDto itvPictureDto = listItvPictureDto.stream().filter(i -> i.getId().equals(itvPicture.getId())).findFirst().orElse(null);
+            if (itvPictureDto != null) {
+                itvPicture.setItpReference(itvPictureDto.getItpReference());
+                itvPicture.setModifiedBy(user);
+            }
+        }
+
+        try {
+            itvPictureRepository.saveAll(listItvPicture);
+        } catch (Exception e) {
+            throw new TechnicalException("Erreur lors de la mise à jour des photos de l'ITV", e.getMessage());
+        }
+    }
+
+    /*
+     * EXPORT
+     */
 
     SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy_HHmmss");
 

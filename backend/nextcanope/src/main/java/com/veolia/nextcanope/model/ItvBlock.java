@@ -41,6 +41,15 @@ public class ItvBlock implements Serializable {
     @JoinColumn(name="itb_obj_table", referencedColumnName="lyr_table_name")
     private Layer layer;
 
+    @Column(name="itb_structural_defect")
+    private Boolean itbStructuralDefect;
+
+    @Column(name="itb_functional_defect")
+    private Boolean itbFunctionalDefect;
+
+    @Column(name="itb_observation")
+    private Boolean itbObservation;
+
     @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itvBlock")
     private List<ItvBlockData> listOfItvBlockData;
 
@@ -84,6 +93,30 @@ public class ItvBlock implements Serializable {
 
     public void setLayer(Layer layer) {
         this.layer = layer;
+    }
+
+    public Boolean getItbStructuralDefect() {
+        return itbStructuralDefect;
+    }
+
+    public void setItbStructuralDefect(Boolean itbStructuralDefect) {
+        this.itbStructuralDefect = itbStructuralDefect;
+    }
+
+    public Boolean getItbFunctionalDefect() {
+        return itbFunctionalDefect;
+    }
+
+    public void setItbFunctionalDefect(Boolean itbFunctionalDefect) {
+        this.itbFunctionalDefect = itbFunctionalDefect;
+    }
+
+    public Boolean getItbObservation() {
+        return itbObservation;
+    }
+
+    public void setItbObservation(Boolean itbObservation) {
+        this.itbObservation = itbObservation;
     }
 
     public List<ItvBlockData> getListOfItvBlockData() {

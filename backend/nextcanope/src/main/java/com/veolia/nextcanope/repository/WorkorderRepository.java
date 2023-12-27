@@ -48,6 +48,28 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 			nativeQuery = true)
 	List<Workorder> getWorkordersLinkToEquipment(@Param("layer") String layer, @Param("ref") String ref);
 
+	String requestSearchSelect =
+			"select distinct t.id as id," +
+					"w.id as wkoId," +
+					"wko_name as wkoName," +
+					"wko_emergency as wkoEmergency," +
+					"wko_appointment as wkoAppointment," +
+					"w.cty_id as ctyId," +
+					"t.ctr_id as ctrId," +
+					"wko_address as wkoAddress," +
+					"wko_planning_start_date as wkoPlanningStartDate," +
+					"wko_planning_end_date as wkoPlanningEndDate," +
+					"wko_planning_duration as wkoPlanningDuration," +
+					"w.wts_id as wtsId," +
+					"t.wtr_id as wtrId," +
+					"wko_completion_start_date as wkoCompletionStartDate," +
+					"wko_completion_end_date as wkoCompletionEndDate," +
+					"t.longitude as longitude," +
+					"t.latitude as latitude," +
+					"wko_agent_nb as wkoAgentNb," +
+					"wko_creation_comment as wkoCreationComment, " +
+					"ass.ass_obj_table as assObjTable ";
+
 	/**
 	 * Get the list of tasks for specific filters and pagination
 	 * @param wtsIds Array of status ids
@@ -60,26 +82,7 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 	 * @param nbOffset Offset for pagination
 	 * @return workorders history of an asset
 	 */
-	@Query(value = "select distinct t.id as id," +
-			"w.id as wkoId," +
-			"wko_name as wkoName," +
-			"wko_emergency as wkoEmergency," +
-			"wko_appointment as wkoAppointment," +
-			"w.cty_id as ctyId," +
-			"t.ctr_id as ctrId," +
-			"wko_address as wkoAddress," +
-			"wko_planning_start_date as wkoPlanningStartDate," +
-			"wko_planning_end_date as wkoPlanningEndDate," +
-			"wko_planning_duration as wkoPlanningDuration," +
-			"w.wts_id as wtsId," +
-			"t.wtr_id as wtrId," +
-			"wko_completion_start_date as wkoCompletionStartDate," +
-			"wko_completion_end_date as wkoCompletionEndDate," +
-			"t.longitude as longitude," +
-			"t.latitude as latitude," +
-			"wko_agent_nb as wkoAgentNb," +
-			"wko_creation_comment as wkoCreationComment, " +
-			"ass.ass_obj_table as assObjTable " +
+	@Query(value = requestSearchSelect +
 			"from nomad.workorder w " +
 			"inner join nomad.task t on t.wko_id = w.id " +
 			"inner join nomad.asset ass on ass.id = t.ass_id " +
@@ -95,4 +98,19 @@ public interface WorkorderRepository extends NomadRepository<Workorder, Long> {
 			"    or COALESCE(t.tsk_completion_end_date, t.tsk_planning_end_date)  <= :endDate)) " +
 			"limit :nbLimit offset :nbOffset", nativeQuery = true)
 	List<TaskSearchDto> getTaskWithPaginationAndFilters(@Param("wtsIds") List<Long> wtsIds, @Param("wtrIds") List<Long> wtrIds, @Param("appointment") Boolean appointment, @Param("emergency") Boolean emergency, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate, @Param("assObjTables") List<String> assObjTables, @Param("nbLimit") Long nbLimit, @Param("nbOffset") Long nbOffset, @Param("userId") Long userId);
+
+	@Query(
+			value = requestSearchSelect +
+					"FROM nomad.ITV itv " +
+					"INNER JOIN nomad.ITV_BLOCK itb ON itb.ITV_ID = itv.ID " +
+					"INNER JOIN nomad.ASSET ass ON ass.ASS_OBJ_REF = itb.ITB_OBJ_REF" +
+					"                          AND ass.ASS_OBJ_TABLE = itb.ITB_OBJ_TABLE " +
+					"INNER JOIN nomad.TASK t ON t.ASS_ID = ass.ID " +
+					"INNER JOIN nomad.WORKORDER w ON w.ID = t.WKO_ID " +
+					"INNER JOIN nomad.WORKORDER_TASK_REASON wtr ON wtr.ID = t.WTR_ID " +
+					"WHERE itv.ID = :itvId " +
+					"AND wtr.WTR_CODE = '34' ",
+			nativeQuery = true
+	)
+	List<TaskSearchDto> getListTaskByItvId(@Param("itvId") Long itvId);
 }

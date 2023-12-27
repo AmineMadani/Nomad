@@ -35,14 +35,9 @@ public class AttachmentService {
     int reqTimeout;
 
     @Autowired
-    private MyWebClientBuilder myWebClientBuilder;
+    MyWebClientBuilder myWebClientBuilder;
 
-    public List<AttachmentDto> getListAttachment(Long nomadId) throws SSLException {
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("key", "nomad_id");
-        jsonObj.put("operator", "equal");
-        jsonObj.put("value", nomadId);
-
+    public List<AttachmentDto> getListAttachment(JSONObject jsonObj) throws SSLException {
         WebClient client = myWebClientBuilder.createWebClient(apiDocUrl + "/query");
 
         HashMap<String, Object> mapResponse = client.post()
@@ -138,10 +133,8 @@ public class AttachmentService {
         return attachmentDto;
     }
 
-    public AttachmentDto createAttachment(Long nomadId, MultipartFile file) throws SSLException {
+    public AttachmentDto createAttachment(JSONObject jsonObj, MultipartFile file) throws SSLException {
         WebClient client = myWebClientBuilder.createWebClient(apiDocUrl);
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("nomad_id", nomadId);
         jsonObj.put("filename", file.getOriginalFilename());
         jsonObj.put("filesize", file.getSize());
 

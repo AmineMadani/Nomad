@@ -9,6 +9,8 @@ public class ItvBlockDto {
     private List<Map<String, String>> listMapC;
     private Integer startLine;
     private String error;
+    private String lyrTableName;
+    private String itbObjRef;
 
     public ItvBlockDto() {
     }
@@ -48,5 +50,21 @@ public class ItvBlockDto {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public String getLyrTableName() {
+        return lyrTableName;
+    }
+
+    public void setLyrTableName(String lyrTableName) {
+        this.lyrTableName = lyrTableName;
+    }
+
+    public String getItbObjRef() {
+        return itbObjRef;
+    }
+
+    public void setItbObjRef(String itbObjRef) {
+        this.itbObjRef = itbObjRef;
     }
 }
