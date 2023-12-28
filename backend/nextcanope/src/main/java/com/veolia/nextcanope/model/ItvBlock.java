@@ -50,7 +50,7 @@ public class ItvBlock implements Serializable {
     @Column(name="itb_observation")
     private Boolean itbObservation;
 
-    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itvBlock")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="itvBlock")
     private List<ItvBlockData> listOfItvBlockData;
 
     /**

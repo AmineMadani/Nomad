@@ -2,10 +2,7 @@ package com.veolia.nextcanope.controller;
 
 import com.veolia.nextcanope.dto.TaskSearchDto;
 import com.veolia.nextcanope.dto.account.AccountTokenDto;
-import com.veolia.nextcanope.dto.itv.ExportItvDto;
-import com.veolia.nextcanope.dto.itv.ExportItvParamDto;
-import com.veolia.nextcanope.dto.itv.ItvPictureDto;
-import com.veolia.nextcanope.dto.itv.ItvPictureUploadDto;
+import com.veolia.nextcanope.dto.itv.*;
 import com.veolia.nextcanope.repository.ItvPictureRepository;
 import com.veolia.nextcanope.repository.ItvRepository;
 import com.veolia.nextcanope.repository.WorkorderRepository;
@@ -46,6 +43,17 @@ public class ITVController {
     @Autowired
     WorkorderRepository workorderRepository;
 
+    @PostMapping(path = "/pagination/{limit}/{offset}")
+    @Operation(summary = "Get the itv with search parameter in pagination format")
+    @ApiResponses(value = {
+            @ApiResponse(description= "The itv filtered", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<ItvSearchDto> getItvs(@PathVariable Long limit, @PathVariable Long offset, @RequestBody(required = false) SearchItvPayload searchParameter, AccountTokenDto account) {
+        return itvService.getItvsWithOffsetOrderByMostRecentDateBegin(limit, offset, searchParameter, account.getId());
+    }
+
     @PostMapping(path = "import")
     @Operation(summary = "Import an ITV file")
     @ApiResponses(value = {
@@ -55,6 +63,12 @@ public class ITVController {
     })
     public Long importItv(@RequestParam("file") MultipartFile file, AccountTokenDto account) throws IOException {
         return itvService.importItv(file, account.getId());
+    }
+
+    @DeleteMapping(path = "/{itvId}")
+    @Operation(summary = "Delete an ITV")
+    public void deleteItv(@PathVariable Long itvId) {
+        itvService.deleteItv(itvId);
     }
 
     @GetMapping(path = "/{itvId}/picture")

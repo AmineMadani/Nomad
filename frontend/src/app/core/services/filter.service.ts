@@ -8,6 +8,7 @@ import { WorkorderService } from './workorder.service';
 import { MapLayerService } from './map/map-layer.service';
 import { TaskPaginated } from '../models/workorder.model';
 import { DateTime } from 'luxon';
+import { ItvPaginated } from '../models/itv.model';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +63,19 @@ export class FilterService {
       wtrIds: this.filterForm?.wtrIds,
       wtsIds: this.filterForm?.wtsIds,
       assObjTables: this.filterForm?.assObjTables,
+    };
+  }
+
+  public transformFilterItv(): ItvPaginated {
+    return {
+      contractIds: this.filterITV?.contractIds ?? [],
+      cityIds: this.filterITV?.cityIds ?? [],
+      status: this.filterITV?.status ?? [],
+      defects: this.filterITV?.defects ?? [],
+      startDate: this.filterITV?.startDate ? DateTime.fromFormat(this.filterITV?.startDate, 'dd/MM/yyyy').toISO()
+                                            : null,
+      endDate: this.filterITV?.endDate ? DateTime.fromFormat(this.filterITV?.endDate, 'dd/MM/yyyy').plus({hours: 24}).toISO()
+                                        : null,
     };
   }
 

@@ -16,6 +16,7 @@ public class Itv implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String STATUS_IMPORT = "I";
+    public static final String STATUS_ONGOING = "O";
     public static final String STATUS_ERROR = "E";
 
     //--- ENTITY PRIMARY KEY ---\\
@@ -50,10 +51,10 @@ public class Itv implements Serializable {
     @JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itv")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="itv")
     private List<ItvBlock> listOfItvBlock;
 
-    @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="itv")
+    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="itv")
     private List<ItvPicture> listOfItvPicture;
 
     /**

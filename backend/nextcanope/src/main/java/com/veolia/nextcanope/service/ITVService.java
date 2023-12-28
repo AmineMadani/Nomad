@@ -112,7 +112,7 @@ public class ITVService {
         } else if ("xml".equals(extension.toLowerCase())) {
             readResultDto = readXmlFile(file);
         } else {
-            throw new FunctionalException("Le type de fichier n'est pas géré dans l'intégration.");
+            throw new FunctionalException("Erreur", "Le type de fichier n'est pas géré dans l'intégration.");
         }
 
         List<ItvBlockDto> listItvBlockDto = readResultDto.getListItvBlockDto();
@@ -197,7 +197,7 @@ public class ITVService {
                         nbA4++;
 
                         if (!",".equals(decimalSeparator) && !".".equals(decimalSeparator)) {
-                            throw new FunctionalException("Le séparateur décimal doit être \".\" ou \",\". Valeur trouvée : '" + decimalSeparator + "'");
+                            throw new FunctionalException("Erreur", "Le séparateur décimal doit être \".\" ou \",\". Valeur trouvée : '" + decimalSeparator + "'");
                         }
                         break;
                     case "#A5":
@@ -209,7 +209,7 @@ public class ITVService {
                         nbA6++;
                         break;
                     default:
-                        throw new FunctionalException("L'en-tête contient l'identifiant " + code + " qui n'est pas prévu par la norme.");
+                        throw new FunctionalException("Erreur", "L'en-tête contient l'identifiant " + code + " qui n'est pas prévu par la norme.");
                 }
             }
         }
@@ -222,7 +222,7 @@ public class ITVService {
                 || "".equals(decimalSeparator)
                 || "".equals(textSurroundingChar)
         ) {
-            throw new FunctionalException("Format de fichier incorrect : l'un des codes d'entête est absent (#A1 à #A5). Le traitement est impossible.");
+            throw new FunctionalException("Erreur", "Format de fichier incorrect : l'un des codes d'entête est absent (#A1 à #A5). Le traitement est impossible.");
         }
 
         // Check that all header fields are present only once
@@ -234,7 +234,7 @@ public class ITVService {
                 || nbA5 > 1
                 || nbA6 > 1
         ) {
-            throw new FunctionalException("Un des codes d'entête est renseigné plusieurs fois.");
+            throw new FunctionalException("Erreur", "Un des codes d'entête est renseigné plusieurs fois.");
         }
 
         // Check that the field separator, decimal separator and text surrounding char are all differents
@@ -243,7 +243,7 @@ public class ITVService {
                 || decimalSeparator.equals(textSurroundingChar)
                 || textSurroundingChar.equals(fieldSeparator)
         ) {
-            throw new FunctionalException("Les séparateurs décimaux, de champs et de texte doivent être différents.");
+            throw new FunctionalException("Erreur", "Les séparateurs décimaux, de champs et de texte doivent être différents.");
         }
 
         // ### DATA ### //
@@ -285,7 +285,7 @@ public class ITVService {
                 // Go the next block
                 i = endIndex;
             } else {
-                throw new FunctionalException("Le fichier contient l'identifiant " + line.substring(0, 2) + " qui n'est pas prévu par les versions de la norme gérées par l'application.");
+                throw new FunctionalException("Erreur", "Le fichier contient l'identifiant " + line.substring(0, 2) + " qui n'est pas prévu par les versions de la norme gérées par l'application.");
             }
         }
 
@@ -331,7 +331,7 @@ public class ITVService {
                 Integer endIndex = getNextIndexOfValue(listLine, i + 1, true, true, true);
 
                 if (endIndex == null) {
-                    throw new FunctionalException("Le block de type " + type + " ne se fini pas.");
+                    throw new FunctionalException("Erreur", "Le block de type " + type + " ne se fini pas.");
                 }
 
                 // Get the list of values
@@ -351,7 +351,7 @@ public class ITVService {
 
                     // Check that the number of values is the same as the number of code
                     if (listFieldCode.size() != listValue.size()) {
-                        throw new FunctionalException("Le bloc " + type + " n'a pas le même nombre de valeurs que de champs.");
+                        throw new FunctionalException("Erreur", "Le bloc " + type + " n'a pas le même nombre de valeurs que de champs.");
                     }
 
                     // If it is a B line, add the value to the existing map
@@ -461,7 +461,7 @@ public class ITVService {
                                 docVersion = value;
                                 nbA6++;
                             } else {
-                                throw new FunctionalException("L'en-tête contient l'identifiant " + code + " qui n'est pas prévu par la norme.");
+                                throw new FunctionalException("Erreur", "L'en-tête contient l'identifiant " + code + " qui n'est pas prévu par la norme.");
                             }
                         }
                     }
@@ -470,12 +470,12 @@ public class ITVService {
 
             // Check that all the header fields have values
             if ("".equals(language) || "".equals(docVersion)) {
-                throw new FunctionalException("Format de fichier incorrect : l'un des codes d'entête est absent (A2 ou A6). Le traitement est impossible.");
+                throw new FunctionalException("Erreur", "Format de fichier incorrect : l'un des codes d'entête est absent (A2 ou A6). Le traitement est impossible.");
             }
 
             // Check that all header fields are present only once
             if (nbA2 > 1 || nbA6 > 1) {
-                throw new FunctionalException("Un des codes d'entête est renseigné plusieurs fois.");
+                throw new FunctionalException("Erreur", "Un des codes d'entête est renseigné plusieurs fois.");
             }
 
             // ### DATA ### //
@@ -513,15 +513,18 @@ public class ITVService {
                             elementC.getElementsByTagName("ZC").item(0);
                             NodeList listNodeFieldC = elementC.getChildNodes();
 
-                            Map<String, String> mapC = new HashMap<>();
-                            for (int k = 0; k < listNodeFieldC.getLength(); k++) {
-                                Node nodeFieldC = listNodeFieldC.item(k);
-                                String code = nodeFieldC.getNodeName();
-                                String value = nodeFieldC.getTextContent();
+                            if (listNodeFieldC.getLength() > 0) {
+                                Map<String, String> mapC = new HashMap<>();
+                                for (int k = 0; k < listNodeFieldC.getLength(); k++) {
+                                    Node nodeFieldC = listNodeFieldC.item(k);
+                                    String code = nodeFieldC.getNodeName();
+                                    String value = nodeFieldC.getTextContent();
 
-                                if (!"#text".equals(code)) mapC.put(code, value != null && !"".equals(value) ? value.trim() : null);
+                                    if (!"#text".equals(code))
+                                        mapC.put(code, value != null && !"".equals(value) ? value.trim() : null);
+                                }
+                                listMapC.add(mapC);
                             }
-                            listMapC.add(mapC);
                         }
                     }
 
@@ -555,7 +558,7 @@ public class ITVService {
 
         // A C type (Observations) can't be present if there is no B type (Inspections)
         if (mapB.keySet().size() == 0 && listMapC.size() > 0) {
-            throw new FunctionalException("On ne peut pas faire d'observation (bloc #C) sans avoir fait d'inspection (bloc #B).");
+            throw new FunctionalException("Erreur", "On ne peut pas faire d'observation (bloc #C) sans avoir fait d'inspection (bloc #B).");
         }
 
         // ### Get the version ### //
@@ -564,19 +567,19 @@ public class ITVService {
             // ## The version code has to be present ## //
             String versionCode = mapB.get("ABA");
             if (versionCode == null) {
-                throw new FunctionalException("Le code de version (ABA) est absent du bloc.");
+                throw new FunctionalException("Erreur", "Le code de version (ABA) est absent du bloc.");
             }
 
             // ## Get the version from the version code ## //
             ItvVersionAlias itvVersionAlias = listItvVersionAlias.stream().filter(va -> versionCode.equals(va.getLabel())).findFirst().orElse(null);
             if (itvVersionAlias == null) {
-                throw new FunctionalException("Le code de version (ABA) référence une norme non gérée (" + versionCode + ").");
+                throw new FunctionalException("Erreur", "Le code de version (ABA) référence une norme non gérée (" + versionCode + ").");
             }
 
             // ## Check that the version is managed ## //
             itvVersionDto = listItvVersion.stream().filter(v -> itvVersionAlias.getVersion().equals(v.getVersion())).findFirst().orElse(null);
             if (itvVersionDto == null) {
-                throw new FunctionalException("Le code de version (ABA) référence une version de la norme non gérée (" + versionCode + ").");
+                throw new FunctionalException("Erreur", "Le code de version (ABA) référence une version de la norme non gérée (" + versionCode + ").");
             }
         }
 
@@ -591,9 +594,9 @@ public class ITVService {
                     // If not, check if this field is found in another type
                     itvVersionField = itvVersionDto.getListItvVersionField().stream().filter(f -> fieldCode.equals(f.getCode())).findFirst().orElse(null);
                     if (itvVersionField == null) {
-                        throw new FunctionalException("Le bloc #B contient un champ " + fieldCode + " non prévu par la norme.");
+                        throw new FunctionalException("Erreur", "Le bloc #B contient un champ " + fieldCode + " non prévu par la norme.");
                     } else {
-                        throw new FunctionalException("Le champ " + fieldCode + " n'est pas permis dans un bloc #B, uniquement dans un bloc #" + itvVersionField.getParent());
+                        throw new FunctionalException("Erreur", "Le champ " + fieldCode + " n'est pas permis dans un bloc #B, uniquement dans un bloc #" + itvVersionField.getParent());
                     }
                 }
 
@@ -613,7 +616,7 @@ public class ITVService {
             for (Map<String, String> mapC : listMapC) {
                 // ## C has to have a field A ## //
                 if (mapC.get("A") == null) {
-                    throw new FunctionalException("Le bloc #C n'a pas d'identifiant principal (champ A).");
+                    throw new FunctionalException("Erreur", "Le bloc #C n'a pas d'identifiant principal (champ A).");
                 }
                 String valueA = mapC.get("A");
 
@@ -626,9 +629,9 @@ public class ITVService {
                         // If not, check if this field is found in another type
                         itvVersionField = itvVersionDto.getListItvVersionField().stream().filter(f -> fieldCode.equals(f.getCode())).findFirst().orElse(null);
                         if (itvVersionField == null) {
-                            throw new FunctionalException("Le bloc #C contient un champ " + fieldCode + " non prévu par la norme.");
+                            throw new FunctionalException("Erreur", "Le bloc #C contient un champ " + fieldCode + " non prévu par la norme.");
                         } else {
-                            throw new FunctionalException("Le champ " + fieldCode + " n'est pas permis dans un bloc #C, uniquement dans un bloc #" + itvVersionField.getParent());
+                            throw new FunctionalException("Erreur", "Le champ " + fieldCode + " n'est pas permis dans un bloc #C, uniquement dans un bloc #" + itvVersionField.getParent());
                         }
                     }
 
@@ -660,14 +663,14 @@ public class ITVService {
                             .filter(e -> finalValue.equals(e.getVal()))
                             .findFirst().orElse(null);
                     if (itvVersionEnum == null) {
-                        throw new FunctionalException("La valeur " + value + " n'est pas permise dans un champ " + fieldCode + " de bloc #" + type + ".");
+                        throw new FunctionalException("Erreur", "La valeur " + value + " n'est pas permise dans un champ " + fieldCode + " de bloc #" + type + ".");
                     }
                 } else {
                     ItvVersionEnumDto itvVersionEnum = itvVersionField.getListItvVersionEnum().stream()
                             .filter(e -> finalValue.equals(e.getVal()) && condition.equals(e.getCondition()))
                             .findFirst().orElse(null);
                     if (itvVersionEnum == null) {
-                        throw new FunctionalException("La valeur " + value + " n'est pas permise dans un champ " + fieldCode + " de bloc #" + type + " lorsque " + condition + ".");
+                        throw new FunctionalException("Erreur", "La valeur " + value + " n'est pas permise dans un champ " + fieldCode + " de bloc #" + type + " lorsque " + condition + ".");
                     }
                 }
             }
@@ -679,7 +682,7 @@ public class ITVService {
                     sdfDate.parse(value);
                 } catch (Exception e) {
                     // Invalid date
-                    throw new FunctionalException("La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une date au format SSYY-MM-DD prévu par la norme.");
+                    throw new FunctionalException("Erreur", "La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une date au format SSYY-MM-DD prévu par la norme.");
                 }
             }
 
@@ -694,7 +697,7 @@ public class ITVService {
                     sdfHour.parse(value);
                 } catch (Exception e) {
                     // Invalid hour
-                    throw new FunctionalException("La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une heure au format hh:mm prévu par la norme.");
+                    throw new FunctionalException("Erreur", "La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une heure au format hh:mm prévu par la norme.");
                 }
             }
 
@@ -704,7 +707,7 @@ public class ITVService {
                     Double.valueOf(value.replace(decimalSeparator, "."));
                 } catch (Exception e) {
                     // Invalid number
-                    throw new FunctionalException("La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une valeur numérique correcte (le séparateur décimal est " + decimalSeparator + ").");
+                    throw new FunctionalException("Erreur", "La valeur " + value + " du champ " + fieldCode + " de #" + type + " n'est pas une valeur numérique correcte (le séparateur décimal est " + decimalSeparator + ").");
                 }
             }
         }
@@ -843,12 +846,12 @@ public class ITVService {
         String version = "EN13508-2:2003+A1:2011";
         ItvVersionAlias itvVersionAlias = listItvVersionAlias.stream().filter(a -> a.getLabel().equals(version)).findFirst().orElse(null);
         if (itvVersionAlias == null) {
-            throw new FunctionalException("Alias non trouvé");
+            throw new FunctionalException("Erreur", "Alias non trouvé");
         }
 
         ItvVersionDto itvVersionDto = listItvVersion.stream().filter(v -> v.getVersion().equals(itvVersionAlias.getVersion())).findFirst().orElse(null);
         if (itvVersionDto == null) {
-            throw new FunctionalException("Version non trouvée");
+            throw new FunctionalException("Erreur", "Version non trouvée");
         }
 
         // ### Assets data ### //
@@ -882,7 +885,7 @@ public class ITVService {
             List<Map<String, Object>> listResult = mapListAssetByLayer.get(assetDto.getLyrTableName());
             Map<String, Object> mapAssetData = listResult.stream().filter(r -> assetDto.getId().equals(r.get("id"))).findFirst().orElse(null);
             if (mapAssetData == null) {
-                throw new FunctionalException("Equipement " + assetDto.getId() + " pour le type " + assetDto.getLyrTableName() + " non trouvé");
+                throw new FunctionalException("Erreur", "Equipement " + assetDto.getId() + " pour le type " + assetDto.getLyrTableName() + " non trouvé");
             }
 
             // For each field to get
@@ -891,7 +894,7 @@ public class ITVService {
                 // Get the field
                 ItvVersionFieldDto itvVersionFieldDto = itvVersionDto.getListItvVersionField().stream().filter(f -> f.getParent().equals("B") && f.getCode().equals(code)).findFirst().orElse(null);
                 if (itvVersionFieldDto == null) {
-                    throw new FunctionalException("Code " + code + " non trouvé");
+                    throw new FunctionalException("Erreur", "Code " + code + " non trouvé");
                 }
 
                 // Get the corresponding asset field code
@@ -929,7 +932,7 @@ public class ITVService {
                         }
 
                         if (itvVersionEnumDto == null) {
-                            throw new FunctionalException("Code non trouvé pour la valeur " + valueObject.toString() + " pour le champ " + code + " pour l'équipement " + assetDto.getId());
+                            throw new FunctionalException("Erreur", "Code non trouvé pour la valeur " + valueObject.toString() + " pour le champ " + code + " pour l'équipement " + assetDto.getId());
                         }
 
                         valueObject = itvVersionEnumDto.getVal();
@@ -1077,6 +1080,37 @@ public class ITVService {
             exportItvDto.setData(sw.toString().getBytes());
             exportItvDto.setFilename("itv_" + sdf.format(new Date()) + ".xml");
             return exportItvDto;
+        }
+    }
+
+    /**
+     * ITV List search
+     */
+    public List<ItvSearchDto> getItvsWithOffsetOrderByMostRecentDateBegin(Long limit, Long offset, SearchItvPayload searchParameter, Long userId) {
+        if (searchParameter.getContractIds() == null) searchParameter.setContractIds(new ArrayList<>());
+        if (searchParameter.getCityIds() == null) searchParameter.setCityIds(new ArrayList<>());
+        if (searchParameter.getStatus() == null) searchParameter.setStatus(new ArrayList<>());
+        if (searchParameter.getDefects() == null) searchParameter.setDefects(new ArrayList<>());
+        return itvRepository.getItvsWithOffsetOrderByMostRecentDateBegin(
+                limit, offset, searchParameter.getContractIds(), searchParameter.getCityIds(),
+                searchParameter.getStatus(), searchParameter.getDefects(),
+                searchParameter.getStartDate(), searchParameter.getEndDate()
+        );
+    }
+
+    /**
+     * Delete ITV
+     * @param itvId The id of the id to delete
+     */
+    public void deleteItv(Long itvId) {
+        Itv itv = itvRepository.findById(itvId).orElse(null);
+        if (itv == null)
+            throw new FunctionalException("Erreur", "ITV non trouvé");
+
+        try {
+            itvRepository.delete(itv);
+        } catch (Exception e) {
+            throw new TechnicalException(e.getMessage());
         }
     }
 }

@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
 import { firstValueFrom } from 'rxjs';
-import { ItvPictureDto } from '../../models/itv.model';
+import { Itv, ItvPictureDto } from '../../models/itv.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +19,16 @@ export class ItvDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
+  public getItvsPaginated(limit: number, offset: number, searchParams: any): Promise<Itv[]> {
+    return firstValueFrom(
+      this.http.post<Itv[]>(
+      `${this.configurationService.apiUrl}itv/pagination/${limit}/${offset}`,
+      searchParams,
+      this.httpOptions
+      )
+    );
+  }
+
   /**
    * Import an ITV file
    * @param file the file
@@ -30,6 +40,16 @@ export class ItvDataService {
 
     return firstValueFrom(
       this.http.post<number>(`${this.configurationService.apiUrl}itv/import`, fd)
+    );
+  }
+
+  /**
+   * Delete an ITV
+   * @param itvId ID of the ITV
+   */
+  public deleteItv(itvId: number): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(`${this.configurationService.apiUrl}itv/${itvId}`)
     );
   }
 
