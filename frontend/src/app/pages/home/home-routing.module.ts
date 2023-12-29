@@ -17,6 +17,7 @@ import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
+import { GeographicalSelectionDrawer } from './drawers/geographical-selection/geographical-selection.drawer';
 
 const routes: Routes = [
   {
@@ -154,6 +155,13 @@ const routes: Routes = [
         component: DemandeDrawer,
         data: {
           name: DrawerRouteEnum.DEMANDE,
+        },
+      },
+      {
+        path: 'geographical-selection',
+        component: GeographicalSelectionDrawer,
+        data: {
+          name: DrawerRouteEnum.GEOGRAPHICAL_SELECTION,
         },
       },
     ],

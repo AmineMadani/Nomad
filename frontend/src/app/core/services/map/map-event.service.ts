@@ -152,7 +152,7 @@ export class MapEventService {
         }
 
       if (fireEvent) {
-        if(features && features.length == 1) {
+        if (features && features.length == 1) {
           this.onFeatureSelected$.next({ featureId: features[0].id, layerKey: features[0].source, x: e?.lngLat?.lng, y: e?.lngLat?.lat });
         } else {
           this.onMultiFeaturesSelected$.next(features);

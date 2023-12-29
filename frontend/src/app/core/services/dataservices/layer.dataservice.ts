@@ -161,4 +161,22 @@ export class LayerDataService {
       this.http.get<LayerGrpAction[]>(`${this.configurationService.apiUrl}layers/groups`)
     );
   }
+
+  public getAssetIdsByLayerAndCtrIds(layerKey: string, listCtrId: number[]): Promise<string[]> {
+    let params = new HttpParams();
+    params = params.append('ctrIds', listCtrId.join(','));
+
+    return firstValueFrom(
+      this.http.get<string[]>(`${this.configurationService.apiUrl}layers/${layerKey}/asset-ids/by-contracts`, {params})
+    );
+  }
+
+  public getAssetIdsByLayerAndCtyIds(layerKey: string, listCtyId: number[]): Promise<string[]> {
+    let params = new HttpParams();
+    params = params.append('ctyIds', listCtyId.join(','));
+
+    return firstValueFrom(
+      this.http.get<string[]>(`${this.configurationService.apiUrl}layers/${layerKey}/asset-ids/by-cities`, { params })
+    );
+  }
 }

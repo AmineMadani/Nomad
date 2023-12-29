@@ -20,6 +20,7 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { Router } from '@angular/router';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { DrawerService } from 'src/app/core/services/drawer.service';
 
 @Component({
   selector: 'app-actions-layer-desktop',
@@ -34,7 +35,8 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     private layerService: LayerService,
     private mapEvent: MapEventService,
-    private router: Router
+    private router: Router,
+    private drawerService: DrawerService
   ) {
     this.mapEvent
       .onAddressSelected()
@@ -89,6 +91,11 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   public onClickDrawingRectangle(): void {
     this.toolboxPopover.dismiss();
     this.drawingService.setDrawMode('draw_rectangle');
+  }
+
+  public onClickGeographicalSelection(): void {
+    this.toolboxPopover.dismiss();
+    this.drawerService.navigateTo(DrawerRouteEnum.GEOGRAPHICAL_SELECTION);
   }
 
   public displayToolbox(e: Event): void {

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.veolia.nextcanope.dto.VLayerWtrDto;
 import com.veolia.nextcanope.model.Layer;
+import org.springframework.data.repository.query.Param;
 
 public interface LayerRepository extends JpaRepository<Layer, Long> {
     Optional<Layer> findByLyrTableName(String lyrTableName);
@@ -17,4 +18,22 @@ public interface LayerRepository extends JpaRepository<Layer, Long> {
             nativeQuery = true
     )
     List<VLayerWtrDto> getAllVLayerWtr();
+
+    @Query(
+            value="select nomad.f_get_asset_ids_by_layer_and_ctr_ids(:lyrTableName, :ctrIds)",
+            nativeQuery = true
+    )
+    List<String> getAssetIdsByLayerAndCtrIds(
+            @Param("lyrTableName") String lyrTableName,
+            @Param("ctrIds") String ctrIds
+    );
+
+    @Query(
+            value="select nomad.f_get_asset_ids_by_layer_and_cty_ids(:lyrTableName, :ctyIds)",
+            nativeQuery = true
+    )
+    List<String> getAssetIdsByLayerAndCtyIds(
+            @Param("lyrTableName") String lyrTableName,
+            @Param("ctyIds") String ctyIds
+    );
 }

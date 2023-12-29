@@ -5,3 +5,7 @@ export interface City {
   ctyLlabel: string;
   ctyValid: boolean;
 }
+
+export function getCityLabel(city: City): string {
+  return city.ctyLlabel;
+}

@@ -1,0 +1,39 @@
+<div class="geographical-selection-drawer">
+  <app-page-header [headerLabel]="'Sélection géographique'" [displayCloseButton]="true"></app-page-header>
+
+  <form *ngIf="!isLoading" [formGroup]="geographicalSelectionForm" (ngSubmit)="onSubmit()" class="geographical-selection-form">
+    <ion-button class="validate-button" fill="clear" type="submit">Valider</ion-button>
+
+    <!-- Geographical type -->
+    <app-search-select class="select-search" [key]="'id'" [label]="'Type de géographie'" [elements]="geographicalTypes"
+      [control]="geographicalSelectionForm.controls['geographicalTypeId']" [elementLabelFunction]="getGeographicalTypeLabel">
+    </app-search-select>
+
+    <!-- Data list -->
+    <ng-container [ngSwitch]="geographicalSelectionForm.get('geographicalTypeId').value">
+      <!-- Contract -->
+      <ng-container *ngSwitchCase="GeographicalTypeEnum.CONTRACT">
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des contrats'" [elements]="contracts"
+          [control]="geographicalSelectionForm.controls['listCtrId']" [isMultiSelection]="true"
+          [elementLabelFunction]="getContractLabel">
+        </app-search-select>
+      </ng-container>
+      <!-- Cities -->
+      <ng-container *ngSwitchCase="GeographicalTypeEnum.CITY">
+        <app-search-select class="select-search" [key]="'id'" [label]="'Liste des communes'" [elements]="cities"
+          [control]="geographicalSelectionForm.controls['listCtyId']" [isMultiSelection]="true"
+          [elementLabelFunction]="getCityLabel">
+        </app-search-select>
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+      </ng-container>
+    </ng-container>
+
+    <div class="geographical-selection-asset">
+      <h3>Sélection du patrimoine</h3>
+      <app-asset-detail [filterTree]="assetFilterTree" />
+    </div>
+  </form>
+
+  <app-skeleton-loading *ngIf="isLoading" [rows]="3"></app-skeleton-loading>
+</div>

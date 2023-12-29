@@ -8,7 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-editor/models/form.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
+import { GEOM_TYPE, Layer, SearchEquipments } from 'src/app/core/models/layer.model';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
@@ -17,6 +17,7 @@ import { WorkorderService } from 'src/app/core/services/workorder.service';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { LocationStrategy } from '@angular/common';
 
 @Component({
   selector: 'app-new-asset',
@@ -35,6 +36,7 @@ export class NewAssetDrawer implements OnInit {
     private activatedRoute: ActivatedRoute,
     private workorderService: WorkorderService,
     private assetForSigService: AssetForSigService,
+    private location: LocationStrategy
   ) {
   }
 
@@ -280,30 +282,19 @@ export class NewAssetDrawer implements OnInit {
       // If no workorder, then create the new asset in the cache
       await this.assetForSigService.saveCacheAssetForSig(assetForSig);
 
-      // Recreate the list of asset from the url
-      const urlParams = new URLSearchParams(window.location.search);
-      let equipments = [];
-      for (let [key, value] of Array.from(urlParams.entries())) {
-        const listValue = value.split(',');
-        for (const v of listValue) {
-          if (!equipments.some((eq) => eq.source === key && eq.id === v)) {
-            equipments.push({
-              source: key,
-              id: v,
-            });
-          }
-        }
-      }
+      // Recreate the list of asset from the state
+      const state = this.location.getState();
+      const searchedEquipments: SearchEquipments[] = state['equipments'];
 
       // Add the new asset to the list of asset
-      equipments.push({
-        source: 'tmp',
-        id: "TMP-" + assetForSig.id,
+      searchedEquipments.push({
+        lyrTableName: 'tmp',
+        equipmentIds: ["TMP-" + assetForSig.id],
       })
 
       this.drawerService.navigateWithEquipments(
         DrawerRouteEnum.SELECTION,
-        equipments,
+        searchedEquipments,
       );
       return;
     }
@@ -581,7 +572,7 @@ export class NewAssetDrawer implements OnInit {
               const line = listLine[i];
 
               if (line['Champ à rajouter'] == "") continue;
-        
+
               const definition: FormDefinition = {
                 key: line['column_name'],
                 type: 'property',

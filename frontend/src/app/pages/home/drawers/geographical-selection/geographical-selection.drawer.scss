@@ -1,0 +1,23 @@
+.geographical-selection-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: auto;
+
+  .geographical-selection-form {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .validate-button {
+      margin-left: auto;
+    }
+  }
+
+  .geographical-selection-asset {
+    h3 {
+      font-size: 16px;
+    }
+  }
+}

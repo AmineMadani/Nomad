@@ -3,6 +3,7 @@ package com.veolia.nextcanope.controller;
 import java.util.List;
 
 import com.veolia.nextcanope.dto.LayerGrpActionDTO;
+import com.veolia.nextcanope.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,10 +29,6 @@ import com.veolia.nextcanope.dto.payload.GetTilePayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerReferenceUserPayload;
 import com.veolia.nextcanope.dto.payload.SaveLayerStylePayload;
 import com.veolia.nextcanope.repository.LayerRepository;
-import com.veolia.nextcanope.service.LayerReferencesService;
-import com.veolia.nextcanope.service.LayerService;
-import com.veolia.nextcanope.service.LayerStyleService;
-import com.veolia.nextcanope.service.WorkorderService;
 import com.veolia.nextcanope.utils.ResponseMessage;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -256,5 +253,33 @@ public class LayerController {
     })
     public List<LayerGrpActionDTO> getLayerGroupActions() {
         return this.layerService.getAllLayerGroups();
+    }
+
+    @GetMapping(path = "/{key}/asset-ids/by-contracts")
+    @Operation(summary = "Get assets from contract")
+    @ApiResponses(value = {
+        @ApiResponse(description= "All layer references with customization", content =  {
+                @Content(schema = @Schema(implementation = String.class))
+        })
+    })
+    public List<String> getAssetIdsByLayerAndCtrIds(
+        @PathVariable String key,
+        @RequestParam List<Long> ctrIds
+    ) {
+        return this.layerService.getAssetIdsByLayerAndCtrIds(key, ctrIds);
+    }
+
+    @GetMapping(path = "/{key}/asset-ids/by-cities")
+    @Operation(summary = "Get assets from cities")
+    @ApiResponses(value = {
+            @ApiResponse(description= "All layer references with customization", content =  {
+                    @Content(schema = @Schema(implementation = String.class))
+            })
+    })
+    public List<String> getAssetIdsByLayerAndCtyIds(
+            @PathVariable String key,
+            @RequestParam List<Long> ctyIds
+    ) {
+        return this.layerService.getAssetIdsByLayerAndCtyIds(key, ctyIds);
     }
 }

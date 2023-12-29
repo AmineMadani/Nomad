@@ -12,8 +12,8 @@
   </div>
 </ng-template>
 
-<!-- 
-  keepContentsMounted=true because without it the popover would be outside of the screen 
+<!--
+  keepContentsMounted=true because without it the popover would be outside of the screen
   Because the width is set to "fit-content" and without the popover content not mounted, ionic does not know the width and assume its small (like 20px)
   So when it is displayed, it is 20px from the right border of the screen and everything after those 20 px is after the right side of the screen
 -->
@@ -33,47 +33,47 @@
   [multiple]="true" (ionChange)="handleChange($event)" [(ngModel)]="selectedSource" [disabled]="sources.length === 0">
   <ion-select-option *ngFor="let source of sources" [value]="source.key">{{ source.label }}</ion-select-option>
   </ion-select>
-  <ng-container *ngIf="filteredFeatures.length > 0 && !isLoading">
-    <ng-container *ngFor="let feature of filteredFeatures; trackBy: trackByFn" id="feauture-list" >
-      <ion-item-group id="feature-container-{{feature.id}}" class="equipment-item"
-        [class.highlight]="featureIdSelected === feature.id || featuresHighlighted.includes(feature)" (click)="openFeature(feature)"
-        (mouseenter)="highlightSelectedFeature(feature)" (mouseleave)="highlightSelectedFeature(undefined)">
-        <ion-item lines="none" color="none">
-          <ion-label>
-            <ion-label class="ion-no-margin">
-              {{ getLyrLabel(feature.lyrTableName) }}
-            </ion-label>
-            <ion-note slot="helperText">
-              {{ feature.id }}
-            </ion-note>
+  <ion-content *ngIf="filteredFeatures.length > 0 && !isLoading" (scroll)="onScroll($event)">
+    <ion-item-group *ngFor="let feature of getDisplayedFeatures(); trackBy: trackByFn" id="feature-container-{{feature.id}}"
+      class="equipment-item" [class.highlight]="featureIdSelected === feature.id || featuresHighlighted.includes(feature)"
+      (click)="openFeature(feature)" (mouseenter)="highlightSelectedFeature(feature)"
+      (mouseleave)="highlightSelectedFeature(undefined)">
+      <ion-item lines="none" color="none">
+        <ion-label>
+          <ion-label class="ion-no-margin">
+            {{ getLyrLabel(feature.lyrTableName) }}
           </ion-label>
-          <ion-label slot="end">
-            <ion-button fill="clear" (click)="bounceToFeature($event, feature)" *ngIf="feature.isTemp !== true">
-              <ion-icon slot="icon-only" class="locate-icon" [class.hightlight-icon]="featuresHighlighted.includes(feature)" name="locate-outline">
-              </ion-icon>
-            </ion-button>
-            <ion-button fill="clear" (click)="removeFeature($event, feature)">
-              <ion-icon slot="icon-only" name="close-outline">
-              </ion-icon>
-            </ion-button>
-          </ion-label>
-        </ion-item>
-        <ion-item lines="none" class="date-item" color="none">
-          <ion-label class="intervention-date ion-no-margin">
-            {{ getDomLabel(feature.lyrTableName) }}
-          </ion-label>
-        </ion-item>
-        <ion-item lines="none" color="none">
-          <ng-container *ngIf="feature.exploitant; else noExploitant">
-            <ion-chip class="status" [outline]="true">
-              <ion-label>{{ feature.exploitant }}</ion-label>
-            </ion-chip>
-          </ng-container>
-          <ng-template #noExploitant><ion-note>Exploitant inconnu</ion-note></ng-template>
-        </ion-item>
-      </ion-item-group>
-    </ng-container>
-  </ng-container>
+          <ion-note slot="helperText">
+            {{ feature.id }}
+          </ion-note>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-button fill="clear" (click)="bounceToFeature($event, feature)" *ngIf="feature.isTemp !== true">
+            <ion-icon slot="icon-only" class="locate-icon" [class.hightlight-icon]="featuresHighlighted.includes(feature)"
+              name="locate-outline">
+            </ion-icon>
+          </ion-button>
+          <ion-button fill="clear" (click)="removeFeature($event, feature)">
+            <ion-icon slot="icon-only" name="close-outline">
+            </ion-icon>
+          </ion-button>
+        </ion-label>
+      </ion-item>
+      <ion-item lines="none" class="date-item" color="none">
+        <ion-label class="intervention-date ion-no-margin">
+          {{ getDomLabel(feature.lyrTableName) }}
+        </ion-label>
+      </ion-item>
+      <ion-item lines="none" color="none">
+        <ng-container *ngIf="feature.exploitant; else noExploitant">
+          <ion-chip class="status" [outline]="true">
+            <ion-label>{{ feature.exploitant }}</ion-label>
+          </ion-chip>
+        </ng-container>
+        <ng-template #noExploitant><ion-note>Exploitant inconnu</ion-note></ng-template>
+      </ion-item>
+    </ion-item-group>
+  </ion-content>
   <ng-container *ngIf="isLoading">
     <ion-item-group *ngFor="let skeleton of [0, 1, 2, 3, 4, 5]">
       <ion-item lines="none" color="none">

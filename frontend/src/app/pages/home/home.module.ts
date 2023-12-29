@@ -8,7 +8,6 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 import { ActionsLayerDesktopComponent } from './components/actions-layer/actions-layer-desktop/actions-layer-desktop.component';
 import { ActionsLayerMobileComponent } from './components/actions-layer/actions-layer-mobile/actions-layer-mobile.component';
-import { MapComponent } from '../../shared/components/map/map.component';
 
 import { MatTreeModule } from '@angular/material/tree';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -49,7 +48,8 @@ import { ItvCardComponent } from './drawers/exploitation/components/exp-card/itv
 import { ItvSearchComponent } from './drawers/exploitation/components/itv-search/itv-search.component';
 import { MultiAssetsModalComponent } from './drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
 import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv-import/itv-import.component';
-import { MapService } from 'src/app/core/services/map/map.service';
+import { GeographicalSelectionDrawer } from './drawers/geographical-selection/geographical-selection.drawer';
+
 
 @NgModule({
   imports: [
@@ -101,6 +101,7 @@ import { MapService } from 'src/app/core/services/map/map.service';
     ItvSearchComponent,
     MultiAssetsModalComponent,
     ItvImportComponent,
+    GeographicalSelectionDrawer
   ],
   exports: [ReportCreateComponent]
 })

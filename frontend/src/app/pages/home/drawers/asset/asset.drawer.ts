@@ -66,7 +66,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
       const assetFilterTree = JSON.parse(
         forms.find((form) => form.formCode === 'ASSET_FILTER').definition
       );
-      this.assetFilterTree = this.removeAssetNotVisible(assetFilterTree);
+      this.assetFilterTree = this.templateService.removeAssetNotVisible(assetFilterTree);
       this.assetFilterService.setAssetFilter('home', this.assetFilterTree);
       this.assetFilterSegment = this.assetFilterService.getFilterSegment(
         this.assetFilterService.getAssetFilter()
@@ -98,20 +98,6 @@ export class AssetDrawer implements OnInit, OnDestroy {
     });
 
     this.userService.getCurrentUser().then(usr => this.user = usr);
-  }
-
-  removeAssetNotVisible(listAssetFilter: FilterAsset[]): FilterAsset[] {
-    // For each child, remove the asset not visible
-    listAssetFilter.forEach((assetFilter) => {
-      if (assetFilter.child != null) {
-        assetFilter.child = this.removeAssetNotVisible(assetFilter.child);
-      }
-    });
-
-    // Remove the asset not visible for the current list
-    return listAssetFilter.filter(
-      (assetFilter) => assetFilter.visible !== false
-    );
   }
 
   onClose() {

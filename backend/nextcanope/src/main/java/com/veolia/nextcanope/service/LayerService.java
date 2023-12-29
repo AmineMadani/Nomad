@@ -154,4 +154,18 @@ public class LayerService {
 
         return groupedDTOs;
     }
+
+    public List<String> getAssetIdsByLayerAndCtrIds(String layerKey, List<Long> ctrIds) {
+        return this.layerRepository.getAssetIdsByLayerAndCtrIds(
+                layerKey,
+                ctrIds.stream().map(Object::toString).collect(Collectors.joining(", "))
+        );
+    }
+
+    public List<String> getAssetIdsByLayerAndCtyIds(String layerKey, List<Long> ctyIds) {
+        return this.layerRepository.getAssetIdsByLayerAndCtyIds(
+                layerKey,
+                ctyIds.stream().map(Object::toString).collect(Collectors.joining(", "))
+        );
+    }
 }

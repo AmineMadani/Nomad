@@ -304,7 +304,7 @@ export class HomePage implements OnInit, OnDestroy {
             if (features.length > 0) {
               this.drawerService.navigateWithEquipments(
                 DrawerRouteEnum.SELECTION,
-                features
+                this.utilsService.transformFeaturesIntoSearchEquipments(features)
               );
             }
           }

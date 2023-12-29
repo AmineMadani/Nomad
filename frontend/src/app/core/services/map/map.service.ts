@@ -573,18 +573,6 @@ export class MapService implements OnDestroy {
   }
 
   /**
-   * add a point data for a specific layerkey
-   * @param layerKey the layer key
-   */
-  public addNewPoint(mapKey: string, layerKey: string, pointData: any) {
-    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
-    const addData: Maplibregl.GeoJSONSourceDiff = {
-      add: [pointData],
-    };
-    source.updateData(addData);
-  }
-
-  /**
    * Remove a point data for a specific layerkey
    * @param layerKey the layer key
    */
@@ -644,28 +632,37 @@ export class MapService implements OnDestroy {
    * Add new workorder to the geojson source
    * @param workOrder the workorder
    */
-  public addGeojsonToLayer(mapKey: string, properties: Workorder, layerKey: string): void {
-    this.addEventLayer(mapKey,layerKey, null).then(() => {
-      for (let task of properties.tasks) {
-        const taskProperties: any = { ...task };
-        taskProperties.id = task.id.toString();
-        taskProperties.x = task.longitude;
-        taskProperties.y = task.latitude;
-        taskProperties.wkoName = 'Intervention opportuniste';
-        taskProperties.wkoId = properties.id.toString();
-        taskProperties.wkoAppointment = properties.wkoAppointment;
-        taskProperties.wkoEmergency = properties.wkoEmergency;
-        const newPoint: any = {
-          geometry: {
-            type: 'Point',
-            coordinates: [task.longitude, task.latitude],
-          },
-          properties: taskProperties,
-          type: 'Feature',
-        };
-        this.addNewPoint(mapKey, layerKey, newPoint);
-      }
-    });
+  public async addGeojsonToLayer(mapKey: string, properties: Workorder, layerKey: string): Promise<void> {
+    await this.addEventLayer(mapKey, layerKey, null);
+
+    const source = this.getMap(mapKey).getSource(layerKey) as Maplibregl.GeoJSONSource;
+    let points: any[] = [];
+
+    for (let task of properties.tasks) {
+      const taskProperties: any = { ...task };
+      taskProperties.id = task.id.toString();
+      taskProperties.x = task.longitude;
+      taskProperties.y = task.latitude;
+      taskProperties.wkoName = 'Intervention opportuniste';
+      taskProperties.wkoId = properties.id.toString();
+      taskProperties.wkoAppointment = properties.wkoAppointment;
+      taskProperties.wkoEmergency = properties.wkoEmergency;
+      const newPoint: any = {
+        geometry: {
+          type: 'Point',
+          coordinates: [task.longitude, task.latitude],
+        },
+        properties: taskProperties,
+        type: 'Feature',
+      };
+
+      points.push(newPoint);
+    }
+
+    const addData: Maplibregl.GeoJSONSourceDiff = {
+      add: points,
+    };
+    source.updateData(addData)
   }
 
   public setZoom(mapKey: string, zoom: number): void {

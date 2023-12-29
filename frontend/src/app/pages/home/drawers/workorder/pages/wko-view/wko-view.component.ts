@@ -417,7 +417,7 @@ export class WkoViewComponent implements OnInit {
 
       this.drawerService.navigateWithEquipments(
         DrawerRouteEnum.SELECTION,
-        equipments,
+        this.utilsService.transformFeaturesIntoSearchEquipments(equipments),
         { draft: this.workOrder.id }
       );
     } else {

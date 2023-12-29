@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
+import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
+import { SearchEquipments } from 'src/app/core/models/layer.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
+import { DrawerService } from 'src/app/core/services/drawer.service';
 import { TemplateService } from 'src/app/core/services/template.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
@@ -22,7 +25,7 @@ export class EquipmentDetailsComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private templateService: TemplateService,
     private userService: UserService,
-    private router: Router
+    private drawerService: DrawerService
   ) {}
 
   public form: Form;
@@ -71,8 +74,16 @@ export class EquipmentDetailsComponent implements OnInit {
   }
 
   public createWorkorder(): void {
-    this.router.navigate(['/home/workorder'], {
-      queryParams: { [this.asset.lyrTableName]: this.asset.id },
-    });
+    const searchAssets: SearchEquipments[] = [
+      {
+        lyrTableName: this.asset.lyrTableName,
+        equipmentIds: [this.asset.id]
+      }
+    ];
+    // Mono-equipment
+    this.drawerService.navigateWithEquipments(
+      DrawerRouteEnum.WORKORDER_CREATION,
+      searchAssets,
+    );
   }
 }
