@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
+import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, SearchEquipments, UserReference, VLayerWtr } from '../../models/layer.model';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 import { LayerGrpAction } from '../../models/layer-gp-action.model';
 
@@ -162,21 +162,18 @@ export class LayerDataService {
     );
   }
 
-  public getAssetIdsByLayerAndCtrIds(layerKey: string, listCtrId: number[]): Promise<string[]> {
+  public getAssetIdsByLayersAndFilterIds(
+    listLayerKey: string[],
+    listFilterId: number[],
+    filterType: string
+  ): Promise<SearchEquipments[]> {
     let params = new HttpParams();
-    params = params.append('ctrIds', listCtrId.join(','));
+    params = params.append('layerKeys', listLayerKey.join(','));
+    params = params.append('filterIds', listFilterId.join(','));
+    params = params.append('filterType', filterType.toString());
 
     return firstValueFrom(
-      this.http.get<string[]>(`${this.configurationService.apiUrl}layers/${layerKey}/asset-ids/by-contracts`, {params})
-    );
-  }
-
-  public getAssetIdsByLayerAndCtyIds(layerKey: string, listCtyId: number[]): Promise<string[]> {
-    let params = new HttpParams();
-    params = params.append('ctyIds', listCtyId.join(','));
-
-    return firstValueFrom(
-      this.http.get<string[]>(`${this.configurationService.apiUrl}layers/${layerKey}/asset-ids/by-cities`, { params })
+      this.http.get<SearchEquipments[]>(`${this.configurationService.apiUrl}layers/asset-ids/by-filters`, { params })
     );
   }
 }

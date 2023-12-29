@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.veolia.nextcanope.dto.LayerGrpActionDTO;
@@ -255,31 +256,18 @@ public class LayerController {
         return this.layerService.getAllLayerGroups();
     }
 
-    @GetMapping(path = "/{key}/asset-ids/by-contracts")
-    @Operation(summary = "Get assets from contract")
+    @GetMapping(path = "/asset-ids/by-filters")
+    @Operation(summary = "Get assets from filters")
     @ApiResponses(value = {
-        @ApiResponse(description= "All layer references with customization", content =  {
+        @ApiResponse(description= "All asset id with the layer key associated", content =  {
                 @Content(schema = @Schema(implementation = String.class))
         })
     })
-    public List<String> getAssetIdsByLayerAndCtrIds(
-        @PathVariable String key,
-        @RequestParam List<Long> ctrIds
+    public List<LinkedHashMap<String, Object>> getAssetIdsByLayersAndFilterId(
+        @RequestParam List<String> layerKeys,
+        @RequestParam List<Long> filterIds,
+        @RequestParam String filterType
     ) {
-        return this.layerService.getAssetIdsByLayerAndCtrIds(key, ctrIds);
-    }
-
-    @GetMapping(path = "/{key}/asset-ids/by-cities")
-    @Operation(summary = "Get assets from cities")
-    @ApiResponses(value = {
-            @ApiResponse(description= "All layer references with customization", content =  {
-                    @Content(schema = @Schema(implementation = String.class))
-            })
-    })
-    public List<String> getAssetIdsByLayerAndCtyIds(
-            @PathVariable String key,
-            @RequestParam List<Long> ctyIds
-    ) {
-        return this.layerService.getAssetIdsByLayerAndCtyIds(key, ctyIds);
+        return this.layerService.getAssetIdsByLayersAndFilterId(layerKeys, filterIds, filterType);
     }
 }

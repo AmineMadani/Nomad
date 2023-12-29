@@ -9,6 +9,7 @@ import {
   Layer,
   VLayerWtr,
   SearchEquipments,
+  GeographicalTypeEnum,
 } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
@@ -453,11 +454,11 @@ export class LayerService {
     return this.layerGrpActions;
   }
 
-  public getAssetIdsByLayerAndListCtrId(layerKey: any, listCtrId: number[]): Promise<string[]> {
-    return this.layerDataService.getAssetIdsByLayerAndCtrIds(layerKey, listCtrId);
-  }
-
-  public getAssetIdsByLayerAndListCtyId(layerKey: any, listCtyId: number[]): Promise<string[]> {
-    return this.layerDataService.getAssetIdsByLayerAndCtyIds(layerKey, listCtyId);
+  public getAssetIdsByLayersAndFilterIds(
+    layerKeys: string[],
+    listId: number[],
+    type: GeographicalTypeEnum
+  ): Promise<SearchEquipments[]> {
+    return this.layerDataService.getAssetIdsByLayersAndFilterIds(layerKeys, listId, type);
   }
 }

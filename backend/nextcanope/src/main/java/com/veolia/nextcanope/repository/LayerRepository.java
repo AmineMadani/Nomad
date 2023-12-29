@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.repository;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,20 +21,16 @@ public interface LayerRepository extends JpaRepository<Layer, Long> {
     List<VLayerWtrDto> getAllVLayerWtr();
 
     @Query(
-            value="select nomad.f_get_asset_ids_by_layer_and_ctr_ids(:lyrTableName, :ctrIds)",
+            value="select nomad.f_get_asset_ids_by_layers_and_filter_ids(" +
+                    "   :listLyrTableName, " +
+                    "   :listFilterId, " +
+                    "   :filterType" +
+                    ")",
             nativeQuery = true
     )
-    List<String> getAssetIdsByLayerAndCtrIds(
-            @Param("lyrTableName") String lyrTableName,
-            @Param("ctrIds") String ctrIds
-    );
-
-    @Query(
-            value="select nomad.f_get_asset_ids_by_layer_and_cty_ids(:lyrTableName, :ctyIds)",
-            nativeQuery = true
-    )
-    List<String> getAssetIdsByLayerAndCtyIds(
-            @Param("lyrTableName") String lyrTableName,
-            @Param("ctyIds") String ctyIds
+    List<LinkedHashMap<String, Object>> getAssetIdsByLayersAndFilterId(
+        @Param("listLyrTableName") String listLyrTableName,
+        @Param("listFilterId") String listFilterId,
+        @Param("filterType") String filterType
     );
 }

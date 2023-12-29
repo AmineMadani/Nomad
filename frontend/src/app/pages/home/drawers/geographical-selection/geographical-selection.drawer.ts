@@ -8,7 +8,7 @@ import { City, getCityLabel } from 'src/app/core/models/city.model';
 import { Contract, getContractLabel } from 'src/app/core/models/contract.model';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
-import { SearchEquipments } from 'src/app/core/models/layer.model';
+import { GeographicalTypeEnum, SearchEquipments } from 'src/app/core/models/layer.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
@@ -17,11 +17,6 @@ import { FilterService } from 'src/app/core/services/filter.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { TemplateService } from 'src/app/core/services/template.service';
-
-export enum GeographicalTypeEnum {
-  CONTRACT = 1,
-  CITY = 2
-}
 
 @Component({
   selector: 'app-geographical-selection',
@@ -155,43 +150,25 @@ export class GeographicalSelectionDrawer implements OnInit {
     if (this.geographicalSelectionForm.valid) {
       this.isLoading = true;
 
+      // Get layers on the map
       const layers = this.mapService.getCurrentLayers();
-
-      // Build the promises to launch all calls in the same time
-      let promises: any = [];
       const layerKeys = Array.from(layers.keys()).filter((key) => key !== 'task');
-      for (const key of layerKeys) {
-        // Get assets from city or contract
-        switch (this.geographicalSelectionForm.get('geographicalTypeId').value) {
-          case GeographicalTypeEnum.CONTRACT:
-            promises.push(
-              this.layerService.getAssetIdsByLayerAndListCtrId(
-                key,
-                this.geographicalSelectionForm.get('listCtrId').value
-              )
-            );
-            break;
-          case GeographicalTypeEnum.CITY:
-            promises.push(
-              this.layerService.getAssetIdsByLayerAndListCtyId(
-                key,
-                this.geographicalSelectionForm.get('listCtyId').value
-              )
-            );
-            break;
-        }
+      // Get assets from contract or city
+      let filterIds = [];
+      const filterType = this.geographicalSelectionForm.get('geographicalTypeId').value;
+      switch (filterType) {
+        case GeographicalTypeEnum.CONTRACT:
+          filterIds = this.geographicalSelectionForm.get('listCtrId').value;
+          break;
+        case GeographicalTypeEnum.CITY:
+          filterIds = this.geographicalSelectionForm.get('listCtyId').value;
+          break;
       }
-      const results = await Promise.all(promises);
-
-      // Map results of the api calls in the searchEquipments format
-      const searchAssets: SearchEquipments[] = results
-        .map((assetIds, index) => {
-          return {
-            lyrTableName: layerKeys[index],
-            equipmentIds: assetIds,
-          }
-        })
-        .filter((searchAsset) => searchAsset.equipmentIds.length > 0);
+      const searchAssets: SearchEquipments[] = await this.layerService.getAssetIdsByLayersAndFilterIds(
+        layerKeys,
+        filterIds,
+        filterType
+      );
 
       // Go to the multi selection
       this.drawerService.navigateWithEquipments(

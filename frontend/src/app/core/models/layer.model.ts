@@ -108,3 +108,8 @@ export interface SearchEquipments {
   equipmentIds: string[],
   allColumn?: boolean
 }
+
+export enum GeographicalTypeEnum {
+  CONTRACT = 'CONTRACT',
+  CITY = 'CITY'
+}
