@@ -159,9 +159,7 @@ export class GeographicalSelectionDrawer implements OnInit {
 
       // Build the promises to launch all calls in the same time
       let promises: any = [];
-      console.log(layers);
       const layerKeys = Array.from(layers.keys()).filter((key) => key !== 'task');
-      console.log(layerKeys);
       for (const key of layerKeys) {
         // Get assets from city or contract
         switch (this.geographicalSelectionForm.get('geographicalTypeId').value) {

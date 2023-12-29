@@ -153,7 +153,6 @@ export class DrawerService {
   }
 
   navigateWithEquipments(route: DrawerRouteEnum, equipments: SearchEquipments[], queryParams?: any): void {
-    console.log('navigate with equipments', equipments);
     const url = this.getUrlFromDrawerName(route);
     this.router.navigate([url], { queryParams: queryParams, state: { equipments: equipments } });
   }
