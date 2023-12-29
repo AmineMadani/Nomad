@@ -643,7 +643,7 @@ export class ReportAssetComponent implements OnInit {
     if (
       !Array.isArray(features) &&
       Number.isNaN(Number(features.id)) &&
-      features.id
+      features.featureId
     ) {
       features = [
         {
