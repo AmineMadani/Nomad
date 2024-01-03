@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -63,28 +63,28 @@ private Long id;
     @Column(name="lyr_llabel", length=2147483647)
     @JsonProperty("lyr_llabel")
     private String lyrLlabel;
-    
-    @Column(name="lyr_interactive", length=25)
-    @JsonProperty("lyr_interactive")
-    private String lyrInteractive;
 
     @Column(name="lyr_valid")
     @JsonProperty("lyr_valid")
     private Boolean lyrValid;
 
-    @Column(name="lyr_geom_type", length=2147483647)
-    @JsonProperty("lyr_geom_type")
-    private String lyrGeomType;
-
     @Column(name="lyr_display")
     @JsonProperty("lyr_display")
     private Boolean lyrDisplay;
+
+    @Column(name="lyr_geom_type", length=255)
+    @JsonProperty("lyr_geom_type")
+    private String lyrGeomType;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lyr_dcre")
     @CreationTimestamp
     @JsonProperty("lyr_dcre")
     private Date lyrDcre;
+
+    @Column(name="lyr_interactive", nullable=false, length=25)
+    @JsonProperty("lyr_interactive")
+    private String lyrInteractive;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="lyr_dmod")
@@ -94,17 +94,19 @@ private Long id;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @ManyToOne
-    @JoinColumn(name="dom_id", referencedColumnName="id")
-    private Domains domains;
+    @OneToMany(mappedBy="layer")
+    private List<Asset> listOfAsset;
+
+    @OneToMany(mappedBy="layer")
+    private List<LayerGrpAction> listOfLayerGrpAction;
+
+    @OneToMany(mappedBy="layer")
+    private List<LayerReferences> listOfLayerReferences;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lyr_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
-
-    @OneToMany(mappedBy="layer")
-    private List<LayerStyle> listOfLayerStyle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="lyr_ucre_id", referencedColumnName="id")
@@ -112,20 +114,21 @@ private Long id;
     private Users createdBy;
 
     @ManyToOne
-    @JoinColumn(name="ast_id", referencedColumnName="id")
-    private AssetType assetType;
-
-    @OneToMany(mappedBy="layer")
-    private List<Asset> listOfAsset;
-
-    @OneToMany(mappedBy="layer")
-    private List<LayerReferences> listOfLayerReferences;
+    @JoinColumn(name="dom_id", referencedColumnName="id")
+    private Domains domains;
 
     @OneToMany(mappedBy="layer")
     private List<AssetForSig> listOfAssetForSig;
 
+    @ManyToOne
+    @JoinColumn(name="ast_id", referencedColumnName="id")
+    private AssetType assetType;
+
     @OneToMany(mappedBy="layer")
     private List<ItvBlock> listOfItvBlock;
+
+    @OneToMany(mappedBy="layer")
+    private List<LayerStyle> listOfLayerStyle;
 
     /**
      * Constructor
@@ -207,14 +210,6 @@ private Long id;
         this.lyrValid = lyrValid ;
     }
 
-    public String getLyrGeomType() {
-        return this.lyrGeomType;
-    }
-
-    public void setLyrGeomType( String lyrGeomType ) {
-        this.lyrGeomType = lyrGeomType ;
-    }
-
     public Boolean getLyrDisplay() {
         return this.lyrDisplay;
     }
@@ -223,12 +218,28 @@ private Long id;
         this.lyrDisplay = lyrDisplay ;
     }
 
+    public String getLyrGeomType() {
+        return this.lyrGeomType;
+    }
+
+	public void setLyrGeomType( String lyrGeomType ) {
+        this.lyrGeomType = lyrGeomType ;
+    }
+
     public Date getLyrDcre() {
         return this.lyrDcre;
     }
 
 	public void setLyrDcre( Date lyrDcre ) {
         this.lyrDcre = lyrDcre ;
+    }
+
+    public String getLyrInteractive() {
+        return this.lyrInteractive;
+    }
+
+	public void setLyrInteractive( String lyrInteractive ) {
+        this.lyrInteractive = lyrInteractive ;
     }
 
     public Date getLyrDmod() {
@@ -240,20 +251,28 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
-    public Domains getDomains() {
-        return this.domains;
+    public List<Asset> getListOfAsset() {
+        return this.listOfAsset;
     }
-    
-    public String getLyrInteractive() {
-		return lyrInteractive;
-	}
 
-	public void setLyrInteractive(String lyrInteractive) {
-		this.lyrInteractive = lyrInteractive;
-	}
+    public void setListOfAsset(List<Asset> listOfAsset) {
+        this.listOfAsset = listOfAsset;
+    }
 
-	public void setDomains(Domains domains) {
-        this.domains = domains;
+    public List<LayerGrpAction> getListOfLayerGrpAction() {
+        return this.listOfLayerGrpAction;
+    }
+
+    public void setListOfLayerGrpAction(List<LayerGrpAction> listOfLayerGrpAction) {
+        this.listOfLayerGrpAction = listOfLayerGrpAction;
+    }
+
+    public List<LayerReferences> getListOfLayerReferences() {
+        return this.listOfLayerReferences;
+    }
+
+    public void setListOfLayerReferences(List<LayerReferences> listOfLayerReferences) {
+        this.listOfLayerReferences = listOfLayerReferences;
     }
 
     public Users getModifiedBy() {
@@ -262,6 +281,46 @@ private Long id;
 
     public void setModifiedBy(Users modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Domains getDomains() {
+        return this.domains;
+    }
+
+    public void setDomains(Domains domains) {
+        this.domains = domains;
+    }
+
+    public List<AssetForSig> getListOfAssetForSig() {
+        return this.listOfAssetForSig;
+    }
+
+    public void setListOfAssetForSig(List<AssetForSig> listOfAssetForSig) {
+        this.listOfAssetForSig = listOfAssetForSig;
+    }
+
+    public AssetType getAssetType() {
+        return this.assetType;
+    }
+
+    public void setAssetType(AssetType assetType) {
+        this.assetType = assetType;
+    }
+
+    public List<ItvBlock> getListOfItvBlock() {
+        return this.listOfItvBlock;
+    }
+
+    public void setListOfItvBlock(List<ItvBlock> listOfItvBlock) {
+        this.listOfItvBlock = listOfItvBlock;
     }
 
     public List<LayerStyle> getListOfLayerStyle() {
@@ -282,51 +341,4 @@ private Long id;
         this.listOfLayerStyle = listOfLayerStyle;
     }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public AssetType getAssetType() {
-        return this.assetType;
-    }
-
-    public void setAssetType(AssetType assetType) {
-        this.assetType = assetType;
-    }
-
-    public List<Asset> getListOfAsset() {
-        return this.listOfAsset;
-    }
-
-    public void setListOfAsset(List<Asset> listOfAsset) {
-        this.listOfAsset = listOfAsset;
-    }
-
-    public List<LayerReferences> getListOfLayerReferences() {
-        return this.listOfLayerReferences;
-    }
-
-    public void setListOfLayerReferences(List<LayerReferences> listOfLayerReferences) {
-        this.listOfLayerReferences = listOfLayerReferences;
-    }
-
-    public List<AssetForSig> getListOfAssetForSig() {
-        return listOfAssetForSig;
-    }
-
-    public void setListOfAssetForSig(List<AssetForSig> listOfAssetForSig) {
-        this.listOfAssetForSig = listOfAssetForSig;
-    }
-
-    public List<ItvBlock> getListOfItvBlock() {
-        return listOfItvBlock;
-    }
-
-    public void setListOfItvBlock(List<ItvBlock> listOfItvBlock) {
-        this.listOfItvBlock = listOfItvBlock;
-    }
 }

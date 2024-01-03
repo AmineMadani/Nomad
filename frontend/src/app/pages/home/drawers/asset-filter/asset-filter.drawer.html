@@ -36,14 +36,14 @@
                   </ng-container>
                 </ion-list>
               </ng-container>
-              <app-asset-accordion [filterSegment]="filterSegment" />
+              <app-asset-filter-accordion [filterSegment]="filterSegment" />
             </ng-container>
           </ng-container>
           <ng-container *ngIf="selectedSegment === 'details'">
-            <app-asset-detail [filterTree]="assetFilterTree" />
+            <app-asset-filter-detail [filterTree]="assetFilterTree" />
           </ng-container>
           <ng-container *ngIf="selectedSegment === 'favorite'">
-            <app-asset-favorite />
+            <app-asset-filter-favorite />
           </ng-container>
         </ion-content>
       </div>

@@ -5,11 +5,11 @@ import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
-  selector: 'app-asset-favorite',
-  templateUrl: './asset-favorite.component.html',
-  styleUrls: ['./asset-favorite.component.scss'],
+  selector: 'app-asset-filter-favorite',
+  templateUrl: './asset-filter-favorite.component.html',
+  styleUrls: ['./asset-filter-favorite.component.scss'],
 })
-export class AssetFavoriteComponent implements OnInit {
+export class AssetFilterFavoriteComponent implements OnInit {
   constructor(
     private userService: UserService,
     private alertCtrl: AlertController,

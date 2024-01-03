@@ -69,12 +69,12 @@ private Long id;
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(mappedBy="layerReferences")
-    private List<LayerReferencesDefault> listOfLayerReferencesDefault;
-
     @ManyToOne
     @JoinColumn(name="lyr_id", referencedColumnName="id")
     private Layer layer;
+
+    @OneToMany(mappedBy="layerReferences")
+    private List<LayerReferencesDefault> listOfLayerReferencesDefault;
 
     @OneToMany(mappedBy="layerReferences")
     private List<LayerReferencesUser> listOfLayerReferencesUser;
@@ -157,20 +157,20 @@ private Long id;
         this.modifiedBy = modifiedBy;
     }
 
-    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
-        return this.listOfLayerReferencesDefault;
-    }
-
-    public void setListOfLayerReferencesDefault(List<LayerReferencesDefault> listOfLayerReferencesDefault) {
-        this.listOfLayerReferencesDefault = listOfLayerReferencesDefault;
-    }
-
     public Layer getLayer() {
         return this.layer;
     }
 
     public void setLayer(Layer layer) {
         this.layer = layer;
+    }
+
+    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
+        return this.listOfLayerReferencesDefault;
+    }
+
+    public void setListOfLayerReferencesDefault(List<LayerReferencesDefault> listOfLayerReferencesDefault) {
+        this.listOfLayerReferencesDefault = listOfLayerReferencesDefault;
     }
 
     public List<LayerReferencesUser> getListOfLayerReferencesUser() {

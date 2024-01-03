@@ -419,6 +419,21 @@
                     }
                 ]
             }
+        },
+        {
+            "changeSet": {
+                "id": "v1.3.0_modify_asset_for_sig_table",
+                "author": "NOMAD",
+                "changes": [
+                    {
+                        "sqlFile": {
+                            "dbms": "postgresql",
+                            "encoding": "UTF-8",
+                            "path": "/db/changelog/changes/v1.3.0/modify_asset_for_sig_table.sql"
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

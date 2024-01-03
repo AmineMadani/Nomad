@@ -192,7 +192,7 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
     this.assetSelectionPopover.dismiss();
     this.closeMenu();
 
-    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [asset['id']], {
+    this.drawerService.navigateTo(DrawerRouteEnum.ASSET, [asset['id']], {
       lyrTableName: asset.source,
     });
   }
@@ -352,20 +352,20 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
         selectedFeature['properties']
       );
     } else if (asset.id) {
-      let equipment = await this.layerService.getEquipmentByLayerAndId(
+      const assetDetails = await this.layerService.getAssetByLayerAndId(
         asset['source'],
         asset['id']
       );
       let recalculateCoords: number[];
-      //Equipments have fixed coordinates
-      if (equipment.geom.type == 'Point') {
+      //Assets have fixed coordinates
+      if (assetDetails.geom.type == 'Point') {
         recalculateCoords = [
           asset['properties']['x'],
           asset['properties']['y'],
         ];
       } else {
         recalculateCoords = this.mapLayerService.findNearestPoint(
-          equipment.geom.coordinates,
+          assetDetails.geom.coordinates,
           [asset['properties']['x'], asset['properties']['y']]
         );
       }

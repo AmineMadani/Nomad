@@ -9,7 +9,6 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import {
   Layer,
   ReferenceDisplayType,
-  SearchEquipments,
   UserReference,
 } from 'src/app/core/models/layer.model';
 import { UserService } from 'src/app/core/services/user.service';
@@ -20,13 +19,14 @@ import { Workorder } from 'src/app/core/models/workorder.model';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { DateValidator } from 'src/app/shared/form-editor/validators/date.validator';
+import { SearchAssets } from 'src/app/core/models/asset.model';
 
 @Component({
-  selector: 'app-equipment',
-  templateUrl: './equipment.drawer.html',
-  styleUrls: ['./equipment.drawer.scss'],
+  selector: 'app-asset',
+  templateUrl: './asset.drawer.html',
+  styleUrls: ['./asset.drawer.scss'],
 })
-export class EquipmentDrawer implements OnInit, OnDestroy {
+export class AssetDrawer implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private layerService: LayerService,
@@ -64,7 +64,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   public userHasPermissionCreateAssetWorkorder: boolean = false;
 
   public userReferences: UserReference[] = [];
-  public equipment: any;
+  public asset: any;
   public isMobile: boolean;
   public assetLabel: string;
   public ReferenceDisplayType = ReferenceDisplayType;
@@ -91,7 +91,7 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         takeUntil(this.ngUnsubscribe$)
       )
       .subscribe(async () => {
-        await this.prepareInitEquipement();
+        await this.prepareInitAsset();
       });
 
     this.router.events
@@ -100,19 +100,19 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
         takeUntil(this.ngUnsubscribe$)
       )
       .subscribe(async () => {
-        await this.prepareInitEquipement();
+        await this.prepareInitAsset();
       });
   }
 
-  private async prepareInitEquipement() {
+  private async prepareInitAsset() {
     const urlParams = new URLSearchParams(window.location.search);
     const requestParamMap = new Map(urlParams.entries());
     const lyrTableName: string = requestParamMap.get('lyrTableName');
-    // Get the equipmentId from the route params
+    // Get the assetId from the route params
     const routeParamMap: Params = await firstValueFrom(this.route.params);
-    const equipmentId: string = routeParamMap['id'];
-    // Init equipment with the params when the map loaded
-    this.initEquipment(lyrTableName, equipmentId);
+    const assetId: string = routeParamMap['id'];
+    // Init asset with the params when the map loaded
+    this.initAsset(lyrTableName, assetId);
   }
 
   ngOnDestroy(): void {
@@ -122,46 +122,46 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
 
   public async onTabButtonClicked(ev: SynthesisButton) {
     if (ev.key === 'create') {
-      const searchAssets: SearchEquipments[] = [
+      const searchAssets: SearchAssets[] = [
         {
-          lyrTableName: this.equipment.lyrTableName,
-          equipmentIds: [this.equipment.id]
+          lyrTableName: this.asset.lyrTableName,
+          assetIds: [this.asset.id]
         }
       ];
-      // Mono-equipment
-      this.drawer.navigateWithEquipments(
-        DrawerRouteEnum.WORKORDER_CREATION,
-        searchAssets,
-      );
+      // Mono-asset
+      this.drawer.navigateWithAssets({
+        route: DrawerRouteEnum.WORKORDER_CREATION,
+        assets: searchAssets,
+      });
     } else if (ev.key === 'report') {
       let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
 
-      if (this.equipment.geom && this.equipment.geom.type !== 'Point') {
+      if (this.asset.geom && this.asset.geom.type !== 'Point') {
         const recalculateCoords = this.mapLayerService.findNearestPoint(
-          this.equipment.geom.coordinates,
-          [this.equipment.x, this.equipment.y]
+          this.asset.geom.coordinates,
+          [this.asset.x, this.asset.y]
         );
 
-        this.equipment.x = recalculateCoords[0];
-        this.equipment.y = recalculateCoords[1];
+        this.asset.x = recalculateCoords[0];
+        this.asset.y = recalculateCoords[1];
       }
 
       let workorder: Workorder = {
-        latitude: this.equipment.y,
-        longitude: this.equipment.x,
+        latitude: this.asset.y,
+        longitude: this.asset.x,
         wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
-        ctyId: this.equipment.ctyId,
+        ctyId: this.asset.ctyId,
         id: this.utilsService.createCacheId(),
         isDraft: true,
         tasks: [
           {
             id: this.utilsService.createCacheId(),
-            latitude: this.equipment.y,
-            longitude: this.equipment.x,
-            assObjTable: this.equipment.lyrTableName,
-            assObjRef: this.equipment.id,
+            latitude: this.asset.y,
+            longitude: this.asset.x,
+            assObjTable: this.asset.lyrTableName,
+            assObjRef: this.asset.id,
             wtsId: lStatus.find((status) => status.wtsCode == 'CREE')?.id,
-            ctrId: this.equipment.ctrId,
+            ctrId: this.asset.ctrId,
           },
         ],
       };
@@ -173,70 +173,70 @@ export class EquipmentDrawer implements OnInit, OnDestroy {
   }
 
   public onNavigateToDetails(): void {
-    // Create a copy of equipment without null values
-    const equipmentNoNull = { ...this.equipment };
+    // Create a copy of asset without null values
+    const assetNoNull = { ...this.asset };
 
-    Object.keys(equipmentNoNull).forEach(key => {
-      if (equipmentNoNull[key] === null) {
-        equipmentNoNull[key] = '';
+    Object.keys(assetNoNull).forEach(key => {
+      if (assetNoNull[key] === null) {
+        assetNoNull[key] = '';
       }
     });
     this.drawer.navigateTo(
-      DrawerRouteEnum.EQUIPMENT_DETAILS,
-      [this.equipment.id],
-      equipmentNoNull
+      DrawerRouteEnum.ASSET_DETAILS,
+      [this.asset.id],
+      assetNoNull
     );
   }
-  
 
-  private async initEquipment(
+
+  private async initAsset(
     lyrTableName: string,
-    equipmentId: string
+    assetId: string
   ): Promise<void> {
-    // Start by getting the equipment wit layer and id
-    const equipment = await this.layerService.getEquipmentByLayerAndId(
+    // Start by getting the asset wit layer and id
+    const asset = await this.layerService.getAssetByLayerAndId(
       lyrTableName,
-      equipmentId
+      assetId
     );
 
-    await this.zoomToEquipment(lyrTableName, equipment);
+    await this.zoomToAsset(lyrTableName, asset);
 
-    // Set current equipment with the lyrTableName find in the url.
-    this.equipment = {
-      ...equipment,
+    // Set current asset with the lyrTableName find in the url.
+    this.asset = {
+      ...asset,
       lyrTableName: lyrTableName,
     };
 
-    // Get the user references with the lyrTableName of the equipment
+    // Get the user references with the lyrTableName of the asset
     this.userReferences = await this.layerService.getUserReferences(
-      this.equipment.lyrTableName
+      this.asset.lyrTableName
     );
 
     // Get asset label by current layer info
     const layers = await this.layerService.getAllLayers();
     const currentLayer = layers.find(
-      (l) => l.lyrTableName === `${this.equipment.lyrTableName}`
+      (l) => l.lyrTableName === `${this.asset.lyrTableName}`
     );
     this.assetLabel = `${currentLayer.domLLabel} - ${currentLayer.lyrSlabel}`;
   }
 
-  private async zoomToEquipment(lyrTableName: string, equipment: any) {
+  private async zoomToAsset(lyrTableName: string, asset: any) {
     const layer: Layer = await this.layerService.getLayerByKey(lyrTableName);
     const minZoom = JSON.parse(layer.listStyle[0].sydDefinition)[0].minzoom + 1;
-    await this.mapLayerService.moveToXY('home', equipment.x, equipment.y, minZoom);
+    await this.mapLayerService.moveToXY('home', asset.x, asset.y, minZoom);
     await this.mapLayerService.zoomOnXyToFeatureByIdAndLayerKey(
       'home',
       lyrTableName,
-      equipment.id
+      asset.id
     );
   }
 
   /**
    * Convert to format date if it's date
-   * @param value 
-   * @returns 
+   * @param value
+   * @returns
    */
-  public getEquipmentValue(value : string){
+  public getAssetValue(value : string){
     let result = value?.toString();
     if (result && DateValidator.isDate(result)) {
       result = DateValidator.convertFormatDateFr(result);

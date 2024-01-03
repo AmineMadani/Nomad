@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs/internal/Observable';
 import * as Maplibregl from 'maplibre-gl';
+import { NomadFeature } from '../../models/geojson.model';
 
 export interface MultiSelection { source: string, id: string }
 
@@ -51,7 +52,7 @@ export class MapEventService {
     this.selectedFeatureId = idFeature;
   }
 
-  public setMultiFeaturesSelected(features: any[]): void {
+  public setMultiFeaturesSelected(features: NomadFeature[]): void {
     this.onMultiFeaturesSelected$.next(features);
   }
 

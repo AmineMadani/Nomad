@@ -34,8 +34,8 @@
       </div>
     </div>
 
-    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET)"
-      [ngClass]="currentRoute === drawerRouteEnum.ASSET ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
+    <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.ASSET_FILTER)"
+      [ngClass]="currentRoute === drawerRouteEnum.ASSET_FILTER ? 'actions-layer-content-button-action-active':''">Patrimoine</ion-button>
     <ion-button class="actions-layer-content-button-action" (click)="onAction(drawerRouteEnum.EXPLOITATION)"
       [ngClass]="currentRoute === drawerRouteEnum.EXPLOITATION ? 'actions-layer-content-button-action-active':''">Exploitation</ion-button>
     <ion-button (click)="displayToolbox($event)" class="actions-layer-content-button-action">Outils</ion-button>

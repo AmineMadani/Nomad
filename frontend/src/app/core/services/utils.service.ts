@@ -3,9 +3,10 @@ import { Platform, ToastController } from '@ionic/angular';
 import { DrawerRouteEnum, drawerRoutes } from '../models/drawer.model';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { DateTime } from 'luxon';
-import { SearchEquipments } from '../models/layer.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { isNumber } from '@turf/turf';
+import { Asset, SearchAssets } from '../models/asset.model';
+import { NomadFeature } from '../models/geojson.model';
 
 @Injectable({
   providedIn: 'root',
@@ -105,16 +106,16 @@ export class UtilsService {
   public transformMap(
     params: Map<string, string>,
     allColumn?: boolean
-  ): SearchEquipments[] {
+  ): SearchAssets[] {
     const filteredEntries = Array.from(params.entries()).filter(
       ([key]) => key.startsWith('aep_') || key.startsWith('ass_')
     );
 
     const transformedArray = filteredEntries.map(([key, value]) => {
-      const equipmentIds = value.split(',');
+      const assetIds = value.split(',');
       return {
         lyrTableName: key,
-        equipmentIds: equipmentIds,
+        assetIds: assetIds,
         allColumn: allColumn,
       };
     });
@@ -125,18 +126,18 @@ export class UtilsService {
   public transformArrayForAssets(
     features: any[],
     allColumn: boolean = false
-  ): SearchEquipments[] {
+  ): SearchAssets[] {
     return features.reduce((acc, curr) => {
       const existingItem = acc.find(
         (item: any) => item.lyrTableName === curr.assObjTable
       );
 
       if (existingItem) {
-        existingItem.equipmentIds.push(curr.assObjRef);
+        existingItem.assetIds.push(curr.assObjRef);
       } else {
         acc.push({
           lyrTableName: curr.assObjTable,
-          equipmentIds: [curr.assObjRef],
+          assetIds: [curr.assObjRef],
           allColumn,
         });
       }
@@ -145,12 +146,12 @@ export class UtilsService {
     }, []);
   }
 
-  public flattenEquipments(
-    arr: { lyrTableName: string; equipmentIds: string[] }[]
+  public flattenAssets(
+    arr: { lyrTableName: string; assetIds: string[] }[]
   ): string[] {
     return arr.reduce(
-      (acc: string[], curr: { lyrTableName: string; equipmentIds: string[] }) =>
-        acc.concat(curr.equipmentIds),
+      (acc: string[], curr: { lyrTableName: string; assetIds: string[] }) =>
+        acc.concat(curr.assetIds),
       []
     );
   }
@@ -184,29 +185,54 @@ export class UtilsService {
     }, []);
   }
 
-  public transformFeaturesIntoSearchEquipments(features: any[], allColumn: boolean = false): SearchEquipments[] {
-    const featureParams: SearchEquipments[] = [];
+  public transformNomadFeaturesIntoSearchAssets(features: NomadFeature[], allColumn: boolean = false): SearchAssets[] {
+    const searchAsset: SearchAssets[] = [];
 
-    features.forEach((feature) => {
-      let source = feature.lyrTableName || feature.source;
+    console.log('will transform the following features: ', features);
+    features
+      // Don't take the tmp assets
+      .filter((ftr) => !ftr.id.startsWith('TMP-'))
+      // Build the assets obj from the feature
+      .forEach((feature) => {
+        const source = feature.source;
 
-      if (feature.id.startsWith('TMP-')) {
-        source = 'tmp';
-      }
+        const existingFeature = searchAsset.find((ftr) => ftr.lyrTableName === source);
+        if (existingFeature) {
+          existingFeature.assetIds.push(feature.id);
+        } else {
+          searchAsset.push({
+            lyrTableName: source,
+            assetIds: [feature.id],
+            allColumn: allColumn,
+          });
+        }
+      });
 
-      const existingFeature = featureParams.find((ftr) => ftr.lyrTableName === source);
-      if (existingFeature) {
-        existingFeature.equipmentIds.push(feature.id);
-      } else {
-        featureParams.push({
-          lyrTableName: source,
-          equipmentIds: [feature.id],
-          allColumn: allColumn,
-        });
-      }
-    });
+    return searchAsset;
+  }
 
-    return featureParams;
+  public transformAssetIntoSearchAssets(assets: Asset[], allColumn: boolean = false): SearchAssets[] {
+    const searchAsset: SearchAssets[] = [];
+
+    console.log('will transform the following features: ', assets);
+    assets
+      // Build the assets obj from the feature
+      .forEach((feature) => {
+        const source = feature.lyrTableName;
+
+        const existingFeature = searchAsset.find((ftr) => ftr.lyrTableName === source);
+        if (existingFeature) {
+          existingFeature.assetIds.push(feature.id);
+        } else {
+          searchAsset.push({
+            lyrTableName: source,
+            assetIds: [feature.id],
+            allColumn: allColumn,
+          });
+        }
+      });
+
+    return searchAsset;
   }
 
   public generateTaskParams(tasks: any[]): any {

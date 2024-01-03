@@ -25,6 +25,7 @@ import * as Maplibregl from 'maplibre-gl';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { PraxedoService } from 'src/app/core/services/praxedo.service';
+import { NomadFeature } from 'src/app/core/models/geojson.model';
 
 @Component({
   selector: 'app-home',
@@ -290,11 +291,12 @@ export class HomePage implements OnInit, OnDestroy {
           let layersID = this.mapService.getCurrentLayersIds();
           layersID = layersID.filter(layerId => layers.find(layer => layerId.includes(layer.lyrTableName.toUpperCase()))?.lyrInteractive != 'NONE');
 
-          let features = this.drawingService.getFeaturesFromDraw(
+          const features: NomadFeature[] = this.drawingService.getFeaturesFromDraw(
             e,
             this.mapService.getMap('home'),
             layersID
           );
+          console.log('in draw: ', features);
 
           if (fireEvent) {
             this.mapEventService.setMultiFeaturesSelected(features);
@@ -302,10 +304,10 @@ export class HomePage implements OnInit, OnDestroy {
 
           if (!fireEvent) {
             if (features.length > 0) {
-              this.drawerService.navigateWithEquipments(
-                DrawerRouteEnum.SELECTION,
-                this.utilsService.transformFeaturesIntoSearchEquipments(features)
-              );
+              this.drawerService.navigateWithAssets({
+                route: DrawerRouteEnum.SELECTION,
+                assets: this.utilsService.transformNomadFeaturesIntoSearchAssets(features),
+              });
             }
           }
         } else {
@@ -407,7 +409,7 @@ export class HomePage implements OnInit, OnDestroy {
     if (!firedEvent) {
       const properties = feature.properties;
       if (properties['geometry']) delete properties['geometry'];
-      // We pass the layerKey to the drawer to be able to select the equipment on the layer
+      // We pass the layerKey to the drawer to be able to select the asset on the layer
       properties['lyrTableName'] = feature.source;
       let route: DrawerRouteEnum;
       let params = {};
@@ -418,7 +420,7 @@ export class HomePage implements OnInit, OnDestroy {
           pathVariables = [properties['wkoId'], properties['id']];
           break;
         default:
-          route = DrawerRouteEnum.EQUIPMENT;
+          route = DrawerRouteEnum.ASSET;
           params = {
             lyrTableName: properties['lyrTableName'],
           };

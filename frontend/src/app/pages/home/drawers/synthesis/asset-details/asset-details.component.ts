@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from 'rxjs';
+import { SearchAssets } from 'src/app/core/models/asset.model';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { SearchEquipments } from 'src/app/core/models/layer.model';
 import { FormTemplate } from 'src/app/core/models/template.model';
 import { PermissionCodeEnum } from 'src/app/core/models/user.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -15,11 +15,11 @@ import {
 } from 'src/app/shared/form-editor/models/form.model';
 
 @Component({
-  selector: 'app-equipment-details',
-  templateUrl: './equipment-details.component.html',
-  styleUrls: ['./equipment-details.component.scss'],
+  selector: 'app-asset-details',
+  templateUrl: './asset-details.component.html',
+  styleUrls: ['./asset-details.component.scss'],
 })
-export class EquipmentDetailsComponent implements OnInit {
+export class AssetDetailsComponent implements OnInit {
   constructor(
     private utils: UtilsService,
     private activatedRoute: ActivatedRoute,
@@ -45,10 +45,10 @@ export class EquipmentDetailsComponent implements OnInit {
 
     this.activatedRoute.queryParams
       .pipe(
-        switchMap((equipment: any) => {
-          this.asset = equipment;
-          this.tableName = equipment.lyrTableName;
-          const type = equipment.lyrTableName.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
+        switchMap((asset: any) => {
+          this.asset = asset;
+          this.tableName = asset.lyrTableName;
+          const type = asset.lyrTableName.match(new RegExp(/(?<=(aep|ass)_)\w+/))![0];
           if (type) {
             this.type = type.charAt(0).toUpperCase() + type.slice(1);
           }
@@ -59,9 +59,9 @@ export class EquipmentDetailsComponent implements OnInit {
       .subscribe((forms: FormTemplate[]) => {
         let form: Form = null;
         if(this.isMobile) {
-          form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW_MOBILE').definition);
+          form = JSON.parse(forms.find(form => form.formCode === 'ASSET_DETAILS_VIEW_MOBILE').definition);
         } else {
-          form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW').definition);
+          form = JSON.parse(forms.find(form => form.formCode === 'ASSET_DETAILS_VIEW').definition);
         }
         form.definitions.map((def: FormDefinition) => {
           if (this.asset[def.key]) {
@@ -74,16 +74,16 @@ export class EquipmentDetailsComponent implements OnInit {
   }
 
   public createWorkorder(): void {
-    const searchAssets: SearchEquipments[] = [
+    const searchAssets: SearchAssets[] = [
       {
         lyrTableName: this.asset.lyrTableName,
-        equipmentIds: [this.asset.id]
+        assetIds: [this.asset.id]
       }
     ];
-    // Mono-equipment
-    this.drawerService.navigateWithEquipments(
-      DrawerRouteEnum.WORKORDER_CREATION,
-      searchAssets,
-    );
+    // Mono-asset
+    this.drawerService.navigateWithAssets({
+      route: DrawerRouteEnum.WORKORDER_CREATION,
+      assets: searchAssets,
+    });
   }
 }

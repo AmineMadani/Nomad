@@ -8,7 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from './workorder.service';
 import { DrawingService } from './map/drawing.service';
 import { AssetForSigService } from './assetForSig.service';
-import { SearchEquipments } from '../models/layer.model';
+import { Asset, SearchAssets } from '../models/asset.model';
 
 @Injectable({
   providedIn: 'root',
@@ -80,12 +80,12 @@ export class DrawerService {
       )
       .subscribe((currentRoute: any) => {
         this.workorderService.removeLocalUnusedWorkorderFromUrl(currentRoute.url);
-        this.assetForSigService.removeCacheUnusedAssetForSigFromUrl(currentRoute.url);
+        this.assetForSigService.removeCacheUnusedAssetForSigFromState();
         const currentRouteName: DrawerRouteEnum = currentRoute.name;
-        // If the current route is EQUIPMENT/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
+        // If the current route is ASSET/INTERVENTION and the device is mobile, we set the drawer type to BOTTOM_SHEET
         if (
           [
-            DrawerRouteEnum.EQUIPMENT,
+            DrawerRouteEnum.ASSET,
             DrawerRouteEnum.REPORT,
             DrawerRouteEnum.WORKORDER,
             DrawerRouteEnum.WORKORDER_WATER_TYPE,
@@ -101,7 +101,7 @@ export class DrawerService {
           this.currentDrawerType$.next(DrawerTypeEnum.BOTTOM_SHEET);
           this.drawerHasBeenOpened$.next(false);
 
-        } else if ([DrawerRouteEnum.EQUIPMENT_DETAILS].includes(currentRouteName)) {
+        } else if ([DrawerRouteEnum.ASSET_DETAILS].includes(currentRouteName)) {
           this.currentDrawerType$.next(DrawerTypeEnum.DRAWER_FULL);
 
         } else if (currentRouteName === DrawerRouteEnum.HOME) {
@@ -152,9 +152,15 @@ export class DrawerService {
     this.router.navigate([url], { queryParams: queryParams });
   }
 
-  navigateWithEquipments(route: DrawerRouteEnum, equipments: SearchEquipments[], queryParams?: any): void {
-    const url = this.getUrlFromDrawerName(route);
-    this.router.navigate([url], { queryParams: queryParams, state: { equipments: equipments } });
+  navigateWithAssets(payload: {
+    route: DrawerRouteEnum,
+    assets: SearchAssets[],
+    tmpAssets?: SearchAssets[],
+    queryParams?: any
+  }): void {
+    console.log('navigate with assets', payload.assets, payload.tmpAssets);
+    const url = this.getUrlFromDrawerName(payload.route);
+    this.router.navigate([url], { queryParams: payload.queryParams, state: { assets: payload.assets, tmpAssets: payload.tmpAssets } });
   }
 
   navigateWithWko(route: DrawerRouteEnum, pathVariables: any[] = [], tasks: any[], queryParams?: any): void {

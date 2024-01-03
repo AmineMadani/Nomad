@@ -80,10 +80,10 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="workorderTaskStatus")
-    private List<Workorder> listOfWorkorder;
+    private List<Task> listOfTask;
 
     @OneToMany(mappedBy="workorderTaskStatus")
-    private List<Task> listOfTask;
+    private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wts_umod_id", referencedColumnName="id")
@@ -179,24 +179,6 @@ private Long id;
         this.createdBy = createdBy;
     }
 
-    public List<Workorder> getListOfWorkorder() {
-        if (this.listOfWorkorder != null) {
-            return this.listOfWorkorder.stream()
-                .filter(e -> e.getDeletedAt() == null)
-                .collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
-    public List<Workorder> getListOfWorkorderWithDeleted() {
-        return this.listOfWorkorder;
-    }
-
-    public void setListOfWorkorder(List<Workorder> listOfWorkorder) {
-        this.listOfWorkorder = listOfWorkorder;
-    }
-
     public List<Task> getListOfTask() {
         if (this.listOfTask != null) {
             return this.listOfTask.stream()
@@ -213,6 +195,24 @@ private Long id;
 
     public void setListOfTask(List<Task> listOfTask) {
         this.listOfTask = listOfTask;
+    }
+
+    public List<Workorder> getListOfWorkorder() {
+        if (this.listOfWorkorder != null) {
+            return this.listOfWorkorder.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Workorder> getListOfWorkorderWithDeleted() {
+        return this.listOfWorkorder;
+    }
+
+    public void setListOfWorkorder(List<Workorder> listOfWorkorder) {
+        this.listOfWorkorder = listOfWorkorder;
     }
 
     public Users getModifiedBy() {

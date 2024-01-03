@@ -9,6 +9,7 @@ import { AppDB } from '../models/app-db.model';
 import { AttachmentService } from './attachment.service';
 import { UtilsService } from './utils.service';
 import { FilterService } from './filter.service';
+import { NomadFeature } from '../models/geojson.model';
 
 export enum SyncOperations {
   CreateWorkorder = 'createWorkorder',
@@ -126,7 +127,7 @@ export class WorkorderService {
     return this.workorderDataService.getTasksPaginated(limit, offset, search);
   }
 
-  public filterGeojsonFeatures(features: any[]): any {
+  public filterGeojsonFeatures(features: NomadFeature[]): NomadFeature[] {
     if (!features || features.length === 0) {
       return [];
     }
@@ -136,24 +137,24 @@ export class WorkorderService {
       return (
         (search.wtrIds === undefined ||
           search.wtrIds.length === 0 ||
-          search.wtrIds.includes(a.properties.wtrId)) &&
+          search.wtrIds.includes(a.properties['wtrId'])) &&
         (search.assObjTables === undefined ||
           search.assObjTables.length === 0 ||
-          search.assObjTables.includes(a.properties.assObjTable)) &&
+          search.assObjTables.includes(a.properties['assObjTable'])) &&
         (search.wtrIds === undefined ||
           search.wtsIds.length === 0 ||
-          search.wtsIds.includes(a.properties.wtsId)) &&
+          search.wtsIds.includes(a.properties['wtsId'])) &&
         (search.wkoAppointment === null ||
-          a.properties.wkoAppointment === search.wkoAppointment) &&
+          a.properties['wkoAppointment'] === search.wkoAppointment) &&
         (search.wkoEmergency === null ||
-          a.properties.wkoEmergency === search.wkoEmergency) &&
-        ((a.properties.wkoPlanningStartDate === null &&
-          a.properties.tskCompletionStartDate === null) ||
-          ((a.properties.tskCompletionStartDate ??
-            a.properties.wkoPlanningStartDate) >= search.wkoPlanningStartDate &&
+          a.properties['wkoEmergency'] === search.wkoEmergency) &&
+        ((a.properties['wkoPlanningStartDate'] === null &&
+          a.properties['tskCompletionStartDate'] === null) ||
+          ((a.properties['tskCompletionStartDate'] ??
+            a.properties['wkoPlanningStartDate']) >= search.wkoPlanningStartDate &&
             (search.wkoPlanningEndDate === null ||
-              (a.properties.tskCompletionStartDate ??
-                a.properties.wkoPlanningStartDate) <=
+              (a.properties['tskCompletionStartDate'] ??
+                a.properties['wkoPlanningStartDate']) <=
                 search.wkoPlanningEndDate)))
       );
     });
@@ -345,11 +346,11 @@ export class WorkorderService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkOrderHistory(
+  public getAssetWorkorderHistory(
     assetTable: string,
     assetId: string
   ): Promise<Workorder[]> {
-    return this.workorderDataService.getEquipmentWorkorderHistory(
+    return this.workorderDataService.getAssetWorkorderHistory(
       assetTable,
       assetId
     );

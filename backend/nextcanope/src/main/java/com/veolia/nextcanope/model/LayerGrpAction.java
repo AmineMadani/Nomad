@@ -33,7 +33,7 @@ private Long id;
     @JsonProperty("grp_id")
     private Long grpId;
 
-    @Column(name="grp_label", nullable=false)
+    @Column(name="grp_label", nullable=false, length=2147483647)
     @JsonProperty("grp_label")
     private String grpLabel;
 
@@ -75,7 +75,7 @@ private Long id;
         return this.grpLabel;
     }
 
-    public void setGrpLabel( String grpLabel ) {
+	public void setGrpLabel( String grpLabel ) {
         this.grpLabel = grpLabel ;
     }
 

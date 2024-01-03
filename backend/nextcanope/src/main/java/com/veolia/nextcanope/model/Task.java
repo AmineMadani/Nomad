@@ -56,6 +56,10 @@ private Long id;
     @JsonProperty("tsk_planning_end_date")
     private Date tskPlanningEndDate;
 
+    @Column(name="tsk_realization_user")
+    @JsonProperty("tsk_realization_user")
+    private Long tskRealizationUser;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_completion_start_date")
     @JsonProperty("tsk_completion_start_date")
@@ -65,10 +69,6 @@ private Long id;
     @Column(name="tsk_completion_end_date")
     @JsonProperty("tsk_completion_end_date")
     private Date tskCompletionEndDate;
-
-    @Column(name="tsk_realization_user")
-    @JsonProperty("tsk_realization_user")
-    private Long tskRealizationUser;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_report_date")
@@ -86,6 +86,10 @@ private Long id;
     @UpdateTimestamp
     @JsonProperty("tsk_dmod")
     private Date tskDmod;
+
+    @Column(name="tsk_cancel_comment", length=2147483647)
+    @JsonProperty("tsk_cancel_comment")
+    private String tskCancelComment;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="tsk_ddel")
@@ -106,10 +110,6 @@ private Long id;
     @Column(name="tsk_cache_id")
     @JsonProperty("tsk_cache_id")
     private Long tskCacheId;
-
-    @Column(name="tsk_cancel_comment", length=2147483647)
-    @JsonProperty("tsk_cancel_comment")
-    private String tskCancelComment;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
@@ -189,25 +189,9 @@ private Long id;
     public Date getTskPlanningEndDate() {
         return this.tskPlanningEndDate;
     }
-    
-	public Date getTskCompletionStartDate() {
-		return tskCompletionStartDate;
-	}
-
-	public void setTskCompletionStartDate(Date tskCompletionStartDate) {
-		this.tskCompletionStartDate = tskCompletionStartDate;
-	}
 
 	public void setTskPlanningEndDate( Date tskPlanningEndDate ) {
         this.tskPlanningEndDate = tskPlanningEndDate ;
-    }
-
-    public Date getTskCompletionEndDate() {
-        return this.tskCompletionEndDate;
-    }
-
-	public void setTskCompletionEndDate( Date tskCompletionEndDate ) {
-        this.tskCompletionEndDate = tskCompletionEndDate ;
     }
 
     public Long getTskRealizationUser() {
@@ -216,6 +200,22 @@ private Long id;
 
 	public void setTskRealizationUser( Long tskRealizationUser ) {
         this.tskRealizationUser = tskRealizationUser ;
+    }
+
+    public Date getTskCompletionStartDate() {
+        return this.tskCompletionStartDate;
+    }
+
+	public void setTskCompletionStartDate( Date tskCompletionStartDate ) {
+        this.tskCompletionStartDate = tskCompletionStartDate ;
+    }
+
+    public Date getTskCompletionEndDate() {
+        return this.tskCompletionEndDate;
+    }
+
+	public void setTskCompletionEndDate( Date tskCompletionEndDate ) {
+        this.tskCompletionEndDate = tskCompletionEndDate ;
     }
 
     public Date getTskReportDate() {
@@ -240,6 +240,14 @@ private Long id;
 
 	public void setTskDmod( Date tskDmod ) {
         this.tskDmod = tskDmod ;
+    }
+
+    public String getTskCancelComment() {
+        return this.tskCancelComment;
+    }
+
+	public void setTskCancelComment( String tskCancelComment ) {
+        this.tskCancelComment = tskCancelComment ;
     }
 
     public Date getDeletedAt() {
@@ -285,14 +293,6 @@ private Long id;
 
 	public void setTskCacheId( Long tskCacheId ) {
         this.tskCacheId = tskCacheId ;
-    }
-
-    public String getTskCancelComment() {
-        return tskCancelComment;
-    }
-
-    public void setTskCancelComment(String tskCancelComment) {
-        this.tskCancelComment = tskCancelComment;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\

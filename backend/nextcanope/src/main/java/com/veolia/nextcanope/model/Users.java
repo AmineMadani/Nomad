@@ -209,6 +209,9 @@ private Long id;
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<Contract> listOfCreatedContract;
 
+    @OneToMany(mappedBy="createdBy")
+    private List<ItvPicture> listOfCreatedItvPicture;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
     private List<City> listOfCreatedCity;
 
@@ -228,7 +231,13 @@ private Long id;
     private List<Report> listOfCreatedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    private List<ItvPicture> listOfModifiedItvPicture;
+
+    @OneToMany(mappedBy="modifiedBy")
     private List<OrgCtr> listOfModifiedOrgCtr;
+
+    @OneToMany(mappedBy="createdBy")
+    private List<Itv> listOfCreatedItv;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<LayerReferencesUser> listOfModifiedLayerReferences;
@@ -243,10 +252,16 @@ private Long id;
     private List<Report> listOfModifiedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    private List<Itv> listOfModifiedItv;
+
+    @OneToMany(mappedBy="modifiedBy")
     private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="createdBy")
     private List<LayerStyle> listOfCreatedLayerStyle;
+
+    @OneToMany(mappedBy="modifiedBy")
+    private List<ReportQuestion> listOfModifiedReportQuestion;
 
     @OneToMany(mappedBy="createdBy")
     private List<UsrCtrPrf> listOfCreatedUsrCtrPrf;
@@ -259,6 +274,9 @@ private Long id;
 
     @OneToMany(mappedBy="createdBy")
     private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
+
+    @OneToMany(mappedBy="createdBy")
+    private List<ReportQuestion> listOfCreatedReportQuestion;
 
     @OneToMany(mappedBy="modifiedBy")
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
@@ -291,51 +309,39 @@ private Long id;
     private List<Permissions> listOfModifiedPermissions;
 
     @OneToMany(mappedBy="createdBy")
+    private List<AssetForSig> listOfCreatedAssetForSig;
+
+    @OneToMany(mappedBy="createdBy")
     private List<LayerStyleCustom> listOfCreatedLayerStyleCustom;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Task> listOfCreatedTask;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Layer> listOfModifiedLayer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
     private List<VlTopologyType> listOfModifiedVlTopologyType;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<Layer> listOfModifiedLayer;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    private List<Task> listOfCreatedTask;
+
     @OneToMany(mappedBy="user")
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<AssetType> listOfModifiedAssetType;
+    @OneToMany(mappedBy="modifiedBy")
+    private List<AssetForSig> listOfModifiedAssetForSig;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    private List<AssetType> listOfModifiedAssetType;
+
     @OneToMany(mappedBy="modifiedBy")
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
     private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
-
-    @OneToMany(mappedBy="modifiedBy")
-    private List<ReportQuestion> listOfModifiedReportQuestion;
-
-    @OneToMany(mappedBy="createdBy")
-    private List<ReportQuestion> listOfCreatedReportQuestion;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Itv> listOfModifiedItv;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Itv> listOfCreatedItv;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<ItvPicture> listOfModifiedItvPicture;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<ItvPicture> listOfCreatedItvPicture;
 
     /**
      * Constructor
@@ -907,6 +913,14 @@ private Long id;
         this.listOfCreatedContract = listOfCreatedContract;
     }
 
+    public List<ItvPicture> getListOfCreatedItvPicture() {
+        return this.listOfCreatedItvPicture;
+    }
+
+    public void setListOfCreatedItvPicture(List<ItvPicture> listOfCreatedItvPicture) {
+        this.listOfCreatedItvPicture = listOfCreatedItvPicture;
+    }
+
     public List<City> getListOfCreatedCity() {
         return this.listOfCreatedCity;
     }
@@ -965,12 +979,28 @@ private Long id;
         this.listOfCreatedReport = listOfCreatedReport;
     }
 
+    public List<ItvPicture> getListOfModifiedItvPicture() {
+        return this.listOfModifiedItvPicture;
+    }
+
+    public void setListOfModifiedItvPicture(List<ItvPicture> listOfModifiedItvPicture) {
+        this.listOfModifiedItvPicture = listOfModifiedItvPicture;
+    }
+
     public List<OrgCtr> getListOfModifiedOrgCtr() {
         return this.listOfModifiedOrgCtr;
     }
 
     public void setListOfModifiedOrgCtr(List<OrgCtr> listOfModifiedOrgCtr) {
         this.listOfModifiedOrgCtr = listOfModifiedOrgCtr;
+    }
+
+    public List<Itv> getListOfCreatedItv() {
+        return this.listOfCreatedItv;
+    }
+
+    public void setListOfCreatedItv(List<Itv> listOfCreatedItv) {
+        this.listOfCreatedItv = listOfCreatedItv;
     }
 
     public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
@@ -1025,6 +1055,14 @@ private Long id;
         this.listOfModifiedReport = listOfModifiedReport;
     }
 
+    public List<Itv> getListOfModifiedItv() {
+        return this.listOfModifiedItv;
+    }
+
+    public void setListOfModifiedItv(List<Itv> listOfModifiedItv) {
+        this.listOfModifiedItv = listOfModifiedItv;
+    }
+
     public List<OrganizationalUnitType> getListOfModifiedOrganizationalUnitType() {
         return this.listOfModifiedOrganizationalUnitType;
     }
@@ -1049,6 +1087,24 @@ private Long id;
 
     public void setListOfCreatedLayerStyle(List<LayerStyle> listOfCreatedLayerStyle) {
         this.listOfCreatedLayerStyle = listOfCreatedLayerStyle;
+    }
+
+    public List<ReportQuestion> getListOfModifiedReportQuestion() {
+        if (this.listOfModifiedReportQuestion != null) {
+            return this.listOfModifiedReportQuestion.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ReportQuestion> getListOfModifiedReportQuestionWithDeleted() {
+        return this.listOfModifiedReportQuestion;
+    }
+
+    public void setListOfModifiedReportQuestion(List<ReportQuestion> listOfModifiedReportQuestion) {
+        this.listOfModifiedReportQuestion = listOfModifiedReportQuestion;
     }
 
     public List<UsrCtrPrf> getListOfCreatedUsrCtrPrf() {
@@ -1091,6 +1147,24 @@ private Long id;
 
     public void setListOfCreatedOrganizationalUnitType(List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType) {
         this.listOfCreatedOrganizationalUnitType = listOfCreatedOrganizationalUnitType;
+    }
+
+    public List<ReportQuestion> getListOfCreatedReportQuestion() {
+        if (this.listOfCreatedReportQuestion != null) {
+            return this.listOfCreatedReportQuestion.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ReportQuestion> getListOfCreatedReportQuestionWithDeleted() {
+        return this.listOfCreatedReportQuestion;
+    }
+
+    public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
+        this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
     }
 
     public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
@@ -1213,6 +1287,14 @@ private Long id;
         this.listOfModifiedPermissions = listOfModifiedPermissions;
     }
 
+    public List<AssetForSig> getListOfCreatedAssetForSig() {
+        return this.listOfCreatedAssetForSig;
+    }
+
+    public void setListOfCreatedAssetForSig(List<AssetForSig> listOfCreatedAssetForSig) {
+        this.listOfCreatedAssetForSig = listOfCreatedAssetForSig;
+    }
+
     public List<LayerStyleCustom> getListOfCreatedLayerStyleCustom() {
         if (this.listOfCreatedLayerStyleCustom != null) {
             return this.listOfCreatedLayerStyleCustom.stream()
@@ -1229,6 +1311,22 @@ private Long id;
 
     public void setListOfCreatedLayerStyleCustom(List<LayerStyleCustom> listOfCreatedLayerStyleCustom) {
         this.listOfCreatedLayerStyleCustom = listOfCreatedLayerStyleCustom;
+    }
+
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
+    }
+
+    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
+        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
+    }
+
+    public List<Layer> getListOfModifiedLayer() {
+        return this.listOfModifiedLayer;
+    }
+
+    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
+        this.listOfModifiedLayer = listOfModifiedLayer;
     }
 
     public List<Task> getListOfCreatedTask() {
@@ -1249,22 +1347,6 @@ private Long id;
         this.listOfCreatedTask = listOfCreatedTask;
     }
 
-    public List<Layer> getListOfModifiedLayer() {
-        return this.listOfModifiedLayer;
-    }
-
-    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
-        this.listOfModifiedLayer = listOfModifiedLayer;
-    }
-
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
-    }
-
-    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
-        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
-    }
-
     public List<FormTemplateCustom> getListOfFormTemplateCustom() {
         if (this.listOfFormTemplateCustom != null) {
             return this.listOfFormTemplateCustom.stream()
@@ -1283,12 +1365,12 @@ private Long id;
         this.listOfFormTemplateCustom = listOfFormTemplateCustom;
     }
 
-    public List<AssetType> getListOfModifiedAssetType() {
-        return this.listOfModifiedAssetType;
+    public List<AssetForSig> getListOfModifiedAssetForSig() {
+        return this.listOfModifiedAssetForSig;
     }
 
-    public void setListOfModifiedAssetType(List<AssetType> listOfModifiedAssetType) {
-        this.listOfModifiedAssetType = listOfModifiedAssetType;
+    public void setListOfModifiedAssetForSig(List<AssetForSig> listOfModifiedAssetForSig) {
+        this.listOfModifiedAssetForSig = listOfModifiedAssetForSig;
     }
 
     public Users getCreatedBy() {
@@ -1297,6 +1379,14 @@ private Long id;
 
     public void setCreatedBy(Users createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public List<AssetType> getListOfModifiedAssetType() {
+        return this.listOfModifiedAssetType;
+    }
+
+    public void setListOfModifiedAssetType(List<AssetType> listOfModifiedAssetType) {
+        this.listOfModifiedAssetType = listOfModifiedAssetType;
     }
 
     public List<LayerStyleCustom> getListOfModifiedLayerStyleCustom() {
@@ -1325,51 +1415,4 @@ private Long id;
         this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
     }
 
-    public List<ReportQuestion> getListOfModifiedReportQuestion() {
-        return listOfModifiedReportQuestion;
-    }
-
-    public void setListOfModifiedReportQuestion(List<ReportQuestion> listOfModifiedReportQuestion) {
-        this.listOfModifiedReportQuestion = listOfModifiedReportQuestion;
-    }
-
-    public List<ReportQuestion> getListOfCreatedReportQuestion() {
-        return listOfCreatedReportQuestion;
-    }
-
-    public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
-        this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
-    }
-
-    public List<Itv> getListOfModifiedItv() {
-        return listOfModifiedItv;
-    }
-
-    public void setListOfModifiedItv(List<Itv> listOfModifiedItv) {
-        this.listOfModifiedItv = listOfModifiedItv;
-    }
-
-    public List<Itv> getListOfCreatedItv() {
-        return listOfCreatedItv;
-    }
-
-    public void setListOfCreatedItv(List<Itv> listOfCreatedItv) {
-        this.listOfCreatedItv = listOfCreatedItv;
-    }
-
-    public List<ItvPicture> getListOfModifiedItvPicture() {
-        return listOfModifiedItvPicture;
-    }
-
-    public void setListOfModifiedItvPicture(List<ItvPicture> listOfModifiedItvPicture) {
-        this.listOfModifiedItvPicture = listOfModifiedItvPicture;
-    }
-
-    public List<ItvPicture> getListOfCreatedItvPicture() {
-        return listOfCreatedItvPicture;
-    }
-
-    public void setListOfCreatedItvPicture(List<ItvPicture> listOfCreatedItvPicture) {
-        this.listOfCreatedItvPicture = listOfCreatedItvPicture;
-    }
 }

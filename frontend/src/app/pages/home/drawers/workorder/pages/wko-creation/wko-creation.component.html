@@ -33,20 +33,20 @@
 
         <div class="wko-assets">
           <ng-container *ngIf="assets?.length === 1">
-            <ion-input class="mono-equipment" labelPlacement="floating" fill="outline" label="Equipement" type="text"
-              [value]="equipmentName"></ion-input>
-            <ion-input *ngIf="assets[0].id > 0" class="mono-equipment" labelPlacement="floating" fill="outline"
+            <ion-input class="mono-asset" labelPlacement="floating" fill="outline" label="Equipement" type="text"
+              [value]="assetName"></ion-input>
+            <ion-input *ngIf="getAssetNumericIdFromTemp(assets[0].id) > 0" class="mono-asset" labelPlacement="floating" fill="outline"
               label="ID" type="text" [value]="assets[0].id"></ion-input>
-            <ion-button fill="clear" slot="end" color="primary" (click)="openEquipment(assets[0])"
-              [disabled]="assets[0].isXY === true">
+            <ion-button fill="clear" slot="end" color="primary" (click)="openAsset(assets[0])"
+              [disabled]="assets[0]['isXY'] === true">
               <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
             </ion-button>
           </ng-container>
           <ng-container *ngIf="assets?.length > 1">
             <ion-input labelPlacement="floating" fill="outline" label="Equipements" type="text" [value]="nbAssets"
-              (click)="openEquipmentModal()" [disabled]="assets?.[0] === null"></ion-input>
+              (click)="openAssetModal()" [disabled]="assets?.[0] === null"></ion-input>
           </ng-container>
-          <ion-button fill="clear" slot="end" color="primary" (click)="editEquipmentList()" [disabled]="false">
+          <ion-button fill="clear" slot="end" color="primary" (click)="editAssetList()" [disabled]="false">
             <ion-icon name="pencil-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>
@@ -157,19 +157,19 @@
   </ng-container>
 </ng-template>
 
-<ion-modal #equipmentModal>
+<ion-modal #assetModal>
   <ng-template>
     <ion-header>
       <ion-toolbar>
         <ion-title>Liste des équipements</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="equipmentModal.dismiss()">Fermer</ion-button>
+          <ion-button (click)="assetModal.dismiss()">Fermer</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
       <ion-item *ngFor="let astDetail of assetsDetails" button
-        (click)="openEquipmentFromDetail(astDetail[1], astDetail[2])">
+        (click)="openAssetFromDetail(astDetail[1], astDetail[2])">
         <ion-label position="stacked">{{ astDetail[0] }} - {{ astDetail[1] }}</ion-label>
       </ion-item>
     </ion-content>

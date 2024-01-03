@@ -64,21 +64,21 @@ private Long id;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @OneToMany(mappedBy="domains")
+    private List<AssetType> listOfAssetType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dom_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
 
     @OneToMany(mappedBy="domains")
-    private List<AssetType> listOfAssetType;
+    private List<Domains> listOfDomains;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="dom_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
-
-    @OneToMany(mappedBy="domains")
-    private List<Domains> listOfDomains;
 
     @OneToMany(mappedBy="domains")
     private List<Layer> listOfLayer;
@@ -152,14 +152,6 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
     public List<AssetType> getListOfAssetType() {
         return this.listOfAssetType;
     }
@@ -168,12 +160,12 @@ private Long id;
         this.listOfAssetType = listOfAssetType;
     }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public Users getModifiedBy() {
+        return this.modifiedBy;
     }
 
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public List<Domains> getListOfDomains() {
@@ -182,6 +174,14 @@ private Long id;
 
     public void setListOfDomains(List<Domains> listOfDomains) {
         this.listOfDomains = listOfDomains;
+    }
+
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public List<Layer> getListOfLayer() {

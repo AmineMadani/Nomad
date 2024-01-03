@@ -80,7 +80,7 @@ private Long id;
     private Geometry geom;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="cta_id", referencedColumnName="id")
     private ContractActivity contractActivity;
 

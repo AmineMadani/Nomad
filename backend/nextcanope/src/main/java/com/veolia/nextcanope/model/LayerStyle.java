@@ -60,13 +60,13 @@ private Long id;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne
+    @JoinColumn(name="lyr_id", referencedColumnName="id")
+    private Layer layer;
+
+    @ManyToOne
     @JoinColumn(name="lse_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
-
-    @ManyToOne
-    @JoinColumn(name="lyr_id", referencedColumnName="id")
-    private Layer layer;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name="syd_id", referencedColumnName="id")
@@ -134,20 +134,20 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
     public Layer getLayer() {
         return this.layer;
     }
 
     public void setLayer(Layer layer) {
         this.layer = layer;
+    }
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public StyleDefinition getStyleDefinition() {

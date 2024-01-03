@@ -218,7 +218,7 @@ export class ReportContextComponent implements OnInit {
   }
 
   /**
-   * Method to display and zoom to the workorder equipment
+   * Method to display and zoom to the workorder asset
    * @param workorder the workorder
    */
   private displayAndZoomTo(task: Task[]) {

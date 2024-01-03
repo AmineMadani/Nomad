@@ -13,7 +13,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { HttpClientModule } from '@angular/common/http';
-import { AssetDrawer } from './drawers/asset/asset.drawer';
+import { AssetFilterDrawer } from './drawers/asset-filter/asset-filter.drawer';
 import { HomePage } from './home.page';
 import { ActionsLayerComponent } from './components/actions-layer/actions-layer.component';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -24,13 +24,13 @@ import { TaskCardComponent } from './drawers/exploitation/components/exp-card/ta
 import { IonCustomScrollbarModule } from 'ion-custom-scrollbar';
 import { SynthesisDrawer } from './drawers/synthesis/synthesis.drawer';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
-import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
-import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
+import { AssetDrawer } from './drawers/synthesis/asset/asset.drawer';
+import { AssetDetailsComponent } from './drawers/synthesis/asset-details/asset-details.component';
 import { MobileHomeActionsComponent } from './components/mobile-home-actions/mobile-home-actions.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
-import { AssetAccordionComponent } from './drawers/asset/components/asset-accordion/asset-accordion.component';
-import { AssetDetailComponent } from './drawers/asset/components/asset-detail/asset-detail.component';
-import { AssetFavoriteComponent } from './drawers/asset/components/asset-favorite/asset-favorite.component';
+import { AssetFilterAccordionComponent } from './drawers/asset-filter/components/asset-filter-accordion/asset-filter-accordion.component';
+import { AssetFilterDetailComponent } from './drawers/asset-filter/components/asset-filter-detail/asset-filter-detail.component';
+import { AssetFilterFavoriteComponent } from './drawers/asset-filter/components/asset-filter-favorite/asset-filter-favorite.component';
 import { WorkOrderDrawer } from './drawers/workorder/work-order.drawer';
 import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
@@ -70,7 +70,7 @@ import { GeographicalSelectionDrawer } from './drawers/geographical-selection/ge
     ActionsLayerComponent,
     ActionsLayerDesktopComponent,
     ActionsLayerMobileComponent,
-    AssetDrawer,
+    AssetFilterDrawer,
     ExploitationDrawer,
     ExpCardComponent,
     TaskSearchComponent,
@@ -78,15 +78,15 @@ import { GeographicalSelectionDrawer } from './drawers/geographical-selection/ge
     SynthesisDrawer,
     WorkOrderDrawer,
     DemandeDrawer,
-    EquipmentDrawer,
+    AssetDrawer,
     ReportDrawer,
     WorkorderListComponent,
     MultipleSelectionDrawer,
-    EquipmentDetailsComponent,
+    AssetDetailsComponent,
     MobileHomeActionsComponent,
-    AssetAccordionComponent,
-    AssetDetailComponent,
-    AssetFavoriteComponent,
+    AssetFilterAccordionComponent,
+    AssetFilterDetailComponent,
+    AssetFilterFavoriteComponent,
     WkoCreationComponent,
     WkoViewComponent,
     ReportCreateComponent,

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { AssetForSigDataService } from './dataservices/assetForSig.dataservice';
 import { AssetForSigDto } from '../models/assetForSig.model';
 import { AppDB } from '../models/app-db.model';
+import { LocationStrategy } from '@angular/common';
+import { SearchAssets, getAssetTempIdFromNumeric, searchAssetsToListAssetId } from '../models/asset.model';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +12,7 @@ export class AssetForSigService {
 
   constructor(
     private assetForSigDataService: AssetForSigDataService,
+    private location: LocationStrategy,
   ) {
     this.db = new AppDB();
   }
@@ -29,9 +32,9 @@ export class AssetForSigService {
     return (await this.db.assetForSig.toArray()).map(elem => elem.data);
   }
 
-  public async getCacheAssetForSigByAssObjRef(assObjRef: string): Promise<AssetForSigDto> {
+  public async getCacheAssetForSigByAssObjRef(id: string): Promise<AssetForSigDto> {
     const listAssetForSig = await this.getListCacheAssetForSig();
-    return listAssetForSig.find(assetForSig => "TMP-" + assetForSig.id === assObjRef);
+    return listAssetForSig.find(assetForSig => getAssetTempIdFromNumeric(assetForSig.id) === id);
   }
 
   public async saveCacheAssetForSig(assetForSig: AssetForSigDto) {
@@ -53,14 +56,18 @@ export class AssetForSigService {
    * This method remove the temporary asset for sig from the cache if not present in the url
    * @param url url
    */
-  public removeCacheUnusedAssetForSigFromUrl(url: string) {
-    this.getListCacheAssetForSig().then(listAssetForSig => {
-      for (let assetForSig of listAssetForSig) {
-        const assObjRef = "TMP-" + assetForSig.id;
-        if (!url.includes(assObjRef)) {
-          this.deleteCacheAssetForSig(assetForSig.id.toString());
-        }
+  public async removeCacheUnusedAssetForSigFromState() {
+    console.log('remove');
+    const listAssetForSig: AssetForSigDto[] = await this.getListCacheAssetForSig();
+
+    const state = this.location.getState();
+    const tmpAssets: SearchAssets[] = state ? state['tmpAssets'] : [];
+
+    for (const assetForSig of listAssetForSig) {
+      if (!tmpAssets || !searchAssetsToListAssetId(tmpAssets).some((assetId: string) => assetId === getAssetTempIdFromNumeric(assetForSig.id))) {
+        console.log('remove asset for sig from cache');
+        this.deleteCacheAssetForSig(assetForSig.id.toString());
       }
-    });
+    }
   }
 }
