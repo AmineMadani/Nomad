@@ -9,6 +9,7 @@ import { LayerService } from 'src/app/core/services/layer.service';
 import { Router } from '@angular/router';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil } from 'rxjs';
+import { DrawerService } from 'src/app/core/services/drawer.service';
 
 @Component({
   selector: 'app-actions-layer-mobile',
@@ -24,7 +25,7 @@ export class ActionsLayerMobileComponent implements OnInit, OnDestroy {
     private mapService: MapService,
     private layerService: LayerService,
     private mapEvent: MapEventService,
-    private router: Router
+    private drawerService: DrawerService
   ) {
     this.mapEvent
     .onAddressSelected()
@@ -127,7 +128,12 @@ export class ActionsLayerMobileComponent implements OnInit, OnDestroy {
     if (result) {
       const id= result.id;
       const layer =  result.asset_tbl.replace('asset.','');
-      this.router.navigate(['home/equipment/'+ id], {queryParams: {lyrTableName  :layer  }} );
+      // TODO: Check this
+      this.drawerService.navigateTo(
+        DrawerRouteEnum.ASSET,
+        [id],
+        { lyrTableName: layer }
+      );
       this.genericSearResult = [];
     }
   }

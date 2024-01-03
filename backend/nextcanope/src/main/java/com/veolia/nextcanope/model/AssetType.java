@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -65,6 +67,7 @@ private Long id;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @OneToMany(mappedBy="assetType")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Layer> listOfLayer;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,17 +75,18 @@ private Long id;
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(mappedBy="assetType")
-    private List<AstWtr> listOfAstWtr;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="ast_ucre_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users createdBy;
 
     @ManyToOne
     @JoinColumn(name="dom_id", referencedColumnName="id")
     private Domains domains;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ast_ucre_id", referencedColumnName="id")
-	@JsonIgnore
-    private Users createdBy;
+    @OneToMany(mappedBy="assetType")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<AstWtr> listOfAstWtr;
 
     /**
      * Constructor
@@ -165,12 +169,12 @@ private Long id;
         this.modifiedBy = modifiedBy;
     }
 
-    public List<AstWtr> getListOfAstWtr() {
-        return this.listOfAstWtr;
+    public Users getCreatedBy() {
+        return this.createdBy;
     }
 
-    public void setListOfAstWtr(List<AstWtr> listOfAstWtr) {
-        this.listOfAstWtr = listOfAstWtr;
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
     }
 
     public Domains getDomains() {
@@ -181,12 +185,12 @@ private Long id;
         this.domains = domains;
     }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
+    public List<AstWtr> getListOfAstWtr() {
+        return this.listOfAstWtr;
     }
 
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
+    public void setListOfAstWtr(List<AstWtr> listOfAstWtr) {
+        this.listOfAstWtr = listOfAstWtr;
     }
 
 }

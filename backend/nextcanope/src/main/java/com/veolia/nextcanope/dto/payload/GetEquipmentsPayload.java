@@ -8,7 +8,7 @@ public class GetEquipmentsPayload {
 
     public String lyrTableName;
 
-    public List<String> equipmentIds;
+    public List<String> assetIds;
     
     public Boolean allColumn;
 
@@ -20,12 +20,12 @@ public class GetEquipmentsPayload {
         this.lyrTableName = lyrTableName;
     }
 
-    public List<String> getEquipmentIds() {
-        return equipmentIds;
+    public List<String> getAssetIds() {
+        return assetIds;
     }
 
-    public void setEquipmentId(List<String> equipmentIds) {
-        this.equipmentIds = equipmentIds;
+    public void setAssetIds(List<String> assetIds) {
+        this.assetIds = assetIds;
     }
 
 	public Boolean getAllColumn() {

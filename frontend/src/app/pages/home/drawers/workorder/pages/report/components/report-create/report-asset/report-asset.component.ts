@@ -56,7 +56,7 @@ export class ReportAssetComponent implements OnInit {
   @Output() goToDateStep: EventEmitter<void> = new EventEmitter();
 
   public currentTasksSelected: Task[];
-  public editTaskEquipment: Task;
+  public editTaskAsset: Task;
   public draggableMarker: Maplibregl.Marker;
   public currentSelectionMessage: any;
   public inAssetEditMode: boolean = false;
@@ -65,7 +65,7 @@ export class ReportAssetComponent implements OnInit {
 
   private refLayers: Layer[];
   private ngUnsubscribe$: Subject<void> = new Subject();
-  private oldEquipment: any;
+  private oldAsset: any;
   private nbItemsPerPage: number = 20;
   private nbDisplayedTask: number = 20;
 
@@ -162,10 +162,10 @@ export class ReportAssetComponent implements OnInit {
   }
 
   /**
-   * Edit equipment
-   * @param tsk  Task equipment to edit
+   * Edit asset
+   * @param tsk  Task asset to edit
    */
-  public onEditEquipment(tsk: Task) {
+  public onEditAsset(tsk: Task) {
     if (!this.inAssetEditMode) {
       this.inAssetEditMode = true;
     }
@@ -176,7 +176,7 @@ export class ReportAssetComponent implements OnInit {
     // On place le marqueur sur les coordonnées de l'équipement en base
     if (!tsk.assObjTable.includes('_xy') && !tsk.assObjRef.startsWith('TMP-')) {
       this.layerService
-        .getEquipmentByLayerAndId(tsk.assObjTable, tsk.assObjRef)
+        .getAssetByLayerAndId(tsk.assObjTable, tsk.assObjRef)
         .then(async (result) => {
           this.draggableMarker = this.maplayerService.addMarker(
             'home',
@@ -200,8 +200,8 @@ export class ReportAssetComponent implements OnInit {
       );
     }
     this.mapEventService.isFeatureFiredEvent = true;
-    this.editTaskEquipment = tsk;
-    this.oldEquipment = {
+    this.editTaskAsset = tsk;
+    this.oldAsset = {
       featureId: tsk.assObjRef,
       layerKey: tsk.assObjTable,
       x: tsk.longitude,
@@ -210,13 +210,13 @@ export class ReportAssetComponent implements OnInit {
   }
 
   /**
-   * Validate the equipment change
+   * Validate the asset change
    * @param tsk the task to update
    */
-  public onValidateChangeEquipment(t?: Task) {
+  public onValidateChangeAsset(t?: Task) {
     // If we are in asset modification
     if (this.inAssetEditMode) {
-      const tsk = t ? t : this.editTaskEquipment;
+      const tsk = t ? t : this.editTaskAsset;
 
       let feature: any = this.maplayerService.getFeatureById(
         'home',
@@ -258,18 +258,18 @@ export class ReportAssetComponent implements OnInit {
         this.draggableMarker = null;
       }
       this.mapEventService.isFeatureFiredEvent = false;
-      this.editTaskEquipment = null;
+      this.editTaskAsset = null;
 
-      const taskOnTheSameEquipmentIndex = this.workorder.tasks.findIndex(
+      const taskOnTheSameAssetIndex = this.workorder.tasks.findIndex(
         (t) => t.assObjRef === tsk.assObjRef && t.id !== tsk.id
       );
-      if (taskOnTheSameEquipmentIndex > -1) {
+      if (taskOnTheSameAssetIndex > -1) {
         this.mapService.removePoint(
           'home',
           'task',
-          this.workorder.tasks[taskOnTheSameEquipmentIndex].id.toString()
+          this.workorder.tasks[taskOnTheSameAssetIndex].id.toString()
         );
-        this.workorder.tasks.splice(taskOnTheSameEquipmentIndex, 1);
+        this.workorder.tasks.splice(taskOnTheSameAssetIndex, 1);
       }
       this.onSaveWorkOrderState.emit();
 
@@ -291,10 +291,10 @@ export class ReportAssetComponent implements OnInit {
   }
 
   /**
-   * Remove the equipment change
+   * Remove the asset change
    * @param tsk task change to remove
    */
-  public onRemoveChangeEquipment(t?: Task) {
+  public onRemoveChangeAsset(t?: Task) {
     if (this.inAssetEditMode) {
       const tsk = t ?? this.workorder.tasks[0];
 
@@ -306,10 +306,10 @@ export class ReportAssetComponent implements OnInit {
             { selected: false }
           );
       }
-      tsk.assObjRef = this.oldEquipment.featureId;
-      tsk.assObjTable = this.oldEquipment.layerKey;
+      tsk.assObjRef = this.oldAsset.featureId;
+      tsk.assObjTable = this.oldAsset.layerKey;
       this.mapEventService.isFeatureFiredEvent = false;
-      this.editTaskEquipment = null;
+      this.editTaskAsset = null;
       if (this.draggableMarker) {
         this.draggableMarker.remove();
         this.draggableMarker = null;
@@ -368,7 +368,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   public startAssetEditMode() {
-    this.onEditEquipment(this.workorder.tasks[0]);
+    this.onEditAsset(this.workorder.tasks[0]);
     this.inAssetEditMode = true;
     this.showSelectionMessage();
   }
@@ -392,7 +392,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   public cancelAssetEditMode() {
-    this.onRemoveChangeEquipment();
+    this.onRemoveChangeAsset();
     this.stopAssetEditMode();
   }
 
@@ -461,29 +461,29 @@ export class ReportAssetComponent implements OnInit {
           // We do not want to be able to change the type of asset, or else we can change an AEP to ASS
           // or a Line to Point thus breaking every rules made before
           if (
-            !this.editTaskEquipment.assObjTable.includes('_xy') &&
-            this.editTaskEquipment.assObjTable !== feature.layerKey &&
+            !this.editTaskAsset.assObjTable.includes('_xy') &&
+            this.editTaskAsset.assObjTable !== feature.layerKey &&
             this.workorder.tasks.length > 1
           ) {
             return;
           }
-          this.editTaskEquipment.assObjRef = feature.featureId;
-          this.editTaskEquipment.assObjTable = feature.layerKey;
-          const asset = await this.layerService.getEquipmentByLayerAndId(
-            this.editTaskEquipment.assObjTable,
-            (this.editTaskEquipment.assObjRef = feature.featureId)
+          this.editTaskAsset.assObjRef = feature.featureId;
+          this.editTaskAsset.assObjTable = feature.layerKey;
+          const asset = await this.layerService.getAssetByLayerAndId(
+            this.editTaskAsset.assObjTable,
+            (this.editTaskAsset.assObjRef = feature.featureId)
           );
-          this.editTaskEquipment.ctrId = asset.ctrId;
-          this.workorder.ctrId = asset.ctrId;
-          this.workorder.ctyId = asset.ctyId;
+          this.editTaskAsset.ctrId = asset.ctrId;
+          this.workorder.ctrId = asset.ctrId.toString();
+          this.workorder.ctyId = asset.ctyId.toString();
           if (this.draggableMarker) {
             this.draggableMarker.remove();
             this.draggableMarker = null;
           }
           this.draggableMarker = this.maplayerService.addMarker(
             'home',
-            feature.x ? feature.x : this.editTaskEquipment.longitude,
-            feature.y ? feature.y : this.editTaskEquipment.latitude,
+            feature.x ? feature.x : this.editTaskAsset.longitude,
+            feature.y ? feature.y : this.editTaskAsset.latitude,
             asset.geom.coordinates,
             false,
             'green'
@@ -505,7 +505,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   /**
-   * Method to display and zoom to the workorder equipment
+   * Method to display and zoom to the workorder asset
    * @param workorder the workorder
   * It seems to be slow as fck here
    */
@@ -535,7 +535,7 @@ export class ReportAssetComponent implements OnInit {
 
         if (!task.assObjRef && !task.assObjTable.includes('_xy')) {
           task.assObjTable = 'aep_xy';
-          this.onEditEquipment(task);
+          this.onEditAsset(task);
         }
 
         const feature: any = this.maplayerService.getFeatureById(
@@ -628,7 +628,7 @@ export class ReportAssetComponent implements OnInit {
   }
 
   private async addNewFeatures(features: any | any[]): Promise<void> {
-    this.onValidateChangeEquipment();
+    this.onValidateChangeAsset();
 
     // The pin of each report/task is taken by the selection, so we need to remove them
     if (this.currentSelectionMessage) {
@@ -703,7 +703,7 @@ export class ReportAssetComponent implements OnInit {
     const tasks: Task[] = [];
     for (let f of features) {
       if (!this.workorder.tasks.find((t) => t.assObjRef === f.id)) {
-        const asset = await this.layerService.getEquipmentByLayerAndId(
+        const asset = await this.layerService.getAssetByLayerAndId(
           f.lyrTableName,
           f.id
         );
@@ -746,7 +746,7 @@ export class ReportAssetComponent implements OnInit {
         return { assObjTable: f.lyrTableName, assObjRef: f.id };
       }),
     ];
-    const assets = await this.layerService.getEquipmentsByLayersAndIds(
+    const assets = await this.layerService.getAssetsByLayersAndIds(
       this.utils.transformArrayForAssets(featuresToMap)
     );
 

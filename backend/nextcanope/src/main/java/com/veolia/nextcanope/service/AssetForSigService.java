@@ -57,7 +57,7 @@ public class AssetForSigService {
             List<Double> xy = assetForSigUpdateDto.getCoords().get(0);
             Coordinate coordinate = new CoordinateXY(xy.get(0), xy.get(1));
             Geometry geometry = new GeometryFactory().createPoint(coordinate);
-            assetForSig.setAfsGeom(geometry);
+            assetForSig.setGeom(geometry);
         } else if (assetForSigUpdateDto.getCoords().size() > 1){
             // LINE
             List<Coordinate> coordinates = new ArrayList<>();
@@ -66,7 +66,7 @@ public class AssetForSigService {
                 coordinates.add(coordinate);
             }
             Geometry geometry = new GeometryFactory().createLineString(coordinates.toArray(new Coordinate[0]));
-            assetForSig.setAfsGeom(geometry);
+            assetForSig.setGeom(geometry);
         } else {
             throw new FunctionalException("Création impossible du nouvel équipement : pas de coordonnées");
         }

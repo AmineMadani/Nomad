@@ -2,7 +2,7 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 
-  .equipment-drawer-action-button-row {
+  .asset-drawer-action-button-row {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -11,7 +11,7 @@
       width: 320px;
     }
 
-    .equipment-drawer-action-button {
+    .asset-drawer-action-button {
       display: flex;
       flex-direction: column;
       align-items: center;

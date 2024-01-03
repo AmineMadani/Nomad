@@ -4,11 +4,12 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { SearchAssets } from 'src/app/core/models/asset.model';
 import { City, getCityLabel } from 'src/app/core/models/city.model';
 import { Contract, getContractLabel } from 'src/app/core/models/contract.model';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
-import { GeographicalTypeEnum, SearchEquipments } from 'src/app/core/models/layer.model';
+import { GeographicalTypeEnum } from 'src/app/core/models/layer.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
@@ -164,17 +165,17 @@ export class GeographicalSelectionDrawer implements OnInit {
           filterIds = this.geographicalSelectionForm.get('listCtyId').value;
           break;
       }
-      const searchAssets: SearchEquipments[] = await this.layerService.getAssetIdsByLayersAndFilterIds(
+      const searchAssets: SearchAssets[] = await this.layerService.getAssetIdsByLayersAndFilterIds(
         layerKeys,
         filterIds,
         filterType
       );
 
       // Go to the multi selection
-      this.drawerService.navigateWithEquipments(
-        DrawerRouteEnum.SELECTION,
-        searchAssets
-      );
+      this.drawerService.navigateWithAssets({
+        route: DrawerRouteEnum.SELECTION,
+        assets: searchAssets
+      });
 
       this.isLoading = false;
     } else {

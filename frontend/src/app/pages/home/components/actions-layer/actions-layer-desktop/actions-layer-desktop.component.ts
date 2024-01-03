@@ -218,7 +218,12 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   private OpenAssetResult(result: any) {
     const id = result.id;
     const layer = result.asset_tbl.replace('asset.', '');
-    this.router.navigate(['home/equipment/' + id], { queryParams: { lyrTableName: layer } });
+    // TODO: Check this
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.ASSET,
+      [id],
+      { lyrTableName: layer }
+    );
     this.searchResult = id;
     this.genericSearResult = [];
   }

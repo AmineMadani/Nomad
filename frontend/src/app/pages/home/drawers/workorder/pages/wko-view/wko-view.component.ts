@@ -25,6 +25,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
 import { ValueLabel } from 'src/app/core/models/util.model';
+import { Asset } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-wko-view',
@@ -160,7 +161,7 @@ export class WkoViewComponent implements OnInit {
               ? ` - ${this.selectedTask?.assObjRef}`
               : '')
             : null;
-          const taskIndex =  this.workOrder.tasks.indexOf(this.selectedTask) + 1;  
+          const taskIndex =  this.workOrder.tasks.indexOf(this.selectedTask) + 1;
           this.wkoIdLabel = `${this.workOrder.id}` + (this.taskId && taskIndex>0 ? `-${taskIndex}` : '');
           this.loading = false;
 
@@ -402,9 +403,9 @@ export class WkoViewComponent implements OnInit {
     this.router.navigate(['/home/workorder/' + this.workOrder.id]);
   }
 
-  public openEquipment(): void {
+  public openAsset(): void {
     if (this.workOrder.tasks.length > 1) {
-      const equipments = this.workOrder.tasks.map((t) => {
+      const assets: Asset[] = this.workOrder.tasks.map((t) => {
         return {
           id: t.assObjRef,
           lyrTableName: t.assObjTable,
@@ -415,11 +416,11 @@ export class WkoViewComponent implements OnInit {
         };
       });
 
-      this.drawerService.navigateWithEquipments(
-        DrawerRouteEnum.SELECTION,
-        this.utilsService.transformFeaturesIntoSearchEquipments(equipments),
-        { draft: this.workOrder.id }
-      );
+      this.drawerService.navigateWithAssets({
+        route: DrawerRouteEnum.SELECTION,
+        assets: this.utilsService.transformAssetIntoSearchAssets(assets),
+        queryParams: { draft: this.workOrder.id }
+      });
     } else {
       const lyrTableName = this.selectedTask.assObjTable;
 
@@ -430,7 +431,7 @@ export class WkoViewComponent implements OnInit {
         return;
 
       this.drawerService.navigateTo(
-        DrawerRouteEnum.EQUIPMENT,
+        DrawerRouteEnum.ASSET,
         [this.selectedTask.assObjRef],
         {
           lyrTableName: lyrTableName,
@@ -507,7 +508,7 @@ export class WkoViewComponent implements OnInit {
   }
 
   /**
-   * Method to display and zoom to the workorder equipment
+   * Method to display and zoom to the workorder asset
    * @param workorder the workorder
    */
   private displayAndZoomTo(workorder: Workorder) {

@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AppDB } from '../models/app-db.model';
-import { Observable } from 'rxjs/internal/Observable';
-import { catchError, tap, timeout } from 'rxjs';
 import { UtilsService } from './utils.service';
 import { DownloadState, OfflineDownload } from './offlineDownload.service';
 import { PreferenceService } from './preference.service';
 import { ConfigurationService } from './configuration.service';
 import { NomadGeoJson } from '../models/geojson.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
+import { Asset, SearchAssets } from '../models/asset.model';
 
 export enum ReferentialCacheKey {
   CITIES = 'cities',
@@ -328,19 +327,19 @@ export class CacheService {
     return results;
   }
 
-  public async fetchEquipmentsByLayerIds(idsLayers: any): Promise<any> {
+  public async fetchAssetsByLayerIds(idsLayers: SearchAssets[]): Promise<Asset[]> {
     const isCacheDownload: boolean = await this.isCacheDownload(CacheKey.TILES);
 
     if (isCacheDownload) {
       return this.utilsService.fetchPromiseWithTimeout({
-        fetchPromise: this.layerDataService.getEquipmentsByLayersAndIds(idsLayers),
-        timeout: this.configurationService.offlineTimeoutEquipment
+        fetchPromise: this.layerDataService.getAssetsByLayersAndIds(idsLayers),
+        timeout: this.configurationService.offlineTimeoutAsset
       })
         .catch(async (error) => {
           if (this.utilsService.isOfflineError(error)) {
             let res = [];
             for (const idLayer of idsLayers) {
-              for (const ref of idLayer.equipmentIds) {
+              for (const ref of idLayer.assetIds) {
                 const feature = await this.getFeatureByLayerAndFeatureId(idLayer.lyrTableName, ref);
                 if (feature) {
                   feature.properties = Object.assign(feature.properties, {
@@ -358,7 +357,7 @@ export class CacheService {
         });
     }
 
-    return this.layerDataService.getEquipmentsByLayersAndIds(idsLayers);
+    return this.layerDataService.getAssetsByLayersAndIds(idsLayers);
   }
 
 

@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -70,6 +72,7 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="contractActivity")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Contract> listOfContract;
 
     @ManyToOne(fetch = FetchType.LAZY)

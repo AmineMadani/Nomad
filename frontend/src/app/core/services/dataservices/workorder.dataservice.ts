@@ -124,7 +124,7 @@ export class WorkorderDataService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkorderHistory(
+  public getAssetWorkorderHistory(
     assetTable: string,
     assetId: string
   ): Promise<Workorder[]> {

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -76,6 +78,7 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(mappedBy="city")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -84,6 +87,7 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="city")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Street> listOfStreet;
 
     /**

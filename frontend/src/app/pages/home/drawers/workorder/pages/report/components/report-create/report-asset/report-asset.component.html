@@ -51,16 +51,16 @@
         <ng-container
           *ngIf="!tsk.assObjTable.includes('_xy') && workorder.tasks && workorder.tasks.length > 1 && !tsk.report?.dateCompletion">
           <ion-label slot="end">
-            <ng-container *ngIf="tsk.id !== editTaskEquipment?.id; else taskModificationButtons">
-              <ion-button fill="clear" (click)="onEditEquipment(tsk)">
+            <ng-container *ngIf="tsk.id !== editTaskAsset?.id; else taskModificationButtons">
+              <ion-button fill="clear" (click)="onEditAsset(tsk)">
                 <ion-icon size="small" slot="icon-only" name="pencil-outline"></ion-icon>
               </ion-button>
             </ng-container>
             <ng-template #taskModificationButtons>
-              <ion-button fill="clear" (click)="onValidateChangeEquipment(tsk)">
+              <ion-button fill="clear" (click)="onValidateChangeAsset(tsk)">
                 <ion-icon size="small" color="success" slot="icon-only" name="checkmark-outline"></ion-icon>
               </ion-button>
-              <ion-button fill="clear" (click)="onRemoveChangeEquipment(tsk)">
+              <ion-button fill="clear" (click)="onRemoveChangeAsset(tsk)">
                 <ion-icon size="small" color="danger" slot="icon-only" name="refresh-outline"></ion-icon>
               </ion-button>
             </ng-template>

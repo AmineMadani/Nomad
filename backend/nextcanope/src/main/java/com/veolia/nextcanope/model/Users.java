@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -89,45 +91,59 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Users> listOfCreatedUsers;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetType> listOfCreatedAssetType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferences> listOfLayerCreatedReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Users> listOfModifiedUsers;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnit> listOfModifiedOrganizationalUnit;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Basemaps> listOfCreatedBasemaps;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplate> listOfCreatedFormTemplate;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferences> listOfLayerModifiedReferences;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Profile> listOfModifiedProfile;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleDefinition> listOfModifiedStyleDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Basemaps> listOfModifiedBasemaps;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplate> listOfModifiedFormTemplate;
 
     @OneToMany(mappedBy="users")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Profile> listOfCreatedProfile;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -135,207 +151,281 @@ private Long id;
     private OrganizationalUnit organizationalUnitDefault;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskReason> listOfCreatedWorkorderTaskReason;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleDefinition> listOfCreatedStyleDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfLayerReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesDefault> listOfModifiedLayerReferencesDefault;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleImage> listOfCreatedStyleImage;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfCreatedWorkorder;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleImage> listOfModifiedStyleImage;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AppGrid> listOfModifiedAppGrid;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfModifiedWorkorder;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Asset> listOfCreatedAsset;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskStatus> listOfModifiedWorkorderTaskStatus;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AppGrid> listOfCreatedAppGrid;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Asset> listOfModifiedAsset;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormDefinition> listOfCreatedFormDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Street> listOfCreatedStreet;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<PrfPer> listOfModifiedPrfPer;
 
     @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormDefinition> listOfModifiedForm;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Street> listOfModifiedStreet;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<PrfPer> listOfCreatedPrfPer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<City> listOfModifiedCity;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Contract> listOfCreatedContract;
 
+    @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<ItvPicture> listOfCreatedItvPicture;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<City> listOfCreatedCity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfCreatedOrgCtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Contract> listOfModifiedContract;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfCreatedLayerReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfModifiedAstWtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Report> listOfCreatedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<ItvPicture> listOfModifiedItvPicture;
+
+    @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfModifiedOrgCtr;
 
+    @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Itv> listOfCreatedItv;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfModifiedLayerReferences;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyle> listOfModifiedLayerStyle;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfCreatedAstWtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Report> listOfModifiedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Itv> listOfModifiedItv;
+
+    @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyle> listOfCreatedLayerStyle;
 
+    @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<ReportQuestion> listOfModifiedReportQuestion;
+
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfCreatedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Domains> listOfCreatedDomains;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ContractActivity> listOfCreatedContractActivity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
 
+    @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<ReportQuestion> listOfCreatedReportQuestion;
+
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Domains> listOfModifiedDomains;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ContractActivity> listOfModifiedContractActivity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Permissions> listOfCreatedPermissions;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfModifiedFormTemplateCustom;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Layer> listOfCreatedLayer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<VlTopologyType> listOfCreatedVlTopologyType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfModifiedTask;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Permissions> listOfModifiedPermissions;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<AssetForSig> listOfCreatedAssetForSig;
+
+    @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfCreatedLayerStyleCustom;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Task> listOfCreatedTask;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Layer> listOfModifiedLayer;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<VlTopologyType> listOfModifiedVlTopologyType;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Layer> listOfModifiedLayer;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Task> listOfCreatedTask;
+
     @OneToMany(mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<AssetType> listOfModifiedAssetType;
+    @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<AssetForSig> listOfModifiedAssetForSig;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<AssetType> listOfModifiedAssetType;
+
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
-
-    @OneToMany(mappedBy="modifiedBy")
-    private List<ReportQuestion> listOfModifiedReportQuestion;
-
-    @OneToMany(mappedBy="createdBy")
-    private List<ReportQuestion> listOfCreatedReportQuestion;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<Itv> listOfModifiedItv;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<Itv> listOfCreatedItv;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
-    private List<ItvPicture> listOfModifiedItvPicture;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
-    private List<ItvPicture> listOfCreatedItvPicture;
 
     /**
      * Constructor
@@ -907,6 +997,14 @@ private Long id;
         this.listOfCreatedContract = listOfCreatedContract;
     }
 
+    public List<ItvPicture> getListOfCreatedItvPicture() {
+        return this.listOfCreatedItvPicture;
+    }
+
+    public void setListOfCreatedItvPicture(List<ItvPicture> listOfCreatedItvPicture) {
+        this.listOfCreatedItvPicture = listOfCreatedItvPicture;
+    }
+
     public List<City> getListOfCreatedCity() {
         return this.listOfCreatedCity;
     }
@@ -965,12 +1063,28 @@ private Long id;
         this.listOfCreatedReport = listOfCreatedReport;
     }
 
+    public List<ItvPicture> getListOfModifiedItvPicture() {
+        return this.listOfModifiedItvPicture;
+    }
+
+    public void setListOfModifiedItvPicture(List<ItvPicture> listOfModifiedItvPicture) {
+        this.listOfModifiedItvPicture = listOfModifiedItvPicture;
+    }
+
     public List<OrgCtr> getListOfModifiedOrgCtr() {
         return this.listOfModifiedOrgCtr;
     }
 
     public void setListOfModifiedOrgCtr(List<OrgCtr> listOfModifiedOrgCtr) {
         this.listOfModifiedOrgCtr = listOfModifiedOrgCtr;
+    }
+
+    public List<Itv> getListOfCreatedItv() {
+        return this.listOfCreatedItv;
+    }
+
+    public void setListOfCreatedItv(List<Itv> listOfCreatedItv) {
+        this.listOfCreatedItv = listOfCreatedItv;
     }
 
     public List<LayerReferencesUser> getListOfModifiedLayerReferences() {
@@ -1025,6 +1139,14 @@ private Long id;
         this.listOfModifiedReport = listOfModifiedReport;
     }
 
+    public List<Itv> getListOfModifiedItv() {
+        return this.listOfModifiedItv;
+    }
+
+    public void setListOfModifiedItv(List<Itv> listOfModifiedItv) {
+        this.listOfModifiedItv = listOfModifiedItv;
+    }
+
     public List<OrganizationalUnitType> getListOfModifiedOrganizationalUnitType() {
         return this.listOfModifiedOrganizationalUnitType;
     }
@@ -1049,6 +1171,24 @@ private Long id;
 
     public void setListOfCreatedLayerStyle(List<LayerStyle> listOfCreatedLayerStyle) {
         this.listOfCreatedLayerStyle = listOfCreatedLayerStyle;
+    }
+
+    public List<ReportQuestion> getListOfModifiedReportQuestion() {
+        if (this.listOfModifiedReportQuestion != null) {
+            return this.listOfModifiedReportQuestion.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ReportQuestion> getListOfModifiedReportQuestionWithDeleted() {
+        return this.listOfModifiedReportQuestion;
+    }
+
+    public void setListOfModifiedReportQuestion(List<ReportQuestion> listOfModifiedReportQuestion) {
+        this.listOfModifiedReportQuestion = listOfModifiedReportQuestion;
     }
 
     public List<UsrCtrPrf> getListOfCreatedUsrCtrPrf() {
@@ -1091,6 +1231,24 @@ private Long id;
 
     public void setListOfCreatedOrganizationalUnitType(List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType) {
         this.listOfCreatedOrganizationalUnitType = listOfCreatedOrganizationalUnitType;
+    }
+
+    public List<ReportQuestion> getListOfCreatedReportQuestion() {
+        if (this.listOfCreatedReportQuestion != null) {
+            return this.listOfCreatedReportQuestion.stream()
+                .filter(e -> e.getDeletedAt() == null)
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ReportQuestion> getListOfCreatedReportQuestionWithDeleted() {
+        return this.listOfCreatedReportQuestion;
+    }
+
+    public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
+        this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
     }
 
     public List<UsrCtrPrf> getListOfModifiedUsrCtrPrf() {
@@ -1213,6 +1371,14 @@ private Long id;
         this.listOfModifiedPermissions = listOfModifiedPermissions;
     }
 
+    public List<AssetForSig> getListOfCreatedAssetForSig() {
+        return this.listOfCreatedAssetForSig;
+    }
+
+    public void setListOfCreatedAssetForSig(List<AssetForSig> listOfCreatedAssetForSig) {
+        this.listOfCreatedAssetForSig = listOfCreatedAssetForSig;
+    }
+
     public List<LayerStyleCustom> getListOfCreatedLayerStyleCustom() {
         if (this.listOfCreatedLayerStyleCustom != null) {
             return this.listOfCreatedLayerStyleCustom.stream()
@@ -1229,6 +1395,22 @@ private Long id;
 
     public void setListOfCreatedLayerStyleCustom(List<LayerStyleCustom> listOfCreatedLayerStyleCustom) {
         this.listOfCreatedLayerStyleCustom = listOfCreatedLayerStyleCustom;
+    }
+
+    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
+        return this.listOfModifiedVlTopologyType;
+    }
+
+    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
+        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
+    }
+
+    public List<Layer> getListOfModifiedLayer() {
+        return this.listOfModifiedLayer;
+    }
+
+    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
+        this.listOfModifiedLayer = listOfModifiedLayer;
     }
 
     public List<Task> getListOfCreatedTask() {
@@ -1249,22 +1431,6 @@ private Long id;
         this.listOfCreatedTask = listOfCreatedTask;
     }
 
-    public List<Layer> getListOfModifiedLayer() {
-        return this.listOfModifiedLayer;
-    }
-
-    public void setListOfModifiedLayer(List<Layer> listOfModifiedLayer) {
-        this.listOfModifiedLayer = listOfModifiedLayer;
-    }
-
-    public List<VlTopologyType> getListOfModifiedVlTopologyType() {
-        return this.listOfModifiedVlTopologyType;
-    }
-
-    public void setListOfModifiedVlTopologyType(List<VlTopologyType> listOfModifiedVlTopologyType) {
-        this.listOfModifiedVlTopologyType = listOfModifiedVlTopologyType;
-    }
-
     public List<FormTemplateCustom> getListOfFormTemplateCustom() {
         if (this.listOfFormTemplateCustom != null) {
             return this.listOfFormTemplateCustom.stream()
@@ -1283,12 +1449,12 @@ private Long id;
         this.listOfFormTemplateCustom = listOfFormTemplateCustom;
     }
 
-    public List<AssetType> getListOfModifiedAssetType() {
-        return this.listOfModifiedAssetType;
+    public List<AssetForSig> getListOfModifiedAssetForSig() {
+        return this.listOfModifiedAssetForSig;
     }
 
-    public void setListOfModifiedAssetType(List<AssetType> listOfModifiedAssetType) {
-        this.listOfModifiedAssetType = listOfModifiedAssetType;
+    public void setListOfModifiedAssetForSig(List<AssetForSig> listOfModifiedAssetForSig) {
+        this.listOfModifiedAssetForSig = listOfModifiedAssetForSig;
     }
 
     public Users getCreatedBy() {
@@ -1297,6 +1463,14 @@ private Long id;
 
     public void setCreatedBy(Users createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public List<AssetType> getListOfModifiedAssetType() {
+        return this.listOfModifiedAssetType;
+    }
+
+    public void setListOfModifiedAssetType(List<AssetType> listOfModifiedAssetType) {
+        this.listOfModifiedAssetType = listOfModifiedAssetType;
     }
 
     public List<LayerStyleCustom> getListOfModifiedLayerStyleCustom() {
@@ -1325,51 +1499,4 @@ private Long id;
         this.listOfCreatedOrganizationalUnit = listOfCreatedOrganizationalUnit;
     }
 
-    public List<ReportQuestion> getListOfModifiedReportQuestion() {
-        return listOfModifiedReportQuestion;
-    }
-
-    public void setListOfModifiedReportQuestion(List<ReportQuestion> listOfModifiedReportQuestion) {
-        this.listOfModifiedReportQuestion = listOfModifiedReportQuestion;
-    }
-
-    public List<ReportQuestion> getListOfCreatedReportQuestion() {
-        return listOfCreatedReportQuestion;
-    }
-
-    public void setListOfCreatedReportQuestion(List<ReportQuestion> listOfCreatedReportQuestion) {
-        this.listOfCreatedReportQuestion = listOfCreatedReportQuestion;
-    }
-
-    public List<Itv> getListOfModifiedItv() {
-        return listOfModifiedItv;
-    }
-
-    public void setListOfModifiedItv(List<Itv> listOfModifiedItv) {
-        this.listOfModifiedItv = listOfModifiedItv;
-    }
-
-    public List<Itv> getListOfCreatedItv() {
-        return listOfCreatedItv;
-    }
-
-    public void setListOfCreatedItv(List<Itv> listOfCreatedItv) {
-        this.listOfCreatedItv = listOfCreatedItv;
-    }
-
-    public List<ItvPicture> getListOfModifiedItvPicture() {
-        return listOfModifiedItvPicture;
-    }
-
-    public void setListOfModifiedItvPicture(List<ItvPicture> listOfModifiedItvPicture) {
-        this.listOfModifiedItvPicture = listOfModifiedItvPicture;
-    }
-
-    public List<ItvPicture> getListOfCreatedItvPicture() {
-        return listOfCreatedItvPicture;
-    }
-
-    public void setListOfCreatedItvPicture(List<ItvPicture> listOfCreatedItvPicture) {
-        this.listOfCreatedItvPicture = listOfCreatedItvPicture;
-    }
 }

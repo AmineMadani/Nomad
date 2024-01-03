@@ -67,13 +67,13 @@ public class UsrCtrPrf implements Serializable {
     private Users createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="prf_id", referencedColumnName="id")
-    private Profile profile;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="usr_id", referencedColumnName="id")
     @Id
     private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="prf_id", referencedColumnName="id")
+    private Profile profile;
 
     /**
      * Constructor
@@ -137,20 +137,20 @@ public class UsrCtrPrf implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Profile getProfile() {
-        return this.profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
-
     public Users getUser() {
         return this.user;
     }
 
     public void setUser(Users user) {
         this.user = user;
+    }
+
+    public Profile getProfile() {
+        return this.profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
 }

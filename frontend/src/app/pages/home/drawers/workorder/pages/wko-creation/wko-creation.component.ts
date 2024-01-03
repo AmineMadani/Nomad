@@ -54,11 +54,12 @@ import { CityService } from 'src/app/core/services/city.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { Contract } from 'src/app/core/models/contract.model';
 import { City } from 'src/app/core/models/city.model';
-import { Layer, VLayerWtr, SearchEquipments } from 'src/app/core/models/layer.model';
+import { Layer, VLayerWtr } from 'src/app/core/models/layer.model';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { isNumber } from '@turf/turf';
 import { LayerGrpAction } from 'src/app/core/models/layer-gp-action.model';
 import { LocationStrategy } from '@angular/common';
+import { Asset, SearchAssets, getAssetNumericIdFromTemp, isAssetTemp, searchAssetsToListAssetId } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-wko-creation',
@@ -96,17 +97,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  @ViewChild('equipmentModal', { static: true })
-  public equipmentModal: IonModal;
+  @ViewChild('assetModal', { static: true })
+  public assetModal: IonModal;
 
-  public assets: any[];
+  public assets: Asset[];
 
   public creationWkoForm: FormGroup;
   public currentUrlParams:
     | TravoUrlPayload
     | CreateWorkorderUrlPayload
     | UpdateWorkorderUrlPayload;
-  public currentAssets: SearchEquipments[];
+  public currentTmpSearchAssets: SearchAssets[];
+  public currentSearchAssets: SearchAssets[];
 
   public currentContract: Contract;
   public currentStatus: string;
@@ -125,7 +127,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public workorder: Workorder;
   //En mode édition: représente l'état du workorder en base - permet de comparer les champs qui ont été modifiés
   public workorderInit: Workorder;
-  public equipmentName: string;
+  public assetName: string;
 
   public isLoading: boolean = true;
   public addressLoading: boolean = false;
@@ -145,6 +147,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
   public isXY: boolean = false;
   public displayLayerSelect = false;
   public autoGenerateLabel = true;
+
+  public getAssetNumericIdFromTemp = getAssetNumericIdFromTemp;
 
   private markerCreation: Map<string, any> = new Map();
   private markerSubscription: Map<string, Subscription> = new Map();
@@ -166,9 +170,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         PermissionCodeEnum.SEND_WORKORDER
       );
 
-    // Get equipments send from the state
+    // Get assets send from the state
     const state = this.location.getState();
-    this.currentAssets = state['equipments'];
+    this.currentTmpSearchAssets = state ? state['tmpAssets'] : [];
+    this.currentSearchAssets = state ? state['assets'] : [];
 
     // Url parameters recuperation
     const paramsMap = new Map<string, string>(
@@ -203,13 +208,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             return [];
           }
           // Creation cases
-          else if (this.currentAssets) {
-            return this.layerService.getEquipmentsByLayersAndIds(this.currentAssets.map((ast) => {
-              return {
-                ...ast,
-                allColumn: true,
-              }
-            }));
+          else if (this.currentSearchAssets) {
+            return this.layerService.getAssetsByLayersAndIds(this.currentSearchAssets);
           }
           // Edit
           else {
@@ -217,42 +217,18 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         })
       )
-      .subscribe(async (assets: any) => {
-        this.assets = assets;
-
-        if (this.assets.length > 1) {
-          const { filtred, filtredAssets } =
-            await this.layerService.checkEquipments(this.assets);
-          if (filtred) {
-            if (!filtredAssets || filtredAssets?.length === 0) {
-              this.drawerService.setLocationBack();
-            }
-            this.assets = filtredAssets;
-            // Removing the tasks that do not comply anymore with the current assets
-            if (this.workorder?.tasks.length > 1) {
-              this.workorder.tasks = this.workorder.tasks.filter((t) =>
-                this.assets.map((ast) => ast.id).includes(t.assObjRef)
-              );
-            }
-          }
-        }
-        // Extract the temporary new asset from the state (when coming from multiple selection without a workorder)
+      .subscribe(async (assets: Asset[]) => {
+        // Extract the temporary new asset from the state when coming from multiple selection
         // Add them to the list of asset
-        if (this.currentAssets) {
-          let listAssObjRef = [];
-          for (const asset of this.currentAssets.filter((asset) => asset.lyrTableName === 'tmp')) {
-            for (const assId of asset.equipmentIds) {
-              if (!listAssObjRef.includes(assId)) listAssObjRef.push(assId);
-            }
-          }
-          for (const assObjRef of listAssObjRef) {
+        if (this.currentTmpSearchAssets) {
+          for (const assetId of searchAssetsToListAssetId(this.currentTmpSearchAssets)) {
             const assetForSig =
               await this.assetForSigService.getCacheAssetForSigByAssObjRef(
-                assObjRef
+                assetId
               );
             if (assetForSig != null) {
-              this.assets.push({
-                id: assObjRef,
+              assets.push({
+                id: assetId,
                 lyrTableName: assetForSig.assObjTable,
                 x: assetForSig.coords[0][0],
                 y: assetForSig.coords[0][1],
@@ -261,6 +237,26 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         }
+
+        // Check assets
+        if (assets.length > 1) {
+          const { filtred, filtredAssets } =
+            await this.layerService.checkAssets(assets);
+          if (filtred) {
+            if (!filtredAssets || filtredAssets?.length === 0) {
+              this.drawerService.setLocationBack();
+            }
+            assets = filtredAssets;
+            // Removing the tasks that do not comply anymore with the current assets
+            if (this.workorder?.tasks.length > 1) {
+              this.workorder.tasks = this.workorder.tasks.filter((t) =>
+                assets.map((ast) => ast.id).includes(t.assObjRef)
+              );
+            }
+          }
+        }
+
+        this.assets = assets;
 
         this.nbAssets = this.assets.length.toString();
 
@@ -283,7 +279,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
                 wtrId: null,
                 longitude: ast.x,
                 latitude: ast.y,
-                assetForSig: ast.assetForSig,
+                assetForSig: ast['assetForSig'],
               };
             });
           }
@@ -298,7 +294,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           await this.initializeFormWithWko();
         }
-        await this.initializeEquipments();
+        await this.initializeAssets();
         await this.saveWorkOrderInCache();
       });
 
@@ -350,8 +346,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapService.getMap('home'),
       undefined
     );
-    if (this.equipmentModal.isCmpOpen) {
-      this.equipmentModal.dismiss();
+    if (this.assetModal.isCmpOpen) {
+      this.assetModal.dismiss();
     }
     this.mapEvent.isFeatureFiredEvent = false;
     this.removeMarkers();
@@ -650,8 +646,8 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
           wtrId: wtrId,
           longitude: ast.x,
           latitude: ast.y,
-          assetForSig: ast.assetForSig,
-          taskId: ast?.taskId,
+          assetForSig: ast['assetForSig'],
+          taskId: ast?.['taskId'],
         };
       });
     }
@@ -801,59 +797,59 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     await this.onValidate();
   }
 
-  public async openEquipmentModal(): Promise<void> {
+  public async openAssetModal(): Promise<void> {
     if (this.assetsDetails.length === 0) {
-      // Create an array of observables for each call to getEquipmentLabel
+      // Create an array of observables for each call to getAssetLabel
       const promisesArray = this.assets.map((ast) =>
-        this.getEquipmentLabel(ast).then((equipmentLabel) => {
-          this.assetsDetails.push([equipmentLabel, ast.id, ast.lyrTableName]);
+        this.getAssetLabel(ast).then((assetLabel) => {
+          this.assetsDetails.push([assetLabel, ast.id, ast.lyrTableName]);
         })
       );
 
       // Use promise.all to run all observables in parallel
       Promise.all(promisesArray).then(() => {
         if (this.assets?.[0] !== null && this.assets.length >= 1) {
-          this.equipmentModal.present();
+          this.assetModal.present();
         }
-        if (this.equipmentModal.isOpen) {
-          this.equipmentModal.dismiss();
+        if (this.assetModal.isOpen) {
+          this.assetModal.dismiss();
         }
       });
     } else {
       // If assetsDetails is not empty, just open the modal
       if (this.assets?.[0] !== null && this.assets.length >= 1) {
-        this.equipmentModal.present();
+        this.assetModal.present();
       }
-      if (this.equipmentModal.isOpen) {
-        this.equipmentModal.dismiss();
+      if (this.assetModal.isOpen) {
+        this.assetModal.dismiss();
       }
     }
   }
 
-  public async editEquipmentList(): Promise<void> {
+  public async editAssetList(): Promise<void> {
     this.workorderService.saveCacheWorkorder(this.workorder);
-    this.drawerService.navigateWithEquipments(
-      DrawerRouteEnum.SELECTION,
-      this.utils.transformFeaturesIntoSearchEquipments(this.assets),
-      { draft: this.workorder.id }
-    );
+    this.drawerService.navigateWithAssets({
+      route: DrawerRouteEnum.SELECTION,
+      assets: this.utils.transformAssetIntoSearchAssets(this.assets),
+      queryParams: { draft: this.workorder.id }
+    });
   }
 
   public getKeys(errors: any): string[] {
     return Object.keys(errors);
   }
 
-  public openEquipmentFromDetail(id: string, lyrTableName: string): void {
-    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [id], {
+  public openAssetFromDetail(id: string, lyrTableName: string): void {
+    this.drawerService.navigateTo(DrawerRouteEnum.ASSET, [id], {
       lyrTableName: lyrTableName,
     });
-    if (this.equipmentModal.isCmpOpen) {
-      this.equipmentModal.dismiss();
+    if (this.assetModal.isCmpOpen) {
+      this.assetModal.dismiss();
     }
   }
 
-  public openEquipment(asset: any): void {
-    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [asset.id], {
+  public openAsset(asset: any): void {
+    this.drawerService.navigateTo(DrawerRouteEnum.ASSET, [asset.id], {
       lyrTableName: asset.lyrTableName,
     });
   }
@@ -925,15 +921,15 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private async initializeEquipments(): Promise<void> {
+  private async initializeAssets(): Promise<void> {
     let contractsIds: number[];
     let cityIds: number[];
     if (!this.isXY) {
       // WKO Assets
-      // If mono-equipment, we need the equipment name
+      // If mono-asset, we need the asset name
       if (this.assets.length === 1) {
-        this.getEquipmentLabel().then((label: string) => {
-          this.equipmentName = label;
+        this.getAssetLabel().then((label: string) => {
+          this.assetName = label;
         });
       }
 
@@ -950,14 +946,14 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (contractsIds.length === 0) {
         // If there is only 1 asset
         if (this.assets.length === 1) {
-          const equipment = this.assets[0];
+          const asset = this.assets[0];
           // And this asset this a new asset
-          if (equipment.id != null && equipment.id.startsWith('TMP-')) {
+          if (asset.id != null && isAssetTemp(asset)) {
             // Get the list of contract for this X/Y
             contractsIds =
               await this.contractService.getContractIdsByLatitudeLongitude(
-                equipment.y,
-                equipment.x
+                asset.y,
+                asset.x
               );
           }
         }
@@ -967,13 +963,13 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       if (cityIds.length === 0) {
         // If there is only 1 asset
         if (this.assets.length === 1) {
-          const equipment = this.assets[0];
+          const asset = this.assets[0];
           // And this asset this a new asset
-          if (equipment.id && equipment.id.startsWith('TMP-')) {
+          if (asset.id && isAssetTemp(asset)) {
             // Get the list of cities for this X/Y
             cityIds = await this.cityService.getCityIdsByLatitudeLongitude(
-              equipment.y,
-              equipment.x
+              asset.y,
+              asset.x
             );
           }
         }
@@ -998,7 +994,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         (l: Layer) => l.lyrTableName === this.currentUrlParams.lyrTableName
       );
 
-      this.equipmentName = `XY - ${layer.domLLabel}`;
+      this.assetName = `XY - ${layer.domLLabel}`;
 
       // Ctr and Cty are from the XY
       contractsIds =
@@ -1011,7 +1007,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.currentUrlParams.x
       );
     }
-    await this.initEquipmentsLayers();
+    await this.initAssetsLayers();
     // Get referentials data
     await this.fetchReferentialsData(contractsIds, cityIds);
   }
@@ -1054,10 +1050,10 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       lyrTableNames.includes(vlw.lyrTableName)
     );
 
-    const isMultiEquipmentAndLayers = [...new Set(lyrTableNames)];
+    const isMultiAssetAndLayers = [...new Set(lyrTableNames)];
 
     const wtrPossibles = [];
-    if (isMultiEquipmentAndLayers.length > 1 && layerGrpActions.length > 0) {
+    if (isMultiAssetAndLayers.length > 1 && layerGrpActions.length > 0) {
       for (const lyrGrpAct of layerGrpActions) {
         if (
           lyrTableNames.every((ltn) => lyrGrpAct.lyrTableNames.includes(ltn))
@@ -1192,7 +1188,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     return reason.wtrLlabel;
   }
 
-  public async getEquipmentLabel(ast?: any): Promise<string> {
+  public async getAssetLabel(ast?: any): Promise<string> {
     const layers = await this.layerService.getAllLayers();
     const layer = layers.find(
       (l) => l.lyrTableName === `${(ast ?? this.assets[0]).lyrTableName}`
@@ -1206,7 +1202,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Generate a marker on the map.
-   * Case 1 : Marker on the equipment and only draggable on it
+   * Case 1 : Marker on the asset and only draggable on it
    * Case 2 : Marker on the map and draggable on all the map. Update the params if the position change (city&contract)
    */
   private async generateMarker(): Promise<void> {
@@ -1264,7 +1260,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
             if (ast.geom?.coordinates) {
               geom = ast.geom.coordinates;
             } else {
-              const equipt = await this.layerService.getEquipmentByLayerAndId(
+              const equipt = await this.layerService.getAssetByLayerAndId(
                 ast.lyrTableName,
                 ast.id
               );
@@ -1335,7 +1331,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private async initEquipmentsLayers(): Promise<void> {
+  private async initAssetsLayers(): Promise<void> {
     const currentAssets = this.assets.filter(
       ({ lyrTableName }) => !lyrTableName.includes('_xy')
     );
@@ -1419,7 +1415,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
       let assetsFromTasks = [];
       const transformedTasks = this.transformTasks(this.workorder.tasks);
       if (transformedTasks && transformedTasks.length > 0) {
-        assetsFromTasks = await this.layerService.getEquipmentsByLayersAndIds(
+        assetsFromTasks = await this.layerService.getAssetsByLayersAndIds(
           transformedTasks
         );
       }
@@ -1451,7 +1447,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         return transformedItems[assObjTable]?.length > 0
           ? {
               lyrTableName: assObjTable,
-              equipmentIds: transformedItems[assObjTable],
+              assetIds: transformedItems[assObjTable],
             }
           : null;
       })
@@ -1600,7 +1596,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
         this.creationWkoForm.get('wtrId').setValue(wtrIdInExistingList);
       } else {
         // We enter in the case where the xy asset doesn't include the wtrCode of the asset provide in the url
-        // So we stock a temp travo wtr id, and we will use it then to complete the automatically the type when a new equipment selected.
+        // So we stock a temp travo wtr id, and we will use it then to complete the automatically the type when a new asset selected.
         const wtrIdInAllList = this.allWtrs.find(
           (wtr) =>
             wtr.wtrCode === travoInfo.wtrCode &&

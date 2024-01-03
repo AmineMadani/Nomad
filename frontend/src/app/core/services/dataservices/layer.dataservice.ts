@@ -3,9 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { GeoJSONObject, NomadGeoJson } from '../../models/geojson.model';
-import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, SearchEquipments, UserReference, VLayerWtr } from '../../models/layer.model';
+import { Layer, LayerReferences, LayerStyleDetail, LayerStyleSummary, SaveLayerStylePayload, UserReference, VLayerWtr } from '../../models/layer.model';
 import { ApiSuccessResponse } from '../../models/api-response.model';
 import { LayerGrpAction } from '../../models/layer-gp-action.model';
+import { SearchAssets } from '../../models/asset.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,18 +52,18 @@ export class LayerDataService {
   }
 
   /**
-   * Method to get an equipment from a layer
+   * Method to get an asset from a layer
    * @param layer the layer
    * @param id the id
-   * @returns the equipment
+   * @returns the asset
    */
-  public getEquipmentByLayerAndId(layer: string, id: string): Promise<any> {
+  public getAssetByLayerAndId(layer: string, id: string): Promise<any> {
     return firstValueFrom(
-      this.http.get<any>(`${this.configurationService.apiUrl}layers/` + layer + `/equipments/` + id)
+      this.http.get<any>(`${this.configurationService.apiUrl}layers/` + layer + `/assets/` + id)
     );
   }
 
-  public getEquipmentsByLayersAndIds(idsLayers: any): Promise<any> {
+  public getAssetsByLayersAndIds(idsLayers: any): Promise<any> {
     return firstValueFrom(
       this.http.post(`${this.configurationService.apiUrl}layers/equipments`, idsLayers)
     );
@@ -166,14 +167,14 @@ export class LayerDataService {
     listLayerKey: string[],
     listFilterId: number[],
     filterType: string
-  ): Promise<SearchEquipments[]> {
+  ): Promise<SearchAssets[]> {
     let params = new HttpParams();
     params = params.append('layerKeys', listLayerKey.join(','));
     params = params.append('filterIds', listFilterId.join(','));
     params = params.append('filterType', filterType.toString());
 
     return firstValueFrom(
-      this.http.get<SearchEquipments[]>(`${this.configurationService.apiUrl}layers/asset-ids/by-filters`, { params })
+      this.http.get<SearchAssets[]>(`${this.configurationService.apiUrl}layers/asset-ids/by-filters`, { params })
     );
   }
 }

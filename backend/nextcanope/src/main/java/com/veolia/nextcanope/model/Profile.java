@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import org.hibernate.annotations.CreationTimestamp;
@@ -72,9 +74,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="profile")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<PrfPer> listOfPrfPer;
 
     @OneToMany(mappedBy="profile")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @ManyToOne

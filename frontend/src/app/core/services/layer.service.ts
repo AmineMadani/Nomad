@@ -8,19 +8,12 @@ import {
   LayerReferences,
   Layer,
   VLayerWtr,
-  SearchEquipments,
   GeographicalTypeEnum,
 } from '../models/layer.model';
 import { LayerDataService } from './dataservices/layer.dataservice';
 import { GeoJSONObject, NomadGeoJson } from '../models/geojson.model';
 import {
   Observable,
-  catchError,
-  firstValueFrom,
-  lastValueFrom,
-  of,
-  tap,
-  timeout,
 } from 'rxjs';
 import { CacheKey, CacheService, ReferentialCacheKey } from './cache.service';
 import { ApiSuccessResponse } from '../models/api-response.model';
@@ -29,6 +22,7 @@ import { UtilsService } from './utils.service';
 import { LayerGrpAction } from '../models/layer-gp-action.model';
 import { MultiAssetsModalComponent } from 'src/app/pages/home/drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
 import { ModalController } from '@ionic/angular';
+import { Asset, SearchAssets, isAssetTemp } from '../models/asset.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,23 +45,28 @@ export class LayerService {
   private listTileOnLoad: Map<string, string> = new Map<string, string>();
 
   /**
-   * Checks equipment based on various criteria such as layer types, contracts, and geometry types.
+   * Checks asset based on various criteria such as layer types, contracts, and geometry types.
    * If a mix of criteria is detected, a modal is presented to the user for further actions.
    *
-   * @param assets - Array of equipment objects to be checked.
-   * @returns {Promise<{ filtred: boolean; filtredAssets?: any[] }>} - Filtered array of equipment based on user actions in the modal.
+   * @param assets - Array of asset objects to be checked.
+   * @returns {Promise<{ filtred: boolean; filtredAssets?: any[] }>} - Filtered array of asset based on user actions in the modal.
    */
-  public async checkEquipments(
-    assets: any[]
+  public async checkAssets(
+    assets: Asset[]
   ): Promise<{ filtred: boolean; filtredAssets?: any[] }> {
     let filtredAssets: any[] | undefined;
     let filtred = false;
 
-    const layerGrpActions = await this.getAllLayerGrpActions();
-    // Check if all assets are included in at least one layerGrpAction
-    const isMultilayerGrpActions = !assets.every(asset =>
-      layerGrpActions.some(grpAction => grpAction.lyrTableNames.includes(asset.lyrTableName))
-    );
+    let isMultilayerGrpActions = false;
+    // Check for multiples lyrTableName
+    const hasMultipleTableNames = new Set(assets.map(a => a.lyrTableName)).size >= 2;
+    if (hasMultipleTableNames) {
+      const layerGrpActions = await this.getAllLayerGrpActions();
+      // Check if all assets are included in at least one layerGrpAction
+      isMultilayerGrpActions = !assets.every(asset =>
+        layerGrpActions.some(grpAction => grpAction.lyrTableNames.includes(asset.lyrTableName))
+      );
+    }
 
     const layers = await this.getAllLayers();
     // Checking if we have a mix of dw/ww assets
@@ -92,7 +91,7 @@ export class LayerService {
 
     // Checking if the assets are on more than one contract
     const isMultiContract =
-      [...new Set(assets.map((ast) => ast.ctrId))].length > 1;
+      [...new Set(assets.filter((ast) => !isAssetTemp(ast)).map((ast) => ast.ctrId))].length > 1;
 
     // Checking if there is a difference between assets GEOMs
     const isMultiGeomType =
@@ -147,7 +146,7 @@ export class LayerService {
       listLayerReferences = await this.utilsService
         .fetchPromiseWithTimeout({
           fetchPromise: this.layerDataService.getUserLayerReferences(),
-          timeout: this.configurationService.offlineTimeoutEquipment,
+          timeout: this.configurationService.offlineTimeoutAsset,
         })
         .catch(async (error) => {
           if (this.utilsService.isOfflineError(error)) {
@@ -291,23 +290,23 @@ export class LayerService {
     );
   }
 
-  public async getEquipmentByLayerAndId(
+  public async getAssetByLayerAndId(
     layer: string,
     id: string
-  ): Promise<any> {
-    let searchEquipment: SearchEquipments[] = [
+  ): Promise<Asset> {
+    const searchAsset: SearchAssets[] = [
       {
         lyrTableName: layer,
-        equipmentIds: [id],
+        assetIds: [id],
         allColumn: true,
       },
     ];
-    let response = await this.getEquipmentsByLayersAndIds(searchEquipment);
+    const response = await this.getAssetsByLayersAndIds(searchAsset);
     return response[0];
   }
 
-  public getEquipmentsByLayersAndIds(idsLayers: SearchEquipments[]): Promise<any> {
-    return this.cacheService.fetchEquipmentsByLayerIds(idsLayers);
+  public getAssetsByLayersAndIds(idsLayers: SearchAssets[]): Promise<Asset[]> {
+    return this.cacheService.fetchAssetsByLayerIds(idsLayers);
   }
 
   /**
@@ -458,7 +457,7 @@ export class LayerService {
     layerKeys: string[],
     listId: number[],
     type: GeographicalTypeEnum
-  ): Promise<SearchEquipments[]> {
+  ): Promise<SearchAssets[]> {
     return this.layerDataService.getAssetIdsByLayersAndFilterIds(layerKeys, listId, type);
   }
 }

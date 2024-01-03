@@ -4,11 +4,11 @@ import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 
 @Component({
-  selector: 'app-asset-accordion',
-  templateUrl: './asset-accordion.component.html',
-  styleUrls: ['./asset-accordion.component.scss'],
+  selector: 'app-asset-filter-accordion',
+  templateUrl: './asset-filter-accordion.component.html',
+  styleUrls: ['./asset-filter-accordion.component.scss'],
 })
-export class AssetAccordionComponent implements OnInit {
+export class AssetFilterAccordionComponent implements OnInit {
 
   constructor(
     private assetFilterService: AssetFilterService
@@ -18,7 +18,7 @@ export class AssetAccordionComponent implements OnInit {
 
   @ViewChild('accordionGroup', { static: true }) accordionGroup: IonAccordionGroup;
 
-  ngOnInit() { 
+  ngOnInit() {
     this.initAccordionState();
   }
 

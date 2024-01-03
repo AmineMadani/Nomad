@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -58,13 +60,14 @@ private Long id;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
-    @OneToMany(mappedBy="asset")
-    private List<Task> listOfTask;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="ass_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
+
+    @OneToMany(mappedBy="asset")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Task> listOfTask;
 
     @ManyToOne
     @JoinColumn(name="ass_obj_table", referencedColumnName="lyr_table_name")
@@ -124,6 +127,14 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
+    }
+
     public List<Task> getListOfTask() {
         if (this.listOfTask != null) {
             return this.listOfTask.stream()
@@ -140,14 +151,6 @@ private Long id;
 
     public void setListOfTask(List<Task> listOfTask) {
         this.listOfTask = listOfTask;
-    }
-
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
     }
 
     public Layer getLayer() {

@@ -1,7 +1,7 @@
 <ng-template #buttonsTemplate>
   <div class="overflow-row">
-    <div class="equipment-drawer-action-button-row" [class.mobile]="isMobile">
-      <ion-tab-button *ngFor="let button of buttons" class="equipment-drawer-action-button" (click)="onTabButtonClicked(button)" [disabled]="!equipment || (button.disabledFunction ? button.disabledFunction() : false)">
+    <div class="asset-drawer-action-button-row" [class.mobile]="isMobile">
+      <ion-tab-button *ngFor="let button of buttons" class="asset-drawer-action-button" (click)="onTabButtonClicked(button)" [disabled]="!asset || (button.disabledFunction ? button.disabledFunction() : false)">
         <ion-icon [name]="button.icon"></ion-icon>
         <span>{{ button.label }}</span>
       </ion-tab-button>
@@ -9,15 +9,15 @@
   </div>
 </ng-template>
 
-<ng-template #equipmentTemplate>
-  <app-skeleton-loading *ngIf="!equipment" [rows]="8"></app-skeleton-loading>
+<ng-template #assetTemplate>
+  <app-skeleton-loading *ngIf="!asset" [rows]="8"></app-skeleton-loading>
   <ion-content *ngIf="userReferences">
     <ng-container *ngFor="let reference of userReferences">
-      <ng-container *ngIf="equipment && reference.displayType === ReferenceDisplayType.SYNTHETIC">
+      <ng-container *ngIf="asset && reference.displayType === ReferenceDisplayType.SYNTHETIC">
           <ion-item lines="none" class="ion-no-margin">
             <ion-label class="label">
               <h3>{{ reference.alias }}</h3>
-              <p>{{ getEquipmentValue(equipment[reference.referenceKey]) }}</p>
+              <p>{{ getAssetValue(asset[reference.referenceKey]) }}</p>
             </ion-label>
           </ion-item>
       </ng-container>
@@ -31,7 +31,7 @@
   </ion-item>
 </ng-template>
 
-<app-synthesis [drawerTitle]="assetLabel" [sourceLayer]="equipment?.layer" [hasFile]="true"
-  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [contentTemplate]="equipmentTemplate" [sourceLayer]="'assets'"
+<app-synthesis [drawerTitle]="assetLabel" [sourceLayer]="asset?.layer" [hasFile]="true"
+  [buttonTemplate]="buttonsTemplate" [tabButtons]="buttons" [contentTemplate]="assetTemplate" [sourceLayer]="'assets'"
   [footerTemplate]="footerTemplate" (onDetails)="onNavigateToDetails()">
 </app-synthesis>

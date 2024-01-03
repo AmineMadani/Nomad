@@ -30,11 +30,9 @@ import { ClearDataDirective } from './directives/clear-data.directive';
 import { FormRadioComponent } from './form-editor/properties/form-radio/form-radio.component';
 import { FormBottomAttachmentComponent } from './form-editor/properties/form-bottom-attachment/form-bottom-attachment.component';
 import { FormLifeCycleComponent } from './form-editor/properties/form-life-cycle/form-life-cycle.component';
-import { FormLayerReferenceComponent } from './form-editor/properties/form-layer-reference/form-layer-reference.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { SearchSelectComponent } from './components/search-select/search-select.component';
 import { FormHistoryComponent } from './form-editor/properties/form-history/form-history.component';
-import { FormEquipmentsComponent } from './form-editor/properties/form-equipments/form-equipments.component';
 import { GenericTableComponent } from './components/generic-table/generic-table.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FilterTableComponent } from './components/generic-table/filter-table/filter-table.component';
@@ -82,8 +80,6 @@ import { MapScalePipe } from './pipes/map-scale.pipe';
     FormHistoryComponent,
     FormBottomAttachmentComponent,
     FormLifeCycleComponent,
-    FormLayerReferenceComponent,
-    FormEquipmentsComponent,
     FormCommentComponent,
     // DIRECTIVES
     ClearDataDirective,

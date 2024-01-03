@@ -103,12 +103,6 @@ export enum ReferenceDisplayType {
   DETAILED = 'DETAILED',
 }
 
-export interface SearchEquipments {
-  lyrTableName: string,
-  equipmentIds: string[],
-  allColumn?: boolean
-}
-
 export enum GeographicalTypeEnum {
   CONTRACT = 'CONTRACT',
   CITY = 'CITY'

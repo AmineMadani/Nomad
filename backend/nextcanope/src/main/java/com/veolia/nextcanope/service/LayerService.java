@@ -102,7 +102,7 @@ public class LayerService {
     	StringBuilder assets = new StringBuilder();
         for (GetEquipmentsPayload payload : equipmentsPayload) {
             if (!payload.getLyrTableName().contains("_xy")) {
-                String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getEquipmentIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
+                String res = this.layerRepositoryImpl.getAssetByLayerAndIds(payload.getLyrTableName(), payload.getAssetIds(), userId, (payload.allColumn == null ? false : payload.allColumn));
                 res = res.substring(1, res.length() - 1);
                 if (!res.isEmpty()) {
                     assets.append(!assets.isEmpty() ? "," : "").append(res);

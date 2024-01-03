@@ -6,6 +6,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import * as Maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
 import { MapEventService } from './map-event.service';
+import { NomadFeature } from '../../models/geojson.model';
 
 export enum DrawingModeEnum {
   SELECTION = 'SELECTION',
@@ -55,7 +56,7 @@ export class DrawingService {
   public getShouldMooveResumeBox(): boolean {
     return this.shouldMooveResumeBox;
   }
-  
+
   public setDrawActive(active: boolean) {
     if (active && this.isMeasuring) this.isMeasuring = false;
     this.drawActive = active;
@@ -85,7 +86,7 @@ export class DrawingService {
     e,
     map: Maplibregl.Map,
     currentLayersIds: string[]
-  ): any {
+  ): NomadFeature[] {
     const [minX, minY, maxX, maxY] = turf.bbox(e.features[0]);
 
     const drawnPolygon = e.features[0].geometry;

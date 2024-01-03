@@ -2,9 +2,9 @@ export enum DrawerRouteEnum {
   HOME = 'HOME',
   PERIMETER = 'PERIMETER',
   EXPLOITATION = 'EXPLOITATION',
+  ASSET_FILTER = 'ASSET_FILTER',
   ASSET = 'ASSET',
-  EQUIPMENT = 'EQUIPMENT',
-  EQUIPMENT_DETAILS = 'EQUIPMENT_DETAILS',
+  ASSET_DETAILS = 'ASSET_DETAILS',
   WORKORDER = 'WORKORDER',
   WORKORDER_WATER_TYPE = 'WORKORDER_WATER_TYPE',
   WORKORDER_CREATION = 'WORKORDER_CREATION',
@@ -39,16 +39,16 @@ export const drawerRoutes = [
     name: DrawerRouteEnum.EXPLOITATION,
   },
   {
-    path: '/home/asset',
+    path: '/home/asset-filter',
+    name: DrawerRouteEnum.ASSET_FILTER,
+  },
+  {
+    path: '/home/asset/:id',
     name: DrawerRouteEnum.ASSET,
   },
   {
-    path: '/home/equipment/:id',
-    name: DrawerRouteEnum.EQUIPMENT,
-  },
-  {
-    path: '/home/equipment/:id/details',
-    name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+    path: '/home/asset/:id/details',
+    name: DrawerRouteEnum.ASSET_DETAILS,
   },
   {
     path: '/home/water-type',
