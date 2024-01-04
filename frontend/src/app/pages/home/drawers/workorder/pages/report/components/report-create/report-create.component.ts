@@ -19,7 +19,6 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { ReportDateComponent } from './report-date/report-date.component';
 
 export enum ReportStepEnum {
   ASSET = 1,

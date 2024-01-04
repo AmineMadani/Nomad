@@ -11,7 +11,7 @@ import {
   CustomFilter,
   FilterAsset,
 } from 'src/app/core/models/filter/filter.model';
-import { Layer, LayerReferences } from 'src/app/core/models/layer.model';
+import { LayerReferences } from 'src/app/core/models/layer.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CancelTask,
-  CancelWorkOrder,
   ReportValue,
   Task,
   WkoStatus,

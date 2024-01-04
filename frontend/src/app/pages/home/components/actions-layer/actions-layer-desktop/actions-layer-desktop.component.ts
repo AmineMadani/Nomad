@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { IonPopover, IonRadioGroup, IonSearchbar } from '@ionic/angular';
+import { IonPopover, IonSearchbar } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 
 import { DrawingService } from 'src/app/core/services/map/drawing.service';

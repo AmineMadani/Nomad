@@ -8,7 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { WorkorderService } from './workorder.service';
 import { DrawingService } from './map/drawing.service';
 import { AssetForSigService } from './assetForSig.service';
-import { Asset, SearchAssets } from '../models/asset.model';
+import { SearchAssets } from '../models/asset.model';
 
 @Injectable({
   providedIn: 'root',

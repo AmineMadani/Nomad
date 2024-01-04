@@ -5,7 +5,6 @@ import {
   debounceTime,
   filter,
   fromEvent,
-  last,
   takeUntil,
 } from 'rxjs';
 import { UtilsService } from 'src/app/core/services/utils.service';

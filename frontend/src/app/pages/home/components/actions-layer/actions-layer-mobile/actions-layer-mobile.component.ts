@@ -6,7 +6,6 @@ import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { CityService } from 'src/app/core/services/city.service';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { Router } from '@angular/router';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawerService } from 'src/app/core/services/drawer.service';

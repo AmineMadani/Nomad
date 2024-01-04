@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
+import { Subject, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
