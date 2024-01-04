@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -65,6 +67,7 @@ private Long id;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @OneToMany(mappedBy="domains")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetType> listOfAssetType;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -73,6 +76,7 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(mappedBy="domains")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Domains> listOfDomains;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -81,6 +85,7 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="domains")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Layer> listOfLayer;
 
     @ManyToOne

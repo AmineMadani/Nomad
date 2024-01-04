@@ -280,13 +280,11 @@ export class NewAssetDrawer implements OnInit {
 
       await this.workorderService.saveCacheWorkorder(wko);
     } else {
-      console.log('save cache asset for sig', assetForSig);
       // If no workorder, then create the new asset in the cache
       await this.assetForSigService.saveCacheAssetForSig(assetForSig);
 
       // Recreate the list of asset from the state
       const state = this.location.getState();
-      console.log('in new asset state', state);
       const searchedAssets: SearchAssets[] = state ? state['assets'] : [];
       const tmpAssets: SearchAssets[] = [{
         lyrTableName: assetForSig.assObjTable,

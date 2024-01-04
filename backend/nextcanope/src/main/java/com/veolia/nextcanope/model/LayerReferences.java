@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -74,9 +76,11 @@ private Long id;
     private Layer layer;
 
     @OneToMany(mappedBy="layerReferences")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesDefault> listOfLayerReferencesDefault;
 
     @OneToMany(mappedBy="layerReferences")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfLayerReferencesUser;
 
     @ManyToOne(fetch = FetchType.LAZY)

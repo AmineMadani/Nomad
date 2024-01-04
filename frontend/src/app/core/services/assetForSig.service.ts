@@ -57,7 +57,6 @@ export class AssetForSigService {
    * @param url url
    */
   public async removeCacheUnusedAssetForSigFromState() {
-    console.log('remove');
     const listAssetForSig: AssetForSigDto[] = await this.getListCacheAssetForSig();
 
     const state = this.location.getState();
@@ -65,7 +64,6 @@ export class AssetForSigService {
 
     for (const assetForSig of listAssetForSig) {
       if (!tmpAssets || !searchAssetsToListAssetId(tmpAssets).some((assetId: string) => assetId === getAssetTempIdFromNumeric(assetForSig.id))) {
-        console.log('remove asset for sig from cache');
         this.deleteCacheAssetForSig(assetForSig.id.toString());
       }
     }

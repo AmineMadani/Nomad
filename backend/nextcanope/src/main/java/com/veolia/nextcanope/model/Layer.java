@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -95,12 +97,15 @@ private Long id;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Asset> listOfAsset;
 
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerGrpAction> listOfLayerGrpAction;
 
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferences> listOfLayerReferences;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -118,6 +123,7 @@ private Long id;
     private Domains domains;
 
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetForSig> listOfAssetForSig;
 
     @ManyToOne
@@ -125,9 +131,11 @@ private Long id;
     private AssetType assetType;
 
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvBlock> listOfItvBlock;
 
     @OneToMany(mappedBy="layer")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyle> listOfLayerStyle;
 
     /**

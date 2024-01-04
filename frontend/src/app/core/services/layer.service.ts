@@ -54,17 +54,19 @@ export class LayerService {
   public async checkAssets(
     assets: Asset[]
   ): Promise<{ filtred: boolean; filtredAssets?: any[] }> {
-    console.log('check assets :', assets);
     let filtredAssets: any[] | undefined;
     let filtred = false;
 
-    const layerGrpActions = await this.getAllLayerGrpActions();
-    // Check if all assets are included in at least one layerGrpAction
-    const isMultilayerGrpActions = !assets.every(asset =>
-      layerGrpActions.some(grpAction => grpAction.lyrTableNames.includes(asset.lyrTableName))
-    );
-
-    console.log('isMultilayerGrpActions', isMultilayerGrpActions);
+    let isMultilayerGrpActions = false;
+    // Check for multiples lyrTableName
+    const hasMultipleTableNames = new Set(assets.map(a => a.lyrTableName)).size >= 2;
+    if (hasMultipleTableNames) {
+      const layerGrpActions = await this.getAllLayerGrpActions();
+      // Check if all assets are included in at least one layerGrpAction
+      isMultilayerGrpActions = !assets.every(asset =>
+        layerGrpActions.some(grpAction => grpAction.lyrTableNames.includes(asset.lyrTableName))
+      );
+    }
 
     const layers = await this.getAllLayers();
     // Checking if we have a mix of dw/ww assets
@@ -87,13 +89,9 @@ export class LayerService {
         ),
       ].length === 2;
 
-    console.log('isMultiEau', isMultiWater);
-
     // Checking if the assets are on more than one contract
     const isMultiContract =
       [...new Set(assets.filter((ast) => !isAssetTemp(ast)).map((ast) => ast.ctrId))].length > 1;
-
-    console.log('isMultiContract', isMultiContract);
 
     // Checking if there is a difference between assets GEOMs
     const isMultiGeomType =
@@ -106,8 +104,6 @@ export class LayerService {
             .map((l) => l.lyrGeomType)
         ),
       ].length > 1;
-
-    console.log('isMultiGeomType', isMultiGeomType);
 
     if (isMultilayerGrpActions || isMultiGeomType || isMultiWater || isMultiContract) {
       filtred = true;

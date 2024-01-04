@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -89,45 +91,59 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Users> listOfCreatedUsers;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetType> listOfCreatedAssetType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferences> listOfLayerCreatedReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Users> listOfModifiedUsers;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnit> listOfModifiedOrganizationalUnit;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Basemaps> listOfCreatedBasemaps;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplate> listOfCreatedFormTemplate;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferences> listOfLayerModifiedReferences;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Profile> listOfModifiedProfile;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleDefinition> listOfModifiedStyleDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Basemaps> listOfModifiedBasemaps;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplate> listOfModifiedFormTemplate;
 
     @OneToMany(mappedBy="users")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Profile> listOfCreatedProfile;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -135,198 +151,263 @@ private Long id;
     private OrganizationalUnit organizationalUnitDefault;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskReason> listOfCreatedWorkorderTaskReason;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleDefinition> listOfCreatedStyleDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskReason> listOfModifiedWorkorderTaskReason;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfLayerReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesDefault> listOfModifiedLayerReferencesDefault;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleImage> listOfCreatedStyleImage;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfCreatedWorkorder;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskStatus> listOfCreatedWorkorderTaskStatus;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesDefault> listOfCreatedLayerReferencesDefault;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<StyleImage> listOfModifiedStyleImage;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AppGrid> listOfModifiedAppGrid;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfModifiedWorkorder;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Asset> listOfCreatedAsset;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<WorkorderTaskStatus> listOfModifiedWorkorderTaskStatus;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AppGrid> listOfCreatedAppGrid;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Asset> listOfModifiedAsset;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormDefinition> listOfCreatedFormDefinition;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Street> listOfCreatedStreet;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<PrfPer> listOfModifiedPrfPer;
 
     @OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormDefinition> listOfModifiedForm;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Street> listOfModifiedStreet;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<PrfPer> listOfCreatedPrfPer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<City> listOfModifiedCity;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Contract> listOfCreatedContract;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvPicture> listOfCreatedItvPicture;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<City> listOfCreatedCity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfCreatedOrgCtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Contract> listOfModifiedContract;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfCreatedLayerReferences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfModifiedAstWtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Report> listOfCreatedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvPicture> listOfModifiedItvPicture;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfModifiedOrgCtr;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Itv> listOfCreatedItv;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfModifiedLayerReferences;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyle> listOfModifiedLayerStyle;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfCreatedAstWtr;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Report> listOfModifiedReport;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Itv> listOfModifiedItv;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnitType> listOfModifiedOrganizationalUnitType;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyle> listOfCreatedLayerStyle;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ReportQuestion> listOfModifiedReportQuestion;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfCreatedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Domains> listOfCreatedDomains;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ContractActivity> listOfCreatedContractActivity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnitType> listOfCreatedOrganizationalUnitType;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ReportQuestion> listOfCreatedReportQuestion;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfModifiedUsrCtrPrf;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Domains> listOfModifiedDomains;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ContractActivity> listOfModifiedContractActivity;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfCreatedFormTemplateCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Permissions> listOfCreatedPermissions;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfModifiedFormTemplateCustom;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Layer> listOfCreatedLayer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<VlTopologyType> listOfCreatedVlTopologyType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfModifiedTask;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Permissions> listOfModifiedPermissions;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetForSig> listOfCreatedAssetForSig;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfCreatedLayerStyleCustom;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<VlTopologyType> listOfModifiedVlTopologyType;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Layer> listOfModifiedLayer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfCreatedTask;
 
     @OneToMany(mappedBy="user")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<FormTemplateCustom> listOfFormTemplateCustom;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetForSig> listOfModifiedAssetForSig;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -335,12 +416,15 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AssetType> listOfModifiedAssetType;
 
     @OneToMany(mappedBy="modifiedBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerStyleCustom> listOfModifiedLayerStyleCustom;
 
     @OneToMany(mappedBy="createdBy")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnit> listOfCreatedOrganizationalUnit;
 
     /**

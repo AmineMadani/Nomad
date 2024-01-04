@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -72,6 +74,7 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(mappedBy="organizationalUnit")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfOrgCtr;
 
     @ManyToOne
@@ -80,9 +83,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="organizationalUnitDefault")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Users> listOfUsers;
 
     @OneToMany(mappedBy="organizationalUnitParent")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
 
     @ManyToOne

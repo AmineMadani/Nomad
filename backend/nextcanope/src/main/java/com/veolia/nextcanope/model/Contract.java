@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -85,6 +87,7 @@ private Long id;
     private ContractActivity contractActivity;
 
     @OneToMany(mappedBy="contract")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfOrgCtr;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -93,9 +96,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="contract")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfTask;
 
     @OneToMany(mappedBy="contract")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<UsrCtrPrf> listOfUsrCtrPrf;
 
     @ManyToOne(fetch = FetchType.LAZY)

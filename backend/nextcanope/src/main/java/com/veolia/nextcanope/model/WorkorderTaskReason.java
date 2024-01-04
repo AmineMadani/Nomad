@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -87,6 +89,7 @@ private Long id;
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerGrpAction> listOfLayerGrpAction;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -100,9 +103,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfTask;
 
     @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfAstWtr;
 
     /**

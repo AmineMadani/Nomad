@@ -158,7 +158,6 @@ export class DrawerService {
     tmpAssets?: SearchAssets[],
     queryParams?: any
   }): void {
-    console.log('navigate with assets', payload.assets, payload.tmpAssets);
     const url = this.getUrlFromDrawerName(payload.route);
     this.router.navigate([url], { queryParams: payload.queryParams, state: { assets: payload.assets, tmpAssets: payload.tmpAssets } });
   }

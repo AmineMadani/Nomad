@@ -296,7 +296,6 @@ export class HomePage implements OnInit, OnDestroy {
             this.mapService.getMap('home'),
             layersID
           );
-          console.log('in draw: ', features);
 
           if (fireEvent) {
             this.mapEventService.setMultiFeaturesSelected(features);

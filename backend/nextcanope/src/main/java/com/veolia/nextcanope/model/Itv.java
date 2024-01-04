@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -67,9 +69,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="itv")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvBlock> listOfItvBlock;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="itv")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvPicture> listOfItvPicture;
 
     /**

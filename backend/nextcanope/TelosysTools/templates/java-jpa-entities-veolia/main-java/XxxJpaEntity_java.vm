@@ -49,6 +49,7 @@ import $b;
 import $b;
 #end
 ## Specific imports for links
+#set($hasImportedFetch = false)
 #set($hasImportedCollectors = false)
 #foreach( $link in $entity.links )
 #if($link.fieldName.contains('createdBy'))
@@ -59,6 +60,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 #if($attribute.name.contains('Ddel'))
 #set($hasDeletedAt = true)
 #end
+#end
+#if($link.cardinality == "OneToMany" && !$hasImportedFetch)
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+#set($hasImportedFetch = true)
 #end
 #if(($link.cardinality == "OneToMany" || $link.cardinality == "ManyToMany") && $hasDeletedAt && !$hasImportedCollectors)
 import java.util.stream.Collectors;
@@ -140,6 +146,9 @@ $jpa.linkAnnotations(4, $link)
 #end
 #if($link.hasAttributeInPrimaryKey())
     @Id
+#end
+#if($link.cardinality == "OneToMany")
+    @Fetch(value = FetchMode.SUBSELECT)
 #end
     private ${link.formattedFieldType(1)} $link.fieldName;
 

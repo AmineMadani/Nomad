@@ -130,7 +130,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     // Get assets from the state
     const state = this.location.getState();
-    console.log(state);
     const searchedAssets: SearchAssets[] = state ? state['assets'] : [];
     // Get assets data
     await this.getAssetsData(searchedAssets);
@@ -199,7 +198,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
     // Get asset details from the db
     let assets: Asset[] = await this.layerService.getAssetsByLayersAndIds(searchedAssets);
-    console.log('sois disant asset: ', assets);
     if (!assets) assets = [];
     // When we come from an xy we don't have features
     if (assets.length > 0) {
@@ -249,7 +247,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assetId);
 
           if (assetForSig != null) {
-            console.log('asset for sig: ', assetForSig);
             assets.push({
               lyrTableName: assetForSig.assObjTable,
               id: getAssetTempIdFromNumeric(assetForSig.id),
@@ -260,8 +257,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         }
       }
     }
-
-    console.log(assets);
 
     await this.addAssetsToMap(assets);
   }
@@ -292,8 +287,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             ]);
           }
         } else {
-          console.log(this.filteredAssets);
-
           this.drawerService.navigateWithAssets({
             route: DrawerRouteEnum.WORKORDER_CREATION,
             assets: this.utilsService.transformAssetIntoSearchAssets(
@@ -357,7 +350,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             draft: this.wkoDraft,
           });
         } else {
-          console.log(this.filteredAssets);
           this.drawerService.navigateWithAssets({
             route: DrawerRouteEnum.NEW_ASSET,
             assets: this.utilsService.transformAssetIntoSearchAssets(
@@ -629,7 +621,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   private async addAssetsToMap(assets: Asset[]): Promise<void> {
-    console.log('add following layer to map: ', assets);
     this.isLoading = true;
 
     const promises: Promise<void>[] = assets.map(
@@ -709,8 +700,6 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   }
 
   private async addNewFeatures(features: any | any[]): Promise<void> {
-    console.log('Est-ce que ce sont des assets ? ', features);
-
     if (!Array.isArray(features)) {
       features = [
         {

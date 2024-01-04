@@ -59,9 +59,9 @@ export class AssetDetailsComponent implements OnInit {
       .subscribe((forms: FormTemplate[]) => {
         let form: Form = null;
         if(this.isMobile) {
-          form = JSON.parse(forms.find(form => form.formCode === 'ASSET_DETAILS_VIEW_MOBILE').definition);
+          form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW_MOBILE').definition);
         } else {
-          form = JSON.parse(forms.find(form => form.formCode === 'ASSET_DETAILS_VIEW').definition);
+          form = JSON.parse(forms.find(form => form.formCode === 'EQUIPMENT_DETAILS_VIEW').definition);
         }
         form.definitions.map((def: FormDefinition) => {
           if (this.asset[def.key]) {

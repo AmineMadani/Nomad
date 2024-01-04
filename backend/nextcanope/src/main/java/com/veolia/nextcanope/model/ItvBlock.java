@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 
 /**
@@ -53,6 +55,7 @@ private Long id;
     private Itv itv;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="itvBlock")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<ItvBlockData> listOfItvBlockData;
 
     @ManyToOne

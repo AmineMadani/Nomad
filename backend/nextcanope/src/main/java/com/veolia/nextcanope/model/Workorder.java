@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -199,6 +201,7 @@ private Long id;
     private WorkorderTaskStatus workorderTaskStatus;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="workorder")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfTask;
 
     @ManyToOne(fetch = FetchType.LAZY)

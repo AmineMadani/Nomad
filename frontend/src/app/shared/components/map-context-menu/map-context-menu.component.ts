@@ -29,6 +29,7 @@ import { Layer } from 'src/app/core/models/layer.model';
 import { StreetViewModalComponent } from 'src/app/shared/components/street-view-modal/street-view-modal.component';
 import { Subject, takeUntil } from 'rxjs';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { SearchAssets } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-map-context-menu',
@@ -305,14 +306,20 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Navigates to a work order page with selected feature properties as query parameters or none for XY workorder
    */
-  public onGenerateWorkOrder(asset: any | null): void {
+  public onGenerateWorkOrder(feature: any | null): void {
     this.wkoSelectionPopover.dismiss();
     this.closeMenu();
-    if (asset?.id) {
-      this.router.navigate(['/home/workorder'], {
-        queryParams: {
-          [asset.source]: asset.id,
-        },
+    if (feature?.id) {
+      const searchAssets: SearchAssets[] = [
+        {
+          lyrTableName: feature.source,
+          assetIds: [feature.id]
+        }
+      ];
+      // Mono-asset
+      this.drawerService.navigateWithAssets({
+        route: DrawerRouteEnum.WORKORDER_CREATION,
+        assets: searchAssets,
       });
     } else {
       this.drawerService.navigateTo(

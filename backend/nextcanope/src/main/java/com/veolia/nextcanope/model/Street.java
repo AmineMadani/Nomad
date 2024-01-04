@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import org.locationtech.jts.geom.Geometry;
@@ -84,6 +86,7 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="street")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)

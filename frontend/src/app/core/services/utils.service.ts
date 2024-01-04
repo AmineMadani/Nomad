@@ -188,10 +188,9 @@ export class UtilsService {
   public transformNomadFeaturesIntoSearchAssets(features: NomadFeature[], allColumn: boolean = false): SearchAssets[] {
     const searchAsset: SearchAssets[] = [];
 
-    console.log('will transform the following features: ', features);
     features
       // Don't take the tmp assets
-      .filter((ftr) => !ftr.id.startsWith('TMP-'))
+      .filter((ftr) => ftr.id && !ftr.id.startsWith('TMP-'))
       // Build the assets obj from the feature
       .forEach((feature) => {
         const source = feature.source;
@@ -214,7 +213,6 @@ export class UtilsService {
   public transformAssetIntoSearchAssets(assets: Asset[], allColumn: boolean = false): SearchAssets[] {
     const searchAsset: SearchAssets[] = [];
 
-    console.log('will transform the following features: ', assets);
     assets
       // Build the assets obj from the feature
       .forEach((feature) => {

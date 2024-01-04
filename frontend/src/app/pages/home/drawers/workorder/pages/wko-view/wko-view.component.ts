@@ -25,6 +25,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import { LayerService } from 'src/app/core/services/layer.service';
 import { DateTime } from 'luxon';
 import { ValueLabel } from 'src/app/core/models/util.model';
+import { Asset } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-wko-view',
@@ -404,7 +405,7 @@ export class WkoViewComponent implements OnInit {
 
   public openAsset(): void {
     if (this.workOrder.tasks.length > 1) {
-      const assets = this.workOrder.tasks.map((t) => {
+      const assets: Asset[] = this.workOrder.tasks.map((t) => {
         return {
           id: t.assObjRef,
           lyrTableName: t.assObjTable,
@@ -417,8 +418,7 @@ export class WkoViewComponent implements OnInit {
 
       this.drawerService.navigateWithAssets({
         route: DrawerRouteEnum.SELECTION,
-        // TODO: Change this
-        assets: this.utilsService.transformAssetIntoSearchAssets(assets as any),
+        assets: this.utilsService.transformAssetIntoSearchAssets(assets),
         queryParams: { draft: this.workOrder.id }
       });
     } else {
