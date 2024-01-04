@@ -57,14 +57,14 @@ public class OrgCtr implements Serializable {
     private Contract contract;
 
     @ManyToOne
-    @JoinColumn(name="orc_umod_id", referencedColumnName="id")
-	@JsonIgnore
-    private Users modifiedBy;
-
-    @ManyToOne
     @JoinColumn(name="org_id", referencedColumnName="id")
     @Id
     private OrganizationalUnit organizationalUnit;
+
+    @ManyToOne
+    @JoinColumn(name="orc_umod_id", referencedColumnName="id")
+	@JsonIgnore
+    private Users modifiedBy;
 
     /**
      * Constructor
@@ -107,20 +107,20 @@ public class OrgCtr implements Serializable {
         this.contract = contract;
     }
 
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
     public OrganizationalUnit getOrganizationalUnit() {
         return this.organizationalUnit;
     }
 
     public void setOrganizationalUnit(OrganizationalUnit organizationalUnit) {
         this.organizationalUnit = organizationalUnit;
+    }
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
 }

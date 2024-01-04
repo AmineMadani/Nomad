@@ -9,9 +9,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.locationtech.jts.geom.Geometry;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -78,13 +80,14 @@ private Long id;
     @JoinColumn(name="cty_id", referencedColumnName="id")
     private City city;
 
-    @OneToMany(mappedBy="street")
-    private List<Workorder> listOfWorkorder;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="str_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
+
+    @OneToMany(mappedBy="street")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Workorder> listOfWorkorder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="str_umod_id", referencedColumnName="id")
@@ -180,6 +183,14 @@ private Long id;
         this.city = city;
     }
 
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public List<Workorder> getListOfWorkorder() {
         if (this.listOfWorkorder != null) {
             return this.listOfWorkorder.stream()
@@ -196,14 +207,6 @@ private Long id;
 
     public void setListOfWorkorder(List<Workorder> listOfWorkorder) {
         this.listOfWorkorder = listOfWorkorder;
-    }
-
-    public Users getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Users getModifiedBy() {

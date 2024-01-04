@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -69,14 +71,16 @@ private Long id;
 	@JsonIgnore
     private Users modifiedBy;
 
-    @OneToMany(mappedBy="layerReferences")
-    private List<LayerReferencesDefault> listOfLayerReferencesDefault;
-
     @ManyToOne
     @JoinColumn(name="lyr_id", referencedColumnName="id")
     private Layer layer;
 
     @OneToMany(mappedBy="layerReferences")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<LayerReferencesDefault> listOfLayerReferencesDefault;
+
+    @OneToMany(mappedBy="layerReferences")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<LayerReferencesUser> listOfLayerReferencesUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -157,20 +161,20 @@ private Long id;
         this.modifiedBy = modifiedBy;
     }
 
-    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
-        return this.listOfLayerReferencesDefault;
-    }
-
-    public void setListOfLayerReferencesDefault(List<LayerReferencesDefault> listOfLayerReferencesDefault) {
-        this.listOfLayerReferencesDefault = listOfLayerReferencesDefault;
-    }
-
     public Layer getLayer() {
         return this.layer;
     }
 
     public void setLayer(Layer layer) {
         this.layer = layer;
+    }
+
+    public List<LayerReferencesDefault> getListOfLayerReferencesDefault() {
+        return this.listOfLayerReferencesDefault;
+    }
+
+    public void setListOfLayerReferencesDefault(List<LayerReferencesDefault> listOfLayerReferencesDefault) {
+        this.listOfLayerReferencesDefault = listOfLayerReferencesDefault;
     }
 
     public List<LayerReferencesUser> getListOfLayerReferencesUser() {

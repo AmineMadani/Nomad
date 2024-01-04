@@ -29,6 +29,7 @@ import { Layer } from 'src/app/core/models/layer.model';
 import { StreetViewModalComponent } from 'src/app/shared/components/street-view-modal/street-view-modal.component';
 import { Subject, takeUntil } from 'rxjs';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
+import { SearchAssets } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-map-context-menu',
@@ -192,7 +193,7 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
     this.assetSelectionPopover.dismiss();
     this.closeMenu();
 
-    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [asset['id']], {
+    this.drawerService.navigateTo(DrawerRouteEnum.ASSET, [asset['id']], {
       lyrTableName: asset.source,
     });
   }
@@ -305,14 +306,20 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Navigates to a work order page with selected feature properties as query parameters or none for XY workorder
    */
-  public onGenerateWorkOrder(asset: any | null): void {
+  public onGenerateWorkOrder(feature: any | null): void {
     this.wkoSelectionPopover.dismiss();
     this.closeMenu();
-    if (asset?.id) {
-      this.router.navigate(['/home/workorder'], {
-        queryParams: {
-          [asset.source]: asset.id,
-        },
+    if (feature?.id) {
+      const searchAssets: SearchAssets[] = [
+        {
+          lyrTableName: feature.source,
+          assetIds: [feature.id]
+        }
+      ];
+      // Mono-asset
+      this.drawerService.navigateWithAssets({
+        route: DrawerRouteEnum.WORKORDER_CREATION,
+        assets: searchAssets,
       });
     } else {
       this.drawerService.navigateTo(
@@ -352,20 +359,20 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
         selectedFeature['properties']
       );
     } else if (asset.id) {
-      let equipment = await this.layerService.getEquipmentByLayerAndId(
+      const assetDetails = await this.layerService.getAssetByLayerAndId(
         asset['source'],
         asset['id']
       );
       let recalculateCoords: number[];
-      //Equipments have fixed coordinates
-      if (equipment.geom.type == 'Point') {
+      //Assets have fixed coordinates
+      if (assetDetails.geom.type == 'Point') {
         recalculateCoords = [
           asset['properties']['x'],
           asset['properties']['y'],
         ];
       } else {
         recalculateCoords = this.mapLayerService.findNearestPoint(
-          equipment.geom.coordinates,
+          assetDetails.geom.coordinates,
           [asset['properties']['x'], asset['properties']['y']]
         );
       }

@@ -1,5 +1,6 @@
 package com.veolia.nextcanope.service;
 
+import com.veolia.nextcanope.constants.ItvConstants;
 import com.veolia.nextcanope.dto.itv.*;
 import com.veolia.nextcanope.exception.FunctionalException;
 import com.veolia.nextcanope.exception.TechnicalException;
@@ -785,7 +786,7 @@ public class ITVService {
 
         Itv itv = new Itv();
         itv.setItvFilename(filename);
-        itv.setItvStatus(Itv.STATUS_IMPORT);
+        itv.setItvStatus(ItvConstants.STATUS_IMPORT);
         itv.setCreatedBy(user);
         itv.setModifiedBy(user);
         itv.setListOfItvPicture(new ArrayList<>());
@@ -803,7 +804,7 @@ public class ITVService {
 
             for (String code : itvBlockDto.getMapB().keySet()) {
                 ItvBlockData itvBlockData = new ItvBlockData();
-                itvBlockData.setIbdParent(ItvBlockData.PARENT_B);
+                itvBlockData.setIbdParent(ItvConstants.PARENT_B);
                 itvBlockData.setIbdLine(null); // Only 1 line for B
                 itvBlockData.setIbdCode(code);
                 itvBlockData.setIbdValue(itvBlockDto.getMapB().get(code));
@@ -811,7 +812,7 @@ public class ITVService {
                 itvBlock.getListOfItvBlockData().add(itvBlockData);
             }
 
-            int lineNb = 0;
+            long lineNb = 0;
             boolean hasStructuralDefect = false;
             boolean hasFunctionalDefect = false;
             boolean hasObservation = false;
@@ -822,7 +823,7 @@ public class ITVService {
                     String value = mapC.get(code);
 
                     ItvBlockData itvBlockData = new ItvBlockData();
-                    itvBlockData.setIbdParent(ItvBlockData.PARENT_C);
+                    itvBlockData.setIbdParent(ItvConstants.PARENT_C);
                     itvBlockData.setIbdLine(lineNb);
                     itvBlockData.setIbdCode(code);
                     itvBlockData.setIbdValue(mapC.get(code));

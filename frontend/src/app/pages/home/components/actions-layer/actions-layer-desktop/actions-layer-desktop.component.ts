@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
-import { IonPopover, IonRadioGroup, IonSearchbar } from '@ionic/angular';
+import { IonPopover, IonSearchbar } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 
 import { DrawingService } from 'src/app/core/services/map/drawing.service';
@@ -218,7 +218,12 @@ export class ActionsLayerDesktopComponent implements OnInit, OnDestroy {
   private OpenAssetResult(result: any) {
     const id = result.id;
     const layer = result.asset_tbl.replace('asset.', '');
-    this.router.navigate(['home/equipment/' + id], { queryParams: { lyrTableName: layer } });
+    // TODO: Check this
+    this.drawerService.navigateTo(
+      DrawerRouteEnum.ASSET,
+      [id],
+      { lyrTableName: layer }
+    );
     this.searchResult = id;
     this.genericSearResult = [];
   }

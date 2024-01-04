@@ -19,7 +19,6 @@ import { MapService } from 'src/app/core/services/map/map.service';
 import { ContractService } from 'src/app/core/services/contract.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { ReportDateComponent } from './report-date/report-date.component';
 
 export enum ReportStepEnum {
   ASSET = 1,
@@ -134,7 +133,7 @@ export class ReportCreateComponent implements OnInit {
    */
   public onNext() {
     if (this.step === ReportStepEnum.ASSET) {
-      this.stepAsset.onValidateChangeEquipment();
+      this.stepAsset.onValidateChangeAsset();
     }
 
     if (this.step <= ReportStepEnum.FORM) {
@@ -335,7 +334,7 @@ export class ReportCreateComponent implements OnInit {
   }
 
   public onEditTask() {
-    let equipments = this.workorder.tasks
+    const assets = this.workorder.tasks
       .filter((t) => t.assObjRef != null)
       .map((t) => {
         return {
@@ -344,14 +343,15 @@ export class ReportCreateComponent implements OnInit {
         };
       });
 
-    this.drawerService.navigateWithEquipments(
-      DrawerRouteEnum.SELECTION,
-      this.utils.transformFeaturesIntoSearchEquipments(equipments),
-      {
+    this.drawerService.navigateWithAssets({
+      route: DrawerRouteEnum.SELECTION,
+      // TODO: Change this
+      assets: this.utils.transformAssetIntoSearchAssets(assets as any),
+      queryParams: {
         draft: this.workorder.id,
         step: 'report',
       }
-    );
+    });
   }
 
   public isReportCompleted(): boolean {

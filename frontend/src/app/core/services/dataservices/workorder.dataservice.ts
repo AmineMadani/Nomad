@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ConfigurationService } from '../configuration.service';
 import { UtilsService } from '../utils.service';
-import { CancelTask, CancelWorkOrder, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
+import { CancelTask, Task, Workorder, WorkorderTaskReason, WorkorderTaskStatus } from '../../models/workorder.model';
 
 @Injectable({
   providedIn: 'root',
@@ -124,7 +124,7 @@ export class WorkorderDataService {
    * Get list of workorders for a given asset
    * @returns an observable of the list of workorders
    */
-  public getEquipmentWorkorderHistory(
+  public getAssetWorkorderHistory(
     assetTable: string,
     assetId: string
   ): Promise<Workorder[]> {

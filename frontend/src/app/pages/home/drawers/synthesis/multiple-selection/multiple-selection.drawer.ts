@@ -6,7 +6,7 @@ import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { MapService } from 'src/app/core/services/map/map.service';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { Subject, takeUntil, filter, debounceTime } from 'rxjs';
-import { Layer, SearchEquipments } from 'src/app/core/models/layer.model';
+import { Layer } from 'src/app/core/models/layer.model';
 import { UtilsService } from 'src/app/core/services/utils.service';
 import { IonContent, IonPopover, AlertController, ToastController } from '@ionic/angular';
 import { MapLayerService } from 'src/app/core/services/map/map-layer.service';
@@ -19,6 +19,7 @@ import { DrawingService } from 'src/app/core/services/map/drawing.service';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { ItvService } from 'src/app/core/services/itv.service';
 import { LocationStrategy } from '@angular/common';
+import { Asset, SearchAssets, getAssetTempIdFromNumeric, isAssetTemp, searchAssetsToListAssetId } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-multiple-selection',
@@ -52,8 +53,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public buttons: SynthesisButton[] = [];
 
-  public featuresSelected: any[] = [];
-  public filteredFeatures: any[] = [];
+  public assetsSelected: Asset[] = [];
+  public filteredAssets: Asset[] = [];
   public sources: { key: string; label: string }[] = [];
   public selectedSource: any;
   public isLoading: boolean = false;
@@ -88,7 +89,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         icon: 'person-circle-outline',
         disabledFunction: () =>
           !this.userHasPermissionCreateAssetWorkorder ||
-          this.filteredFeatures.length === 0,
+          this.filteredAssets.length === 0,
       },
       {
         key: 'report',
@@ -96,7 +97,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         icon: 'newspaper-outline',
         disabledFunction: () =>
           !this.userHasPermissionCreateAssetWorkorder ||
-          this.filteredFeatures.length === 0,
+          this.filteredAssets.length === 0,
       },
       {
         key: 'new-asset',
@@ -127,11 +128,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         PermissionCodeEnum.REQUEST_UPDATE_ASSET
       );
 
-    // Get equipments send from the state
+    // Get assets from the state
     const state = this.location.getState();
-    const searchedEquipments: SearchEquipments[] = state['equipments'];
-    // Launch the first equipments data recuperation
-    await this.getEquipmentsData(searchedEquipments);
+    const searchedAssets: SearchAssets[] = state ? state['assets'] : [];
+    // Get assets data
+    await this.getAssetsData(searchedAssets);
 
     this.mapEventService
       .onFeatureHovered()
@@ -140,13 +141,13 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         if (f) {
           this.featureIdSelected = f;
           const name = 'feature-container-' + this.featureIdSelected;
-          if (!this.getDisplayedFeatures().some((ftr) => ftr.id === this.featureIdSelected)) {
-            const featureToAddIndex = this.filteredFeatures.findIndex((ftr) => ftr.id === f);
+          if (!this.getDisplayedAssets().some((ftr) => ftr.id === this.featureIdSelected)) {
+            const featureToAddIndex = this.filteredAssets.findIndex((ftr) => ftr.id === f);
             if (featureToAddIndex > -1) {
               // Move the features to a position in the displayed features
-              const element = this.filteredFeatures[featureToAddIndex];
-              this.filteredFeatures.splice(featureToAddIndex, 1);
-              this.filteredFeatures.splice(Math.round(this.nbDisplayedTask / 2), 0, element);
+              const element = this.filteredAssets[featureToAddIndex];
+              this.filteredAssets.splice(featureToAddIndex, 1);
+              this.filteredAssets.splice(Math.round(this.nbDisplayedTask / 2), 0, element);
             }
           }
 
@@ -173,8 +174,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       });
   }
 
-  public getDisplayedFeatures(): any[] {
-    return this.filteredFeatures.slice(0, this.nbDisplayedTask);
+  public getDisplayedAssets(): any[] {
+    return this.filteredAssets.slice(0, this.nbDisplayedTask);
   }
 
   public onScroll(event: any): void {
@@ -187,22 +188,20 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
   }
 
-  private async getEquipmentsData(searchedEquipments: SearchEquipments[]) {
+  private async getAssetsData(searchedAssets: SearchAssets[]) {
     // Reset user selection values
-    this.featuresSelected = [];
-    this.filteredFeatures = [];
+    this.assetsSelected = [];
+    this.filteredAssets = [];
     this.sources = [];
     this.layersConf = [];
     this.featuresHighlighted = [];
 
-    // Get equipments data
-    const features = await this.layerService.getEquipmentsByLayersAndIds(
-      searchedEquipments.filter((asset) => asset.lyrTableName.startsWith('aep_') || asset.lyrTableName.startsWith('ass_'))
-    );
-
+    // Get asset details from the db
+    let assets: Asset[] = await this.layerService.getAssetsByLayersAndIds(searchedAssets);
+    if (!assets) assets = [];
     // When we come from an xy we don't have features
-    if (features && features.length > 0) {
-      // Zoom to fit the screen with all equipments
+    if (assets.length > 0) {
+      // Zoom to fit the screen with all assets
       // Only when the map loaded to remove some problems when we refresh the screen
       this.mapService
         .onMapLoaded('home')
@@ -213,24 +212,53 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         .subscribe(() => {
           this.mapLayerService.fitBounds(
             'home',
-            features.map((f) => {
+            assets.map((f) => {
               return [+f.x, +f.y];
             })
           );
         });
-
-      // Add the lyrTableName for each equipments
-      const equipments = features.map((f) => {
-        return {
-          ...f,
-          lyrTableName: searchedEquipments.find((map) =>
-            map.equipmentIds.includes(f.id)
-          ).lyrTableName,
-        };
-      });
-
-      await this.addLayerToMap(equipments);
     }
+
+    // Add tempory new asset
+    if (this.wkoDraft != null) {
+      // When there is a workorder
+      const wko: Workorder = await this.workorderService.getWorkorderById(
+        this.wkoDraft
+      );
+      const listTaskOnNewAsset = wko.tasks.filter((task) =>
+        task.assObjRef?.startsWith('TMP-')
+      );
+      for (const task of listTaskOnNewAsset) {
+        assets.push({
+          id: task.assObjRef,
+          lyrTableName: task.assObjTable,
+          x: task.longitude,
+          y: task.latitude,
+          ctrId: task.ctrId,
+        });
+      }
+    } else {
+      // When there is no workorder, but there is a reference in the state param
+      const state = this.location.getState();
+      const tmpAssets: SearchAssets[] = state ? state['tmpAssets'] : [];
+
+      if (tmpAssets && tmpAssets.length > 0) {
+        for (const assetId of searchAssetsToListAssetId(tmpAssets)) {
+          const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(assetId);
+
+          if (assetForSig != null) {
+            assets.push({
+              lyrTableName: assetForSig.assObjTable,
+              id: getAssetTempIdFromNumeric(assetForSig.id),
+              x: assetForSig.coords[0][0],
+              y: assetForSig.coords[0][1],
+            });
+          }
+        }
+      }
+    }
+
+    await this.addAssetsToMap(assets);
   }
 
   ngOnDestroy(): void {
@@ -259,21 +287,26 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             ]);
           }
         } else {
-          this.drawerService.navigateWithEquipments(
-            DrawerRouteEnum.WORKORDER_CREATION,
-            this.utilsService.transformFeaturesIntoSearchEquipments(this.filteredFeatures)
-          );
+          this.drawerService.navigateWithAssets({
+            route: DrawerRouteEnum.WORKORDER_CREATION,
+            assets: this.utilsService.transformAssetIntoSearchAssets(
+              this.filteredAssets.filter((asset) => !isAssetTemp(asset))
+            ),
+            tmpAssets: this.utilsService.transformAssetIntoSearchAssets(
+              this.filteredAssets.filter((asset) => isAssetTemp(asset))
+            ),
+          });
         }
 
         break;
       case 'report':
         const { filtred, filtredAssets } =
-          await this.layerService.checkEquipments(this.filteredFeatures);
+          await this.layerService.checkAssets(this.filteredAssets);
         if (filtred) {
           if (!filtredAssets || filtredAssets?.length === 0) {
             return;
           }
-          this.filteredFeatures = filtredAssets;
+          this.filteredAssets = filtredAssets;
         }
         let lStatus = await this.workorderService.getAllWorkorderTaskStatus();
         let workorder: Workorder = {
@@ -284,7 +317,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         };
         workorder.tasks = [
           ...workorder.tasks,
-          ...this.filteredFeatures.map((feature) => {
+          ...this.filteredAssets.map((feature) => {
             if (feature.geom && feature.geom.type !== 'Point') {
               const recalculateCoords = this.mapLayerService.findNearestPoint(
                 feature.geom.coordinates,
@@ -317,10 +350,15 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
             draft: this.wkoDraft,
           });
         } else {
-          this.drawerService.navigateWithEquipments(
-            DrawerRouteEnum.NEW_ASSET,
-            this.utilsService.transformFeaturesIntoSearchEquipments(this.filteredFeatures),
-          );
+          this.drawerService.navigateWithAssets({
+            route: DrawerRouteEnum.NEW_ASSET,
+            assets: this.utilsService.transformAssetIntoSearchAssets(
+              this.filteredAssets.filter((asset) => !isAssetTemp(asset))
+            ),
+            tmpAssets: this.utilsService.transformAssetIntoSearchAssets(
+              this.filteredAssets.filter((asset) => isAssetTemp(asset))
+            ),
+          });
         }
         break;
       case 'showSelectedFeatures':
@@ -328,7 +366,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         break;
       case 'export-empty-itv-file':
         // Get waste water features
-        const listAssFeature = this.filteredFeatures.filter((feasure) => {
+        const listAssFeature = this.filteredAssets.filter((feasure) => {
           return feasure.lyrTableName != null && feasure.lyrTableName.startsWith('ass_');
         });
 
@@ -423,12 +461,12 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
   public async handleChange(e: Event): Promise<void> {
     const event: CustomEvent = e as CustomEvent;
     if (event?.detail.value?.length > 0) {
-      this.filteredFeatures = this.featuresSelected.filter((f) =>
-        event.detail.value.includes(f.lyrTableName)
+      this.filteredAssets = this.assetsSelected.filter((asset) =>
+        event.detail.value.includes(asset.lyrTableName)
       );
     } else {
       this.selectedSource = undefined;
-      this.filteredFeatures = this.featuresSelected;
+      this.filteredAssets = this.assetsSelected;
     }
 
     if (this.wkoDraft) {
@@ -438,11 +476,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
       // Step 1: Remove tasks with assObjRef not in filteredElements array
       wko.tasks = wko.tasks.filter((t) =>
-        this.filteredFeatures.map((f) => f.id).includes(t.assObjRef)
+        this.filteredAssets.map((f) => f.id).includes(t.assObjRef)
       );
 
       // Step 2: Add tasks for filteredElements without corresponding tasks
-      const tasksToAdd = this.filteredFeatures
+      const tasksToAdd = this.filteredAssets
         .filter((f) => !wko.tasks.some((t) => t.assObjRef === f.id))
         .map((f) => ({
           id: this.utilsService.createCacheId(),
@@ -460,11 +498,11 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
   }
 
-  public openFeature(feature: any): void {
-    if (feature.isTemp === true) return;
+  public openAsset(asset: Asset): void {
+    if (asset.id.startsWith('TMP-')) return;
 
-    this.drawerService.navigateTo(DrawerRouteEnum.EQUIPMENT, [feature.id], {
-      lyrTableName: feature.lyrTableName,
+    this.drawerService.navigateTo(DrawerRouteEnum.ASSET, [asset.id], {
+      lyrTableName: asset.lyrTableName,
     });
   }
 
@@ -478,14 +516,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
       );
     }
 
-    this.featuresSelected.splice(
-      this.featuresSelected.findIndex((f) => f.id === feature.id),
+    this.assetsSelected.splice(
+      this.assetsSelected.findIndex((f) => f.id === feature.id),
       1
     );
 
-    if (this.filteredFeatures.includes(feature)) {
-      this.filteredFeatures.splice(
-        this.featuresSelected.findIndex((f) => f.id === feature.id),
+    if (this.filteredAssets.includes(feature)) {
+      this.filteredAssets.splice(
+        this.assetsSelected.findIndex((f) => f.id === feature.id),
         1
       );
     }
@@ -542,10 +580,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     if (this.featuresHighlighted.includes(feature)) {
       this.featuresHighlighted = [];
       this.restoreViewOnFeatureSelected();
-      this.hightlightFeatures();
+      this.hightlightAssets();
     } else {
       this.featuresHighlighted.push(feature);
-      this.hightlightFeatures(this.featuresHighlighted);
+      this.hightlightAssets(this.featuresHighlighted);
       this.mapLayerService.fitBounds(
         'home',
         this.featuresHighlighted.map((f) => {
@@ -557,10 +595,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
 
   public restoreViewOnFeatureSelected() {
     this.featuresHighlighted = [];
-    this.hightlightFeatures();
+    this.hightlightAssets();
     this.mapLayerService.fitBounds(
       'home',
-      this.featuresSelected.map((f) => {
+      this.assetsSelected.map((f) => {
         return [+f.x, +f.y];
       })
     );
@@ -572,62 +610,20 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         this.featuresHighlighted.length > 0
           ? [feature, ...this.featuresHighlighted]
           : [feature];
-      this.hightlightFeatures(features);
+      this.hightlightAssets(features);
     } else {
       if (this.featuresHighlighted.length > 0) {
-        this.hightlightFeatures(this.featuresHighlighted);
+        this.hightlightAssets(this.featuresHighlighted);
       } else {
-        this.hightlightFeatures();
+        this.hightlightAssets();
       }
     }
   }
 
-  private async addLayerToMap(abstractFeatures: any[]): Promise<void> {
+  private async addAssetsToMap(assets: Asset[]): Promise<void> {
     this.isLoading = true;
 
-    if (abstractFeatures == null) abstractFeatures = [];
-
-    // Add tempory new asset
-    if (this.wkoDraft != null) {
-      // When there is a workorder
-      const wko: Workorder = await this.workorderService.getWorkorderById(
-        this.wkoDraft
-      );
-      const listTaskOnNewAsset = wko.tasks.filter((task) =>
-        task.assObjRef?.startsWith('TMP-')
-      );
-      for (const task of listTaskOnNewAsset) {
-        abstractFeatures.push({
-          id: task.assObjRef,
-          lyrTableName: task.assObjTable,
-          x: task.longitude,
-          y: task.latitude,
-          isTemp: true,
-        });
-      }
-    } else {
-      // When there is no workorder, but there is a reference in the url param
-      const state = this.location.getState();
-      const searchedEquipments: SearchEquipments[] = state['equipments'];
-      const tmpAssetType = searchedEquipments?.find((asset) => asset.lyrTableName === 'tmp');
-
-      if (tmpAssetType) {
-        for (const id of tmpAssetType.equipmentIds) {
-          const assetForSig = await this.assetForSigService.getCacheAssetForSigByAssObjRef(id);
-          if (assetForSig != null) {
-            abstractFeatures.push({
-              id: id,
-              lyrTableName: assetForSig.assObjTable,
-              x: assetForSig.coords[0][0],
-              y: assetForSig.coords[0][1],
-              isTemp: true,
-            });
-          }
-        }
-      }
-    }
-
-    const promises: Promise<void>[] = abstractFeatures.map(
+    const promises: Promise<void>[] = assets.map(
       ({ lyrTableName }) => {
         return this.mapService.addEventLayer('home', lyrTableName);
       }
@@ -636,7 +632,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     await Promise.all(promises);
 
     this.sources = [
-      ...new Set(abstractFeatures.map(({ lyrTableName }) => lyrTableName)),
+      ...new Set(assets.map(({ lyrTableName }) => lyrTableName)),
     ].map((lyrName: string) => {
       const conf = this.mapService.getLayer(lyrName).configurations;
       this.layersConf.push(conf);
@@ -644,48 +640,48 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     });
 
     const mapSearch: Map<string, string[]> = new Map();
-    for (const feature of abstractFeatures) {
-      if (feature.isTemp) {
-        this.featuresSelected.push(feature);
+    for (const asset of assets) {
+      if (isAssetTemp(asset)) {
+        this.assetsSelected.push(asset);
       } else {
-        if (mapSearch.get(feature.lyrTableName)) {
-          mapSearch.get(feature.lyrTableName).push(feature.id);
+        if (mapSearch.get(asset.lyrTableName)) {
+          mapSearch.get(asset.lyrTableName).push(asset.id);
         } else {
-          mapSearch.set(feature.lyrTableName, [feature.id]);
+          mapSearch.set(asset.lyrTableName, [asset.id]);
         }
       }
     }
 
-    const searchEquipments: SearchEquipments[] = [];
+    const assetsParams: SearchAssets[] = [];
     for (const [key, value] of mapSearch) {
-      searchEquipments.push({
+      assetsParams.push({
         lyrTableName: key,
-        equipmentIds: value,
+        assetIds: value,
         allColumn: true,
       });
     }
 
-    const searchEquipmentsRes =
-      await this.layerService.getEquipmentsByLayersAndIds(searchEquipments);
-    this.featuresSelected = this.utilsService.removeDuplicatesFromArr(
-      [...this.featuresSelected, ...searchEquipmentsRes],
+    const searchAssetsRes: Asset[] =
+      await this.layerService.getAssetsByLayersAndIds(assetsParams);
+    this.assetsSelected = this.utilsService.removeDuplicatesFromArr(
+      [...this.assetsSelected, ...searchAssetsRes],
       'id'
     );
-    this.filteredFeatures = this.featuresSelected;
+    this.filteredAssets = this.assetsSelected;
 
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap('home'),
-      this.featuresSelected
-        .filter((f) => f.isTemp !== true)
+      this.assetsSelected
+        .filter((asset) => asset['isTemp'] !== true)
         .map((f: any) => {
           return { id: f.id, source: f.lyrTableName };
         })
     );
 
-    if (this.featuresSelected.length > 0) {
+    if (this.assetsSelected.length > 0) {
       this.mapLayerService.fitBounds(
         'home',
-        this.featuresSelected.map((f) => {
+        this.assetsSelected.map((f) => {
           return [+f.x, +f.y];
         })
       );
@@ -694,10 +690,10 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
-  private hightlightFeatures(features?: any[]): void {
+  private hightlightAssets(features?: any[]): void {
     this.mapEventService.highlighSelectedFeatures(
       this.mapService.getMap('home'),
-      (features ?? this.featuresSelected).map((f: any) => {
+      (features ?? this.assetsSelected).map((f: any) => {
         return { id: f.id, source: f.lyrTableName };
       })
     );
@@ -727,7 +723,7 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
     }
 
     features = this.utilsService.removeDuplicatesFromArr(
-      [...this.featuresSelected, ...features],
+      [...this.assetsSelected, ...features],
       'id'
     );
 
@@ -760,14 +756,14 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
         });
     }
 
-    const listNewEquipments = this.utilsService.transformFeaturesIntoSearchEquipments([
-      ...this.filteredFeatures,
+    const listNewAssets = this.utilsService.transformAssetIntoSearchAssets([
+      ...this.filteredAssets,
       ...features
     ], true);
 
     this.mapEventService.isFeatureFiredEvent = false;
 
-    await this.getEquipmentsData(listNewEquipments);
+    await this.getAssetsData(listNewAssets);
   }
 
   public openPopoverButtons(e: Event): void {

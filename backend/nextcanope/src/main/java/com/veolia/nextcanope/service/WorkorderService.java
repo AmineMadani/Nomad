@@ -215,8 +215,13 @@ public class WorkorderService {
 			List<Report> reports = new ArrayList<>();
 			if (taskDto.getReport() != null) {
 				task.setTskReportDate(taskDto.getReport().getDateCompletion());
+
+				List<String> reportKeys = taskDto.getReport().getReportValues()
+						.stream().map(ReportValueDto::getKey).toList();
+				List<Report> taskReports = reportRepository.findByTask_IdAndRptKeyIn(taskDto.getId(), reportKeys);
+
 				for (ReportValueDto reportValue : taskDto.getReport().getReportValues()) {
-					Report report = reportRepository.findByTask_IdAndRptKey(taskDto.getId(), reportValue.getKey());
+					Report report = taskReports.stream().filter(r -> r.getRptKey().equals(reportValue.getKey())).findFirst().orElse(null);
 					if (report == null) {
 						report = new Report();
 						report.setRptKey(reportValue.getKey());
@@ -429,8 +434,12 @@ public class WorkorderService {
 			List<Report> reports = new ArrayList<>();
 			if (taskDto.getReport() != null) {
 				task.setTskReportDate(taskDto.getReport().getDateCompletion());
-				for (ReportValueDto reportValue: taskDto.getReport().getReportValues()) {
-					Report report = reportRepository.findByTask_IdAndRptKey(taskDto.getId(), reportValue.getKey());
+				List<String> reportKeys = taskDto.getReport().getReportValues()
+						.stream().map(ReportValueDto::getKey).toList();
+				List<Report> taskReports = reportRepository.findByTask_IdAndRptKeyIn(taskDto.getId(), reportKeys);
+
+				for (ReportValueDto reportValue : taskDto.getReport().getReportValues()) {
+					Report report = taskReports.stream().filter(r -> r.getRptKey().equals(reportValue.getKey())).findFirst().orElse(null);
 					if (report == null) {
 						report = new Report();
 						report.setRptKey(reportValue.getKey());

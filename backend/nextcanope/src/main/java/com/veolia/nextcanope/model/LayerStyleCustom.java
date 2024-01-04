@@ -57,13 +57,13 @@ private Long id;
     private LayerStyle layerStyle;
 
     @ManyToOne
+    @JoinColumn(name="syd_id", referencedColumnName="id")
+    private StyleDefinition styleDefinition;
+
+    @ManyToOne
     @JoinColumn(name="lsc_umod_id", referencedColumnName="id")
 	@JsonIgnore
     private Users modifiedBy;
-
-    @ManyToOne
-    @JoinColumn(name="syd_id", referencedColumnName="id")
-    private StyleDefinition styleDefinition;
 
     @ManyToOne
     @JoinColumn(name="usr_id", referencedColumnName="id")
@@ -128,20 +128,20 @@ private Long id;
         this.layerStyle = layerStyle;
     }
 
-    public Users getModifiedBy() {
-        return this.modifiedBy;
-    }
-
-    public void setModifiedBy(Users modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
     public StyleDefinition getStyleDefinition() {
         return this.styleDefinition;
     }
 
     public void setStyleDefinition(StyleDefinition styleDefinition) {
         this.styleDefinition = styleDefinition;
+    }
+
+    public Users getModifiedBy() {
+        return this.modifiedBy;
+    }
+
+    public void setModifiedBy(Users modifiedBy) {
+        this.modifiedBy = modifiedBy;
     }
 
     public Users getUsers() {

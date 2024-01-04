@@ -11,7 +11,7 @@ import {
   CustomFilter,
   FilterAsset,
 } from 'src/app/core/models/filter/filter.model';
-import { Layer, LayerReferences } from 'src/app/core/models/layer.model';
+import { LayerReferences } from 'src/app/core/models/layer.model';
 import { Favorite, User } from 'src/app/core/models/user.model';
 import { AssetFilterService } from 'src/app/core/services/assetFilter.service';
 import { DrawerService } from 'src/app/core/services/drawer.service';
@@ -22,11 +22,11 @@ import { UserService } from 'src/app/core/services/user.service';
 import { UtilsService } from 'src/app/core/services/utils.service';
 
 @Component({
-  selector: 'app-asset',
-  templateUrl: './asset.drawer.html',
-  styleUrls: ['./asset.drawer.scss'],
+  selector: 'app-asset-filter',
+  templateUrl: './asset-filter.drawer.html',
+  styleUrls: ['./asset-filter.drawer.scss'],
 })
-export class AssetDrawer implements OnInit, OnDestroy {
+export class AssetFilterDrawer implements OnInit, OnDestroy {
   constructor(
     private utilsService: UtilsService,
     private drawerService: DrawerService,
@@ -258,7 +258,7 @@ export class AssetDrawer implements OnInit, OnDestroy {
 
   /**
    * This is an async function that displays an alert asking the user if they want to modify a selected
-   * favorite, and if confirmed, updates the selected favorite with new equipment data.
+   * favorite, and if confirmed, updates the selected favorite with new asset data.
    */
   public async onModifyFavorite(): Promise<void> {
     const alert = await this.alertController.create({

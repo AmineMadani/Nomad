@@ -19,7 +19,7 @@ export class ConfigurationService {
   host: string;
   keycloak: Keycloak;
   offlineTimeoutReferential: number;
-  offlineTimeoutEquipment: number;
+  offlineTimeoutAsset: number;
   offlineTimeoutTile: number;
   offlineTimeoutWorkorder: number;
   apiAdressesUrl: string;
@@ -46,8 +46,8 @@ export class ConfigurationService {
             this.host = response.body.host;
             this.offlineTimeoutReferential =
               response.body.offlineTimeoutReferential;
-            this.offlineTimeoutEquipment =
-              response.body.offlineTimeoutEquipment;
+            this.offlineTimeoutAsset =
+              response.body.offlineTimeoutAsset;
             this.offlineTimeoutTile = response.body.offlineTimeoutTile;
             this.offlineTimeoutWorkorder =
               response.body.offlineTimeoutWorkorder;

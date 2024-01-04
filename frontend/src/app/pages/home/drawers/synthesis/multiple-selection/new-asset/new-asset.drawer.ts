@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Subject, firstValueFrom, fromEvent, merge, takeUntil } from 'rxjs';
+import { Subject, fromEvent, merge, takeUntil } from 'rxjs';
 import { FilterAsset } from 'src/app/core/models/filter/filter.model';
 import { DrawerService } from 'src/app/core/services/drawer.service';
 import { MapService } from 'src/app/core/services/map/map.service';
@@ -8,7 +8,7 @@ import { UtilsService } from 'src/app/core/services/utils.service';
 import * as Maplibregl from 'maplibre-gl';
 import { Form, FormDefinition, FormPropertiesEnum } from 'src/app/shared/form-editor/models/form.model';
 import { LayerService } from 'src/app/core/services/layer.service';
-import { GEOM_TYPE, Layer, SearchEquipments } from 'src/app/core/models/layer.model';
+import { GEOM_TYPE, Layer } from 'src/app/core/models/layer.model';
 import { MapEventService } from 'src/app/core/services/map/map-event.service';
 import { AssetForSigDto } from 'src/app/core/models/assetForSig.model';
 import { Workorder } from 'src/app/core/models/workorder.model';
@@ -18,6 +18,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AssetForSigService } from 'src/app/core/services/assetForSig.service';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { LocationStrategy } from '@angular/common';
+import { SearchAssets, getAssetTempIdFromNumeric } from 'src/app/core/models/asset.model';
 
 @Component({
   selector: 'app-new-asset',
@@ -284,18 +285,17 @@ export class NewAssetDrawer implements OnInit {
 
       // Recreate the list of asset from the state
       const state = this.location.getState();
-      const searchedEquipments: SearchEquipments[] = state['equipments'];
+      const searchedAssets: SearchAssets[] = state ? state['assets'] : [];
+      const tmpAssets: SearchAssets[] = [{
+        lyrTableName: assetForSig.assObjTable,
+        assetIds: [getAssetTempIdFromNumeric(assetForSig.id)],
+      }];
 
-      // Add the new asset to the list of asset
-      searchedEquipments.push({
-        lyrTableName: 'tmp',
-        equipmentIds: ["TMP-" + assetForSig.id],
-      })
-
-      this.drawerService.navigateWithEquipments(
-        DrawerRouteEnum.SELECTION,
-        searchedEquipments,
-      );
+      this.drawerService.navigateWithAssets({
+        route: DrawerRouteEnum.SELECTION,
+        assets: searchedAssets,
+        tmpAssets: tmpAssets
+      });
       return;
     }
 

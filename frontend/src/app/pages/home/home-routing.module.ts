@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DrawerRouteEnum } from 'src/app/core/models/drawer.model';
 import { ExploitationDrawer } from './drawers/exploitation/exploitation.drawer';
-import { AssetDrawer } from './drawers/asset/asset.drawer';
+import { AssetFilterDrawer } from './drawers/asset-filter/asset-filter.drawer';
 
 import { HomePage } from './home.page';
 import { DemandeDrawer } from './drawers/synthesis/demande/demande.drawer';
-import { EquipmentDrawer } from './drawers/synthesis/equipment/equipment.drawer';
-import { EquipmentDetailsComponent } from './drawers/synthesis/equipment-details/equipment-details.component';
+import { AssetDrawer } from './drawers/synthesis/asset/asset.drawer';
+import { AssetDetailsComponent } from './drawers/synthesis/asset-details/asset-details.component';
 import { MultipleSelectionDrawer } from './drawers/synthesis/multiple-selection/multiple-selection.drawer';
 import { WkoCreationComponent } from './drawers/workorder/pages/wko-creation/wko-creation.component';
 import { WkoViewComponent } from './drawers/workorder/pages/wko-view/wko-view.component';
@@ -29,10 +29,10 @@ const routes: Routes = [
     },
     children: [
       {
-        path: 'asset',
-        component: AssetDrawer,
+        path: 'asset-filter',
+        component: AssetFilterDrawer,
         data: {
-          name: DrawerRouteEnum.ASSET,
+          name: DrawerRouteEnum.ASSET_FILTER,
         },
       },
       {
@@ -50,18 +50,18 @@ const routes: Routes = [
         },
       },
       {
-        path: 'equipment/:id',
-        component: EquipmentDrawer,
+        path: 'asset/:id',
+        component: AssetDrawer,
         data: {
-          name: DrawerRouteEnum.EQUIPMENT,
+          name: DrawerRouteEnum.ASSET,
         },
       },
       {
-        path: 'equipment/:id/details',
-        component: EquipmentDetailsComponent,
+        path: 'asset/:id/details',
+        component: AssetDetailsComponent,
         canActivate: [AuthGuard],
         data: {
-          name: DrawerRouteEnum.EQUIPMENT_DETAILS,
+          name: DrawerRouteEnum.ASSET_DETAILS,
           authorizedPermissions: [PermissionCodeEnum.VIEW_ASSET_DETAILLED],
         },
       },

@@ -45,7 +45,7 @@ RETURNS SETOF json AS '
         final_request := format(
                 ''select
                 json_build_object(
-                        ''''equipmentIds'''', array_agg(id),
+                        ''''assetIds'''', array_agg(id),
                         ''''lyrTableName'''', "lyrTableName"
                     )
                 from (%1$s) as json

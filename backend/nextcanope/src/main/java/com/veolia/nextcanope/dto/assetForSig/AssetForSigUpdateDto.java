@@ -23,9 +23,9 @@ public class AssetForSigUpdateDto {
             this.lyrId = assetForSig.getLayer().getId();
         this.afsInformations = assetForSig.getAfsInformations();
 
-        if (assetForSig.getAfsGeom() != null && assetForSig.getAfsGeom().getCoordinates() != null) {
+        if (assetForSig.getGeom() != null && assetForSig.getGeom().getCoordinates() != null) {
             List<List<Double>> coords = new ArrayList<>();
-            for (Coordinate coordinate : assetForSig.getAfsGeom().getCoordinates()) {
+            for (Coordinate coordinate : assetForSig.getGeom().getCoordinates()) {
                 List<Double> xy = new ArrayList<>();
                 xy.add(coordinate.x);
                 xy.add(coordinate.y);

@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -83,10 +85,6 @@ private Long id;
     @Column(name="wko_planning_end_date")
     @JsonProperty("wko_planning_end_date")
     private Date wkoPlanningEndDate;
-
-    @Column(name="wko_planning_duration")
-    @JsonProperty("wko_planning_duration")
-    private Integer wkoPlanningDuration;
 
     @Column(name="wko_realization_user", length=2147483647)
     @JsonProperty("wko_realization_user")
@@ -183,9 +181,14 @@ private Long id;
     @JsonProperty("wko_affair")
     private Integer wkoAffair;
 
+    @Column(name="wko_planning_duration")
+    @JsonProperty("wko_planning_duration")
+    private Integer wkoPlanningDuration;
+
     @Column(name="wko_ext_closure")
     @JsonProperty("wko_ext_closure")
     private Boolean wkoExtClosure;
+
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
     @ManyToOne(fetch = FetchType.LAZY)
@@ -198,6 +201,7 @@ private Long id;
     private WorkorderTaskStatus workorderTaskStatus;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy="workorder")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfTask;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -315,14 +319,6 @@ private Long id;
 
 	public void setWkoPlanningEndDate( Date wkoPlanningEndDate ) {
         this.wkoPlanningEndDate = wkoPlanningEndDate ;
-    }
-
-    public Integer getWkoPlanningDuration() {
-        return this.wkoPlanningDuration;
-    }
-
-    public void setWkoPlanningDuration(Integer wkoPlanningDuration ) {
-        this.wkoPlanningDuration = wkoPlanningDuration ;
     }
 
     public String getWkoRealizationUser() {
@@ -506,6 +502,22 @@ private Long id;
         this.wkoAffair = wkoAffair ;
     }
 
+    public Integer getWkoPlanningDuration() {
+        return this.wkoPlanningDuration;
+    }
+
+	public void setWkoPlanningDuration( Integer wkoPlanningDuration ) {
+        this.wkoPlanningDuration = wkoPlanningDuration ;
+    }
+
+    public Boolean getWkoExtClosure() {
+        return this.wkoExtClosure;
+    }
+
+	public void setWkoExtClosure( Boolean wkoExtClosure ) {
+        this.wkoExtClosure = wkoExtClosure ;
+    }
+
     //--- GETTERS AND SETTERS FOR LINKS ---\\
     public Users getModifiedBy() {
         return this.modifiedBy;
@@ -565,11 +577,4 @@ private Long id;
         this.city = city;
     }
 
-    public Boolean getWkoExtClosure() {
-        return wkoExtClosure;
-    }
-
-    public void setWkoExtClosure(Boolean wkoExtClosure) {
-        this.wkoExtClosure = wkoExtClosure;
-    }
 }

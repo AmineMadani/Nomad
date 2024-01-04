@@ -29,7 +29,7 @@ export class FormHistoryComponent implements OnInit {
     this.isLoading = true;
 
     Promise.all([
-      this.workorderService.getEquipmentWorkOrderHistory(`${this.paramMap.get('lyrTableName')}`, this.paramMap.get('id')),
+      this.workorderService.getAssetWorkorderHistory(`${this.paramMap.get('lyrTableName')}`, this.paramMap.get('id')),
       this.workorderService.getAllWorkorderTaskStatus(),
       this.workorderService.getAllWorkorderTaskReasons(),
     ]).then((results) => {

@@ -9,9 +9,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -72,26 +74,29 @@ private Long id;
     private Users modifiedBy;
 
     @OneToMany(mappedBy="organizationalUnit")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<OrgCtr> listOfOrgCtr;
-
-    @OneToMany(mappedBy="organizationalUnitDefault")
-    private List<Users> listOfUsers;
 
     @ManyToOne
     @JoinColumn(name="org_ucre_id", referencedColumnName="id")
 	@JsonIgnore
     private Users createdBy;
 
-    @OneToMany(mappedBy="organizationalUnitParent")
-    private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
+    @OneToMany(mappedBy="organizationalUnitDefault")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Users> listOfUsers;
 
-    @ManyToOne
-    @JoinColumn(name="org_parent_id", referencedColumnName="id")
-    private OrganizationalUnit organizationalUnitParent;
+    @OneToMany(mappedBy="organizationalUnitParent")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<OrganizationalUnit> listOfOrganizationalUnitChildren;
 
     @ManyToOne
     @JoinColumn(name="out_id", referencedColumnName="id")
     private OrganizationalUnitType organizationalUnitType;
+
+    @ManyToOne
+    @JoinColumn(name="org_parent_id", referencedColumnName="id")
+    private OrganizationalUnit organizationalUnitParent;
 
     /**
      * Constructor
@@ -174,6 +179,14 @@ private Long id;
         this.listOfOrgCtr = listOfOrgCtr;
     }
 
+    public Users getCreatedBy() {
+        return this.createdBy;
+    }
+
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public List<Users> getListOfUsers() {
         if (this.listOfUsers != null) {
             return this.listOfUsers.stream()
@@ -192,14 +205,6 @@ private Long id;
         this.listOfUsers = listOfUsers;
     }
 
-    public Users getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(Users createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public List<OrganizationalUnit> getListOfOrganizationalUnitChildren() {
         return this.listOfOrganizationalUnitChildren;
     }
@@ -208,20 +213,20 @@ private Long id;
         this.listOfOrganizationalUnitChildren = listOfOrganizationalUnitChildren;
     }
 
-    public OrganizationalUnit getOrganizationalUnitParent() {
-        return this.organizationalUnitParent;
-    }
-
-    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
-        this.organizationalUnitParent = organizationalUnitParent;
-    }
-
     public OrganizationalUnitType getOrganizationalUnitType() {
         return this.organizationalUnitType;
     }
 
     public void setOrganizationalUnitType(OrganizationalUnitType organizationalUnitType) {
         this.organizationalUnitType = organizationalUnitType;
+    }
+
+    public OrganizationalUnit getOrganizationalUnitParent() {
+        return this.organizationalUnitParent;
+    }
+
+    public void setOrganizationalUnitParent(OrganizationalUnit organizationalUnitParent) {
+        this.organizationalUnitParent = organizationalUnitParent;
     }
 
 }

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -86,6 +88,10 @@ private Long id;
 
 
     //--- ENTITY LINKS ( RELATIONSHIP ) ---\\
+    @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<LayerGrpAction> listOfLayerGrpAction;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="wtr_umod_id", referencedColumnName="id")
 	@JsonIgnore
@@ -97,9 +103,11 @@ private Long id;
     private Users createdBy;
 
     @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Task> listOfTask;
 
-    @OneToMany(cascade = { CascadeType.ALL }, mappedBy="workorderTaskReason", orphanRemoval = true)
+    @OneToMany(mappedBy="workorderTaskReason")
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<AstWtr> listOfAstWtr;
 
     /**
@@ -183,11 +191,11 @@ private Long id;
     }
 
     public Boolean getWtrNoXy() {
-        return wtrNoXy;
+        return this.wtrNoXy;
     }
 
-    public void setWtrNoXy(Boolean wtrNoXy) {
-        this.wtrNoXy = wtrNoXy;
+	public void setWtrNoXy( Boolean wtrNoXy ) {
+        this.wtrNoXy = wtrNoXy ;
     }
 
     public Date getWtrDcre() {
@@ -207,6 +215,14 @@ private Long id;
     }
 
     //--- GETTERS AND SETTERS FOR LINKS ---\\
+    public List<LayerGrpAction> getListOfLayerGrpAction() {
+        return this.listOfLayerGrpAction;
+    }
+
+    public void setListOfLayerGrpAction(List<LayerGrpAction> listOfLayerGrpAction) {
+        this.listOfLayerGrpAction = listOfLayerGrpAction;
+    }
+
     public Users getModifiedBy() {
         return this.modifiedBy;
     }

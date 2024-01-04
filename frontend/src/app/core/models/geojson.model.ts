@@ -1,3 +1,5 @@
+import { BaseAsset } from "./asset.model";
+
 export type GeoJSONValue =
   | string
   | number
@@ -13,6 +15,14 @@ export interface NomadGeoJson {
   name: string;
   type: string;
   features: any[];
+}
+
+export interface NomadFeature {
+  geometry: any[];
+  id: string;
+  properties: BaseAsset;
+  type: string;
+  source?: string;
 }
 
 export interface GeoJSONArray extends Array<GeoJSONValue> {}
