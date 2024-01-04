@@ -18,6 +18,7 @@ import { AuthGuard } from 'src/app/core/guards/auth.guard';
 import { NewAssetDrawer } from './drawers/synthesis/multiple-selection/new-asset/new-asset.drawer';
 import { WkoWaterTypeComponent } from './drawers/workorder/pages/wko-water-type/wko-water-type.component';
 import { GeographicalSelectionDrawer } from './drawers/geographical-selection/geographical-selection.drawer';
+import { ItvViewComponent } from './drawers/exploitation/segments/itv-list/itv-view/itv-view.component';
 
 const routes: Routes = [
   {
@@ -162,6 +163,13 @@ const routes: Routes = [
         component: GeographicalSelectionDrawer,
         data: {
           name: DrawerRouteEnum.GEOGRAPHICAL_SELECTION,
+        },
+      },
+      {
+        path: 'itv/:id',
+        component: ItvViewComponent,
+        data: {
+          name: DrawerRouteEnum.ITV_VIEW,
         },
       },
     ],

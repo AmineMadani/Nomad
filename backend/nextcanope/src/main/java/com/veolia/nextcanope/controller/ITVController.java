@@ -54,6 +54,18 @@ public class ITVController {
         return itvService.getItvsWithOffsetOrderByMostRecentDateBegin(limit, offset, searchParameter, account.getId());
     }
 
+    @GetMapping(path = "/{itvId}")
+    @Operation(summary = "Get an ITV")
+    public ItvDetailDto getItv(@PathVariable Long itvId) {
+        return itvService.getItv(itvId);
+    }
+
+    @DeleteMapping(path = "/{itvId}")
+    @Operation(summary = "Delete an ITV")
+    public void deleteItv(@PathVariable Long itvId) {
+        itvService.deleteItv(itvId);
+    }
+
     @PostMapping(path = "import")
     @Operation(summary = "Import an ITV file")
     @ApiResponses(value = {
@@ -63,12 +75,6 @@ public class ITVController {
     })
     public Long importItv(@RequestParam("file") MultipartFile file, AccountTokenDto account) throws IOException {
         return itvService.importItv(file, account.getId());
-    }
-
-    @DeleteMapping(path = "/{itvId}")
-    @Operation(summary = "Delete an ITV")
-    public void deleteItv(@PathVariable Long itvId) {
-        itvService.deleteItv(itvId);
     }
 
     @GetMapping(path = "/{itvId}/picture")

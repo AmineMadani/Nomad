@@ -58,6 +58,72 @@ public class ITVService {
     @Autowired
     LayerService layerService;
 
+    public ItvDetailDto getItv(Long itvId) {
+        Itv itv = itvRepository.findById(itvId).orElse(null);
+        if (itv == null)
+            throw new FunctionalException("Erreur", "ITV non trouvé");
+
+        ItvDetailDto itvDetailDto = new ItvDetailDto();
+        itvDetailDto.setId(itv.getId());
+        itvDetailDto.setItvFilename(itv.getItvFilename());
+        itvDetailDto.setItvStatus(itv.getItvStatus());
+        itvDetailDto.setItvDcre(itv.getItvDcre());
+        itvDetailDto.setListItvBlock(new ArrayList<>());
+
+        for (ItvBlock itvBlock : itv.getListOfItvBlock()) {
+            ItvBlockDetailDto itvBlockDetailDto = new ItvBlockDetailDto();
+            itvBlockDetailDto.setId(itvBlock.getId());
+            itvBlockDetailDto.setLyrTableName(itvBlock.getLayer() != null ? itvBlock.getLayer().getLyrTableName() : null);
+            itvBlockDetailDto.setItbObjRef(itvBlock.getItbObjRef());
+            itvBlockDetailDto.setItbStructuralDefect(itvBlock.getItbStructuralDefect());
+            itvBlockDetailDto.setItbFunctionalDefect(itvBlock.getItbFunctionalDefect());
+            itvBlockDetailDto.setItbObservation(itvBlock.getItbObservation());
+
+            // ## Data ## //
+            List<ItvBlockData> listItvBlock = itvBlock.getListOfItvBlockData();
+
+            // Address
+            ItvBlockData itvBlockDataAddress = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAJ".equals(b.getIbdCode())).findFirst().orElse(null);
+            if (itvBlockDataAddress != null)
+                itvBlockDetailDto.setAddress(itvBlockDataAddress.getIbdValue());
+
+            // City
+            ItvBlockData itvBlockDataCity = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAN".equals(b.getIbdCode())).findFirst().orElse(null);
+            if (itvBlockDataCity != null)
+                itvBlockDetailDto.setCity(itvBlockDataCity.getIbdValue());
+
+            // Start node ID
+            ItvBlockData itvBlockDataStartNodeId = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAD".equals(b.getIbdCode())).findFirst().orElse(null);
+            if (itvBlockDataStartNodeId != null)
+                itvBlockDetailDto.setStartNodeId(itvBlockDataStartNodeId.getIbdValue());
+
+            // End node ID
+            ItvBlockData itvBlockDataEndNodeId = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAF".equals(b.getIbdCode())).findFirst().orElse(null);
+            if (itvBlockDataEndNodeId != null)
+                itvBlockDetailDto.setEndNodeId(itvBlockDataEndNodeId.getIbdValue());
+
+            itvDetailDto.getListItvBlock().add(itvBlockDetailDto);
+        }
+
+        return itvDetailDto;
+    }
+
+    /**
+     * Delete ITV
+     * @param itvId The id of the id to delete
+     */
+    public void deleteItv(Long itvId) {
+        Itv itv = itvRepository.findById(itvId).orElse(null);
+        if (itv == null)
+            throw new FunctionalException("Erreur", "ITV non trouvé");
+
+        try {
+            itvRepository.delete(itv);
+        } catch (Exception e) {
+            throw new TechnicalException(e.getMessage());
+        }
+    }
+
     private List<ItvVersionDto> getListItvVersion() {
         List<ItvVersion> listItvVersion = itvVersionRepository.findAll();
         List<ItvVersionEnumDto> listItvVersionEnum = itvVersionEnumRepository.getListItvVersionEnum();
@@ -1096,21 +1162,5 @@ public class ITVService {
                 searchParameter.getStatus(), searchParameter.getDefects(),
                 searchParameter.getStartDate(), searchParameter.getEndDate()
         );
-    }
-
-    /**
-     * Delete ITV
-     * @param itvId The id of the id to delete
-     */
-    public void deleteItv(Long itvId) {
-        Itv itv = itvRepository.findById(itvId).orElse(null);
-        if (itv == null)
-            throw new FunctionalException("Erreur", "ITV non trouvé");
-
-        try {
-            itvRepository.delete(itv);
-        } catch (Exception e) {
-            throw new TechnicalException(e.getMessage());
-        }
     }
 }

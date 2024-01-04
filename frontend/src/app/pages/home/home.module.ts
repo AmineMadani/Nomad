@@ -49,7 +49,7 @@ import { ItvSearchComponent } from './drawers/exploitation/components/itv-search
 import { MultiAssetsModalComponent } from './drawers/workorder/pages/multi-assets-modal/multi-assets-modal.component';
 import { ItvImportComponent } from './drawers/exploitation/segments/itv-list/itv-import/itv-import.component';
 import { GeographicalSelectionDrawer } from './drawers/geographical-selection/geographical-selection.drawer';
-
+import { ItvViewComponent } from './drawers/exploitation/segments/itv-list/itv-view/itv-view.component';
 
 @NgModule({
   imports: [
@@ -101,7 +101,8 @@ import { GeographicalSelectionDrawer } from './drawers/geographical-selection/ge
     ItvSearchComponent,
     MultiAssetsModalComponent,
     ItvImportComponent,
-    GeographicalSelectionDrawer
+    GeographicalSelectionDrawer,
+    ItvViewComponent,
   ],
   exports: [ReportCreateComponent]
 })

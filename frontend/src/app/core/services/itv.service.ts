@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ItvDataService } from './dataservices/itv.dataservice';
-import { Itv, ItvPictureDto } from '../models/itv.model';
+import { Itv, ItvDetail, ItvPictureDto } from '../models/itv.model';
 import saveAs from 'file-saver';
 
 @Injectable({
@@ -12,6 +12,22 @@ export class ItvService {
     private itvDataService: ItvDataService,
   ) {}
 
+  /**
+   * Get an ITV
+   * @param itvId ID of the ITV
+   * @returns The ITV
+   */
+  public getItv(id: number): Promise<ItvDetail> {
+    return this.itvDataService.getItv(id);
+  }
+
+  /**
+   * Search a list of itv
+   * @param limit Number of itv to retrieve
+   * @param offset Offset
+   * @param search Search parameters
+   * @returns list of itv
+   */
   public async getItvsPaginated(limit: number, offset: number, search: any): Promise<Itv[]> {
     return this.itvDataService.getItvsPaginated(limit, offset, search);
   }

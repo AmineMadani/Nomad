@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../configuration.service';
 import { firstValueFrom } from 'rxjs';
-import { Itv, ItvPictureDto } from '../../models/itv.model';
+import { Itv, ItvDetail, ItvPictureDto } from '../../models/itv.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +19,13 @@ export class ItvDataService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
   };
 
+  /**
+   * Search a list of itv
+   * @param limit Number of itv to retrieve
+   * @param offset Offset
+   * @param search Search parameters
+   * @returns list of itv
+   */
   public getItvsPaginated(limit: number, offset: number, searchParams: any): Promise<Itv[]> {
     return firstValueFrom(
       this.http.post<Itv[]>(
@@ -26,6 +33,27 @@ export class ItvDataService {
       searchParams,
       this.httpOptions
       )
+    );
+  }
+
+  /**
+   * Get an ITV
+   * @param itvId ID of the ITV
+   * @returns The ITV
+   */
+  public getItv(itvId: number): Promise<ItvDetail> {
+    return firstValueFrom(
+      this.http.get<ItvDetail>(`${this.configurationService.apiUrl}itv/${itvId}`)
+    );
+  }
+
+  /**
+   * Delete an ITV
+   * @param itvId ID of the ITV
+   */
+  public deleteItv(itvId: number): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(`${this.configurationService.apiUrl}itv/${itvId}`)
     );
   }
 
@@ -40,16 +68,6 @@ export class ItvDataService {
 
     return firstValueFrom(
       this.http.post<number>(`${this.configurationService.apiUrl}itv/import`, fd)
-    );
-  }
-
-  /**
-   * Delete an ITV
-   * @param itvId ID of the ITV
-   */
-  public deleteItv(itvId: number): Promise<void> {
-    return firstValueFrom(
-      this.http.delete<void>(`${this.configurationService.apiUrl}itv/${itvId}`)
     );
   }
 
