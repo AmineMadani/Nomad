@@ -84,22 +84,22 @@ public class ITVService {
             List<ItvBlockData> listItvBlock = itvBlock.getListOfItvBlockData();
 
             // Address
-            ItvBlockData itvBlockDataAddress = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAJ".equals(b.getIbdCode())).findFirst().orElse(null);
+            ItvBlockData itvBlockDataAddress = listItvBlock.stream().filter(b -> ItvConstants.PARENT_B.equals(b.getIbdParent()) && "AAJ".equals(b.getIbdCode())).findFirst().orElse(null);
             if (itvBlockDataAddress != null)
                 itvBlockDetailDto.setAddress(itvBlockDataAddress.getIbdValue());
 
             // City
-            ItvBlockData itvBlockDataCity = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAN".equals(b.getIbdCode())).findFirst().orElse(null);
+            ItvBlockData itvBlockDataCity = listItvBlock.stream().filter(b -> ItvConstants.PARENT_B.equals(b.getIbdParent()) && "AAN".equals(b.getIbdCode())).findFirst().orElse(null);
             if (itvBlockDataCity != null)
                 itvBlockDetailDto.setCity(itvBlockDataCity.getIbdValue());
 
             // Start node ID
-            ItvBlockData itvBlockDataStartNodeId = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAD".equals(b.getIbdCode())).findFirst().orElse(null);
+            ItvBlockData itvBlockDataStartNodeId = listItvBlock.stream().filter(b -> ItvConstants.PARENT_B.equals(b.getIbdParent()) && "AAD".equals(b.getIbdCode())).findFirst().orElse(null);
             if (itvBlockDataStartNodeId != null)
                 itvBlockDetailDto.setStartNodeId(itvBlockDataStartNodeId.getIbdValue());
 
             // End node ID
-            ItvBlockData itvBlockDataEndNodeId = listItvBlock.stream().filter(b -> ItvBlockData.PARENT_B.equals(b.getIbdParent()) && "AAF".equals(b.getIbdCode())).findFirst().orElse(null);
+            ItvBlockData itvBlockDataEndNodeId = listItvBlock.stream().filter(b -> ItvConstants.PARENT_B.equals(b.getIbdParent()) && "AAF".equals(b.getIbdCode())).findFirst().orElse(null);
             if (itvBlockDataEndNodeId != null)
                 itvBlockDetailDto.setEndNodeId(itvBlockDataEndNodeId.getIbdValue());
 
