@@ -12,7 +12,7 @@ export class MapLayerService {
     private mapService: MapService,
     private mapEvent: MapEventService,
     private cacheService: CacheService
-  ) {}
+  ) { }
 
   /**
    * Get a feature by its ID on a given layer
@@ -325,12 +325,12 @@ export class MapLayerService {
     let currentZoom = this.mapService.getMap(mapKey).getZoom();
     if (currentZoom < minZoom) {
       currentZoom = minZoom;
-    }+
+    } +
 
-    this.mapService.getMap(mapKey).fitBounds(bounds, {
-      padding: 20,
-      maxZoom: currentZoom,
-    });
+      this.mapService.getMap(mapKey).fitBounds(bounds, {
+        padding: 20,
+        maxZoom: currentZoom,
+      });
     this.mapEvent.highlighSelectedFeatures(this.mapService.getMap(mapKey), [
       {
         source: layerKey,
@@ -379,7 +379,7 @@ export class MapLayerService {
     });
   }
 
-  public hideFeature(mapKey:string, layerKey: string, featureId: string): void {
+  public hideFeature(mapKey: string, layerKey: string, featureId: string): void {
     const layer = this.mapService.getLayer(layerKey);
     for (const style of layer.style) {
       this.mapService.getMap(mapKey).setFilter(style.id, ['!=', 'id', featureId]);
@@ -410,6 +410,12 @@ export class MapLayerService {
     geometry: Array<number[]>,
     point: number[]
   ): number[] {
+    // Check if the segment is degenerated
+    if (this.isDegenerateSegment(geometry)) {
+      // Return the default geometry in that case
+      return point;
+    }
+
     // Calculate the squared Euclidean distance between two points
     const distanceSquared = (
       x1: number,
@@ -454,6 +460,37 @@ export class MapLayerService {
   }
 
   /**
+ * Checks if any segment in the given geometry is degenerate.
+ * A degenerate segment is a segment where the start and end points are the same,
+ * essentially making it a point rather than a line segment.
+ * Some equipments have this kind of problems. Like the aep_canalisation IDF-0000180570.
+ *
+ * @param geometry - An array of point pairs, each representing a segment in the form [[x1, y1], [x2, y2], ...].
+ * @param point - The reference point (not used in this function, but kept for signature consistency with findNearestPoint).
+ * @returns true if a degenerate segment is found, false otherwise.
+ */
+  public isDegenerateSegment(geometry: number[][]): boolean {
+    // Check if there are enough points to form at least one segment.
+    if (geometry.length < 2) {
+      return false; // Not enough points for a segment
+    }
+
+    // Iterate through each segment in the geometry
+    for (let i = 0; i < geometry.length - 1; i++) {
+      const start = geometry[i]; // Start point of the segment
+      const end = geometry[i + 1]; // End point of the segment
+
+      // Check if the start and end points of the segment are the same
+      if (start[0] === end[0] && start[1] === end[1]) {
+        return true; // Degenerate segment found
+      }
+    }
+
+    return false; // No degenerate segments found
+  }
+
+
+  /**
    * Queries the nearest rendered feature from a mouse event on the map.
    * @param e - Mouse event on the map
    * @returns The nearest features (if there are) from the map.
@@ -463,7 +500,7 @@ export class MapLayerService {
     e: Maplibregl.MapMouseEvent
   ): Maplibregl.MapGeoJSONFeature {
     var mouseCoords = this.mapService.getMap(mapKey).unproject(e.point);
-    const selectedFeatures = this.queryNearestFeatureList(mapKey,e);
+    const selectedFeatures = this.queryNearestFeatureList(mapKey, e);
     return this.findNearestFeature(mouseCoords, selectedFeatures);
   }
 
@@ -523,14 +560,14 @@ export class MapLayerService {
   public queryNearestFeatureList(
     mapKey: string,
     e: Maplibregl.MapMouseEvent,
-    tolerance? : number
+    tolerance?: number
   ): Maplibregl.MapGeoJSONFeature[] {
     tolerance = tolerance || 10;
     var mouseCoords = this.mapService.getMap(mapKey).unproject(e.point);
     const selectedFeatures = this.mapService.getMap(mapKey).queryRenderedFeatures(
       [
         [e.point.x - tolerance, e.point.y - tolerance],
-        [e.point.x +tolerance, e.point.y + tolerance],
+        [e.point.x + tolerance, e.point.y + tolerance],
       ],
       {
         layers: this.mapService.getCurrentLayersIds(),
