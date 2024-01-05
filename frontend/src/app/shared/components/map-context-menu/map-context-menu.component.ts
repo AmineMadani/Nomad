@@ -313,7 +313,8 @@ export class MapContextMenuComponent implements OnInit, OnChanges, OnDestroy {
       const searchAssets: SearchAssets[] = [
         {
           lyrTableName: feature.source,
-          assetIds: [feature.id]
+          assetIds: [feature.id],
+          allColumn: true
         }
       ];
       // Mono-asset

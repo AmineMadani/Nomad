@@ -185,13 +185,19 @@ export class ReportCreateComponent implements OnInit {
     }
 
     if (this.workorder.tasks.length == 1 || forced) {
+      this.utils.showLoadingMessage('Enregistrement du compte-rendu en cours...');
+
       if (this.workorder.id > 0) {
         this.workorderService.terminateWorkOrder(this.workorder).then(() => {
           this.closeReport();
+          this.utils.dismissLoadingMessage();
+          this.utils.showSuccessMessage("Le compte-rendu a été enregistré avec succès.");
         });
       } else {
         this.workorderService.createWorkOrder(this.workorder).then((res) => {
           this.closeReport(res);
+          this.utils.dismissLoadingMessage();
+          this.utils.showSuccessMessage("Le compte-rendu a été enregistré avec succès.");
         });
       }
     } else {

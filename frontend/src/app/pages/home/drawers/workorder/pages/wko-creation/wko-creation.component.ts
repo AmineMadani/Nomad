@@ -1223,7 +1223,7 @@ export class WkoCreationComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private async getMarkersData(ast: any, index: number) {
+  private async getMarkersData(ast: Asset, index: number) {
     if (!this.mapService.hasEventLayer(ast.lyrTableName)) {
       await this.mapService.addEventLayer('home', ast.lyrTableName);
     }

@@ -311,6 +311,28 @@ export class UtilsService {
   }
 
   /**
+   * Permit to show a success toast
+   * @param message
+   */
+  loadingToast: HTMLIonToastElement;
+  public async showLoadingMessage(message: string) {
+    this.loadingToast = await this.toastCtrl.create({
+      message: message,
+      color: 'primary',
+      position: 'bottom',
+      duration: 900000,
+    });
+
+    this.loadingToast.present();
+  }
+
+  public async dismissLoadingMessage() {
+    if (this.loadingToast) {
+      this.loadingToast.dismiss();
+    }
+  }
+
+  /**
    * Permit to show an error toast
    * @param message
    */

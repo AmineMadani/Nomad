@@ -290,7 +290,8 @@ export class MultipleSelectionDrawer implements OnInit, OnDestroy {
           this.drawerService.navigateWithAssets({
             route: DrawerRouteEnum.WORKORDER_CREATION,
             assets: this.utilsService.transformAssetIntoSearchAssets(
-              this.filteredAssets.filter((asset) => !isAssetTemp(asset))
+              this.filteredAssets.filter((asset) => !isAssetTemp(asset)),
+              true
             ),
             tmpAssets: this.utilsService.transformAssetIntoSearchAssets(
               this.filteredAssets.filter((asset) => isAssetTemp(asset))
