@@ -1,0 +1,70 @@
+{
+  "height":256,
+  "width":512,
+  "channels":4,
+  "zoom": 19,
+  "center": [
+      2.77787883,
+      48.584597091
+  ],
+  "glyphs": "https://nomad-dev.hp.m-ve.com/assets/myFont.pbf?{fontstack}{range}",
+  "sources": {
+      "raster-tiles": {
+          "tiles": [
+              "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          ],
+          "type": "raster",
+          "tileSize": 128,
+          "maxzoom": 19
+      },
+      "aep_vanne": {
+          "type": "geojson",
+          "data": {
+              "type": "Point",
+              "coordinates": [
+                  2.77787883,
+                  48.584597091
+              ]
+          }
+      }
+  },
+  "layers": [
+      {
+          "id": "basemap",
+          "type": "raster",
+          "source": "raster-tiles",
+          "minzoom": 0,
+          "maxzoom": 22
+      },
+      {
+          "id": "aep_vanne_fermee_decoration",
+          "type": "circle",
+          "source": "aep_vanne",
+          "minzoom": 14,
+          "paint": {
+              "circle-color": "rgb(95, 204, 247)",
+              "circle-radius": 10,
+              "circle-opacity": 0,
+              "circle-stroke-color": "rgb(95, 204, 247)",
+              "circle-stroke-width": 3,
+              "circle-stroke-opacity": 1
+          }
+      },
+      {
+          "id": "aep_vanne_fermee_electro",
+          "type": "symbol",
+          "layout": {
+              "icon-size": 0.5,
+              "icon-image": "test"
+          },
+          "source": "aep_vanne",
+          "minzoom": 14
+      }
+  ],
+  "images": [
+      {
+          "code": "test",
+          "source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAnCAYAAAB9qAq4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAIjSURBVFhH7ZY9a9VQHIeTexUtLYhbv4NLpQWhghR0cXHs4FA79DN0LBS6OHRwKVQHBxcHhw5ugh9DnERsFYSi9nXoi+nzuz0/PQS9N7d5GTQ/eHpycs/550ly0iRp06bNf5Q0SdM0bJdPlbVy6YT2opFYLXJjnPX1sH1Ryd9iaTquv+edcumG9iF8goleL0kuhbZoYplleAdjvV5JUQvOQwZbMKkdxL8NSnzFl0B1vsA17SCVCD4CFRZf4RYogyRjuRVwjY9QqaCv4FFot+E2KH+TjOUeg+adhlbLpRbBn3AStr/BDCh5yVhuFfJzaxP0FfCBfsA9UDw2lnsCljONCApL7sJ9SDppJ36618BzLFb7LY4FhSUP4AEoOuAz8HjLua+2MUFhyf1upzvHW+xp6OflvE9to4K/9iPnvqXzDCUYL+ZKwhfFeyS/s6kTk0ypVCUoEdV6kyXZzSzLZtk+hEokB6XoQ/IaRsG5CzsQjxFD3eIi6SfoA2/ACCga7ztzB3S747GNCOrJ9AFfwRVQ4iXjedOg16IlG/lHbbmXcBmUP61nz9WHhT4wNMfv8toEj0P7Avxbv4fNY6ZAn1iaW4vgHLj4c3DRfnKOa+hjV2Kq8QEqFVwAFV7v9c5TRM5xnRvwGfZgoKAn9YsmS+wqbMJi6EtOC75oNEfH01p8CxJUqzVd6goq+QJlCg5z1YeKpFS89NkS1alNtE2bNm3+nSTJGd5g1EEwQs90AAAAAElFTkSuQmCC"
+      }
+  ]
+}

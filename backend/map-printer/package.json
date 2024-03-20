@@ -1,0 +1,25 @@
+{
+  "name": "map-printer",
+  "version": "1.7.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.mjs",
+    "start:local": "nodemon src/server.mjs"
+  },
+  "keywords": [],
+  "author": "veolia",
+  "license": "ISC",
+  "dependencies": {
+    "@maplibre/maplibre-gl-native": "^5.3.1",
+    "express": "^4.18.2",
+    "sharp": "^0.33.2",
+    "morgan": "1.10.0",
+    "compression": "1.7.4",
+    "basic-auth": "2.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
